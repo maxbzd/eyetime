@@ -2,6 +2,15 @@
 // Features: Auto-Synced Phone TickTick Tasks, Mental Scratchpad, Anti-Leak Kill-Switch, Work Launchpad, Hero Focus Block, 90-Day Challenge, Focus Bar Chart
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Check First-Time User Onboarding
+  try {
+    const onboardData = await chrome.storage.local.get('eyetime_onboarded');
+    if (!onboardData.eyetime_onboarded) {
+      window.location.href = chrome.runtime.getURL('onboarding/onboarding.html');
+      return;
+    }
+  } catch (e) {}
+
   const data = await chrome.storage.local.get(['settings', 'stats', 'dailyGoals']);
   const settings = data.settings || {};
   const stats = data.stats || {};

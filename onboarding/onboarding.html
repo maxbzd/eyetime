@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Добро пожаловать в EyeTime OS — Первоначальная настройка</title>
+  <link rel="stylesheet" href="onboarding.css">
+</head>
+<body>
+  <div class="ambient-glow"></div>
+
+  <div class="onboarding-container">
+    <!-- Header with Steps Progress -->
+    <header class="onboarding-header">
+      <div class="brand">
+        <div class="brand-badge">⚡ EYETIME OS</div>
+        <span class="brand-sub">Персональная система продуктивности</span>
+      </div>
+      <div class="steps-progress">
+        <div class="step-dot active" data-step="1"></div>
+        <div class="step-dot" data-step="2"></div>
+        <div class="step-dot" data-step="3"></div>
+        <div class="step-dot" data-step="4"></div>
+        <div class="step-dot" data-step="5"></div>
+      </div>
+    </header>
+
+    <!-- Main Card Frame -->
+    <main class="onboarding-card">
+      
+      <!-- STEP 1: Welcome & Philosophy -->
+      <section class="step-panel active" id="step1">
+        <div class="step-icon-wrap fire-pulse">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <h1 class="step-title">Возьмите внимание под абсолютный контроль</h1>
+        <p class="step-desc">
+          EyeTime OS объединяет браузерный комбайн и системный агент Windows для защиты вашего фокуса от бесконечного скроллинга и суеты. Настроим систему под ваш личный ритм за 2 минуты.
+        </p>
+
+        <div class="feature-highlights">
+          <div class="feature-pill">🔒 100% Приватно (хранение только на вашем ПК)</div>
+          <div class="feature-pill">⚡ Без облака и аккаунтов</div>
+          <div class="feature-pill">🎧 Музыкальный поток Endel Focus</div>
+        </div>
+
+        <div class="actions-row">
+          <div></div>
+          <button class="btn btn-primary" id="btnStep1Next">Начать настройку →</button>
+        </div>
+      </section>
+
+      <!-- STEP 2: Routine & Bedtime -->
+      <section class="step-panel" id="step2">
+        <div class="step-icon-wrap">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </div>
+        <h2 class="step-title">Режим дня и вечерний отбой</h2>
+        <p class="step-desc">
+          Качественный глубокий сон — фундамент высокой продуктивности. Укажите время отбоя, чтобы таймер вверху напоминал о завершении дел.
+        </p>
+
+        <div class="form-body">
+          <div class="input-group">
+            <label class="input-label" for="inputBedtime">Желаемое время отбоя (Bedtime)</label>
+            <input type="time" id="inputBedtime" value="23:00" class="fx-input">
+            <span class="input-help">Система мягко напомнит закрыть вкладки и подготовиться к отдыху.</span>
+          </div>
+
+          <div class="toggle-card">
+            <div class="toggle-text">
+              <strong>Утренний блок без соцсетей</strong>
+              <p>Блокировать отвлекающие сайты до выполнения первой ключевой задачи дня.</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="checkMorningWalk" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="actions-row">
+          <button class="btn btn-secondary" id="btnStep2Prev">← Назад</button>
+          <button class="btn btn-primary" id="btnStep2Next">Далее: Мои Цели →</button>
+        </div>
+      </section>
+
+      <!-- STEP 3: Goals & Daily Metrics -->
+      <section class="step-panel" id="step3">
+        <div class="step-icon-wrap">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="6"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+          </svg>
+        </div>
+        <h2 class="step-title">Ваши ключевые цели на день</h2>
+        <p class="step-desc">
+          Настройте 2–3 главных измеримых счётчика, за которыми хотите следить каждый день. Вы всегда сможете изменить их в настройках.
+        </p>
+
+        <div class="goals-editor-list" id="onboardingGoalsList">
+          <div class="goal-input-row">
+            <input type="text" class="fx-input flex-2 goal-label" value="Сессий глубокого фокуса" placeholder="Название цели">
+            <input type="number" class="fx-input flex-1 goal-target" value="4" placeholder="Цель">
+            <span class="goal-unit">сессий</span>
+          </div>
+          <div class="goal-input-row">
+            <input type="text" class="fx-input flex-2 goal-label" value="Важных рабочих задач" placeholder="Название цели">
+            <input type="number" class="fx-input flex-1 goal-target" value="5" placeholder="Цель">
+            <span class="goal-unit">задач</span>
+          </div>
+          <div class="goal-input-row">
+            <input type="text" class="fx-input flex-2 goal-label" value="Прочитано страниц / статей" placeholder="Название цели">
+            <input type="number" class="fx-input flex-1 goal-target" value="20" placeholder="Цель">
+            <span class="goal-unit">стр.</span>
+          </div>
+        </div>
+
+        <div class="actions-row">
+          <button class="btn btn-secondary" id="btnStep3Prev">← Назад</button>
+          <button class="btn btn-primary" id="btnStep3Next">Далее: Анти-Залипание →</button>
+        </div>
+      </section>
+
+      <!-- STEP 4: Anti-Doomscroll & Shorts Killer -->
+      <section class="step-panel" id="step4">
+        <div class="step-icon-wrap">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5"></rect>
+            <line x1="2" y1="2" x2="22" y2="22"></line>
+          </svg>
+        </div>
+        <h2 class="step-title">🩻 Убийца Shorts, Reels и Клипов</h2>
+        <p class="step-desc">
+          Короткие видео вымывают дофамин и ломают концентрацию. EyeTime OS автоматически обесцвечивает экран в чёрно-белый режим при залипании.
+        </p>
+
+        <div class="toggle-card active-card">
+          <div class="toggle-text">
+            <strong>Чёрно-белый режим при 60 секундах в ленте</strong>
+            <p>Экран становится 100% черно-белым, видео встает на паузу и появляется напоминание вернуться к задачам дня.</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="checkAntiShorts" checked>
+            <span class="slider round"></span>
+          </label>
+        </div>
+
+        <div class="platforms-grid">
+          <label class="platform-chip"><input type="checkbox" checked value="youtube"> <span>YouTube Shorts</span></label>
+          <label class="platform-chip"><input type="checkbox" checked value="instagram"> <span>Instagram Reels</span></label>
+          <label class="platform-chip"><input type="checkbox" checked value="vk"> <span>VK Клипы</span></label>
+          <label class="platform-chip"><input type="checkbox" checked value="tiktok"> <span>TikTok</span></label>
+        </div>
+
+        <div class="actions-row">
+          <button class="btn btn-secondary" id="btnStep4Prev">← Назад</button>
+          <button class="btn btn-primary" id="btnStep4Next">Далее: Звук Фокуса →</button>
+        </div>
+      </section>
+
+      <!-- STEP 5: Focus Sound & Finish -->
+      <section class="step-panel" id="step5">
+        <div class="step-icon-wrap fire-pulse">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+        </div>
+        <h2 class="step-title">Акустический гонг и Музыка Фокуса</h2>
+        <p class="step-desc">
+          При старте сессии фокуса звучит мягкий процедурный гонг Тибетской поющей чаши, настраивающий нервную систему на состояние потока.
+        </p>
+
+        <div class="sound-test-box">
+          <button class="btn btn-sound" id="btnTestGong">
+            <span>🔔 Прослушать Тибетский гонг</span>
+          </button>
+          <span class="sound-caption">Синтезируется локально через Web Audio API с естественным затуханием 4.8 сек.</span>
+        </div>
+
+        <div class="input-group" style="margin-top: 14px;">
+          <label class="input-label" for="inputFocusUrl">Сайт / Плеер фокуса при старте</label>
+          <input type="text" id="inputFocusUrl" value="https://app.endel.io/player/focus" class="fx-input">
+          <span class="input-help">По умолчанию: плеер персонализированных звуковых ландшафтов Endel Focus.</span>
+        </div>
+
+        <div class="actions-row">
+          <button class="btn btn-secondary" id="btnStep5Prev">← Назад</button>
+          <button class="btn btn-finish" id="btnCompleteOnboarding">🚀 Завершить и открыть Cockpit</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="../assets/eyetime_audio.js"></script>
+  <script src="onboarding.js"></script>
+</body>
+</html>

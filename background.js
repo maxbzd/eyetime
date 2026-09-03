@@ -6,21 +6,21 @@ const DEFAULT_SETTINGS = {
   excludedDomains: ['localhost', '127.0.0.1'],
   pauseUntil: 0,
   interceptor: {
-    bedtime: '23:30',
+    bedtime: '23:00',
     bedtimeSetForToday: false,
     morningWalkRequired: true,
     morningWalkDone: false,
     strictFocusLock: false,
+    focusUrl: 'https://app.endel.io/player/focus',
     uncomfortableCounters: [
-      { label: 'Созвонов проведено', current: 0, target: 10, isAccountable: true },
-      { label: 'Платящих школ', current: 0, target: 5 },
-      { label: 'Доход в этом месяце', current: 0, target: 750, unit: '$' },
-      { label: 'Накоплено', current: 4200, target: 6000, unit: '$' }
+      { label: 'Сессий глубокого фокуса', current: 0, target: 4, isCounter: true },
+      { label: 'Важных закрытых задач', current: 0, target: 5, isCounter: true },
+      { label: 'Прочитано страниц / статей', current: 0, target: 20, isCounter: true }
     ],
     dailyRules: [
-      'Утро — CRM, всегда',
-      'Два продюсерских проекта максимум',
-      'Подушка — не бюджет'
+      'Фокус важнее суеты',
+      'Сначала главная задача дня',
+      'Перерывы для отдыха глаз каждые 25 минут'
     ]
   },
   nuclearLock: {
@@ -66,6 +66,16 @@ const DEFAULT_SETTINGS = {
     'vk.com': 'distraction'
   }
 };
+
+// First-Time Installation & Onboarding Trigger
+chrome.runtime.onInstalled.addListener(async (details) => {
+  if (details.reason === 'install') {
+    const data = await chrome.storage.local.get('eyetime_onboarded');
+    if (!data.eyetime_onboarded) {
+      chrome.tabs.create({ url: chrome.runtime.getURL('onboarding/onboarding.html') });
+    }
+  }
+});
 
 let activeTabId = null;
 let activeDomain = null;
