@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EyeTime — Панель полной аналитики</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <!-- Ambient background glow elements -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+
+  <div class="dashboard-layout">
+    <!-- Navigation / Header -->
+    <header class="top-nav">
+      <div class="nav-brand">
+        <div class="logo-box">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+        <div class="brand-info">
+          <h1>EyeTime Analytics</h1>
+          <div style="display:flex; gap:8px; align-items:center; margin-top:2px;">
+            <span class="badge-local">🔒 100% Локальные данные</span>
+            <span id="pcTrackerNavBadge" class="badge-local" style="border-color:rgba(45,212,191,0.3); color:#2dd4bf;">💻 ПК Трекер: Проверка...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <div class="period-selector">
+          <button class="period-btn active" data-period="today">Сегодня</button>
+          <button class="period-btn" data-period="7days">Последние 7 дней</button>
+          <button class="period-btn" data-period="30days">30 дней</button>
+        </div>
+
+        <button id="exportCsvBtn" class="btn btn-glass">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Экспорт CSV
+        </button>
+
+        <button id="openSettingsBtn" class="btn btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Настройки
+        </button>
+      </div>
+    </header>
+
+    <!-- Source Type Filter (All vs Websites vs PC Apps) -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 14px;">
+      <div class="source-switcher">
+        <button class="source-btn active" data-source="all">📊 Всё вместе (Браузер + ПК)</button>
+        <button class="source-btn" data-source="web">🌐 Только Сайты</button>
+        <button class="source-btn" data-source="pc">💻 Только Программы ПК</button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+      <!-- Top Metric Cards Row -->
+      <div class="metrics-grid">
+        <!-- Metric 1: Total Screen Time -->
+        <div class="bento-card metric-card">
+          <div class="card-icon mint">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="metric-content">
+            <span class="metric-label">Всего экранного времени</span>
+            <div id="statTotalTime" class="metric-value">0ч 00м</div>
+            <div id="statTimeSub" class="metric-sub neutral">⎯ 0% по сравнению с прошлым периодом</div>
+          </div>
+        </div>
+
+        <!-- Metric 2: Eye Health Score -->
+        <div class="bento-card metric-card">
+          <div class="card-icon amber">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div class="metric-content">
+            <span class="metric-label">Баланс отдыха глаз</span>
+            <div id="statHealthScore" class="metric-value">100%</div>
+            <div id="statHealthSub" class="metric-sub amber-text">0 перерывов сделано</div>
+          </div>
+        </div>
+
+        <!-- Metric 3: Focus & Productivity Ratio -->
+        <div class="bento-card metric-card">
+          <div class="card-icon indigo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div class="metric-content">
+            <span class="metric-label">Категория-лидер</span>
+            <div id="statTopCategory" class="metric-value">--</div>
+            <div id="statCategorySub" class="metric-sub neutral">0% от общего времени</div>
+          </div>
+        </div>
+
+        <!-- Metric 4: Top Site / App -->
+        <div class="bento-card metric-card">
+          <div class="card-icon cyan">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <div class="metric-content">
+            <span class="metric-label">Топ источник</span>
+            <div id="statTopDomain" class="metric-value">--</div>
+            <div id="statTopDomainSub" class="metric-sub neutral">0м 0с</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Charts & Detailed Table -->
+      <div class="dashboard-grid">
+        <!-- Detailed Domains & Apps Table -->
+        <div class="bento-card grid-col-2">
+          <div class="card-header">
+            <div>
+              <h2 id="tableCardTitle">📊 Детализация по элементам</h2>
+              <p class="card-subtitle">Статистика сайтов и программ ПК</p>
+            </div>
+            <input type="text" id="domainSearch" placeholder="Поиск по сайтам и программам..." class="search-input">
+          </div>
+
+          <div class="table-container">
+            <table class="domains-table">
+              <thead>
+                <tr>
+                  <th>Источник</th>
+                  <th>Категория</th>
+                  <th>Время</th>
+                  <th>Доля</th>
+                </tr>
+              </thead>
+              <tbody id="domainsTableBody">
+                <tr><td colspan="4" class="empty-cell">Загрузка данных...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Categories Distribution Chart -->
+        <div class="bento-card grid-col-1">
+          <div class="card-header">
+            <div>
+              <h2>🏷️ Категории активности</h2>
+              <p class="card-subtitle">Распределение по типам ресурсов</p>
+            </div>
+          </div>
+
+          <div class="category-chart-container">
+            <svg id="categoryPieSvg" viewBox="0 0 200 200" class="pie-chart-svg"></svg>
+            <div id="categoryLegend" class="category-legend"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Hourly Activity Curve & 30-Day Matrix -->
+      <div class="dashboard-grid">
+        <!-- Hourly Activity Full Width -->
+        <div class="bento-card grid-col-2">
+          <div class="card-header">
+            <div>
+              <h2>🕒 График активности по часам дня</h2>
+              <p class="card-subtitle">Распределение использования ПК и браузера с 00:00 до 23:00</p>
+            </div>
+            <span id="peakHourBadge" class="badge-mint">--</span>
+          </div>
+          <div class="full-chart-wrapper">
+            <svg id="hourlyFullSvg" viewBox="0 0 700 160" class="full-svg"></svg>
+          </div>
+        </div>
+
+        <!-- 30-Day History Matrix -->
+        <div class="bento-card grid-col-1">
+          <div class="card-header">
+            <div>
+              <h2>📅 Матрица активности (30 дней)</h2>
+              <p class="card-subtitle">Интенсивность по дням недели (Пн — Вс)</p>
+            </div>
+          </div>
+          <div class="matrix-weekdays-header">
+            <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span>
+          </div>
+          <div id="matrixGrid" class="matrix-grid"></div>
+          <div class="matrix-legend-footer">
+            <span class="matrix-legend-lbl">Меньше</span>
+            <div class="matrix-legend-cells">
+              <span class="matrix-cell level-0"></span>
+              <span class="matrix-cell level-1"></span>
+              <span class="matrix-cell level-2"></span>
+              <span class="matrix-cell level-3"></span>
+            </div>
+            <span class="matrix-legend-lbl">Больше</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

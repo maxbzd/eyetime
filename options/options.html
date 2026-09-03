@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EyeTime — Настройки</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <!-- Ambient Background Glow -->
+  <div class="glow-orb orb-top"></div>
+
+  <div class="options-app">
+    <!-- Top Header -->
+    <header class="options-header">
+      <div class="brand">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+        <div>
+          <h1>EyeTime Settings</h1>
+          <p class="subtitle">Центр управления перехватчиком внимания, лимитами и здоровьем глаз</p>
+        </div>
+      </div>
+      <span class="badge-local">🔒 100% Локальные данные на ПК</span>
+    </header>
+
+    <!-- Main Tabbed Layout -->
+    <div class="tabbed-layout">
+      <!-- Sidebar Navigation -->
+      <nav class="sidebar-nav">
+        <button class="nav-tab active" data-tab="tab-interceptor">
+          <span class="nav-icon">🧠</span>
+          <span>Перехватчик</span>
+        </button>
+
+        <button class="nav-tab" data-tab="tab-nuclear">
+          <span class="nav-icon">☢️</span>
+          <span>Ядерный режим</span>
+        </button>
+
+        <button class="nav-tab" data-tab="tab-eye-rest">
+          <span class="nav-icon">👁️</span>
+          <span>Отдых глаз</span>
+        </button>
+
+        <button class="nav-tab" data-tab="tab-youtube">
+          <span class="nav-icon">🎬</span>
+          <span>YouTube Очиститель</span>
+        </button>
+
+        <button class="nav-tab" data-tab="tab-limits">
+          <span class="nav-icon">⏱️</span>
+          <span>Лимиты сайтов</span>
+        </button>
+
+        <button class="nav-tab" data-tab="tab-hardblock">
+          <span class="nav-icon">🚫</span>
+          <span>Хард-блок</span>
+        </button>
+
+        <button class="nav-tab" data-tab="tab-anti-doom">
+          <span class="nav-icon">🛡️</span>
+          <span>Анти-залипание</span>
+        </button>
+
+        <button class="nav-tab" data-tab="tab-productivity">
+          <span class="nav-icon">🎯</span>
+          <span>Продуктивность</span>
+        </button>
+
+        <button class="nav-tab" data-tab="tab-ticktick">
+          <span class="nav-icon">☑️</span>
+          <span>TickTick</span>
+        </button>
+
+        <button class="nav-tab" data-tab="tab-excluded">
+          <span class="nav-icon">🛡️</span>
+          <span>Исключения</span>
+        </button>
+
+        <button class="nav-tab" data-tab="tab-data">
+          <span class="nav-icon">📦</span>
+          <span>Данные и Сброс</span>
+        </button>
+      </nav>
+
+      <!-- Main Content Panels -->
+      <main class="tab-content">
+        <!-- Tab 0: Interceptor Settings -->
+        <div id="tab-interceptor" class="tab-panel active">
+          <section class="card border-info">
+            <h2>🧠 Настройки Перехватчика Внимания (New Tab)</h2>
+            <p class="card-desc">Настройте режимы, неудобные счётчики, время отбоя и правила дня.</p>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="bedtimeInput" class="field-label">Время отбоя (Bedtime)</label>
+                <input type="time" id="bedtimeInput" value="23:30" class="custom-input">
+              </div>
+              <div class="form-group flex-1">
+                <label class="toggle-control" style="margin-top:24px;">
+                  <span>Утренний блок «Сначала улица»</span>
+                  <input type="checkbox" id="morningWalkToggle" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Goals Trackers Customization -->
+            <div class="form-group">
+              <label class="field-label">Счётчики (Цели на день)</label>
+              <div class="domain-input-group">
+                <input type="text" id="counterLabelInput" placeholder="Название (напр: Созвонов проведено)" class="custom-input flex-2">
+                <input type="number" id="counterCurrentInput" placeholder="Сейчас" class="custom-input flex-1">
+                <input type="number" id="counterTargetInput" placeholder="Цель" class="custom-input flex-1">
+                <button id="addCounterBtn" class="btn btn-primary">Добавить</button>
+              </div>
+              <div id="countersConfigList" class="custom-limits-list" style="margin-top:10px;"></div>
+            </div>
+
+            <!-- Daily Rules Customization -->
+            <div class="form-group">
+              <label class="field-label">Правила дня (1-строчные ротируемые правила)</label>
+              <div class="domain-input-group">
+                <input type="text" id="ruleInput" placeholder="Например: Утро — CRM, всегда" class="custom-input flex-2">
+                <button id="addRuleBtn" class="btn btn-secondary">Добавить правило</button>
+              </div>
+              <div id="rulesConfigList" class="tags-container" style="margin-top:8px;"></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- NEW TAB: ☢️ Nuclear Lockdown Mode (Custom Flexible Time Selection) -->
+        <div id="tab-nuclear" class="tab-panel">
+          <section class="card border-danger">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h2>☢️ Ядерный режим (Unbypassable Nuclear Mode)</h2>
+              <span id="nuclearActiveBadge" class="badge-danger hidden">🔴 АКТИВЕН ДО --:--</span>
+            </div>
+            <p class="card-desc">Жесточайшая блокировка без возможности отмены. Выберите любое время или дату окончания — после активации блокировку <strong>НЕЛЬЗЯ выключить или обойти</strong> до истечения времени.</p>
+
+            <div class="form-group" style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); padding: 18px; border-radius: 16px; display:flex; flex-direction:column; gap:12px;">
+              <label class="field-label" style="color:#ef4444; font-weight:800;">⏱️ Выбор длительности или точной даты окончания</label>
+              
+              <div class="domain-input-group">
+                <select id="nuclearDurationSelect" class="custom-select flex-2">
+                  <option value="1">1 час</option>
+                  <option value="2" selected>2 часа</option>
+                  <option value="4">4 часа</option>
+                  <option value="8">8 часов (Рабочий день)</option>
+                  <option value="12">12 часов</option>
+                  <option value="24">24 часа (1 сутки)</option>
+                  <option value="48">48 часов (2 суток)</option>
+                  <option value="72">72 часа (3 суток)</option>
+                  <option value="168">7 дней (1 неделя)</option>
+                  <option value="720">30 дней (1 месяц)</option>
+                  <option value="custom_hours">Своё число часов...</option>
+                  <option value="custom_datetime">Точная дата и время окончания...</option>
+                </select>
+
+                <input type="number" id="nuclearCustomHoursInput" placeholder="Число часов (напр: 150)" min="1" max="10000" class="custom-input flex-1 hidden">
+                <input type="datetime-local" id="nuclearPickerDateTime" class="custom-input flex-2 hidden">
+              </div>
+
+              <button id="startNuclearBtn" class="btn btn-danger" style="background: linear-gradient(135deg, #ef4444, #dc2626); font-weight:900; padding:14px; margin-top:4px;">
+                ☢️ ЗАПУСТИТЬ ЯДЕРНЫЙ БЛОК
+              </button>
+            </div>
+
+            <div class="form-group" style="margin-top: 14px;">
+              <label class="field-label">Заблокированные в Ядерном режиме сайты:</label>
+              <div class="domain-input-group">
+                <input type="text" id="nuclearDomainInput" placeholder="Добавить домен (напр: youtube.com)" class="custom-input flex-2">
+                <button id="addNuclearDomainBtn" class="btn btn-secondary">Добавить</button>
+              </div>
+              <div id="nuclearDomainTags" class="tags-container" style="margin-top: 8px;"></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Tab 1: Eye Rest -->
+        <div id="tab-eye-rest" class="tab-panel">
+          <section class="card">
+            <h2>👁️ Напоминания для глаз (20-20-20)</h2>
+            <p class="card-desc">Помогают снимать усталость глаз при длительной работе за экраном.</p>
+
+            <div class="form-group">
+              <label class="toggle-control">
+                <span>Включить уведомления о перерывах</span>
+                <input type="checkbox" id="notificationsToggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label for="intervalSelect" class="field-label">Интервал напоминаний</label>
+              <select id="intervalSelect" class="custom-select">
+                <option value="20">Каждые 20 минут (Рекомендуется)</option>
+                <option value="30">Каждые 30 минут</option>
+                <option value="45">Каждые 45 минут</option>
+                <option value="60">Каждый 1 час</option>
+              </select>
+            </div>
+          </section>
+        </div>
+
+        <!-- Tab 2: YouTube Cleaner -->
+        <div id="tab-youtube" class="tab-panel">
+          <section class="card border-info">
+            <h2>🎬 Очиститель YouTube (In-App Blocking)</h2>
+            <p class="card-desc">Скрывайте отвлекающие элементы YouTube: Shorts, рекомендации, комментарии и превью.</p>
+
+            <div class="form-group">
+              <label class="toggle-control">
+                <span style="font-weight: 700;">Включить Очиститель YouTube</span>
+                <input type="checkbox" id="ytCleanerToggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="yt-grid">
+              <label class="yt-item">
+                <input type="checkbox" id="ytHideShorts" checked>
+                <span>🔴 Скрыть Shorts</span>
+              </label>
+              <label class="yt-item">
+                <input type="checkbox" id="ytHideRecommended" checked>
+                <span>🚫 Скрыть рекомендованные видео</span>
+              </label>
+              <label class="yt-item">
+                <input type="checkbox" id="ytHideComments">
+                <span>💬 Скрыть комментарии</span>
+              </label>
+              <label class="yt-item">
+                <input type="checkbox" id="ytHideHomePage">
+                <span>🏠 Скрыть главную страницу</span>
+              </label>
+              <label class="yt-item">
+                <input type="checkbox" id="ytHideThumbnails">
+                <span>🖼️ Скрыть превью</span>
+              </label>
+              <label class="yt-item">
+                <input type="checkbox" id="ytBlurThumbnails">
+                <span>🌫️ Размыть превью</span>
+              </label>
+              <label class="yt-item">
+                <input type="checkbox" id="ytHideSubscriptions">
+                <span>🔔 Скрыть подписки</span>
+              </label>
+              <label class="yt-item">
+                <input type="checkbox" id="ytHideExplore">
+                <span>🧭 Скрыть Тренды / Интересное</span>
+              </label>
+              <label class="yt-item">
+                <input type="checkbox" id="ytHideTopBar">
+                <span>🔍 Скрыть верхнюю панель поиска</span>
+              </label>
+              <label class="yt-item">
+                <input type="checkbox" id="ytDisableEndCards" checked>
+                <span>🏁 Отключить конечные заставки</span>
+              </label>
+              <label class="yt-item">
+                <input type="checkbox" id="ytBlackAndWhite">
+                <span>🔳 Чёрно-белый режим YouTube</span>
+              </label>
+            </div>
+          </section>
+        </div>
+
+        <!-- Tab 3: Custom Limits -->
+        <div id="tab-limits" class="tab-panel">
+          <section class="card border-info">
+            <h2>⏱️ Индивидуальные лимиты времени по сайтам</h2>
+            <p class="card-desc">Укажите свой дневной лимит времени для каждого конкретного сайта.</p>
+
+            <div class="domain-input-group">
+              <input type="text" id="customLimitDomainInput" placeholder="Домен (напр: youtube.com)" class="custom-input flex-2">
+              <input type="number" id="customLimitMinsInput" placeholder="Мин" min="1" max="600" value="20" class="custom-input flex-1">
+              <button id="addCustomLimitBtn" class="btn btn-primary">Установить лимит</button>
+            </div>
+
+            <div id="customLimitsList" class="custom-limits-list"></div>
+          </section>
+        </div>
+
+        <!-- Tab 4: Hard Block -->
+        <div id="tab-hardblock" class="tab-panel">
+          <section class="card border-danger">
+            <h2>🚫 Полная блокировка сайтов (Хард-блок)</h2>
+            <p class="card-desc">Сайты из этого списка нельзя открыть вообще.</p>
+
+            <div class="domain-input-group">
+              <input type="text" id="hardBlockDomainInput" placeholder="Домен (напр: casino.com)" class="custom-input flex-2">
+              <button id="addHardBlockBtn" class="btn btn-danger">Заблокировать навсегда</button>
+            </div>
+            <div id="hardBlockDomainTags" class="tags-container"></div>
+          </section>
+        </div>
+
+        <!-- Tab 5: Anti-Doomscroll -->
+        <div id="tab-anti-doom" class="tab-panel">
+          <section class="card border-warning">
+            <h2>🧠 Защита от «залипания» и автоскроллинга</h2>
+            <p class="card-desc">Сбивает автоматический дофаминовый цикл скроллинга капчей-проверкой осознанности.</p>
+
+            <div class="form-group">
+              <label class="toggle-control">
+                <span>Включить режим «Анти-залипание»</span>
+                <input type="checkbox" id="antiDoomToggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="doomLimitInput" class="field-label">Общий лимит по умолчанию (мин)</label>
+                <input type="number" id="doomLimitInput" value="30" min="1" max="600" class="custom-input">
+              </div>
+              <div class="form-group flex-1">
+                <label for="doomIntervalInput" class="field-label">Повтор проверки (мин)</label>
+                <input type="number" id="doomIntervalInput" value="5" min="1" max="60" class="custom-input">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="doomTypeSelect" class="field-label">Тип проверки осознанности</label>
+              <select id="doomTypeSelect" class="custom-select">
+                <option value="both">Чередовать (Математика + Осознанная фраза)</option>
+                <option value="math">Математическая задача ((A + B) × C)</option>
+                <option value="typing">Ввод осознанной фразы ("Я делаю перерыв")</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="field-label">Сайты для защиты от автоскроллинга</label>
+              <div class="domain-input-group">
+                <input type="text" id="doomDomainInput" placeholder="Например: youtube.com или reddit.com" class="custom-input">
+                <button id="addDoomDomainBtn" class="btn btn-secondary">Добавить</button>
+              </div>
+              <div id="doomDomainTags" class="tags-container"></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Tab 6: Productivity -->
+        <div id="tab-productivity" class="tab-panel">
+          <section class="card">
+            <h2>🎯 Классификация продуктивности сайтов</h2>
+            <p class="card-desc">Настройте, какие сайты считать продуктивными 🟢, нейтральными 🟡 или отвлекающими 🔴.</p>
+
+            <div class="domain-input-group">
+              <input type="text" id="prodDomainInput" placeholder="Например: github.com" class="custom-input flex-2">
+              <select id="prodCategorySelect" class="custom-select flex-1">
+                <option value="productive">🟢 Продуктивный</option>
+                <option value="neutral">🟡 Нейтральный</option>
+                <option value="distraction">🔴 Отвлекающий</option>
+              </select>
+              <button id="addProdCategoryBtn" class="btn btn-secondary">Сохранить</button>
+            </div>
+            <div id="prodDomainList" class="custom-limits-list"></div>
+          </section>
+        </div>
+
+        <!-- Tab 7: TickTick Integration -->
+        <div id="tab-ticktick" class="tab-panel">
+          <section class="card border-info">
+            <h2>☑️ Интеграция с TickTick</h2>
+            <p class="card-desc">Автоматический импорт ваших текущих задач напрямую из TickTick.</p>
+
+            <div class="form-group">
+              <label class="toggle-control">
+                <span>Включить синхронизацию с TickTick</span>
+                <input type="checkbox" id="ticktickToggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label for="ticktickClientIdInput" class="field-label">Client ID</label>
+              <input type="text" id="ticktickClientIdInput" placeholder="Вставьте ваш Client ID из TickTick..." class="custom-input">
+            </div>
+
+            <div class="form-group">
+              <label for="ticktickClientSecretInput" class="field-label">Client Secret</label>
+              <input type="password" id="ticktickClientSecretInput" placeholder="Вставьте ваш Client Secret..." class="custom-input">
+            </div>
+
+            <div class="actions-row">
+              <button id="authTicktickBtn" class="btn btn-primary">🔐 1. Открыть страницу авторизации TickTick</button>
+            </div>
+
+            <div class="form-group" style="margin-top: 12px;">
+              <label for="ticktickAuthCodeInput" class="field-label" style="color:#2dd4bf; font-weight:700;">
+                2. Вставьте ссылку или код из адресной строки (со страницы http://localhost/?code=...)
+              </label>
+              <div class="domain-input-group">
+                <input type="text" id="ticktickAuthCodeInput" placeholder="Вставьте целиком URL (http://localhost/?code=...) или код..." class="custom-input flex-2">
+                <button id="exchangeCodeBtn" class="btn btn-primary">Завершить вход 🚀</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="ticktickTokenInput" class="field-label">Access Token (сохранённый токен)</label>
+              <input type="password" id="ticktickTokenInput" placeholder="Сгенерированный токен появится здесь..." class="custom-input">
+            </div>
+
+            <div class="actions-row">
+              <button id="testTicktickBtn" class="btn btn-secondary">🔄 Проверить подключение</button>
+            </div>
+          </section>
+        </div>
+
+        <!-- Tab 8: Excluded -->
+        <div id="tab-excluded" class="tab-panel">
+          <section class="card">
+            <h2>🛡️ Исключённые домены (Не учитывать вовсе)</h2>
+            <div class="domain-input-group">
+              <input type="text" id="domainInput" placeholder="Например: localhost или mycompany.com" class="custom-input">
+              <button id="addDomainBtn" class="btn btn-secondary">Добавить</button>
+            </div>
+            <div id="domainTags" class="tags-container"></div>
+          </section>
+        </div>
+
+        <!-- Tab 9: Data -->
+        <div id="tab-data" class="tab-panel">
+          <section class="card border-danger">
+            <h2>📦 Управление данными</h2>
+            <div class="actions-row">
+              <button id="exportJsonBtn" class="btn btn-secondary">
+                Экспорт статистики в JSON
+              </button>
+              <button id="resetDataBtn" class="btn btn-danger">
+                Сбросить все данные
+              </button>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <!-- Save Notification Toast -->
+    <div id="toast" class="toast hidden">Настройки успешно сохранены</div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

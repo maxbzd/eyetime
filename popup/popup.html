@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EyeTime Analytics</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Ambient background glow elements -->
+  <div class="glow-bg-top"></div>
+  <div class="glow-bg-bottom"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="logo-wrapper">
+          <div class="logo-pulse"></div>
+          <div class="logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">EyeTime</span>
+          <span class="brand-subtitle">Smart Health & Focus</span>
+        </div>
+      </div>
+
+      <!-- Pause Control Dropdown -->
+      <div class="pause-control">
+        <button id="pauseBtn" class="pause-btn active">
+          <span class="status-dot"></span>
+          <span id="pauseBtnText">Активен</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div id="pauseMenu" class="pause-menu hidden">
+          <button class="pause-option" data-pause="0">
+            <span class="opt-icon">🟢</span>
+            <span>Включен</span>
+          </button>
+          <button class="pause-option" data-pause="3600">
+            <span class="opt-icon">⏸️</span>
+            <span>Пауза на 1 час</span>
+          </button>
+          <button class="pause-option" data-pause="eod">
+            <span class="opt-icon">🌙</span>
+            <span>Пауза до завтра</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Bento Grid Container -->
+    <main class="bento-grid">
+      <!-- Bento Card 1: Today Hero Time & Eye Health Score -->
+      <section class="bento-card hero-card">
+        <div class="hero-header">
+          <span class="bento-badge">Сводка за день</span>
+          <div id="breaksBadge" class="breaks-badge">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span id="breaksCount">0</span> перерывов
+          </div>
+        </div>
+
+        <div class="hero-body">
+          <div class="time-container">
+            <div class="hero-label">Время в браузере</div>
+            <div id="todayTimeMain" class="hero-time">0ч 00м</div>
+            <div id="comparisonBadge" class="comparison-badge neutral">
+              <span id="cmpIcon">⎯</span>
+              <span id="cmpText">0% vs вчера</span>
+            </div>
+          </div>
+
+          <!-- Eye Health Circular Score Ring -->
+          <div class="health-ring-container" title="Индекс здоровья глаз на основе соблюдения перерывов">
+            <svg class="health-ring-svg" viewBox="0 0 70 70">
+              <circle class="ring-bg" cx="35" cy="35" r="28" />
+              <circle id="healthRingFill" class="ring-fill" cx="35" cy="35" r="28" stroke-dasharray="175.9" stroke-dashoffset="30" />
+            </svg>
+            <div class="ring-text">
+              <span id="healthScoreValue" class="ring-score">85%</span>
+              <span class="ring-label">Зрение</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Focus Score Card -->
+      <section class="bento-card focus-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Индекс фокуса (Focus Score)
+          </h3>
+          <span id="focusScoreBadge" class="focus-score-tag">100% Фокус</span>
+        </div>
+
+        <div class="focus-progress-wrapper">
+          <div class="focus-stacked-bar">
+            <div id="barProductive" class="focus-bar-segment productive" style="width: 70%;" title="Продуктивные сайты"></div>
+            <div id="barNeutral" class="focus-bar-segment neutral" style="width: 20%;" title="Нейтральные сайты"></div>
+            <div id="barDistraction" class="focus-bar-segment distraction" style="width: 10%;" title="Отвлекающие сайты"></div>
+          </div>
+          <div class="focus-legend">
+            <span id="txtProductive" class="leg-item prod">🟢 0м Продуктивно</span>
+            <span id="txtDistraction" class="leg-item dist">🔴 0м Отвлечение</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bento Card 2: Top Sites -->
+      <section class="bento-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Топ сайтов за день
+          </h3>
+          <span id="domainCountTag" class="card-tag">0 сайтов</span>
+        </div>
+        <div id="topDomainsList" class="top-domains-list">
+          <div class="empty-state">Загрузка данных...</div>
+        </div>
+      </section>
+
+      <!-- Bento Card 3: Hourly Activity SVG Chart -->
+      <section class="bento-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Активность по часам
+          </h3>
+          <span id="peakHourText" class="card-tag highlight">--</span>
+        </div>
+        <div class="chart-wrapper">
+          <svg id="hourlyChartSvg" class="bar-chart-svg" viewBox="0 0 350 115"></svg>
+        </div>
+      </section>
+
+      <!-- Bento Card 4: 7-Day History SVG Chart -->
+      <section class="bento-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Динамика за 7 дней
+          </h3>
+          <span id="weeklyAvgText" class="card-tag">Среднее: --</span>
+        </div>
+        <div class="chart-wrapper">
+          <svg id="weeklyChartSvg" class="bar-chart-svg" viewBox="0 0 350 115"></svg>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer Action Buttons -->
+    <footer class="footer">
+      <button id="openDashboardBtn" class="footer-btn primary-dash">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>Открыть полную аналитику 📊</span>
+      </button>
+
+      <button id="openOptionsBtn" class="footer-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
