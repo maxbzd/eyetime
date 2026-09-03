@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EyeTime — Daily Cockpit</title>
+  <link rel="stylesheet" href="newtab.css">
+</head>
+<body class="mode-day">
+
+  <div class="interceptor-container">
+    
+    <!-- TOP STATUS HEADER (Brand, Bedtime Countdown, Work Launchpad & Actions) -->
+    <header class="top-interceptor-header">
+      <div class="header-left-col">
+        <div class="header-brand">
+          <div class="brand-logo-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </div>
+          <span class="brand-name">EyeTime</span>
+          <span class="brand-sep">&gt;</span>
+          <span class="brand-sub">Кокпит</span>
+        </div>
+
+        <div id="bedtimeBanner" class="bedtime-banner">
+          <span class="bedtime-lbl">До отбоя (<span id="fixedBedtimeLabel">23:00</span>):</span>
+          <strong id="bedtimeTimeVal" class="bedtime-val">4ч 12м</strong>
+        </div>
+      </div>
+
+      <!-- WORK LAUNCHPAD (Quick Productive Links) -->
+      <div class="work-launchpad" id="workLaunchpad" title="Быстрый запуск рабочих сервисов">
+        <!-- Links dynamically populated via JS -->
+      </div>
+
+      <div class="header-actions">
+        <button id="toggleDayNightModeBtn" class="mode-switch-btn" title="Переключить режим День / Сон">
+          <span class="mode-indicator-dot"></span>
+          <span>Режим: День</span>
+        </button>
+
+        <button id="openDashboardBtn" class="header-action-btn" title="Аналитика">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 20V10"></path>
+            <path d="M12 20V4"></path>
+            <path d="M6 20v-6"></path>
+          </svg>
+          <span>Аналитика</span>
+        </button>
+
+        <button id="openOptionsBtn" class="header-action-btn" title="Настройки">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span>Настройки</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- SECTION 1: TOP 3 HERO CARDS (Fintrixity Overview) -->
+    <div class="fintrixity-hero-grid">
+      
+      <!-- HERO CARD 1: RADIANT ORANGE GLOW (ФОКУС-БЛОК & ТАЙМЕР СЕССИИ) -->
+      <div class="fintrixity-hero-card fintrixity-hero-card--orange">
+        <div class="hero-card-head">
+          <div class="hero-card-meta">
+            <div class="card-icon-squircle icon-orange-glow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <div>
+              <div class="hero-card-label">Фокус-Блок</div>
+              <div class="hero-card-sub" id="heroFocusSubText">Глубокая концентрация</div>
+            </div>
+          </div>
+          
+          <div class="focus-duration-selector focus-duration-selector--orange">
+            <button class="dur-btn" data-mins="25">25м</button>
+            <button class="dur-btn" data-mins="50">50м</button>
+            <button class="dur-btn active" data-mins="90">90м</button>
+          </div>
+        </div>
+
+        <div class="hero-card-center-action">
+          <div class="hero-timer-line">
+            <span class="hero-card-val" id="heroTimerDisplay">90:00</span>
+            <span class="hero-focus-status-pill" id="focusBlockStatusText">Не активен</span>
+          </div>
+
+          <div class="hero-focus-btn-row">
+            <button id="toggleFocusBlockBtn" class="btn-hero-launch-focus">
+              Запустить 90м Фокус-Блок
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-card-footer">
+          <label class="strict-lock-label strict-lock-label--orange" title="При включении сайты-отвлечения блокируются наглухо без кнопки обхода">
+            <input type="checkbox" id="strictFocusLockCheckbox">
+            <span>Хард-режим блокировки</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- HERO CARD 2: DARK GLASS (АНТИ-СЛИВ / ТОП-УТЕЧКИ ВНИМАНИЯ) -->
+      <div class="fintrixity-hero-card fintrixity-hero-card--dark">
+        <div class="hero-card-head">
+          <div class="hero-card-meta">
+            <div class="card-icon-squircle">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+              </svg>
+            </div>
+            <div>
+              <div class="hero-card-label">Анти-слив</div>
+              <div class="hero-card-sub">Утечки внимания за сегодня</div>
+            </div>
+          </div>
+          <span class="hero-delta-pill pill-mint" id="antiLeakPill">100% контроль</span>
+        </div>
+
+        <!-- Dynamic List of Top Time Leaks with 1-Click Kill Switches -->
+        <div class="anti-leak-content" id="antiLeakContent">
+          <div class="anti-leak-empty">
+            <div class="anti-leak-clean-text">Отвлечений не обнаружено</div>
+            <div class="anti-leak-sub">Все посещенные сайты — рабочие</div>
+          </div>
+        </div>
+
+        <div class="hero-card-footer" id="heroCard2Footer">
+          <span>Сводка по сайтам в аналитике</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </div>
+      </div>
+
+      <!-- HERO CARD 3: DARK GLASS (ДИСЦИПЛИНА 90 ДНЕЙ & ПРИВЫЧКИ) -->
+      <div class="fintrixity-hero-card fintrixity-hero-card--dark">
+        <div class="hero-card-head">
+          <div class="hero-card-meta">
+            <div class="card-icon-squircle">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <div>
+              <div class="hero-card-label">Дисциплина</div>
+              <div class="hero-card-sub" id="challengeDaysText">День 1 из 90</div>
+            </div>
+          </div>
+          <span id="streakCountTag" class="streak-pill">Стрик: 1 дн.</span>
+        </div>
+
+        <!-- Today Habits Checkboxes -->
+        <div class="hero-habits-box">
+          <div class="discipline-status-strip">
+            <span id="milestoneTag">До рубежа: 28 дн.</span>
+          </div>
+
+          <div class="hero-habits-list">
+            <label class="hero-habit-item" title="Прогулка в первый час после пробуждения">
+              <input type="checkbox" id="todayWalkCheck">
+              <span>Утренняя прогулка</span>
+            </label>
+            <label class="hero-habit-item" title="Уход за лицом утром и вечером">
+              <input type="checkbox" id="todayCareCheck">
+              <span>Уход за лицом</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="hero-card-footer" id="openMatrixModalBtn">
+          <span>Сетка 90 дней</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: CENTRAL WORKSPACE BENTO (TICKTICK TASKS + RIGHT COLUMN) -->
+    <div class="workspace-bento-grid">
+      
+      <!-- LEFT COLUMN: TICKTICK TASKS SECTION (AUTO-SYNC WITH PHONE) -->
+      <section class="tasks-interceptor-section fintrixity-card">
+        <div class="section-title">
+          <div class="section-title-left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 14 14"></polyline>
+            </svg>
+            <span class="section-heading">Задачи дня</span>
+            <span id="ttSyncBadge" class="tt-live-sync-pill">✓ Авто-синхронизация</span>
+          </div>
+          <div class="section-title-actions">
+            <button id="syncTicktickBtn" class="btn-sync" title="Синхронизировать с TickTick">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              <span>Обновить</span>
+            </button>
+            <button id="toggleAllTasksBtn" class="btn-toggle-all">Все задачи</button>
+          </div>
+        </div>
+
+        <!-- Quick inline task creation directly into TickTick Inbox (clean no duplicate plus) -->
+        <div class="task-quick-input-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <input type="text" id="quickCaptureInput" placeholder="Новая задача в TickTick... (Enter)" autocomplete="off">
+          <kbd class="shortcut-kbd">Alt + K</kbd>
+        </div>
+
+        <!-- Active Tasks List -->
+        <div id="threeTasksContainer" class="three-tasks-list"></div>
+      </section>
+
+      <!-- RIGHT COLUMN: SCRATCHPAD + OUTBOUND + BEAUTIFUL FOCUS HOURS CHART -->
+      <div class="bento-right-col">
+        
+        <!-- WIDGET 1: MENTAL SCRATCHPAD (ПАРКОВКА МЫСЛЕЙ / АНТИ-ОТВЛЕЧЕНИЕ) -->
+        <section class="mental-scratchpad-card fintrixity-card">
+          <div class="section-title">
+            <div class="section-title-left">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+              <span>Парковка мыслей</span>
+            </div>
+            <span class="scratchpad-badge">Разбор после 19:00</span>
+          </div>
+
+          <div class="scratchpad-input-wrap">
+            <input type="text" id="scratchpadInput" placeholder="Пришла мысль не по делу? Запиши сюда... (Enter)" autocomplete="off">
+          </div>
+
+          <ul id="scratchpadList" class="scratchpad-items-list">
+            <!-- Dynamically populated via JS -->
+          </ul>
+        </section>
+
+        <!-- WIDGET 2: ЦЕЛИ (НАПИСАНО СООБЩЕНИЙ + СОЗВОНОВ ПРОВЕДЕНО) -->
+        <section class="uncomfortable-card fintrixity-card">
+          <div class="section-title">
+            <div class="section-title-left">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="6"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+              </svg>
+              <span>Цели</span>
+            </div>
+          </div>
+
+          <div id="uncomfortableGrid" class="uncomfortable-compact-grid"></div>
+        </section>
+
+        <!-- WIDGET 3: ДНЕВНОЙ ФОКУС (КРАСИВЫЙ ГРАФИК С ЧАСАМИ РАБОТЫ) -->
+        <section class="fintrixity-chart-card fintrixity-card">
+          <div class="fintrixity-chart-header-row">
+            <div class="fintrixity-chart-title-wrap">
+              <div class="fintrixity-chart-title">Дневной фокус</div>
+              <div class="fintrixity-chart-total" id="chartTotalFocus">6ч 11м</div>
+            </div>
+
+            <div class="fintrixity-pill-toggle">
+              <button type="button" class="fintrixity-toggle-item fintrixity-toggle-item--active" id="chartToggleDays">
+                <span class="fintrixity-toggle-dot"></span>
+                <span>Дни</span>
+              </button>
+              <button type="button" class="fintrixity-toggle-item" id="chartToggleWeeks">
+                <span>Недели</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Interactive Bar Stage with Glowing Pillar -->
+          <div class="fintrixity-chart-stage" id="focusBarChartStage">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: 90-DAY MATRIX DIALOG -->
+  <div id="matrixModal" class="fullscreen-overlay hidden">
+    <div class="interceptor-modal matrix-modal-content">
+      <div class="matrix-modal-header">
+        <div class="modal-title-wrap">
+          <h2 class="modal-title">Челлендж 90 дней</h2>
+          <span class="modal-sub">Утренняя прогулка + Уход за лицом</span>
+        </div>
+        <button id="closeMatrixModalBtn" class="btn-modal-close" title="Закрыть">✕</button>
+      </div>
+
+      <div class="matrix-modal-meta-row">
+        <span id="modalSelectedDayInfo" class="matrix-selected-day-lbl">День 1 (Сегодня):</span>
+        <div class="challenge-checks-group">
+          <label class="check-item">
+            <input type="checkbox" id="modalWalkCheck">
+            <span>Прогулка</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" id="modalCareCheck">
+            <span>Уход за лицом</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="matrixGrid" class="matrix-grid-micro"></div>
+    </div>
+  </div>
+
+  <!-- NIGHT MODE & HARD NIGHT LOCKDOWN SCREEN -->
+  <div id="nightScreen" class="mode-screen hidden">
+    <div class="night-box">
+      <div class="night-lockdown-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+        <span>Ночной режим · Отбой</span>
+      </div>
+      <div id="nightBedtimeCountdown" class="bedtime-countdown danger">Время отбоя наступило</div>
+      <h2 class="night-title">Время спать · Экран заблокирован</h2>
+      <p class="night-desc">Вы зафиксировали отбой. Ночной отдых продлится до 05:00 утра для полноценного восстановления сил.</p>
+      
+      <div class="night-actions-row">
+        <button id="unlockDayBtn" class="btn-unlock-day">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <span>Отметить пробуждение (Разблокировать день)</span>
+        </button>
+      </div>
+
+      <div class="night-ideas-box">
+        <label class="field-label">Сброс ночных мыслей (чтобы не зацикливаться перед сном):</label>
+        <div class="night-input-wrap">
+          <input type="text" id="nightIdeaInput" placeholder="Записать мысль и пойти спать... (Enter)">
+        </div>
+        <ul id="nightIdeasList" class="night-ideas-list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/eyetime_audio.js"></script>
+  <script src="newtab.js"></script>
+</body>
+</html>

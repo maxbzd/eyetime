@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Сайт заблокирован — EyeTime Focus</title>
+  <style>
+    :root {
+      --fx-bg: #0B0C10;
+      --fx-orange: #FF5E0E;
+      --fx-orange-btn: linear-gradient(135deg, #FF6B00 0%, #FF3800 100%);
+      --fx-orange-glow: rgba(255, 94, 14, 0.55);
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0B0C10 radial-gradient(circle at 50% -10%, rgba(255, 94, 14, 0.10) 0%, rgba(11, 12, 16, 1) 60%);
+      color: #FFFFFF;
+      font-family: var(--font-family);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .block-card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+      background: 
+        radial-gradient(ellipse 85% 45% at 50% -10%, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.02) 60%, transparent 100%),
+        linear-gradient(180deg, #22242B 0%, #15161C 100%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 24px;
+      padding: 36px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 18px;
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.28), 0 24px 60px rgba(0, 0, 0, 0.85);
+    }
+    .block-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: rgba(255, 94, 14, 0.15);
+      color: var(--fx-orange);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 94, 14, 0.3);
+      box-shadow: 0 0 16px var(--fx-orange-glow);
+    }
+    h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: #FFFFFF; }
+    p { font-size: 13.5px; color: #A5A8B6; line-height: 1.5; }
+    .blocked-domain-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(255, 94, 14, 0.12);
+      border: 1px solid rgba(255, 94, 14, 0.25);
+      color: var(--fx-orange);
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .actions { display: flex; gap: 12px; width: 100%; margin-top: 6px; }
+    .btn {
+      flex: 1;
+      padding: 12px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+    .btn-primary {
+      background: var(--fx-orange-btn);
+      color: #ffffff;
+      box-shadow: 0 4px 18px var(--fx-orange-glow);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: #13141B;
+      color: #A5A8B6;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .btn-secondary:hover {
+      background: #181922;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <div class="block-card">
+    <div class="block-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Сайт заблокирован</h1>
+      <p style="margin-top: 8px;">Домен <span id="blockedDomainName" class="blocked-domain-badge">example.com</span> находится в вашем списке полной блокировки EyeTime.</p>
+    </div>
+    <div class="actions">
+      <button id="goBackBtn" class="btn btn-secondary">← Назад</button>
+      <button id="closeTabBtn" class="btn btn-primary">Закрыть вкладку</button>
+    </div>
+  </div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const domain = params.get('domain') || 'Сайт';
+    document.getElementById('blockedDomainName').textContent = domain;
+
+    document.getElementById('goBackBtn').addEventListener('click', () => {
+      window.history.back();
+    });
+    document.getElementById('closeTabBtn').addEventListener('click', () => {
+      window.close();
+    });
+  </script>
+</body>
+</html>

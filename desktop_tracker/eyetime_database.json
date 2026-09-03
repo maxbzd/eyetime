@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "settings": {
+    "blockOtherBrowsers": true,
+    "bedtime": "23:00"
+  },
+  "focusBlock": {
+    "active": false,
+    "endTime": 0,
+    "task": "Глубокая концентрация"
+  },
+  "stats": {},
+  "hourly": {}
+}

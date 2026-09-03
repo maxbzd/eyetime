@@ -1,0 +1,63 @@
+{
+  "manifest_version": 3,
+  "name": "EyeTime — Контроль времени и отдыха глаз",
+  "version": "1.0.0",
+  "description": "Локальный трекинг времени в браузере, очиститель YouTube, анти-залипание с капчей и умный личный хаб на новой вкладке.",
+  "incognito": "spanning",
+  "permissions": [
+    "tabs",
+    "storage",
+    "alarms",
+    "notifications",
+    "idle",
+    "identity",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "commands": {
+    "quick-capture": {
+      "suggested_key": {
+        "default": "Alt+K"
+      },
+      "description": "Быстрый захват мысли в TickTick Inbox"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "chrome_url_overrides": {
+    "newtab": "newtab/newtab.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content/content.js"
+      ],
+      "css": [
+        "content/content.css"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "EyeTime Analytics",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_page": "options/options.html",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

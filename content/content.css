@@ -1,0 +1,187 @@
+/* EyeTime — Anti-Doomscroll & Hard Block Content Styles (Fintrixity Neo-Dark Glass) */
+#eyetime-doomscroll-overlay, #eyetime-hardblock-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483647 !important;
+  background: rgba(11, 12, 16, 0.96) !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  color: #FFFFFF !important;
+  padding: 20px !important;
+  animation: eyetimeFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+@keyframes eyetimeFadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+#eyetime-doomscroll-card, #eyetime-hardblock-card {
+  width: 100% !important;
+  max-width: 480px !important;
+  background: 
+    radial-gradient(ellipse 85% 45% at 50% -10%, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.02) 60%, transparent 100%),
+    linear-gradient(180deg, #22242B 0%, #15161C 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 24px !important;
+  padding: 32px 28px !important;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.28), 0 24px 60px rgba(0, 0, 0, 0.85) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  position: relative !important;
+  text-align: left !important;
+}
+
+.eyetime-card-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+
+.eyetime-badge-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+  background: rgba(255, 94, 14, 0.15) !important;
+  color: #FF5E0E !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid rgba(255, 94, 14, 0.3) !important;
+  box-shadow: 0 0 16px rgba(255, 94, 14, 0.25) !important;
+  flex-shrink: 0 !important;
+}
+
+.eyetime-badge-icon.danger {
+  background: rgba(251, 113, 133, 0.15) !important;
+  color: #FB7185 !important;
+  border-color: rgba(251, 113, 133, 0.35) !important;
+  box-shadow: 0 0 16px rgba(251, 113, 133, 0.2) !important;
+}
+
+.eyetime-header-text h3 {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  color: #FFFFFF !important;
+  margin: 0 !important;
+  letter-spacing: -0.015em !important;
+}
+
+.eyetime-header-text p {
+  font-size: 12px !important;
+  color: #6F7282 !important;
+  margin: 3px 0 0 0 !important;
+}
+
+.eyetime-info-box {
+  background: #13141B !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: 14px !important;
+  padding: 14px 16px !important;
+  font-size: 13.5px !important;
+  color: #A5A8B6 !important;
+  line-height: 1.5 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+.eyetime-highlight {
+  color: #34D399 !important;
+  font-weight: 700 !important;
+}
+
+.eyetime-highlight.danger {
+  color: #FF5E0E !important;
+}
+
+.eyetime-challenge-box {
+  background: #13141B !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 14px !important;
+  padding: 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.eyetime-challenge-prompt {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #FFFFFF !important;
+  white-space: pre-line !important;
+}
+
+.eyetime-input {
+  width: 100% !important;
+  padding: 12px 14px !important;
+  border-radius: 12px !important;
+  background: #0B0C10 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #FFFFFF !important;
+  font-size: 14px !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
+}
+
+.eyetime-input:focus {
+  border-color: #FF5E0E !important;
+  box-shadow: 0 0 16px rgba(255, 94, 14, 0.3) !important;
+}
+
+.eyetime-error {
+  color: #FB7185 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  display: none;
+}
+
+.eyetime-actions {
+  display: flex !important;
+  gap: 10px !important;
+  margin-top: 4px !important;
+}
+
+.eyetime-btn {
+  padding: 12px 20px !important;
+  border-radius: 999px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  border: none !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+.eyetime-btn-primary {
+  flex: 1 !important;
+  background: linear-gradient(135deg, #FF6B00 0%, #FF3800 100%) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 18px rgba(255, 94, 14, 0.55) !important;
+}
+
+.eyetime-btn-primary:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 22px rgba(255, 94, 14, 0.65) !important;
+}
+
+.eyetime-btn-secondary {
+  background: #13141B !important;
+  color: #A5A8B6 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.eyetime-btn-secondary:hover {
+  background: #181922 !important;
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
