@@ -235,29 +235,18 @@ def get_active_window_info():
     return friendly_name, exe_name, title, category, hwnd
 
 def apply_chrome_protection_policies():
-    """Apply Chrome Enterprise Registry Policies to lock extension uninstall and disable incognito"""
+    """Apply Chrome Policies (allow extensions always, clean any leftover blocks)"""
     try:
         reg_path = r"Software\Policies\Google\Chrome"
         try:
-            key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, reg_path)
-            url_block_key = winreg.CreateKey(key, "URLBlocklist")
-            winreg.SetValueEx(url_block_key, "1", 0, winreg.REG_SZ, "chrome://extensions*")
-            winreg.CloseKey(url_block_key)
-            winreg.SetValueEx(key, "IncognitoModeAvailability", 0, winreg.REG_DWORD, 1)
+            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0, winreg.KEY_ALL_ACCESS)
+            try:
+                winreg.DeleteKey(key, "URLBlocklist")
+            except Exception:
+                pass
             winreg.CloseKey(key)
         except Exception:
             pass
-
-        try:
-            hklm_key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, reg_path)
-            url_block_key = winreg.CreateKey(hklm_key, "URLBlocklist")
-            winreg.SetValueEx(url_block_key, "1", 0, winreg.REG_SZ, "chrome://extensions*")
-            winreg.CloseKey(url_block_key)
-            winreg.SetValueEx(hklm_key, "IncognitoModeAvailability", 0, winreg.REG_DWORD, 1)
-            winreg.CloseKey(hklm_key)
-        except Exception:
-            pass
-
         return True
     except Exception:
         return False
@@ -317,14 +306,7 @@ def tracker_loop():
                         WM_CLOSE = 0x0010
                         user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
 
-                # ── 3. Chrome Extension Anti-Uninstall Watchdog ───────────
-                if 'chrome.exe' in exe_name and ('расширения' in title.lower() or 'extensions' in title.lower()):
-                    VK_CONTROL = 0x11
-                    VK_W = 0x57
-                    user32.keybd_event(VK_CONTROL, 0, 0, 0)
-                    user32.keybd_event(VK_W, 0, 0, 0)
-                    user32.keybd_event(VK_W, 0, 2, 0)
-                    user32.keybd_event(VK_CONTROL, 0, 2, 0)
+                # Extension access is allowed (watchdog disabled)
 
                 # ── 4. Desktop App Kill-Switch during Focus Block ─────────
                 focus = master_db.setdefault('focusBlock', {})
@@ -450,9 +432,23 @@ class SentinelHTTPRequestHandler(BaseHTTPRequestHandler):
             with db_lock:
                 day_stats = master_db.get('stats', {}).get(today_key, {})
                 focus = master_db.get('focusBlock', {})
+                settings = master_db.get('settings', {})
 
                 is_active = focus.get('active', False) and (now < focus.get('endTime', 0))
                 remaining = max(0, int(focus.get('endTime', 0) - now)) if is_active else 0
+
+                bedtime_str = settings.get('bedtime', '23:00')
+                try:
+                    b_h, b_m = map(int, bedtime_str.split(':'))
+                    now_t = time.localtime()
+                    cur_m = now_t.tm_hour * 60 + now_t.tm_min
+                    target_m = b_h * 60 + b_m
+                    diff_m = target_m - cur_m
+                    if diff_m < 0:
+                        diff_m += 24 * 60
+                    countdown_str = f"{diff_m // 60}ч {diff_m % 60}м"
+                except Exception:
+                    countdown_str = bedtime_str
 
                 payload = {
                     'status': 'online',
@@ -469,9 +465,10 @@ class SentinelHTTPRequestHandler(BaseHTTPRequestHandler):
                     'todayProductiveSeconds': int(day_stats.get('productiveSeconds', 0)),
                     'todayDistractionSeconds': int(day_stats.get('distractionSeconds', 0)),
                     'todayIdleSeconds': int(day_stats.get('idleSeconds', 0)),
-                    'bedtimeCountdown': '23:00',
+                    'bedtime': bedtime_str,
+                    'bedtimeCountdown': countdown_str,
                     'protectionActive': True,
-                    'blockOtherBrowsers': master_db.get('settings', {}).get('blockOtherBrowsers', True)
+                    'blockOtherBrowsers': settings.get('blockOtherBrowsers', True)
                 }
 
             self.send_json(payload)
@@ -608,6 +605,14 @@ class SentinelHTTPRequestHandler(BaseHTTPRequestHandler):
                     day['totalSeconds'] = day.get('totalSeconds', 0) + sec
                     save_master_db()
             self.send_json({'success': True})
+        elif path == '/api/settings':
+            bedtime = req.get('bedtime')
+            with db_lock:
+                s = master_db.setdefault('settings', {})
+                if bedtime:
+                    s['bedtime'] = bedtime
+                save_master_db()
+            self.send_json({'success': True, 'settings': s})
             return
 
         self.send_json({'success': True})

@@ -2,15 +2,6 @@
 // Features: Auto-Synced Phone TickTick Tasks, Mental Scratchpad, Anti-Leak Kill-Switch, Work Launchpad, Hero Focus Block, 90-Day Challenge, Focus Bar Chart
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Check First-Time User Onboarding
-  try {
-    const onboardData = await chrome.storage.local.get('eyetime_onboarded');
-    if (!onboardData.eyetime_onboarded) {
-      window.location.href = chrome.runtime.getURL('onboarding/onboarding.html');
-      return;
-    }
-  } catch (e) {}
-
   const data = await chrome.storage.local.get(['settings', 'stats', 'dailyGoals']);
   const settings = data.settings || {};
   const stats = data.stats || {};
@@ -599,9 +590,9 @@ function initSmartTasksList(goals, ttSettings) {
   const syncBadge = document.getElementById('ttSyncBadge');
 
   const defaultTasks = [
-    { text: 'Сфокусироваться на главной задаче дня', done: false, isStarred: true, priority: 5 },
-    { text: 'Провести рабочий созвон / встречу', done: false, priority: 3 },
-    { text: 'Подвести итоги дня перед отбоем', done: false, priority: 1 }
+    { text: 'Внести всю инфу в CRM', done: false, isStarred: true, priority: 5 },
+    { text: 'Сделать разбор продаж Радмиру', done: false, isTickTick: true, priority: 3 },
+    { text: 'Отписать всем на профи, чтобы написали в тг', done: true, isTickTick: true, priority: 1 }
   ];
 
   let tasks = (goals && goals.length > 0) ? goals : defaultTasks;
@@ -945,17 +936,18 @@ function initUncomfortableCompact(interceptor) {
   const grid = document.getElementById('uncomfortableGrid');
   if (!grid) return;
 
-  const defaultLabels = [
-    { label: 'Сессий глубокого фокуса', defaultTarget: 4 },
-    { label: 'Важных закрытых задач', defaultTarget: 5 }
+  const targetLabels = [
+    { label: 'Написано сообщений репетиторам', defaultTarget: 30 },
+    { label: 'Созвонов проведено', defaultTarget: 10 }
   ];
 
   let counters = interceptor.uncomfortableCounters || [];
 
-  if (!counters || counters.length === 0) {
+  // Ensure counters exactly match user's requested labels
+  if (!counters || counters.length < 2 || counters[0].label !== targetLabels[0].label) {
     counters = [
-      { label: defaultLabels[0].label, current: 0, target: defaultLabels[0].defaultTarget, isCounter: true },
-      { label: defaultLabels[1].label, current: 0, target: defaultLabels[1].defaultTarget, isCounter: true }
+      { label: targetLabels[0].label, current: counters[0]?.current || 0, target: targetLabels[0].defaultTarget, isCounter: true },
+      { label: targetLabels[1].label, current: counters[1]?.current || 0, target: targetLabels[1].defaultTarget, isCounter: true }
     ];
     interceptor.uncomfortableCounters = counters;
     saveInterceptor(interceptor);
@@ -1215,85 +1207,26 @@ function initFocusBarChart(stats) {
   renderChart();
 }
 
-// ── 9. BEDTIME COUNTDOWN ─────────────────────────────────────────────
+// ── 9. BEDTIME COUNTDOWN (DISABLED) ───────────────────────────────────
 function initBedtimeCountdown(interceptor) {
-  const label = document.getElementById('fixedBedtimeLabel');
-  const timeVal = document.getElementById('bedtimeTimeVal');
-  const bedtimeStr = interceptor.bedtime || '23:00';
-
-  if (label) label.textContent = bedtimeStr;
-
-  function update() {
-    const [bHrs, bMins] = bedtimeStr.split(':').map(Number);
-    const now = new Date();
-    const currentMins = now.getHours() * 60 + now.getMinutes();
-    const bedMins = bHrs * 60 + bMins;
-
-    let diff = bedMins - currentMins;
-    if (diff < 0) diff += 24 * 60;
-
-    const h = Math.floor(diff / 60);
-    const m = diff % 60;
-    if (timeVal) timeVal.textContent = `${h}ч ${m}м`;
+  const banner = document.getElementById('bedtimeBanner');
+  if (banner) {
+    banner.style.display = 'none'; // Disabled by user request
   }
-
-  update();
-  setInterval(update, 30000);
 }
 
-// ── 10. SCREEN MODES & NIGHT LOCKDOWN ────────────────────────────────
+// ── 10. SCREEN MODES & NIGHT LOCKDOWN (DISABLED) ────────────────────
 function initScreenMode(interceptor, ttSettings) {
-  const unlockBtn = document.getElementById('unlockDayBtn');
   const modeToggleBtn = document.getElementById('toggleDayNightModeBtn');
 
-  const [bedtimeH, bedtimeM] = (interceptor.bedtime || '23:00').split(':').map(Number);
-  const now = new Date();
-  const currentTotalMins = now.getHours() * 60 + now.getMinutes();
-  const bedtimeTotalMins = bedtimeH * 60 + bedtimeM;
-
-  let isNight = (currentTotalMins >= bedtimeTotalMins || currentTotalMins < 5 * 60);
-
-  if (interceptor.nightModeBypassed) {
-    isNight = false;
-  }
-
-  function applyMode() {
-    if (isNight) {
-      document.body.className = 'mode-night';
-      if (modeToggleBtn) {
-        modeToggleBtn.classList.add('mode-night-active');
-        modeToggleBtn.innerHTML = '<span class="mode-indicator-dot"></span><span>Режим: Сон</span>';
-      }
-    } else {
-      document.body.className = 'mode-day';
-      if (modeToggleBtn) {
-        modeToggleBtn.classList.remove('mode-night-active');
-        modeToggleBtn.innerHTML = '<span class="mode-indicator-dot"></span><span>Режим: День</span>';
-      }
-    }
-  }
-
-  if (unlockBtn) {
-    unlockBtn.addEventListener('click', async () => {
-      isNight = false;
-      interceptor.nightModeBypassed = true;
-      await saveInterceptor(interceptor);
-      applyMode();
-      showSyncToast('☀️ Ночной режим отключен. День активен!');
-    });
-  }
+  // Completely disable automatic night lockdown
+  let isNight = false;
+  document.body.className = 'mode-day';
 
   if (modeToggleBtn) {
-    modeToggleBtn.addEventListener('click', async () => {
-      isNight = !isNight;
-      interceptor.nightModeBypassed = !isNight;
-      await saveInterceptor(interceptor);
-      applyMode();
-      showSyncToast(isNight ? '🌙 Включен режим Сна' : '☀️ Включен режим Дня');
-    });
+    modeToggleBtn.classList.remove('mode-night-active');
+    modeToggleBtn.innerHTML = '<span class="mode-indicator-dot"></span><span>Режим: День</span>';
   }
-
-  applyMode();
 }
 
 function initNightMode(interceptor) {
