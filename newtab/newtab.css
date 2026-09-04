@@ -1710,3 +1710,5 @@ body.mode-day #nightScreen {
   color: var(--fx-fg-2);
   border: 1px solid var(--fx-border);
 }
+
+#nightScreen { display: none !important; }

@@ -1,4 +1,14 @@
 /* EyeTime — Anti-Doomscroll & Hard Block Content Styles (Fintrixity Neo-Dark Glass) */
+#eyetime-night-lockdown-overlay {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  z-index: -99999 !important;
+}
+
 #eyetime-doomscroll-overlay, #eyetime-hardblock-overlay {
   position: fixed !important;
   inset: 0 !important;

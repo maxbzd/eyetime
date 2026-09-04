@@ -6,21 +6,21 @@ const DEFAULT_SETTINGS = {
   excludedDomains: ['localhost', '127.0.0.1'],
   pauseUntil: 0,
   interceptor: {
-    bedtime: '23:00',
+    bedtime: '23:30',
     bedtimeSetForToday: false,
     morningWalkRequired: true,
     morningWalkDone: false,
     strictFocusLock: false,
-    focusUrl: 'https://app.endel.io/player/focus',
     uncomfortableCounters: [
-      { label: 'Сессий глубокого фокуса', current: 0, target: 4, isCounter: true },
-      { label: 'Важных закрытых задач', current: 0, target: 5, isCounter: true },
-      { label: 'Прочитано страниц / статей', current: 0, target: 20, isCounter: true }
+      { label: 'Созвонов проведено', current: 0, target: 10, isAccountable: true },
+      { label: 'Платящих школ', current: 0, target: 5 },
+      { label: 'Доход в этом месяце', current: 0, target: 750, unit: '$' },
+      { label: 'Накоплено', current: 4200, target: 6000, unit: '$' }
     ],
     dailyRules: [
-      'Фокус важнее суеты',
-      'Сначала главная задача дня',
-      'Перерывы для отдыха глаз каждые 25 минут'
+      'Утро — CRM, всегда',
+      'Два продюсерских проекта максимум',
+      'Подушка — не бюджет'
     ]
   },
   nuclearLock: {
@@ -66,16 +66,6 @@ const DEFAULT_SETTINGS = {
     'vk.com': 'distraction'
   }
 };
-
-// First-Time Installation & Onboarding Trigger
-chrome.runtime.onInstalled.addListener(async (details) => {
-  if (details.reason === 'install') {
-    const data = await chrome.storage.local.get('eyetime_onboarded');
-    if (!data.eyetime_onboarded) {
-      chrome.tabs.create({ url: chrome.runtime.getURL('onboarding/onboarding.html') });
-    }
-  }
-});
 
 let activeTabId = null;
 let activeDomain = null;
@@ -235,28 +225,10 @@ function isDomainNuclearMatched(domain, nuclearDomains) {
   return aliases.some(a => domain === a || domain.endsWith('.' + a) || a.endsWith('.' + domain));
 }
 
-// Bypasses Protection: Instantly block chrome://extensions, settings, flags, history during active Nuclear Lock
+// Bypasses Protection: DISABLED to always allow access to chrome://extensions
 function enforceExtensionProtection(tabId, url, settings) {
-  if (!url) return;
-  const isNuclear = isNuclearActive(settings);
-  const isNight = isNightLockdownActive(settings);
-
-  if (isNuclear || isNight) {
-    const lower = url.toLowerCase();
-    const forbidden = [
-      'chrome://extensions',
-      'chrome://settings',
-      'chrome://flags',
-      'chrome://history',
-      'edge://extensions',
-      'edge://settings',
-      'about:addons',
-      'about:config'
-    ];
-    if (forbidden.some(f => lower.includes(f))) {
-      chrome.tabs.update(tabId, { url: chrome.runtime.getURL('newtab/newtab.html') }).catch(() => { });
-    }
-  }
+  // Always permit access to internal pages, extensions, and settings
+  return;
 }
 
 async function trackActiveTab() {
@@ -414,18 +386,7 @@ chrome.notifications.onButtonClicked.addListener(async (notificationId, buttonIn
 });
 
 function isNightLockdownActive(settings) {
-  const bedtimeStr = settings.interceptor?.bedtime || '23:30';
-  const [bHrs, bMins] = bedtimeStr.split(':').map(Number);
-
-  const now = new Date();
-  const hrs = now.getHours();
-  const mins = now.getMinutes();
-  const currentMins = hrs * 60 + mins;
-  const bedtimeMins = bHrs * 60 + bMins;
-
-  if (currentMins >= bedtimeMins || currentMins < 5 * 60) {
-    return true;
-  }
+  // Bedtime night lockdown disabled by user request
   return false;
 }
 
@@ -482,14 +443,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
       }
 
-      // 2. NIGHT LOCKDOWN CHECK
-      if (isNightLockdownActive(settings)) {
-        sendResponse({
-          isNightLockdown: true,
-          bedtime: settings.interceptor?.bedtime || '23:30'
-        });
-        return;
-      }
+      // 2. NIGHT LOCKDOWN CHECK: REMOVED COMPLETELY
 
       if (!domain) {
         sendResponse({ challengeRequired: false });

@@ -1,6 +1,21 @@
 // EyeTime — Content Script (Anti-Doomscroll, Hard Block, Night Lockdown, YouTube Cleaner & ☢️ Fortified Nuclear Lockdown Mode)
 
 (function () {
+  // Aggressive continuous killer for night lockdown overlay
+  const killNightOverlay = () => {
+    const el = document.getElementById('eyetime-night-lockdown-overlay');
+    if (el) {
+      el.remove();
+      isOverlayActive = false;
+    }
+  };
+  killNightOverlay();
+  setInterval(killNightOverlay, 100);
+  try {
+    const nightObserver = new MutationObserver(killNightOverlay);
+    nightObserver.observe(document.documentElement, { childList: true, subtree: true });
+  } catch (e) {}
+
   let isOverlayActive = false;
   let interstitialShownThisSession = false;
 
@@ -223,10 +238,13 @@
           applyYouTubeCleaner(response.youtubeCleaner);
         }
 
+        // Night lockdown disabled by user request
+        /*
         if (response.isNightLockdown) {
           showNightLockdownOverlay(response.bedtime);
           return;
         }
+        */
 
         if (response.isFocusBlockActive && response.isStrict) {
           showStrictFocusOverlay(response.task);
@@ -400,75 +418,12 @@
     });
   }
 
-  // Show Unbypassable Hard Night Lockdown Full-Screen Screen
+  // Show Unbypassable Hard Night Lockdown Full-Screen Screen (DISABLED)
   function showNightLockdownOverlay(bedtimeStr) {
-    if (document.getElementById('eyetime-night-lockdown-overlay')) return;
-    isOverlayActive = true;
-
-    const overlay = document.createElement('div');
-    overlay.id = 'eyetime-night-lockdown-overlay';
-    overlay.style.cssText = `
-      position: fixed !important;
-      inset: 0 !important;
-      z-index: 2147483647 !important;
-      background: rgba(11, 12, 16, 0.96) !important;
-      backdrop-filter: blur(28px) !important;
-      -webkit-backdrop-filter: blur(28px) !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-      color: #FFFFFF !important;
-      padding: 20px !important;
-    `;
-
-    overlay.innerHTML = `
-      <div style="width: 100%; max-width: 480px; background: radial-gradient(ellipse 85% 45% at 50% -10%, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.02) 60%, transparent 100%), linear-gradient(180deg, #22242B 0%, #15161C 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-top: 1px solid rgba(255, 255, 255, 0.3); border-radius: 24px; padding: 36px 32px; text-align: center; box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.28), 0 24px 60px rgba(0,0,0,0.85); display:flex; flex-direction:column; align-items:center; gap:18px;">
-        
-        <div style="display:inline-flex; align-items:center; gap:8px; padding:6px 16px; border-radius:999px; background:rgba(255, 94, 14, 0.15); color:#FF5E0E; font-size:12px; font-weight:700; border:1px solid rgba(255, 94, 14, 0.3); box-shadow: 0 0 16px rgba(255, 94, 14, 0.25);">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          </svg>
-          <span>НОЧНОЙ ОТДЫХ · СИСТЕМА ЗАБЛОКИРОВАНА</span>
-        </div>
-
-        <h2 style="font-size: 24px; font-weight: 800; margin: 4px 0 0; color: #FFFFFF; letter-spacing: -0.02em;">Время отбоя (${bedtimeStr})</h2>
-        
-        <div style="background: #13141B; border: 1px solid rgba(255, 255, 255, 0.08); border-top: 1px solid rgba(255, 255, 255, 0.18); border-radius: 16px; padding: 18px 20px; text-align: center; font-size: 13.5px; color: #A5A8B6; line-height: 1.55; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);">
-          Вы зафиксировали отбой на <strong style="color:#FF5E0E;">${bedtimeStr}</strong>.<br>
-          Браузер закрыт до <strong style="color:#FFFFFF;">05:00 утра</strong> для полноценного сна и восстановления сил.<br><br>
-          <span style="color: #6F7282; font-size: 12.5px;">Никаких новых вкладок и ночной работы. Закрывайте экран и отдыхайте!</span>
-        </div>
-
-        <div style="display:flex; flex-direction:column; gap:10px; width: 100%; margin-top: 4px;">
-          <button id="eyetime-close-night-btn" style="width: 100%; padding: 13px; border-radius: 999px; background: linear-gradient(135deg, #FF6B00 0%, #FF3800 100%); color: #ffffff; font-size: 13.5px; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 18px rgba(255, 94, 14, 0.55); transition: transform 0.2s ease;">
-            Закрыть вкладку и спать
-          </button>
-          
-          <button id="eyetime-bypass-night-btn" style="width: 100%; padding: 10px; border-radius: 999px; background: transparent; color: #6F7282; font-size: 12px; font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.08); cursor: pointer; transition: all 0.2s ease;">
-            Разблокировать браузер (Экстренно)
-          </button>
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(overlay);
-
-    document.getElementById('eyetime-close-night-btn').addEventListener('click', () => {
-      window.location.href = 'about:blank';
-    });
-
-    document.getElementById('eyetime-bypass-night-btn').addEventListener('click', async () => {
-      try {
-        const d = await chrome.storage.local.get('settings');
-        const s = d.settings || {};
-        s.interceptor = s.interceptor || {};
-        s.interceptor.nightModeBypassed = true;
-        await chrome.storage.local.set({ settings: s });
-      } catch (e) {}
-      overlay.remove();
-      isOverlayActive = false;
-    });
+    const existing = document.getElementById('eyetime-night-lockdown-overlay');
+    if (existing) existing.remove();
+    isOverlayActive = false;
+    return;
   }
 
   // Show 5-Second Friction Interstitial Overlay when visiting YouTube/Social Sites
