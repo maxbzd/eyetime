@@ -871,9 +871,7 @@ function initMentalScratchpad(interceptor) {
   const list = document.getElementById('scratchpadList');
   if (!input || !list) return;
 
-  const defaultThoughts = [
-    { id: 1, text: 'Посмотреть обзор микрофона', time: '14:20' }
-  ];
+  const defaultThoughts = [];
 
   let thoughts = interceptor.parkedThoughts || defaultThoughts;
 
