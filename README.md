@@ -76,6 +76,13 @@ We created a **single-click installer** so anyone can set up the entire system i
 
 ---
 
+## 🆕 What's new in 1.1
+- **Habit tracker**: your own habits, challenge length from 7 to 365 days, streaks, day grid.
+- **Work hours**: pick days and hours; distracting sites are blocked on schedule (strict mode or a short "allow for 5 min" pass).
+- **Blocking presets**: toggle whole categories, add your own sites, keep an allow-list.
+- **Toolbar badge** with today's screen time.
+- English + Russian interface, JSON/CSV export and import, fixed day-boundary bug for non-UTC time zones.
+
 ## 🔒 Privacy
 100% local: no accounts, no analytics, only domain names are stored. See [PRIVACY.md](PRIVACY.md). Backups (JSON/CSV export + import) are in Settings → Data.
 
@@ -84,7 +91,8 @@ We created a **single-click installer** so anyone can set up the entire system i
 - [ ] More languages (ES, DE, PT, ZH, UK…)
 - [ ] macOS / Linux desktop tracker (currently Windows only)
 - [ ] Firefox port and Chrome Web Store / Edge Add-ons listing
-- [ ] Blocking presets (social, news, video, gaming) and a schedule (work hours)
+- [x] Blocking presets (social, video, forums, news, games, shopping, messengers) and a work-hours schedule
+- [x] Customizable habit tracker / N-day challenge
 - [ ] Weekly report
 
 Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
