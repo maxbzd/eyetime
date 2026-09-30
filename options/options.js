@@ -875,6 +875,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Export JSON Data
   exportJsonBtn.addEventListener('click', async () => {
     const allData = await chrome.storage.local.get(null);
+    // Never put secrets into a backup file the user may share
+    if (allData.settings && allData.settings.ticktick) {
+      allData.settings.ticktick = { ...allData.settings.ticktick, token: '', clientSecret: '' };
+    }
     const jsonStr = JSON.stringify(allData, null, 2);
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -888,6 +892,64 @@ document.addEventListener('DOMContentLoaded', async () => {
     URL.revokeObjectURL(url);
 
     showToast('Файл JSON сохранён');
+  });
+
+  // Export CSV (one row per day + domain/app)
+  document.getElementById('exportCsvBtn')?.addEventListener('click', async () => {
+    const { stats = {} } = await chrome.storage.local.get(['stats']);
+    const esc = v => `"${String(v).replace(/"/g, '""')}"`;
+    const rows = [['date', 'type', 'name', 'seconds']];
+    Object.keys(stats).sort().forEach(date => {
+      Object.entries(stats[date].domains || {}).forEach(([n, sec]) => rows.push([date, 'site', n, Math.round(sec)]));
+      Object.entries(stats[date].desktopApps || {}).forEach(([n, sec]) => rows.push([date, 'app', n, Math.round(sec)]));
+    });
+    const blob = new Blob(['\ufeff' + rows.map(r => r.map(esc).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `eyetime-stats-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('CSV saved');
+  });
+
+  // Import JSON backup (merges stats, replaces settings but keeps local TickTick secrets)
+  const importInput = document.getElementById('importJsonInput');
+  document.getElementById('importJsonBtn')?.addEventListener('click', () => importInput?.click());
+  importInput?.addEventListener('change', async () => {
+    const file = importInput.files[0];
+    importInput.value = '';
+    if (!file) return;
+    try {
+      const imported = JSON.parse(await file.text());
+      if (!imported || typeof imported !== 'object' || Array.isArray(imported)) throw new Error('bad format');
+      const current = await chrome.storage.local.get(null);
+      const next = {};
+      if (imported.settings && typeof imported.settings === 'object') {
+        next.settings = imported.settings;
+        if (current.settings?.ticktick) {
+          next.settings.ticktick = { ...(imported.settings.ticktick || {}), token: current.settings.ticktick.token || '', clientSecret: current.settings.ticktick.clientSecret || '' };
+        }
+      }
+      if (imported.stats && typeof imported.stats === 'object') {
+        const stats = current.stats || {};
+        Object.entries(imported.stats).forEach(([date, day]) => {
+          const cur = stats[date] || {};
+          stats[date] = { ...day, ...cur,
+            domains: { ...(day.domains || {}), ...(cur.domains || {}) },
+            desktopApps: { ...(day.desktopApps || {}), ...(cur.desktopApps || {}) } };
+        });
+        next.stats = stats;
+      }
+      ['dailyGoals', 'eyetime_onboarded'].forEach(k => { if (imported[k] !== undefined) next[k] = imported[k]; });
+      await chrome.storage.local.set(next);
+      showToast('Backup imported — reloading…');
+      setTimeout(() => location.reload(), 800);
+    } catch (e) {
+      showToast('Import failed: invalid backup file');
+    }
   });
 
   // Reset Data
