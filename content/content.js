@@ -63,6 +63,7 @@
     `;
 
     document.body.appendChild(modal);
+    window.EyeTimeI18n && window.EyeTimeI18n.watch(modal);
 
     const input = document.getElementById('eyetime-modal-input');
     const status = document.getElementById('eyetime-modal-status');
@@ -322,6 +323,7 @@
       `;
 
       (document.body || document.documentElement).appendChild(overlay);
+    window.EyeTimeI18n && window.EyeTimeI18n.watch(overlay);
 
       const timerEl = document.getElementById('eyetime-nuclear-timer');
       function updateTimer() {
@@ -412,6 +414,7 @@
     `;
 
     document.body.appendChild(overlay);
+    window.EyeTimeI18n && window.EyeTimeI18n.watch(overlay);
 
     document.getElementById('eyetime-close-strict-focus-btn').addEventListener('click', () => {
       window.location.href = 'about:blank';
@@ -483,6 +486,7 @@
     `;
 
     document.body.appendChild(overlay);
+    window.EyeTimeI18n && window.EyeTimeI18n.watch(overlay);
 
     const backBtn = document.getElementById('eyetime-friction-back-btn');
     const continueBtn = document.getElementById('eyetime-friction-continue-btn');
@@ -546,6 +550,7 @@
     `;
 
     document.body.appendChild(overlay);
+    window.EyeTimeI18n && window.EyeTimeI18n.watch(overlay);
 
     document.getElementById('eyetime-close-hardblock-btn').addEventListener('click', () => {
       window.location.href = 'about:blank';
@@ -680,6 +685,7 @@
     `;
 
     document.body.appendChild(overlay);
+    window.EyeTimeI18n && window.EyeTimeI18n.watch(overlay);
 
     const input = document.getElementById('eyetime-challenge-input');
     const submitBtn = document.getElementById('eyetime-submit-btn');
@@ -894,6 +900,7 @@
     `;
 
     document.body.appendChild(overlay);
+    window.EyeTimeI18n && window.EyeTimeI18n.watch(overlay);
 
     // Keep videos paused
     const pauseInterval = setInterval(() => {

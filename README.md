@@ -80,7 +80,8 @@ We created a **single-click installer** so anyone can set up the entire system i
 100% local: no accounts, no analytics, only domain names are stored. See [PRIVACY.md](PRIVACY.md). Backups (JSON/CSV export + import) are in Settings → Data.
 
 ## 🗺️ Roadmap (help wanted!)
-- [ ] Full UI localization (EN/RU now in manifest; UI strings next) — add your language in `_locales/`
+- [x] English + Russian UI (auto-detected from browser language, switch in Settings). Add a language: copy `assets/i18n_en.js`, translate the values, register it in `assets/i18n.js`
+- [ ] More languages (ES, DE, PT, ZH, UK…)
 - [ ] macOS / Linux desktop tracker (currently Windows only)
 - [ ] Firefox port and Chrome Web Store / Edge Add-ons listing
 - [ ] Blocking presets (social, news, video, gaming) and a schedule (work hours)
