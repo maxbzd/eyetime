@@ -1,3 +1,7 @@
+function escapeHtml(v) {
+  return String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+
 // EyeTime — Daily Cockpit Master Logic
 // Features: Auto-Synced Phone TickTick Tasks, Mental Scratchpad, Anti-Leak Kill-Switch, Work Launchpad, Hero Focus Block, 90-Day Challenge, Focus Bar Chart
 
@@ -589,11 +593,7 @@ function initSmartTasksList(goals, ttSettings) {
   const quickInput = document.getElementById('quickCaptureInput');
   const syncBadge = document.getElementById('ttSyncBadge');
 
-  const defaultTasks = [
-    { text: 'Внести всю инфу в CRM', done: false, isStarred: true, priority: 5 },
-    { text: 'Сделать разбор продаж Радмиру', done: false, isTickTick: true, priority: 3 },
-    { text: 'Отписать всем на профи, чтобы написали в тг', done: true, isTickTick: true, priority: 1 }
-  ];
+  const defaultTasks = [];
 
   let tasks = (goals && goals.length > 0) ? goals : defaultTasks;
   let showAll = false;
@@ -620,13 +620,13 @@ function initSmartTasksList(goals, ttSettings) {
     mainCard.className = `task-card main-task-card ${main.done ? 'done' : ''}`;
     mainCard.innerHTML = `
       <div style="display:flex; align-items:center; gap:16px;">
-        <input type="checkbox" class="task-check" ${main.done ? 'checked' : ''} data-id="${main.id || main.text}">
+        <input type="checkbox" class="task-check" ${main.done ? 'checked' : ''} data-id="${escapeHtml(main.id || main.text)}">
         <div class="main-task-content">
           <span class="main-task-badge">ЦЕЛЬ ДНЯ ${main.priority === 5 ? '· Высокий приоритет' : ''}</span>
-          <span class="main-task-title">${main.text}</span>
+          <span class="main-task-title">${escapeHtml(main.text)}</span>
         </div>
       </div>
-      <button class="star-main-btn ${main.isStarred ? 'active' : ''}" data-id="${main.id || main.text}" title="Главная задача дня">★</button>
+      <button class="star-main-btn ${main.isStarred ? 'active' : ''}" data-id="${escapeHtml(main.id || main.text)}" title="Главная задача дня">★</button>
     `;
     container.appendChild(mainCard);
 
@@ -640,10 +640,10 @@ function initSmartTasksList(goals, ttSettings) {
         subCard.className = `task-card sub-task-card ${sub.done ? 'done' : ''}`;
         subCard.innerHTML = `
           <div style="display:flex; align-items:center; gap:12px;">
-            <input type="checkbox" class="task-check" ${sub.done ? 'checked' : ''} data-id="${sub.id || sub.text}">
-            <span class="sub-task-title">${sub.text}</span>
+            <input type="checkbox" class="task-check" ${sub.done ? 'checked' : ''} data-id="${escapeHtml(sub.id || sub.text)}">
+            <span class="sub-task-title">${escapeHtml(sub.text)}</span>
           </div>
-          <button class="star-main-btn ${sub.isStarred ? 'active' : ''}" data-id="${sub.id || sub.text}" title="Сделать главной целью">★</button>
+          <button class="star-main-btn ${sub.isStarred ? 'active' : ''}" data-id="${escapeHtml(sub.id || sub.text)}" title="Сделать главной целью">★</button>
         `;
         subRow.appendChild(subCard);
       });
@@ -661,10 +661,10 @@ function initSmartTasksList(goals, ttSettings) {
         item.className = `task-card sub-task-card ${t.done ? 'done' : ''}`;
         item.innerHTML = `
           <div style="display:flex; align-items:center; gap:12px;">
-            <input type="checkbox" class="task-check" ${t.done ? 'checked' : ''} data-id="${t.id || t.text}">
-            <span class="sub-task-title">${t.text}</span>
+            <input type="checkbox" class="task-check" ${t.done ? 'checked' : ''} data-id="${escapeHtml(t.id || t.text)}">
+            <span class="sub-task-title">${escapeHtml(t.text)}</span>
           </div>
-          <button class="star-main-btn ${t.isStarred ? 'active' : ''}" data-id="${t.id || t.text}" title="Сделать главной целью">★</button>
+          <button class="star-main-btn ${t.isStarred ? 'active' : ''}" data-id="${escapeHtml(t.id || t.text)}" title="Сделать главной целью">★</button>
         `;
         expContainer.appendChild(item);
       });
@@ -894,7 +894,7 @@ function initMentalScratchpad(interceptor) {
       li.className = 'scratchpad-item';
       li.innerHTML = `
         <span class="scratchpad-dot"></span>
-        <span class="scratchpad-text">${th.text}</span>
+        <span class="scratchpad-text">${escapeHtml(th.text)}</span>
         <button class="btn-remove-thought" data-id="${th.id}" title="Удалить мысль">✕</button>
       `;
       list.appendChild(li);
@@ -936,26 +936,11 @@ function initUncomfortableCompact(interceptor) {
   const grid = document.getElementById('uncomfortableGrid');
   if (!grid) return;
 
-  const targetLabels = [
-    { label: 'Написано сообщений репетиторам', defaultTarget: 30 },
-    { label: 'Созвонов проведено', defaultTarget: 10 }
-  ];
-
   let counters = interceptor.uncomfortableCounters || [];
-
-  // Ensure counters exactly match user's requested labels
-  if (!counters || counters.length < 2 || counters[0].label !== targetLabels[0].label) {
-    counters = [
-      { label: targetLabels[0].label, current: counters[0]?.current || 0, target: targetLabels[0].defaultTarget, isCounter: true },
-      { label: targetLabels[1].label, current: counters[1]?.current || 0, target: targetLabels[1].defaultTarget, isCounter: true }
-    ];
-    interceptor.uncomfortableCounters = counters;
-    saveInterceptor(interceptor);
-  }
 
   function render() {
     grid.innerHTML = '';
-    counters.slice(0, 2).forEach((c, idx) => {
+    counters.slice(0, 4).forEach((c, idx) => {
       const card = document.createElement('div');
       card.className = 'uncomfortable-compact-card';
 
@@ -963,7 +948,7 @@ function initUncomfortableCompact(interceptor) {
 
       card.innerHTML = `
         <div class="unc-top">
-          <span class="unc-lbl">${c.label}</span>
+          <span class="unc-lbl">${escapeHtml(c.label)}</span>
           <div class="unc-step-btns">
             <button class="unc-btn minus" data-idx="${idx}" title="Уменьшить">−</button>
             <button class="unc-btn plus" data-idx="${idx}" title="Увеличить">+</button>

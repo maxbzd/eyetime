@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "EyeTime — Контроль времени и отдыха глаз",
-  "version": "1.0.0",
-  "description": "Локальный трекинг времени в браузере, очиститель YouTube, анти-залипание с капчей и умный личный хаб на новой вкладке.",
+  "name": "__MSG_extName__",
+  "version": "1.1.0",
+  "description": "__MSG_extDescription__",
   "incognito": "spanning",
   "permissions": [
     "tabs",
@@ -10,18 +10,19 @@
     "alarms",
     "notifications",
     "idle",
-    "identity",
     "webNavigation"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "http://127.0.0.1:8765/*",
+    "https://api.ticktick.com/*",
+    "https://ticktick.com/*"
   ],
   "commands": {
     "quick-capture": {
       "suggested_key": {
         "default": "Alt+K"
       },
-      "description": "Быстрый захват мысли в TickTick Inbox"
+      "description": "__MSG_cmdQuickCapture__"
     }
   },
   "background": {
@@ -47,7 +48,7 @@
   ],
   "action": {
     "default_popup": "popup/popup.html",
-    "default_title": "EyeTime Analytics",
+    "default_title": "__MSG_actionTitle__",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
@@ -59,5 +60,6 @@
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
-  }
+  },
+  "default_locale": "en"
 }

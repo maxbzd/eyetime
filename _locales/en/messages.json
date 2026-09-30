@@ -1,0 +1,14 @@
+{
+  "extName": {
+    "message": "EyeTime — Screen Time, Focus & Eye Rest"
+  },
+  "extDescription": {
+    "message": "Local-first screen time tracker, focus sessions, distraction blocker, 20-20-20 eye rest reminders and a productive new tab. No accounts, no servers."
+  },
+  "cmdQuickCapture": {
+    "message": "Quick capture a thought"
+  },
+  "actionTitle": {
+    "message": "EyeTime Analytics"
+  }
+}
