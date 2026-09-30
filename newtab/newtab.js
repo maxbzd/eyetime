@@ -1,3 +1,7 @@
+function localDateKey(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 function escapeHtml(v) {
   return String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 }
@@ -335,7 +339,7 @@ function initAntiLeakKillSwitch(stats, settings) {
   const pill = document.getElementById('antiLeakPill');
   if (!container) return;
 
-  const todayKey = new Date().toISOString().slice(0, 10);
+  const todayKey = localDateKey();
   const todayDomains = stats[todayKey]?.domains || {};
 
   const distractionList = [
@@ -415,174 +419,198 @@ function initAntiLeakKillSwitch(stats, settings) {
   });
 }
 
-// ── 4. HERO 90-DAY CHALLENGE & MATRIX MODAL (Card 3) ──────────────────
+// ── 4. HABIT TRACKER / N-DAY CHALLENGE (Card 3) ───────────────────────
+const DAY_MS = 86400000;
+const localKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const newHabitId = () => 'h' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const HABIT_INPUT_STYLE = 'background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:8px 10px;font:inherit;font-size:13px;';
+const HABIT_BTN_STYLE = 'background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:8px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;';
+const DURATION_OPTIONS = [7, 21, 30, 66, 90, 180, 365];
+
+// Builds the habits object, migrating the legacy fixed "walk / skincare" 90-day challenge if present
+function loadHabits(interceptor) {
+  if (interceptor.habits && Array.isArray(interceptor.habits.items)) return interceptor.habits;
+  const legacy = interceptor.challenges || {};
+  const start = legacy.startDate || localKey(new Date());
+  const habits = { items: [], totalDays: legacy.totalDays || 30, startDate: start, log: {} };
+  const done = legacy.completedDays || {};
+  if (Object.keys(done).length) {
+    habits.totalDays = legacy.totalDays || 90;
+    habits.items = [{ id: 'walk', name: 'Утренняя прогулка' }, { id: 'care', name: 'Уход за лицом' }];
+    Object.entries(done).forEach(([idx, d]) => {
+      const key = localKey(new Date(new Date(start + 'T00:00:00').getTime() + (Number(idx) - 1) * DAY_MS));
+      const ids = [d.walk && 'walk', d.care && 'care'].filter(Boolean);
+      if (ids.length) habits.log[key] = ids;
+    });
+  } else {
+    const tr = (s) => (window.EyeTimeI18n ? window.EyeTimeI18n.t(s) : s);
+    habits.items = [{ id: 'move', name: tr('Движение 20+ минут') }, { id: 'read', name: tr('Чтение 15+ минут') }];
+  }
+  return habits;
+}
+
 function initHero90DayChallenge(interceptor) {
-  const todayWalkCheck = document.getElementById('todayWalkCheck');
-  const todayCareCheck = document.getElementById('todayCareCheck');
-  const streakTag = document.getElementById('streakCountTag');
-  const challengeDaysText = document.getElementById('challengeDaysText');
-  const milestoneTag = document.getElementById('milestoneTag');
-  const openModalBtn = document.getElementById('openMatrixModalBtn');
-  const modal = document.getElementById('matrixModal');
-  const closeModalBtn = document.getElementById('closeMatrixModalBtn');
-  const modalWalkCheck = document.getElementById('modalWalkCheck');
-  const modalCareCheck = document.getElementById('modalCareCheck');
-  const modalSelectedDayInfo = document.getElementById('modalSelectedDayInfo');
-  const grid = document.getElementById('matrixGrid');
+  const $ = (id) => document.getElementById(id);
+  const habitsList = $('habitsList');
+  if (!habitsList) return;
 
-  const totalDays = interceptor.challenges?.totalDays || 90;
-  const todayStr = new Date().toISOString().slice(0, 10);
-  interceptor.challenges = interceptor.challenges || {};
+  const habits = loadHabits(interceptor);
+  interceptor.habits = habits;
+  const persist = () => saveInterceptor(interceptor);
+  persist();
 
-  if (!interceptor.challenges.startDate) {
-    interceptor.challenges.startDate = todayStr;
-    saveInterceptor(interceptor);
+  const dayIndexOf = (date) => Math.floor((new Date(localKey(date) + 'T00:00:00') - new Date(habits.startDate + 'T00:00:00')) / DAY_MS) + 1;
+  const dateOfIndex = (i) => new Date(new Date(habits.startDate + 'T00:00:00').getTime() + (i - 1) * DAY_MS);
+  const doneOn = (key) => (habits.log[key] || []).filter(id => habits.items.some(h => h.id === id));
+  const isFull = (key) => habits.items.length > 0 && doneOn(key).length === habits.items.length;
+
+  let selectedIndex = Math.min(habits.totalDays, Math.max(1, dayIndexOf(new Date())));
+
+  function todayState() {
+    const idx = dayIndexOf(new Date());
+    return { idx, finished: idx > habits.totalDays, key: localKey(new Date()) };
   }
 
-  const startDate = new Date(interceptor.challenges.startDate + 'T00:00:00');
-  const todayDate = new Date(todayStr + 'T00:00:00');
-  const diffDays = Math.floor((todayDate - startDate) / (1000 * 60 * 60 * 24));
-  const todayIndex = Math.min(totalDays, Math.max(1, diffDays + 1));
-
-  let completedMap = interceptor.challenges.completedDays || {};
-  let selectedIndex = todayIndex;
-
-  if (!completedMap[todayIndex]) {
-    completedMap[todayIndex] = {
-      walk: !!interceptor.morningWalkDone,
-      care: false
-    };
+  function makeCheck(cls, habit, key, disabled) {
+    const label = document.createElement('label');
+    label.className = cls;
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = doneOn(key).includes(habit.id);
+    cb.disabled = !!disabled;
+    cb.addEventListener('change', () => toggle(key, habit.id, cb.checked));
+    const span = document.createElement('span');
+    span.textContent = habit.name;
+    label.append(cb, span);
+    return label;
   }
 
-  function syncChecks() {
-    const todayData = completedMap[todayIndex] || { walk: false, care: false };
-    todayWalkCheck.checked = !!todayData.walk;
-    todayCareCheck.checked = !!todayData.care;
-
-    if (modalWalkCheck && modalCareCheck) {
-      const selData = completedMap[selectedIndex] || { walk: false, care: false };
-      modalWalkCheck.checked = !!selData.walk;
-      modalCareCheck.checked = !!selData.care;
-      if (modalSelectedDayInfo) {
-        modalSelectedDayInfo.textContent = (selectedIndex === todayIndex) 
-          ? `День ${selectedIndex} (Сегодня):` 
-          : `День ${selectedIndex}:`;
-      }
-    }
-  }
-
-  async function updateChallenge(walk, care, dayIdx) {
-    if (!completedMap[dayIdx]) completedMap[dayIdx] = {};
-    completedMap[dayIdx].walk = walk;
-    completedMap[dayIdx].care = care;
-
-    if (dayIdx === todayIndex) {
-      interceptor.morningWalkDone = walk;
-    }
-
-    interceptor.challenges.completedDays = completedMap;
-    await saveInterceptor(interceptor);
-    syncChecks();
-    renderMatrix();
-  }
-
-  todayWalkCheck.addEventListener('change', () => {
-    updateChallenge(todayWalkCheck.checked, todayCareCheck.checked, todayIndex);
-  });
-
-  todayCareCheck.addEventListener('change', () => {
-    updateChallenge(todayWalkCheck.checked, todayCareCheck.checked, todayIndex);
-  });
-
-  if (modalWalkCheck && modalCareCheck) {
-    modalWalkCheck.addEventListener('change', () => {
-      updateChallenge(modalWalkCheck.checked, modalCareCheck.checked, selectedIndex);
-    });
-    modalCareCheck.addEventListener('change', () => {
-      updateChallenge(modalWalkCheck.checked, modalCareCheck.checked, selectedIndex);
-    });
+  async function toggle(key, id, on) {
+    const set = new Set(habits.log[key] || []);
+    on ? set.add(id) : set.delete(id);
+    if (set.size) habits.log[key] = [...set]; else delete habits.log[key];
+    await persist();
+    render();
   }
 
   function calculateStreak() {
+    const d = new Date();
+    if (!isFull(localKey(d))) d.setDate(d.getDate() - 1); // today may still be in progress
     let streak = 0;
-    for (let i = todayIndex; i >= 1; i--) {
-      if (completedMap[i] && (completedMap[i].walk || completedMap[i].care)) {
-        streak++;
-      } else {
-        break;
-      }
-    }
+    while (dayIndexOf(d) >= 1 && isFull(localKey(d))) { streak++; d.setDate(d.getDate() - 1); }
     return streak;
   }
 
-  function renderMatrix() {
-    grid.innerHTML = '';
-    let completedCount = 0;
+  function render() {
+    const { idx, finished, key } = todayState();
+    const total = habits.totalDays;
 
-    for (let i = 1; i <= totalDays; i++) {
+    habitsList.innerHTML = '';
+    if (!habits.items.length) {
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = 'Нет привычек. Добавьте первую!';
+      habitsList.appendChild(empty);
+    }
+    habits.items.forEach(h => habitsList.appendChild(makeCheck('hero-habit-item', h, key, finished)));
+
+    const doneToday = doneOn(key).length;
+    $('milestoneTag').textContent = finished ? 'Челлендж завершён 🎉' : `Сегодня: ${doneToday}/${habits.items.length}`;
+    $('challengeDaysText').textContent = finished ? `День ${total} из ${total}` : `День ${idx} из ${total}`;
+    $('streakCountTag').textContent = `Стрик: ${calculateStreak()} дн.`;
+    $('gridFooterLabel').textContent = `Сетка ${total} дней`;
+    $('matrixTitle').textContent = `Челлендж ${total} дней`;
+
+    // Modal: selected day checks
+    const selKey = localKey(dateOfIndex(selectedIndex));
+    const isToday = selectedIndex === idx;
+    $('modalSelectedDayInfo').textContent = `День ${selectedIndex}${isToday ? ' (Сегодня)' : ''}:`;
+    const checks = $('modalHabitChecks');
+    checks.innerHTML = '';
+    habits.items.forEach(h => checks.appendChild(makeCheck('check-item', h, selKey, dateOfIndex(selectedIndex) > new Date())));
+
+    renderManager();
+    renderMatrix(idx);
+  }
+
+  function renderMatrix(todayIdx) {
+    const grid = $('matrixGrid');
+    grid.innerHTML = '';
+    for (let i = 1; i <= habits.totalDays; i++) {
+      const key = localKey(dateOfIndex(i));
+      const done = doneOn(key).length;
       const cell = document.createElement('div');
       cell.className = 'matrix-cell';
-
-      const dayData = completedMap[i];
-      let walkStr = 'Прогулка: Нет';
-      let careStr = 'Уход: Нет';
-
-      if (dayData) {
-        if (dayData.walk) walkStr = 'Прогулка: Да';
-        if (dayData.care) careStr = 'Уход: Да';
-
-        if (dayData.walk && dayData.care) {
-          cell.classList.add('done-both');
-          completedCount++;
-        } else if (dayData.walk || dayData.care) {
-          cell.classList.add('done-half');
-        }
-      }
-
-      if (i === todayIndex) cell.classList.add('is-today');
+      if (isFull(key)) cell.classList.add('done-both');
+      else if (done > 0) cell.classList.add('done-half');
+      if (i === todayIdx) cell.classList.add('is-today');
       if (i === selectedIndex) cell.classList.add('is-selected');
-
-      cell.title = `День ${i}${i === todayIndex ? ' (Сегодня)' : ''}: ${walkStr} | ${careStr}`;
-
-      cell.addEventListener('click', () => {
-        selectedIndex = i;
-        syncChecks();
-        renderMatrix();
-      });
-
+      cell.title = `День ${i}${i === todayIdx ? ' (Сегодня)' : ''}: ${done}/${habits.items.length}`;
+      cell.addEventListener('click', () => { selectedIndex = i; render(); });
       grid.appendChild(cell);
     }
-
-    const currentStreak = calculateStreak();
-    if (streakTag) streakTag.textContent = `Стрик: ${currentStreak} дн.`;
-
-    const remainingToMilestone = Math.max(0, 30 - completedCount);
-    if (milestoneTag) milestoneTag.textContent = `До рубежа: ${remainingToMilestone} дн.`;
-    if (challengeDaysText) challengeDaysText.textContent = `День ${todayIndex} из ${totalDays}`;
   }
 
-  // Modal handlers
-  if (openModalBtn && modal) {
-    openModalBtn.addEventListener('click', () => {
-      modal.classList.remove('hidden');
-      renderMatrix();
+  function renderManager() {
+    const box = $('habitManager');
+    box.innerHTML = '';
+    habits.items.forEach(h => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:8px';
+      const input = document.createElement('input');
+      input.type = 'text'; input.value = h.name; input.maxLength = 60; input.style.cssText = HABIT_INPUT_STYLE + 'flex:1;';
+      input.addEventListener('change', async () => { h.name = input.value.trim() || h.name; await persist(); render(); });
+      const del = document.createElement('button');
+      del.type = 'button'; del.style.cssText = HABIT_BTN_STYLE; del.textContent = 'Удалить';
+      del.addEventListener('click', async () => {
+        habits.items = habits.items.filter(x => x.id !== h.id);
+        await persist(); render();
+      });
+      row.append(input, del);
+      box.appendChild(row);
     });
-  }
-
-  if (closeModalBtn && modal) {
-    closeModalBtn.addEventListener('click', () => {
-      modal.classList.add('hidden');
-    });
-  }
-
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal) {
-      modal.classList.add('hidden');
+    const sel = $('challengeDaysSelect');
+    if (!sel.options.length) {
+      [...new Set([...DURATION_OPTIONS, habits.totalDays])].sort((a, b) => a - b).forEach(n => {
+        const o = document.createElement('option');
+        o.value = n; o.textContent = `${n} дней`;
+        sel.appendChild(o);
+      });
     }
+    sel.value = String(habits.totalDays);
+  }
+
+  async function addHabit() {
+    const input = $('newHabitInput');
+    const name = input.value.trim();
+    if (!name || habits.items.length >= 12) return;
+    habits.items.push({ id: newHabitId(), name });
+    input.value = '';
+    await persist(); render();
+  }
+  $('addHabitBtn').addEventListener('click', addHabit);
+  $('newHabitInput').addEventListener('keydown', e => { if (e.key === 'Enter') addHabit(); });
+
+  $('challengeDaysSelect').addEventListener('change', async (e) => {
+    habits.totalDays = parseInt(e.target.value, 10) || 30;
+    selectedIndex = Math.min(selectedIndex, habits.totalDays);
+    await persist(); render();
   });
 
-  syncChecks();
-  renderMatrix();
+  $('restartChallengeBtn').addEventListener('click', async () => {
+    if (!confirm('Начать челлендж заново? Отметки будут очищены, привычки сохранятся.')) return;
+    habits.startDate = localKey(new Date());
+    habits.log = {};
+    selectedIndex = 1;
+    await persist(); render();
+  });
+
+  const modal = $('matrixModal');
+  $('openMatrixModalBtn')?.addEventListener('click', () => { modal.classList.remove('hidden'); render(); });
+  $('closeMatrixModalBtn')?.addEventListener('click', () => modal.classList.add('hidden'));
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') modal.classList.add('hidden'); });
+
+  render();
 }
 
 // ── 5. TICKTICK TASKS (AUTO-SYNC WITH PHONE & INBOX QUICK CAPTURE) ───
@@ -1020,7 +1048,7 @@ function initFocusBarChart(stats) {
       for (let i = 0; i < 7; i++) {
         const d = new Date(monday);
         d.setDate(monday.getDate() + i);
-        const dateKey = d.toISOString().slice(0, 10);
+        const dateKey = localDateKey(d);
         const dayStats = stats[dateKey] || {};
 
         const isFuture = (i > mondayOffset);
@@ -1117,7 +1145,7 @@ function initFocusBarChart(stats) {
         for (let d = 0; d < 7; d++) {
           const curr = new Date(start);
           curr.setDate(start.getDate() + d);
-          const k = curr.toISOString().slice(0, 10);
+          const k = localDateKey(curr);
           const dayStat = stats[k] || {};
           weekProdSec += (dayStat.productiveSeconds || 0);
           weekDistSec += (dayStat.distractionSeconds || 0);

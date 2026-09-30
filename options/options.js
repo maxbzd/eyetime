@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Interceptor controls
   const bedtimeInput = document.getElementById('bedtimeInput');
-  const morningWalkToggle = document.getElementById('morningWalkToggle');
   const counterLabelInput = document.getElementById('counterLabelInput');
   const counterCurrentInput = document.getElementById('counterCurrentInput');
   const counterTargetInput = document.getElementById('counterTargetInput');
@@ -108,7 +107,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     pauseUntil: 0,
     interceptor: {
       bedtime: '23:30',
-      morningWalkRequired: true,
       uncomfortableCounters: [
         { label: 'Сессий глубокого фокуса', current: 0, target: 4 },
         { label: 'Важных закрытых задач', current: 0, target: 5 },
@@ -178,8 +176,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!currentSettings.interceptor) {
       currentSettings.interceptor = {
         bedtime: '23:30',
-        morningWalkRequired: true,
-        uncomfortableCounters: [
+          uncomfortableCounters: [
           { label: 'Сессий глубокого фокуса', current: 0, target: 4 },
           { label: 'Важных закрытых задач', current: 0, target: 5 },
           { label: 'Прочитано страниц / статей', current: 0, target: 20 }
@@ -199,7 +196,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Populate Interceptor Controls
   const inc = currentSettings.interceptor;
   bedtimeInput.value = inc.bedtime || '23:30';
-  morningWalkToggle.checked = inc.morningWalkRequired !== false;
 
   renderCountersConfig();
   renderRulesConfig();
@@ -405,11 +401,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   bedtimeInput.addEventListener('change', async (e) => {
     currentSettings.interceptor.bedtime = e.target.value;
     await saveSettings('Время отбоя обновлено');
-  });
-
-  morningWalkToggle.addEventListener('change', async (e) => {
-    currentSettings.interceptor.morningWalkRequired = e.target.checked;
-    await saveSettings();
   });
 
   // Render Counters Config
@@ -892,6 +883,100 @@ document.addEventListener('DOMContentLoaded', async () => {
     URL.revokeObjectURL(url);
 
     showToast('Файл JSON сохранён');
+  });
+
+  // ── Work hours & blocking presets ─────────────────────────────────
+  const BL = window.EyeTimeBlocking;
+  const escHtml = v => String(v).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  function blocking() {
+    currentSettings.blocking = BL.getBlocking(currentSettings);
+    return currentSettings.blocking;
+  }
+  function renderBlocking() {
+    const b = blocking(), s = b.schedule;
+    document.getElementById('scheduleEnabled').checked = !!s.enabled;
+    document.getElementById('scheduleStart').value = s.start;
+    document.getElementById('scheduleEnd').value = s.end;
+    document.getElementById('scheduleStrict').checked = !!s.strict;
+    document.getElementById('schedulePassMinutes').value = s.passMinutes;
+    const days = document.getElementById('scheduleDays');
+    days.innerHTML = '';
+    [['Пн', 1], ['Вт', 2], ['Ср', 3], ['Чт', 4], ['Пт', 5], ['Сб', 6], ['Вс', 0]].forEach(([label, d]) => {
+      const l = document.createElement('label');
+      l.className = 'tag';
+      l.style.cursor = 'pointer';
+      l.innerHTML = `<input type="checkbox" ${s.days.includes(d) ? 'checked' : ''}> <span>${label}</span>`;
+      l.querySelector('input').addEventListener('change', async (e) => {
+        s.days = e.target.checked ? [...new Set([...s.days, d])] : s.days.filter(x => x !== d);
+        await saveSettings();
+      });
+      days.appendChild(l);
+    });
+    const grid = document.getElementById('presetGrid');
+    grid.innerHTML = '';
+    Object.entries(BL.PRESETS).forEach(([id, p]) => {
+      const l = document.createElement('label');
+      l.className = 'tag';
+      l.style.cssText = 'cursor:pointer;display:flex;justify-content:space-between;gap:8px;padding:10px 12px';
+      l.title = p.domains.join(', ');
+      l.innerHTML = `<span>${p.icon} <span>${p.name}</span> <small style="opacity:.6">(${p.domains.length})</small></span><input type="checkbox" ${b.presets[id] ? 'checked' : ''}>`;
+      l.querySelector('input').addEventListener('change', async (e) => {
+        b.presets[id] = e.target.checked;
+        await saveSettings();
+      });
+      grid.appendChild(l);
+    });
+    renderDomainList('customDistractionTags', b.customDistractions, '🚫');
+    renderDomainList('allowedDomainTags', b.allowedDomains, '✅');
+  }
+  function renderDomainList(elId, list, icon) {
+    const box = document.getElementById(elId);
+    box.innerHTML = '';
+    list.forEach(dom => {
+      const tag = document.createElement('div');
+      tag.className = 'tag';
+      tag.innerHTML = `<span>${icon} ${escHtml(dom)}</span><span class="tag-remove" style="cursor:pointer">&times;</span>`;
+      tag.querySelector('.tag-remove').addEventListener('click', async () => {
+        list.splice(list.indexOf(dom), 1);
+        renderBlocking();
+        await saveSettings();
+      });
+      box.appendChild(tag);
+    });
+  }
+  function bindDomainAdd(inputId, btnId, key) {
+    const add = async () => {
+      const input = document.getElementById(inputId);
+      const dom = cleanDomain(input.value);
+      const list = blocking()[key];
+      if (dom && !list.includes(dom)) {
+        list.push(dom);
+        input.value = '';
+        renderBlocking();
+        await saveSettings();
+      }
+    };
+    document.getElementById(btnId).addEventListener('click', add);
+    document.getElementById(inputId).addEventListener('keydown', e => { if (e.key === 'Enter') add(); });
+  }
+  bindDomainAdd('customDistractionInput', 'addCustomDistractionBtn', 'customDistractions');
+  bindDomainAdd('allowedDomainInput', 'addAllowedDomainBtn', 'allowedDomains');
+  [['scheduleEnabled', 'enabled', 'checked'], ['scheduleStrict', 'strict', 'checked'], ['scheduleStart', 'start', 'value'], ['scheduleEnd', 'end', 'value']].forEach(([id, key, prop]) => {
+    document.getElementById(id).addEventListener('change', async (e) => {
+      blocking().schedule[key] = e.target[prop];
+      await saveSettings();
+    });
+  });
+  document.getElementById('schedulePassMinutes').addEventListener('change', async (e) => {
+    blocking().schedule.passMinutes = Math.min(60, Math.max(1, parseInt(e.target.value, 10) || 5));
+    await saveSettings();
+  });
+  renderBlocking();
+  const showBadgeToggle = document.getElementById('showBadgeToggle');
+  showBadgeToggle.checked = currentSettings.showBadge !== false;
+  showBadgeToggle.addEventListener('change', async (e) => {
+    currentSettings.showBadge = e.target.checked;
+    await saveSettings();
   });
 
   // Export CSV (one row per day + domain/app)
