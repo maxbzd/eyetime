@@ -76,6 +76,18 @@ We created a **single-click installer** so anyone can set up the entire system i
 
 ---
 
+## 🔒 Privacy
+100% local: no accounts, no analytics, only domain names are stored. See [PRIVACY.md](PRIVACY.md). Backups (JSON/CSV export + import) are in Settings → Data.
+
+## 🗺️ Roadmap (help wanted!)
+- [ ] Full UI localization (EN/RU now in manifest; UI strings next) — add your language in `_locales/`
+- [ ] macOS / Linux desktop tracker (currently Windows only)
+- [ ] Firefox port and Chrome Web Store / Edge Add-ons listing
+- [ ] Blocking presets (social, news, video, gaming) and a schedule (work hours)
+- [ ] Weekly report
+
+Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## 🎨 Design System: Fintrixity Neo-Dark Glass
 * **Obsidian Base**: `#0B0C10` with top radial orange glow.
 * **Specular Highlight Bento Cards**: Dual-layer reflections (`rgba(255, 255, 255, 0.28)` specular edge).
