@@ -18,5 +18,10 @@ const refs = [m.background?.service_worker, m.chrome_url_overrides?.newtab, m.ac
   ...(m.content_scripts || []).flatMap(c => [...(c.js || []), ...(c.css || [])]), ...Object.values(m.icons || {})].filter(Boolean);
 refs.forEach(r => { if (!fs.existsSync(path.join(root, r))) fail('manifest references missing file: ' + r); });
 if (m.default_locale && !fs.existsSync(path.join(root, '_locales', m.default_locale, 'messages.json'))) fail('missing default locale');
+// i18n: every '{}' placeholder count must match between Russian key and translation
+global.self = global; require(path.join(root, 'assets/i18n_en.js'));
+for (const [ru, en] of Object.entries(global.EYETIME_DICT_EN)) {
+  if (ru.split('{}').length !== en.split('{}').length) fail('i18n placeholder mismatch: ' + ru);
+}
 if (errors) process.exit(1);
 console.log('✓ all checks passed');

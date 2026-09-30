@@ -1,5 +1,8 @@
 // EyeTime — Background Service Worker with Ironclad Nuclear Lockdown, Anti-Bypass Shield & Master Central DB Multi-Browser Sync Engine
 
+importScripts('assets/i18n_en.js', 'assets/i18n.js');
+const t = (s) => self.EyeTimeI18n.t(s);
+
 const DEFAULT_SETTINGS = {
   eyeRestIntervalMinutes: 20,
   notificationsEnabled: true,
@@ -12,14 +15,14 @@ const DEFAULT_SETTINGS = {
     morningWalkDone: false,
     strictFocusLock: false,
     uncomfortableCounters: [
-      { label: 'Focus sessions', current: 0, target: 4 },
-      { label: 'Key tasks closed', current: 0, target: 5 },
-      { label: 'Pages read', current: 0, target: 20 }
+      { label: 'Сессий глубокого фокуса', current: 0, target: 4 },
+      { label: 'Важных закрытых задач', current: 0, target: 5 },
+      { label: 'Прочитано страниц / статей', current: 0, target: 20 }
     ],
     dailyRules: [
-      'Main task first',
-      'Take a break every 25 minutes',
-      'Phone away during deep work'
+      'Сначала главная задача дня',
+      'Перерывы для отдыха глаз каждые 25 минут',
+      'Фокус важнее суеты'
     ]
   },
   nuclearLock: {
@@ -77,7 +80,7 @@ let pcTrackerStatus = {
   exeName: '',
   windowTitle: '',
   isIdle: false,
-  category: 'App',
+  category: 'Приложение',
   lastSeen: 0
 };
 
@@ -375,9 +378,9 @@ async function checkEyeRestNotification() {
     chrome.notifications.create('eyeRestNotice', {
       type: 'basic',
       iconUrl: 'icons/icon128.png',
-      title: '👁️ Пауза для глаз (20-20-20)',
-      message: `Прошло ${intervalMins} минут реального времени! Посмотрите на объект в 6 метрах на 20 секунд.`,
-      buttons: [{ title: '✅ Сделал перерыв' }, { title: '⏸️ Сноуз 5 мин' }],
+      title: t('👁️ Пауза для глаз (20-20-20)'),
+      message: t('Прошло ' + intervalMins + ' минут реального времени! Посмотрите на объект в 6 метрах на 20 секунд.'),
+      buttons: [{ title: t('✅ Сделал перерыв') }, { title: t('⏸️ Сноуз 5 мин') }],
       priority: 2
     });
   }
@@ -435,7 +438,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       const goals = data.dailyGoals || [];
       goals.push({ text: txt, done: false });
       await chrome.storage.local.set({ dailyGoals: goals });
-      sendResponse({ success: true, target: 'Local tasks' });
+      sendResponse({ success: true, target: 'Локальные задачи' });
     })();
     return true;
   }
@@ -476,7 +479,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         sendResponse({
           isFocusBlockActive: true,
           isStrict: isStrict,
-          task: interceptor.focusBlockTask || 'Main task'
+          task: interceptor.focusBlockTask || 'Главная задача'
         });
         return;
       }

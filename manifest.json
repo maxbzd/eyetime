@@ -38,6 +38,8 @@
         "https://*/*"
       ],
       "js": [
+        "assets/i18n_en.js",
+        "assets/i18n.js",
         "content/content.js"
       ],
       "css": [
