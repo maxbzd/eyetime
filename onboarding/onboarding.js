@@ -77,7 +77,7 @@
     btn.textContent = 'Сохранение настроек...';
 
     const bedtime = document.getElementById('inputBedtime')?.value || '23:00';
-    const morningWalk = document.getElementById('checkMorningWalk')?.checked !== false;
+    const workHours = document.getElementById('checkWorkHours')?.checked === true;
     const antiShorts = document.getElementById('checkAntiShorts')?.checked !== false;
     const focusUrl = document.getElementById('inputFocusUrl')?.value?.trim() || 'https://app.endel.io/player/focus';
 
@@ -104,7 +104,8 @@
       const settings = data.settings || {};
       settings.interceptor = settings.interceptor || {};
       settings.interceptor.bedtime = bedtime;
-      settings.interceptor.morningWalkRequired = morningWalk;
+      settings.blocking = settings.blocking || {};
+      settings.blocking.schedule = Object.assign({ start: '09:00', end: '18:00', days: [1, 2, 3, 4, 5], strict: false, passMinutes: 5 }, settings.blocking.schedule, { enabled: workHours });
       settings.interceptor.uncomfortableCounters = counters;
       settings.interceptor.focusUrl = focusUrl;
 

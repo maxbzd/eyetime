@@ -1,20 +1,8 @@
 // EyeTime — Content Script (Anti-Doomscroll, Hard Block, Night Lockdown, YouTube Cleaner & ☢️ Fortified Nuclear Lockdown Mode)
 
 (function () {
-  // Aggressive continuous killer for night lockdown overlay
-  const killNightOverlay = () => {
-    const el = document.getElementById('eyetime-night-lockdown-overlay');
-    if (el) {
-      el.remove();
-      isOverlayActive = false;
-    }
-  };
-  killNightOverlay();
-  setInterval(killNightOverlay, 100);
-  try {
-    const nightObserver = new MutationObserver(killNightOverlay);
-    nightObserver.observe(document.documentElement, { childList: true, subtree: true });
-  } catch (e) {}
+  const localDateKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const escapeHtml = v => String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 
   let isOverlayActive = false;
   let interstitialShownThisSession = false;
@@ -239,13 +227,10 @@
           applyYouTubeCleaner(response.youtubeCleaner);
         }
 
-        // Night lockdown disabled by user request
-        /*
-        if (response.isNightLockdown) {
-          showNightLockdownOverlay(response.bedtime);
+        if (response.isScheduleBlocked) {
+          showScheduleOverlay(response);
           return;
         }
-        */
 
         if (response.isFocusBlockActive && response.isStrict) {
           showStrictFocusOverlay(response.task);
@@ -258,11 +243,11 @@
           showHardBlockOverlay(response.domain);
         } else if (response.challengeRequired) {
           showDoomscrollChallenge(response);
-        } else if (!interstitialShownThisSession && isDistractionSite(response.domain)) {
+        } else if (!interstitialShownThisSession && response.isDistraction) {
           const appData = await chrome.storage.local.get(['settings', 'dailyGoals', 'stats']);
           const goals = appData.dailyGoals || [];
           const mainTask = goals[0]?.text || 'Главная задача не задана';
-          const todayKey = new Date().toISOString().slice(0, 10);
+          const todayKey = localDateKey();
           const spentSec = appData.stats?.[todayKey]?.domains?.[response.domain] || 0;
           const spentMins = Math.floor(spentSec / 60);
 
@@ -270,11 +255,6 @@
         }
       });
     } catch (e) { }
-  }
-
-  function isDistractionSite(domain) {
-    if (!domain) return false;
-    return ['youtube.com', 'vk.com', 'reddit.com', 'twitch.tv', 'tiktok.com', 'instagram.com', 'twitter.com', 'x.com'].some(d => domain.includes(d));
   }
 
   // Show Unbypassable ☢️ Nuclear Lockdown Mode Overlay with MutationObserver Anti-Deletion Shield
@@ -372,6 +352,32 @@
     }, true);
   }
 
+  // Work hours: distractions are blocked on schedule; non-strict mode allows a short pass
+  function showScheduleOverlay(info) {
+    if (document.getElementById('eyetime-schedule-overlay')) return;
+    isOverlayActive = true;
+    const overlay = document.createElement('div');
+    overlay.id = 'eyetime-schedule-overlay';
+    overlay.style.cssText = 'position:fixed !important;inset:0 !important;z-index:2147483647 !important;background:rgba(5,6,8,0.98) !important;backdrop-filter:blur(32px) !important;display:flex !important;align-items:center !important;justify-content:center !important;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif !important;color:#f8fafc !important;padding:20px !important;';
+    overlay.innerHTML = `
+      <div style="width:100%;max-width:460px;background:#0e1017;border:1px solid rgba(45,212,191,0.5);border-radius:24px;padding:36px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.95);display:flex;flex-direction:column;gap:18px;">
+        <div style="align-self:center;padding:6px 16px;border-radius:14px;background:rgba(45,212,191,0.15);color:#2dd4bf;font-size:13px;font-weight:800;border:1px solid rgba(45,212,191,0.35);">💼 Рабочие часы</div>
+        <h2 style="font-size:22px;font-weight:800;margin:0;color:#fff;">${escapeHtml(info.domain)}</h2>
+        <p style="font-size:14px;color:#cbd5e1;margin:0;">Отвлекающие сайты заблокированы до <strong style="color:#2dd4bf">${escapeHtml(info.end)}</strong>.</p>
+        <button id="eyetime-schedule-back" style="padding:14px;border-radius:14px;background:linear-gradient(135deg,#2dd4bf,#10b981);color:#04201a;font-size:14px;font-weight:800;border:none;cursor:pointer;">← Вернуться к работе</button>
+        ${info.strict ? '' : `<button id="eyetime-schedule-pass" style="padding:10px;border-radius:12px;background:transparent;color:#94a3b8;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,0.12);cursor:pointer;">Разрешить на ${Number(info.passMinutes) || 5} мин</button>`}
+      </div>`;
+    document.body.appendChild(overlay);
+    window.EyeTimeI18n && window.EyeTimeI18n.watch(overlay);
+    document.getElementById('eyetime-schedule-back').addEventListener('click', () => {
+      chrome.runtime.sendMessage({ action: 'CLOSE_CURRENT_TAB' });
+      window.location.href = 'about:blank';
+    });
+    document.getElementById('eyetime-schedule-pass')?.addEventListener('click', () => {
+      chrome.runtime.sendMessage({ action: 'SCHEDULE_PASS', domain: info.domain }, () => { overlay.remove(); isOverlayActive = false; });
+    });
+  }
+
   // Show Strict Focus Block Hard Lock Overlay
   function showStrictFocusOverlay(taskText) {
     if (document.getElementById('eyetime-strict-focus-overlay')) return;
@@ -402,7 +408,7 @@
         
         <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px; text-align: left;">
           <div style="font-size: 11px; color: #94a3b8;">Ваша главная цель на спринт:</div>
-          <div style="font-size: 16px; font-weight: 800; color: #2dd4bf; margin-top: 4px;">${taskText}</div>
+          <div style="font-size: 16px; font-weight: 800; color: #2dd4bf; margin-top: 4px;">${escapeHtml(taskText)}</div>
         </div>
 
         <p style="font-size:13px; color:#cbd5e1; margin:0;">Развлекательные сайты полностью заблокированы во время работы. Вернитесь к задаче!</p>
@@ -419,14 +425,6 @@
     document.getElementById('eyetime-close-strict-focus-btn').addEventListener('click', () => {
       window.location.href = 'about:blank';
     });
-  }
-
-  // Show Unbypassable Hard Night Lockdown Full-Screen Screen (DISABLED)
-  function showNightLockdownOverlay(bedtimeStr) {
-    const existing = document.getElementById('eyetime-night-lockdown-overlay');
-    if (existing) existing.remove();
-    isOverlayActive = false;
-    return;
   }
 
   // Show 5-Second Friction Interstitial Overlay when visiting YouTube/Social Sites
@@ -463,15 +461,15 @@
           <span>ПЕРЕХВАТЧИК ВНИМАНИЯ</span>
         </div>
 
-        <h3 style="font-size: 20px; font-weight: 800; margin: 0; color: #FFFFFF; letter-spacing: -0.015em;">Вы открываете ${domain}</h3>
+        <h3 style="font-size: 20px; font-weight: 800; margin: 0; color: #FFFFFF; letter-spacing: -0.015em;">Вы открываете ${escapeHtml(domain)}</h3>
         
         <div style="background: #13141B; border: 1px solid rgba(255, 255, 255, 0.08); border-top: 1px solid rgba(255, 255, 255, 0.16); border-radius: 14px; padding: 14px 16px; text-align: left; width: 100%;">
           <div style="font-size: 11px; font-weight: 600; color: #6F7282; text-transform: uppercase; letter-spacing: 0.03em;">Главная задача на сегодня:</div>
-          <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; margin-top: 4px;">${mainTask}</div>
+          <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; margin-top: 4px;">${escapeHtml(mainTask)}</div>
         </div>
 
         <div style="font-size: 12.5px; color: #A5A8B6;">
-          Потрачено на ${domain} сегодня: <strong style="color:#FF5E0E;">${spentMins} мин</strong>
+          Потрачено на ${escapeHtml(domain)} сегодня: <strong style="color:#FF5E0E;">${spentMins} мин</strong>
         </div>
 
         <div style="display:flex; flex-direction:column; gap:10px; width: 100%; margin-top: 4px;">
@@ -538,7 +536,7 @@
         </div>
 
         <div class="eyetime-info-box">
-          Домен <span class="eyetime-highlight danger">${domain}</span> находится в вашем списке <strong style="color:#FF5E0E">полной блокировки (Хард-блок)</strong>. Доступ закрыт.
+          Домен <span class="eyetime-highlight danger">${escapeHtml(domain)}</span> находится в вашем списке <strong style="color:#FF5E0E">полной блокировки (Хард-блок)</strong>. Доступ закрыт.
         </div>
 
         <div class="eyetime-actions">

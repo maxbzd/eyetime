@@ -60,6 +60,11 @@
           <span>Лимиты сайтов</span>
         </button>
 
+        <button class="nav-tab" data-tab="tab-schedule">
+          <span class="nav-icon">💼</span>
+          <span>Рабочие часы</span>
+        </button>
+
         <button class="nav-tab" data-tab="tab-hardblock">
           <span class="nav-icon">🚫</span>
           <span>Хард-блок</span>
@@ -103,13 +108,6 @@
               <div class="form-group flex-1">
                 <label for="bedtimeInput" class="field-label">Время отбоя (Bedtime)</label>
                 <input type="time" id="bedtimeInput" value="23:30" class="custom-input">
-              </div>
-              <div class="form-group flex-1">
-                <label class="toggle-control" style="margin-top:24px;">
-                  <span>Утренний блок «Сначала улица»</span>
-                  <input type="checkbox" id="morningWalkToggle" checked>
-                  <span class="slider"></span>
-                </label>
               </div>
             </div>
 
@@ -195,6 +193,14 @@
               <label class="toggle-control">
                 <span>Включить уведомления о перерывах</span>
                 <input type="checkbox" id="notificationsToggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label class="toggle-control">
+                <span>Показывать время за день на значке расширения</span>
+                <input type="checkbox" id="showBadgeToggle" checked>
                 <span class="slider"></span>
               </label>
             </div>
@@ -287,6 +293,42 @@
             </div>
 
             <div id="customLimitsList" class="custom-limits-list"></div>
+          </section>
+        </div>
+
+        <!-- Tab: Work hours & blocking presets -->
+        <div id="tab-schedule" class="tab-panel">
+          <section class="card">
+            <h2>💼 Рабочие часы</h2>
+            <p class="card-desc">В выбранные дни и часы отвлекающие сайты (из пресетов ниже) блокируются автоматически.</p>
+            <div class="form-group"><label class="toggle-control"><span>Включить расписание</span><input type="checkbox" id="scheduleEnabled"><span class="slider"></span></label></div>
+            <div id="scheduleDays" class="actions-row" style="flex-wrap:wrap;gap:8px;margin:12px 0"></div>
+            <div class="domain-input-group">
+              <label>С <input type="time" id="scheduleStart" class="custom-input" style="width:auto"></label>
+              <label>До <input type="time" id="scheduleEnd" class="custom-input" style="width:auto"></label>
+            </div>
+            <div class="form-group"><label class="toggle-control"><span>Строгий режим (без кнопки «Разрешить на несколько минут»)</span><input type="checkbox" id="scheduleStrict"><span class="slider"></span></label></div>
+            <div class="domain-input-group" style="margin-top:10px">
+              <label>Пауза-разрешение (мин) <input type="number" id="schedulePassMinutes" min="1" max="60" class="custom-input"></label>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2>🧱 Пресеты отвлекающих сайтов</h2>
+            <p class="card-desc">Эти сайты считаются отвлечениями: блокируются в рабочие часы и во время фокус-блока, а при открытии показывают паузу на осознанность.</p>
+            <div id="presetGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px"></div>
+            <h3 style="margin:18px 0 6px">Свои сайты-отвлечения</h3>
+            <div class="domain-input-group">
+              <input type="text" id="customDistractionInput" placeholder="Домен (напр: youtube.com)" class="custom-input flex-2">
+              <button id="addCustomDistractionBtn" class="btn btn-secondary">Добавить</button>
+            </div>
+            <div id="customDistractionTags" class="tags-container"></div>
+            <h3 style="margin:18px 0 6px">Всегда разрешены (исключения из пресетов)</h3>
+            <div class="domain-input-group">
+              <input type="text" id="allowedDomainInput" placeholder="Домен (напр: youtube.com)" class="custom-input flex-2">
+              <button id="addAllowedDomainBtn" class="btn btn-secondary">Добавить</button>
+            </div>
+            <div id="allowedDomainTags" class="tags-container"></div>
           </section>
         </div>
 
@@ -453,6 +495,7 @@
     <div id="toast" class="toast hidden">Настройки успешно сохранены</div>
   </div>
 
+  <script src="../assets/blocking.js"></script>
   <script src="options.js"></script>
 </body>
 </html>

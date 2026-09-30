@@ -1,7 +1,12 @@
 // EyeTime — Background Service Worker with Ironclad Nuclear Lockdown, Anti-Bypass Shield & Master Central DB Multi-Browser Sync Engine
 
-importScripts('assets/i18n_en.js', 'assets/i18n.js');
+importScripts('assets/i18n_en.js', 'assets/i18n.js', 'assets/blocking.js');
+const BL = self.EyeTimeBlocking;
 const t = (s) => self.EyeTimeI18n.t(s);
+
+function localDateKey(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 
 const DEFAULT_SETTINGS = {
   eyeRestIntervalMinutes: 20,
@@ -11,8 +16,6 @@ const DEFAULT_SETTINGS = {
   interceptor: {
     bedtime: '23:30',
     bedtimeSetForToday: false,
-    morningWalkRequired: true,
-    morningWalkDone: false,
     strictFocusLock: false,
     uncomfortableCounters: [
       { label: 'Сессий глубокого фокуса', current: 0, target: 4 },
@@ -180,6 +183,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     await checkEyeRestNotification();
   }
   if (alarm.name === 'trackerTick') {
+    updateBadge(true);
     refreshActiveTab();
     pollDesktopTracker();
   }
@@ -242,6 +246,21 @@ function enforceExtensionProtection(tabId, url, settings) {
   return;
 }
 
+// Toolbar badge: today's tracked time (teal while work hours are active)
+let lastBadgeUpdate = 0;
+async function updateBadge(force) {
+  if (!force && Date.now() - lastBadgeUpdate < 20000) return;
+  lastBadgeUpdate = Date.now();
+  const data = await chrome.storage.local.get(['settings', 'stats']);
+  const settings = data.settings || DEFAULT_SETTINGS;
+  if (settings.showBadge === false) { chrome.action.setBadgeText({ text: '' }); return; }
+  const sec = data.stats?.[localDateKey()]?.totalSeconds || 0;
+  const m = Math.floor(sec / 60), h = Math.floor(m / 60);
+  const text = sec < 60 ? '' : (h === 0 ? `${m}m` : (h >= 10 ? `${h}h` : `${h}h${String(m % 60).padStart(2, '0')}`));
+  chrome.action.setBadgeText({ text });
+  chrome.action.setBadgeBackgroundColor({ color: BL.isScheduleActive(settings) ? '#0d9488' : '#475569' });
+}
+
 async function trackActiveTab() {
   const now = Date.now();
   const elapsedSeconds = Math.floor((now - lastTickTimestamp) / 1000);
@@ -258,7 +277,7 @@ async function trackActiveTab() {
   if (activeDomain && !isExcluded(activeDomain, settings)) {
     const idleState = await chrome.idle.queryState(60);
     if (idleState === 'active') {
-      const todayKey = new Date().toISOString().slice(0, 10);
+      const todayKey = localDateKey();
       const storageData = await chrome.storage.local.get(['stats']);
       const stats = storageData.stats || {};
       if (!stats[todayKey]) {
@@ -276,6 +295,7 @@ async function trackActiveTab() {
       stats[todayKey].totalSeconds = domTot + appTot;
 
       await chrome.storage.local.set({ stats });
+      updateBadge();
 
       // Post tick to Master Central DB Server on PC
       try {
@@ -390,7 +410,7 @@ chrome.notifications.onButtonClicked.addListener(async (notificationId, buttonIn
   if (notificationId === 'eyeRestNotice') {
     if (buttonIndex === 0) {
       const data = await chrome.storage.local.get(['stats']);
-      const todayKey = new Date().toISOString().slice(0, 10);
+      const todayKey = localDateKey();
       const stats = data.stats || {};
       if (stats[todayKey]) {
         stats[todayKey].breaksCompleted = (stats[todayKey].breaksCompleted || 0) + 1;
@@ -464,16 +484,28 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
       }
 
-      // 2. NIGHT LOCKDOWN CHECK: REMOVED COMPLETELY
-
       if (!domain) {
         sendResponse({ challengeRequired: false });
         return;
       }
 
+      // Tell the content script whether this site is one of the user's distractions
+      const isDistraction = BL.isDistraction(domain, settings);
+      const reply = sendResponse;
+      sendResponse = (o) => reply(Object.assign({ isDistraction }, o));
+
+      // 2. WORK HOURS: distractions are blocked during the configured schedule
+      if (isDistraction && BL.isScheduleActive(settings) && !(settings.pauseUntil && Date.now() < settings.pauseUntil)) {
+        const sched = BL.getBlocking(settings).schedule;
+        const passUntil = (await chrome.storage.local.get(['schedulePass'])).schedulePass?.[domain] || 0;
+        if (Date.now() >= passUntil) {
+          sendResponse({ isScheduleBlocked: true, domain, strict: !!sched.strict, end: sched.end, passMinutes: sched.passMinutes });
+          return;
+        }
+      }
+
       const isFocusActive = interceptor.focusBlockActive && Date.now() < (interceptor.focusBlockEndTime || 0);
       const isStrict = interceptor.strictFocusLock || false;
-      const isDistraction = ['youtube.com', 'reddit.com', 'vk.com', 'twitter.com', 'x.com', 'tiktok.com', 'twitch.tv', 'instagram.com'].some(d => domain.includes(d));
 
       if (isFocusActive && isDistraction) {
         sendResponse({
@@ -491,7 +523,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       }
 
       const customLimits = settings.customDomainLimits || {};
-      const todayKey = new Date().toISOString().slice(0, 10);
+      const todayKey = localDateKey();
       const domainSpentSec = data.stats?.[todayKey]?.domains?.[domain] || 0;
       const customLimitMins = customLimits[domain];
 
@@ -541,6 +573,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       });
     })();
 
+    return true;
+  }
+
+  if (request.action === 'SCHEDULE_PASS' && request.domain) {
+    (async () => {
+      const data = await chrome.storage.local.get(['settings', 'schedulePass']);
+      const sched = BL.getBlocking(data.settings).schedule;
+      if (sched.strict) { sendResponse({ success: false }); return; }
+      const pass = data.schedulePass || {};
+      pass[request.domain] = Date.now() + (sched.passMinutes || 5) * 60000;
+      await chrome.storage.local.set({ schedulePass: pass });
+      sendResponse({ success: true });
+    })();
     return true;
   }
 

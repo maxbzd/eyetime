@@ -4,7 +4,8 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "check": "node scripts-dev/check.js",
+    "check": "node scripts-dev/check.js && node scripts-dev/test.js",
+    "test": "node scripts-dev/test.js",
     "build": "node scripts-dev/check.js && node scripts-dev/pack.js"
   }
 }

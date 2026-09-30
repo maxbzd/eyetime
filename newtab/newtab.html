@@ -157,7 +157,7 @@
               </svg>
             </div>
             <div>
-              <div class="hero-card-label">Дисциплина</div>
+              <div class="hero-card-label">Привычки</div>
               <div class="hero-card-sub" id="challengeDaysText">День 1 из 90</div>
             </div>
           </div>
@@ -167,23 +167,14 @@
         <!-- Today Habits Checkboxes -->
         <div class="hero-habits-box">
           <div class="discipline-status-strip">
-            <span id="milestoneTag">До рубежа: 28 дн.</span>
+            <span id="milestoneTag"></span>
           </div>
 
-          <div class="hero-habits-list">
-            <label class="hero-habit-item" title="Прогулка в первый час после пробуждения">
-              <input type="checkbox" id="todayWalkCheck">
-              <span>Утренняя прогулка</span>
-            </label>
-            <label class="hero-habit-item" title="Уход за лицом утром и вечером">
-              <input type="checkbox" id="todayCareCheck">
-              <span>Уход за лицом</span>
-            </label>
-          </div>
+          <div class="hero-habits-list" id="habitsList"></div>
         </div>
 
         <div class="hero-card-footer" id="openMatrixModalBtn">
-          <span>Сетка 90 дней</span>
+          <span id="gridFooterLabel">Сетка 90 дней</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="5" y1="12" x2="19" y2="12"></line>
             <polyline points="12 5 19 12 12 19"></polyline>
@@ -308,25 +299,30 @@
     <div class="interceptor-modal matrix-modal-content">
       <div class="matrix-modal-header">
         <div class="modal-title-wrap">
-          <h2 class="modal-title">Челлендж 90 дней</h2>
-          <span class="modal-sub">Утренняя прогулка + Уход за лицом</span>
+          <h2 class="modal-title" id="matrixTitle">Челлендж 90 дней</h2>
+          <span class="modal-sub">Свои привычки и длительность</span>
         </div>
         <button id="closeMatrixModalBtn" class="btn-modal-close" title="Закрыть">✕</button>
       </div>
 
       <div class="matrix-modal-meta-row">
         <span id="modalSelectedDayInfo" class="matrix-selected-day-lbl">День 1 (Сегодня):</span>
-        <div class="challenge-checks-group">
-          <label class="check-item">
-            <input type="checkbox" id="modalWalkCheck">
-            <span>Прогулка</span>
-          </label>
-          <label class="check-item">
-            <input type="checkbox" id="modalCareCheck">
-            <span>Уход за лицом</span>
-          </label>
-        </div>
+        <div class="challenge-checks-group" id="modalHabitChecks"></div>
       </div>
+
+      <details class="habit-settings" style="margin:10px 0 14px">
+        <summary style="cursor:pointer;font-weight:700">Настроить челлендж</summary>
+        <div id="habitManager" style="display:flex;flex-direction:column;gap:8px;margin-top:10px"></div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input type="text" id="newHabitInput" maxlength="60" placeholder="Название привычки" style="flex:1;background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:8px 10px;font:inherit;font-size:13px;">
+          <button type="button" id="addHabitBtn" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:8px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;">Добавить привычку</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+          <label for="challengeDaysSelect">Длительность</label>
+          <select id="challengeDaysSelect" style="background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:8px 10px;font:inherit;font-size:13px;"></select>
+          <button type="button" id="restartChallengeBtn" style="margin-left:auto;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:8px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;">Начать заново</button>
+        </div>
+      </details>
 
       <div id="matrixGrid" class="matrix-grid-micro"></div>
     </div>
