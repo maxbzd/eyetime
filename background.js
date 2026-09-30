@@ -12,15 +12,14 @@ const DEFAULT_SETTINGS = {
     morningWalkDone: false,
     strictFocusLock: false,
     uncomfortableCounters: [
-      { label: 'Созвонов проведено', current: 0, target: 10, isAccountable: true },
-      { label: 'Платящих школ', current: 0, target: 5 },
-      { label: 'Доход в этом месяце', current: 0, target: 750, unit: '$' },
-      { label: 'Накоплено', current: 4200, target: 6000, unit: '$' }
+      { label: 'Focus sessions', current: 0, target: 4 },
+      { label: 'Key tasks closed', current: 0, target: 5 },
+      { label: 'Pages read', current: 0, target: 20 }
     ],
     dailyRules: [
-      'Утро — CRM, всегда',
-      'Два продюсерских проекта максимум',
-      'Подушка — не бюджет'
+      'Main task first',
+      'Take a break every 25 minutes',
+      'Phone away during deep work'
     ]
   },
   nuclearLock: {
@@ -78,7 +77,7 @@ let pcTrackerStatus = {
   exeName: '',
   windowTitle: '',
   isIdle: false,
-  category: 'Приложение',
+  category: 'App',
   lastSeen: 0
 };
 
@@ -165,12 +164,21 @@ chrome.runtime.onInstalled.addListener(async () => {
     await chrome.storage.local.set({ stats: {} });
   }
   chrome.alarms.create('eyeRestAlarm', { periodInMinutes: 1 });
+  chrome.alarms.create('trackerTick', { periodInMinutes: 0.5 });
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  chrome.alarms.create('trackerTick', { periodInMinutes: 0.5 });
 });
 
 // Alarm Handler
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === 'eyeRestAlarm') {
     await checkEyeRestNotification();
+  }
+  if (alarm.name === 'trackerTick') {
+    refreshActiveTab();
+    pollDesktopTracker();
   }
 });
 
@@ -236,7 +244,8 @@ async function trackActiveTab() {
   const elapsedSeconds = Math.floor((now - lastTickTimestamp) / 1000);
   lastTickTimestamp = now;
 
-  if (elapsedSeconds <= 0) return;
+  // Ignore gaps longer than 2 minutes (worker was suspended / computer slept)
+  if (elapsedSeconds <= 0 || elapsedSeconds > 120) return;
 
   const data = await chrome.storage.local.get(['settings', 'stats']);
   const settings = data.settings || DEFAULT_SETTINGS;
@@ -281,7 +290,7 @@ async function trackActiveTab() {
   }
 }
 
-setInterval(() => {
+function refreshActiveTab() {
   chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
     if (tabs.length > 0 && tabs[0].url) {
       const dom = getDomainFromUrl(tabs[0].url);
@@ -304,7 +313,16 @@ setInterval(() => {
     }
     trackActiveTab();
   });
-}, 1000);
+}
+
+setInterval(refreshActiveTab, 1000);
+
+// MV3 service workers are suspended when idle, so timers alone are not reliable:
+// wake up on tab/window events and on a 30s alarm.
+chrome.tabs.onActivated.addListener(refreshActiveTab);
+chrome.tabs.onUpdated.addListener((id, info) => { if (info.url || info.status === 'complete') refreshActiveTab(); });
+chrome.windows.onFocusChanged.addListener(refreshActiveTab);
+
 
 // Fortified Navigation Monitor: Block Tab Instantly Before Loading Page
 if (chrome.webNavigation && chrome.webNavigation.onBeforeNavigate) {
@@ -417,7 +435,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       const goals = data.dailyGoals || [];
       goals.push({ text: txt, done: false });
       await chrome.storage.local.set({ dailyGoals: goals });
-      sendResponse({ success: true, target: 'Локальные задачи' });
+      sendResponse({ success: true, target: 'Local tasks' });
     })();
     return true;
   }
@@ -458,7 +476,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         sendResponse({
           isFocusBlockActive: true,
           isStrict: isStrict,
-          task: interceptor.focusBlockTask || 'Главная задача'
+          task: interceptor.focusBlockTask || 'Main task'
         });
         return;
       }
