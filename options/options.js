@@ -961,3 +961,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 });
+
+// Interface language selector
+document.addEventListener('DOMContentLoaded', async () => {
+  const sel = document.getElementById('languageSelect');
+  if (!sel) return;
+  const { settings = {} } = await chrome.storage.local.get(['settings']);
+  sel.value = settings.language || 'auto';
+  sel.addEventListener('change', async () => {
+    const { settings: cur = {} } = await chrome.storage.local.get(['settings']);
+    cur.language = sel.value;
+    await chrome.storage.local.set({ settings: cur });
+    try { localStorage.setItem('eyetime_lang', sel.value); } catch (e) { }
+    location.reload();
+  });
+});
