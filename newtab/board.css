@@ -353,3 +353,38 @@ body.theme-compact .wb-ring-wrap { width: 120px; height: 120px; }
 .wb-rpv i { width: 46px; height: 32px; border: 2px solid var(--fx-orange); border-radius: var(--r); display: block; }
 .wb-fpv { font-size: 24px; font-weight: 700; color: #fff; background: rgba(255,255,255,.04); }
 .wb-tiles { padding: 3px; margin: -3px; }
+
+/* Resize handle (edit mode) + undo/redo */
+.wb-resize { position: absolute; top: 44px; bottom: 16px; right: -10px; width: 20px; z-index: 7; display: none; align-items: center; justify-content: center; cursor: ew-resize; touch-action: none; }
+.wb-editing .wb-resize { display: flex; }
+.wb-resize-grip { width: 5px; height: 44px; max-height: 60%; border-radius: 5px; background: rgba(var(--fx-accent-rgb), .75); box-shadow: 0 0 0 2px rgba(10,11,16,.8); transition: height .2s, background .2s; }
+.wb-resize:hover .wb-resize-grip, .wb-resizing .wb-resize-grip { height: 80px; background: var(--fx-orange); }
+.wb-resize-tip { position: absolute; top: -26px; right: 0; padding: 3px 8px; border-radius: 8px; background: #000; color: #fff; font-size: 11px; font-weight: 700; display: none; white-space: nowrap; }
+.wb-resizing .wb-resize-tip { display: block; }
+.wb-resizing { user-select: none; }
+.wb-ico-btn { padding: 9px 12px; font-size: 16px; line-height: 1; }
+.wb-btn:disabled { opacity: .35; pointer-events: none; }
+
+/* Profiles */
+.top-interceptor-header { position: relative; }
+.header-actions { position: relative; }
+.wb-profile-name { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wb-menu { position: absolute; z-index: 60; top: calc(100% + 8px); right: 0; min-width: 220px; padding: 6px; border-radius: 14px; background: rgba(16,17,23,.96); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,.14); box-shadow: 0 18px 50px rgba(0,0,0,.6); animation: wb-in .25s var(--ease-out-expo) both; }
+.wb-menu-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border: 0; border-radius: 10px; background: transparent; color: #fff; font: inherit; font-size: 13px; text-align: left; cursor: pointer; transition: background .15s; }
+.wb-menu-item:hover, .wb-menu-item:focus-visible { background: rgba(255,255,255,.1); outline: none; }
+.wb-menu-item.on { color: var(--fx-orange); font-weight: 700; }
+.wb-menu-check { width: 16px; text-align: center; }
+.wb-menu-auto { margin-left: auto; }
+.wb-menu-sep { height: 1px; margin: 5px 4px; background: rgba(255,255,255,.1); }
+.wb-prof-row { display: grid; grid-template-columns: 1fr auto auto auto auto; gap: 8px; align-items: center; padding: 8px; border-radius: 12px; background: rgba(255,255,255,.04); border: 1px solid transparent; }
+.wb-prof-row.on { border-color: rgba(var(--fx-accent-rgb), .5); background: rgba(var(--fx-accent-rgb), .08); }
+.wb-prof-row input, .wb-prof-row select { background: rgba(255,255,255,.06); color: #fff; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; padding: 8px 10px; font: inherit; font-size: 13px; min-width: 0; }
+.wb-prof-row select option { color: #000; }
+@media (max-width: 700px) { .wb-prof-row { grid-template-columns: 1fr 1fr; } }
+
+/* Permission-gated widgets + weather */
+.wb-perm-body { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.wb-perm-body .wb-links { width: 100%; }
+.wb-weather-main { display: flex; align-items: center; gap: 12px; }
+.wb-weather-emoji { font-size: 44px; line-height: 1; }
+.wb-weather-text { font-size: 15px; font-weight: 700; }

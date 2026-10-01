@@ -44,4 +44,28 @@ t('weekly report: no previous data → no delta', () => {
   const r = R.computeWeeklyReport({ '2026-01-05': { totalSeconds: 60, domains: {} } }, null, new Date(2026, 0, 14));
   assert.strictEqual(r.deltaPct, null);
 });
+const P = require('../newtab/pack.js');
+t('layout packing: complete rows keep their sizes', () => assert.deepStrictEqual(P.packRows([4, 4, 4, 6, 6], true), [4, 4, 4, 6, 6]));
+t('layout packing: incomplete rows stretch to the full width', () => {
+  assert.deepStrictEqual(P.packRows([4, 4, 6, 6], true), [6, 6, 6, 6]);
+  assert.deepStrictEqual(P.packRows([8, 6, 6], true), [12, 6, 6]);
+  assert.deepStrictEqual(P.packRows([3, 4, 4, 12], true), [4, 4, 4, 12]);
+  assert.deepStrictEqual(P.packRows([5, 5, 5, 5], true).map((x, i, a) => a.slice(0, 2).concat(a.slice(2)).length && x), [6, 6, 6, 6]);
+});
+t('layout packing: a lone widget on the last row keeps its size; exact mode never stretches', () => {
+  assert.deepStrictEqual(P.packRows([6, 6, 4], true), [6, 6, 4]);
+  assert.deepStrictEqual(P.packRows([4, 4, 6, 6], false), [4, 4, 6, 6]);
+});
+t('layout packing: every row sums to 12 (random)', () => {
+  let seed = 7; const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+  for (let k = 0; k < 300; k++) {
+    const base = Array.from({ length: 1 + Math.floor(rnd() * 14) }, () => 3 + Math.floor(rnd() * 10));
+    const spans = P.packRows(base, true);
+    let sum = 0, rows = [], cur = 0;
+    spans.forEach((s, i) => { if (cur + s > 12) { rows.push(cur); cur = 0; } cur += s; });
+    rows.push(cur);
+    rows.slice(0, -1).forEach(r => assert.strictEqual(r, 12));
+    assert(spans.every((s, i) => s >= base[i] && s <= 12));
+  }
+});
 console.log(`\n${n} tests passed`);
