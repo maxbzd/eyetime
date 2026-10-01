@@ -84,9 +84,10 @@ We created a **single-click installer** so anyone can set up the entire system i
 - English + Russian interface, JSON/CSV export and import, fixed day-boundary bug for non-UTC time zones.
 
 ## 🧩 Build your own new tab
-Click **Customize** on the new tab: drag widgets (or use the arrows), pick a width (S / M / L / XL / full), add or remove widgets, and restyle everything.
-- **15 widgets**: Focus Block, Leak guard, Habits, Tasks, Thought parking, Goals, Daily focus chart, plus Clock & greeting, Time today, Eye rest, Daily rules, Quick links, Notes, Search, Countdown (several of the last four can be added multiple times).
-- **Appearance**: 9 accent colors + custom color, backgrounds (Glow, animated Aurora, Midnight, Grid), compact/comfortable density, glass/flat cards, animations on/off (also respects "reduce motion").
+Click **Customize** on the new tab. Drag widgets (or use the arrows), pick a width (S / M / L / XL / full), add, duplicate or remove widgets, and restyle everything.
+- **8 ready-made sets**: Classic, Minimal, Deep work, Developer, Student, Zen, Morning ritual, Control panel — plus export / import of your own layout as a file.
+- **26 widgets**: Focus Block, Leak guard, Habits, Tasks, Thought parking, Goals, Daily focus chart, Clock & greeting, Time today, Eye rest, Daily rules, Quick links, Notes, Search, Countdown, Pomodoro, To-do list, Quote of the day, Calendar, Time progress, Water, Breathing, World time, Counter, Motto, Stopwatch (many can be added multiple times and each has its own settings).
+- **Appearance**: 12 accent colors + custom color, 8 backgrounds + your own photo (blur / dimming), 6 card styles (glass, flat, outline, tinted, frosted, brutal), corner radius, 4 fonts, interface size, page width, mosaic or tidy rows, density, minimal header, animations (respects "reduce motion"). Any widget can also get its own accent color or a transparent background.
 
 ## 🔒 Privacy
 100% local: no accounts, no analytics, only domain names are stored. See [PRIVACY.md](PRIVACY.md). Backups (JSON/CSV export + import) are in Settings → Data.
