@@ -754,6 +754,11 @@
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') { if (overlay) closePanels(); else if (editing) setEditing(false); }
+      const typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || '')) || e.target.isContentEditable;
+      if (!typing && !overlay && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        if (e.key === '/') { const s = document.querySelector('.wb-search-input'); if (s) { e.preventDefault(); s.focus(); } }
+        else if (e.key.toLowerCase() === 'e') { e.preventDefault(); setEditing(!editing); }
+      }
       if (editing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !/^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || ''))) {
         e.preventDefault(); stepHistory(e.shiftKey ? 1 : -1);
       }

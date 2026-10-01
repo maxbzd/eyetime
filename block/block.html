@@ -96,6 +96,9 @@
       background: #181922;
       color: #ffffff;
     }
+  .link-btn { background: none; border: 0; color: #94a3b8; font: inherit; font-size: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; padding: 4px; }
+    .link-btn:hover { color: #fff; }
+    .btn:focus-visible, .link-btn:focus-visible { outline: 2px solid var(--fx-orange, #FF5E0E); outline-offset: 2px; }
   </style>
 <script src="../assets/i18n_en.js"></script>
   <script src="../assets/i18n.js"></script>
@@ -117,6 +120,7 @@
       <button id="goBackBtn" class="btn btn-secondary">← Назад</button>
       <button id="closeTabBtn" class="btn btn-primary">Закрыть вкладку</button>
     </div>
+    <button id="editListBtn" class="link-btn" type="button">Изменить список блокировки</button>
   </div>
   <script src="block.js"></script>
 </body>
