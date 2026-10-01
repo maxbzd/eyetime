@@ -8,3 +8,5 @@ document.getElementById('goBackBtn').addEventListener('click', () => {
 document.getElementById('closeTabBtn').addEventListener('click', () => {
   window.close();
 });
+
+document.getElementById('editListBtn')?.addEventListener('click', () => chrome.runtime.openOptionsPage());

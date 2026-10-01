@@ -25,6 +25,7 @@
         <div class="step-dot" data-step="3"></div>
         <div class="step-dot" data-step="4"></div>
         <div class="step-dot" data-step="5"></div>
+        <div class="step-dot" data-step="6"></div>
       </div>
     </header>
 
@@ -195,6 +196,26 @@
 
         <div class="actions-row">
           <button class="btn btn-secondary" id="btnStep5Prev">← Назад</button>
+          <button class="btn btn-primary" id="btnStep5Next">Далее: Мой экран →</button>
+        </div>
+      </section>
+
+      <!-- STEP 6: Pick a screen layout -->
+      <section class="step-panel" id="step6">
+        <div class="step-icon-wrap fire-pulse">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect>
+          </svg>
+        </div>
+        <h2 class="step-title">Соберите свой экран</h2>
+        <p class="step-desc">
+          Выберите готовый набор для новой вкладки — потом можно переставлять виджеты, менять размеры и оформление кнопкой «Настроить».
+        </p>
+
+        <div class="layout-picker" id="layoutPicker" role="radiogroup" aria-label="Набор экрана"></div>
+
+        <div class="actions-row">
+          <button class="btn btn-secondary" id="btnStep6Prev">← Назад</button>
           <button class="btn btn-finish" id="btnCompleteOnboarding">🚀 Завершить и открыть Cockpit</button>
         </div>
       </section>
@@ -203,6 +224,7 @@
   </div>
 
   <script src="../assets/eyetime_audio.js"></script>
+  <script src="../newtab/board-presets.js"></script>
   <script src="onboarding.js"></script>
 </body>
 </html>
