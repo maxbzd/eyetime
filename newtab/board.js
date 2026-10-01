@@ -54,7 +54,7 @@
   // ── Theme ────────────────────────────────────────────────────────────────
   const DEFAULT_THEME = {
     accent: '#FF5E0E', bg: 'glow', density: 'comfortable', cards: 'glass', anim: true,
-    font: 'system', scale: 1, radius: 'normal', width: 'normal', header: 'full', flow: 'masonry',
+    font: 'system', scale: 1, radius: 'normal', width: 'normal', header: 'full', fit: 'fill',
     cardAlpha: 0.55, bgBlur: 0, bgDim: 0.35, bgImage: false
   };
   const FONTS = {
@@ -94,7 +94,6 @@
     root.setProperty('--wb-width', WIDTH_PX[th.width] || WIDTH_PX.normal);
     root.setProperty('--wb-scale', String(th.scale || 1));
     root.setProperty('--wb-card-alpha', String(th.cardAlpha));
-    if (board) board.classList.toggle('wb-tidy', th.flow === 'tidy');
     body.classList.toggle('theme-compact', th.density === 'compact');
     body.classList.toggle('hdr-min', th.header === 'minimal');
     body.classList.toggle('no-anim', !th.anim);
@@ -137,19 +136,38 @@
   // ── Board rendering ──────────────────────────────────────────────────────
   const builtinEl = (type) => document.querySelector(`[data-widget="${type}"]`);
 
-  function updateSpan(wrap) {
-    const inner = wrap.firstElementChild;
-    if (!inner) return;
-    if (layout.theme.flow === 'tidy') { wrap.style.gridRowEnd = ''; return; }
-    const top = parseFloat(getComputedStyle(wrap).paddingTop) || 0;
-    wrap.style.gridRowEnd = 'span ' + Math.max(1, Math.ceil((inner.offsetHeight + top + GAP) / ROW));
+  // Row packing: widgets flow in order into rows of 12 columns. With "fill" (default) every complete row is
+  // stretched to the full width, so the board stays tidy no matter how widgets are ordered or sized.
+  function layoutRows() {
+    if (!board) return;
+    const wraps = [...board.querySelectorAll('.wb-widget')];
+    const base = wraps.map(n => Number(n.dataset.cols) || 4);
+    const fill = layout.theme.fit !== 'exact';
+    const rows = [];
+    let cur = [], sum = 0;
+    base.forEach((c, i) => {
+      if (sum + c > 12 && cur.length) { rows.push(cur); cur = []; sum = 0; }
+      cur.push(i); sum += c;
+    });
+    if (cur.length) rows.push(cur);
+    const spans = base.slice();
+    rows.forEach((row, ri) => {
+      const total = row.reduce((s, i) => s + base[i], 0);
+      const last = ri === rows.length - 1;
+      if (!fill || total >= 12 || (last && row.length === 1)) return; // a lone widget on the last row keeps its size
+      let left = 12 - total;
+      const n = row.length;
+      const each = Math.floor(left / n);
+      row.forEach(i => { spans[i] += each; });
+      left -= each * n;
+      for (let k = 0; left > 0; k++, left--) spans[row[k % n]] += 1;
+    });
+    wraps.forEach((n, i) => { n.style.gridColumn = `span ${spans[i]}`; n.dataset.span = spans[i]; });
   }
-  const updateAll = () => board && board.querySelectorAll('.wb-widget').forEach(updateSpan);
+  const updateAll = layoutRows;
 
   function render() {
     Object.keys(CATALOG).filter(k => CATALOG[k].builtin).forEach(k => { const e = builtinEl(k); if (e) $('#widgetBank').append(e); });
-    if (ro) ro.disconnect();
-    ro = new ResizeObserver(entries => entries.forEach(en => updateSpan(en.target.parentElement)));
     board.innerHTML = '';
 
     layout.widgets.forEach((w, i) => {
@@ -158,14 +176,13 @@
       try { content = def.builtin ? builtinEl(w.type) : BUILDERS[w.type](w); } catch (e) { console.error('widget failed', w.type, e); }
       if (!content) return;
       content.classList.add('wb-content');
-      const wrap = el('div', { class: 'wb-widget' + (first ? ' wb-enter' : '') + (w.style.transparent ? ' wb-transparent' : ''), 'data-id': w.id, 'data-type': w.type, style: `grid-column: span ${w.w}; --i:${i}` });
+      const wrap = el('div', { class: 'wb-widget' + (first ? ' wb-enter' : '') + (w.style.transparent ? ' wb-transparent' : ''), 'data-id': w.id, 'data-type': w.type, style: `--i:${i}`, 'data-cols': w.w });
       if (w.style.accent) { wrap.style.setProperty('--fx-orange', w.style.accent); wrap.style.setProperty('--fx-accent-rgb', hexToRgb(w.style.accent)); }
       wrap.append(content, toolbar(w));
       board.append(wrap);
-      ro.observe(content);
-      updateSpan(wrap);
     });
     first = false;
+    layoutRows();
     if (!layout.widgets.length) board.append(el('div', { class: 'wb-empty' }, el('p', { text: 'Здесь пока пусто.' }), el('button', { class: 'wb-btn wb-btn-accent', text: '+ Добавить виджет', onclick: openGallery })));
     tr(board);
   }
@@ -192,6 +209,7 @@
   function flip(mutate) {
     const rects = new Map([...board.children].map(c => [c, c.getBoundingClientRect()]));
     mutate();
+    layoutRows();
     if (!layout.theme.anim) return;
     const s = scale();
     [...board.children].forEach(c => {
@@ -420,6 +438,39 @@
       return tr(box);
     };
     const field = (label, ...ctl) => el('div', { class: 'wb-field' }, el('span', { text: label }), ...ctl);
+    // Visual option tiles (thumbnail + label), like the theme pickers in Slack / Revolut
+    const accentRgb = () => hexToRgb(th.accent);
+    const BG_PV = {
+      glow: () => `radial-gradient(circle at 50% -10%, rgba(${accentRgb()}, .45), #0b0c10 70%)`,
+      aurora: () => `radial-gradient(circle at 20% 20%, rgba(${accentRgb()}, .6), transparent 55%), radial-gradient(circle at 85% 90%, rgba(99,102,241,.6), transparent 55%), #0b0c10`,
+      midnight: () => '#07080b',
+      grid: () => `linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px) 0 0/10px 10px, linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px) 0 0/10px 10px, #0b0c10`,
+      sunset: () => 'linear-gradient(160deg, #1c0b33, #4a1d52 50%, #a3413f)',
+      ocean: () => 'linear-gradient(170deg, #02121f, #053553 55%, #0b6a7a)',
+      forest: () => 'linear-gradient(165deg, #06120d, #0e2b1f 55%, #1d4a33)',
+      mono: () => 'radial-gradient(circle at 50% -10%, rgba(255,255,255,.18), #121212 70%)',
+      image: () => (bgImageData ? `center/cover url(${bgImageData})` : 'repeating-linear-gradient(45deg, #1b1c24, #1b1c24 6px, #23242d 6px, #23242d 12px)')
+    };
+    const CARD_PV = {
+      glass: 'linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,.03)), #1a1b22',
+      flat: '#13141b',
+      outline: 'transparent',
+      tinted: () => `linear-gradient(180deg, rgba(${accentRgb()}, .35), rgba(${accentRgb()}, .08)), #12131a`,
+      frosted: 'rgba(255,255,255,.12)',
+      brutal: '#0d0e13'
+    };
+    const tiles = (key, opts, preview, after, cls) => {
+      const box = el('div', { class: 'wb-tiles ' + (cls || '') });
+      opts.forEach(([v, l]) => {
+        const pv = el('span', { class: 'wb-tile-pv' });
+        preview(v, pv);
+        const tile = el('button', { class: 'wb-tile' + (String(th[key]) === String(v) ? ' on' : ''), type: 'button', 'aria-pressed': String(th[key]) === String(v) ? 'true' : 'false',
+          onclick: () => { th[key] = v; box.querySelectorAll('.wb-tile').forEach(x => { x.classList.remove('on'); x.setAttribute('aria-pressed', 'false'); }); tile.classList.add('on'); tile.setAttribute('aria-pressed', 'true'); apply(); if (after) after(); } },
+          pv, el('span', { class: 'wb-tile-name', text: l }));
+        box.append(tile);
+      });
+      return tr(box);
+    };
 
     const custom = el('input', { type: 'color', value: th.accent, 'aria-label': 'Свой цвет', oninput: (e) => { th.accent = e.target.value; swatches.querySelectorAll('.wb-swatch').forEach(s => s.classList.remove('on')); apply(); } });
     const swatches = el('div', { class: 'wb-swatches' }, ACCENTS.map(c => el('button', {
@@ -442,19 +493,19 @@
       el('span', { text: 'Размытие фона' }), slider('bgBlur', 0, 24, 1, v => v + 'px'),
       el('span', { text: 'Затемнение' }), slider('bgDim', 0, 0.9, 0.05, v => Math.round(v * 100) + '%'));
 
-    const bgSeg = seg('bg', BACKGROUNDS.filter(([k]) => k !== 'image' || true), () => { imgBox.classList.toggle('wb-collapsed', th.bg !== 'image'); if (th.bg === 'image' && !bgImageData) fileIn.click(); });
+    const bgSeg = tiles('bg', BACKGROUNDS, (v, pv) => { pv.style.background = BG_PV[v](); if (v === 'image' && !bgImageData) pv.textContent = '🖼️'; }, () => { imgBox.classList.toggle('wb-collapsed', th.bg !== 'image'); if (th.bg === 'image' && !bgImageData) fileIn.click(); });
     const alphaField = field('Прозрачность матовых карточек', slider('cardAlpha', 0.2, 0.95, 0.05, v => Math.round(v * 100) + '%'));
     alphaField.classList.toggle('wb-collapsed', th.cards !== 'frosted');
 
     openPanel('Оформление', el('div', { class: 'wb-form' },
       field('Акцентный цвет', el('div', { class: 'wb-row' }, swatches, custom)),
       field('Фон', bgSeg), imgBox,
-      field('Стиль карточек', seg('cards', CARD_STYLES, () => alphaField.classList.toggle('wb-collapsed', th.cards !== 'frosted'))), alphaField,
-      field('Скругление', seg('radius', [['sharp', 'Острые'], ['normal', 'Обычные'], ['round', 'Круглые']])),
-      field('Шрифт', seg('font', [['system', 'Системный'], ['rounded', 'Округлый'], ['serif', 'С засечками'], ['mono', 'Моно']])),
+      field('Стиль карточек', tiles('cards', CARD_STYLES, (v, pv) => { const s = CARD_PV[v]; const bg = typeof s === 'function' ? s() : s; pv.classList.add('wb-cpv', 'cpv-' + v); pv.style.setProperty('--cpv', bg); pv.style.setProperty('--acc', th.accent); pv.innerHTML = '<i></i>'; }, () => alphaField.classList.toggle('wb-collapsed', th.cards !== 'frosted'))), alphaField,
+      field('Скругление', tiles('radius', [['sharp', 'Острые'], ['normal', 'Обычные'], ['round', 'Круглые']], (v, pv) => { pv.classList.add('wb-rpv'); pv.style.setProperty('--r', { sharp: '3px', normal: '10px', round: '20px' }[v]); pv.innerHTML = '<i></i>'; }, null, 'small')),
+      field('Шрифт', tiles('font', [['system', 'Системный'], ['rounded', 'Округлый'], ['serif', 'С засечками'], ['mono', 'Моно']], (v, pv) => { pv.classList.add('wb-fpv'); pv.style.fontFamily = FONTS[v]; pv.textContent = 'Aa'; }, null, 'small')),
       field('Размер интерфейса', seg('scale', [[0.9, 'S'], [1, 'M'], [1.1, 'L'], [1.25, 'XL']])),
       field('Ширина страницы', seg('width', [['narrow', 'Узкая'], ['normal', 'Обычная'], ['wide', 'Широкая'], ['full', 'На весь экран']])),
-      field('Расположение', seg('flow', [['masonry', 'Мозаика'], ['tidy', 'Ровные ряды']], () => requestAnimationFrame(() => { render(); }))),
+      field('Ряды', seg('fit', [['fill', 'Растягивать на всю ширину'], ['exact', 'Точные размеры']], () => layoutRows())),
       field('Плотность', seg('density', [['comfortable', 'Свободно'], ['compact', 'Компактно']])),
       field('Шапка', seg('header', [['full', 'Полная'], ['minimal', 'Минимальная']])),
       el('label', { class: 'wb-field wb-check' }, el('input', { type: 'checkbox', checked: th.anim, onchange: (e) => { th.anim = e.target.checked; apply(); } }), el('span', { text: 'Анимации' }))), 'wide');
@@ -616,8 +667,6 @@
     initDnD();
     render();
     maybeWelcome(!!d[KEY]);
-    window.addEventListener('resize', updateAll);
-    setTimeout(updateAll, 400);
     chrome.storage.onChanged.addListener((c, area) => {
       // keep several open new tabs in sync with the saved layout (ignore our own debounced writes)
       if (area === 'local' && c[KEY] && !editing && JSON.stringify(c[KEY].newValue) !== JSON.stringify(layout)) { layout = normalize(c[KEY].newValue); first = false; applyTheme(); render(); }

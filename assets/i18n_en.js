@@ -896,5 +896,9 @@
  "Всё на одном экране: максимум информации": "Everything on one screen: maximum information",
  "Расположение": "Arrangement",
  "Мозаика": "Mosaic",
- "Ровные ряды": "Tidy rows"
+ "Ровные ряды": "Tidy rows",
+ "Ряды": "Rows",
+ "Растягивать на всю ширину": "Stretch to full width",
+ "Точные размеры": "Exact sizes",
+ "Укажите дату события": "Set the event date"
 };

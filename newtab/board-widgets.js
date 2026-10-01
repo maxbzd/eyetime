@@ -135,8 +135,7 @@
     const node = card(w, head('⏳', w.cfg.title || 'Обратный отсчёт'), big, sub);
     every(node, 60000, () => {
       sub.textContent = '';
-      big.style.display = w.cfg.date ? '' : 'none';
-      if (!w.cfg.date) { sub.append(mkBtn('Выбрать дату', () => openSettings(w))); tr(node); return; }
+      if (!w.cfg.date) { big.textContent = '📅'; sub.append(el('div', { text: 'Укажите дату события' }), mkBtn('Выбрать дату', () => openSettings(w))); tr(node); return; }
       const days = Math.round((new Date(w.cfg.date + 'T00:00:00') - new Date(dayKey() + 'T00:00:00')) / 86400000);
       big.textContent = String(Math.abs(days));
       sub.textContent = days === 0 ? 'Сегодня!' : days > 0 ? 'дн. осталось' : 'дн. прошло';
