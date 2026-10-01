@@ -6,6 +6,8 @@ EyeTime is **local-first**. It has no accounts, no analytics, no ads and no serv
 - Nothing is sent anywhere, with two optional exceptions that you enable yourself:
   - **Desktop tracker**: the extension talks to `http://127.0.0.1:8765` on your own computer.
   - **TickTick** (off by default): tasks are sent to the TickTick API using your own token.
+  - **Weather widget** (off by default, asks for permission when added): the city name you type and the resulting coordinates are sent to [Open-Meteo](https://open-meteo.com) to get the forecast. Nothing else is sent.
+  - **Most visited / Bookmarks widgets** (off by default, ask for permission when added): read from your browser locally, never sent anywhere.
 - Only the domain name (e.g. `github.com`) is recorded, never full URLs, page content or keystrokes.
 - Backups exported from Settings never contain your TickTick token or secret.
 - Delete everything any time: Settings → Data → Reset, or remove the extension.
