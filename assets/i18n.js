@@ -41,7 +41,8 @@
       const keys = [...exact.keys()].filter(k => /^[А-Яа-яЁё ]{2,30}$/.test(k)).sort((a, b) => b.length - a.length).map(esc);
       wordRe = keys.length ? new RegExp('(?<![А-Яа-яЁё])(' + keys.join('|') + ')(?![А-Яа-яЁё])', 'g') : /$^/;
     }
-    return str.replace(wordRe, w => exact.get(w) || w);
+    const UNITS = { 'ч': 'h', 'м': 'm', 'с': 's' };
+    return str.replace(/(\d)\s?(ч|м|с)(?![А-Яа-яЁёA-Za-z])/g, (_, d, u) => d + UNITS[u]).replace(wordRe, w => exact.get(w) || w);
   }
 
   function t(str, loose) {
