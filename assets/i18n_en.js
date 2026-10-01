@@ -966,5 +966,10 @@
  "0% к вчерашнему дню": "0% vs yesterday",
  "+{}% к вчерашнему дню": "+{}% vs yesterday",
  "{}% к вчерашнему дню": "{}% vs yesterday",
- "Новая задача... (Enter)": "New task... (Enter)"
+ "Новая задача... (Enter)": "New task... (Enter)",
+ "Далее: Мой экран →": "Next: My Screen →",
+ "Соберите свой экран": "Build your screen",
+ "Выберите готовый набор для новой вкладки — потом можно переставлять виджеты, менять размеры и оформление кнопкой «Настроить».": "Pick a ready-made set for your new tab — you can rearrange widgets, resize them and restyle everything later with the “Customize” button.",
+ "Набор экрана": "Screen set",
+ "Изменить список блокировки": "Edit the block list"
 };
