@@ -24,4 +24,5 @@ Desktop.ini
 # Personal tracker data (never commit)
 desktop_tracker/eyetime_database.json
 *.zip
+dist/
 node_modules/

@@ -1,7 +1,9 @@
 // EyeTime — Background Service Worker with Ironclad Nuclear Lockdown, Anti-Bypass Shield & Master Central DB Multi-Browser Sync Engine
 
-importScripts('assets/i18n_en.js', 'assets/i18n.js', 'assets/blocking.js');
+// Chrome/Edge load these via importScripts; Firefox lists them in manifest background.scripts
+if (typeof importScripts === 'function') importScripts('assets/i18n_en.js', 'assets/i18n.js', 'assets/blocking.js', 'assets/report.js');
 const BL = self.EyeTimeBlocking;
+const RP = self.EyeTimeReport;
 const t = (s) => self.EyeTimeI18n.t(s);
 
 function localDateKey(d = new Date()) {
@@ -182,8 +184,12 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === 'eyeRestAlarm') {
     await checkEyeRestNotification();
   }
+  if (alarm.name === 'focusEnd') {
+    await finishFocusBlock();
+  }
   if (alarm.name === 'trackerTick') {
     updateBadge(true);
+    maybeSendWeeklyReport();
     refreshActiveTab();
     pollDesktopTracker();
   }
@@ -382,6 +388,64 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   }
 });
 
+// Monday-morning digest of the last completed week
+function fmtHM(sec) {
+  const m = Math.round(sec / 60);
+  return m >= 60 ? `${Math.floor(m / 60)}ч ${m % 60}м` : `${m}м`;
+}
+
+async function maybeSendWeeklyReport() {
+  const data = await chrome.storage.local.get(['settings', 'stats', 'lastWeeklyReport']);
+  const settings = data.settings || DEFAULT_SETTINGS;
+  if (settings.weeklyReport === false) return;
+  const now = new Date();
+  const monday9 = RP.weekStart(now); monday9.setHours(9, 0, 0, 0);
+  if (now < monday9) return;
+  const report = RP.computeWeeklyReport(data.stats || {}, (d) => BL.isDistraction(d, settings), now);
+  const thisWeekKey = RP.key(RP.weekStart(now));
+  if (data.lastWeeklyReport === thisWeekKey) return;
+  await chrome.storage.local.set({ lastWeeklyReport: thisWeekKey });
+  if (report.total < 600) return; // nothing meaningful to report
+  const lines = [
+    report.deltaPct === null
+      ? t('Экранное время: ' + fmtHM(report.total))
+      : t('Экранное время: ' + fmtHM(report.total) + ' (' + (report.deltaPct > 0 ? '+' : '') + report.deltaPct + '% к прошлой неделе)')
+  ];
+  if (report.distraction >= 60) lines.push(t('Отвлечения: ' + fmtHM(report.distraction)));
+  if (report.topSites.length) lines.push(t('Чаще всего: ' + report.topSites.join(', ')));
+  if (report.focusSessions) lines.push(t('Фокус-сессий: ' + report.focusSessions));
+  chrome.notifications.create('weeklyReport', {
+    type: 'basic', iconUrl: 'icons/icon128.png',
+    title: t('📊 Итоги недели'),
+    message: lines.join('\n')
+  });
+}
+
+chrome.notifications.onClicked.addListener((id) => {
+  if (id === 'weeklyReport') chrome.tabs.create({ url: chrome.runtime.getURL('dashboard/dashboard.html') });
+});
+
+// Focus block bookkeeping lives here so it works even if the new tab page was closed
+async function finishFocusBlock() {
+  const data = await chrome.storage.local.get(['settings', 'stats']);
+  const settings = data.settings || DEFAULT_SETTINGS;
+  const inc = settings.interceptor || {};
+  if (!inc.focusBlockActive || Date.now() < (inc.focusBlockEndTime || 0) - 2000) return;
+  inc.focusBlockActive = false;
+  const counter = (inc.uncomfortableCounters || []).find(c => c.label === 'Сессий глубокого фокуса');
+  if (counter) counter.current = (counter.current || 0) + 1;
+  settings.interceptor = inc;
+  const stats = data.stats || {};
+  const day = stats[localDateKey()] || (stats[localDateKey()] = { totalSeconds: 0, domains: {}, desktopApps: {}, breaksCompleted: 0 });
+  day.focusSessions = (day.focusSessions || 0) + 1;
+  await chrome.storage.local.set({ settings, stats });
+  chrome.notifications.create('focusDone', {
+    type: 'basic', iconUrl: 'icons/icon128.png',
+    title: t('🏆 Фокус-блок успешно завершен! Отличная работа!'),
+    message: t('Сделайте перерыв: встаньте, выпейте воды, посмотрите вдаль.')
+  });
+}
+
 async function checkEyeRestNotification() {
   const data = await chrome.storage.local.get(['settings', 'stats', 'lastEyeRestTime']);
   const settings = data.settings || DEFAULT_SETTINGS;
@@ -395,27 +459,42 @@ async function checkEyeRestNotification() {
   if (Date.now() - lastRest >= intervalMs) {
     await chrome.storage.local.set({ lastEyeRestTime: Date.now() });
 
-    chrome.notifications.create('eyeRestNotice', {
+    const options = {
       type: 'basic',
       iconUrl: 'icons/icon128.png',
       title: t('👁️ Пауза для глаз (20-20-20)'),
       message: t('Прошло ' + intervalMins + ' минут реального времени! Посмотрите на объект в 6 метрах на 20 секунд.'),
-      buttons: [{ title: t('✅ Сделал перерыв') }, { title: t('⏸️ Сноуз 5 мин') }],
       priority: 2
-    });
+    };
+    // Action buttons are not supported by Firefox
+    if (chrome.notifications.onButtonClicked) {
+      options.buttons = [{ title: t('✅ Сделал перерыв') }, { title: t('⏸️ Сноуз 5 мин') }];
+    }
+    chrome.notifications.create('eyeRestNotice', options);
   }
 }
 
-chrome.notifications.onButtonClicked.addListener(async (notificationId, buttonIndex) => {
+async function countBreak() {
+  const data = await chrome.storage.local.get(['stats']);
+  const todayKey = localDateKey();
+  const stats = data.stats || {};
+  if (!stats[todayKey]) stats[todayKey] = { totalSeconds: 0, domains: {}, desktopApps: {}, breaksCompleted: 0 };
+  stats[todayKey].breaksCompleted = (stats[todayKey].breaksCompleted || 0) + 1;
+  await chrome.storage.local.set({ stats });
+}
+
+// Firefox has no notification buttons: clicking the notification itself counts as a finished break
+chrome.notifications.onClicked.addListener(async (notificationId) => {
+  if (notificationId === 'eyeRestNotice' && !chrome.notifications.onButtonClicked) {
+    await countBreak();
+    chrome.notifications.clear(notificationId);
+  }
+});
+
+if (chrome.notifications.onButtonClicked) chrome.notifications.onButtonClicked.addListener(async (notificationId, buttonIndex) => {
   if (notificationId === 'eyeRestNotice') {
     if (buttonIndex === 0) {
-      const data = await chrome.storage.local.get(['stats']);
-      const todayKey = localDateKey();
-      const stats = data.stats || {};
-      if (stats[todayKey]) {
-        stats[todayKey].breaksCompleted = (stats[todayKey].breaksCompleted || 0) + 1;
-        await chrome.storage.local.set({ stats });
-      }
+      await countBreak();
     } else if (buttonIndex === 1) {
       const data = await chrome.storage.local.get(['settings']);
       const settings = data.settings || DEFAULT_SETTINGS;
@@ -602,6 +681,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   if (request.action === 'CLOSE_CURRENT_TAB' && sender.tab) {
     chrome.tabs.remove(sender.tab.id).catch(() => {});
+    sendResponse({ success: true });
+    return true;
+  }
+
+  if (request.action === 'FOCUS_STARTED' && request.endTime) {
+    chrome.alarms.create('focusEnd', { when: request.endTime });
+    sendResponse({ success: true });
+    return true;
+  }
+
+  if (request.action === 'FOCUS_STOPPED') {
+    chrome.alarms.clear('focusEnd');
     sendResponse({ success: true });
     return true;
   }

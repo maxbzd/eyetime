@@ -661,5 +661,18 @@
  "Отвлекающие сайты заблокированы до": "Distracting sites are blocked until",
  "Разрешить на {} мин": "Allow for {} min",
  "Блокировать соцсети, видео и другие отвлекающие сайты по будням с 9:00 до 18:00 (время можно изменить в настройках).": "Block social media, video and other distracting sites on weekdays from 9:00 to 18:00 (you can change this in Settings).",
- "Показывать время за день на значке расширения": "Show today's time on the extension icon"
+ "Показывать время за день на значке расширения": "Show today's time on the extension icon",
+ "Музыка / сайт при старте фокус-блока (необязательно)": "Music / site to open when a focus block starts (optional)",
+ "Необязательно: откроется при старте фокус-блока (например, ваша музыка для работы). Можно оставить пустым.": "Optional: opens when a focus block starts (e.g. your work music). Can be left empty.",
+ "https://… (необязательно)": "https://… (optional)",
+ "Своя длительность (минуты)": "Custom duration (minutes)",
+ "…м": "…m",
+ "Сделайте перерыв: встаньте, выпейте воды, посмотрите вдаль.": "Take a break: stand up, drink some water, look into the distance.",
+ "Экранное время: {}": "Screen time: {}",
+ "Экранное время: {} ({}% к прошлой неделе)": "Screen time: {} ({}% vs previous week)",
+ "Отвлечения: {}": "Distractions: {}",
+ "Чаще всего: {}": "Top sites: {}",
+ "Фокус-сессий: {}": "Focus sessions: {}",
+ "📊 Итоги недели": "📊 Weekly report",
+ "Еженедельный отчёт по понедельникам": "Weekly report on Mondays"
 };
