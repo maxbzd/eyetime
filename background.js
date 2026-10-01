@@ -184,6 +184,16 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === 'eyeRestAlarm') {
     await checkEyeRestNotification();
   }
+  if (alarm.name.startsWith('notify:')) {
+    const name = alarm.name.slice(7);
+    const d = await chrome.storage.local.get(['notifyPayloads']);
+    const p = (d.notifyPayloads || {})[name];
+    if (p) {
+      chrome.notifications.create('notify_' + name, { type: 'basic', iconUrl: 'icons/icon128.png', title: p.title, message: p.message });
+      delete d.notifyPayloads[name];
+      await chrome.storage.local.set({ notifyPayloads: d.notifyPayloads });
+    }
+  }
   if (alarm.name === 'focusEnd') {
     await finishFocusBlock();
   }
@@ -681,6 +691,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   if (request.action === 'CLOSE_CURRENT_TAB' && sender.tab) {
     chrome.tabs.remove(sender.tab.id).catch(() => {});
+    sendResponse({ success: true });
+    return true;
+  }
+
+  // Generic "notify me at <time>" used by widgets (e.g. Pomodoro)
+  if (request.action === 'NOTIFY_AT' && request.name && request.endTime) {
+    (async () => {
+      const d = await chrome.storage.local.get(['notifyPayloads']);
+      const p = d.notifyPayloads || {};
+      p[request.name] = { title: String(request.title || ''), message: String(request.message || '') };
+      await chrome.storage.local.set({ notifyPayloads: p });
+      chrome.alarms.create('notify:' + request.name, { when: request.endTime });
+      sendResponse({ success: true });
+    })();
+    return true;
+  }
+
+  if (request.action === 'NOTIFY_CANCEL' && request.name) {
+    chrome.alarms.clear('notify:' + request.name);
     sendResponse({ success: true });
     return true;
   }
