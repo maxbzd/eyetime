@@ -574,6 +574,7 @@ function initSmartTasksList(goals, ttSettings) {
   const toggleAllBtn = document.getElementById('toggleAllTasksBtn');
   const syncBtn = document.getElementById('syncTicktickBtn');
   const quickInput = document.getElementById('quickCaptureInput');
+  if (quickInput && !(ttSettings && ttSettings.enabled && ttSettings.token)) quickInput.placeholder = 'Новая задача... (Enter)';
   const syncBadge = document.getElementById('ttSyncBadge');
 
   const defaultTasks = [];

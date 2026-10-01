@@ -955,5 +955,16 @@
  "Снег": "Snow",
  "Ливень": "Showers",
  "Снегопад": "Heavy snow",
- "Гроза": "Thunderstorm"
+ "Гроза": "Thunderstorm",
+ "Нет данных за прошлый период": "No data for the previous period",
+ "{}% по сравнению с прошлым периодом": "{}% vs previous period",
+ "🧩 Конструктор: соберите экран под себя": "🧩 Builder: assemble your own screen",
+ "EyeTime OS объединяет настраиваемую панель в браузере и (по желанию) агент для Windows, чтобы защитить ваш фокус от бесконечного скроллинга и суеты. Настроим систему под ваш личный ритм за 2 минуты.": "EyeTime OS combines a customizable browser dashboard and an optional Windows agent to protect your focus from endless scrolling and distraction. Let's tune it to your personal rhythm in 2 minutes.",
+ "Запишите мысль... (Enter — сохранить)": "Write a thought... (Enter to save)",
+ "Введите ваш ответ...": "Type your answer...",
+ "Идёт Фокус-Блок 🎯": "Focus Block in progress 🎯",
+ "0% к вчерашнему дню": "0% vs yesterday",
+ "+{}% к вчерашнему дню": "+{}% vs yesterday",
+ "{}% к вчерашнему дню": "{}% vs yesterday",
+ "Новая задача... (Enter)": "New task... (Enter)"
 };
