@@ -79,7 +79,7 @@
     const bedtime = document.getElementById('inputBedtime')?.value || '23:00';
     const workHours = document.getElementById('checkWorkHours')?.checked === true;
     const antiShorts = document.getElementById('checkAntiShorts')?.checked !== false;
-    const focusUrl = document.getElementById('inputFocusUrl')?.value?.trim() || 'https://app.endel.io/player/focus';
+    const focusUrl = document.getElementById('inputFocusUrl')?.value?.trim() || '';
 
     // Collect custom goals / counters
     const goalRows = document.querySelectorAll('.goal-input-row');

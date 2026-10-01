@@ -29,4 +29,19 @@ t('schedule: overnight range', () => {
   assert(B.isScheduleActive(s, at(1, 23, 0))); assert(B.isScheduleActive(s, at(2, 5, 0)));
   assert(!B.isScheduleActive(s, at(1, 5, 0))); assert(!B.isScheduleActive(s, at(2, 23, 0)));
 });
+const R = require('../assets/report.js');
+t('weekly report: compares last completed week with the previous one', () => {
+  // now = Wed 2026-01-14 → last week = Mon 01-05..Sun 01-11, previous = 12-29..01-04
+  const day = (k, total, domains, extra) => ({ [k]: Object.assign({ totalSeconds: total, domains }, extra || {}) });
+  const stats = Object.assign({}, day('2026-01-05', 7200, { 'github.com': 3600, 'youtube.com': 3600 }, { focusSessions: 2, breaksCompleted: 3 }),
+    day('2026-01-07', 3600, { 'github.com': 3600 }), day('2025-12-30', 7200, { 'github.com': 7200 }), day('2026-01-13', 9999, { 'x.com': 9999 }));
+  const r = R.computeWeeklyReport(stats, d => d === 'youtube.com', new Date(2026, 0, 14));
+  assert.strictEqual(r.weekKey, '2026-01-05'); assert.strictEqual(r.total, 10800); assert.strictEqual(r.deltaPct, 50);
+  assert.strictEqual(r.distraction, 3600); assert.deepStrictEqual(r.topSites, ['github.com', 'youtube.com']);
+  assert.strictEqual(r.focusSessions, 2); assert.strictEqual(r.breaks, 3);
+});
+t('weekly report: no previous data → no delta', () => {
+  const r = R.computeWeeklyReport({ '2026-01-05': { totalSeconds: 60, domains: {} } }, null, new Date(2026, 0, 14));
+  assert.strictEqual(r.deltaPct, null);
+});
 console.log(`\n${n} tests passed`);

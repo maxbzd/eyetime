@@ -6,6 +6,7 @@
   "scripts": {
     "check": "node scripts-dev/check.js && node scripts-dev/test.js",
     "test": "node scripts-dev/test.js",
-    "build": "node scripts-dev/check.js && node scripts-dev/pack.js"
+    "build": "node scripts-dev/check.js && node scripts-dev/pack.js",
+    "lint:firefox": "npm run build && npx --yes web-ext lint --source-dir dist/eyetime-firefox"
   }
 }

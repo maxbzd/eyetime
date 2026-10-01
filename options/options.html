@@ -104,6 +104,11 @@
             <h2>🧠 Настройки Перехватчика Внимания (New Tab)</h2>
             <p class="card-desc">Настройте режимы, неудобные счётчики, время отбоя и правила дня.</p>
 
+            <div class="form-group">
+              <label for="focusUrlInput" class="field-label">Музыка / сайт при старте фокус-блока (необязательно)</label>
+              <input type="url" id="focusUrlInput" placeholder="https://…" class="custom-input">
+            </div>
+
             <div class="form-row">
               <div class="form-group flex-1">
                 <label for="bedtimeInput" class="field-label">Время отбоя (Bedtime)</label>
@@ -201,6 +206,14 @@
               <label class="toggle-control">
                 <span>Показывать время за день на значке расширения</span>
                 <input type="checkbox" id="showBadgeToggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label class="toggle-control">
+                <span>Еженедельный отчёт по понедельникам</span>
+                <input type="checkbox" id="weeklyReportToggle" checked>
                 <span class="slider"></span>
               </label>
             </div>
