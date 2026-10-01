@@ -84,7 +84,7 @@ We created a **single-click installer** so anyone can set up the entire system i
 - English + Russian interface, JSON/CSV export and import, fixed day-boundary bug for non-UTC time zones.
 
 ## 🧩 Build your own new tab
-Click **Customize** on the new tab: drag widgets (or use the arrows), **drag a widget's right edge to resize it**, add / duplicate / remove widgets, and restyle everything. `Ctrl+Z` / `Ctrl+Shift+Z` undo and redo every change. Rows always stay tidy — whatever you move, each row is stretched to the full width.
+Click **Customize** on the new tab: drag widgets (or use the arrows), **drag a widget's right edge to resize it**, add / duplicate / remove widgets, and restyle everything. `Ctrl+Z` / `Ctrl+Shift+Z` undo and redo every change. Shortcuts: `E` toggles Customize, `/` jumps to the search widget. Rows always stay tidy — whatever you move, each row is stretched to the full width.
 - **8 ready-made sets**: Classic, Minimal, Deep work, Developer, Student, Zen, Morning ritual, Control panel — plus export / import of your own layout as a file.
 - **Screen profiles**: keep several screens (e.g. *Work* and *Home*) and switch from the header — or let EyeTime switch automatically with your **work-hours schedule**.
 - **29 widgets**: Focus Block, Leak guard, Habits, Tasks, Thought parking, Goals, Daily focus chart, Clock & greeting, Time today, Eye rest, Daily rules, Quick links, Notes, Search, Countdown, Pomodoro, To-do list, Quote of the day, Calendar, Time progress, Water, Breathing, World time, Counter, Motto, Stopwatch, **Most visited**, **Bookmarks** and **Weather** (the last three ask for an optional permission only when you add them).
