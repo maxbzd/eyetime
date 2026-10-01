@@ -7,7 +7,7 @@
   const ROW = 8;            // grid-auto-rows unit (px)
   const GAP = 16;           // gap between widgets (px)
   const WIDTHS = [[3, 'S'], [4, 'M'], [6, 'L'], [8, 'XL'], [12, '▭']];
-  const KEY = 'newtabLayout', BG_KEY = 'newtabBg', WELCOME_KEY = 'newtabWelcomed';
+  const KEY = 'newtabLayout', BG_KEY = 'newtabBg', WELCOME_KEY = 'newtabWelcomed', PROF_KEY = 'newtabProfiles';
 
   const t = (s) => (window.EyeTimeI18n ? window.EyeTimeI18n.t(s) : s);
   const lang = () => (window.EyeTimeI18n && window.EyeTimeI18n.lang === 'ru') ? 'ru-RU' : 'en-US';
@@ -88,6 +88,7 @@
   function applyTheme() {
     const th = layout.theme, root = document.documentElement.style, body = document.body;
     root.setProperty('--fx-orange', th.accent);
+    try { localStorage.setItem('eyetime_theme', JSON.stringify({ accent: th.accent, font: th.font })); } catch (e) { }
     root.setProperty('--fx-accent-rgb', hexToRgb(th.accent));
     root.setProperty('--font', FONTS[th.font] || FONTS.system);
     root.setProperty('--fx-radius', RADII[th.radius] || RADII.normal);
@@ -115,7 +116,7 @@
     l.widgets = l.widgets.filter(w => w && CATALOG[w.type] && (CATALOG[w.type].multi || !seen.has(w.type)) && seen.add(w.type));
     l.widgets.forEach(w => {
       w.id = w.id || uid();
-      w.w = [3, 4, 6, 8, 12].includes(w.w) ? w.w : CATALOG[w.type].w;
+      w.w = Number.isInteger(w.w) && w.w >= 3 && w.w <= 12 ? w.w : CATALOG[w.type].w;
       w.cfg = { ...(CATALOG[w.type].cfg ? clone(CATALOG[w.type].cfg) : {}), ...(w.cfg || {}) };
       w.style = { transparent: false, accent: '', ...(w.style || {}) };
     });
@@ -128,9 +129,40 @@
       .map(([type, w]) => ({ id: type, type, w, cfg: {}, style: {} }))
   });
 
+  // Undo / redo (kept in memory while editing)
+  let hist = [], histIdx = -1, restoring = false;
+  const snap = () => JSON.stringify(layout);
+  function resetHistory() { hist = [snap()]; histIdx = 0; updateUndoButtons(); }
+  function recordHistory() {
+    if (!editing || restoring) return;
+    const s = snap();
+    if (s === hist[histIdx]) return;
+    hist = hist.slice(0, histIdx + 1); hist.push(s);
+    if (hist.length > 60) hist.shift();
+    histIdx = hist.length - 1;
+    updateUndoButtons();
+  }
+  function stepHistory(d) {
+    const j = histIdx + d;
+    if (j < 0 || j >= hist.length) return;
+    histIdx = j;
+    restoring = true;
+    layout = normalize(JSON.parse(hist[j]));
+    first = false; applyTheme(); render(); save();
+    restoring = false;
+    updateUndoButtons();
+  }
+  function updateUndoButtons() {
+    if (!dock) return;
+    const u = dock.querySelector('.wb-undo'), r = dock.querySelector('.wb-redo');
+    if (u) u.disabled = histIdx <= 0;
+    if (r) r.disabled = histIdx >= hist.length - 1;
+  }
+
   function save() {
+    recordHistory();
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => chrome.storage.local.set({ [KEY]: layout }), 150);
+    saveTimer = setTimeout(() => { commitActive(); chrome.storage.local.set({ [KEY]: layout, [PROF_KEY]: profiles }); }, 150);
   }
 
   // ── Board rendering ──────────────────────────────────────────────────────
@@ -141,27 +173,7 @@
   function layoutRows() {
     if (!board) return;
     const wraps = [...board.querySelectorAll('.wb-widget')];
-    const base = wraps.map(n => Number(n.dataset.cols) || 4);
-    const fill = layout.theme.fit !== 'exact';
-    const rows = [];
-    let cur = [], sum = 0;
-    base.forEach((c, i) => {
-      if (sum + c > 12 && cur.length) { rows.push(cur); cur = []; sum = 0; }
-      cur.push(i); sum += c;
-    });
-    if (cur.length) rows.push(cur);
-    const spans = base.slice();
-    rows.forEach((row, ri) => {
-      const total = row.reduce((s, i) => s + base[i], 0);
-      const last = ri === rows.length - 1;
-      if (!fill || total >= 12 || (last && row.length === 1)) return; // a lone widget on the last row keeps its size
-      let left = 12 - total;
-      const n = row.length;
-      const each = Math.floor(left / n);
-      row.forEach(i => { spans[i] += each; });
-      left -= each * n;
-      for (let k = 0; left > 0; k++, left--) spans[row[k % n]] += 1;
-    });
+    const spans = EyeTimePack.packRows(wraps.map(n => Number(n.dataset.cols) || 4), layout.theme.fit !== 'exact');
     wraps.forEach((n, i) => { n.style.gridColumn = `span ${spans[i]}`; n.dataset.span = spans[i]; });
   }
   const updateAll = layoutRows;
@@ -178,7 +190,7 @@
       content.classList.add('wb-content');
       const wrap = el('div', { class: 'wb-widget' + (first ? ' wb-enter' : '') + (w.style.transparent ? ' wb-transparent' : ''), 'data-id': w.id, 'data-type': w.type, style: `--i:${i}`, 'data-cols': w.w });
       if (w.style.accent) { wrap.style.setProperty('--fx-orange', w.style.accent); wrap.style.setProperty('--fx-accent-rgb', hexToRgb(w.style.accent)); }
-      wrap.append(content, toolbar(w));
+      wrap.append(content, toolbar(w), resizeHandle(w, wrap));
       board.append(wrap);
     });
     first = false;
@@ -204,6 +216,32 @@
       el('button', { class: 'wb-ico wb-del', title: 'Удалить виджет', text: '✕', onclick: () => removeWidget(w) }));
     bar.querySelectorAll('[hidden]').forEach(n => n.remove());
     return bar;
+  }
+
+  // Drag the right edge of a widget to change its width (snaps to columns)
+  function resizeHandle(w, wrap) {
+    const h = el('div', { class: 'wb-resize', title: 'Потяните, чтобы изменить ширину', role: 'separator', 'aria-orientation': 'vertical' }, el('span', { class: 'wb-resize-grip' }), el('span', { class: 'wb-resize-tip' }));
+    h.addEventListener('pointerdown', (e) => {
+      if (!editing) return;
+      e.preventDefault(); e.stopPropagation();
+      h.setPointerCapture(e.pointerId);
+      wrap.classList.add('wb-resizing');
+      const tip = h.querySelector('.wb-resize-tip');
+      const move = (ev) => {
+        const b0 = board.getBoundingClientRect(), left = wrap.getBoundingClientRect().left;
+        const colW = (b0.width + GAP * scale()) / 12;
+        const cols = Math.max(3, Math.min(12, Math.round((ev.clientX - left + GAP * scale() / 2) / colW)));
+        if (cols !== w.w) { w.w = cols; wrap.dataset.cols = cols; layoutRows(); }
+        tip.textContent = `${wrap.dataset.span || cols}/12`;
+      };
+      const up = () => {
+        h.removeEventListener('pointermove', move); h.removeEventListener('pointerup', up); h.removeEventListener('pointercancel', up);
+        wrap.classList.remove('wb-resizing');
+        save(); render();
+      };
+      h.addEventListener('pointermove', move); h.addEventListener('pointerup', up); h.addEventListener('pointercancel', up);
+    });
+    return h;
   }
 
   function flip(mutate) {
@@ -311,7 +349,7 @@
     document.body.classList.toggle('wb-editing', on);
     dock.classList.toggle('open', on);
     editBtn.classList.toggle('on', on);
-    if (on) dismissWelcome();
+    if (on) { dismissWelcome(); resetHistory(); }
     board.querySelectorAll('.wb-widget').forEach(n => { n.draggable = false; });
     if (!on) closePanels();
     requestAnimationFrame(updateAll);
@@ -591,16 +629,123 @@
     save(); applyTheme(); render();
   }
 
+
+  // ── Profiles: several named screens (e.g. Work / Home), optionally switched automatically by work hours ─────────
+  let profiles = { active: 'main', list: [{ id: 'main', name: 'Основной', auto: 'none', layout: null }] };
+  let profileBtn = null, profileMenu = null, scheduleCache = null;
+  const pname = (p) => (p.name === 'Основной' ? t(p.name) : p.name);
+  const activeProfile = () => profiles.list.find(p => p.id === profiles.active) || profiles.list[0];
+
+  function commitActive() {
+    const p = activeProfile();
+    if (p && layout) p.layout = clone(layout);
+  }
+
+  function updateProfileChip() {
+    if (!profileBtn) return;
+    profileBtn.querySelector('.wb-profile-name').textContent = pname(activeProfile());
+    profileBtn.title = t('Профиль экрана');
+  }
+
+  function activate(id) {
+    profiles.active = id;
+    layout = normalize(activeProfile().layout ? clone(activeProfile().layout) : DEFAULT_LAYOUT());
+    first = true;
+    applyTheme(); render();
+    if (editing) resetHistory();
+    clearTimeout(saveTimer);
+    chrome.storage.local.set({ [KEY]: layout, [PROF_KEY]: profiles });
+    updateProfileChip();
+    closeProfileMenu();
+  }
+
+  function switchProfile(id) {
+    if (!profiles.list.some(p => p.id === id) || id === profiles.active) return;
+    commitActive();
+    activate(id);
+  }
+
+  function createProfile(name, copy) {
+    commitActive();
+    const id = 'p' + Date.now().toString(36);
+    const base = copy ? clone(layout) : DEFAULT_LAYOUT();
+    profiles.list.push({ id, name: (name || '').trim().slice(0, 24) || t('Новый профиль'), auto: 'none', layout: base });
+    switchProfile(id);
+    return id;
+  }
+
+  // "work" profile is shown during work hours, "off" profile the rest of the time
+  function autoTarget() {
+    if (!scheduleCache || !window.EyeTimeBlocking || !scheduleCache.blocking) return null;
+    const active = EyeTimeBlocking.isScheduleActive(scheduleCache);
+    const want = active ? 'work' : 'off';
+    const hit = profiles.list.find(p => p.auto === want);
+    return hit ? hit.id : null;
+  }
+  function applyAuto() {
+    if (editing) return;
+    const id = autoTarget();
+    if (id && id !== profiles.active) switchProfile(id);
+  }
+
+  function closeProfileMenu() { if (profileMenu) { profileMenu.remove(); profileMenu = null; } }
+  function toggleProfileMenu() {
+    if (profileMenu) { closeProfileMenu(); return; }
+    profileMenu = el('div', { class: 'wb-menu', role: 'menu' });
+    profiles.list.forEach(p => profileMenu.append(el('button', { class: 'wb-menu-item' + (p.id === profiles.active ? ' on' : ''), role: 'menuitem', onclick: () => switchProfile(p.id) },
+      el('span', { class: 'wb-menu-check', text: p.id === profiles.active ? '✓' : '' }), el('span', { text: pname(p) }),
+      p.auto !== 'none' ? el('small', { class: 'wb-menu-auto', text: p.auto === 'work' ? '💼' : '🏠' }) : null)));
+    profileMenu.append(el('div', { class: 'wb-menu-sep' }),
+      el('button', { class: 'wb-menu-item', role: 'menuitem', onclick: () => { closeProfileMenu(); const n = prompt(t('Название нового профиля (например, Работа):')); if (n !== null) createProfile(n, true); } }, el('span', { class: 'wb-menu-check', text: '+' }), el('span', { text: 'Новый профиль' })),
+      el('button', { class: 'wb-menu-item', role: 'menuitem', onclick: () => { closeProfileMenu(); openProfiles(); } }, el('span', { class: 'wb-menu-check', text: '⚙' }), el('span', { text: 'Управление профилями' })));
+    profileBtn.after(profileMenu);
+    tr(profileMenu);
+    setTimeout(() => document.addEventListener('click', function off(e) { if (!profileMenu || !profileMenu.contains(e.target)) { closeProfileMenu(); document.removeEventListener('click', off); } }), 0);
+  }
+
+  function openProfiles() {
+    const box = el('div', { class: 'wb-form' });
+    const draw = () => {
+      box.textContent = '';
+      profiles.list.forEach(p => {
+        const name = el('input', { value: pname(p), maxlength: 24, 'aria-label': 'Название профиля', onchange: (e) => { p.name = e.target.value.trim() || p.name; updateProfileChip(); chrome.storage.local.set({ [PROF_KEY]: profiles }); } });
+        const auto = el('select', { 'aria-label': 'Автопереключение', onchange: (e) => { p.auto = e.target.value; chrome.storage.local.set({ [PROF_KEY]: profiles }); applyAuto(); } },
+          [['none', 'Только вручную'], ['work', '💼 В рабочие часы'], ['off', '🏠 Вне рабочих часов']].map(([v, l]) => el('option', { value: v, text: l, selected: p.auto === v })));
+        box.append(el('div', { class: 'wb-prof-row' + (p.id === profiles.active ? ' on' : '') }, name, auto,
+          el('button', { class: 'wb-btn', type: 'button', text: p.id === profiles.active ? 'Активен' : 'Открыть', disabled: p.id === profiles.active, onclick: () => { switchProfile(p.id); draw(); } }),
+          el('button', { class: 'wb-ico', type: 'button', title: 'Дублировать', text: '⧉', onclick: () => { commitActive(); const copy = clone(p); copy.id = 'p' + Date.now().toString(36); copy.name = p.name + ' 2'; copy.auto = 'none'; profiles.list.push(copy); chrome.storage.local.set({ [PROF_KEY]: profiles }); draw(); } }),
+          profiles.list.length > 1 ? el('button', { class: 'wb-ico wb-del', type: 'button', title: 'Удалить', text: '✕', onclick: () => {
+            if (!confirm(t('Удалить профиль?') + ' ' + p.name)) return;
+            const wasActive = p.id === profiles.active;
+            commitActive();
+            profiles.list = profiles.list.filter(x => x.id !== p.id);
+            if (wasActive) activate(profiles.list[0].id); else chrome.storage.local.set({ [PROF_KEY]: profiles });
+            draw(); updateProfileChip();
+          } }) : null));
+      });
+      box.append(el('p', { class: 'wb-hint', text: 'Автопереключение использует расписание из Настроек → Рабочие часы: например, «Работа» с таймером и задачами днём и «Дом» с календарём и музыкой вечером.' }),
+        el('button', { class: 'wb-btn wb-btn-accent', type: 'button', text: '+ Новый профиль', onclick: () => { const n = prompt(t('Название нового профиля (например, Работа):')); if (n !== null) { createProfile(n, true); draw(); } } }));
+      tr(box);
+    };
+    draw();
+    openPanel('Профили экрана', box, 'wide');
+  }
+
   // ── Chrome (edit button, dock, welcome banner) ───────────────────────────
   function buildChrome() {
     editBtn = el('button', { class: 'header-action-btn wb-edit-btn', title: 'Настроить экран', onclick: () => setEditing(!editing) },
       el('span', { text: '✏️' }), el('span', { text: 'Настроить' }));
     const actions = $('.header-actions');
-    if (actions) actions.prepend(editBtn);
+    profileBtn = el('button', { class: 'header-action-btn wb-profile-btn', 'aria-haspopup': 'menu', onclick: (e) => { e.stopPropagation(); toggleProfileMenu(); } }, el('span', { text: '🗂️' }), el('span', { class: 'wb-profile-name' }), el('span', { text: '▾' }));
+    if (actions) { actions.prepend(editBtn); actions.prepend(profileBtn); }
+    updateProfileChip();
 
     dock = el('div', { class: 'wb-dock', role: 'toolbar', 'aria-label': 'Настройка экрана' },
+      el('button', { class: 'wb-btn wb-ico-btn wb-undo', title: 'Отменить (Ctrl+Z)', 'aria-label': 'Отменить', text: '↶', onclick: () => stepHistory(-1) }),
+      el('button', { class: 'wb-btn wb-ico-btn wb-redo', title: 'Повторить (Ctrl+Shift+Z)', 'aria-label': 'Повторить', text: '↷', onclick: () => stepHistory(1) }),
       el('button', { class: 'wb-btn wb-btn-accent', text: '+ Виджет', onclick: openGallery }),
       el('button', { class: 'wb-btn', text: '🧩 Наборы', onclick: openPresets }),
+      el('button', { class: 'wb-btn', text: '🗂️ Профили', onclick: openProfiles }),
       el('button', { class: 'wb-btn', text: '🎨 Оформление', onclick: openTheme }),
       el('button', { class: 'wb-btn', text: '↺ Сбросить', onclick: resetLayout }),
       el('button', { class: 'wb-btn wb-btn-done', text: '✓ Готово', onclick: () => setEditing(false) }));
@@ -609,6 +754,9 @@
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') { if (overlay) closePanels(); else if (editing) setEditing(false); }
+      if (editing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !/^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || ''))) {
+        e.preventDefault(); stepHistory(e.shiftKey ? 1 : -1);
+      }
     });
   }
 
@@ -656,9 +804,17 @@
 
   // ── Init ─────────────────────────────────────────────────────────────────
   async function init() {
-    const d = await chrome.storage.local.get([KEY, BG_KEY]);
+    const d = await chrome.storage.local.get([KEY, BG_KEY, PROF_KEY, 'settings']);
     bgImageData = d[BG_KEY] || '';
     layout = normalize(d[KEY]);
+    scheduleCache = d.settings || null;
+    if (d[PROF_KEY] && Array.isArray(d[PROF_KEY].list) && d[PROF_KEY].list.length) {
+      profiles = d[PROF_KEY];
+      if (!profiles.list.some(p => p.id === profiles.active)) profiles.active = profiles.list[0].id;
+      // the active profile owns the saved layout
+      const ap = profiles.list.find(p => p.id === profiles.active);
+      if (ap) ap.layout = clone(layout);
+    } else { profiles.list[0].layout = clone(layout); }
     board = $('#widgetBoard');
     bgLayer = el('div', { id: 'wbBg', 'aria-hidden': 'true' });
     document.body.prepend(bgLayer);
@@ -667,6 +823,8 @@
     initDnD();
     render();
     maybeWelcome(!!d[KEY]);
+    applyAuto();
+    setInterval(async () => { scheduleCache = (await chrome.storage.local.get(['settings'])).settings || scheduleCache; applyAuto(); }, 60000);
     chrome.storage.onChanged.addListener((c, area) => {
       // keep several open new tabs in sync with the saved layout (ignore our own debounced writes)
       if (area === 'local' && c[KEY] && !editing && JSON.stringify(c[KEY].newValue) !== JSON.stringify(layout)) { layout = normalize(c[KEY].newValue); first = false; applyTheme(); render(); }
