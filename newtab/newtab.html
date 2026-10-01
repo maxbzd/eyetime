@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EyeTime — Daily Cockpit</title>
   <link rel="stylesheet" href="newtab.css">
+  <link rel="stylesheet" href="board.css">
 <script src="../assets/i18n_en.js"></script>
   <script src="../assets/i18n.js"></script>
 </head>
@@ -38,10 +39,6 @@
       </div>
 
       <div class="header-actions">
-        <button id="toggleDayNightModeBtn" class="mode-switch-btn" title="Переключить режим День / Сон">
-          <span class="mode-indicator-dot"></span>
-          <span>Режим: День</span>
-        </button>
 
         <button id="openDashboardBtn" class="header-action-btn" title="Аналитика">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -62,11 +59,14 @@
       </div>
     </header>
 
-    <!-- SECTION 1: TOP 3 HERO CARDS (Fintrixity Overview) -->
-    <div class="fintrixity-hero-grid">
-      
+    <!-- WIDGET BOARD: built from the user's layout (see board.js) -->
+    <main id="widgetBoard" class="widget-board" aria-label="Dashboard"></main>
+
+    <!-- WIDGET BANK: built-in widgets live here until placed on the board -->
+    <div id="widgetBank" hidden>
+
       <!-- HERO CARD 1: RADIANT ORANGE GLOW (ФОКУС-БЛОК & ТАЙМЕР СЕССИИ) -->
-      <div class="fintrixity-hero-card fintrixity-hero-card--orange">
+      <div class="fintrixity-hero-card fintrixity-hero-card--orange" data-widget="focus">
         <div class="hero-card-head">
           <div class="hero-card-meta">
             <div class="card-icon-squircle icon-orange-glow">
@@ -85,7 +85,7 @@
             <button class="dur-btn" data-mins="25">25м</button>
             <button class="dur-btn" data-mins="50">50м</button>
             <button class="dur-btn" data-mins="90">90м</button>
-            <input type="number" id="customFocusMins" min="1" max="240" placeholder="…м" title="Своя длительность (минуты)" style="width:52px;background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.5);color:inherit;text-align:center;font:inherit;font-size:12px;outline:none">
+            <input type="number" id="customFocusMins" min="1" max="240" placeholder="…м" title="Своя длительность (минуты)" style="width:42px;background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.5);color:inherit;text-align:center;font:inherit;font-size:12px;outline:none">
           </div>
         </div>
 
@@ -111,7 +111,7 @@
       </div>
 
       <!-- HERO CARD 2: DARK GLASS (АНТИ-СЛИВ / ТОП-УТЕЧКИ ВНИМАНИЯ) -->
-      <div class="fintrixity-hero-card fintrixity-hero-card--dark">
+      <div class="fintrixity-hero-card fintrixity-hero-card--dark" data-widget="leaks">
         <div class="hero-card-head">
           <div class="hero-card-meta">
             <div class="card-icon-squircle">
@@ -146,7 +146,7 @@
       </div>
 
       <!-- HERO CARD 3: DARK GLASS (ДИСЦИПЛИНА 90 ДНЕЙ & ПРИВЫЧКИ) -->
-      <div class="fintrixity-hero-card fintrixity-hero-card--dark">
+      <div class="fintrixity-hero-card fintrixity-hero-card--dark" data-widget="habits">
         <div class="hero-card-head">
           <div class="hero-card-meta">
             <div class="card-icon-squircle">
@@ -182,13 +182,9 @@
           </svg>
         </div>
       </div>
-    </div>
 
-    <!-- SECTION 2: CENTRAL WORKSPACE BENTO (TICKTICK TASKS + RIGHT COLUMN) -->
-    <div class="workspace-bento-grid">
-      
       <!-- LEFT COLUMN: TICKTICK TASKS SECTION (AUTO-SYNC WITH PHONE) -->
-      <section class="tasks-interceptor-section fintrixity-card">
+      <section class="tasks-interceptor-section fintrixity-card" data-widget="tasks">
         <div class="section-title">
           <div class="section-title-left">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -224,11 +220,8 @@
         <div id="threeTasksContainer" class="three-tasks-list"></div>
       </section>
 
-      <!-- RIGHT COLUMN: SCRATCHPAD + OUTBOUND + BEAUTIFUL FOCUS HOURS CHART -->
-      <div class="bento-right-col">
-        
         <!-- WIDGET 1: MENTAL SCRATCHPAD (ПАРКОВКА МЫСЛЕЙ / АНТИ-ОТВЛЕЧЕНИЕ) -->
-        <section class="mental-scratchpad-card fintrixity-card">
+        <section class="mental-scratchpad-card fintrixity-card" data-widget="thoughts">
           <div class="section-title">
             <div class="section-title-left">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -252,7 +245,7 @@
         </section>
 
         <!-- WIDGET 2: ЦЕЛИ (НАПИСАНО СООБЩЕНИЙ + СОЗВОНОВ ПРОВЕДЕНО) -->
-        <section class="uncomfortable-card fintrixity-card">
+        <section class="uncomfortable-card fintrixity-card" data-widget="goals">
           <div class="section-title">
             <div class="section-title-left">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -268,7 +261,7 @@
         </section>
 
         <!-- WIDGET 3: ДНЕВНОЙ ФОКУС (КРАСИВЫЙ ГРАФИК С ЧАСАМИ РАБОТЫ) -->
-        <section class="fintrixity-chart-card fintrixity-card">
+        <section class="fintrixity-chart-card fintrixity-card" data-widget="chart">
           <div class="fintrixity-chart-header-row">
             <div class="fintrixity-chart-title-wrap">
               <div class="fintrixity-chart-title">Дневной фокус</div>
@@ -291,7 +284,7 @@
             <!-- Dynamically populated via JS -->
           </div>
         </section>
-      </div>
+
     </div>
   </div>
 
@@ -371,6 +364,7 @@
 
   <script src="../assets/eyetime_audio.js"></script>
   <script src="../assets/blocking.js"></script>
+  <script src="board.js"></script>
   <script src="newtab.js"></script>
 </body>
 </html>

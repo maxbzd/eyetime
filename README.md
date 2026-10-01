@@ -83,6 +83,11 @@ We created a **single-click installer** so anyone can set up the entire system i
 - **Toolbar badge** with today's screen time.
 - English + Russian interface, JSON/CSV export and import, fixed day-boundary bug for non-UTC time zones.
 
+## 🧩 Build your own new tab
+Click **Customize** on the new tab: drag widgets (or use the arrows), pick a width (S / M / L / XL / full), add or remove widgets, and restyle everything.
+- **15 widgets**: Focus Block, Leak guard, Habits, Tasks, Thought parking, Goals, Daily focus chart, plus Clock & greeting, Time today, Eye rest, Daily rules, Quick links, Notes, Search, Countdown (several of the last four can be added multiple times).
+- **Appearance**: 9 accent colors + custom color, backgrounds (Glow, animated Aurora, Midnight, Grid), compact/comfortable density, glass/flat cards, animations on/off (also respects "reduce motion").
+
 ## 🔒 Privacy
 100% local: no accounts, no analytics, only domain names are stored. See [PRIVACY.md](PRIVACY.md). Backups (JSON/CSV export + import) are in Settings → Data.
 

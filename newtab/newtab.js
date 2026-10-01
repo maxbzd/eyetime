@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const stats = data.stats || {};
   const interceptor = settings.interceptor || {};
 
+  // Build the widget board first so every card is in place
+  try { await EyeTimeBoard.init(); } catch (e) { console.error('board init failed', e); }
+
   // Initialize all cockpit systems
   initScreenMode(interceptor, settings.ticktick);
   initWorkLaunchpad(interceptor);
@@ -231,6 +234,7 @@ function initHeroFocusBlock(interceptor) {
         renderIdle('ЗАВЕРШЕН');
         window.EyeTimeAudio?.playCompletionChime();
         showSyncToast('🏆 Фокус-блок успешно завершен! Отличная работа!');
+        window.EyeTimeBoard?.confetti(toggleBtn);
         return;
       }
       timerDisplay.textContent = fmt(left);
@@ -441,6 +445,7 @@ function initHero90DayChallenge(interceptor) {
     if (set.size) habits.log[key] = [...set]; else delete habits.log[key];
     await persist();
     render();
+    if (on && isFull(key) && window.EyeTimeBoard) EyeTimeBoard.confetti(document.getElementById('habitsList'));
   }
 
   function calculateStreak() {
@@ -1182,7 +1187,7 @@ function initScreenMode(interceptor, ttSettings) {
 
   // Completely disable automatic night lockdown
   let isNight = false;
-  document.body.className = 'mode-day';
+  document.body.classList.add('mode-day');
 
   if (modeToggleBtn) {
     modeToggleBtn.classList.remove('mode-night-active');

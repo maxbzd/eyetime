@@ -76,7 +76,10 @@
     if (root.nodeType === 1) translateEl(root);
     const doc = root.ownerDocument || root;
     const w = doc.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
-      acceptNode: n => (n.nodeType === 1 && SKIP.has(n.tagName)) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+      acceptNode: n => {
+        if (n.nodeType === 1 && SKIP.has(n.tagName)) { translateEl(n); return NodeFilter.FILTER_REJECT; } // keep their text, translate attributes (placeholder)
+        return NodeFilter.FILTER_ACCEPT;
+      }
     });
     let n;
     while ((n = w.nextNode())) {
