@@ -13,7 +13,7 @@ window.EyeTimePresets = [
   {
     id: 'deepwork', icon: '🎯', name: 'Глубокая работа', desc: 'Таймеры, главная задача и защита от отвлечений',
     widgets: [['focus', 4], ['pomodoro', 4], ['leaks', 4], ['tasks', 8], ['thoughts', 4], ['eyebreak', 4], ['rules', 4]],
-    theme: { flow: 'tidy', accent: '#FF5E0E', bg: 'midnight', cards: 'tinted', font: 'system', radius: 'normal', width: 'normal', density: 'comfortable', header: 'full', scale: 1 }
+    theme: { accent: '#FF5E0E', bg: 'midnight', cards: 'tinted', font: 'system', radius: 'normal', width: 'normal', density: 'comfortable', header: 'full', scale: 1 }
   },
   {
     id: 'dev', icon: '💻', name: 'Разработчик', desc: 'Помодоро, список дел, заметки и статистика',
@@ -23,21 +23,21 @@ window.EyeTimePresets = [
   {
     id: 'student', icon: '🎓', name: 'Студент', desc: 'Учёба: помодоро, дедлайны, привычки и конспекты',
     widgets: [['pomodoro', 4], ['countdown', 4, { title: 'Экзамен', date: '' }], ['habits', 4], ['checklist', 6, { title: 'Домашние задания', items: [] }], ['notes', 6, { title: 'Конспект', text: '' }], ['water', 4], ['calendar', 4], ['quote', 4]],
-    theme: { flow: 'tidy', accent: '#A855F7', bg: 'aurora', cards: 'frosted', cardAlpha: 0.5, font: 'rounded', radius: 'round', width: 'normal', density: 'comfortable', header: 'full', scale: 1 }
+    theme: { accent: '#A855F7', bg: 'aurora', cards: 'frosted', cardAlpha: 0.5, font: 'rounded', radius: 'round', width: 'normal', density: 'comfortable', header: 'full', scale: 1 }
   },
   {
     id: 'zen', icon: '🧘', name: 'Дзен', desc: 'Спокойствие: дыхание, цитата и отдых для глаз',
     widgets: [['clock', 12, { h24: true, align: 'center' }, { transparent: true }], ['breathing', 6], ['eyebreak', 6], ['quote', 8], ['water', 4], ['progress', 12]],
-    theme: { flow: 'tidy', accent: '#14B8A6', bg: 'ocean', cards: 'frosted', cardAlpha: 0.45, font: 'rounded', radius: 'round', width: 'narrow', density: 'comfortable', header: 'minimal', scale: 1 }
+    theme: { accent: '#14B8A6', bg: 'ocean', cards: 'frosted', cardAlpha: 0.45, font: 'rounded', radius: 'round', width: 'narrow', density: 'comfortable', header: 'minimal', scale: 1 }
   },
   {
     id: 'morning', icon: '🌅', name: 'Утренний ритуал', desc: 'Привычки, вода, правила дня и план на день',
     widgets: [['clock', 6, { h24: true }, { transparent: true }], ['motto', 6, { text: 'Сегодня — лучший день, чтобы начать.', size: 'm', align: 'left' }, { transparent: true }], ['habits', 4], ['water', 4], ['rules', 4], ['checklist', 6, { title: 'План на день', items: [] }], ['tasks', 6]],
-    theme: { flow: 'tidy', accent: '#F59E0B', bg: 'sunset', cards: 'frosted', cardAlpha: 0.5, font: 'serif', radius: 'round', width: 'normal', density: 'comfortable', header: 'full', scale: 1 }
+    theme: { accent: '#F59E0B', bg: 'sunset', cards: 'frosted', cardAlpha: 0.5, font: 'serif', radius: 'round', width: 'normal', density: 'comfortable', header: 'full', scale: 1 }
   },
   {
     id: 'dashboard', icon: '🧩', name: 'Панель управления', desc: 'Всё на одном экране: максимум информации',
     widgets: [['clock', 3, { h24: true }], ['todaystats', 3], ['eyebreak', 3], ['progress', 3], ['focus', 4], ['leaks', 4], ['habits', 4], ['tasks', 6], ['chart', 6], ['calendar', 4], ['worldclocks', 4], ['counter', 4], ['goals', 6], ['thoughts', 6]],
-    theme: { flow: 'tidy', accent: '#6366F1', bg: 'glow', cards: 'glass', font: 'system', radius: 'normal', width: 'wide', density: 'compact', header: 'full', scale: 0.9 }
+    theme: { accent: '#6366F1', bg: 'glow', cards: 'glass', font: 'system', radius: 'normal', width: 'wide', density: 'compact', header: 'full', scale: 0.9 }
   }
 ];
