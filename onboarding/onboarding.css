@@ -11,9 +11,10 @@
   --fx-border-hover: rgba(255, 255, 255, 0.18);
   --fx-border-top: rgba(255, 255, 255, 0.32);
 
+  --fx-accent-rgb: 255, 94, 14;
   --fx-orange: #FF5E0E;
-  --fx-orange-btn: linear-gradient(135deg, #FF6B00 0%, #FF3800 100%);
-  --fx-orange-glow: rgba(255, 94, 14, 0.55);
+  --fx-orange-btn: linear-gradient(135deg, color-mix(in srgb, var(--fx-orange) 88%, #fff) 0%, color-mix(in srgb, var(--fx-orange) 85%, #000) 100%);
+  --fx-orange-glow: rgba(var(--fx-accent-rgb), 0.55);
 
   --fx-fg-1: #FFFFFF;
   --fx-fg-2: #A5A8B6;
@@ -31,7 +32,7 @@
 
 body {
   background-color: var(--fx-bg);
-  background-image: radial-gradient(circle at 50% -15%, rgba(255, 94, 14, 0.14) 0%, rgba(11, 12, 16, 1) 65%);
+  background-image: radial-gradient(circle at 50% -15%, rgba(var(--fx-accent-rgb), 0.14) 0%, rgba(11, 12, 16, 1) 65%);
   color: var(--fx-fg-1);
   font-family: var(--font-family);
   min-height: 100vh;
@@ -51,7 +52,7 @@ body {
   transform: translateX(-50%);
   width: 650px;
   height: 400px;
-  background: radial-gradient(circle, rgba(255, 94, 14, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--fx-accent-rgb), 0.15) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -163,8 +164,8 @@ body {
 }
 
 @keyframes pulseGlow {
-  0% { box-shadow: 0 4px 18px rgba(255, 94, 14, 0.4); }
-  100% { box-shadow: 0 8px 30px rgba(255, 94, 14, 0.85); }
+  0% { box-shadow: 0 4px 18px rgba(var(--fx-accent-rgb), 0.4); }
+  100% { box-shadow: 0 8px 30px rgba(var(--fx-accent-rgb), 0.85); }
 }
 
 .step-title {
@@ -385,15 +386,15 @@ input:checked + .slider:before {
 }
 
 .btn-sound {
-  background: rgba(255, 94, 14, 0.12);
+  background: rgba(var(--fx-accent-rgb), 0.12);
   color: var(--fx-orange);
-  border: 1px solid rgba(255, 94, 14, 0.35);
+  border: 1px solid rgba(var(--fx-accent-rgb), 0.35);
   padding: 10px 22px;
   border-radius: 999px;
   font-weight: 700;
   font-size: 13.5px;
   cursor: pointer;
-  box-shadow: 0 0 16px rgba(255, 94, 14, 0.2);
+  box-shadow: 0 0 16px rgba(var(--fx-accent-rgb), 0.2);
   transition: all 0.2s ease;
 }
 
@@ -439,7 +440,7 @@ input:checked + .slider:before {
 }
 
 .btn-primary:hover {
-  box-shadow: 0 6px 22px rgba(255, 94, 14, 0.75);
+  box-shadow: 0 6px 22px rgba(var(--fx-accent-rgb), 0.75);
   transform: translateY(-1px);
 }
 

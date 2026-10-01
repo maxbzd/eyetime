@@ -13,10 +13,11 @@
   --fx-border-top: rgba(255, 255, 255, 0.28);
 
   /* Fintrixity Radiant Fire Orange */
+  --fx-accent-rgb: 255, 94, 14;
   --fx-orange: #FF5E0E;
-  --fx-orange-btn: linear-gradient(135deg, #FF6B00 0%, #FF3800 100%);
-  --fx-orange-card: linear-gradient(180deg, #FF5E0E 0%, #FF6D26 45%, #FBA888 100%);
-  --fx-orange-glow: rgba(255, 94, 14, 0.55);
+  --fx-orange-btn: linear-gradient(135deg, color-mix(in srgb, var(--fx-orange) 88%, #fff) 0%, color-mix(in srgb, var(--fx-orange) 85%, #000) 100%);
+  --fx-orange-card: linear-gradient(180deg, var(--fx-orange) 0%, color-mix(in srgb, var(--fx-orange) 88%, #fff) 45%, color-mix(in srgb, var(--fx-orange) 40%, #fff) 100%);
+  --fx-orange-glow: rgba(var(--fx-accent-rgb), 0.55);
 
   /* Status Accents */
   --fx-mint: #34D399;
@@ -66,7 +67,7 @@
 
 body {
   background-color: var(--fx-bg);
-  background-image: radial-gradient(circle at 50% -10%, rgba(255, 94, 14, 0.12) 0%, rgba(11, 12, 16, 1) 60%);
+  background-image: radial-gradient(circle at 50% -10%, rgba(var(--fx-accent-rgb), 0.12) 0%, rgba(11, 12, 16, 1) 60%);
   color: var(--fx-fg-1);
   font-family: var(--font-family);
   font-size: 14px;
@@ -91,7 +92,7 @@ body {
   left: 15%;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(255, 94, 14, 0.14) 0%, rgba(251, 191, 36, 0.04) 50%, transparent 75%);
+  background: radial-gradient(circle, rgba(var(--fx-accent-rgb), 0.14) 0%, rgba(251, 191, 36, 0.04) 50%, transparent 75%);
 }
 
 .orb-2 {
@@ -99,7 +100,7 @@ body {
   right: 10%;
   width: 550px;
   height: 550px;
-  background: radial-gradient(circle, rgba(255, 94, 14, 0.08) 0%, rgba(52, 211, 153, 0.03) 50%, transparent 75%);
+  background: radial-gradient(circle, rgba(var(--fx-accent-rgb), 0.08) 0%, rgba(52, 211, 153, 0.03) 50%, transparent 75%);
 }
 
 .dashboard-layout {
@@ -227,7 +228,7 @@ body {
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(255, 94, 14, 0.7);
+  box-shadow: 0 6px 24px rgba(var(--fx-accent-rgb), 0.7);
 }
 
 /* Source Switcher Buttons (Web vs PC Apps vs All) */
@@ -326,9 +327,9 @@ body {
 }
 
 .card-icon.indigo {
-  background: rgba(255, 94, 14, 0.14);
+  background: rgba(var(--fx-accent-rgb), 0.14);
   color: var(--fx-orange);
-  border: 1px solid rgba(255, 94, 14, 0.28);
+  border: 1px solid rgba(var(--fx-accent-rgb), 0.28);
 }
 
 .card-icon.rose {
@@ -535,8 +536,8 @@ body {
   height: 22px;
   min-width: 22px;
   border-radius: 6px;
-  background: rgba(255, 94, 14, 0.15);
-  border: 1px solid rgba(255, 94, 14, 0.3);
+  background: rgba(var(--fx-accent-rgb), 0.15);
+  border: 1px solid rgba(var(--fx-accent-rgb), 0.3);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -757,16 +758,16 @@ body {
 }
 
 .matrix-cell.level-1 {
-  background: rgba(255, 94, 14, 0.18);
+  background: rgba(var(--fx-accent-rgb), 0.18);
   color: #FFB38A;
-  border-color: rgba(255, 94, 14, 0.3);
+  border-color: rgba(var(--fx-accent-rgb), 0.3);
 }
 
 .matrix-cell.level-2 {
-  background: rgba(255, 94, 14, 0.45);
+  background: rgba(var(--fx-accent-rgb), 0.45);
   color: #FFFFFF;
-  border-color: rgba(255, 94, 14, 0.6);
-  box-shadow: 0 0 8px rgba(255, 94, 14, 0.25);
+  border-color: rgba(var(--fx-accent-rgb), 0.6);
+  box-shadow: 0 0 8px rgba(var(--fx-accent-rgb), 0.25);
 }
 
 .matrix-cell.level-3 {

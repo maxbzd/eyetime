@@ -63,5 +63,13 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "default_locale": "en"
+  "default_locale": "en",
+  "optional_permissions": [
+    "topSites",
+    "bookmarks"
+  ],
+  "optional_host_permissions": [
+    "https://api.open-meteo.com/*",
+    "https://geocoding-api.open-meteo.com/*"
+  ]
 }

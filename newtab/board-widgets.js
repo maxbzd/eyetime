@@ -392,6 +392,87 @@
     { key: 'align', type: 'select', label: 'Выравнивание', options: [['left', 'Слева'], ['center', 'По центру'], ['right', 'Справа']] }
   ]);
 
+
+  // ── Optional-permission helpers ──────────────────────────────────────────
+  const hasPerm = (q) => new Promise(res => { try { chrome.permissions.contains(q, ok => res(!!ok)); } catch (e) { res(false); } });
+  const askPerm = (q) => new Promise(res => { try { chrome.permissions.request(q, ok => res(!!ok)); } catch (e) { res(false); } });
+  const tile = (name, url) => {
+    let host = '';
+    try { host = new URL(url).hostname; } catch (e) { return null; }
+    const hue = [...host].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
+    return el('a', { class: 'wb-link', href: url, rel: 'noopener', title: url },
+      el('span', { class: 'wb-link-ava', style: `background:hsl(${hue} 60% 45%)`, text: (name || host)[0].toUpperCase() }),
+      el('span', { class: 'wb-link-name', text: name || host.replace(/^www\./, '') }));
+  };
+  // Card that asks for an optional permission first, then renders `draw(container)`
+  function permissionCard(w, icon, title, perm, why, draw) {
+    const body = el('div', { class: 'wb-perm-body' });
+    const node = card(w, head(icon, title), body);
+    const show = async () => {
+      body.textContent = '';
+      if (await hasPerm(perm)) { try { await draw(body, show); } catch (e) { body.append(el('div', { class: 'wb-sub', text: 'Не удалось загрузить данные' })); } }
+      else body.append(el('div', { class: 'wb-sub', text: why }), mkBtn('Разрешить доступ', async () => { if (await askPerm(perm)) show(); }, 'wb-btn-accent'));
+      tr(node);
+    };
+    show();
+    return node;
+  }
+
+  // ── Most visited sites ───────────────────────────────────────────────────
+  reg('topsites', { icon: '⭐', name: 'Часто посещаемые', desc: 'Плитки ваших самых частых сайтов', w: 6, ph: 2, cfg: { count: 8 } }, (w) =>
+    permissionCard(w, '⭐', 'Часто посещаемые', { permissions: ['topSites'] }, 'Нужен доступ к списку часто посещаемых сайтов. Данные остаются в браузере.', (body) => new Promise(res => {
+      chrome.topSites.get(list => {
+        const grid = el('div', { class: 'wb-links' });
+        (list || []).slice(0, w.cfg.count || 8).forEach(s => { const t2 = tile(s.title, s.url); if (t2) grid.append(t2); });
+        if (!grid.children.length) grid.append(el('div', { class: 'wb-sub', text: 'Пока нет данных — откройте несколько сайтов' }));
+        body.append(grid); res();
+      });
+    })), [{ key: 'count', type: 'number', label: 'Сколько сайтов показывать', min: 2, max: 20 }]);
+
+  // ── Bookmarks ────────────────────────────────────────────────────────────
+  reg('bookmarks', { icon: '🔖', name: 'Закладки', desc: 'Панель закладок или недавно добавленные', w: 6, ph: 2, multi: true, cfg: { source: 'bar', count: 10 } }, (w) =>
+    permissionCard(w, '🔖', w.cfg.source === 'recent' ? 'Недавние закладки' : 'Закладки', { permissions: ['bookmarks'] }, 'Нужен доступ к вашим закладкам. Данные остаются в браузере.', async (body) => {
+      const flatten = (nodes) => nodes.flatMap(n => n.children ? flatten(n.children) : (n.url ? [n] : []));
+      let items;
+      if (w.cfg.source === 'recent') items = await chrome.bookmarks.getRecent(w.cfg.count || 10);
+      else { const tree = await chrome.bookmarks.getTree(); const bar = tree[0].children[0]; items = (bar.children || []).filter(n => n.url).concat(flatten((bar.children || []).filter(n => n.children))); }
+      const grid = el('div', { class: 'wb-links' });
+      items.slice(0, w.cfg.count || 10).forEach(b => { const t2 = tile(b.title, b.url); if (t2) grid.append(t2); });
+      if (!grid.children.length) grid.append(el('div', { class: 'wb-sub', text: 'Закладок пока нет' }));
+      body.append(grid);
+    }), [
+    { key: 'source', type: 'select', label: 'Что показывать', options: [['bar', 'Панель закладок'], ['recent', 'Недавно добавленные']] },
+    { key: 'count', type: 'number', label: 'Сколько закладок показывать', min: 2, max: 30 }
+  ]);
+
+  // ── Weather (Open-Meteo, opt-in) ─────────────────────────────────────────
+  const WMO = (c) => c === 0 ? ['☀️', 'Ясно'] : c <= 2 ? ['🌤️', 'Переменная облачность'] : c === 3 ? ['☁️', 'Пасмурно'] : c <= 48 ? ['🌫️', 'Туман'] : c <= 57 ? ['🌦️', 'Морось'] : c <= 67 ? ['🌧️', 'Дождь'] : c <= 77 ? ['❄️', 'Снег'] : c <= 82 ? ['🌧️', 'Ливень'] : c <= 86 ? ['🌨️', 'Снегопад'] : ['⛈️', 'Гроза'];
+  const WEATHER_PERM = { origins: ['https://api.open-meteo.com/*', 'https://geocoding-api.open-meteo.com/*'] };
+  reg('weather', { icon: '🌤️', name: 'Погода', desc: 'Текущая погода и прогноз на день (Open-Meteo)', w: 4, ph: 3, multi: true, configure: true, cfg: { city: '', unit: 'c', geo: null, cache: null } }, (w) =>
+    permissionCard(w, '🌤️', 'Погода', WEATHER_PERM, 'Погода загружается с сервиса Open-Meteo: туда отправляется только название вашего города. Включайте, если согласны.', async (body, again) => {
+      if (!w.cfg.city) { body.append(el('div', { class: 'wb-sub', text: 'Укажите город в настройках виджета' }), mkBtn('Выбрать город', () => openSettings(w))); return; }
+      if (!w.cfg.geo || w.cfg.geo.q !== w.cfg.city) {
+        const r = await (await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&name=' + encodeURIComponent(w.cfg.city) + '&language=' + (lang() === 'ru-RU' ? 'ru' : 'en'))).json();
+        const g = r.results && r.results[0];
+        if (!g) { body.append(el('div', { class: 'wb-sub', text: 'Город не найден' }), mkBtn('Выбрать город', () => openSettings(w))); return; }
+        w.cfg.geo = { q: w.cfg.city, lat: g.latitude, lon: g.longitude, name: g.name, country: g.country || '' }; w.cfg.cache = null; save();
+      }
+      const g = w.cfg.geo, key = g.lat + ',' + g.lon + w.cfg.unit;
+      if (!w.cfg.cache || w.cfg.cache.key !== key || Date.now() - w.cfg.cache.ts > 15 * 60000) {
+        const u = `https://api.open-meteo.com/v1/forecast?latitude=${g.lat}&longitude=${g.lon}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto&temperature_unit=${w.cfg.unit === 'f' ? 'fahrenheit' : 'celsius'}`;
+        w.cfg.cache = { key, ts: Date.now(), data: await (await fetch(u)).json() }; save();
+      }
+      const d = w.cfg.cache.data, c = d.current, [emoji, text] = WMO(c.weather_code), deg = w.cfg.unit === 'f' ? '°F' : '°C';
+      body.append(
+        el('div', { class: 'wb-weather-main' }, el('span', { class: 'wb-weather-emoji', text: emoji }), el('span', { class: 'wb-big', text: Math.round(c.temperature_2m) + '°' })),
+        el('div', { class: 'wb-weather-text', text }),
+        el('div', { class: 'wb-sub', text: `${g.name}${g.country ? ', ' + g.country : ''}` }),
+        el('div', { class: 'wb-sub', text: `↑ ${Math.round(d.daily.temperature_2m_max[0])}${deg}  ↓ ${Math.round(d.daily.temperature_2m_min[0])}${deg}  · 💨 ${Math.round(c.wind_speed_10m)} km/h` }));
+    }), [
+    { key: 'city', type: 'text', label: 'Город' },
+    { key: 'unit', type: 'select', label: 'Единицы', options: [['c', '°C'], ['f', '°F']] }
+  ]);
+
   // ── Stopwatch ────────────────────────────────────────────────────────────
   reg('stopwatch', { icon: '⏲️', name: 'Секундомер', desc: 'Засеките время любого дела', w: 4, ph: 2, multi: true, cfg: { running: false, startedAt: 0, elapsed: 0 } }, (w) => {
     const big = el('div', { class: 'wb-big wb-mono' });

@@ -12,9 +12,10 @@
   --fx-border-top: rgba(255, 255, 255, 0.28);
 
   /* Fintrixity Radiant Fire Orange */
+  --fx-accent-rgb: 255, 94, 14;
   --fx-orange: #FF5E0E;
-  --fx-orange-btn: linear-gradient(135deg, #FF6B00 0%, #FF3800 100%);
-  --fx-orange-glow: rgba(255, 94, 14, 0.55);
+  --fx-orange-btn: linear-gradient(135deg, color-mix(in srgb, var(--fx-orange) 88%, #fff) 0%, color-mix(in srgb, var(--fx-orange) 85%, #000) 100%);
+  --fx-orange-glow: rgba(var(--fx-accent-rgb), 0.55);
 
   /* Status Accents */
   --fx-mint: #34D399;
@@ -43,7 +44,7 @@
 body {
   width: 400px;
   background-color: var(--fx-bg);
-  background-image: radial-gradient(circle at 50% -15%, rgba(255, 94, 14, 0.14) 0%, rgba(11, 12, 16, 1) 65%);
+  background-image: radial-gradient(circle at 50% -15%, rgba(var(--fx-accent-rgb), 0.14) 0%, rgba(11, 12, 16, 1) 65%);
   color: var(--fx-fg-1);
   font-family: var(--font-family);
   font-size: 13px;
@@ -62,7 +63,7 @@ body {
   width: 260px;
   height: 260px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 94, 14, 0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--fx-accent-rgb), 0.12) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -74,7 +75,7 @@ body {
   width: 240px;
   height: 240px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 94, 14, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--fx-accent-rgb), 0.08) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -364,7 +365,7 @@ body {
   stroke-width: 6;
   stroke-linecap: round;
   transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  filter: drop-shadow(0 0 6px rgba(255, 94, 14, 0.45));
+  filter: drop-shadow(0 0 6px rgba(var(--fx-accent-rgb), 0.45));
 }
 
 .ring-text {
@@ -414,9 +415,9 @@ body {
   font-size: 10.5px;
   padding: 3px 8px;
   border-radius: 999px;
-  background: rgba(255, 94, 14, 0.15);
+  background: rgba(var(--fx-accent-rgb), 0.15);
   color: var(--fx-orange);
-  border: 1px solid rgba(255, 94, 14, 0.3);
+  border: 1px solid rgba(var(--fx-accent-rgb), 0.3);
   font-weight: 600;
 }
 
@@ -583,7 +584,7 @@ body {
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(255, 94, 14, 0.7);
+  box-shadow: 0 6px 20px rgba(var(--fx-accent-rgb), 0.7);
 }
 
 .btn-secondary {
