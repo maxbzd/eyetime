@@ -195,142 +195,97 @@ function initHeroFocusBlock(interceptor) {
   const subText = document.getElementById('heroFocusSubText');
   const toggleBtn = document.getElementById('toggleFocusBlockBtn');
   const strictCheckbox = document.getElementById('strictFocusLockCheckbox');
+  const customInput = document.getElementById('customFocusMins');
   const durBtns = document.querySelectorAll('.dur-btn');
 
-  let selectedFocusMins = interceptor.selectedFocusMins || 90;
-  strictCheckbox.checked = !!interceptor.strictFocusLock;
+  let selectedMins = interceptor.selectedFocusMins || 50;
+  let timer = null;
+  const isRunning = () => interceptor.focusBlockActive && Date.now() < (interceptor.focusBlockEndTime || 0);
+  const fmt = (ms) => { const s = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 
-  strictCheckbox.addEventListener('change', async (e) => {
-    interceptor.strictFocusLock = e.target.checked;
-    await saveInterceptor(interceptor);
-    if (e.target.checked) {
-      showSyncToast('🔒 Хард-режим включен (отвлечения закрыты наглухо)');
-    }
-  });
+  function setStatus(label, active) {
+    statusText.textContent = label;
+    statusText.className = 'hero-focus-status-pill' + (active ? ' hero-focus-status-pill--active' : '');
+    toggleBtn.classList.toggle('btn-hero-stop', !!active);
+  }
 
-  durBtns.forEach(btn => {
-    const mins = parseInt(btn.getAttribute('data-mins'), 10);
-    if (mins === selectedFocusMins) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
+  function renderIdle(label = 'Не активен') {
+    setStatus(label, false);
+    timerDisplay.textContent = `${selectedMins}:00`;
+    toggleBtn.textContent = `Запустить ${selectedMins}м Фокус-Блок`;
+    subText.textContent = 'Глубокая концентрация';
+    durBtns.forEach(b => b.classList.toggle('active', parseInt(b.dataset.mins, 10) === selectedMins));
+    if (customInput) customInput.value = [25, 50, 90].includes(selectedMins) ? '' : selectedMins;
+  }
 
-    btn.addEventListener('click', async () => {
-      durBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      selectedFocusMins = mins;
-      interceptor.selectedFocusMins = mins;
-
-      if (!interceptor.focusBlockActive) {
-        timerDisplay.textContent = `${selectedFocusMins}:00`;
-        toggleBtn.textContent = `Запустить ${selectedFocusMins}м Фокус-Блок`;
-      }
-      await saveInterceptor(interceptor);
-    });
-  });
-
-  const isActive = interceptor.focusBlockActive && Date.now() < (interceptor.focusBlockEndTime || 0);
-
-  if (isActive) {
-    statusText.textContent = 'АКТИВЕН';
-    statusText.className = 'hero-focus-status-pill hero-focus-status-pill--active';
+  function renderRunning() {
+    setStatus('АКТИВЕН', true);
     toggleBtn.textContent = 'Остановить фокус-блок';
-    toggleBtn.classList.add('btn-hero-stop');
     subText.textContent = interceptor.focusBlockTask || 'Фокус над задачей';
-
-    function updateTimer() {
-      const remainingMs = (interceptor.focusBlockEndTime || 0) - Date.now();
-      if (remainingMs <= 0) {
-        timerDisplay.textContent = '00:00';
-        statusText.textContent = 'ЗАВЕРШЕН';
-        statusText.className = 'hero-focus-status-pill';
-        toggleBtn.textContent = 'Запустить новый блок';
-        toggleBtn.classList.remove('btn-hero-stop');
-        interceptor.focusBlockActive = false;
-        saveInterceptor(interceptor);
-        if (window.EyeTimeAudio) {
-          window.EyeTimeAudio.playCompletionChime();
-        }
+    clearInterval(timer);
+    const tick = () => {
+      const left = (interceptor.focusBlockEndTime || 0) - Date.now();
+      if (left <= 0) {
+        clearInterval(timer);
+        interceptor.focusBlockActive = false; // the background alarm records the finished session
+        renderIdle('ЗАВЕРШЕН');
+        window.EyeTimeAudio?.playCompletionChime();
         showSyncToast('🏆 Фокус-блок успешно завершен! Отличная работа!');
         return;
       }
-      const totalSec = Math.floor(remainingMs / 1000);
-      const mins = Math.floor(totalSec / 60);
-      const secs = totalSec % 60;
-      timerDisplay.textContent = `${mins}:${String(secs).padStart(2, '0')}`;
-    }
-
-    updateTimer();
-    setInterval(updateTimer, 1000);
-  } else {
-    statusText.textContent = 'Не активен';
-    statusText.className = 'hero-focus-status-pill';
-    timerDisplay.textContent = `${selectedFocusMins}:00`;
-    toggleBtn.textContent = `Запустить ${selectedFocusMins}м Фокус-Блок`;
-    toggleBtn.classList.remove('btn-hero-stop');
+      timerDisplay.textContent = fmt(left);
+    };
+    tick();
+    timer = setInterval(tick, 1000);
   }
+
+  function selectMins(mins) {
+    selectedMins = Math.min(240, Math.max(1, mins | 0));
+    interceptor.selectedFocusMins = selectedMins;
+    saveInterceptor(interceptor);
+    if (!isRunning()) renderIdle();
+  }
+
+  strictCheckbox.checked = !!interceptor.strictFocusLock;
+  strictCheckbox.addEventListener('change', async (e) => {
+    interceptor.strictFocusLock = e.target.checked;
+    await saveInterceptor(interceptor);
+    if (e.target.checked) showSyncToast('🔒 Хард-режим включен (отвлечения закрыты наглухо)');
+  });
+  durBtns.forEach(btn => btn.addEventListener('click', () => selectMins(parseInt(btn.dataset.mins, 10))));
+  customInput?.addEventListener('change', () => { if (customInput.value) selectMins(parseInt(customInput.value, 10)); });
 
   toggleBtn.addEventListener('click', async () => {
     const data = await chrome.storage.local.get(['settings', 'dailyGoals']);
-    const current = data.settings?.interceptor || {};
+    const current = data.settings?.interceptor || interceptor;
+    Object.assign(interceptor, current);
 
-    if (current.focusBlockActive && Date.now() < (current.focusBlockEndTime || 0)) {
-      current.focusBlockActive = false;
+    if (isRunning()) {
+      interceptor.focusBlockActive = false;
+      await saveInterceptor(interceptor);
+      chrome.runtime.sendMessage({ action: 'FOCUS_STOPPED' });
+      clearInterval(timer);
+      renderIdle();
       showSyncToast('⏹️ Фокус-блок остановлен');
-      await saveInterceptor(current);
-      statusText.textContent = 'Не активен';
-      statusText.className = 'hero-focus-status-pill';
-      timerDisplay.textContent = `${selectedFocusMins}:00`;
-      toggleBtn.textContent = `Запустить ${selectedFocusMins}м Фокус-Блок`;
-      toggleBtn.classList.remove('btn-hero-stop');
-      if (window.focusTimerInterval) clearInterval(window.focusTimerInterval);
-    } else {
-      current.focusBlockActive = true;
-      current.focusBlockEndTime = Date.now() + selectedFocusMins * 60 * 1000;
-      current.focusBlockInterrupts = 0;
-      const goals = data.dailyGoals || [];
-      current.focusBlockTask = goals[0]?.text || 'Главная задача дня';
-      await saveInterceptor(current);
-
-      // 1. Проигрываем глубокий гонг (звучит 4.8с до полного затухания)
-      if (window.EyeTimeAudio) {
-        window.EyeTimeAudio.playFocusGong();
-      }
-
-      // 2. Открываем Endel Focus в новой активной вкладке - пользователя сразу переносит туда,
-      // а Новая вкладка остается в фоне, благодаря чему звук гонга дозвучивает плавно до конца без обрыва!
-      window.open('https://app.endel.io/player/focus', '_blank');
-
-      // 3. Обновляем статус Новой вкладки в активный без перезагрузки страницы
-      statusText.textContent = 'АКТИВЕН';
-      statusText.className = 'hero-focus-status-pill hero-focus-status-pill--active';
-      toggleBtn.textContent = 'Остановить фокус-блок';
-      toggleBtn.classList.add('btn-hero-stop');
-      subText.textContent = current.focusBlockTask || 'Фокус над задачей';
-
-      if (window.focusTimerInterval) clearInterval(window.focusTimerInterval);
-      window.focusTimerInterval = setInterval(() => {
-        const remainingMs = (current.focusBlockEndTime || 0) - Date.now();
-        if (remainingMs <= 0) {
-          timerDisplay.textContent = '00:00';
-          statusText.textContent = 'ЗАВЕРШЕН';
-          statusText.className = 'hero-focus-status-pill';
-          toggleBtn.textContent = `Запустить ${selectedFocusMins}м Фокус-Блок`;
-          toggleBtn.classList.remove('btn-hero-stop');
-          current.focusBlockActive = false;
-          saveInterceptor(current);
-          if (window.EyeTimeAudio) window.EyeTimeAudio.playCompletionChime();
-          clearInterval(window.focusTimerInterval);
-          return;
-        }
-        const totalSec = Math.floor(remainingMs / 1000);
-        const mins = Math.floor(totalSec / 60);
-        const secs = totalSec % 60;
-        timerDisplay.textContent = `${mins}:${String(secs).padStart(2, '0')}`;
-      }, 1000);
+      return;
     }
+
+    interceptor.focusBlockActive = true;
+    interceptor.focusBlockEndTime = Date.now() + selectedMins * 60 * 1000;
+    interceptor.focusBlockInterrupts = 0;
+    const goals = data.dailyGoals || [];
+    interceptor.focusBlockTask = goals.find(g => !g.done)?.text || 'Главная задача дня';
+    await saveInterceptor(interceptor);
+    chrome.runtime.sendMessage({ action: 'FOCUS_STARTED', endTime: interceptor.focusBlockEndTime });
+
+    window.EyeTimeAudio?.playFocusGong();
+    // Optional focus music / site (set in Settings → Interceptor); nothing is opened by default
+    const url = (interceptor.focusUrl || '').trim();
+    if (/^https?:\/\//.test(url)) window.open(url, '_blank');
+    renderRunning();
   });
+
+  if (isRunning()) renderRunning(); else renderIdle();
 }
 
 // ── 3. ANTI-LEAK KILL SWITCH (Card 2: Distraction Leaks & 1-Click Cutoff) ───
@@ -342,14 +297,9 @@ function initAntiLeakKillSwitch(stats, settings) {
   const todayKey = localDateKey();
   const todayDomains = stats[todayKey]?.domains || {};
 
-  const distractionList = [
-    'youtube.com', 'vk.com', 'reddit.com', 'twitch.tv', 'tiktok.com',
-    'instagram.com', 'twitter.com', 'x.com', 'avito.ru', 'hh.ru', 'netflix.com'
-  ];
-
   const leaks = [];
   Object.entries(todayDomains).forEach(([domain, sec]) => {
-    if (distractionList.some(d => domain.includes(d)) && sec >= 60) {
+    if (EyeTimeBlocking.isDistraction(domain, settings) && sec >= 60) {
       leaks.push({ domain, mins: Math.round(sec / 60) });
     }
   });

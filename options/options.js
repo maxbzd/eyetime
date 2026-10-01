@@ -972,6 +972,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     await saveSettings();
   });
   renderBlocking();
+  const focusUrlInput = document.getElementById('focusUrlInput');
+  focusUrlInput.value = currentSettings.interceptor.focusUrl || '';
+  focusUrlInput.addEventListener('change', async () => {
+    const v = focusUrlInput.value.trim();
+    currentSettings.interceptor.focusUrl = /^https?:\/\//.test(v) ? v : '';
+    await saveSettings();
+  });
+  const weeklyReportToggle = document.getElementById('weeklyReportToggle');
+  weeklyReportToggle.checked = currentSettings.weeklyReport !== false;
+  weeklyReportToggle.addEventListener('change', async (e) => {
+    currentSettings.weeklyReport = e.target.checked;
+    await saveSettings();
+  });
   const showBadgeToggle = document.getElementById('showBadgeToggle');
   showBadgeToggle.checked = currentSettings.showBadge !== false;
   showBadgeToggle.addEventListener('change', async (e) => {
