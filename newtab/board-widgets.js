@@ -40,7 +40,7 @@
       const today = stats[dayKey()] || {}, y = new Date(); y.setDate(y.getDate() - 1);
       const ysec = (stats[dayKey(y)] || {}).totalSeconds || 0, sec = today.totalSeconds || 0;
       total.textContent = fmtDur(sec);
-      delta.textContent = ysec ? `${sec >= ysec ? '+' : ''}${Math.round((sec - ysec) / ysec * 100)}% vs вчера` : 'Нет данных за вчера';
+      delta.textContent = ysec ? `${sec >= ysec ? '+' : ''}${Math.round((sec - ysec) / ysec * 100)}% к вчерашнему дню` : 'Нет данных за вчера';
       const top = Object.entries(today.domains || {}).sort((a, b) => b[1] - a[1]).slice(0, 5), max = top[0] ? top[0][1] : 1;
       list.innerHTML = '';
       top.forEach(([d, s]) => list.append(el('div', { class: 'wb-bar-row' },

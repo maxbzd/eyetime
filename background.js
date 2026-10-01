@@ -442,7 +442,7 @@ async function finishFocusBlock() {
   const inc = settings.interceptor || {};
   if (!inc.focusBlockActive || Date.now() < (inc.focusBlockEndTime || 0) - 2000) return;
   inc.focusBlockActive = false;
-  const counter = (inc.uncomfortableCounters || []).find(c => c.label === 'Сессий глубокого фокуса');
+  const counter = (inc.uncomfortableCounters || []).find(c => ['Сессий глубокого фокуса', 'Deep focus sessions'].includes(c.label));
   if (counter) counter.current = (counter.current || 0) + 1;
   settings.interceptor = inc;
   const stats = data.stats || {};

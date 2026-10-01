@@ -1,3 +1,5 @@
+function escapeHtml(v) { return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
 // EyeTime — Popup JavaScript Logic (Focus Score & Bento Grid)
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -225,11 +227,11 @@ function renderComparison(todaySec, yesterdaySec) {
   if (pct > 0) {
     badge.className = 'comparison-badge up';
     icon.textContent = '↑';
-    text.textContent = `+${pct}% vs вчера`;
+    text.textContent = `+${pct}% к вчерашнему дню`;
   } else if (pct < 0) {
     badge.className = 'comparison-badge down';
     icon.textContent = '↓';
-    text.textContent = `${pct}% vs вчера`;
+    text.textContent = `${pct}% к вчерашнему дню`;
   } else {
     badge.className = 'comparison-badge neutral';
     icon.textContent = '⎯';
@@ -270,24 +272,23 @@ function renderTopDomains(domainsObj) {
   top5.forEach(([domain, sec]) => {
     const pct = Math.max(8, Math.round((sec / maxSec) * 100));
     const formattedTime = formatDuration(sec);
-    const faviconUrl = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32`;
+    const hue = [...domain].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) % 360, 7);
     const firstLetter = domain.charAt(0).toUpperCase();
     const category = getDomainCategory(domain);
 
     const item = document.createElement('div');
     item.className = 'domain-item';
     item.innerHTML = `
-      <div class="domain-info">
+      <div class="domain-top">
         <div class="domain-left">
-          <img class="domain-icon" src="${faviconUrl}" alt="${domain}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-          <div class="domain-icon-fallback" style="display:none;">${firstLetter}</div>
-          <span class="domain-name" title="${domain}">${domain}</span>
+          <div class="domain-icon-fallback" style="background:hsl(${hue} 55% 42%)">${escapeHtml(firstLetter)}</div>
+          <span class="dom-name" title="${escapeHtml(domain)}">${escapeHtml(domain)}</span>
           <span class="domain-cat-tag">${category}</span>
         </div>
-        <span class="domain-time">${formattedTime}</span>
+        <span class="dom-time">${formattedTime}</span>
       </div>
-      <div class="bar-bg">
-        <div class="bar-fill" style="width: ${pct}%;"></div>
+      <div class="dom-bar-track">
+        <div class="dom-bar-fill" style="width: ${pct}%;"></div>
       </div>
     `;
     container.appendChild(item);
@@ -359,7 +360,7 @@ function renderHourlyChart(hourlyData) {
     rect.setAttribute('class', 'chart-bar');
 
     if (h === peakHour && maxSec > 0) {
-      rect.setAttribute('fill', 'url(#hourlyGradient)');
+      rect.style.fill = 'url(#hourlyGradient)';
     }
 
     const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
@@ -445,7 +446,7 @@ function renderWeeklyChart(allStats) {
     rect.setAttribute('width', barWidth);
     rect.setAttribute('height', barHeight);
     rect.setAttribute('rx', '4');
-    rect.setAttribute('class', day.isToday ? 'chart-bar active-day' : 'chart-bar');
+    rect.setAttribute('class', day.isToday ? 'chart-bar chart-bar-active' : 'chart-bar');
 
     const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
     title.textContent = `${day.dayName} (${day.dateKey}): ${formatDuration(day.totalSec)}`;

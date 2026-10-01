@@ -133,3 +133,10 @@
 
   updateStepsUI();
 })();
+
+// Pre-filled goal names are Russian in the markup: show them in the selected language
+(function translateGoalDefaults() {
+  const run = () => document.querySelectorAll('.goal-label').forEach(i => { if (window.EyeTimeI18n) i.value = window.EyeTimeI18n.t(i.value); });
+  if (window.EyeTimeI18n && window.EyeTimeI18n.ready) window.EyeTimeI18n.ready.then(run); else run();
+  run();
+})();

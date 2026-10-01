@@ -211,8 +211,8 @@ const BRAND_SVG_ICONS = {
 function getItemIconHtml(name) {
   const isWeb = name.includes('.');
   if (isWeb) {
-    const faviconUrl = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(name)}&sz=64`;
-    return `<img class="domain-fav" src="${faviconUrl}" alt="${name}" onerror="this.style.visibility='hidden'">`;
+    const hue = [...name].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) % 360, 7);
+    return `<span class="domain-fav domain-fav-letter" style="background:hsl(${hue} 55% 42%)">${name.charAt(0).toUpperCase().replace(/[<>&"']/g, '')}</span>`;
   }
 
   const lower = name.toLowerCase();
@@ -278,8 +278,28 @@ function renderDashboard() {
     aggregatedHourly[h2] = Math.round(totalSec * 0.55);
   }
 
-  // 1. Metric Card 1: Total Screen Time
+  // 1. Metric Card 1: Total Screen Time (+ real comparison with the previous period of the same length)
   document.getElementById('statTotalTime').textContent = formatDuration(totalSec);
+  {
+    const sub = document.getElementById('statTimeSub');
+    const parse = (k) => { const [y, m, dd] = k.split('-').map(Number); return new Date(y, m - 1, dd); };
+    const first = parse(dateKeys[0]);
+    let prevTotal = 0;
+    for (let i = 1; i <= dateKeys.length; i++) {
+      const pd = new Date(first); pd.setDate(pd.getDate() - i);
+      const day = allStats[getTodayKey(pd)] || {};
+      if (activeSource === 'all' || activeSource === 'web') prevTotal += Object.values(day.domains || {}).reduce((a, b) => a + b, 0);
+      if (activeSource === 'pc') prevTotal += Object.values(day.desktopApps || {}).reduce((a, b) => a + b, 0);
+    }
+    if (sub) {
+      if (prevTotal <= 0) { sub.textContent = 'Нет данных за прошлый период'; sub.className = 'metric-sub neutral'; }
+      else {
+        const pct = Math.round((totalSec - prevTotal) / prevTotal * 100);
+        sub.textContent = `${pct > 0 ? '↑ +' : pct < 0 ? '↓ ' : '⎯ '}${pct}% по сравнению с прошлым периодом`;
+        sub.className = 'metric-sub ' + (pct > 0 ? 'negative' : pct < 0 ? 'positive' : 'neutral');
+      }
+    }
+  }
 
   // 2. Metric Card 2: Eye Health Score
   const intervalMins = allSettings.eyeRestIntervalMinutes || 20;

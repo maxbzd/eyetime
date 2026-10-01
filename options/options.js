@@ -245,9 +245,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function showToast(msg) {
     toast.textContent = msg;
-    toast.classList.remove('hidden');
-    setTimeout(() => {
-      toast.classList.add('hidden');
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => {
+      toast.classList.remove('show');
     }, 2500);
   }
 

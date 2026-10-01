@@ -42,7 +42,7 @@
           <span style="font-size:11px; color:#64748b;">Esc — закрыть</span>
         </div>
 
-        <input type="text" id="eyetime-modal-input" placeholder="Запишите мысль... (Enter — отправить в TickTick)" style="width:100%; padding:14px 18px; border-radius:12px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#fff; font-size:15px; outline:none; font-family:inherit;" autocomplete="off">
+        <input type="text" id="eyetime-modal-input" placeholder="Запишите мысль... (Enter — сохранить)" style="width:100%; padding:14px 18px; border-radius:12px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#fff; font-size:15px; outline:none; font-family:inherit;" autocomplete="off">
 
         <div id="eyetime-modal-status" style="font-size:12px; color:#94a3b8; display:flex; justify-content:space-between;">
           <span>Enter сохранит мысль и вы сможете продолжить работу</span>
@@ -404,7 +404,7 @@
         <div style="display:inline-block; align-self:center; padding:6px 16px; border-radius:14px; background:rgba(45, 212, 191, 0.15); color:#2dd4bf; font-size:13px; font-weight:800; border:1px solid rgba(45, 212, 191, 0.35);">
           🛑 ХАРД-РЕЖИМ ФОКУС-БЛОКА
         </div>
-        <h2 style="font-size: 24px; font-weight: 800; margin: 0; color: #fff;">Активен 90м Фокус-Блок 🎯</h2>
+        <h2 style="font-size: 24px; font-weight: 800; margin: 0; color: #fff;">Идёт Фокус-Блок 🎯</h2>
         
         <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px; text-align: left;">
           <div style="font-size: 11px; color: #94a3b8;">Ваша главная цель на спринт:</div>
