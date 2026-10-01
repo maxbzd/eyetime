@@ -20,7 +20,10 @@
     if (!dict) return;
     for (const [ru, en] of Object.entries(dict)) {
       if (ru.includes('{}')) {
-        const src = ru.split('{}').map(esc).join('(.+?)');
+        // A placeholder glued to a unit letter ("{}м", "{}ч") must be numeric, otherwise it would match any word ending in that letter
+        const parts = ru.split('{}');
+        const isLetter = (ch) => !!ch && /[А-Яа-яЁёA-Za-z]/.test(ch);
+        const src = parts.map((p, i) => esc(p) + (i < parts.length - 1 ? (isLetter(p.slice(-1)) || isLetter(parts[i + 1][0]) ? '(-?\\d[\\d.,:]*)' : '(.+?)') : '')).join('');
         patterns.push([new RegExp('^' + src + '$'), en]);
         // also register the text without leading/trailing placeholder (value often lives in its own tag)
         const strip = x => x.replace(/^\s*\{\}\s*|\s*\{\}\s*$/g, '').trim();
