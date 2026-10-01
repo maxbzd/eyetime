@@ -13,9 +13,10 @@
   --fx-border-top: rgba(255, 255, 255, 0.28);
 
   /* Fintrixity Radiant Fire Orange */
+  --fx-accent-rgb: 255, 94, 14;
   --fx-orange: #FF5E0E;
-  --fx-orange-btn: linear-gradient(135deg, #FF6B00 0%, #FF3800 100%);
-  --fx-orange-glow: rgba(255, 94, 14, 0.55);
+  --fx-orange-btn: linear-gradient(135deg, color-mix(in srgb, var(--fx-orange) 88%, #fff) 0%, color-mix(in srgb, var(--fx-orange) 85%, #000) 100%);
+  --fx-orange-glow: rgba(var(--fx-accent-rgb), 0.55);
 
   /* Status Accents */
   --fx-mint: #34D399;
@@ -62,7 +63,7 @@
 
 body {
   background-color: var(--fx-bg);
-  background-image: radial-gradient(circle at 50% -10%, rgba(255, 94, 14, 0.12) 0%, rgba(11, 12, 16, 1) 60%);
+  background-image: radial-gradient(circle at 50% -10%, rgba(var(--fx-accent-rgb), 0.12) 0%, rgba(11, 12, 16, 1) 60%);
   color: var(--fx-fg-1);
   font-family: var(--font-family);
   font-size: 14px;
@@ -87,7 +88,7 @@ body {
   transform: translateX(-50%);
   width: 650px;
   height: 400px;
-  background: radial-gradient(circle, rgba(255, 94, 14, 0.12) 0%, rgba(251, 191, 36, 0.03) 50%, transparent 80%);
+  background: radial-gradient(circle, rgba(var(--fx-accent-rgb), 0.12) 0%, rgba(251, 191, 36, 0.03) 50%, transparent 80%);
 }
 
 .options-app {
@@ -415,9 +416,9 @@ h2 {
   font-weight: 700;
   padding: 3px 8px;
   border-radius: 6px;
-  background: rgba(255, 94, 14, 0.15);
+  background: rgba(var(--fx-accent-rgb), 0.15);
   color: var(--fx-orange);
-  border: 1px solid rgba(255, 94, 14, 0.3);
+  border: 1px solid rgba(var(--fx-accent-rgb), 0.3);
 }
 
 /* Excluded Domains Tags */
@@ -492,7 +493,7 @@ h2 {
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 22px rgba(255, 94, 14, 0.7);
+  box-shadow: 0 6px 22px rgba(var(--fx-accent-rgb), 0.7);
 }
 
 .btn-secondary {
