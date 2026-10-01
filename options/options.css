@@ -545,3 +545,17 @@ h2 {
   transform: translateY(0);
   opacity: 1;
 }
+
+.hidden { display: none !important; }
+.btn-danger[style*="gradient"], #startNuclearBtn { color: #fff !important; text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+
+/* Day / preset chips: hide native checkboxes, highlight the checked state with the accent color */
+#scheduleDays { justify-content: flex-start !important; }
+#scheduleDays .tag, #presetGrid .tag { transition: background .2s, border-color .2s, transform .15s; user-select: none; }
+#scheduleDays .tag input { position: absolute; opacity: 0; pointer-events: none; }
+#scheduleDays .tag:has(input:checked), #presetGrid .tag:has(input:checked) { background: rgba(var(--fx-accent-rgb), .18); border-color: var(--fx-orange); color: #fff; }
+#scheduleDays .tag:hover, #presetGrid .tag:hover { transform: translateY(-1px); }
+#scheduleDays .tag:has(input:focus-visible), #presetGrid .tag:has(input:focus-visible) { outline: 2px solid var(--fx-orange); outline-offset: 2px; }
+#presetGrid .tag input { accent-color: var(--fx-orange); width: 16px; height: 16px; }
+.nav-tab:focus-visible, .btn:focus-visible, .custom-input:focus-visible { outline: 2px solid var(--fx-orange); outline-offset: 2px; }
+#scheduleDays .tag { position: relative; }

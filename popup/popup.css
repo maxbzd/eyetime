@@ -486,6 +486,7 @@ body {
 }
 
 .chart-bar {
+  fill: rgba(255, 255, 255, 0.2);
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
@@ -598,3 +599,14 @@ body {
   color: #ffffff;
   border-color: var(--fx-border-hover);
 }
+
+.domain-icon-fallback { width: 22px; height: 22px; min-width: 22px; border-radius: 7px; display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff; flex-shrink: 0; }
+.btn-icon { flex: 0 0 auto; padding: 10px 12px; }
+.btn:focus-visible, .chart-bar:focus-visible { outline: 2px solid var(--fx-orange); outline-offset: 2px; }
+
+.domain-cat-tag { flex-shrink: 0; padding: 1px 7px; border-radius: 999px; font-size: 10px; font-weight: 600; color: var(--fx-fg-2); background: rgba(255,255,255,.07); }
+.domain-top { gap: 8px; }
+.dom-name { flex: 1 1 auto; min-width: 0; }
+.dom-time { flex-shrink: 0; }
+.domains-list { gap: 12px; }
+.dom-bar-track { margin-top: 2px; }
