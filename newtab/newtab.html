@@ -84,7 +84,8 @@
           <div class="focus-duration-selector focus-duration-selector--orange">
             <button class="dur-btn" data-mins="25">25м</button>
             <button class="dur-btn" data-mins="50">50м</button>
-            <button class="dur-btn active" data-mins="90">90м</button>
+            <button class="dur-btn" data-mins="90">90м</button>
+            <input type="number" id="customFocusMins" min="1" max="240" placeholder="…м" title="Своя длительность (минуты)" style="width:52px;background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.5);color:inherit;text-align:center;font:inherit;font-size:12px;outline:none">
           </div>
         </div>
 
@@ -369,6 +370,7 @@
   </div>
 
   <script src="../assets/eyetime_audio.js"></script>
+  <script src="../assets/blocking.js"></script>
   <script src="newtab.js"></script>
 </body>
 </html>
