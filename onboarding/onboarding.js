@@ -2,7 +2,7 @@
 
 (function () {
   let currentStep = 1;
-  const totalSteps = 5;
+  const totalSteps = 6;
 
   function updateStepsUI() {
     // Hide all step panels
@@ -63,6 +63,63 @@
     updateStepsUI();
   });
 
+  document.getElementById('btnStep5Next')?.addEventListener('click', () => {
+    currentStep = 6;
+    updateStepsUI();
+  });
+
+  document.getElementById('btnStep6Prev')?.addEventListener('click', () => {
+    currentStep = 5;
+    updateStepsUI();
+  });
+
+  // Step 6: layout picker (presets come from newtab/board-presets.js)
+  const WIDGET_ICONS = { focus: '⏱️', leaks: '🚰', habits: '✅', tasks: '☑️', thoughts: '🧠', goals: '🎯', chart: '📈', clock: '🕒', todaystats: '📊', eyebreak: '👁️', rules: '📜', quicklinks: '🔗', notes: '📝', search: '🔍', countdown: '⏳', pomodoro: '🍅', checklist: '🗒️', quote: '💭', calendar: '📅', progress: '📆', water: '💧', breathing: '🌬️', worldclocks: '🌍', counter: '🔢', motto: '🔥', stopwatch: '⏲️', topsites: '⭐', bookmarks: '🔖', weather: '🌤️' };
+  const PV_HEIGHT = { focus: 2, leaks: 2, habits: 2, tasks: 4, thoughts: 2, goals: 2, chart: 3, pomodoro: 4, calendar: 4, search: 1, motto: 2, quote: 2, breathing: 4 };
+  let chosenPreset = 'classic';
+  const presets = window.EyeTimePresets || [];
+  const picker = document.getElementById('layoutPicker');
+  if (picker) {
+    presets.forEach(p => {
+      const pv = document.createElement('span');
+      pv.className = 'layout-pv';
+      pv.style.setProperty('--pv', (p.theme && p.theme.accent) || '#FF5E0E');
+      p.widgets.forEach(([type, w]) => {
+        const cell = document.createElement('i');
+        cell.style.gridColumn = `span ${w}`;
+        cell.style.gridRow = `span ${PV_HEIGHT[type] || 2}`;
+        cell.textContent = WIDGET_ICONS[type] || '';
+        pv.appendChild(cell);
+      });
+      const name = document.createElement('strong');
+      const icon = document.createElement('span'); icon.textContent = p.icon;
+      const label = document.createElement('span'); label.textContent = p.name;
+      name.append(icon, ' ', label);
+      const desc = document.createElement('small'); desc.textContent = p.desc;
+      const card = document.createElement('button');
+      card.type = 'button'; card.className = 'layout-card' + (p.id === chosenPreset ? ' on' : '');
+      card.setAttribute('role', 'radio'); card.setAttribute('aria-checked', p.id === chosenPreset ? 'true' : 'false');
+      card.append(pv, name, desc);
+      card.addEventListener('click', () => {
+        chosenPreset = p.id;
+        picker.querySelectorAll('.layout-card').forEach(c => { c.classList.remove('on'); c.setAttribute('aria-checked', 'false'); });
+        card.classList.add('on'); card.setAttribute('aria-checked', 'true');
+      });
+      picker.appendChild(card);
+    });
+  }
+
+  // Turn a preset into the saved new-tab layout (same format the board uses)
+  function layoutFromPreset(p) {
+    const uid = () => 'w' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+    const builtin = ['focus', 'leaks', 'habits', 'tasks', 'thoughts', 'goals', 'chart'];
+    return {
+      v: 2,
+      theme: Object.assign({}, p.theme || {}),
+      widgets: p.widgets.map(([type, w, cfg, style]) => ({ id: builtin.includes(type) ? type : uid(), type, w, cfg: cfg || {}, style: style || {} }))
+    };
+  }
+
   // Test Tibetan singing bowl gong
   document.getElementById('btnTestGong')?.addEventListener('click', () => {
     if (window.EyeTimeAudio) {
@@ -112,10 +169,13 @@
       settings.antiDoomscroll = settings.antiDoomscroll || {};
       settings.antiDoomscroll.enabled = antiShorts;
 
-      await chrome.storage.local.set({
+      const preset = (window.EyeTimePresets || []).find(p => p.id === chosenPreset);
+      const extra = {};
+      if (preset) { extra.newtabLayout = layoutFromPreset(preset); extra.newtabWelcomed = true; }
+      await chrome.storage.local.set(Object.assign({
         settings,
         eyetime_onboarded: true
-      });
+      }, extra));
 
       // Play victory chime upon onboarding completion
       if (window.EyeTimeAudio) {

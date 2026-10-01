@@ -112,7 +112,7 @@
     return 'en';
   }
 
-  function setLang(l) { lang = l; build(); }
+  function setLang(l) { lang = l; build(); try { if (typeof document !== 'undefined' && document.documentElement && location.protocol === 'chrome-extension:') document.documentElement.lang = l; } catch (err) { } }
 
   const api = { t, translateTree, setLang, get lang() { return lang; }, languages: { auto: 'Auto', en: 'English', ru: 'Русский' },
     watch(el) { translateTree(el); observe(el); },
