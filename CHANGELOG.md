@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.0 — Unreleased
+## 2.1.0 — 2026-10-19
 
 ### Make it yours — customisation
 - **Eleven looks** (Calm, Paper, Midnight, Terminal, Sakura, Forest, Aurora, Mono, Sunset, Nord, Ocean), each with light and dark schemes and its own typography, corners, card style and shadows. Live split light/dark previews in **Settings → Appearance**.
