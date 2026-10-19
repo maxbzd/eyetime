@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="block.pageTitle">Paused — EyeTime</title>
+  <meta name="referrer" content="no-referrer">
+  <script src="../ui/theme-init.js"></script>
+  <link rel="stylesheet" href="../ui/tokens.css">
+  <link rel="stylesheet" href="../ui/base.css">
+  <link rel="stylesheet" href="../ui/components.css">
+  <link rel="stylesheet" href="blocked.css">
+</head>
+<body>
+  <div class="glow" aria-hidden="true"></div>
+  <header class="top"><img src="../../icons/logo.svg" alt="" width="24" height="24"><span>EyeTime</span></header>
+
+  <main class="stage" id="stage" aria-live="polite">
+    <div class="site-pill" id="sitePill"></div>
+
+    <div class="breath" id="breath" hidden>
+      <div class="orb"><span id="breathLabel"></span></div>
+    </div>
+
+    <div class="clock num" id="bigClock" hidden></div>
+
+    <h1 id="title"></h1>
+    <p class="lead" id="lead"></p>
+    <p class="goal" id="goal" hidden></p>
+
+    <div class="actions">
+      <button class="btn btn-primary btn-lg" id="back" type="button"></button>
+      <button class="btn btn-lg" id="cont" type="button" hidden></button>
+    </div>
+    <p class="note" id="note"></p>
+    <a class="manage" id="manage" href="../options/options.html#blocking" target="_blank" hidden data-i18n="block.manage">Manage blocked sites</a>
+  </main>
+
+  <script type="module" src="blocked.js"></script>
+</body>
+</html>
