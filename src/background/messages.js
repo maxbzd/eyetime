@@ -6,6 +6,8 @@ import { startFocus, stopFocus, endRest, reviewSession } from './focus.js';
 import { updateDay } from '../shared/storage.js';
 import { dayKey } from '../shared/time.js';
 import { PAUSE_REASONS } from '../shared/productivity.js';
+import { setAmbient } from './audio.js';
+import { updateSettings } from '../shared/storage.js';
 import { grantPass, sweepTabs } from './blocker.js';
 import { completeBreak, skipBreak, snoozeBreak, openBreakPage, scheduleBedtime, getEyeState } from './breaks.js';
 import { sync } from './tracker.js';
@@ -25,6 +27,13 @@ const handlers = {
   'pause:reason': async (m) => {
     if (!PAUSE_REASONS.includes(m.reason)) return { ok: false };
     await updateDay(dayKey(), (d) => { (d.pr ||= {})[m.reason] = (d.pr[m.reason] || 0) + 1; });
+    return { ok: true };
+  },
+  'ambient:set': async (m) => {
+    if (!['off', 'brown', 'rain', 'cafe'].includes(m.kind)) return { ok: false };
+    await updateSettings((s) => { s.focus.ambient = m.kind; });
+    const { focus } = await getRaw('focus');
+    await setAmbient(isFocusActive(focus) ? m.kind : 'off');
     return { ok: true };
   },
   'rest:skip': async () => { await endRest({ notify: false }); return { ok: true }; },

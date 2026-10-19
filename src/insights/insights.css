@@ -83,3 +83,7 @@ select.tag { appearance: none; padding-right: 9px; font-family: inherit; }
 .chip.good { background: var(--success-soft); color: var(--success-text); border-color: transparent; }
 .sites td .truncate { display: block; max-width: 360px; }
 @media (max-width: 760px) { .pstats { grid-template-columns: repeat(2, 1fr); } }
+
+.hours-bars.wk, .hours-axis.wk { grid-template-columns: repeat(7, 1fr); gap: 8px; } .hours-axis.wk { text-align: center; }
+.wins { display: flex; flex-direction: column; gap: 6px; } .win { display: flex; gap: 10px; align-items: baseline; font-size: var(--fs-md); } .win .ico { font-size: 14px; color: var(--accent-text); transform: translateY(2px); } .win-d { color: var(--text-3); font-size: var(--fs-sm); min-width: 84px; }
+.pstats { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }

@@ -4,14 +4,29 @@
 import { evaluate, loadContext, blockedPageUrl } from '../shared/policy.js';
 import { decide } from '../shared/blocking.js';
 import { hostFromUrl } from '../shared/domains.js';
-import { getRaw, setRaw } from '../shared/storage.js';
+import { getRaw, setRaw, updateDay } from '../shared/storage.js';
+import { dayKey } from '../shared/time.js';
 
 const isWeb = (url) => /^https?:\/\//i.test(url || '');
+
+const recent = new Map(); // tabId+url → ts: webNavigation and tabs.onUpdated both report one navigation
+
+/** Count a temptation: the pause / block page had to step in for this host (`pa`), and whether a session was running (`fa`). */
+async function logAttempt(tabId, url, d) {
+  const key = tabId + '|' + url, now = Date.now();
+  if (now - (recent.get(key) || 0) < 5000) return;
+  recent.set(key, now);
+  if (recent.size > 50) for (const [k, t] of recent) if (now - t > 5000) recent.delete(k);
+  const host = (d.rule || d.host || '').replace(/^www\./, '');
+  if (!host) return;
+  await updateDay(dayKey(), (day) => { const pa = (day.pa ||= {}); pa[host] = (pa[host] || 0) + 1; if (d.reason === 'focus') day.fa = (day.fa || 0) + 1; });
+}
 
 export async function checkTab(tabId, url) {
   if (!isWeb(url)) return;
   const d = await evaluate(url);
   if (d.action === 'allow') return;
+  logAttempt(tabId, url, d).catch(() => {});
   try { await chrome.tabs.update(tabId, { url: blockedPageUrl(url, d) }); } catch { /* tab closed */ }
 }
 

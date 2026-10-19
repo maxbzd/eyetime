@@ -28,6 +28,8 @@
     <p class="lead" id="lead"></p>
     <p class="goal" id="goal" hidden></p>
 
+    <div class="plan" id="plan" hidden><span class="plan-k" data-i18n="block.plan.k">Your plan</span><span id="planText"></span></div>
+
     <div class="why" id="why" hidden>
       <div class="why-q" data-i18n="block.why.q">Why are you here?</div>
       <div class="row gap-2 wrap" id="whyChips" style="justify-content:center"></div>
@@ -37,6 +39,7 @@
     <div class="actions">
       <button class="btn btn-primary btn-lg" id="back" type="button"></button>
       <button class="btn btn-lg" id="cont" type="button" hidden></button>
+      <button class="btn btn-lg btn-ghost" id="park" type="button" hidden data-i18n="block.park">Park it for later</button>
       <button class="btn btn-lg btn-ghost" id="allowSite" type="button" hidden data-i18n="block.only.allow">Add to my sites</button>
     </div>
     <p class="note" id="note"></p>
