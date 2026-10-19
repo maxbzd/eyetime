@@ -1,0 +1,40 @@
+/* Chart marks. Colours come from tokens: --productive / --neutral / --distracting, --grid, --accent. */
+.chart { --axis-w: 44px; display: flex; flex-direction: column; gap: var(--s-2); }
+.chart .plot { position: relative; height: var(--chart-h, 220px); margin-left: var(--axis-w); }
+.chart .grid { position: absolute; inset: 0; pointer-events: none; }
+.chart .gl { position: absolute; left: 0; right: 0; height: 0; border-top: 1px solid var(--grid); }
+.chart .gl span { position: absolute; left: calc(var(--axis-w) * -1); width: calc(var(--axis-w) - 10px); text-align: right; top: -8px; font-size: 11px; color: var(--text-3); line-height: 16px; }
+.chart .gl:first-child { border-top-color: var(--border-strong); }
+.chart .cols { position: absolute; inset: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+.chart .col { min-width: 0; display: flex; align-items: flex-end; justify-content: center; position: relative; border-radius: 6px; outline-offset: -2px; }
+.chart .col:hover { background: color-mix(in srgb, var(--text) 4%, transparent); }
+.chart .stack-bar { width: 24px; max-width: calc(100% - 4px); display: flex; flex-direction: column-reverse; gap: 2px; transition: height var(--t-slow) var(--ease), filter var(--t-fast); min-height: 0; }
+.chart .col:hover .stack-bar, .chart .col:focus-visible .stack-bar { filter: brightness(1.08); }
+.chart .seg { display: block; min-height: 3px; border-radius: 1px; }
+.chart .seg:last-child { border-radius: 4px 4px 1px 1px; }
+.chart .seg:first-child { border-radius: 1px; }
+.chart .seg:only-child { border-radius: 4px 4px 1px 1px; }
+.seg.productive, .swatch.productive, .key.productive { background: var(--productive); }
+.seg.neutral, .swatch.neutral, .key.neutral { background: var(--neutral); }
+.seg.distracting, .swatch.distracting, .key.distracting { background: var(--distracting); }
+.chart .xaxis { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); margin-left: var(--axis-w); }
+.chart .xaxis span { min-width: 0; text-align: center; font-size: 11px; color: var(--text-3); overflow: visible; white-space: nowrap; }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; }
+.legend .swatch { margin-right: 0; }
+
+/* tooltip rows */
+.chart-tip .tip-row { display: flex; align-items: center; gap: 8px; margin-top: 3px; }
+.chart-tip .tip-row .key { width: 12px; height: 3px; border-radius: 2px; flex: none; }
+.chart-tip .tip-row b { margin-left: auto; padding-left: 14px; }
+.chart-tip .tip-total { display: flex; justify-content: space-between; gap: 16px; margin-top: 6px; padding-top: 6px; border-top: 1px solid color-mix(in srgb, var(--bg) 28%, transparent); }
+.chart-tip > .sub:first-child { margin-bottom: 2px; }
+
+/* heatmap */
+.heatmap { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 14px); grid-auto-columns: 14px; gap: 3px; }
+.hm-cell { width: 14px; height: 14px; border-radius: 4px; background: var(--bar-empty); }
+.hm-cell.pad { background: transparent; }
+.hm-cell.l1 { background: color-mix(in srgb, var(--accent) 24%, var(--bar-empty)); }
+.hm-cell.l2 { background: color-mix(in srgb, var(--accent) 46%, var(--bar-empty)); }
+.hm-cell.l3 { background: color-mix(in srgb, var(--accent) 72%, var(--bar-empty)); }
+.hm-cell.l4 { background: var(--accent); }
+.hm-cell:hover:not(.pad), .hm-cell:focus-visible { outline: 2px solid var(--text); outline-offset: 1px; }

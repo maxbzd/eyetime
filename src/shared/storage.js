@@ -1,0 +1,158 @@
+// chrome.storage.local access layer shared by the service worker and every page.
+//
+// Layout
+//   settings            user preferences (see defaults.js)
+//   meta                { schemaVersion, installedAt }
+//   focus               the running focus session, or null
+//   passes              { [ruleDomain]: untilTs }  temporary "continue" permissions
+//   tasks / habits / captures / links   small user data used by the new tab
+//   d:YYYY-MM-DD        one record per day (see stats.js) – small, independent writes
+//   newtabBg            custom background photo (data URL)
+
+import { DEFAULT_SETTINGS, deepMerge, clone, SCHEMA_VERSION } from './defaults.js';
+import { migrate, needsMigration } from './migrate.js';
+import { dayKey, rangeKeys, addDays } from './time.js';
+import { emptyDay } from './stats.js';
+
+export const DAY_PREFIX = 'd:';
+export const RETENTION_DAYS = 400;
+
+const area = () => chrome.storage.local;
+
+export async function getRaw(keys) { return area().get(keys); }
+export async function setRaw(obj) { return area().set(obj); }
+
+/* ---------- settings ---------- */
+
+export async function getSettings() {
+  const { settings } = await area().get('settings');
+  return deepMerge(DEFAULT_SETTINGS, settings || {});
+}
+
+let settingsQueue = Promise.resolve();
+/** Read-modify-write with a per-context queue. `fn` may mutate and return nothing, or return a new object. */
+export function updateSettings(fn) {
+  const run = async () => {
+    const cur = await getSettings();
+    const next = fn(cur) || cur;
+    await area().set({ settings: next });
+    return next;
+  };
+  const p = settingsQueue.then(run, run);
+  settingsQueue = p.catch(() => {});
+  return p;
+}
+
+/** Subscribe to storage changes of the given top-level keys. Returns an unsubscribe function. */
+export function onChange(keys, cb) {
+  const set = new Set([].concat(keys));
+  const handler = (changes, areaName) => {
+    if (areaName !== 'local') return;
+    const hit = Object.keys(changes).filter((k) => set.has(k) || [...set].some((s) => s.endsWith('*') && k.startsWith(s.slice(0, -1))));
+    if (hit.length) cb(changes);
+  };
+  chrome.storage.onChanged.addListener(handler);
+  return () => chrome.storage.onChanged.removeListener(handler);
+}
+
+/* ---------- days ---------- */
+
+export const dayStorageKey = (key) => DAY_PREFIX + key;
+
+export async function getDays(keys) {
+  const raw = await area().get(keys.map(dayStorageKey));
+  return keys.map((k) => [k, raw[dayStorageKey(k)] || null]);
+}
+
+export async function getRange(n, end = new Date()) { return getDays(rangeKeys(n, end)); }
+
+let dayQueue = Promise.resolve();
+/** Serialised read-modify-write of a single day record. */
+export function updateDay(key, fn) {
+  const run = async () => {
+    const k = dayStorageKey(key);
+    const cur = (await area().get(k))[k] || emptyDay();
+    fn(cur);
+    await area().set({ [k]: cur });
+    return cur;
+  };
+  const p = dayQueue.then(run, run);
+  dayQueue = p.catch(() => {});
+  return p;
+}
+
+/** Add `sec` seconds on `host` (or a desktop app) to a day. */
+export function addTime({ host, app, sec, hour, date = new Date() }) {
+  return updateDay(dayKey(date), (day) => {
+    if (host) {
+      day.d[host] = (day.d[host] || 0) + sec;
+      const slot = (day.h[hour] ||= {});
+      slot[host] = (slot[host] || 0) + sec;
+    } else if (app) {
+      day.a[app] = (day.a[app] || 0) + sec;
+    }
+  });
+}
+
+export async function pruneOldDays(now = new Date()) {
+  const cutoff = dayKey(addDays(now, -RETENTION_DAYS));
+  const all = await area().get(null);
+  const stale = Object.keys(all).filter((k) => k.startsWith(DAY_PREFIX) && k.slice(DAY_PREFIX.length) < cutoff);
+  if (stale.length) await area().remove(stale);
+  return stale.length;
+}
+
+/* ---------- small collections ---------- */
+
+export async function getCollection(name, fallback) {
+  const v = (await area().get(name))[name];
+  return v === undefined ? clone(fallback) : v;
+}
+export const setCollection = (name, value) => area().set({ [name]: value });
+
+/* ---------- first run & migration ---------- */
+
+/** Ensure the storage layout is current. Safe to call on every service-worker start. */
+export async function ensureSchema() {
+  const { meta } = await area().get('meta');
+  if (meta && (meta.schemaVersion || 0) >= SCHEMA_VERSION) return { migrated: false };
+  const raw = await area().get(null);
+  if (!needsMigration(raw)) return { migrated: false };
+  const m = migrate(raw);
+  const out = { settings: m.settings, meta: m.meta, tasks: raw.tasks || m.tasks, captures: raw.captures || m.captures };
+  if (m.habits) out.habits = m.habits;
+  for (const [k, rec] of Object.entries(m.days)) out[dayStorageKey(k)] = rec;
+  await area().set(out);
+  if (m.removeKeys.length) await area().remove(m.removeKeys);
+  return { migrated: true, from: m.meta.migratedFrom };
+}
+
+/* ---------- export / import / reset ---------- */
+
+export async function exportAll() {
+  const all = await area().get(null);
+  delete all.newtabBg;
+  return { app: 'eyetime', version: 2, exportedAt: new Date().toISOString(), data: all };
+}
+
+export async function importAll(payload) {
+  if (!payload || payload.app !== 'eyetime' || typeof payload.data !== 'object') throw new Error('Not an EyeTime backup');
+  const data = payload.data;
+  const m = (data.meta?.schemaVersion || 0) >= 2 ? null : migrate(data);
+  await area().clear();
+  if (m) {
+    const out = { settings: m.settings, meta: m.meta, tasks: m.tasks, captures: m.captures };
+    if (m.habits) out.habits = m.habits;
+    for (const [k, rec] of Object.entries(m.days)) out[dayStorageKey(k)] = rec;
+    await area().set(out);
+  } else {
+    delete data.focus; delete data.passes;
+    await area().set(data);
+  }
+  await ensureSchema();
+}
+
+export async function resetAll() {
+  await area().clear();
+  await ensureSchema();
+}
