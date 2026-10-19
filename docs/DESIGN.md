@@ -5,7 +5,7 @@ A calm, neutral interface with one warm accent. Light and dark are first-class. 
 ## Principles
 
 1. **Quiet by default.** Neutral surfaces, hairline borders, soft shadows (light) or borders only (dark). Colour is reserved for meaning.
-2. **One accent.** Ember orange for actions and focus; the user may switch to blue, violet, pink, teal or green. Accent never carries data.
+2. **One accent.** Ember orange by default for actions and focus; the user may pick a look's own colour, one of ten presets or any custom colour. Accent never carries data. See [THEMES.md](THEMES.md).
 3. **Data colours are semantic.** Productive = blue, neutral = warm gray, distracting = red. Always paired with a text label or icon — never colour alone.
 4. **Honest empty states.** Zero is zero. Empty states explain what will appear and what to do next.
 5. **Comfortable density.** Body 14 px, minimum UI text 12 px, 36 px controls, 8 px grid.
@@ -22,11 +22,11 @@ A calm, neutral interface with one warm accent. Light and dark are first-class. 
 | Shape | radius 8 / 12 / 16 / 24 · spacing 4-pt scale `--s-1…--s-16` |
 | Type | Inter variable (Latin + Cyrillic, bundled) · sizes 12 / 13 / 14 / 16 / 20 / 28 / 40 |
 
-Theme: `<html data-theme="light|dark">`, none = follow the OS. `theme-init.js` runs before first paint (no flash) and also applies the accent preset.
+Looks: `<html data-look="…" data-scheme="light|dark">`. All tokens above are *resolved per look* by `src/shared/looks.js` and applied by `theme-init.js` before first paint (no flash); `tokens.css` only holds the Calm fallback. Shape tokens (`--r-*`, density `--d`, `--ctl-h`, card style `--card-*`) are user-tunable. Full description: [THEMES.md](THEMES.md).
 
-### Accessibility guarantees (enforced by `scripts-dev/tests/contrast.test.mjs`)
+### Accessibility guarantees (enforced by `scripts-dev/tests/looks.test.mjs`)
 
-- All text pairs ≥ 4.5:1, large text / UI marks ≥ 3:1 — light **and** dark, for **every** accent preset.
+- All text pairs ≥ 4.5:1, large text / UI marks ≥ 3:1 — light **and** dark, for **every** look and accent preset (custom colours are corrected at runtime).
 - Chart palette `#2d6cdf / #9a948c / #e0483f` (light) and `#4a89ee / #9a948c / #e8584f` (dark) validated for colour-vision deficiency (adjacent ΔE ≥ 8 under protan/deutan simulation). The gray is deliberately low-chroma; identity is also carried by legend labels, tooltips and a table view.
 - Every interactive element is keyboard-reachable with a 2 px accent focus ring; charts' marks are focusable and expose the same tooltip.
 - Dialogs use native `<dialog>`; toasts use `role=status`.

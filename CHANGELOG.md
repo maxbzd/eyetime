@@ -2,6 +2,25 @@
 
 ## 2.1.0 — Unreleased
 
+### Make it yours — customisation
+- **Eleven looks** (Calm, Paper, Midnight, Terminal, Sakura, Forest, Aurora, Mono, Sunset, Nord, Ocean), each with light and dark schemes and its own typography, corners, card style and shadows. Live split light/dark previews in **Settings → Appearance**.
+- Colour mode **System / Light / Dark / Schedule**; accent = look colour, ten presets or **any custom colour** — contrast is enforced automatically (tested for every combination).
+- Fonts (Inter, Manrope, Nunito, Source Serif, JetBrains Mono, System), interface size 90–125 %, corner style, density, card style, reduce motion.
+- **Home**: 17 backdrops, 7 clock styles, 3 layouts, reorderable cards. Custom CSS (sanitised), copy/import a look as JSON, reset. See [docs/THEMES.md](docs/THEMES.md).
+- Settings schema v3 (old `theme` / `accent` migrate automatically; v2 backups import fine).
+
+### Productivity
+- **Daily focus goal** with progress bar and goal streak; **session log** with a quick "how did it go?" rating after each session.
+- **Task-linked focus**: pick a task (priorities first) or press ▶ on a task; time is added to the task, and you can tick it off right after.
+- **Today's priorities**: star up to three tasks; Home nudges you to plan in the morning, review in the evening and celebrates a reached goal. "Not feeling it? Just 5 minutes" lowers the bar to start.
+- **Only my sites** focus scope: closes everything except productive sites and your allow-list (per session or by default), with *Add to my sites* on the block page.
+- **Long break** after every Nth session; **focus reminders** (time + weekdays + length, one click to start).
+- **Intent on the pause page** (for work / break / autopilot / bored) — turning back is counted and celebrated.
+- **Insights → Focus & productivity**: goal days, streak, average session, quality, **your best focus hours**, time by task, recent sessions, pause-page choices.
+- New: `src/shared/productivity.js` (pure, tested), 33 unit tests, 55-step e2e.
+
+### Also in 2.1.0
+
 - **Break timer after a session** (Pomodoro-style): a rest countdown starts automatically, distracting sites stay open, popup/Home show a Break card with *Start next session* / *Skip*; badge turns green; configurable (off / 3 / 5 / 10 / 15 min).
 - **Weekly review** on Insights (7-day range) with one actionable suggestion — e.g. *Set a 30 min/day limit for youtube.com* in one click, with Undo.
 - **Right-click menu**: mark the current site as productive / neutral / distracting, toggle always-block, start/stop focus. (New permission: `contextMenus`.)

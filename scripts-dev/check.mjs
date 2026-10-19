@@ -54,14 +54,14 @@ const { LOCALES } = await import(pathToFileURL(path.join(root, 'src/shared/local
 const { PRESET_IDS } = await import(pathToFileURL(path.join(root, 'src/shared/catalog.js')));
 const en = LOCALES.en;
 const used = new Set();
-const dyn = { 'class.': ['productive', 'neutral', 'distracting'], 'preset.': PRESET_IDS, 'bg.': ['look', 'dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'grid', 'living', 'plain', 'color', 'photo'], 'layout.': ['center', 'split', 'minimal'], 'clock.': ['thin', 'bold', 'mono', 'serif', 'compact', 'stacked', 'none'], 'accent.': Object.keys(ACCENTS), 'look.': LOOK_IDS, 'lookd.': LOOK_IDS, 'radius.': Object.keys(RADII), 'density.': Object.keys(DENSITY), 'cards.': CARD_STYLES.filter((c) => c !== 'look'), 'range.': ['today', '7', '30'], 'mod.': ['today', 'tasks', 'habits', 'notes', 'links'], 'sec.': ['general', 'appearance', 'focus', 'blocking', 'eye', 'tracking', 'data', 'about'] };
+const dyn = { 'class.': ['productive', 'neutral', 'distracting'], 'preset.': PRESET_IDS, 'bg.': ['look', 'dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'grid', 'living', 'plain', 'color', 'photo'], 'block.why.': ['work', 'break', 'habit', 'bored', 'back'], 'layout.': ['center', 'split', 'minimal'], 'clock.': ['thin', 'bold', 'mono', 'serif', 'compact', 'stacked', 'none'], 'accent.': Object.keys(ACCENTS), 'look.': LOOK_IDS, 'lookd.': LOOK_IDS, 'radius.': Object.keys(RADII), 'density.': Object.keys(DENSITY), 'cards.': CARD_STYLES.filter((c) => c !== 'look'), 'range.': ['today', '7', '30'], 'mod.': ['today', 'tasks', 'habits', 'notes', 'links'], 'sec.': ['general', 'appearance', 'focus', 'blocking', 'eye', 'tracking', 'data', 'about'] };
 for (const [prefix, list] of Object.entries(dyn)) list.forEach((s) => used.add(prefix + s));
 for (const p of files.filter((f) => /\.(js|html)$/.test(f) && !/locales[\\/]|icons\.js$|shared[\\/]i18n\.js$/.test(f))) {
   const src = fs.readFileSync(p, 'utf8');
   for (const k of src.matchAll(/\bt\(\s*'([a-zA-Z0-9_.]+)'(?!\s*\+)/g)) used.add(k[1]);
   for (const k of src.matchAll(/data-i18n="([^"]+)"/g)) used.add(k[1]);
   for (const k of src.matchAll(/data-i18n-attr="([^"]+)"/g)) k[1].split(';').forEach((pair) => { const key = pair.split(':')[1]; if (key) used.add(key.trim()); });
-  for (const k of src.matchAll(/t\(\s*'([a-z]+\.)'\s*\+/g)) if (!dyn[k[1]]) fail(`${rel(p)}: dynamic i18n prefix "${k[1]}" is not declared in scripts-dev/check.mjs`);
+  for (const k of src.matchAll(/t\(\s*'([a-z]+(?:\.[a-z]+)*\.)'\s*\+/g)) if (!dyn[k[1]]) fail(`${rel(p)}: dynamic i18n prefix "${k[1]}" is not declared in scripts-dev/check.mjs`);
   for (const k of src.matchAll(/t\(\s*([a-z]+)\s*\?\s*'([a-zA-Z0-9_.]+)'/g)) used.add(k[2]);
 }
 const SKIP_KEYS = new Set(['name']);

@@ -78,7 +78,7 @@ select.tag { appearance: none; padding-right: 9px; font-family: inherit; }
 .hours-bars { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; align-items: end; height: 84px; }
 .hb { display: block; border-radius: 4px 4px 1px 1px; background: var(--bar-empty, var(--surface-3)); background: color-mix(in srgb, var(--productive) 35%, var(--surface-3)); }
 .hb.best { background: var(--productive); }
-.hours-axis { display: flex; justify-content: space-between; font-size: var(--fs-xs); color: var(--text-3); padding: 0 2px; }
+.hours-axis { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; font-size: var(--fs-xs); color: var(--text-3); }
 .rating { display: inline-flex; font-size: 16px; color: var(--text-3); } .rating.r3 { color: var(--success); } .rating.r1 { color: var(--distracting-text); }
 .chip.good { background: var(--success-soft); color: var(--success-text); border-color: transparent; }
 .sites td .truncate { display: block; max-width: 360px; }

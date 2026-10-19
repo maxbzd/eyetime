@@ -62,7 +62,7 @@ async function paintNudge() {
   const r = dayReview(day);
   const rated = r.avgRating ? t(r.avgRating >= 2.5 ? 'review.r3' : r.avgRating >= 1.75 ? 'review.r2' : 'review.r1').toLowerCase() : '';
   const msg = { plan: t('nudge.plan'), goal: t('nudge.goal'), review: t('nudge.review', { n: r.sessions, time: fmtDuration(r.minutes * 60) }) + (rated ? ' · ' + rated : '') }[kind];
-  const ico = { plan: 'star', goal: 'trophy', review: 'moon' }[kind];
+  const ico = { plan: { icon: 'star' }, goal: { icon: 'trophy' }, review: { icon: 'moon' } }[kind].icon;
   clear(el, icon(ico), h('span', { class: 'nudge-text', text: msg }),
     kind === 'review' ? h('a', { class: 'btn btn-sm', href: '../insights/insights.html' }, t('nudge.seeDay')) : null,
     h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.close'), onclick: () => { try { localStorage.setItem('et-nudge-off', dayKey() + ':' + kind); } catch { /* private mode */ } el.hidden = true; } }, icon('x')));
