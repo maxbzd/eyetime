@@ -140,7 +140,16 @@ async function applySettings(s, first = false) {
   $('#customize').addEventListener('click', openDrawer);
   $('#drawerClose').addEventListener('click', closeDrawer);
   $('#scrim').addEventListener('click', closeDrawer);
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#drawer').hidden) closeDrawer(); });
+  document.addEventListener('keydown', (e) => {
+    if ($('#drawer').hidden) return;
+    if (e.key === 'Escape') { closeDrawer(); return; }
+    if (e.key !== 'Tab') return; // keep keyboard focus inside the open drawer
+    const f = [...$('#drawer').querySelectorAll('button, input, a[href], select')].filter((el) => !el.disabled && el.offsetParent !== null);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
   onChange('newtabBg', applyBackground);
   watchFocus();
 })();

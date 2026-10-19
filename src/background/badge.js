@@ -17,7 +17,7 @@ export function compact(sec) {
 
 export async function updateBadge(settings) {
   const dk = dayStorageKey(dayKey());
-  const raw = await getRaw(['focus', dk]);
+  const raw = await getRaw(['focus', 'rest', dk]);
   setLocale(resolveLocale(settings.language));
 
   if (isFocusActive(raw.focus)) {
@@ -26,6 +26,14 @@ export async function updateBadge(settings) {
     await chrome.action.setBadgeBackgroundColor({ color: '#cf450a' });
     await chrome.action.setBadgeTextColor?.({ color: '#ffffff' });
     await chrome.action.setTitle({ title: t('badge.focusTitle', { n: min }) + (raw.focus.goal ? ` — ${raw.focus.goal}` : '') });
+    return;
+  }
+  if (raw.rest && Date.now() < raw.rest.endsAt) {
+    const min = Math.ceil((raw.rest.endsAt - Date.now()) / 60000);
+    await chrome.action.setBadgeText({ text: String(min) });
+    await chrome.action.setBadgeBackgroundColor({ color: '#1f7a52' });
+    await chrome.action.setBadgeTextColor?.({ color: '#ffffff' });
+    await chrome.action.setTitle({ title: t('rest.badgeTitle', { n: min }) });
     return;
   }
   const day = raw[dk] || {};

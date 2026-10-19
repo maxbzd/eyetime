@@ -1,10 +1,10 @@
 // Focus sessions: start / stop / finish. The running session is stored under `focus`; an alarm ends it.
 
 import { getSettings, getRaw, setRaw, updateDay, updateSettings } from '../shared/storage.js';
-import { createSession, elapsedMs } from '../shared/focus.js';
+import { createSession, createRest, elapsedMs } from '../shared/focus.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { dayKey } from '../shared/time.js';
-import { resolveLocale, setLocale, t } from '../shared/i18n.js';
+import { resolveLocale, setLocale, t, fmtDuration } from '../shared/i18n.js';
 import { sweepTabs } from './blocker.js';
 import { updateBadge } from './badge.js';
 import { playChime } from './audio.js';
@@ -15,7 +15,8 @@ const MIN_CREDIT_SEC = 120; // an early stop counts as focus time only after 2 m
 export async function startFocus({ minutes, goal = '', strict = false }) {
   const settings = await getSettings();
   const session = createSession({ minutes, goal, strict });
-  await setRaw({ focus: session });
+  await setRaw({ focus: session, rest: null });
+  await chrome.alarms.clear('rest-end');
   await chrome.alarms.create('focus-end', { when: session.endsAt });
   await updateSettings((s) => { s.focus.minutes = session.minutes; s.focus.strict = session.strict; });
 
@@ -46,6 +47,12 @@ export async function finishFocus() {
   const settings = await getSettings();
   setLocale(resolveLocale(settings.language));
   if (settings.focus.sound) playChime('end');
+  const fresh = Date.now() - focus.endsAt < 2 * 60_000; // a session that ended long ago (browser was closed) gets no rest
+  if (settings.focus.breakMinutes > 0 && fresh) {
+    const rest = createRest({ minutes: settings.focus.breakMinutes });
+    await setRaw({ rest });
+    await chrome.alarms.create('rest-end', { when: rest.endsAt });
+  }
   const opts = {
     type: 'basic', iconUrl: ICON, priority: 1,
     title: t('focus.doneTitle'),
@@ -56,7 +63,26 @@ export async function finishFocus() {
   await updateBadge(settings);
 }
 
-chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'focus-end') finishFocus(); });
+/** Rest over (or skipped): clear it and, when it ran its course, say so. */
+export async function endRest({ notify = true } = {}) {
+  const { rest } = await getRaw('rest');
+  await chrome.alarms.clear('rest-end');
+  if (!rest) return;
+  await setRaw({ rest: null });
+  const settings = await getSettings();
+  await updateBadge(settings);
+  if (!notify) return;
+  setLocale(resolveLocale(settings.language));
+  const opts = { type: 'basic', iconUrl: ICON, priority: 0, title: t('rest.overTitle'), message: t('rest.overBody', { n: settings.focus.minutes }), buttons: [{ title: t('focus.start', { time: fmtDuration(settings.focus.minutes * 60) }) }] };
+  try { await chrome.notifications.create('rest-over', opts); } catch { delete opts.buttons; await chrome.notifications.create('rest-over', opts); }
+}
+
+chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'focus-end') finishFocus(); if (a.name === 'rest-end') endRest(); });
+chrome.notifications.onButtonClicked?.addListener(async (id) => {
+  if (id !== 'rest-over') return;
+  chrome.notifications.clear(id);
+  const s = await getSettings(); startFocus({ minutes: s.focus.minutes, strict: s.focus.strict });
+});
 
 chrome.notifications.onButtonClicked?.addListener(async (id, i) => {
   if (id !== 'focus-done') return;

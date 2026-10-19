@@ -36,7 +36,8 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 |---|---|
 | 🎯 **Focus sessions** | 15 / 25 / 50 / 90 min or custom, optional goal text, soft start/end sound, optional *Strict* mode, "open my music" link. Distracting tabs are paused instantly and released automatically when the session ends. |
 | 🛡 **Blocking that respects you** | Category presets (social, video, forums, news, games, shopping, messengers), your own sites, an allow-list, work-hours schedule, per-site daily limits, always-blocked list and a short breathing pause with a timed "continue". |
-| 📊 **Insights** | Today / 7 / 30 days: screen time, focus time, distraction share, breaks. Stacked charts by day and hour, a calendar heatmap, a sortable site table where one tap re-classifies a site (productive / neutral / distracting), highlights like "your most distracting day was Sunday", CSV export, table view for accessibility. |
+| 📊 **Insights** | Today / 7 / 30 days: screen time, focus time, distraction share, breaks. Stacked charts by day and hour, a calendar heatmap, a site table where one tap re-classifies a site (productive / neutral / distracting), highlights like "your most distracting day was Sunday", a **weekly review with a one-click limit suggestion**, CSV export, table view for accessibility. |
+| ⏱ **Break timer** | After a session a rest countdown starts on its own (Pomodoro-style, configurable). Distracting sites stay open during the break. |
 | 👁 **Eye care** | 20-20-20 reminders based on *active* screen time, a guided 20-second break page, break counter, bedtime nudge. |
 | 🏠 **Home (new tab)** | Clock, focus card, today's summary, tasks, habits with streaks, notes, quick links, six gradient backdrops or your own photo, 6 accent colours, light/dark. Can be switched off. |
 | 📱 **Short-video guard** | After a limit of Shorts / Reels / TikTok / VK Clips scrolling the page turns grayscale and pauses. Optional hiding of Shorts, recommendations, comments and the YouTube home feed. |
@@ -71,6 +72,7 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 ## Using it
 
 - **Start focus:** toolbar icon → type what you're working on → *Start focus*. Or press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd>.
+- **Right-click any page → EyeTime** to mark or block the site, or start/stop focus.
 - **Teach it what distracts you:** open the popup on any site and tap *Productive / Neutral / Distracting*. The same works per row in Insights.
 - **Set limits:** Settings → Blocking → *Daily limits* (works for any site).
 - **Rest your eyes:** a reminder appears after 20 minutes of active screen time; the break page walks you through 20 seconds.
