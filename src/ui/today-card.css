@@ -1,0 +1,22 @@
+.today-head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-3); }
+.today-total { font-size: 32px; font-weight: 650; letter-spacing: -.03em; line-height: 1.1; }
+.delta-note { font-size: var(--fs-xs); color: var(--text-3); text-align: right; max-width: 140px; line-height: 1.35; }
+.split { display: flex; height: 8px; gap: 2px; margin: var(--s-3) 0 var(--s-3); }
+.split i { display: block; height: 100%; border-radius: 4px; min-width: 4px; transition: flex-grow var(--t-slow) var(--ease); }
+.split .p { background: var(--productive); } .split .n { background: var(--neutral); } .split .d { background: var(--distracting); }
+.legend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-2); font-size: var(--fs-xs); color: var(--text-2); }
+.legend-grid > div { display: flex; flex-direction: column; gap: 2px; }
+.legend-grid .lg { display: inline-flex; align-items: center; gap: 6px; color: var(--text-3); }
+.legend-grid b { font-size: var(--fs-sm); font-weight: 600; color: var(--text); }
+.top-sites { margin-top: var(--s-4); display: flex; flex-direction: column; gap: 2px; }
+.top-site { display: grid; grid-template-columns: 20px 1fr auto; align-items: center; gap: var(--s-3); padding: 6px 0; font-size: var(--fs-sm); }
+.top-site .bar { grid-column: 2 / 4; height: 3px; border-radius: 3px; background: var(--bar-empty); margin-top: -2px; overflow: hidden; }
+.top-site .bar i { display: block; height: 100%; border-radius: inherit; background: var(--neutral); }
+.top-site .bar i.cls-productive { background: var(--productive); } .top-site .bar i.cls-distracting { background: var(--distracting); }
+.top-site .t { color: var(--text-2); }
+.streak { display: flex; align-items: center; gap: 8px; margin-top: var(--s-3); font-size: var(--fs-sm); color: var(--text-2); }
+.streak .ico { color: var(--accent-text); font-size: 16px; }
+.breaks { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); margin-top: var(--s-4); padding-top: var(--s-3); border-top: 1px solid var(--border); font-size: var(--fs-sm); color: var(--text-2); }
+.breaks .lbl { display: flex; align-items: center; gap: 8px; }
+.breaks .ico { font-size: 16px; color: var(--text-3); }
+.breaks.due { color: var(--accent-text); } .breaks.due .ico { color: var(--accent-text); }
