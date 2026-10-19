@@ -4,7 +4,10 @@ import { mountFocusCard } from '../ui/focus-card.js';
 import { mountToday } from '../ui/today-card.js';
 import { tasksModule, habitsModule, notesModule, linksModule } from './modules.js';
 import { t, fmtDate, fmtTime } from '../shared/i18n.js';
-import { updateSettings, getRaw, setRaw, onChange } from '../shared/storage.js';
+import { updateSettings, getRaw, setRaw, onChange, getDays, getCollection } from '../shared/storage.js';
+import { nudge as pickNudge, dayReview } from '../shared/productivity.js';
+import { dayKey } from '../shared/time.js';
+import { fmtDuration } from '../shared/i18n.js';
 import { clock, remainingMs } from '../shared/focus.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { looksGallery, accentPicker } from '../ui/appearance.js';
@@ -45,6 +48,25 @@ async function watchFocus() {
   runningFocus = (await getRaw('focus')).focus; paintTitle();
   onChange('focus', async () => { runningFocus = (await getRaw('focus')).focus; paintTitle(); });
   setInterval(paintTitle, 1000);
+}
+
+/* ---------- day-loop nudge: one gentle prompt (plan · review · goal) ---------- */
+
+const nudgeOff = (kind) => { try { return localStorage.getItem('et-nudge-off') === dayKey() + ':' + kind; } catch { return false; } };
+async function paintNudge() {
+  const el = $('#nudge');
+  const [[, day]] = await getDays([dayKey()]);
+  const tasks = (await getCollection('tasks', [])).filter((x) => !x.done);
+  const kind = pickNudge({ now: new Date(), fsSec: day?.fs || 0, goalMin: settings.focus.dailyGoal, openTasks: tasks.length, starred: tasks.filter((x) => x.starred).length, sessionsToday: (day?.ss || []).length });
+  if (!kind || kind === 'start' || nudgeOff(kind)) { el.hidden = true; return; }
+  const r = dayReview(day);
+  const rated = r.avgRating ? t(r.avgRating >= 2.5 ? 'review.r3' : r.avgRating >= 1.75 ? 'review.r2' : 'review.r1').toLowerCase() : '';
+  const msg = { plan: t('nudge.plan'), goal: t('nudge.goal'), review: t('nudge.review', { n: r.sessions, time: fmtDuration(r.minutes * 60) }) + (rated ? ' · ' + rated : '') }[kind];
+  const ico = { plan: 'star', goal: 'trophy', review: 'moon' }[kind];
+  clear(el, icon(ico), h('span', { class: 'nudge-text', text: msg }),
+    kind === 'review' ? h('a', { class: 'btn btn-sm', href: '../insights/insights.html' }, t('nudge.seeDay')) : null,
+    h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.close'), onclick: () => { try { localStorage.setItem('et-nudge-off', dayKey() + ':' + kind); } catch { /* private mode */ } el.hidden = true; } }, icon('x')));
+  el.hidden = false;
 }
 
 /* ---------- background ---------- */
@@ -185,6 +207,8 @@ async function applySettings(s, first = false) {
   paintClock(); await applyBackground();
   setInterval(paintClock, 10_000);
   mountFocusCard($('#focus'), { variant: 'large' });
+  paintNudge(); setInterval(paintNudge, 60_000);
+  onChange(['tasks', 'd:*'], paintNudge);
   renderModules();
   $('#customize').addEventListener('click', openDrawer);
   $('#moreMods').addEventListener('click', () => document.body.classList.toggle('show-mods'));

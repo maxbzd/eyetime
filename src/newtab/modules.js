@@ -1,7 +1,10 @@
 // Home-page modules: tasks, habits, notes, quick links. Each returns a card element and manages its own storage.
 
 import { h, icon, favicon, toast, clear } from '../ui/dom.js';
-import { t, fmtNumber } from '../shared/i18n.js';
+import { t, fmtNumber, fmtDuration } from '../shared/i18n.js';
+import { send } from '../ui/api.js';
+import { getSettings } from '../shared/storage.js';
+import { MAX_PRIORITIES } from '../shared/productivity.js';
 import { getCollection, setCollection, onChange, updateSettings } from '../shared/storage.js';
 import { dayKey, rangeKeys, addDays } from '../shared/time.js';
 import { parseUserDomain } from '../shared/domains.js';
@@ -25,8 +28,10 @@ export function tasksModule() {
 
   function render() {
     const open = tasks.filter((x) => !x.done), done = tasks.filter((x) => x.done);
-    const ordered = [...open, ...done];
+    // priorities first (the day's top three), then the rest, then done
+    const ordered = [...open.filter((x) => x.starred), ...open.filter((x) => !x.starred), ...done];
     const visible = showAll ? ordered : ordered.slice(0, LIMIT);
+    const prio = open.filter((x) => x.starred).length;
     head.querySelector('.count')?.remove();
     if (tasks.length) head.append(h('span', { class: 'count num', text: `${done.length}/${tasks.length}` }));
 
@@ -36,12 +41,22 @@ export function tasksModule() {
       document.querySelector('#mod-tasks input')?.focus();
     } });
 
+    const toggleStar = (x) => {
+      if (!x.starred && tasks.filter((y) => y.starred && !y.done).length >= MAX_PRIORITIES) { toast(t('tasks.maxPriorities', { n: MAX_PRIORITIES })); return; }
+      x.starred = !x.starred; save(); render();
+    };
+    const startOn = async (x) => { const s = await getSettings(); const r = await send('focus:start', { minutes: s.focus.minutes, strict: s.focus.strict, scope: s.focus.scope, taskId: x.id }); if (r && r.ok === false) toast(t('common.error')); };
+
+    const row = (x) => h('div', { class: 'item' + (x.done ? ' done' : '') + (x.starred && !x.done ? ' prio' : '') },
+      h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: x.done, 'aria-label': x.text, onchange: (e) => { x.done = e.target.checked; x.doneAt = x.done ? Date.now() : 0; if (x.done) x.starred = false; save(); render(); } }), h('span', { class: 'box' }, icon('check'))),
+      h('span', { class: 'txt' }, x.text, x.focusSec >= 60 ? h('span', { class: 'spent num', 'data-tip': t('tasks.spent'), text: fmtDuration(x.focusSec) }) : null),
+      x.done ? null : h('button', { class: 'x act star' + (x.starred ? ' on' : ''), type: 'button', 'aria-pressed': String(!!x.starred), 'aria-label': t('tasks.priority') + ': ' + x.text, 'data-tip': t('tasks.priority'), onclick: () => toggleStar(x) }, icon('star')),
+      x.done ? null : h('button', { class: 'x act', type: 'button', 'aria-label': t('tasks.focusOn') + ': ' + x.text, 'data-tip': t('tasks.focusOn'), onclick: () => startOn(x) }, icon('play')),
+      h('button', { class: 'x', type: 'button', 'aria-label': t('common.remove'), onclick: () => { const i = tasks.indexOf(x); tasks.splice(i, 1); save(); render(); toast(t('tasks.removed'), { action: t('common.undo'), onAction: () => { tasks.splice(i, 0, x); save(); render(); } }); } }, icon('x')));
+
     clear(body, input,
-      visible.length ? h('div', { class: 'items' }, visible.map((x) => h('div', { class: 'item' + (x.done ? ' done' : '') },
-        h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: x.done, 'aria-label': x.text, onchange: (e) => { x.done = e.target.checked; save(); render(); } }), h('span', { class: 'box' }, icon('check'))),
-        h('span', { class: 'txt', text: x.text }),
-        h('button', { class: 'x', type: 'button', 'aria-label': t('common.remove'), onclick: () => { const i = tasks.indexOf(x); tasks.splice(i, 1); save(); render(); toast(t('tasks.removed'), { action: t('common.undo'), onAction: () => { tasks.splice(i, 0, x); save(); render(); } }); } }, icon('x')))))
-        : h('div', { class: 'hint', text: t('tasks.empty') }),
+      prio ? h('div', { class: 'eyebrow', text: t('tasks.priorities', { n: prio, max: MAX_PRIORITIES }) }) : null,
+      visible.length ? h('div', { class: 'items' }, visible.map(row)) : h('div', { class: 'hint', text: t('tasks.empty') }),
       ordered.length > LIMIT ? h('button', { class: 'more-link', type: 'button', onclick: () => { showAll = !showAll; render(); } }, showAll ? t('mod.showLess') : t('mod.showAll', { n: ordered.length })) : null,
       done.length ? h('button', { class: 'more-link', type: 'button', onclick: () => { tasks = tasks.filter((x) => !x.done); save(); render(); } }, t('tasks.clearDone')) : null);
   }
