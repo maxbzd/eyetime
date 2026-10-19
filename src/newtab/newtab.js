@@ -7,17 +7,30 @@ import { t, fmtDate, fmtTime } from '../shared/i18n.js';
 import { updateSettings, getRaw, setRaw, onChange } from '../shared/storage.js';
 import { clock, remainingMs } from '../shared/focus.js';
 import { isFocusActive } from '../shared/blocking.js';
-import { ACCENT_NAMES } from '../ui/page.js';
+import { looksGallery, accentPicker } from '../ui/appearance.js';
+import { luminance, normalizeHex } from '../shared/color.js';
 
-const BACKGROUNDS = ['dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'plain'];
+const BACKGROUNDS = ['look', 'dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'grid', 'living', 'plain', 'color'];
+const DARK_SCENES = ['aurora', 'stars', 'photo'];
 const MODULES = ['today', 'tasks', 'habits', 'notes', 'links'];
+const CLOCKS = ['thin', 'bold', 'mono', 'serif', 'compact', 'stacked', 'none'];
+const LAYOUTS = ['center', 'split', 'minimal'];
+/** Saved order, completed with any module it does not mention (new modules, hand-edited backups). */
+const moduleOrder = (n) => [...new Set([...(n.order || []).filter((m) => MODULES.includes(m)), ...MODULES])];
 let settings, linksMod;
 
 /* ---------- hero ---------- */
 
 function paintClock() {
   const now = new Date();
-  $('#clock').textContent = fmtTime(now, settings.newtab.clock24 ?? undefined);
+  const time = fmtTime(now, settings.newtab.clock24 ?? undefined);
+  const clockEl = $('#clock');
+  if (settings.newtab.clockStyle === 'stacked') {
+    const [hh, ...rest] = time.split(':');
+    clear(clockEl, h('span', { class: 'h', text: hh }), h('span', { class: 'm', text: rest.join(':').replace(/\s?[AP]M$/i, '') }));
+  } else clockEl.textContent = time;
+  document.body.dataset.clock = CLOCKS.includes(settings.newtab.clockStyle) ? settings.newtab.clockStyle : 'thin';
+  document.body.dataset.layout = LAYOUTS.includes(settings.newtab.layout) ? settings.newtab.layout : 'center';
   $('#date').textContent = fmtDate(now);
   const hr = now.getHours();
   $('#greeting').textContent = settings.newtab.greeting ? t(hr < 5 ? 'greet.night' : hr < 12 ? 'greet.morning' : hr < 18 ? 'greet.afternoon' : 'greet.evening') : '';
@@ -37,12 +50,18 @@ async function watchFocus() {
 /* ---------- background ---------- */
 
 async function applyBackground() {
-  const bg = settings.newtab.background;
+  const n = settings.newtab;
+  let bg = BACKGROUNDS.includes(n.background) || n.background === 'photo' ? n.background : 'look';
   if (bg === 'photo') {
     const { newtabBg } = await getRaw('newtabBg');
-    if (newtabBg) { document.documentElement.style.setProperty('--photo', `url(${newtabBg})`); document.body.dataset.bg = 'photo'; return; }
+    if (newtabBg) document.documentElement.style.setProperty('--photo', `url(${newtabBg})`); else bg = 'look';
   }
-  document.body.dataset.bg = BACKGROUNDS.includes(bg) ? bg : 'dawn';
+  const color = normalizeHex(n.bgColor) || '#e9e4ff';
+  if (bg === 'color') document.documentElement.style.setProperty('--bg-color', color);
+  document.body.dataset.bg = bg;
+  $('.bg').className = 'bg bgx-' + bg;
+  // light hero text on scenes that are dark in every theme, and on dark custom colours
+  document.body.dataset.tone = DARK_SCENES.includes(bg) || (bg === 'color' && luminance(color) < 0.28) ? 'dark' : '';
 }
 
 /** Downscale a user photo so storage stays small. */
@@ -61,15 +80,34 @@ function fileToDataUrl(file, maxW = 1920) {
 
 /* ---------- modules ---------- */
 
+let modEls = [];
+
 function renderModules() {
-  const root = $('#modules');
-  clear(root);
   const on = settings.newtab.modules;
-  if (on.today) { const sec = h('section', { class: 'card mod', id: 'mod-today' }); root.append(sec); mountToday(sec); }
-  if (on.tasks) root.append(tasksModule());
-  if (on.habits) root.append(habitsModule());
-  if (on.notes) root.append(notesModule());
-  if (on.links) { linksMod = linksModule(settings); root.append(linksMod.el); } else linksMod = null;
+  modEls = [];
+  linksMod = null;
+  for (const id of moduleOrder(settings.newtab)) {
+    if (!on[id]) continue;
+    let el;
+    if (id === 'today') { el = h('section', { class: 'card mod', id: 'mod-today' }); mountToday(el); }
+    else if (id === 'tasks') el = tasksModule();
+    else if (id === 'habits') el = habitsModule();
+    else if (id === 'notes') el = notesModule();
+    else { linksMod = linksModule(settings); el = linksMod.el; }
+    modEls.push(el);
+  }
+  layoutModules();
+}
+
+/** Cards fill columns left-to-right in the saved order (round-robin), so the order the user set is the order they read. */
+function layoutModules() {
+  const root = $('#modules');
+  const w = root.clientWidth || window.innerWidth;
+  const cols = Math.max(1, Math.min(3, Math.floor(w / 320)));
+  root.style.setProperty('--cols', cols);
+  const columns = Array.from({ length: cols }, () => h('div', { class: 'col' }));
+  modEls.forEach((el, i) => columns[i % cols].append(el));
+  clear(root, columns);
 }
 
 /* ---------- customize drawer ---------- */
@@ -91,36 +129,47 @@ function drawDrawer() {
   const tiles = [...BACKGROUNDS, 'photo'].map((id) => h('button', { class: 'bg-tile', type: 'button', 'aria-pressed': String(n.background === id), onclick: async () => {
     if (id === 'photo') { const { newtabBg } = await getRaw('newtabBg'); if (!newtabBg) { fileIn.click(); return; } }
     await set((s) => { s.newtab.background = id; });
-  } }, h('i', { style: id === 'photo' ? { background: 'repeating-linear-gradient(45deg, var(--surface-2), var(--surface-2) 6px, var(--surface-3) 6px, var(--surface-3) 12px)' } : id === 'plain' ? {} : { background: `linear-gradient(135deg, ${{ dawn: '#ffb68a,#c9b8ff', ocean: '#8ec9ff,#7ee3d0', forest: '#a8e0a0,#f2e6a0', dusk: '#ff9fb8,#9fa8ff', sand: '#f1d9a8,#f4b7a0', slate: '#cfd6e0,#e2e6ee' }[id]})` } }), h('span', { text: t('bg.' + id) })));
+  } }, h('i', { class: 'bgx-' + (id === 'photo' ? 'plain' : id), style: id === 'photo' ? { background: 'repeating-linear-gradient(45deg, var(--surface-2), var(--surface-2) 6px, var(--surface-3) 6px, var(--surface-3) 12px)' } : id === 'color' ? { '--bg-color': normalizeHex(n.bgColor) || '#e9e4ff' } : {} }), h('span', { text: t('bg.' + id) })));
 
-  const modRows = MODULES.map((m) => h('label', { class: 'toggle-row' }, h('span', { text: t('mod.' + m) }),
-    h('span', { class: 'switch' }, h('input', { type: 'checkbox', checked: !!n.modules[m], onchange: (e) => set((s) => { s.newtab.modules[m] = e.target.checked; }) }), h('span', { class: 'track' }), h('span', { class: 'thumb' }))));
+  const colorIn = h('label', { class: 'row gap-2', style: { marginTop: 'var(--s-3)' } }, h('span', { class: 'muted-2', text: t('home.bgColor') }),
+    h('input', { type: 'color', value: normalizeHex(n.bgColor) || '#e9e4ff', 'aria-label': t('home.bgColor'), onchange: (e) => set((s) => { s.newtab.bgColor = e.target.value; s.newtab.background = 'color'; }) }));
+
+  const seg = (label, list, value, key, keyPrefix) => h('div', { class: 'segmented wrap-seg', role: 'group', 'aria-label': label },
+    list.map((v) => h('button', { type: 'button', 'aria-pressed': String(v === value), text: t(keyPrefix + v), onclick: () => set((s) => { s.newtab[key] = v; }) })));
+
+  const order = moduleOrder(n);
+  const move = (m, d) => set((s) => { const o = moduleOrder(s.newtab); const i = o.indexOf(m), j = i + d; if (j < 0 || j >= o.length) return; [o[i], o[j]] = [o[j], o[i]]; s.newtab.order = o; });
+  const modRows = order.map((m, i) => h('div', { class: 'toggle-row mod-row' },
+    h('span', { class: 'grow', text: t('mod.' + m) }),
+    h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', disabled: i === 0, 'aria-label': t('home.moveUp') + ': ' + t('mod.' + m), onclick: () => move(m, -1) }, icon('arrow-up')),
+    h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', disabled: i === order.length - 1, 'aria-label': t('home.moveDown') + ': ' + t('mod.' + m), onclick: () => move(m, 1) }, icon('arrow-down')),
+    h('span', { class: 'switch' }, h('input', { type: 'checkbox', checked: !!n.modules[m], 'aria-label': t('mod.' + m), onchange: (e) => set((s) => { s.newtab.modules[m] = e.target.checked; }) }), h('span', { class: 'track' }), h('span', { class: 'thumb' }))));
 
   const clockSeg = h('div', { class: 'segmented', role: 'group', 'aria-label': t('home.clockFormat') }, [[null, 'home.clockAuto'], [false, 'home.clock12'], [true, 'home.clock24']].map(([v, k]) => h('button', { type: 'button', 'aria-pressed': String(n.clock24 === v), text: t(k), onclick: () => set((s) => { s.newtab.clock24 = v; }) })));
 
-  const accents = h('div', { class: 'row gap-2 wrap' }, ACCENT_NAMES.map((a) => {
-    const c = window.EyeTimeTheme.ACCENTS[a].l[0];
-    return h('button', { type: 'button', class: 'swatch-btn', 'aria-pressed': String(settings.accent === a), 'aria-label': t('accent.' + a), style: { '--c': c }, onclick: () => set((s) => { s.accent = a; }) });
-  }));
-
+  const section = (title, ...kids) => h('div', {}, h('h4', { text: title }), ...kids);
   clear(body,
-    h('div', {}, h('h4', { text: t('home.background') }), h('div', { class: 'bg-grid' }, tiles), fileIn,
+    section(t('ap.looks'), looksGallery(settings.appearance, { compact: true, onPick: (id) => set((s) => { s.appearance.look = id; }) })),
+    section(t('home.accent'), accentPicker(settings.appearance, (v) => set((s) => { s.appearance.accent = v; }))),
+    section(t('home.background'), h('div', { class: 'bg-grid' }, tiles), fileIn,
+      n.background === 'color' ? null : colorIn,
       n.background === 'photo' ? h('button', { class: 'btn btn-sm', style: { marginTop: 'var(--s-3)' }, type: 'button', onclick: () => fileIn.click() }, icon('image'), t('home.changePhoto')) : null),
-    h('div', {}, h('h4', { text: t('home.accent') }), accents),
-    h('div', {}, h('h4', { text: t('home.modules') }), modRows),
-    h('div', {}, h('h4', { text: t('home.clock') }), clockSeg,
-      h('label', { class: 'toggle-row', style: { marginTop: 'var(--s-3)' } }, h('span', { text: t('home.greeting') }), h('span', { class: 'switch' }, h('input', { type: 'checkbox', checked: n.greeting, onchange: (e) => set((s) => { s.newtab.greeting = e.target.checked; }) }), h('span', { class: 'track' }), h('span', { class: 'thumb' })))));
+    section(t('home.layout'), seg(t('home.layout'), LAYOUTS, n.layout, 'layout', 'layout.')),
+    section(t('home.modules'), modRows),
+    section(t('home.clock'), seg(t('home.clockStyle'), CLOCKS, n.clockStyle, 'clockStyle', 'clock.'), h('div', { style: { height: 'var(--s-3)' } }), clockSeg,
+      h('label', { class: 'toggle-row', style: { marginTop: 'var(--s-3)' } }, h('span', { text: t('home.greeting') }), h('span', { class: 'switch' }, h('input', { type: 'checkbox', checked: n.greeting, onchange: (e) => set((s) => { s.newtab.greeting = e.target.checked; }) }), h('span', { class: 'track' }), h('span', { class: 'thumb' })))),
+    h('a', { class: 'btn', href: chrome.runtime.getURL('src/options/options.html#appearance') }, icon('palette'), t('home.moreAppearance')));
 }
 
 /* ---------- boot ---------- */
 
 async function applySettings(s, first = false) {
-  const prevMods = settings ? JSON.stringify(settings.newtab.modules) : null;
+  const prevMods = settings ? JSON.stringify([settings.newtab.modules, settings.newtab.order]) : null;
   const prevLinks = settings ? JSON.stringify(settings.newtab.links) : null;
   settings = s;
   paintClock(); await applyBackground();
   if (!first) {
-    if (JSON.stringify(s.newtab.modules) !== prevMods) renderModules();
+    if (JSON.stringify([s.newtab.modules, s.newtab.order]) !== prevMods) renderModules();
     else if (linksMod && JSON.stringify(s.newtab.links) !== prevLinks) linksMod.update(s);
     if (!$('#drawer').hidden) drawDrawer();
   }
@@ -138,6 +187,8 @@ async function applySettings(s, first = false) {
   mountFocusCard($('#focus'), { variant: 'large' });
   renderModules();
   $('#customize').addEventListener('click', openDrawer);
+  $('#moreMods').addEventListener('click', () => document.body.classList.toggle('show-mods'));
+  let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(layoutModules, 120); });
   $('#drawerClose').addEventListener('click', closeDrawer);
   $('#scrim').addEventListener('click', closeDrawer);
   document.addEventListener('keydown', (e) => {
