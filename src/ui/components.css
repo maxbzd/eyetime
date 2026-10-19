@@ -4,8 +4,8 @@
 .btn {
   --btn-bg: var(--surface); --btn-fg: var(--text); --btn-bd: var(--border-strong); --btn-bg-h: var(--surface-2);
   display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
-  height: 36px; padding: 0 var(--s-4); border-radius: var(--r-md);
-  background: var(--btn-bg); color: var(--btn-fg); border: 1px solid var(--btn-bd);
+  height: var(--ctl-h); padding: 0 var(--s-4); border-radius: var(--r-md);
+  background: var(--btn-bg); color: var(--btn-fg); border: var(--border-w) solid var(--btn-bd);
   font-size: var(--fs-md); font-weight: 560; line-height: 1; white-space: nowrap; text-decoration: none;
   transition: background var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), transform var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
   user-select: none;
@@ -20,15 +20,15 @@
 .btn-soft { --btn-bg: var(--accent-soft); --btn-fg: var(--accent-text); --btn-bd: transparent; --btn-bg-h: var(--accent-soft); filter: none; }
 .btn-soft:hover { box-shadow: inset 0 0 0 1px var(--accent-ring); }
 .btn-danger { --btn-bg: var(--surface); --btn-fg: var(--distracting-text); --btn-bd: var(--border-strong); --btn-bg-h: var(--distracting-soft); }
-.btn-sm { height: 30px; padding: 0 var(--s-3); font-size: var(--fs-sm); border-radius: var(--r-sm); }
-.btn-lg { height: 48px; padding: 0 var(--s-6); font-size: var(--fs-lg); border-radius: 14px; }
+.btn-sm { height: calc(var(--ctl-h) - 6px); padding: 0 var(--s-3); font-size: var(--fs-sm); border-radius: var(--r-sm); }
+.btn-lg { height: calc(var(--ctl-h) + 12px); padding: 0 var(--s-6); font-size: var(--fs-lg); border-radius: 14px; }
 .btn-block { width: 100%; }
-.btn-icon { width: 36px; padding: 0; }
-.btn-icon.btn-sm { width: 30px; }
-.btn-icon.btn-lg { width: 48px; }
+.btn-icon { width: var(--ctl-h); padding: 0; }
+.btn-icon.btn-sm { width: calc(var(--ctl-h) - 6px); }
+.btn-icon.btn-lg { width: calc(var(--ctl-h) + 12px); }
 
 /* ---------- surfaces ---------- */
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-1); }
+.card { background: var(--card-bg); border: var(--border-w) solid var(--card-border); border-radius: var(--r-lg); box-shadow: var(--card-shadow); -webkit-backdrop-filter: blur(var(--card-blur)); backdrop-filter: blur(var(--card-blur)); }
 .card-pad { padding: var(--s-5); }
 .card-title { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); }
 .card-title .ico { font-size: 16px; color: var(--text-3); }
@@ -36,8 +36,8 @@
 
 /* ---------- form controls ---------- */
 .input, .select, .textarea {
-  width: 100%; height: 36px; padding: 0 var(--s-3); border-radius: var(--r-md);
-  background: var(--surface); border: 1px solid var(--border-strong); color: var(--text);
+  width: 100%; height: var(--ctl-h); padding: 0 var(--s-3); border-radius: var(--r-md);
+  background: var(--surface); border: var(--border-w) solid var(--border-strong); color: var(--text);
   transition: border-color var(--t-fast), box-shadow var(--t-fast);
 }
 .textarea { height: auto; padding: var(--s-3); resize: vertical; line-height: 1.5; }
@@ -47,7 +47,7 @@
 .select { appearance: none; padding-right: 32px; cursor: pointer;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23938d86' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 10px center; }
-.input-sm, .select-sm { height: 30px; font-size: var(--fs-sm); border-radius: var(--r-sm); }
+.input-sm, .select-sm { height: calc(var(--ctl-h) - 6px); font-size: var(--fs-sm); border-radius: var(--r-sm); }
 .select-auto { width: auto; }
 .input[type="time"] { width: auto; font-variant-numeric: tabular-nums; }
 .input[type="number"] { width: 84px; }
@@ -80,14 +80,14 @@
 
 /* segmented control */
 .segmented { display: inline-flex; padding: 3px; gap: 2px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-md); }
-.segmented button, .segmented label { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 30px; padding: 0 var(--s-3); border: 0; background: transparent; color: var(--text-2); border-radius: 9px; font-size: var(--fs-sm); font-weight: 560; cursor: pointer; transition: background var(--t-fast), color var(--t-fast); white-space: nowrap; }
+.segmented button, .segmented label { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: calc(var(--ctl-h) - 6px); padding: 0 var(--s-3); border: 0; background: transparent; color: var(--text-2); border-radius: calc(var(--r-md) - 3px); font-size: var(--fs-sm); font-weight: 560; cursor: pointer; transition: background var(--t-fast), color var(--t-fast); white-space: nowrap; }
 .segmented button:hover, .segmented label:hover { color: var(--text); }
 .segmented [aria-pressed="true"], .segmented [aria-selected="true"], .segmented label:has(input:checked) { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1), 0 0 0 1px var(--border); }
 .segmented input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
 .segmented label:has(input:focus-visible), .segmented button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 /* chips / tags / badges */
-.chip { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 var(--s-3); border-radius: var(--r-full); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-2); font-size: var(--fs-sm); font-weight: 560; cursor: pointer; transition: all var(--t-fast) var(--ease); }
+.chip { display: inline-flex; align-items: center; gap: 6px; height: calc(var(--ctl-h) - 6px); padding: 0 var(--s-3); border-radius: var(--r-full); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-2); font-size: var(--fs-sm); font-weight: 560; cursor: pointer; transition: all var(--t-fast) var(--ease); }
 .chip:hover { border-color: var(--text-3); color: var(--text); }
 .chip[aria-pressed="true"], .chip.is-on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-text); }
 .chip .ico { font-size: 14px; }

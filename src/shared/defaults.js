@@ -1,13 +1,24 @@
 import { DEFAULT_PRESETS_ON, PRESET_IDS } from './catalog.js';
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 const presets = Object.fromEntries(PRESET_IDS.map((id) => [id, DEFAULT_PRESETS_ON.includes(id)]));
 
 export const DEFAULT_SETTINGS = {
   language: 'auto',            // auto | en | ru
-  theme: 'system',             // system | light | dark
-  accent: 'ember',
+  appearance: {
+    look: 'calm',              // see src/shared/looks.js
+    mode: 'system',            // system | light | dark | schedule
+    schedule: { dark: '20:00', light: '07:00' },
+    accent: 'look',            // 'look' | preset id | '#rrggbb'
+    font: 'look',              // look | inter | manrope | nunito | serif | mono | system
+    scale: 100,                // interface size in %: 90 | 100 | 110 | 125
+    radius: 'look',            // look | sharp | soft | round | pill
+    density: 'comfortable',    // compact | comfortable | spacious
+    cards: 'look',             // look | solid | glass | outline | flat
+    motion: 'system',          // system | reduced
+    customCss: '',
+  },
 
   focus: {
     minutes: 25,               // last used / default length
@@ -52,7 +63,11 @@ export const DEFAULT_SETTINGS = {
   newtab: {
     enabled: true,
     modules: { focus: true, today: true, tasks: true, habits: true, notes: true, links: true },
-    background: 'dawn',        // gradient id | 'photo'
+    background: 'look',        // 'look' (match the look) | gradient / pattern id | 'color' | 'photo'
+    bgColor: '#e9e4ff',        // used by background 'color'
+    clockStyle: 'thin',        // thin | bold | mono | serif | compact | stacked | none
+    layout: 'center',          // center | split | minimal
+    order: ['today', 'tasks', 'habits', 'notes', 'links'],
     links: [],
     clock24: null,             // null = follow locale
     greeting: true,
