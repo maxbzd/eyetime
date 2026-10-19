@@ -96,3 +96,5 @@ select.tag { appearance: none; padding-right: 9px; font-family: inherit; }
 .chip.good { background: var(--success-soft); color: var(--success-text); border-color: transparent; }
 .wins { display: flex; flex-direction: column; gap: var(--s-3); } .win { display: grid; grid-template-columns: 16px 88px minmax(0, 1fr); gap: var(--s-2); align-items: baseline; font-size: var(--fs-md); } .win .ico { font-size: 14px; color: var(--accent-text); transform: translateY(2px); } .win-d { color: var(--text-3); font-size: var(--fs-sm); }
 .sites td .truncate { display: block; max-width: 420px; }
+
+.kpi { container-type: inline-size; } .kpi .value { font-size: clamp(22px, 13cqw, 32px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

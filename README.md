@@ -78,6 +78,7 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 
 ## Using it
 
+- **Keyboard on Home:** `f` focus goal · `n` add a task · `d` close the day · `c` customize · `i` Insights · `s` Settings · `?` list. In Settings, `/` searches.
 - **Start focus:** toolbar icon → type what you're working on → *Start focus*. Or press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd>.
 - **Right-click any page → EyeTime** to mark or block the site, or start/stop focus.
 - **Teach it what distracts you:** open the popup on any site and tap *Productive / Neutral / Distracting*. The same works per row in Insights.
