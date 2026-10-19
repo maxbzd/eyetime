@@ -4,15 +4,32 @@
 let chromium;
 try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright')); }
 const http = require('http');
+const https = require('https');
+const net = require('net');
+const fs = require('fs');
+const os = require('os');
+const cp = require('child_process');
 const path = require('path');
 const EXT = process.env.EXT || path.join(__dirname, '../..'); // folder with manifest.json (repo root or dist/chrome)
 const PORT = 8099;
 
+/**
+ * One port, two protocols: plain http AND https with a throw-away self-signed certificate. Chromium upgrades http:// to https://
+ * for HSTS-preloaded domains (github.com, youtube.com …) and in newer versions by default, so the fake sites must answer both.
+ */
 function server() {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'et-cert-'));
+  cp.execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', path.join(dir, 'k.pem'), '-out', path.join(dir, 'c.pem'), '-subj', '/CN=localhost', '-days', '2'], { stdio: 'ignore' });
+  const handler = (req, rsp) => {
+    rsp.setHeader('content-type', 'text/html');
+    rsp.end(`<!doctype html><title>${req.headers.host}</title><body style="font:20px sans-serif;padding:40px"><h1>Fake site: ${req.headers.host}</h1><p>path ${req.url}</p></body>`);
+  };
+  const plain = http.createServer(handler);
+  const secure = https.createServer({ key: fs.readFileSync(path.join(dir, 'k.pem')), cert: fs.readFileSync(path.join(dir, 'c.pem')) }, handler);
   return new Promise((res) => {
-    const s = http.createServer((req, rsp) => {
-      rsp.setHeader('content-type', 'text/html');
-      rsp.end(`<!doctype html><title>${req.headers.host}</title><body style="font:20px sans-serif;padding:40px"><h1>Fake site: ${req.headers.host}</h1><p>path ${req.url}</p></body>`);
+    const s = net.createServer((socket) => {
+      socket.once('data', (buf) => { socket.pause(); socket.unshift(buf); (buf[0] === 0x16 ? secure : plain).emit('connection', socket); socket.resume(); }); // 0x16 = TLS handshake
+      socket.on('error', () => {});
     }).listen(PORT, '127.0.0.1', () => res(s));
   });
 }
@@ -23,7 +40,7 @@ async function launch(opts = {}) {
     channel: 'chromium', headless: true,
     args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`, `--host-resolver-rules=MAP * 127.0.0.1, EXCLUDE localhost`,
       // newer Chromium upgrades http:// to https:// by default; the fake local server only speaks http
-      '--disable-features=HttpsUpgrades,HttpsFirstBalancedModeAutoEnable,HttpsFirstModeV2ForEngagedSites,HttpsFirstModeIncognito,HttpsFirstModeV2,HttpsFirstBalancedMode'],
+      '--ignore-certificate-errors', '--disable-features=HttpsUpgrades,HttpsFirstBalancedModeAutoEnable,HttpsFirstModeV2ForEngagedSites,HttpsFirstModeIncognito,HttpsFirstModeV2,HttpsFirstBalancedMode'],
     viewport: opts.viewport || { width: 1280, height: 800 }, colorScheme: opts.colorScheme || 'light',
   });
   let [sw] = ctx.serviceWorkers();
