@@ -21,7 +21,9 @@ async function launch(opts = {}) {
   const srv = await server();
   const ctx = await chromium.launchPersistentContext('/tmp/pw-profile-' + Date.now() + Math.random().toString(36).slice(2), {
     channel: 'chromium', headless: true,
-    args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`, `--host-resolver-rules=MAP * 127.0.0.1, EXCLUDE localhost`],
+    args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`, `--host-resolver-rules=MAP * 127.0.0.1, EXCLUDE localhost`,
+      // newer Chromium upgrades http:// to https:// by default; the fake local server only speaks http
+      '--disable-features=HttpsUpgrades,HttpsFirstBalancedModeAutoEnable,HttpsFirstModeV2ForEngagedSites,HttpsFirstModeIncognito,HttpsFirstModeV2,HttpsFirstBalancedMode'],
     viewport: opts.viewport || { width: 1280, height: 800 }, colorScheme: opts.colorScheme || 'light',
   });
   let [sw] = ctx.serviceWorkers();
