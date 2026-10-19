@@ -19,3 +19,10 @@ export function clock(ms) {
   const pad = (n) => String(n).padStart(2, '0');
   return h ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
 }
+
+/** A rest period that follows a completed session. Distracting sites are *not* blocked while it runs. */
+export function createRest({ minutes, now = Date.now() }) {
+  const m = Math.min(60, Math.max(1, Math.round(minutes)));
+  return { startedAt: now, endsAt: now + m * 60_000, minutes: m };
+}
+export const isRestActive = (rest, now = Date.now()) => !!rest && now < rest.endsAt;

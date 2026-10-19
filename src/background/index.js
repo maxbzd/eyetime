@@ -4,20 +4,25 @@
 import { ensureSchema, getSettings, getRaw, pruneOldDays } from '../shared/storage.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { initTracker } from './tracker.js';
-import { startFocus, stopFocus, finishFocus } from './focus.js';
+import { startFocus, stopFocus, finishFocus, endRest } from './focus.js';
 import { scheduleBedtime } from './breaks.js';
 import { updateBadge } from './badge.js';
 import './blocker.js';
 import './weekly.js';
 import './messages.js';
 import './companion.js';
+import { buildMenus } from './menus.js';
 
 async function boot() {
   const { migrated } = await ensureSchema();
   const { focus } = await getRaw('focus');
   if (focus && !isFocusActive(focus)) await finishFocus(); // the end alarm may have been missed while the browser was closed
   else if (focus) await chrome.alarms.create('focus-end', { when: focus.endsAt });
+  const { rest } = await getRaw('rest');
+  if (rest && Date.now() >= rest.endsAt) await endRest({ notify: false });
+  else if (rest) await chrome.alarms.create('rest-end', { when: rest.endsAt });
   await initTracker();
+  await buildMenus();
   await scheduleBedtime();
   await updateBadge(await getSettings());
   return migrated;

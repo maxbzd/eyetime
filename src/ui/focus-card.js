@@ -6,18 +6,19 @@ import { send } from './api.js';
 import { t, fmtDuration, fmtTime } from '../shared/i18n.js';
 import { getSettings, getRaw, onChange } from '../shared/storage.js';
 import { isFocusActive } from '../shared/blocking.js';
-import { remainingMs, progress } from '../shared/focus.js';
+import { remainingMs, progress, isRestActive } from '../shared/focus.js';
 
 export function mountFocusCard(root, { variant = 'compact' } = {}) {
   const large = variant === 'large';
-  const st = { settings: null, focus: null, draft: { goal: '', minutes: null, strict: null, custom: false } };
+  const st = { settings: null, focus: null, rest: null, draft: { goal: '', minutes: null, strict: null, custom: false } };
   let tickId = null;
   const uid = Math.random().toString(36).slice(2, 7);
 
   async function load() {
     st.settings = await getSettings();
-    const { focus } = await getRaw('focus');
+    const { focus, rest } = await getRaw(['focus', 'rest']);
     st.focus = isFocusActive(focus) ? focus : null;
+    st.rest = !st.focus && isRestActive(rest) ? rest : null;
     const d = st.draft, s = st.settings.focus;
     if (d.minutes === null) d.minutes = s.minutes;
     if (d.strict === null) d.strict = s.strict;
@@ -60,21 +61,24 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
         : [h('div', { class: 'durations' }, chips, custom), btn, strict]));
   }
 
-  function renderRunning() {
-    const f = st.focus;
+  function renderRunning(restMode = false) {
+    const f = restMode ? st.rest : st.focus;
     const size = large ? 220 : 168, R = size / 2 - 8, C = 2 * Math.PI * R, mid = size / 2;
     const time = h('div', { class: 'time num' });
     const sub = h('div', { class: 'sub', text: t('focus.endsAt', { time: fmtTime(new Date(f.endsAt), st.settings.newtab.clock24 ?? undefined) }) });
     const track = svg('circle', { cx: mid, cy: mid, r: R, fill: 'none', 'stroke-width': 8, class: 'track' });
     const bar = svg('circle', { cx: mid, cy: mid, r: R, fill: 'none', 'stroke-width': 8, 'stroke-linecap': 'round', class: 'bar', 'stroke-dasharray': C });
     const ring = svg('svg', { viewBox: `0 0 ${size} ${size}` }, track, bar);
-    const actions = f.strict
-      ? h('span', { class: 'locked' }, icon('lock'), t('focus.strictLocked'))
-      : h('button', { class: 'btn btn-ghost', type: 'button', onclick: endEarly }, t('focus.end'));
-    clear(root, h('div', { class: 'focus-run' + (large ? ' large' : '') },
-      h('span', { class: 'badge badge-accent badge-dot', text: t('focus.running') }),
-      h('div', { class: 'ring', style: { width: size + 'px', height: size + 'px' } }, ring, h('div', { class: 'center' }, time, sub)),
-      f.goal ? h('div', { class: 'goal-line', text: f.goal }) : null,
+    const actions = restMode
+      ? [h('button', { class: 'btn btn-primary', type: 'button', onclick: async () => { await send('rest:skip'); await start(); } }, icon('play'), startLabel()),
+         h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => send('rest:skip') }, t('rest.skip'))]
+      : f.strict
+        ? h('span', { class: 'locked' }, icon('lock'), t('focus.strictLocked'))
+        : h('button', { class: 'btn btn-ghost', type: 'button', onclick: endEarly }, t('focus.end'));
+    clear(root, h('div', { class: 'focus-run' + (large ? ' large' : '') + (restMode ? ' rest' : '') },
+      h('span', { class: 'badge ' + (restMode ? 'badge-success' : 'badge-accent') + ' badge-dot', text: restMode ? t('rest.title') : t('focus.running') }),
+      h('div', { class: 'ring', role: 'timer', 'aria-label': restMode ? t('rest.title') : t('focus.running'), style: { width: size + 'px', height: size + 'px' } }, ring, h('div', { class: 'center' }, time, sub)),
+      restMode ? h('div', { class: 'goal-line', text: t('rest.hint') }) : (f.goal ? h('div', { class: 'goal-line', text: f.goal }) : null),
       h('div', { class: 'run-actions' }, actions)));
     const paint = () => {
       const rem = remainingMs(f);
@@ -89,15 +93,16 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
   function render() {
     clearInterval(tickId);
     root.classList.toggle('is-running', !!st.focus);
-    st.focus ? renderRunning() : renderIdle();
+    root.classList.toggle('is-resting', !!st.rest);
+    st.focus ? renderRunning() : st.rest ? renderRunning(true) : renderIdle();
   }
   async function refresh() { await load(); render(); }
 
   refresh();
-  onChange(['focus', 'settings'], async () => {
-    const was = !!st.focus;
+  onChange(['focus', 'rest', 'settings'], async () => {
+    const was = !!st.focus + ':' + !!st.rest;
     await load();
-    if (was !== !!st.focus || (!st.focus && !root.contains(document.activeElement))) render();
+    if (was !== !!st.focus + ':' + !!st.rest || (!st.focus && !st.rest && !root.contains(document.activeElement))) render();
   });
   return { refresh };
 }

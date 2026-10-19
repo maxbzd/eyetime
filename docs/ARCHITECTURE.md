@@ -9,7 +9,7 @@ Plain ES modules, no bundler, no runtime dependencies. Open any file and read it
                         │ chrome.runtime.sendMessage   │ chrome.storage.onChanged
                         ▼                              │
                 ┌─────────────── service worker (src/background) ───────────────┐
- browser events▶│ tracker · focus · blocker · breaks · weekly · companion       │
+ browser events▶│ tracker · focus · blocker · breaks · menus · weekly · companion       │
  alarms ───────▶│ (no timers: events + chrome.alarms only)                      │
                 └───────────────────────────────┬───────────────────────────────┘
                                                 ▼
@@ -24,6 +24,7 @@ Plain ES modules, no bundler, no runtime dependencies. Open any file and read it
 | `meta` | `{ schemaVersion, installedAt, migratedFrom }` |
 | `d:YYYY-MM-DD` | one record per local day: `d` host→sec, `h` hour→host→sec, `a` app→sec, `fs` focus sec, `fc` focus sessions, `b` breaks |
 | `focus` | the running session `{ id, startedAt, endsAt, minutes, goal, strict }` or `null` |
+| `rest` | the break timer that follows a completed session `{ startedAt, endsAt, minutes }` or `null` (focus rules do not apply while it runs) |
 | `passes` | `{ ruleDomain: untilTs }` temporary "continue" permissions |
 | `tasks`, `habits`, `captures`, `newtabBg`, `pausedUntil`, `lastWeekly` | small user data |
 

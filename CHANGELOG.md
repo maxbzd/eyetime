@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.1.0 — Unreleased
+
+- **Break timer after a session** (Pomodoro-style): a rest countdown starts automatically, distracting sites stay open, popup/Home show a Break card with *Start next session* / *Skip*; badge turns green; configurable (off / 3 / 5 / 10 / 15 min).
+- **Weekly review** on Insights (7-day range) with one actionable suggestion — e.g. *Set a 30 min/day limit for youtube.com* in one click, with Undo.
+- **Right-click menu**: mark the current site as productive / neutral / distracting, toggle always-block, start/stop focus. (New permission: `contextMenus`.)
+- Countdown in the Home tab title while a session runs; focus-trapped, labelled customise drawer; `role=timer` on the ring.
+- Firefox/AMO: icons are built with `createElementNS` (no `innerHTML`); `web-ext lint` reports 0 errors.
+- Store promo images in `store/promo/`.
+
 ## 2.0.0 — the redesign
 
 A ground-up rebuild around one clear job: **start focusing in one click, understand your time honestly, look after your eyes.** See [docs/PRODUCT.md](docs/PRODUCT.md) for the audit and reasoning.
