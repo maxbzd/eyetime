@@ -17,7 +17,7 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   await sleep(2500);
   const pages = ctx.pages().map(p => p.url());
   ok(pages.some(u => u.includes('onboarding.html')), 'onboarding tab opened on install', JSON.stringify(pages));
-  const meta = await get('meta'); ok(meta && meta.schemaVersion === 2, 'schema v2 written');
+  const meta = await get('meta'); ok(meta && meta.schemaVersion === 3, 'schema v3 written');
   const st0 = await get('settings'); ok(st0 && st0.onboarded === false, 'settings default, not onboarded');
 
   console.log('2. onboarding flow');
@@ -93,6 +93,31 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   ok(await pg5.locator('.focus-run.rest').count() === 1, 'popup shows the break card');
   await pg5.click('text=Skip break'); await sleep(800); ok(!(await get('rest')), 'skipping clears the rest timer'); await pg5.close();
 
+  console.log('5c. productivity loop: task-linked session, review, only-my-sites, pause reasons');
+  await helper.evaluate(async () => { const m = await import('/src/shared/storage.js'); await m.setCollection('tasks', [{ id: 't1', text: 'Write report', done: false, starred: true, createdAt: Date.now() }]); await m.updateSettings((s) => { s.focus.breakMinutes = 0; s.focus.review = true; }); });
+  await send(helper, { type: 'focus:start', minutes: 5, strict: false, taskId: 't1' });
+  const f1 = await get('focus'); ok(f1 && f1.taskId === 't1' && f1.goal === 'Write report', 'session linked to a task takes its text as the goal', JSON.stringify(f1));
+  await sw.evaluate(async () => { const { focus } = await chrome.storage.local.get('focus'); focus.endsAt = Date.now() + 800; await chrome.storage.local.set({ focus }); await chrome.alarms.create('focus-end', { when: focus.endsAt }); });
+  await sleep(4500);
+  const rev = await get('review'); ok(rev && rev.taskId === 't1' && rev.completed, 'review queued after the session', JSON.stringify(rev));
+  const dr = await get('d:' + day()); ok(dr && dr.ss && dr.ss.some((x) => x.k === 't1' && x.c === 1), 'session written to the day log');
+  const tk = await get('tasks'); ok(tk[0].focusSec >= 300, 'focus time credited to the task', String(tk[0].focusSec));
+  const pg6 = await ctx.newPage(); await pg6.goto(ext('src/newtab/newtab.html')); await sleep(1200);
+  ok(await pg6.locator('.review-card').count() === 1, 'Home shows the "how did it go?" card');
+  await pg6.locator('.review-task input').check(); await pg6.locator('.review-rate .chip >> nth=2').click(); await sleep(800);
+  const dr2 = await get('d:' + day()); const tk2 = await get('tasks');
+  ok(dr2.ss.find((x) => x.k === 't1').r === 3 && tk2[0].done === true && !(await get('review')), 'rating saved, task marked done, review cleared');
+  await pg6.close();
+  await send(helper, { type: 'focus:start', minutes: 25, strict: false, scope: 'only-mine' });
+  await tab.goto(url('example.org', '/only')).catch(() => {}); await sleep(900);
+  ok(tab.url().includes('r=focus'), '"only my sites" closes a neutral site', tab.url().slice(0, 100));
+  await tab.goto(url('github.com', '/mine')).catch(() => {}); await sleep(900);
+  ok(tab.url().startsWith('http://github.com'), '"only my sites" leaves productive sites open', tab.url().slice(0, 100));
+  await send(helper, { type: 'focus:stop' });
+  await send(helper, { type: 'pause:reason', reason: 'bored' }); await send(helper, { type: 'pause:reason', reason: 'nonsense' });
+  const dr3 = await get('d:' + day()); ok(dr3.pr && dr3.pr.bored === 1 && Object.keys(dr3.pr).length === 1, 'pause reason logged (unknown reasons ignored)', JSON.stringify(dr3.pr));
+  await helper.evaluate(async () => { const m = await import('/src/shared/storage.js'); await m.updateSettings((s) => { s.focus.breakMinutes = 5; }); });
+
   console.log('6. eye break + pause tracking');
   await send(helper, { type: 'break:complete' }); const rec3 = await get('d:' + day()); ok(rec3.b >= 1, 'break counted');
   await send(helper, { type: 'tracking:pause', minutes: 30 }); ok((await get('pausedUntil')) > Date.now(), 'tracking paused');
@@ -112,7 +137,7 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   await helper.evaluate(async () => { const m = await import('/src/shared/storage.js'); await m.ensureSchema(); });
   const sw2 = sw;
   const mig = await sw2.evaluate(async () => chrome.storage.local.get(null));
-  ok(mig.meta && mig.meta.schemaVersion === 2 && mig.meta.migratedFrom === '1.x', 'migrated marker set', JSON.stringify(mig.meta));
+  ok(mig.meta && mig.meta.schemaVersion === 3 && mig.meta.migratedFrom === '1.x', 'migrated marker set', JSON.stringify(mig.meta));
   ok(mig.settings.language === 'ru' && mig.settings.eye.intervalMin === 30 && mig.settings.blocking.custom[0] === 'example.com' && mig.settings.blocking.always[0] === 'example.net', 'settings migrated');
   ok(mig['d:2026-10-01'] && mig['d:2026-10-01'].d['github.com'] === 90, 'old stats migrated to per-day key');
   ok(Array.isArray(mig.tasks) && mig.tasks[0].text === 'Old task', 'tasks migrated');
