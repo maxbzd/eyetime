@@ -45,6 +45,7 @@ export function focus({ s, save, refresh }) {
     group(null,
       row({ title: t('opt.focusDefault'), desc: t('opt.focusDefaultDesc'), control: select(s.focus.presets.map((m) => [m, t('opt.minutes', { n: m })]), s.focus.minutes, (v) => save((x) => { x.focus.minutes = Number(v); }), { label: t('opt.focusDefault') }) }),
       row({ title: t('opt.focusPresets'), desc: t('opt.focusPresetsDesc'), control: presetsIn }),
+      row({ title: t('opt.restAfter'), desc: t('opt.restAfterDesc'), control: select([[0, t('common.off')], ...[3, 5, 10, 15].map((m) => [m, t('opt.minutes', { n: m })])], s.focus.breakMinutes, (v) => save((x) => { x.focus.breakMinutes = Number(v); }), { label: t('opt.restAfter') }) }),
       row({ title: t('focus.strict'), desc: t('opt.strictDesc'), control: toggle(s.focus.strict, (v) => save((x) => { x.focus.strict = v; }), t('focus.strict')) })),
     group(t('opt.groupExtras'),
       row({ title: t('opt.focusSound'), desc: t('opt.focusSoundDesc'), control: toggle(s.focus.sound, (v) => save((x) => { x.focus.sound = v; }), t('opt.focusSound')) }),
@@ -170,7 +171,7 @@ export function tracking({ s, save, refresh }) {
 
 /* ============================== Data & privacy ============================== */
 export function data({ s, save, refresh }) {
-  const PERMS = [['storage', 'perm.storage'], ['tabs', 'perm.tabs'], ['webNavigation', 'perm.webNavigation'], ['idle', 'perm.idle'], ['alarms', 'perm.alarms'], ['notifications', 'perm.notifications'], ['offscreen', 'perm.offscreen'], ['favicon', 'perm.favicon'], ['youtube/instagram/tiktok/vk', 'perm.hosts']];
+  const PERMS = [['storage', 'perm.storage'], ['tabs', 'perm.tabs'], ['webNavigation', 'perm.webNavigation'], ['idle', 'perm.idle'], ['alarms', 'perm.alarms'], ['contextMenus', 'perm.contextMenus'], ['notifications', 'perm.notifications'], ['offscreen', 'perm.offscreen'], ['favicon', 'perm.favicon'], ['youtube/instagram/tiktok/vk', 'perm.hosts']];
   async function doExport() {
     const payload = await exportAll();
     const url = URL.createObjectURL(new Blob([JSON.stringify(payload)], { type: 'application/json' }));

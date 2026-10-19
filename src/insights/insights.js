@@ -6,7 +6,7 @@ import { stackedColumns, classLegend, heatmap, CLASS_ORDER } from '../ui/charts.
 import { t, fmtDuration, fmtDate, fmtNumber, weekdayName, fmtTime, monthName } from '../shared/i18n.js';
 import { getSettings, updateSettings, getDays, onChange } from '../shared/storage.js';
 import { makeClassifier } from '../shared/classify.js';
-import { summarize, delta, insights as computeInsights, focusStreak, heatLevel } from '../shared/stats.js';
+import { summarize, delta, insights as computeInsights, focusStreak, heatLevel, suggestLimit } from '../shared/stats.js';
 import { rangeKeys, addDays, dayKey, parseKey } from '../shared/time.js';
 
 const RANGES = { today: 1, 7: 7, 30: 30 };
@@ -104,6 +104,29 @@ function sitesCard(sum) {
       all.length > shown ? h('div', { class: 'more' }, h('button', { class: 'btn btn-sm', type: 'button', onclick: () => { shown += 15; render(); } }, t('insights.showMore', { n: all.length - shown }))) : null));
 }
 
+function reviewCard(cur, prev) {
+  const share = cur.total ? Math.round((cur.distracting / cur.total) * 100) : 0;
+  const sharePrev = prev.total >= 60 ? Math.round((prev.distracting / prev.total) * 100) : null;
+  const sug = suggestLimit(cur, settings.blocking.limits);
+  const line = (ico, text, chip) => h('div', { class: 'review-line' }, h('div', { class: 'ico-wrap' }, icon(ico)), h('span', { class: 'grow', text }), chip);
+  const action = sug
+    ? h('div', { class: 'review-suggest' },
+        h('div', {}, h('b', { text: t('review.suggestTitle') }), h('p', { class: 'muted-2', text: t('review.suggestBody', { host: sug.host, avg: sug.avgMin, limit: sug.limitMin }) })),
+        h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: async () => {
+          await updateSettings((st) => { st.blocking.limits[sug.host] = sug.limitMin; });
+          send('settings:changed');
+          toast(t('review.limitSet', { host: sug.host, n: sug.limitMin }), { action: t('common.undo'), onAction: async () => { await updateSettings((st) => { delete st.blocking.limits[sug.host]; }); send('settings:changed'); } });
+        } }, t('review.setLimit', { n: sug.limitMin })))
+    : h('div', { class: 'review-suggest ok' }, icon('sparkles'), h('span', { text: t('review.balanced') }));
+  return h('section', { class: 'card review' },
+    h('div', { class: 'card-head' }, h('div', {}, h('h3', { text: t('review.title') }), h('p', { text: t('review.sub') }))),
+    h('div', { class: 'card-body', style: { paddingTop: 'var(--s-3)' } },
+      line('target', t('review.focus', { time: fmtDuration(cur.focusSec), n: cur.focusSessions }), deltaChip(delta(cur.focusSec, prev.focusSec))),
+      line('circle-alert', t('review.share', { pct: share }), deltaChip(sharePrev === null ? null : share - sharePrev, { tone: 'upBad', unit: t('insights.pts') })),
+      line('eye', t('review.breaks', { n: cur.breaks }), null),
+      action));
+}
+
 const TEXT = {
   worstDay: (p) => ({ icon: 'calendar-x', tone: 'bad', text: t('insight.worstDay', { weekday: weekdayName(p.weekday, 'long'), time: fmtDuration(p.sec) }) }),
   bestDay: (p) => ({ icon: 'calendar-check', tone: 'good', text: t('insight.bestDay', { weekday: weekdayName(p.weekday, 'long'), pct: p.pct }) }),
@@ -189,6 +212,7 @@ function render() {
 
   clear(root,
     renderKpis(sum, prev),
+    range === '7' && sum.total >= 3600 && sum.activeDays >= 3 ? reviewCard(sum, prev) : null,
     mainChart(sum),
     h('div', { class: 'grid-2' }, sitesCard(sum), h('div', { class: 'stack gap-4' }, insightsCard(sum, prev, streak), appsCard(sum))),
     range === 'today' ? heatCard(data.heat) : h('div', { class: 'grid-2' }, typicalDay(sum), heatCard(data.heat)));

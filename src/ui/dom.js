@@ -11,14 +11,14 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 
 /** <svg class="ico"> for a Lucide icon (static markup from icons.js). */
 export function icon(name, cls = '') {
-  const svg = document.createElementNS(SVG_NS, 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('class', ('ico ' + cls).trim());
-  svg.setAttribute('aria-hidden', 'true');
-  const inner = ICONS[name];
-  if (inner) svg.innerHTML = inner; // trusted constant, never user data
+  const el = document.createElementNS(SVG_NS, 'svg');
+  el.setAttribute('viewBox', '0 0 24 24');
+  el.setAttribute('class', ('ico ' + cls).trim());
+  el.setAttribute('aria-hidden', 'true');
+  const nodes = ICONS[name];
+  if (nodes) for (const [tag, attrs] of nodes) el.append(svg(tag, attrs));
   else console.error('[eyetime] icon missing from icons.js:', name, '— add icon(\'' + name + '\') / icon: \'' + name + '\' where it is used and run npm run icons');
-  return svg;
+  return el;
 }
 
 /** Replace <i data-icon="name"></i> placeholders under root with real icons. */
