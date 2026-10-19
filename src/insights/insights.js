@@ -155,7 +155,7 @@ function hoursChart(best) {
   const hr = (i) => fmtTime(new Date(2000, 0, 1, i), settings.newtab.clock24 ?? undefined);
   return h('div', { class: 'hours', role: 'img', 'aria-label': t('prod.bestAria', { from: hr(best.start), to: hr(best.end) }) },
     h('div', { class: 'hours-bars' }, best.byHour.map((v, i) => h('i', { class: 'hb' + (i === best.start || i === (best.start + 1) % 24 ? ' best' : ''), style: { height: Math.max(3, (v / max) * 100) + '%' }, 'data-tip': `${hr(i)} · ${fmtDuration(Math.round(v) * 60)}` }))),
-    h('div', { class: 'hours-axis' }, [0, 6, 12, 18].map((i) => h('span', { text: String(i).padStart(2, '0') }))));
+    h('div', { class: 'hours-axis' }, [0, 6, 12, 18].map((i) => h('span', { style: { gridColumn: `${i + 1} / span 3` }, text: String(i).padStart(2, '0') }))));
 }
 
 function ratingDots(r) {
@@ -178,12 +178,12 @@ function productivityCard(cur, heat, tasks) {
     return h('section', { class: 'card' }, h('div', { class: 'card-head' }, h('div', {}, h('h3', { text: t('prod.title' ) }), h('p', { text: t('prod.sub') }))),
       h('div', { class: 'card-body' }, h('div', { class: 'empty', style: { padding: 'var(--s-4) 0' } }, h('div', { class: 'empty-icon' }, icon('target')), h('p', { text: t('prod.empty') }))));
   }
-  const stat = (ico, label, value, sub) => h('div', { class: 'pstat' }, h('div', { class: 'label' }, icon(ico), label), h('div', { class: 'value num', text: value }), sub ? h('div', { class: 'sub', text: sub }) : null);
+  const stat = ({ ico, label, value, sub }) => h('div', { class: 'pstat' }, h('div', { class: 'label' }, icon(ico), label), h('div', { class: 'value num', text: value }), sub ? h('div', { class: 'sub', text: sub }) : null);
   const stats = h('div', { class: 'pstats' },
-    goal ? stat('target', t('prod.goalDays'), `${daysHit}/${cur.length}`, t('prod.goalIs', { time: fmtDuration(goal * 60) })) : null,
-    goal ? stat('flame', t('prod.goalStreak'), String(streak), t('prod.days')) : null,
-    stat('timer', t('prod.avgSession'), sessions.length ? fmtDuration(Math.round(sessions.reduce((a, s) => a + s.m, 0) / sessions.length) * 60) : '–', t('insights.sessions', { n: sessions.length })),
-    stat('zap', t('prod.quality'), avgR ? (avgR >= 2.5 ? t('review.r3') : avgR >= 1.75 ? t('review.r2') : t('review.r1')) : '–', rated.length ? t('prod.rated', { n: rated.length }) : t('prod.rateHint')));
+    goal ? stat({ ico: 'target', label: t('prod.goalDays'), value: `${daysHit}/${cur.length}`, sub: t('prod.goalIs', { time: fmtDuration(goal * 60) }) }) : null,
+    goal ? stat({ ico: 'flame', label: t('prod.goalStreak'), value: String(streak), sub: t('prod.days') }) : null,
+    stat({ ico: 'timer', label: t('prod.avgSession'), value: sessions.length ? fmtDuration(Math.round(sessions.reduce((a, s) => a + s.m, 0) / sessions.length) * 60) : '–', sub: t('insights.sessions', { n: sessions.length }) }),
+    stat({ ico: 'zap', label: t('prod.quality'), value: avgR ? (avgR >= 2.5 ? t('review.r3') : avgR >= 1.75 ? t('review.r2') : t('review.r1')) : '–', sub: rated.length ? t('prod.rated', { n: rated.length }) : t('prod.rateHint') }));
 
   const reasonRow = reasonTotal
     ? h('div', { class: 'pblock' }, h('h4', { text: t('prod.pauses') }), h('p', { class: 'muted-2', text: t('prod.pausesSub', { n: reasons.back || 0, total: reasonTotal }) }),
@@ -192,7 +192,7 @@ function productivityCard(cur, heat, tasks) {
 
   return h('section', { class: 'card' },
     h('div', { class: 'card-head' }, h('div', {}, h('h3', { text: t('prod.title') }), h('p', { text: t('prod.sub') }))),
-    h('div', { class: 'card-body stack gap-5' },
+    h('div', { class: 'card-body stack gap-6' },
       stats,
       best ? h('div', { class: 'pblock' }, h('h4', { text: t('prod.best') }),
         h('p', { class: 'muted-2', text: t('prod.bestBody', { from: fmtTime(new Date(2000, 0, 1, best.start), settings.newtab.clock24 ?? undefined), to: fmtTime(new Date(2000, 0, 1, best.end), settings.newtab.clock24 ?? undefined), pct: Math.round(best.share * 100) }) }), hoursChart(best))
