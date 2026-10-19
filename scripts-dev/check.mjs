@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import cp from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { ACCENTS, LOOK_IDS, RADII, DENSITY, CARD_STYLES } from '../src/shared/looks.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const skip = new Set(['.git', 'node_modules', 'scripts-dev', '.github', 'dist', 'store', 'companion', 'docs']);
@@ -53,7 +54,7 @@ const { LOCALES } = await import(pathToFileURL(path.join(root, 'src/shared/local
 const { PRESET_IDS } = await import(pathToFileURL(path.join(root, 'src/shared/catalog.js')));
 const en = LOCALES.en;
 const used = new Set();
-const dyn = { 'class.': ['productive', 'neutral', 'distracting'], 'preset.': PRESET_IDS, 'bg.': ['dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'plain', 'photo'], 'accent.': ['ember', 'blue', 'violet', 'pink', 'teal', 'green'], 'range.': ['today', '7', '30'], 'mod.': ['today', 'tasks', 'habits', 'notes', 'links'], 'sec.': ['general', 'focus', 'blocking', 'eye', 'tracking', 'data', 'about'] };
+const dyn = { 'class.': ['productive', 'neutral', 'distracting'], 'preset.': PRESET_IDS, 'bg.': ['look', 'dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'grid', 'living', 'plain', 'color', 'photo'], 'layout.': ['center', 'split', 'minimal'], 'clock.': ['thin', 'bold', 'mono', 'serif', 'compact', 'stacked', 'none'], 'accent.': Object.keys(ACCENTS), 'look.': LOOK_IDS, 'lookd.': LOOK_IDS, 'radius.': Object.keys(RADII), 'density.': Object.keys(DENSITY), 'cards.': CARD_STYLES.filter((c) => c !== 'look'), 'range.': ['today', '7', '30'], 'mod.': ['today', 'tasks', 'habits', 'notes', 'links'], 'sec.': ['general', 'appearance', 'focus', 'blocking', 'eye', 'tracking', 'data', 'about'] };
 for (const [prefix, list] of Object.entries(dyn)) list.forEach((s) => used.add(prefix + s));
 for (const p of files.filter((f) => /\.(js|html)$/.test(f) && !/locales[\\/]|icons\.js$|shared[\\/]i18n\.js$/.test(f))) {
   const src = fs.readFileSync(p, 'utf8');
