@@ -62,9 +62,9 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   ok(tab.url().includes('blocked.html') && tab.url().includes('r=friction'), 'reddit paused with friction', tab.url().slice(0, 100));
   await tab.waitForSelector('#cont:not([disabled])', { timeout: 14000 });
   await tab.click('#cont'); await sleep(1500);
-  ok(tab.url().startsWith('http://reddit.com'), 'continue releases the site', tab.url());
+  ok(/^https?:\/\/reddit.com/.test(tab.url()), 'continue releases the site', tab.url());
   await tab.goto(url('reddit.com', '/r/y')); await sleep(800);
-  ok(tab.url().startsWith('http://reddit.com'), 'pass still valid for subsequent navigation');
+  ok(/^https?:\/\/reddit.com/.test(tab.url()), 'pass still valid for subsequent navigation');
 
   console.log('5. focus & strict');
   const r = await send(helper, { type: 'focus:start', minutes: 5, goal: 'Test goal', strict: true });
@@ -73,12 +73,12 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   ok(tab.url().includes('r=focus'), 'reddit blocked during strict focus even with a pass', tab.url().slice(0, 100));
   const cont = await tab.$('#cont'); ok(!cont || await cont.isHidden(), 'no continue button in strict mode');
   const stop = await send(helper, { type: 'focus:stop' }); ok(stop && stop.ok === false, 'strict session cannot be stopped from UI');
-  await tab.goto(url('github.com', '/ok')); await sleep(500); ok(tab.url().startsWith('http://github.com'), 'productive site unaffected during focus');
+  await tab.goto(url('github.com', '/ok')); await sleep(500); ok(/^https?:\/\/github.com/.test(tab.url()), 'productive site unaffected during focus');
   // end the session by rewriting its end time, then the block page must auto-release
   await tab.goto(url('reddit.com', '/z')).catch(() => {}); await sleep(1000);
   await sw.evaluate(async () => { const { focus } = await chrome.storage.local.get('focus'); focus.endsAt = Date.now() + 1500; await chrome.storage.local.set({ focus }); await chrome.alarms.create('focus-end', { when: focus.endsAt }); });
   await tab.waitForURL(/^http:\/\/reddit\.com/, { timeout: 15000 }).catch(() => {});
-  ok(tab.url().startsWith('http://reddit.com') || tab.url().includes('r=friction'), 'block page auto-released after session end', tab.url().slice(0, 100));
+  ok(/^https?:\/\/reddit.com/.test(tab.url()) || tab.url().includes('r=friction'), 'block page auto-released after session end', tab.url().slice(0, 100));
   const rec2 = await get('d:' + day()); ok(rec2 && rec2.fc >= 1 && rec2.fs >= 300, 'completed session counted (fc/fs)', JSON.stringify({ fc: rec2 && rec2.fc, fs: rec2 && rec2.fs }));
 
   console.log('5b. rest after a session');
@@ -112,7 +112,7 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   await tab.goto(url('example.org', '/only')).catch(() => {}); await sleep(900);
   ok(tab.url().includes('r=focus'), '"only my sites" closes a neutral site', tab.url().slice(0, 100));
   await tab.goto(url('github.com', '/mine')).catch(() => {}); await sleep(900);
-  ok(tab.url().startsWith('http://github.com'), '"only my sites" leaves productive sites open', tab.url().slice(0, 100));
+  ok(/^https?:\/\/github.com/.test(tab.url()), '"only my sites" leaves productive sites open', tab.url().slice(0, 100));
   await send(helper, { type: 'focus:stop' });
   await send(helper, { type: 'pause:reason', reason: 'bored' }); await send(helper, { type: 'pause:reason', reason: 'nonsense' });
   const dr3 = await get('d:' + day()); ok(dr3.pr && dr3.pr.bored === 1 && Object.keys(dr3.pr).length === 1, 'pause reason logged (unknown reasons ignored)', JSON.stringify(dr3.pr));
