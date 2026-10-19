@@ -93,5 +93,7 @@ export function heatmap(cells, max, { startsOn = 1, level } = {}) {
     attachTip(cell, () => tipBody(c.title, [], c.sec ? fmtDuration(c.sec) : t('chart.noData')));
     nodes.push(cell);
   }
-  return h('div', { class: 'heatmap' }, nodes);
+  const el = h('div', { class: 'heatmap' }, nodes);
+  el.style.setProperty('--weeks', Math.ceil(nodes.length / 7));
+  return el;
 }

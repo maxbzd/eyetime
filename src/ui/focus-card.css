@@ -62,3 +62,29 @@
 .rest-idea { display: flex; gap: 8px; align-items: center; justify-content: center; text-align: left; max-width: 360px; margin: var(--s-2) auto 0; padding: 8px 12px; border-radius: var(--r-md); background: var(--success-soft, var(--surface-2)); font-size: var(--fs-sm); }
 .rest-idea .ico { font-size: 16px; flex: none; color: var(--success-text, var(--success)); }
 .review-resume { display: flex; flex-direction: column; gap: 4px; }
+
+/* popup: everything has to fit in ~560px */
+.focus-idle:not(.large) { gap: var(--s-2); }
+.focus-idle:not(.large) .focus-opts { gap: var(--s-1) var(--s-4); justify-content: flex-start; }
+.focus-idle:not(.large) .strict-row { font-size: var(--fs-xs); }
+.focus-idle:not(.large) .goal-strip { gap: 4px; }
+.focus-idle:not(.large) .btn-lg { height: 42px; }
+
+/* running, compact (popup) */
+.focus-run.compact { align-items: stretch; text-align: left; gap: var(--s-3); padding: 0; }
+.run-top { display: flex; align-items: center; gap: var(--s-4); }
+.focus-run.compact .ring .time { font-size: 21px; letter-spacing: -.02em; }
+.run-info { min-width: 0; flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.focus-run.compact .goal-line { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: var(--fs-md); line-height: 1.3; }
+.run-ends { font-size: var(--fs-xs); }
+.focus-run.compact .run-actions { margin-top: 2px; margin-left: -8px; }
+.focus-run.compact .run-extras { margin-top: 0; }
+.focus-run.compact .segmented-sm { align-self: stretch; width: 100%; } .focus-run.compact .segmented-sm button { flex: 1; padding: 0 4px; }
+.focus-run.compact .rest-idea { max-width: none; margin: 0; }
+
+.focus-idle:not(.large) .goal-strip .goal-lbl { font-weight: 600; color: var(--text); }
+
+.focus-idle:not(.large) .task-picks { flex-wrap: nowrap; overflow: hidden; } .focus-idle:not(.large) .chip-task { flex: 0 1 auto; min-width: 0; } .focus-idle:not(.large) .chip-task .truncate { max-width: 120px; }
+.run-actions { flex-wrap: wrap; }
+.focus-run.compact .run-actions { margin-left: 0; gap: 6px; }
+.focus-run.compact .run-actions .btn-ghost { padding: 0 8px; margin-left: -8px; }
