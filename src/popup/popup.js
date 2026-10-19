@@ -9,7 +9,7 @@ import { makeClassifier } from '../shared/classify.js';
 import { dayKey } from '../shared/time.js';
 import { hostFromUrl, matches } from '../shared/domains.js';
 
-const CLS_ICON = { productive: 'circle-check', neutral: 'minus', distracting: 'circle-alert' };
+const CLASSES = [{ id: 'productive', icon: 'circle-check' }, { id: 'neutral', icon: 'minus' }, { id: 'distracting', icon: 'circle-alert' }];
 let tab = null;
 
 /* ---------- current site ---------- */
@@ -28,13 +28,13 @@ async function renderSite() {
   const blocked = b.always.includes(host);
   const limitKey = Object.keys(b.limits).find((d) => matches(host, d));
 
-  const seg = ['productive', 'neutral', 'distracting'].map((c) => h('button', {
+  const seg = CLASSES.map(({ id: c, icon: ico }) => h('button', {
     type: 'button', 'data-cls': c, 'aria-pressed': String(cls === c),
     onclick: async () => {
       await updateSettings((s) => { s.sites[host] = c; if (c !== 'distracting') s.blocking.always = s.blocking.always.filter((x) => x !== host); });
       send('settings:changed'); renderSite();
     },
-  }, icon(CLS_ICON[c]), t('class.' + c)));
+  }, icon(ico), t('class.' + c)));
 
   const extra = h('div', { class: 'site-extra' },
     limitKey ? [h('span', { class: 'num', text: fmtDuration(sec) }), h('div', { class: 'progress' }, h('i', { style: { width: Math.min(100, (sec / (b.limits[limitKey] * 60)) * 100) + '%' } })), h('span', { class: 'num', text: fmtDuration(b.limits[limitKey] * 60) })] : h('span'),
@@ -76,6 +76,8 @@ async function renderFooter() {
   await bootPage({ onSettings: () => { renderSite(); renderFooter(); } });
   const [active] = await chrome.tabs.query({ active: true, currentWindow: true });
   tab = active ? { id: active.id, host: hostFromUrl(active.url) } : null;
+  const preview = new URLSearchParams(location.search).get('site'); // ?site=github.com renders the site card without a real tab (docs, screenshots)
+  if (preview) tab = { id: -1, host: preview };
   mountFocusCard($('#focus'), { variant: 'compact' });
   mountToday($('#today'), { closeOnBreak: true });
   renderSite(); renderFooter();

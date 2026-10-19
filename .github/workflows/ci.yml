@@ -1,5 +1,8 @@
 name: CI
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -10,4 +13,20 @@ jobs:
       - run: npm run check
       - run: npm run build
       - uses: actions/upload-artifact@v4
-        with: { name: eyetime-extension, path: eyetime-extension.zip }
+        with: { name: eyetime-packages, path: dist/*.zip }
+  companion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: python -m unittest -v test_companion
+        working-directory: companion
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm i --no-save playwright && npx playwright install --with-deps chromium
+      - run: node scripts-dev/e2e/e2e.cjs
