@@ -1,14 +1,6 @@
 {
-  "extName": {
-    "message": "EyeTime — Screen Time, Focus & Eye Rest"
-  },
-  "extDescription": {
-    "message": "Local-first screen time tracker, focus sessions, distraction blocker, 20-20-20 eye rest reminders and a productive new tab. No accounts, no servers."
-  },
-  "cmdQuickCapture": {
-    "message": "Quick capture a thought"
-  },
-  "actionTitle": {
-    "message": "EyeTime Analytics"
-  }
+  "extName": { "message": "EyeTime — Focus, Screen Time & Eye Care" },
+  "extDescription": { "message": "Start a focus session in one click, block distractions gently, see where your time goes and rest your eyes. Free, open source, 100% local." },
+  "actionTitle": { "message": "EyeTime" },
+  "cmdToggleFocus": { "message": "Start or stop a focus session" }
 }
