@@ -61,3 +61,10 @@ select.tag { appearance: none; padding-right: 9px; font-family: inherit; }
   .steps { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) { .kpi .value { font-size: 26px; white-space: nowrap; } .kpi { padding: var(--s-4); } }
+
+.review .review-line { display: flex; align-items: center; gap: var(--s-3); padding: 8px 0; }
+.review .review-line + .review-line { border-top: 1px solid var(--border); }
+.review .ico-wrap { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; flex: none; background: var(--surface-2); color: var(--text-2); font-size: 16px; }
+.review-suggest { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); margin-top: var(--s-3); padding: var(--s-4); border-radius: var(--r-md); background: var(--accent-soft); flex-wrap: wrap; }
+.review-suggest p { font-size: var(--fs-sm); margin-top: 2px; max-width: 56ch; }
+.review-suggest.ok { justify-content: flex-start; background: var(--success-soft); color: var(--success-text); font-weight: 560; }
