@@ -64,6 +64,8 @@ export function focus({ s, save, refresh }) {
       row({ title: t('focus.strict'), desc: t('opt.strictDesc'), control: toggle(s.focus.strict, (v) => save((x) => { x.focus.strict = v; }), t('focus.strict')) })),
     group(t('opt.groupProductivity'),
       row({ title: t('opt.dailyGoal'), desc: t('opt.dailyGoalDesc'), control: select([[0, t('common.off')], ...[30, 60, 90, 120, 180, 240, 300].map((m) => [m, fmtDuration(m * 60)])], s.focus.dailyGoal, (v) => save((x) => { x.focus.dailyGoal = Number(v); }), { label: t('opt.dailyGoal') }) }),
+      s.focus.dailyGoal ? row({ title: t('opt.goalDays'), desc: t('opt.goalDaysDesc'), control: h('div', { class: 'row gap-1 wrap' }, [1, 2, 3, 4, 5, 6, 0].map((d) => h('button', { class: 'chip chip-day', type: 'button', 'aria-pressed': String(s.focus.goalDays.includes(d)), text: weekdayName(d), onclick: () => save((x) => { const on = x.focus.goalDays.includes(d); if (on && x.focus.goalDays.length === 1) return; x.focus.goalDays = on ? x.focus.goalDays.filter((n) => n !== d) : [...x.focus.goalDays, d]; }, true) }))) }) : null,
+      row({ title: t('opt.ambient'), desc: t('opt.ambientDesc'), control: select(['off', 'brown', 'rain', 'cafe'].map((k) => [k, t('ambient.' + k)]), s.focus.ambient, (v) => send('ambient:set', { kind: v }).then(() => {}), { label: t('opt.ambient') }) }),
       row({ title: t('opt.scope'), desc: t('opt.scopeDesc'), control: select([['distractions', t('opt.scopeDistractions')], ['only-mine', t('focus.onlyMine')]], s.focus.scope, (v) => save((x) => { x.focus.scope = v; }), { label: t('opt.scope') }) }),
       row({ title: t('opt.review'), desc: t('opt.reviewDesc'), control: toggle(s.focus.review, (v) => save((x) => { x.focus.review = v; }), t('opt.review')) }),
       row({ title: t('opt.reminders'), desc: t('opt.remindersDesc'), stack: true, control: remindersEditor(s, save) })),
@@ -74,6 +76,23 @@ export function focus({ s, save, refresh }) {
 }
 
 /* ============================== Blocking ============================== */
+
+/** If-then plans for the pause page. Planning the response to an urge in advance ("if X, then Y") is one of the best-studied ways to act on intentions. */
+function plansEditor(s, save) {
+  const list = s.blocking.plans;
+  const upd = (id, fn) => save((x) => { const p = x.blocking.plans.find((y) => y.id === id); if (p) fn(p); });
+  const suggestions = ['plan.s1', 'plan.s2', 'plan.s3', 'plan.s4'];
+  const add = (then = '') => save((x) => { x.blocking.plans.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 4), when: '', then }); }, true);
+  return h('div', { class: 'stack gap-3', style: { alignItems: 'stretch' } },
+    list.map((p) => h('div', { class: 'plan-row' },
+      h('span', { class: 'muted', text: t('plan.if') }),
+      h('input', { class: 'input input-sm', style: { width: '150px' }, value: p.when, placeholder: t('plan.whenPh'), spellcheck: false, 'aria-label': t('plan.if'), onchange: (e) => { const v = e.target.value.trim(); if (!v) { upd(p.id, (y) => { y.when = ''; }); return; } const d = parseUserDomain(v); if (d) upd(p.id, (y) => { y.when = d; }); else { toast(t('domains.invalid', { v })); e.target.value = p.when; } } }),
+      h('span', { class: 'muted', text: t('plan.then') }),
+      h('input', { class: 'input input-sm grow', value: p.then, maxlength: 100, placeholder: t('plan.thenPh'), 'aria-label': t('plan.then'), onchange: (e) => upd(p.id, (y) => { y.then = e.target.value.trim().slice(0, 100); }) }),
+      h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.remove'), onclick: () => save((x) => { x.blocking.plans = x.blocking.plans.filter((y) => y.id !== p.id); }, true) }, icon('x')))),
+    list.length < 6 ? h('div', { class: 'row gap-2 wrap' }, h('button', { class: 'btn btn-sm', type: 'button', onclick: () => add() }, icon('plus'), t('plan.add')), !list.length ? suggestions.map((k) => h('button', { class: 'chip', type: 'button', onclick: () => add(t(k)) }, t(k))) : null) : null);
+}
+
 export function blocking({ s, save, refresh }) {
   const b = s.blocking;
   const presetCards = h('div', { class: 'preset-grid' }, PRESET_IDS.map((id) => {
@@ -118,7 +137,8 @@ export function blocking({ s, save, refresh }) {
     group(t('opt.groupFriction'),
       row({ title: t('opt.friction'), desc: t('opt.frictionDesc'), control: toggle(fr.enabled, (v) => save((x) => { x.blocking.friction.enabled = v; }, true), t('opt.friction')) }),
       fr.enabled ? row({ title: t('opt.frictionSeconds'), control: select([5, 8, 10, 15, 30].map((n) => [n, t('opt.seconds', { n })]), fr.seconds, (v) => save((x) => { x.blocking.friction.seconds = Number(v); }), { label: t('opt.frictionSeconds') }) }) : null,
-      row({ title: t('opt.passMinutes'), desc: t('opt.passMinutesDesc'), control: select(mins([5, 10, 15, 30]), fr.passMinutes, (v) => save((x) => { x.blocking.friction.passMinutes = Number(v); }), { label: t('opt.passMinutes') }) })),
+      row({ title: t('opt.passMinutes'), desc: t('opt.passMinutesDesc'), control: select(mins([5, 10, 15, 30]), fr.passMinutes, (v) => save((x) => { x.blocking.friction.passMinutes = Number(v); }), { label: t('opt.passMinutes') }) }),
+      fr.enabled ? row({ title: t('opt.plans'), desc: t('opt.plansDesc'), stack: true, control: plansEditor(s, save) }) : null),
 
     group(t('opt.groupSchedule'),
       row({ title: t('opt.schedule'), desc: t('opt.scheduleDesc'), control: toggle(sch.enabled, (v) => save((x) => { x.blocking.schedule.enabled = v; }, true), t('opt.schedule')) }),

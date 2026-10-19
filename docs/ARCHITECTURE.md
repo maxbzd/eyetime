@@ -22,12 +22,12 @@ Plain ES modules, no bundler, no runtime dependencies. Open any file and read it
 |---|---|
 | `settings` | user preferences, deep-merged with `DEFAULT_SETTINGS` on every read |
 | `meta` | `{ schemaVersion, installedAt, migratedFrom }` |
-| `d:YYYY-MM-DD` | one record per local day: `d` host→sec, `h` hour→host→sec, `a` app→sec, `fs` focus sec, `fc` focus sessions, `b` breaks, `ss` session log `[{id,t,m,p,g,k,c,r}]`, `pr` pause-page reasons |
+| `d:YYYY-MM-DD` | one record per local day: `d` host→sec, `h` hour→host→sec, `a` app→sec, `fs` focus sec, `fc` focus sessions, `b` breaks, `ss` session log `[{id,t,m,p,g,k,c,r}]`, `pr` pause-page reasons, `sw` site switches, `pa` host→times the pause/block page stepped in, `fa` same during focus sessions, `w` the evening "win" |
 | `focus` | the running session `{ id, startedAt, endsAt, minutes, goal, strict }` or `null` |
 | `rest` | the break timer that follows a completed session `{ startedAt, endsAt, minutes, long }` or `null` (focus rules do not apply while it runs) |
 | `review` | the "how did it go?" card waiting for an answer `{ id, day, goal, taskId, minutes, completed }` or `null` |
 | `passes` | `{ ruleDomain: untilTs }` temporary "continue" permissions |
-| `tasks` (`{ id, text, done, starred, focusSec, … }`), `habits`, `captures`, `newtabBg`, `pausedUntil`, `lastWeekly` | small user data |
+| `tasks` (`{ id, text, done, starred, focusSec, resume, at/atDay, planFor, … }`), `habits`, `captures`, `newtabBg`, `pausedUntil`, `lastWeekly` | small user data |
 
 The look is additionally cached in `localStorage['et-look']` so `theme-init.js` can paint before first render (see [THEMES.md](THEMES.md)). `chrome.storage.session` holds volatile state: the tracker's current interval (`trk`) and eye-break counters (`eye`).
 

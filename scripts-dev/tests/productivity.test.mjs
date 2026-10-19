@@ -22,11 +22,11 @@ test('goalProgress', () => {
 
 test('goalStreak: today in progress does not break it', () => {
   const day = (min) => ({ fs: min * 60 });
-  const e = [['a', day(130)], ['b', day(125)], ['c', day(10)], ['d', day(120)], ['e', day(121)], ['f', day(20)]];
+  const e = [['2026-10-13', day(130)], ['2026-10-14', day(125)], ['2026-10-15', day(10)], ['2026-10-16', day(120)], ['2026-10-17', day(121)], ['2026-10-18', day(20)]];
   assert.equal(goalStreak(e, 120), 2); // d, e — f (today) not there yet
-  assert.equal(goalStreak([...e.slice(0, 5), ['f', day(130)]], 120), 3);
+  assert.equal(goalStreak([...e.slice(0, 5), ['2026-10-18', day(130)]], 120), 3);
   assert.equal(goalStreak(e, 0), 0);
-  assert.equal(goalStreak([['a', null]], 60), 0);
+  assert.equal(goalStreak([['2026-10-18', null]], 60), 0);
 });
 
 test('sessions: entries are de-duplicated, capped and can be rated', () => {
@@ -87,4 +87,54 @@ test('nextReminder: soonest upcoming slot, weekdays only, skips what has passed'
   assert.equal(n.reminder.id, 'b'); assert.equal(new Date(n.at).getDay(), 6); // Friday's slot passed, Saturday evening comes before Monday
   assert.equal(nextReminder([], mon8), null);
   assert.equal(nextReminder([{ id: 'x', time: 'bad', days: [1] }, { id: 'y', time: '09:00', days: [] }], mon8), null);
+});
+
+test('goalStreak: days off neither count nor break the streak', async () => {
+  const { goalStreak } = await import('../../src/shared/productivity.js');
+  const d = (min) => ({ fs: min * 60 });
+  // Thu 2026-10-15, Fri 16, Sat 17, Sun 18, Mon 19 (today, goal days Mon–Fri)
+  const e = [['2026-10-15', d(130)], ['2026-10-16', d(121)], ['2026-10-17', d(0)], ['2026-10-18', d(0)], ['2026-10-19', d(30)]];
+  assert.equal(goalStreak(e, 120, [1, 2, 3, 4, 5]), 2);      // Sat/Sun skipped, today still in progress
+  assert.equal(goalStreak(e, 120), 0);                         // with all days counting, the empty weekend broke it
+  assert.equal(goalStreak([...e.slice(0, 4), ['2026-10-19', d(150)]], 120, [1, 2, 3, 4, 5]), 3);
+});
+
+test('suggestMinutes learns the best length from the user’s own ratings', async () => {
+  const { suggestMinutes } = await import('../../src/shared/productivity.js');
+  const day = (list) => ['k', { ss: list.map(([p, r], i) => ({ id: p + '-' + i + '-' + r + Math.random(), t: 1, m: p, p, c: 1, r })) }];
+  assert.equal(suggestMinutes([day([[25, 2], [25, 2], [25, 3]])]), null);                               // only one length: nothing to compare
+  const e = [day([[25, 2], [25, 1], [25, 2], [50, 3], [50, 3], [50, 2], [90, 1]])];
+  const s = suggestMinutes(e);
+  assert.equal(s.minutes, 50); assert.equal(s.lengths.length, 2);
+  assert.equal(suggestMinutes([day([[25, 2], [25, 2], [25, 3], [50, 2], [50, 2], [50, 3]])]), null);   // no clear winner
+});
+
+test('planning: tomorrow’s picks become priorities, capped at three', async () => {
+  const { planDay, applyPlans } = await import('../../src/shared/productivity.js');
+  const tasks = [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }, { id: 'e', done: true }];
+  const planned = planDay(tasks, ['a', 'b', 'c', 'd', 'e'], '2026-10-20');
+  assert.deepEqual(planned.filter((x) => x.planFor).map((x) => x.id), ['a', 'b', 'c']);
+  assert.equal(planDay(planned, ['d'], '2026-10-21').find((x) => x.id === 'a').planFor, undefined); // replaced
+  const r = applyPlans(planned, '2026-10-20');
+  assert.equal(r.changed, true); assert.deepEqual(r.tasks.filter((x) => x.starred).map((x) => x.id), ['a', 'b', 'c']);
+  assert.ok(r.tasks.every((x) => !x.planFor));
+  const stale = applyPlans(planned, '2026-10-22');                                                       // a plan for a past day is just dropped
+  assert.ok(stale.tasks.every((x) => !x.starred && !x.planFor));
+  const full = applyPlans([{ id: 'x', starred: true }, { id: 'y', starred: true }, { id: 'z', starred: true }, { id: 'w', planFor: '2026-10-20' }], '2026-10-20');
+  assert.equal(full.tasks.find((x) => x.id === 'w').starred, undefined);                                 // never more than three
+  assert.equal(applyPlans([{ id: 'q' }], '2026-10-20').changed, false);
+});
+
+test('nextTaskSlot, switchRate, topTemptations, recentWins, weekdayPattern', async () => {
+  const m = await import('../../src/shared/productivity.js');
+  const now = new Date(2026, 9, 19, 9, 0);
+  const tasks = [{ id: 'a', at: '08:00', atDay: '2026-10-19' }, { id: 'b', at: '14:30', atDay: '2026-10-19' }, { id: 'c', at: '10:00', atDay: '2026-10-19' }, { id: 'd', at: '09:30', atDay: '2026-10-20' }, { id: 'e', at: '11:00', atDay: '2026-10-19', done: true }];
+  assert.equal(m.nextTaskSlot(tasks, now).task.id, 'c');
+  assert.equal(m.nextTaskSlot([], now), null);
+  assert.equal(m.switchRate({ sw: 60, d: { a: 3600 } }), 60);
+  assert.equal(m.switchRate({ sw: 5, d: { a: 100 } }), null);
+  assert.deepEqual(m.topTemptations([['a', { pa: { 'x.com': 2, 'y.com': 5 } }], ['b', { pa: { 'x.com': 4 } }], ['c', null]], 2), [{ host: 'x.com', count: 6 }, { host: 'y.com', count: 5 }]);
+  assert.deepEqual(m.recentWins([['a', { w: 'Shipped it' }], ['b', {}], ['c', { w: 'Walked' }]], 5), [{ key: 'c', text: 'Walked' }, { key: 'a', text: 'Shipped it' }]);
+  const p = m.weekdayPattern([['2026-10-19', { fs: 7200 }], ['2026-10-26', { fs: 3600 }], ['2026-10-20', { fs: 0 }]], 120);
+  assert.deepEqual(p[1], { days: 2, avgMin: 90, hitRate: 0.5 }); assert.equal(p[0].days, 0);
 });

@@ -5,7 +5,9 @@ import { mountToday } from '../ui/today-card.js';
 import { tasksModule, habitsModule, notesModule, linksModule } from './modules.js';
 import { t, fmtDate, fmtTime } from '../shared/i18n.js';
 import { updateSettings, getRaw, setRaw, onChange, getDays, getCollection } from '../shared/storage.js';
-import { nudge as pickNudge, dayReview } from '../shared/productivity.js';
+import { nudge as pickNudge, dayReview, applyPlans } from '../shared/productivity.js';
+import { openShutdown } from './shutdown.js';
+import { setCollection } from '../shared/storage.js';
 import { dayKey } from '../shared/time.js';
 import { fmtDuration } from '../shared/i18n.js';
 import { clock, remainingMs } from '../shared/focus.js';
@@ -64,6 +66,7 @@ async function paintNudge() {
   const msg = { plan: t('nudge.plan'), goal: t('nudge.goal'), review: t('nudge.review', { n: r.sessions, time: fmtDuration(r.minutes * 60) }) + (rated ? ' · ' + rated : '') }[kind];
   const ico = { plan: { icon: 'star' }, goal: { icon: 'trophy' }, review: { icon: 'moon' } }[kind].icon;
   clear(el, icon(ico), h('span', { class: 'nudge-text', text: msg }),
+    kind === 'review' ? h('button', { class: 'btn btn-sm btn-primary', type: 'button', onclick: openShutdown }, icon('moon'), t('nudge.closeDay')) : null,
     kind === 'review' ? h('a', { class: 'btn btn-sm', href: '../insights/insights.html' }, t('nudge.seeDay')) : null,
     h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.close'), onclick: () => { try { localStorage.setItem('et-nudge-off', dayKey() + ':' + kind); } catch { /* private mode */ } el.hidden = true; } }, icon('x')));
   el.hidden = false;
@@ -197,6 +200,13 @@ async function applySettings(s, first = false) {
   }
 }
 
+/** Yesterday evening's plan becomes today's priorities (and stale plans are dropped). */
+async function morningPlan() {
+  const tasks = await getCollection('tasks', []);
+  const r = applyPlans(tasks, dayKey());
+  if (r.changed) await setCollection('tasks', r.tasks);
+}
+
 (async function main() {
   const s0 = await bootPage({ onSettings: (s) => applySettings(s) });
   settings = s0;
@@ -204,6 +214,7 @@ async function applySettings(s, first = false) {
     // user switched the EyeTime new tab off: hand the tab back to the browser's own page
     try { const tab = await chrome.tabs.getCurrent(); await chrome.tabs.update(tab.id, { url: 'chrome://new-tab-page/' }); return; } catch { /* stay */ }
   }
+  await morningPlan();
   paintClock(); await applyBackground();
   setInterval(paintClock, 10_000);
   mountFocusCard($('#focus'), { variant: 'large' });

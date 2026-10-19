@@ -9,7 +9,7 @@ async function seed(page, { look, mode, background, clockStyle }) {
     const st = await import('/src/shared/storage.js');
     const { rangeKeys } = await import('/src/shared/time.js');
     await st.updateSettings((s) => {
-      s.onboarded = true; s.language = 'en'; s.focus.dailyGoal = 120;
+      s.onboarded = true; s.language = 'en'; s.focus.dailyGoal = 120; s.blocking.plans = [{ id: 'p', when: '', then: 'stand up and drink water' }];
       Object.assign(s.appearance, { look, mode }); Object.assign(s.newtab, { background, clockStyle });
     });
     const keys = rangeKeys(30);
@@ -21,11 +21,11 @@ async function seed(page, { look, mode, background, clockStyle }) {
         hosts.forEach((h, k) => { const sec = Math.round((k < 2 ? 0.5 + rnd() : rnd()) * 4800); d.d[h] = sec; for (let hr = 8; hr < 20; hr++) { (d.h[hr] ||= {})[h] = Math.round(sec / 12); } });
         const c = 1 + Math.floor(rnd() * 3); d.fc = c;
         for (let k = 0; k < c; k++) { const t = new Date(); t.setDate(t.getDate() - (29 - i)); t.setHours(k === 0 ? 9 : k === 1 ? 10 : 15, 5); d.ss.push({ id: 's' + i + k, t: t.getTime(), m: 25 + k * 25, p: 25 + k * 25, g: ['Write the quarterly report', 'Plan the sprint', 'Review pull requests'][k % 3], k: '', c: 1, r: 1 + ((i + k) % 3) }); d.fs += (25 + k * 25) * 60; }
-        d.b = 2; d.pr = { back: 2, work: 1, bored: 1 };
+        d.b = 2; d.pr = { back: 2, work: 1, bored: 1 }; d.sw = 20 + Math.floor(rnd() * 30); d.fa = Math.floor(rnd() * 4); d.pa = { 'reddit.com': 1 + Math.floor(rnd() * 5), 'youtube.com': Math.floor(rnd() * 4) }; if (i % 3 === 0) d.w = ['Shipped the draft', 'Finished the review', 'Walked every break'][(i / 3 | 0) % 3];
       });
     }
     await st.setCollection('tasks', [
-      { id: 'a', text: 'Write the quarterly report', done: false, starred: true, createdAt: 1, focusSec: 4500 },
+      { id: 'a', text: 'Write the quarterly report', done: false, starred: true, createdAt: 1, focusSec: 4500, resume: 'Draft section 2, then the charts' },
       { id: 'b', text: 'Review pull requests', done: false, starred: true, createdAt: 2, focusSec: 1500 },
       { id: 'c', text: 'Book flights for the conference', done: false, starred: false, createdAt: 3 },
       { id: 'd', text: 'Send the invoice', done: true, starred: false, createdAt: 4, focusSec: 900 }]);
@@ -62,5 +62,9 @@ async function seed(page, { look, mode, background, clockStyle }) {
     await seed(seedPage, { look, mode, background: bg, clockStyle: clock });
     p = await open('src/newtab/newtab.html'); await shot(`8-variant-${i + 1}-${look}.png`, p); await p.close();
   }
+  // the research-driven moments: pause page with your own if-then plan, and the evening ritual
+  await seed(seedPage, { look: 'calm', mode: 'light', background: 'dawn', clockStyle: 'thin' });
+  p = await open('src/blocked/blocked.html?u=http%3A%2F%2Freddit.com%2F&r=friction&a=pause', { width: 1000, height: 700 }); await shot('9-pause-plan.png', p); await p.close();
+  p = await open('src/newtab/newtab.html', { width: 1280, height: 900 }); await p.waitForTimeout(800); await p.locator('.plan-link').click(); await shot('10-close-the-day.png', p); await p.close();
   await app.close();
 })();

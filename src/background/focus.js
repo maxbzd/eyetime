@@ -8,7 +8,7 @@ import { dayKey } from '../shared/time.js';
 import { resolveLocale, setLocale, t, fmtDuration } from '../shared/i18n.js';
 import { sweepTabs } from './blocker.js';
 import { updateBadge } from './badge.js';
-import { playChime } from './audio.js';
+import { playChime, setAmbient } from './audio.js';
 
 const ICON = 'icons/icon128.png';
 const MIN_CREDIT_SEC = 120; // an early stop counts as focus time only after 2 minutes
@@ -25,6 +25,7 @@ export async function startFocus({ minutes, goal = '', strict = false, taskId = 
 
   if (/^https?:\/\//.test(settings.focus.openUrl || '')) chrome.tabs.create({ url: settings.focus.openUrl, active: false }).catch(() => {});
   if (settings.focus.sound) playChime('start');
+  if (settings.focus.ambient && settings.focus.ambient !== 'off') setAmbient(settings.focus.ambient);
   await sweepTabs();
   await updateBadge(settings);
   return session;
@@ -36,6 +37,7 @@ export async function stopFocus() {
   if (!focus) return;
   await chrome.alarms.clear('focus-end');
   await setRaw({ focus: null });
+  setAmbient('off');
   const sec = Math.round(elapsedMs(focus) / 1000);
   const settings = await getSettings();
   if (sec >= MIN_CREDIT_SEC) {
@@ -60,14 +62,17 @@ async function creditTask(focus, sec) {
 }
 
 /** The user's answer to the review card: rate the session, optionally tick the task off. */
-export async function reviewSession({ id, rating, done }) {
+export async function reviewSession({ id, rating, done, resume = '' }) {
   const { review } = await getRaw('review');
   if (!review || review.id !== id) return { ok: false };
   if (rating) await updateDay(review.day, (d) => { rateSession(d, id, rating); });
-  if (done && review.taskId) {
+  if (review.taskId && (done || resume)) {
     const tasks = await getCollection('tasks', []);
     const task = tasks.find((x) => x.id === review.taskId);
-    if (task && !task.done) { task.done = true; task.doneAt = Date.now(); await setCollection('tasks', tasks); }
+    if (task && done && !task.done) { task.done = true; task.doneAt = Date.now(); delete task.resume; }
+    // "ready to resume": where you left off, so the next start does not begin from zero (and the open loop stops nagging)
+    else if (task && !done) task.resume = String(resume).trim().slice(0, 140) || task.resume;
+    await setCollection('tasks', tasks);
   }
   await setRaw({ review: null });
   return { ok: true };
@@ -78,6 +83,7 @@ export async function finishFocus() {
   const { focus } = await getRaw('focus');
   if (!focus || isFocusActive(focus)) return;
   await setRaw({ focus: null });
+  setAmbient('off');
   let sessionsToday = 0;
   await updateDay(dayKey(), (d) => { d.fs = (d.fs || 0) + focus.minutes * 60; d.fc = (d.fc || 0) + 1; sessionsToday = d.fc; addSession(d, makeSessionEntry(focus, { sec: focus.minutes * 60, completed: true })); });
   await creditTask(focus, focus.minutes * 60);

@@ -5,6 +5,7 @@ import { t, fmtNumber, fmtDuration } from '../shared/i18n.js';
 import { send } from '../ui/api.js';
 import { getSettings } from '../shared/storage.js';
 import { MAX_PRIORITIES } from '../shared/productivity.js';
+import { openShutdown } from './shutdown.js';
 import { getCollection, setCollection, onChange, updateSettings } from '../shared/storage.js';
 import { dayKey, rangeKeys, addDays } from '../shared/time.js';
 import { parseUserDomain } from '../shared/domains.js';
@@ -45,12 +46,32 @@ export function tasksModule() {
       if (!x.starred && tasks.filter((y) => y.starred && !y.done).length >= MAX_PRIORITIES) { toast(t('tasks.maxPriorities', { n: MAX_PRIORITIES })); return; }
       x.starred = !x.starred; save(); render();
     };
+    /** "When" is half of an if-then plan: a task with a time gets a notification that starts the session. */
+    const askTime = (x) => {
+      const input = h('input', { class: 'input', type: 'time', value: x.atDay === dayKey() ? x.at || '' : '', 'aria-label': t('tasks.schedule') });
+      const dlg = h('dialog', { class: 'dialog' }, h('form', { method: 'dialog' },
+        h('div', { class: 'dialog-body stack gap-3' }, h('h3', { text: t('tasks.scheduleTitle') }), h('p', { class: 'muted-2', text: x.text }), input, h('p', { class: 'hint', text: t('tasks.scheduleHint') })),
+        h('div', { class: 'dialog-actions' },
+          x.at ? h('button', { class: 'btn btn-ghost', value: 'clear', text: t('tasks.unschedule') }) : h('button', { class: 'btn btn-ghost', value: 'no', text: t('common.cancel') }),
+          h('button', { class: 'btn btn-primary', value: 'yes', text: t('common.save'), autofocus: true }))));
+      dlg.addEventListener('close', () => {
+        if (dlg.returnValue === 'yes' && input.value) {
+          const [hh, mm] = input.value.split(':').map(Number), now = new Date();
+          const when = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm);
+          x.at = input.value; x.atDay = dayKey(when <= now ? addDays(now, 1) : now); save(); render();
+        } else if (dlg.returnValue === 'clear') { delete x.at; delete x.atDay; save(); render(); }
+        dlg.remove();
+      });
+      document.body.append(dlg); dlg.showModal();
+    };
     const startOn = async (x) => { const s = await getSettings(); const r = await send('focus:start', { minutes: s.focus.minutes, strict: s.focus.strict, scope: s.focus.scope, taskId: x.id }); if (r && r.ok === false) toast(t('common.error')); };
 
     const row = (x) => h('div', { class: 'item' + (x.done ? ' done' : '') + (x.starred && !x.done ? ' prio' : '') },
       h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: x.done, 'aria-label': x.text, onchange: (e) => { x.done = e.target.checked; x.doneAt = x.done ? Date.now() : 0; if (x.done) x.starred = false; save(); render(); } }), h('span', { class: 'box' }, icon('check'))),
-      h('span', { class: 'txt' }, x.text, x.focusSec >= 60 ? h('span', { class: 'spent num', 'data-tip': t('tasks.spent'), text: fmtDuration(x.focusSec) }) : null),
+      h('span', { class: 'txt' }, x.text, x.at && x.atDay === dayKey() && !x.done ? h('span', { class: 'at num', 'data-tip': t('tasks.scheduledAt') }, icon('alarm-clock'), x.at) : null, x.focusSec >= 60 ? h('span', { class: 'spent num', 'data-tip': t('tasks.spent'), text: fmtDuration(x.focusSec) }) : null),
+      !x.done && x.resume ? h('span', { class: 'resume-note', title: x.resume }, icon('corner-down-right'), x.resume) : null,
       x.done ? null : h('button', { class: 'x act star' + (x.starred ? ' on' : ''), type: 'button', 'aria-pressed': String(!!x.starred), 'aria-label': t('tasks.priority') + ': ' + x.text, 'data-tip': t('tasks.priority'), onclick: () => toggleStar(x) }, icon('star')),
+      x.done ? null : h('button', { class: 'x act', type: 'button', 'aria-label': t('tasks.schedule') + ': ' + x.text, 'data-tip': t('tasks.schedule'), onclick: () => askTime(x) }, icon('alarm-clock')),
       x.done ? null : h('button', { class: 'x act', type: 'button', 'aria-label': t('tasks.focusOn') + ': ' + x.text, 'data-tip': t('tasks.focusOn'), onclick: () => startOn(x) }, icon('play')),
       h('button', { class: 'x', type: 'button', 'aria-label': t('common.remove'), onclick: () => { const i = tasks.indexOf(x); tasks.splice(i, 1); save(); render(); toast(t('tasks.removed'), { action: t('common.undo'), onAction: () => { tasks.splice(i, 0, x); save(); render(); } }); } }, icon('x')));
 
@@ -58,7 +79,8 @@ export function tasksModule() {
       prio ? h('div', { class: 'eyebrow', text: t('tasks.priorities', { n: prio, max: MAX_PRIORITIES }) }) : null,
       visible.length ? h('div', { class: 'items' }, visible.map(row)) : h('div', { class: 'hint', text: t('tasks.empty') }),
       ordered.length > LIMIT ? h('button', { class: 'more-link', type: 'button', onclick: () => { showAll = !showAll; render(); } }, showAll ? t('mod.showLess') : t('mod.showAll', { n: ordered.length })) : null,
-      done.length ? h('button', { class: 'more-link', type: 'button', onclick: () => { tasks = tasks.filter((x) => !x.done); save(); render(); } }, t('tasks.clearDone')) : null);
+      done.length ? h('button', { class: 'more-link', type: 'button', onclick: () => { tasks = tasks.filter((x) => !x.done); save(); render(); } }, t('tasks.clearDone')) : null,
+      open.length ? h('button', { class: 'more-link plan-link', type: 'button', onclick: openShutdown }, icon('moon'), t('tasks.planTomorrow')) : null);
   }
 
   getCollection('tasks', []).then((v) => { tasks = v; render(); });

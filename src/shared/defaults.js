@@ -30,6 +30,8 @@ export const DEFAULT_SETTINGS = {
     breakMinutes: 5,           // rest timer that starts when a session completes (0 = off)
     longBreak: { every: 4, minutes: 15 }, // a longer rest after every Nth session of the day (every: 0 = off)
     dailyGoal: 120,            // minutes of focus per day (0 = no goal)
+    goalDays: [1, 2, 3, 4, 5], // weekdays the goal applies to (0 = Sunday); days off neither count nor break the streak
+    ambient: 'off',            // ambient sound during a session: off | brown | rain | cafe
     scope: 'distractions',     // what a session closes: 'distractions' (sites classed distracting) | 'only-mine' (everything except productive and allowed sites)
     review: true,              // after a session: "did you finish it? how did it go?"
     reminders: [],             // [{ id, time: 'HH:MM', days: [1..5], minutes }] – a nudge to start a session
@@ -41,6 +43,7 @@ export const DEFAULT_SETTINGS = {
     allow: [],                 // never blocked, never "distracting"
     always: [],                // always blocked
     limits: {},                // domain -> minutes per day
+    plans: [],                 // if-then plans shown on the pause page: [{ id, when: 'domain' | '', then: 'text' }] – implementation intentions
     friction: { enabled: true, seconds: 8, passMinutes: 10 }, // breathing pause before distracting sites
     schedule: { enabled: false, days: [1, 2, 3, 4, 5], start: '09:00', end: '18:00', strict: false, passMinutes: 5 },
     feed: { shortLimit: true, shortMinutes: 3, hideShorts: false, hideRecs: false, hideComments: false, hideHome: false },

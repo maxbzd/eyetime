@@ -1,7 +1,7 @@
 // "Time to focus" reminders: one alarm for the soonest scheduled slot, re-armed after it fires.
 
-import { getSettings, getRaw } from '../shared/storage.js';
-import { nextReminder } from '../shared/productivity.js';
+import { getSettings, getRaw, getCollection } from '../shared/storage.js';
+import { nextReminder, nextTaskSlot } from '../shared/productivity.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { resolveLocale, setLocale, t, fmtDuration } from '../shared/i18n.js';
 import { startFocus } from './focus.js';
@@ -38,3 +38,37 @@ chrome.notifications.onButtonClicked?.addListener(async (id) => {
   await startFocus({ minutes: r ? r.minutes : s.focus.minutes, strict: s.focus.strict });
 });
 chrome.notifications.onClicked.addListener((id) => { if (id.startsWith('focus-reminder:')) { chrome.notifications.clear(id); chrome.tabs.create({ url: chrome.runtime.getURL('src/newtab/newtab.html') }); } });
+
+/* ---------- tasks the user scheduled for a time today ("when" is half of an if-then plan) ---------- */
+
+const SLOT = 'task-slot';
+
+export async function scheduleTaskSlot() {
+  await chrome.alarms.clear(SLOT);
+  const next = nextTaskSlot(await getCollection('tasks', []));
+  if (next) await chrome.alarms.create(SLOT, { when: next.at });
+}
+
+async function fireSlot() {
+  const tasks = await getCollection('tasks', []);
+  const due = nextTaskSlot(tasks, new Date(Date.now() - 90_000)); // the slot that just rang
+  await scheduleTaskSlot();
+  if (!due || due.at > Date.now() + 90_000) return;
+  const { focus } = await getRaw('focus');
+  const settings = await getSettings();
+  setLocale(resolveLocale(settings.language));
+  const x = due.task;
+  if (isFocusActive(focus)) return;
+  const opts = { type: 'basic', iconUrl: ICON, priority: 1, title: t('remind.taskTitle'), message: x.resume ? t('remind.taskResume', { task: x.text, resume: x.resume }) : x.text, buttons: [{ title: t('focus.start', { time: fmtDuration(settings.focus.minutes * 60) }) }] };
+  try { await chrome.notifications.create('task-slot:' + x.id, opts); } catch { delete opts.buttons; await chrome.notifications.create('task-slot:' + x.id, opts); }
+}
+
+chrome.alarms.onAlarm.addListener((a) => { if (a.name === SLOT) fireSlot(); });
+chrome.storage.onChanged.addListener((changes, area) => { if (area === 'local' && changes.tasks) scheduleTaskSlot(); });
+chrome.notifications.onButtonClicked?.addListener(async (id) => {
+  if (!id.startsWith('task-slot:')) return;
+  chrome.notifications.clear(id);
+  const s = await getSettings();
+  await startFocus({ minutes: s.focus.minutes, strict: s.focus.strict, taskId: id.slice('task-slot:'.length) });
+});
+chrome.notifications.onClicked.addListener((id) => { if (id.startsWith('task-slot:')) { chrome.notifications.clear(id); chrome.tabs.create({ url: chrome.runtime.getURL('src/newtab/newtab.html') }); } });
