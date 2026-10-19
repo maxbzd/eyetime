@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.2.0 — 2026-10-19
+
+A full pass over every screen, found by auditing each surface in light/dark, English/Russian and at several widths.
+
+### Interface polish
+- **Home**: an aligned bento grid (rows share one height) replaces the ragged masonry; task rows give the title the full width with actions on hover; designed empty states; keyboard shortcuts (`f` focus goal, `n` task, `d` close the day, `c` customize, `i`/`s` Insights/Settings, `?` help).
+- **Popup** now fits Chromium's 600 px limit in every state (was up to ~980 px): side-by-side running card, one-line Today, break chip in the header.
+- **Insights** split into **Overview / Focus / Sites & apps / Patterns** tabs; the Focus tab is a proper card grid with labelled charts; larger calendar heatmap.
+- **Settings**: search box (press `/`), clearer group headings, layout fixes.
+- **Onboarding** gained *Make it yours* (live look picker) and a daily-goal choice.
+- Tooling: `scripts-dev/e2e/audit.cjs` (screenshots of every surface/state) and `contrast-sweep.cjs` (rendered contrast on every page × look × scheme).
+
+
 ## 2.1.0 — 2026-10-19
 
 ### Make it yours — customisation
