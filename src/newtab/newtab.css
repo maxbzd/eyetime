@@ -197,3 +197,6 @@ body[data-layout="minimal"] .more-mods { display: inline-flex; }
 .links { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); align-content: start; }
 
 .drawer-body > .btn { flex: none; align-self: stretch; justify-content: center; }
+
+.sc-list { display: flex; flex-direction: column; gap: 10px; } .sc-row { display: flex; align-items: center; gap: var(--s-3); }
+.kbd-hint { position: fixed; right: 20px; bottom: 14px; font-size: var(--fs-xs); color: var(--hero-fg-2); opacity: .7; display: inline-flex; gap: 6px; align-items: center; } .kbd-hint:hover { opacity: 1; }
