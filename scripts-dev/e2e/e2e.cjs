@@ -141,6 +141,9 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   const caps = await get('captures'); ok(Array.isArray(caps) && caps.some((c) => /reddit\.com/.test(c.text)), '"Park it for later" saves the urge to the parked list');
   const pg7 = await ctx.newPage(); await pg7.goto(ext('src/newtab/newtab.html')); await sleep(1300);
   ok((await pg7.locator('.item-meta .resume').count()) >= 1, 'Home shows the resume note under the task');
+  await pg7.keyboard.press('n'); ok(await pg7.evaluate(() => document.activeElement?.closest('#mod-tasks') !== null && document.activeElement.tagName === 'INPUT'), 'shortcut "n" focuses the task input');
+  await pg7.keyboard.press('Escape'); await pg7.locator('body').click({ position: { x: 5, y: 300 } });
+  await pg7.keyboard.press('?'); ok(await pg7.locator('dialog[open] .sc-row').count() >= 5, 'shortcut "?" lists the keyboard shortcuts'); await pg7.keyboard.press('Escape');
   await pg7.locator('.plan-link').click(); await pg7.waitForSelector('dialog[open] .sd-stats'); 
   await pg7.locator('dialog[open] input[type=text], dialog[open] .input').first().fill('Shipped the draft');
   await pg7.locator('dialog[open] .items .check input').first().check();

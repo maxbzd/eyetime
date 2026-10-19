@@ -44,10 +44,10 @@ async function seed(page, { look, mode, background, clockStyle }) {
   let p = await open('src/newtab/newtab.html'); await shot('1-home.png', p); await p.close();
 
   await app.sw.evaluate(async () => { const now = Date.now(); await chrome.storage.local.set({ focus: { id: 'x', startedAt: now - 9 * 60000, endsAt: now + 16 * 60000, minutes: 25, goal: 'Write the quarterly report', strict: false, taskId: 'a', scope: 'distractions' } }); });
-  p = await open('src/popup/popup.html', { width: 380, height: 620 }); await shot('2-focus.png', p); await p.close();
+  p = await open('src/popup/popup.html?site=github.com', { width: 380, height: 600 }); await shot('2-focus.png', p); await p.close();
   await app.sw.evaluate(() => chrome.storage.local.set({ focus: null }));
 
-  p = await open('src/insights/insights.html', { width: 1280, height: 1500 }); await shot('3-insights.png', p); await p.close();
+  p = await open('src/insights/insights.html', { width: 1280, height: 1100 }); await p.evaluate(() => localStorage.setItem('et-itab', 'overview')); await p.reload(); await shot('3-insights.png', p); await p.evaluate(() => localStorage.setItem('et-itab', 'focus')); await p.reload(); await p.waitForTimeout(800); await p.screenshot({ path: path.join(OUT, '3b-insights-focus.png') }); await p.close();
 
   await seed(seedPage, { look: 'midnight', mode: 'dark', background: 'stars', clockStyle: 'bold' });
   p = await open('src/newtab/newtab.html'); await shot('4-home-dark.png', p); await p.close();
