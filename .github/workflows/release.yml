@@ -1,7 +1,12 @@
 name: Release
+# Publishes a GitHub release (zips for Chrome and Firefox + notes from CHANGELOG.md) when the version in manifest.json has no release yet.
+# Runs on a push to main that touches manifest.json or this file, on a pushed v* tag, or manually from the Actions tab.
 on:
   push:
+    branches: [main]
+    paths: [manifest.json, .github/workflows/release.yml]
     tags: ['v*']
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
@@ -13,5 +18,14 @@ jobs:
         with: { node-version: 20 }
       - run: npm run check
       - run: npm run build
-      - run: gh release create "$GITHUB_REF_NAME" dist/eyetime-chrome.zip dist/eyetime-firefox.zip --generate-notes
-        env: { GH_TOKEN: '${{ github.token }}' }
+      - name: Create the release if it does not exist yet
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(node -p "require('./manifest.json').version")
+          TAG="v$VERSION"
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then TAG="$GITHUB_REF_NAME"; fi
+          if gh release view "$TAG" >/dev/null 2>&1; then echo "Release $TAG already exists — nothing to do."; exit 0; fi
+          awk -v v="$VERSION" '/^## /{p=0} $0 ~ "^## " v {p=1} p' CHANGELOG.md > notes.md
+          [ -s notes.md ] || echo "EyeTime $VERSION" > notes.md
+          gh release create "$TAG" dist/eyetime-chrome.zip dist/eyetime-firefox.zip --target "$GITHUB_SHA" --title "EyeTime $VERSION" --notes-file notes.md
