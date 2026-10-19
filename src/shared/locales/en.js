@@ -259,4 +259,5 @@ export const en = {
   'opt.search': 'Search settings', 'opt.noResults': 'No settings match “{q}”.',
   'ob.lookTitle': 'Make it yours', 'ob.lookLead': 'Pick a look — it applies instantly. Change it any time in Settings → Appearance.', 'ob.goal': 'Daily focus goal', 'ob.goalD': 'Hours of deep work that make a good day.',
   'nudge.reviewEmpty': 'Evening: take two minutes to wrap up and plan tomorrow.',
+  'sc.title': 'Keyboard shortcuts', 'sc.hint': 'shortcuts', 'sc.focus': 'Write a focus goal', 'sc.task': 'Add a task', 'sc.closeDay': 'Close the day', 'sc.customize': 'Customize Home', 'sc.insights': 'Open Insights', 'sc.settings': 'Open Settings', 'sc.help': 'Show this list',
 };
