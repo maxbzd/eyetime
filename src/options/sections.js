@@ -205,14 +205,14 @@ export function data({ s, save, refresh }) {
 /* ============================== About ============================== */
 export function about() {
   const v = chrome.runtime.getManifest().version;
-  const link = (href, ico, label) => h('a', { class: 'btn', href, target: '_blank', rel: 'noopener' }, icon(ico), label);
+  const link = (href, ico, label) => h('a', { class: 'btn', href, target: '_blank', rel: 'noopener' }, ico, label);
   return sec('about', sectionHead(t('sec.about')),
     h('div', { class: 'card' },
       h('div', { class: 'about-logo' }, h('img', { src: '../../icons/logo.svg', alt: '' }), h('div', {}, h('h3', { text: 'EyeTime' }), h('div', { class: 'muted', text: t('about.version', { v }) }), h('div', { class: 'muted', text: t('about.tagline') }))),
       h('div', { class: 'row gap-2 wrap', style: { padding: '0 var(--s-5) var(--s-5)' } },
-        link('https://github.com/maxbzd/eyetime', 'github', t('about.source')),
-        link('https://github.com/maxbzd/eyetime/issues/new/choose', 'bug', t('about.report')),
-        link('https://github.com/maxbzd/eyetime/blob/main/PRIVACY.md', 'shield-check', t('about.privacy')))),
+        link('https://github.com/maxbzd/eyetime', icon('code-xml'), t('about.source')),
+        link('https://github.com/maxbzd/eyetime/issues/new/choose', icon('bug'), t('about.report')),
+        link('https://github.com/maxbzd/eyetime/blob/main/PRIVACY.md', icon('shield-check'), t('about.privacy')))),
     group(t('about.shortcuts'),
       row({ title: t('about.scFocus'), control: h('span', { class: 'shortcut' }, ['Alt', 'Shift', 'F'].map((k) => h('span', { class: 'kbd', text: k }))) }),
       row({ title: t('about.scPopup'), control: h('span', { class: 'shortcut' }, ['Alt', 'Shift', 'E'].map((k) => h('span', { class: 'kbd', text: k }))) }),

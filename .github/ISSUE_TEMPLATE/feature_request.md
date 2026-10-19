@@ -1,6 +1,13 @@
 ---
 name: Feature request
-about: Suggest an idea
+about: An idea to make EyeTime better
+labels: enhancement
 ---
-**Problem you want to solve:**
-**Proposed solution:**
+
+**What problem are you trying to solve?**
+
+**What would you like to happen?**
+
+**Alternatives you considered**
+
+> EyeTime stays local-first: no accounts, no analytics, no remote code. Ideas that need those are out of scope.

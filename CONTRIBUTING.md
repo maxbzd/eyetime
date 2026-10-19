@@ -1,13 +1,58 @@
-# Contributing
+# Contributing to EyeTime
 
-Thanks for helping make EyeTime useful for more people!
+Thanks for helping make EyeTime better for everyone! It is free, open source and local-first — please keep it that way: **no analytics, no remote code, no accounts, minimal permissions.**
 
-1. Fork and create a branch.
-2. Load the repo folder in `chrome://extensions` (Developer mode → Load unpacked).
-3. Run `npm run check` (syntax, manifest validation, unit tests) before opening a PR.
-4. Keep the project dependency-free and local-first: no analytics, no remote code.
+## Quick start
 
-Good first issues: translations (`_locales/`), new blocking presets, macOS/Linux desktop tracker, Firefox port.
+```bash
+git clone https://github.com/maxbzd/eyetime.git && cd eyetime
+# Chrome: chrome://extensions → Developer mode → Load unpacked → pick this folder (no build step)
+npm run check        # syntax · manifest · HTML refs · i18n parity · icons · 15 unit tests (Node 20+)
+```
 
-## Testing the UI
-`npm run check` covers syntax, manifest, translations and unit tests. For visual checks load the folder as an unpacked extension (see README) — new strings go into `assets/i18n_en.js` (Russian is the source language; `{}` matches a dynamic part), and anything that renders user data must use `textContent` / escaping, never raw `innerHTML`.
+Edit a file, press the reload icon on the extension card, refresh the page you're working on.
+
+## Tour
+
+Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) first (5 minutes). The short version:
+
+- **Logic lives in `src/shared/` as pure functions** — time, domains, classification, blocking decisions, stats, migration. If you change behaviour, change it there and add a test in `scripts-dev/tests/`.
+- **The service worker is event-driven.** No `setInterval`/`setTimeout` loops — use `chrome.alarms` or browser events. Anything that must survive suspension goes in storage.
+- **UI is built with `h()` from `src/ui/dom.js`.** Never put user data in `innerHTML`; use `h()` / `textContent`.
+- **Styling uses tokens** from `src/ui/tokens.css` ([docs/DESIGN.md](docs/DESIGN.md)). No hard-coded colours in page CSS; check both themes.
+
+## Adding a language
+
+1. Copy `src/shared/locales/en.js` to `xx.js`, translate the **values** (keep `{placeholders}`; plural objects use CLDR categories for your language).
+2. Register it in `src/shared/locales/index.js` (`LOCALES` and `LANGUAGES`).
+3. Copy `_locales/en/messages.json` to `_locales/xx/messages.json` and translate it (store name, description, shortcut label, the short-video overlay).
+4. `npm run check` fails if a key is missing or a placeholder differs.
+
+## Icons
+
+Icons are [Lucide](https://lucide.dev). Use `icon('name')` (or `icon: 'name'` in a data table) and run:
+
+```bash
+npm i --no-save lucide-static && npm run icons
+```
+
+`icons.js` is generated — it contains only the icons the code references.
+
+## Tests
+
+| Command | What |
+|---|---|
+| `npm run check` | static checks + unit tests |
+| `node scripts-dev/e2e/e2e.cjs` | the whole extension in real Chromium ([how](scripts-dev/e2e/README.md)) |
+| `cd companion && python -m unittest -v test_companion` | desktop companion |
+| `npm run build` | store packages in `dist/` |
+
+Please run `npm run check` before opening a PR, and the e2e when you touch the worker, blocking or storage.
+
+## Good first issues
+
+Translations · new blocking presets (`src/shared/catalog.js`) · macOS/Linux companion backend · Firefox polish (sound, favicons) · accessibility audits with a screen reader · store listing assets.
+
+## Pull requests
+
+Small and focused is great. Describe the *why*, include a screenshot for UI changes (light + dark), and mention anything that changes permissions or stored data (that needs a migration + test).

@@ -1,7 +1,7 @@
 // The focus-session control, shared by the popup (compact) and the new tab (large).
 // It owns its own state: it reads settings + the running session from storage and re-renders on change.
 
-import { h, icon, clear, toast, confirmDialog, $ } from './dom.js';
+import { h, svg, icon, clear, toast, confirmDialog, $ } from './dom.js';
 import { send } from './api.js';
 import { t, fmtDuration, fmtTime } from '../shared/i18n.js';
 import { getSettings, getRaw, onChange } from '../shared/storage.js';
@@ -43,7 +43,7 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     const custom = d.custom
       ? h('span', { class: 'custom-min' }, h('input', { class: 'input input-sm num', type: 'number', min: 1, max: 720, value: d.minutes, id: 'cm' + uid, 'aria-label': t('focus.custom'), style: { width: '68px', textAlign: 'center' },
           oninput: (e) => { d.minutes = Math.min(720, Math.max(1, Number(e.target.value) || 1)); const b = $('#sb' + uid, root); if (b) b.querySelector('span').textContent = startLabel(); } }), h('span', { class: 'muted', text: t('unit.m') }))
-      : h('button', { class: 'chip', type: 'button', onclick: () => { d.custom = true; render(); $('#cm' + uid, root)?.focus(); } }, icon('plus'), t('focus.custom'));
+      : h('button', { class: 'chip chip-custom', type: 'button', onclick: () => { d.custom = true; render(); $('#cm' + uid, root)?.focus(); } }, icon('plus'), t('focus.custom'));
 
     const goal = h('input', { class: 'input' + (large ? ' input-lg' : ''), id: 'goal' + uid, maxlength: 140, value: d.goal, placeholder: t(large ? 'focus.goalPlaceholderLarge' : 'focus.goalPlaceholder'), 'aria-label': t('focus.goalPlaceholder'),
       oninput: (e) => { d.goal = e.target.value; }, onkeydown: (e) => { if (e.key === 'Enter') start(); } });
@@ -65,17 +65,15 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     const size = large ? 220 : 168, R = size / 2 - 8, C = 2 * Math.PI * R, mid = size / 2;
     const time = h('div', { class: 'time num' });
     const sub = h('div', { class: 'sub', text: t('focus.endsAt', { time: fmtTime(new Date(f.endsAt), st.settings.newtab.clock24 ?? undefined) }) });
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
-    const track = h('circle', { cx: mid, cy: mid, r: R, fill: 'none', 'stroke-width': 8, class: 'track' });
-    const bar = h('circle', { cx: mid, cy: mid, r: R, fill: 'none', 'stroke-width': 8, 'stroke-linecap': 'round', class: 'bar', 'stroke-dasharray': C });
-    svg.append(track, bar);
+    const track = svg('circle', { cx: mid, cy: mid, r: R, fill: 'none', 'stroke-width': 8, class: 'track' });
+    const bar = svg('circle', { cx: mid, cy: mid, r: R, fill: 'none', 'stroke-width': 8, 'stroke-linecap': 'round', class: 'bar', 'stroke-dasharray': C });
+    const ring = svg('svg', { viewBox: `0 0 ${size} ${size}` }, track, bar);
     const actions = f.strict
       ? h('span', { class: 'locked' }, icon('lock'), t('focus.strictLocked'))
       : h('button', { class: 'btn btn-ghost', type: 'button', onclick: endEarly }, t('focus.end'));
     clear(root, h('div', { class: 'focus-run' + (large ? ' large' : '') },
       h('span', { class: 'badge badge-accent badge-dot', text: t('focus.running') }),
-      h('div', { class: 'ring', style: { width: size + 'px', height: size + 'px' } }, svg, h('div', { class: 'center' }, time, sub)),
+      h('div', { class: 'ring', style: { width: size + 'px', height: size + 'px' } }, ring, h('div', { class: 'center' }, time, sub)),
       f.goal ? h('div', { class: 'goal-line', text: f.goal }) : null,
       h('div', { class: 'run-actions' }, actions)));
     const paint = () => {

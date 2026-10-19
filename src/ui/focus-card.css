@@ -3,7 +3,9 @@
 .focus-head { display: flex; align-items: center; justify-content: space-between; }
 .focus-head h2 { font-size: var(--fs-lg); }
 .durations { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-.focus-idle:not(.large) .durations .chip { flex: 1 1 0; justify-content: center; min-width: 0; padding: 0 8px; height: 34px; }
+.focus-idle:not(.large) .durations { flex-wrap: nowrap; }
+.focus-idle:not(.large) .durations .chip { flex: 1 1 0; justify-content: center; min-width: 0; padding: 0 6px; height: 34px; }
+.focus-idle:not(.large) .durations .chip.chip-custom { flex: 0 0 auto; padding: 0 10px; }
 .custom-min { display: flex; align-items: center; gap: 6px; }
 .strict-row { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); font-size: var(--fs-sm); color: var(--text-2); cursor: pointer; }
 .strict-row .lbl { display: flex; align-items: center; gap: 6px; }

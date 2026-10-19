@@ -60,3 +60,4 @@ select.tag { appearance: none; padding-right: 9px; font-family: inherit; }
   .grid-2 { grid-template-columns: 1fr; }
   .steps { grid-template-columns: 1fr; }
 }
+@media (max-width: 560px) { .kpi .value { font-size: 26px; white-space: nowrap; } .kpi { padding: var(--s-4); } }

@@ -81,7 +81,10 @@ if (unusedKeys.length && process.argv.includes('--unused')) console.log('unused 
 const { ICONS } = await import(pathToFileURL(path.join(root, 'src/ui/icons.js')));
 const iconRe = /(?:icon\(\s*['"`]|data-icon=["']|\bicon:\s*['"`])([a-z0-9-]+)/g;
 for (const p of files.filter((f) => /\.(js|html)$/.test(f) && !/icons\.js$/.test(f) && f.includes(`${path.sep}src${path.sep}`))) {
-  for (const k of fs.readFileSync(p, 'utf8').matchAll(iconRe)) if (!(k[1] in ICONS) && k[1] !== 'name') fail(`icon not in icons.js (run npm run icons): ${k[1]} (${rel(p)})`);
+  const src = fs.readFileSync(p, 'utf8');
+  const names = new Set([...src.matchAll(iconRe)].map((k) => k[1]));
+  for (const call of src.matchAll(/\bicon\(([^()]*)\)/g)) for (const q of call[1].matchAll(/'([a-z][a-z0-9-]*)'/g)) names.add(q[1]);
+  for (const n of names) if (!(n in ICONS) && n !== 'name') fail(`icon not in icons.js (run npm run icons): ${n} (${rel(p)})`);
 }
 
 if (errors) { console.error(`\n${errors} problem(s)`); process.exit(1); }
