@@ -25,6 +25,7 @@ Fonts and icons are bundled inside the extension; no content is loaded from the 
 | `webNavigation` | Stop a paused site before it loads |
 | `idle` | Detect when you're away so idle time isn't counted |
 | `alarms` | Wake the extension for timers and reminders without a background loop |
+| `contextMenus` | Right-click menu to classify or block the current site |
 | `notifications` | Eye-break and session-complete reminders |
 | `offscreen` | Play the soft session start/end sound |
 | `favicon` | Show site icons from the browser's own cache (nothing is downloaded) |

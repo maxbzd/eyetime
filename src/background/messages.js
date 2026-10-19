@@ -2,10 +2,11 @@
 // (alarms, tab redirects, notifications). Plain preference changes are written to storage directly.
 
 import { getRaw, setRaw } from '../shared/storage.js';
-import { startFocus, stopFocus } from './focus.js';
+import { startFocus, stopFocus, endRest } from './focus.js';
 import { grantPass, sweepTabs } from './blocker.js';
 import { completeBreak, skipBreak, snoozeBreak, openBreakPage, scheduleBedtime, getEyeState } from './breaks.js';
 import { sync } from './tracker.js';
+import { buildMenus } from './menus.js';
 import { isFocusActive } from '../shared/blocking.js';
 
 const handlers = {
@@ -16,6 +17,7 @@ const handlers = {
     await stopFocus();
     return { ok: true };
   },
+  'rest:skip': async () => { await endRest({ notify: false }); return { ok: true }; },
   'pass:grant': async (m) => { await grantPass(m.rule, m.minutes); return { ok: true }; },
   'break:complete': async () => { await completeBreak(); return { ok: true }; },
   'break:skip': async () => { await skipBreak(); return { ok: true }; },
@@ -24,7 +26,7 @@ const handlers = {
   'break:state': () => getEyeState(),
   'tracking:pause': async (m) => { await setRaw({ pausedUntil: m.minutes ? Date.now() + m.minutes * 60_000 : 0 }); await sync('pause'); return { ok: true }; },
   'tab:close': async (m, sender) => { if (sender.tab) await chrome.tabs.remove(sender.tab.id); return { ok: true }; },
-  'settings:changed': async () => { await scheduleBedtime(); await sweepTabs(); await sync('settings'); return { ok: true }; },
+  'settings:changed': async () => { await buildMenus(); await scheduleBedtime(); await sweepTabs(); await sync('settings'); return { ok: true }; },
 };
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {

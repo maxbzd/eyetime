@@ -175,3 +175,31 @@ test('migrate: a fresh install gets defaults and is not marked onboarded', () =>
   const m = migrate({});
   assert.equal(m.settings.onboarded, false); assert.deepEqual(m.settings.focus.presets, [15, 25, 50, 90]); assert.deepEqual(m.days, {});
 });
+
+test('rest: created after a session, bounded, active only until it ends', async () => {
+  const { createRest, isRestActive } = await import('../../src/shared/focus.js');
+  const r = createRest({ minutes: 5, now: 1000 });
+  assert.equal(r.endsAt, 1000 + 5 * 60000);
+  assert.ok(isRestActive(r, 1000 + 60000)); assert.ok(!isRestActive(r, r.endsAt)); assert.ok(!isRestActive(null));
+  assert.equal(createRest({ minutes: 999 }).minutes, 60); assert.equal(createRest({ minutes: 0 }).minutes, 1);
+});
+
+test('menu actions: classify, toggle always-block, ignore junk', async () => {
+  const { applyMenuAction } = await import('../../src/shared/menu.js');
+  const s = settings({ blocking: { always: ['a.com'] } });
+  assert.deepEqual(applyMenuAction('cls:distracting', 'x.com', s), { changed: true, key: 'menu.marked', cls: 'distracting' });
+  assert.equal(s.sites['x.com'], 'distracting');
+  applyMenuAction('cls:productive', 'a.com', s); assert.deepEqual(s.blocking.always, []); // no longer distracting => unblocked
+  assert.equal(applyMenuAction('block:always', 'b.com', s).key, 'menu.blocked'); assert.deepEqual(s.blocking.always, ['b.com']);
+  assert.equal(applyMenuAction('block:always', 'b.com', s).key, 'menu.unblocked'); assert.deepEqual(s.blocking.always, []);
+  assert.equal(applyMenuAction('cls:weird', 'x.com', s).changed, false); assert.equal(applyMenuAction('block:always', null, s).changed, false);
+});
+
+test('suggestLimit: caps the heaviest distracting site at ~60% of its daily average', async () => {
+  const { suggestLimit } = await import('../../src/shared/stats.js');
+  const sum = { activeDays: 5, topSites: [{ host: 'github.com', cls: 'productive', sec: 99999 }, { host: 'youtube.com', cls: 'distracting', sec: 5 * 50 * 60 }, { host: 'x.com', cls: 'distracting', sec: 5 * 20 * 60 }] };
+  assert.deepEqual(suggestLimit(sum), { host: 'youtube.com', avgMin: 50, limitMin: 30 });
+  assert.equal(suggestLimit(sum, { 'youtube.com': 45 }).host, 'x.com'); // already limited -> next one
+  assert.equal(suggestLimit({ activeDays: 5, topSites: [{ host: 'x.com', cls: 'distracting', sec: 5 * 10 * 60 }] }), null); // small: nothing to suggest
+  assert.equal(suggestLimit({ activeDays: 0, topSites: [] }), null);
+});

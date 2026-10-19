@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "__MSG_extDescription__",
   "default_locale": "en",
   "minimum_chrome_version": "120",
@@ -16,7 +16,7 @@
   "chrome_url_overrides": { "newtab": "src/newtab/newtab.html" },
   "options_page": "src/options/options.html",
 
-  "permissions": ["storage", "alarms", "notifications", "idle", "tabs", "webNavigation", "offscreen", "favicon"],
+  "permissions": ["storage", "alarms", "notifications", "idle", "tabs", "webNavigation", "contextMenus", "offscreen", "favicon"],
   "optional_host_permissions": ["http://127.0.0.1:8765/*"],
 
   "content_scripts": [
