@@ -51,3 +51,14 @@
 .review-title { font-weight: 650; } .review-sub { font-size: var(--fs-sm); color: var(--text-2); overflow-wrap: anywhere; }
 .review-q { font-size: var(--fs-sm); color: var(--text-2); } .review-rate { display: flex; flex-wrap: wrap; gap: 6px; } .review-rate .chip .ico { font-size: 14px; }
 .review-task { display: flex; align-items: center; gap: 8px; font-size: var(--fs-sm); }
+
+.resume-line { display: flex; gap: 8px; align-items: flex-start; font-size: var(--fs-sm); color: var(--text-2); padding: 6px 10px; border-radius: var(--r-md); background: var(--surface-2); }
+.resume-line .ico { font-size: 14px; margin-top: 2px; flex: none; color: var(--accent-text); } .resume-line b { color: var(--text); font-weight: 600; }
+.focus-idle .hint .ico { display: inline-block; vertical-align: -2px; margin-right: 6px; font-size: 13px; color: var(--accent-text); }
+.chip .ico { font-size: 12px; margin-right: 4px; }
+.run-extras { display: flex; flex-direction: column; gap: var(--s-2); width: 100%; margin-top: var(--s-2); align-items: stretch; }
+.segmented-sm { align-self: center; height: 28px; } .segmented-sm button { font-size: var(--fs-xs); padding: 0 10px; }
+.held { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: var(--fs-sm); color: var(--success-text, var(--success)); } .held .ico { font-size: 14px; }
+.rest-idea { display: flex; gap: 8px; align-items: center; justify-content: center; text-align: left; max-width: 360px; margin: var(--s-2) auto 0; padding: 8px 12px; border-radius: var(--r-md); background: var(--success-soft, var(--surface-2)); font-size: var(--fs-sm); }
+.rest-idea .ico { font-size: 16px; flex: none; color: var(--success-text, var(--success)); }
+.review-resume { display: flex; flex-direction: column; gap: 4px; }

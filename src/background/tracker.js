@@ -2,7 +2,8 @@
 // MV3 service-worker suspension. The "current target" lives in storage.session; every sync() closes the
 // previous interval (credits the seconds) and opens the next one.
 
-import { getSettings, addTime, getRaw } from '../shared/storage.js';
+import { getSettings, addTime, getRaw, updateDay } from '../shared/storage.js';
+import { dayKey } from '../shared/time.js';
 import { hostFromUrl, matchesAny } from '../shared/domains.js';
 import { updateBadge } from './badge.js';
 import { onActiveTime } from './breaks.js';
@@ -55,6 +56,8 @@ async function run(reason) {
 
   // 2) open the next one
   const target = await currentTarget(settings);
+  // a switch = moving from one site to a different one (context switching is what fragments attention)
+  if (trk && trk.host && target && target.host !== trk.host) await updateDay(dayKey(new Date(now)), (d) => { d.sw = (d.sw || 0) + 1; });
   await session().set({ trk: target ? { host: target.host, since: now } : { host: null, since: now } });
 
   await updateBadge(settings);

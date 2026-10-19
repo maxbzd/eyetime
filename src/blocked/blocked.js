@@ -3,7 +3,8 @@ import { $, favicon, clear, h } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { t, fmtDuration, fmtTime } from '../shared/i18n.js';
 import { evaluate } from '../shared/policy.js';
-import { getSettings, getRaw, dayStorageKey, updateSettings } from '../shared/storage.js';
+import { getSettings, getRaw, dayStorageKey, updateSettings, getCollection, setCollection } from '../shared/storage.js';
+import { matches } from '../shared/domains.js';
 import { clock } from '../shared/focus.js';
 import { dayKey } from '../shared/time.js';
 import { usageOf } from '../shared/policy.js';
@@ -55,7 +56,7 @@ async function render() {
   const wait = Math.max(5, settings.blocking.friction.seconds || 8);
   $('#sitePill').replaceChildren(favicon(host), h('span', { text: host }));
   back.textContent = t('block.back'); back.onclick = goBack;
-  $('#breath').hidden = true; $('#bigClock').hidden = true; $('#goal').hidden = true; $('#manage').hidden = true; $('#why').hidden = true; $('#allowSite').hidden = true;
+  $('#breath').hidden = true; $('#bigClock').hidden = true; $('#goal').hidden = true; $('#manage').hidden = true; $('#why').hidden = true; $('#allowSite').hidden = true; $('#plan').hidden = true; $('#park').hidden = true;
   cont.hidden = true; cont.onclick = null; note.textContent = '';
 
   const offerContinue = (minutes) => {
@@ -75,6 +76,18 @@ async function render() {
     const flip = () => { label.textContent = label.textContent === t('block.breatheIn') ? t('block.breatheOut') : t('block.breatheIn'); };
     label.textContent = t('block.breatheOut'); flip();
     timers.push(setInterval(flip, 4000));
+    // implementation intention: the user's own "if I want X, then I will Y" — specific to this site first, then any generic one
+    const plans = settings.blocking.plans || [];
+    const mine = plans.filter((p) => p.when && matches(host, p.when)), generic = plans.filter((p) => !p.when);
+    const pool = mine.length ? mine : generic;
+    if (pool.length) { const p = pool[Math.floor(Date.now() / 60000) % pool.length]; $('#plan').hidden = false; $('#planText').textContent = t('block.plan.text', { host, then: p.then }); }
+    const park = $('#park'); park.hidden = false;
+    park.onclick = async () => {
+      const notes = await getCollection('captures', []);
+      notes.unshift({ id: Date.now().toString(36), text: t('block.park.note', { host }), at: Date.now() });
+      await setCollection('captures', notes);
+      goBack();
+    };
     // intent: naming why you are here is the speed bump — and "autopilot" is a cue to turn around
     let chosen = '';
     const chips = $('#why'); chips.hidden = false;
