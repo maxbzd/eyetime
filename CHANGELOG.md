@@ -19,6 +19,15 @@
 - **Insights → Focus & productivity**: goal days, streak, average session, quality, **your best focus hours**, time by task, recent sessions, pause-page choices.
 - New: `src/shared/productivity.js` (pure, tested), 33 unit tests, 55-step e2e.
 
+### Research-driven focus (see [docs/RESEARCH.md](docs/RESEARCH.md))
+- **Close the day**: a two-minute evening ritual — one win, "where did you leave off?" notes, and up to three priorities for tomorrow (applied automatically next morning).
+- **If-then plans** on the pause page ("If I want to open reddit.com, then I will …") and **Park it for later**; **park a thought** while a session runs.
+- **Ready-to-resume notes** per task, shown when you pick the task again; tasks can be **scheduled for a time** (notification starts the session).
+- **Your own best session length**, learned from your ratings; goal **days off** don't break the streak.
+- **Break ideas** (stand, look far, water, breathe) instead of a bare countdown; optional **ambient sound** (brown noise, rain, café) while focusing.
+- Insights: site switches per hour, what pulls you away, weekday pattern, wins, best session length.
+- 10 more e2e checks (65 total), 37 unit tests.
+
 ### Also in 2.1.0
 
 - **Break timer after a session** (Pomodoro-style): a rest countdown starts automatically, distracting sites stay open, popup/Home show a Break card with *Start next session* / *Skip*; badge turns green; configurable (off / 3 / 5 / 10 / 15 min).

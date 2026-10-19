@@ -175,3 +175,10 @@ body[data-layout="minimal"] .more-mods { display: inline-flex; }
 
 .nudge { display: flex; align-items: center; gap: var(--s-3); max-width: 760px; width: 100%; margin: 0 auto; padding: 10px 14px; border-radius: var(--r-lg); background: var(--accent-soft); color: var(--text); border: var(--border-w) solid var(--accent-ring); font-size: var(--fs-md); }
 .nudge > .ico { font-size: 18px; color: var(--accent-text); flex: none; } .nudge-text { flex: 1; min-width: 0; }
+
+.item .txt .at { display: inline-flex; align-items: center; gap: 3px; margin-left: 8px; font-size: var(--fs-xs); color: var(--accent-text); } .item .txt .at .ico { font-size: 11px; }
+.item { flex-wrap: wrap; } .item .resume-note { flex-basis: 100%; order: 5; padding-left: 32px; font-size: var(--fs-xs); color: var(--text-3); display: flex; gap: 4px; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .item .resume-note .ico { font-size: 11px; flex: none; }
+.plan-link { display: inline-flex; align-items: center; gap: 6px; } .plan-link .ico { font-size: 13px; }
+.dialog-wide { width: min(560px, 94vw); } .dialog-wide .dialog-body { max-height: 70vh; overflow-y: auto; }
+.sd-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-3); } .sd-val { display: flex; align-items: center; gap: 6px; font-size: 22px; font-weight: 650; } .sd-val .ico { font-size: 18px; color: var(--accent-text); }
+.sd-task { font-size: var(--fs-sm); font-weight: 560; }

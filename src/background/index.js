@@ -6,8 +6,9 @@ import { isFocusActive } from '../shared/blocking.js';
 import { initTracker } from './tracker.js';
 import { startFocus, stopFocus, finishFocus, endRest } from './focus.js';
 import { scheduleBedtime } from './breaks.js';
-import { scheduleReminders } from './reminders.js';
+import { scheduleReminders, scheduleTaskSlot } from './reminders.js';
 import { updateBadge } from './badge.js';
+import { setAmbient } from './audio.js';
 import './blocker.js';
 import './weekly.js';
 import './messages.js';
@@ -18,7 +19,7 @@ async function boot() {
   const { migrated } = await ensureSchema();
   const { focus } = await getRaw('focus');
   if (focus && !isFocusActive(focus)) await finishFocus(); // the end alarm may have been missed while the browser was closed
-  else if (focus) await chrome.alarms.create('focus-end', { when: focus.endsAt });
+  else if (focus) { await chrome.alarms.create('focus-end', { when: focus.endsAt }); const { focus: f } = await getSettings(); if (f.ambient !== 'off') setAmbient(f.ambient); }
   const { rest } = await getRaw('rest');
   if (rest && Date.now() >= rest.endsAt) await endRest({ notify: false });
   else if (rest) await chrome.alarms.create('rest-end', { when: rest.endsAt });
@@ -26,6 +27,7 @@ async function boot() {
   await buildMenus();
   await scheduleBedtime();
   await scheduleReminders();
+  await scheduleTaskSlot();
   await updateBadge(await getSettings());
   return migrated;
 }

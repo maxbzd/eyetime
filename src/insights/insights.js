@@ -5,7 +5,7 @@ import { send } from '../ui/api.js';
 import { stackedColumns, classLegend, heatmap, CLASS_ORDER } from '../ui/charts.js';
 import { t, fmtDuration, fmtDate, fmtNumber, weekdayName, fmtTime, monthName } from '../shared/i18n.js';
 import { getSettings, updateSettings, getDays, getCollection, onChange } from '../shared/storage.js';
-import { goalStreak, bestHours, sessionsOf, pauseReasonTotals, PAUSE_REASONS } from '../shared/productivity.js';
+import { goalStreak, bestHours, sessionsOf, pauseReasonTotals, PAUSE_REASONS, switchRate, topTemptations, recentWins, weekdayPattern, suggestMinutes } from '../shared/productivity.js';
 import { makeClassifier } from '../shared/classify.js';
 import { summarize, delta, insights as computeInsights, focusStreak, heatLevel, suggestLimit } from '../shared/stats.js';
 import { rangeKeys, addDays, dayKey, parseKey } from '../shared/time.js';
@@ -163,6 +163,14 @@ function ratingDots(r) {
   return h('span', { class: 'rating r' + r, 'data-tip': t('review.r' + r) }, icon(r === 3 ? 'zap' : r === 2 ? 'meh' : 'frown'));
 }
 
+function weekdayChart(wk) {
+  const order = [1, 2, 3, 4, 5, 6, 0];
+  const max = Math.max(...wk.map((d) => d.avgMin), 1);
+  return h('div', { class: 'hours', role: 'img', 'aria-label': t('prod.weekdays') },
+    h('div', { class: 'hours-bars wk' }, order.map((w) => h('i', { class: 'hb' + (wk[w].avgMin === max ? ' best' : ''), style: { height: Math.max(3, (wk[w].avgMin / max) * 100) + '%' }, 'data-tip': `${weekdayName(w, 'long')} · ${fmtDuration(wk[w].avgMin * 60)}` }))),
+    h('div', { class: 'hours-axis wk' }, order.map((w) => h('span', { text: weekdayName(w) }))));
+}
+
 function productivityCard(cur, heat, tasks) {
   const goal = settings.focus.dailyGoal;
   const sessions = sessionsOf(cur).sort((a, b) => b.t - a.t);
@@ -170,11 +178,18 @@ function productivityCard(cur, heat, tasks) {
   const reasons = pauseReasonTotals(cur);
   const reasonTotal = PAUSE_REASONS.reduce((a, r) => a + (reasons[r] || 0), 0);
   const daysHit = goal ? cur.filter(([, d]) => (d?.fs || 0) >= goal * 60).length : 0;
-  const streak = goalStreak(heat, goal);
+  const streak = goalStreak(heat, goal, settings.focus.goalDays);
   const rated = sessions.filter((s) => s.r);
   const avgR = rated.length ? rated.reduce((a, s) => a + s.r, 0) / rated.length : 0;
+  const rates = cur.map(([, d]) => switchRate(d)).filter((r) => r !== null);
+  const swPerHour = rates.length ? rates.reduce((a, b) => a + b, 0) / rates.length : null;
+  const tempt = topTemptations(cur, 5);
+  const wins = recentWins(heat, 5);
+  const wk = weekdayPattern(heat, goal);
+  const wkData = wk.reduce((a, d) => a + d.days, 0) >= 10 && wk.some((d) => d.avgMin > 0);
+  const lenBest = suggestMinutes(heat, settings.focus.presets);
   const topTasks = tasks.filter((x) => x.focusSec >= 60).sort((a, b) => b.focusSec - a.focusSec).slice(0, 5);
-  if (!sessions.length && !reasonTotal && !best && !topTasks.length) {
+  if (!sessions.length && !reasonTotal && !best && !topTasks.length && !tempt.length && swPerHour === null) {
     return h('section', { class: 'card' }, h('div', { class: 'card-head' }, h('div', {}, h('h3', { text: t('prod.title' ) }), h('p', { text: t('prod.sub') }))),
       h('div', { class: 'card-body' }, h('div', { class: 'empty', style: { padding: 'var(--s-4) 0' } }, h('div', { class: 'empty-icon' }, icon('target')), h('p', { text: t('prod.empty') }))));
   }
@@ -183,6 +198,7 @@ function productivityCard(cur, heat, tasks) {
     goal ? stat({ ico: 'target', label: t('prod.goalDays'), value: `${daysHit}/${cur.length}`, sub: t('prod.goalIs', { time: fmtDuration(goal * 60) }) }) : null,
     goal ? stat({ ico: 'flame', label: t('prod.goalStreak'), value: String(streak), sub: t('prod.days') }) : null,
     stat({ ico: 'timer', label: t('prod.avgSession'), value: sessions.length ? fmtDuration(Math.round(sessions.reduce((a, s) => a + s.m, 0) / sessions.length) * 60) : '–', sub: t('insights.sessions', { n: sessions.length }) }),
+    swPerHour !== null ? stat({ ico: 'shuffle', label: t('prod.switches'), value: String(Math.round(swPerHour)), sub: t('prod.switchesSub') }) : null,
     stat({ ico: 'zap', label: t('prod.quality'), value: avgR ? (avgR >= 2.5 ? t('review.r3') : avgR >= 1.75 ? t('review.r2') : t('review.r1')) : '–', sub: rated.length ? t('prod.rated', { n: rated.length }) : t('prod.rateHint') }));
 
   const reasonRow = reasonTotal
@@ -203,6 +219,12 @@ function productivityCard(cur, heat, tasks) {
         h('td', {}, h('span', { class: 'truncate', text: s.g || t('prod.noGoal') })),
         h('td', { class: 'time', text: fmtDuration(s.m * 60) + (s.c ? '' : ' · ' + t('prod.early')) }),
         h('td', { class: 'time', style: { width: '36px' } }, ratingDots(s.r))))))) : null,
+      lenBest ? h('div', { class: 'pblock' }, h('h4', { text: t('prod.length') }), h('p', { class: 'muted-2', text: t('prod.lengthBody', { n: lenBest.minutes }) }),
+        h('div', { class: 'row gap-2 wrap' }, lenBest.lengths.map((l) => h('span', { class: 'chip' + (l.minutes === lenBest.minutes ? ' good' : ''), text: `${fmtDuration(l.minutes * 60)} · ${l.mean.toFixed(1)}/3 · ${l.n}×` })))) : null,
+      wkData ? h('div', { class: 'pblock' }, h('h4', { text: t('prod.weekdays') }), h('p', { class: 'muted-2', text: t('prod.weekdaysSub') }), weekdayChart(wk)) : null,
+      tempt.length ? h('div', { class: 'pblock' }, h('h4', { text: t('prod.tempt') }), h('p', { class: 'muted-2', text: t('prod.temptSub') }),
+        h('table', { class: 'sites' }, h('tbody', {}, tempt.map((x) => h('tr', {}, h('td', {}, h('div', { class: 'site' }, favicon(x.host), h('span', { text: x.host }))), h('td', { class: 'time', text: t('prod.times', { n: x.count }) })))))) : null,
+      wins.length ? h('div', { class: 'pblock' }, h('h4', { text: t('prod.wins') }), h('div', { class: 'wins' }, wins.map((w) => h('div', { class: 'win' }, icon('sparkles'), h('span', { class: 'win-d', text: fmtDate(parseKey(w.key), { weekday: 'short', day: 'numeric', month: 'short' }) }), h('span', { text: w.text }))))) : null,
       reasonRow));
 }
 
