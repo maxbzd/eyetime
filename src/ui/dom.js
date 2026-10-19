@@ -17,6 +17,7 @@ export function icon(name, cls = '') {
   svg.setAttribute('aria-hidden', 'true');
   const inner = ICONS[name];
   if (inner) svg.innerHTML = inner; // trusted constant, never user data
+  else console.error('[eyetime] icon missing from icons.js:', name, '— add icon(\'' + name + '\') / icon: \'' + name + '\' where it is used and run npm run icons');
   return svg;
 }
 
@@ -47,6 +48,14 @@ export function h(tag, props, ...children) {
       else el.setAttribute(k, v === true ? '' : v);
     }
   }
+  append(el, children);
+  return el;
+}
+
+/** Create an SVG element (the HTML h() helper can't: wrong namespace). */
+export function svg(tag, attrs = {}, ...children) {
+  const el = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, String(v));
   append(el, children);
   return el;
 }

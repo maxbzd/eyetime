@@ -22,7 +22,7 @@ Desktop.ini
 *.swp
 
 # Personal tracker data (never commit)
-desktop_tracker/eyetime_database.json
+companion/*.json
 *.zip
 dist/
 node_modules/

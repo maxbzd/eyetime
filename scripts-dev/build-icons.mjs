@@ -20,12 +20,15 @@ const re = /(?:icon\(\s*['"`]|data-icon=["']|\bicon:\s*['"`]|\bico:\s*['"`])([a-
     const p = path.join(d, f);
     if (fs.statSync(p).isDirectory()) { if (f !== 'fonts') walk(p); continue; }
     if (!/\.(js|html|mjs)$/.test(f) || f === 'icons.js') continue;
-    for (const m of fs.readFileSync(p, 'utf8').matchAll(re)) names.add(m[1]);
+    const src = fs.readFileSync(p, 'utf8');
+    for (const m of src.matchAll(re)) names.add(m[1]);
+    for (const call of src.matchAll(/\bicon\(([^()]*)\)/g)) for (const q of call[1].matchAll(/'([a-z][a-z0-9-]*)'/g)) names.add(q[1]); // conditionals: icon(a ? 'x' : 'y')
   }
 })(path.join(root, 'src'));
 
 const out = {};
 const missing = [];
+names.delete('name'); // appears in doc comments
 for (const n of [...names].sort()) {
   const file = path.join(lucideDir, n + '.svg');
   if (!fs.existsSync(file)) { missing.push(n); continue; }
