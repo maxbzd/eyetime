@@ -166,3 +166,12 @@ body[data-layout="minimal"] .more-mods { display: inline-flex; }
 .segmented.wrap-seg { flex-wrap: wrap; height: auto; }
 .mod-row { gap: var(--s-1); }
 .mod-row .btn:disabled { opacity: .3; }
+
+/* tasks: priorities, per-task actions */
+.item .txt .spent { display: inline-block; margin-left: 8px; font-size: var(--fs-xs); color: var(--text-3); padding: 1px 6px; border-radius: 99px; background: var(--surface-2); vertical-align: 1px; }
+.item .x.act { width: 28px; height: 28px; } .item .x.star.on { opacity: 1; color: var(--warning); } .item .x.star.on .ico { fill: currentColor; }
+.item.prio .txt { font-weight: 600; }
+.item:hover .x.act, .item .x.act:focus-visible { opacity: 1; }
+
+.nudge { display: flex; align-items: center; gap: var(--s-3); max-width: 760px; width: 100%; margin: 0 auto; padding: 10px 14px; border-radius: var(--r-lg); background: var(--accent-soft); color: var(--text); border: var(--border-w) solid var(--accent-ring); font-size: var(--fs-md); }
+.nudge > .ico { font-size: 18px; color: var(--accent-text); flex: none; } .nudge-text { flex: 1; min-width: 0; }

@@ -6,6 +6,7 @@ import { isFocusActive } from '../shared/blocking.js';
 import { initTracker } from './tracker.js';
 import { startFocus, stopFocus, finishFocus, endRest } from './focus.js';
 import { scheduleBedtime } from './breaks.js';
+import { scheduleReminders } from './reminders.js';
 import { updateBadge } from './badge.js';
 import './blocker.js';
 import './weekly.js';
@@ -24,6 +25,7 @@ async function boot() {
   await initTracker();
   await buildMenus();
   await scheduleBedtime();
+  await scheduleReminders();
   await updateBadge(await getSettings());
   return migrated;
 }

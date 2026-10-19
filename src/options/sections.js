@@ -3,7 +3,7 @@
 import { h, icon, toast, confirmDialog } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { row, group, toggle, select, domainEditor, sectionHead } from './ui.js';
-import { t, LANGUAGES, weekdayName } from '../shared/i18n.js';
+import { t, LANGUAGES, weekdayName, fmtDuration } from '../shared/i18n.js';
 import { PRESETS, PRESET_IDS } from '../shared/catalog.js';
 import { exportAll, importAll, resetAll } from '../shared/storage.js';
 import { parseUserDomain } from '../shared/domains.js';
@@ -27,6 +27,21 @@ export function general({ s, save, refresh }) {
 }
 
 /* ============================== Focus ============================== */
+
+/** Scheduled "time to focus" nudges: a time, the weekdays it repeats on and how long the session is. */
+function remindersEditor(s, save) {
+  const list = s.focus.reminders;
+  const upd = (id, fn) => save((x) => { const r = x.focus.reminders.find((y) => y.id === id); if (r) fn(r); });
+  const days = [1, 2, 3, 4, 5, 6, 0];
+  const rows = list.map((r) => h('div', { class: 'reminder' },
+    h('input', { class: 'input input-sm', type: 'time', value: r.time, 'aria-label': t('opt.remindTime'), style: { width: '108px' }, onchange: (e) => e.target.value && upd(r.id, (x) => { x.time = e.target.value; }) }),
+    h('div', { class: 'row gap-1 wrap' }, days.map((d) => h('button', { class: 'chip chip-day', type: 'button', 'aria-pressed': String(r.days.includes(d)), text: weekdayName(d), onclick: () => upd(r.id, (x) => { x.days = x.days.includes(d) ? x.days.filter((n) => n !== d) : [...x.days, d]; }) }))),
+    select([15, 25, 50, 90].map((m) => [m, t('opt.minutes', { n: m })]), r.minutes, (v) => upd(r.id, (x) => { x.minutes = Number(v); }), { label: t('opt.remindLen') }),
+    h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.remove'), onclick: () => save((x) => { x.focus.reminders = x.focus.reminders.filter((y) => y.id !== r.id); }, true) }, icon('x'))));
+  return h('div', { class: 'stack gap-3', style: { alignItems: 'stretch' } }, rows,
+    list.length < 5 ? h('button', { class: 'btn btn-sm', type: 'button', style: { alignSelf: 'flex-start' }, onclick: () => save((x) => { x.focus.reminders.push({ id: Date.now().toString(36), time: '09:00', days: [1, 2, 3, 4, 5], minutes: 50 }); }, true) }, icon('plus'), t('opt.addReminder')) : null);
+}
+
 export function focus({ s, save, refresh }) {
   const presetsIn = h('input', { class: 'input input-sm', style: { width: '180px' }, value: s.focus.presets.join(', '), 'aria-label': t('opt.focusPresets'), onchange: (e) => {
     const list = [...new Set(e.target.value.split(/[\s,;]+/).map(Number).filter((n) => n >= 1 && n <= 720))].slice(0, 5);
@@ -43,7 +58,15 @@ export function focus({ s, save, refresh }) {
       row({ title: t('opt.focusDefault'), desc: t('opt.focusDefaultDesc'), control: select(s.focus.presets.map((m) => [m, t('opt.minutes', { n: m })]), s.focus.minutes, (v) => save((x) => { x.focus.minutes = Number(v); }), { label: t('opt.focusDefault') }) }),
       row({ title: t('opt.focusPresets'), desc: t('opt.focusPresetsDesc'), control: presetsIn }),
       row({ title: t('opt.restAfter'), desc: t('opt.restAfterDesc'), control: select([[0, t('common.off')], ...[3, 5, 10, 15].map((m) => [m, t('opt.minutes', { n: m })])], s.focus.breakMinutes, (v) => save((x) => { x.focus.breakMinutes = Number(v); }), { label: t('opt.restAfter') }) }),
+      row({ title: t('opt.longBreak'), desc: t('opt.longBreakDesc'), control: h('div', { class: 'row gap-2' },
+        select([[0, t('common.off')], ...[2, 3, 4, 5].map((n) => [n, t('opt.everyN', { n })])], s.focus.longBreak.every, (v) => save((x) => { x.focus.longBreak.every = Number(v); }), { label: t('opt.longBreak') }),
+        select([10, 15, 20, 30].map((m) => [m, t('opt.minutes', { n: m })]), s.focus.longBreak.minutes, (v) => save((x) => { x.focus.longBreak.minutes = Number(v); }), { label: t('opt.longBreakLen') })) }),
       row({ title: t('focus.strict'), desc: t('opt.strictDesc'), control: toggle(s.focus.strict, (v) => save((x) => { x.focus.strict = v; }), t('focus.strict')) })),
+    group(t('opt.groupProductivity'),
+      row({ title: t('opt.dailyGoal'), desc: t('opt.dailyGoalDesc'), control: select([[0, t('common.off')], ...[30, 60, 90, 120, 180, 240, 300].map((m) => [m, fmtDuration(m * 60)])], s.focus.dailyGoal, (v) => save((x) => { x.focus.dailyGoal = Number(v); }), { label: t('opt.dailyGoal') }) }),
+      row({ title: t('opt.scope'), desc: t('opt.scopeDesc'), control: select([['distractions', t('opt.scopeDistractions')], ['only-mine', t('focus.onlyMine')]], s.focus.scope, (v) => save((x) => { x.focus.scope = v; }), { label: t('opt.scope') }) }),
+      row({ title: t('opt.review'), desc: t('opt.reviewDesc'), control: toggle(s.focus.review, (v) => save((x) => { x.focus.review = v; }), t('opt.review')) }),
+      row({ title: t('opt.reminders'), desc: t('opt.remindersDesc'), stack: true, control: remindersEditor(s, save) })),
     group(t('opt.groupExtras'),
       row({ title: t('opt.focusSound'), desc: t('opt.focusSoundDesc'), control: toggle(s.focus.sound, (v) => save((x) => { x.focus.sound = v; }), t('opt.focusSound')) }),
       row({ title: t('opt.focusUrl'), desc: t('opt.focusUrlDesc'), control: urlIn }),
