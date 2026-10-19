@@ -3,7 +3,7 @@
 import { h, icon, favicon, clear } from './dom.js';
 import { send } from './api.js';
 import { t, fmtDuration } from '../shared/i18n.js';
-import { getSettings, getDays, getRaw, onChange } from '../shared/storage.js';
+import { getSettings, getDays, onChange } from '../shared/storage.js';
 import { makeClassifier } from '../shared/classify.js';
 import { summarize, focusStreak } from '../shared/stats.js';
 import { dayKey, rangeKeys } from '../shared/time.js';
@@ -37,6 +37,7 @@ export function mountToday(root, { closeOnBreak = false, sites = 3 } = {}) {
 
     if (sum.total < 60) {
       clear(root,
+        h('div', { class: 'eyebrow', text: t('today.title') }),
         h('div', { class: 'empty', style: { padding: 'var(--s-4)' } }, h('div', { class: 'empty-icon' }, icon('chart-column')), h('h4', { text: t('today.emptyTitle') }), h('p', { text: t('today.emptyBody') })),
         eyeRow());
       return;

@@ -2,7 +2,7 @@ import { bootPage } from '../ui/page.js';
 import { $, h, icon, clear } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { t, LANGUAGES, fmtDuration } from '../shared/i18n.js';
-import { getSettings, updateSettings } from '../shared/storage.js';
+import { updateSettings } from '../shared/storage.js';
 import { PRESETS, PRESET_IDS } from '../shared/catalog.js';
 import { parseUserDomain } from '../shared/domains.js';
 
