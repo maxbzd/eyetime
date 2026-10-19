@@ -5,8 +5,6 @@ import { DEFAULT_SETTINGS, deepMerge, SCHEMA_VERSION } from './defaults.js';
 import { PRESET_IDS } from './catalog.js';
 import { parseUserDomain } from './domains.js';
 
-const ACCENTS = { '#ff5e0e': 'ember', '#f97316': 'ember' };
-
 const doms = (list) => [...new Set((list || []).map(parseUserDomain).filter(Boolean))];
 
 export function needsMigration(raw) {
@@ -64,8 +62,6 @@ export function migrate(raw, now = Date.now()) {
     }
     patch.sites = sites;
 
-    const th = raw.newtabLayout && raw.newtabLayout.theme;
-    if (th && th.accent && ACCENTS[String(th.accent).toLowerCase()]) patch.accent = ACCENTS[String(th.accent).toLowerCase()];
     if (inter.musicUrl && /^https?:\/\//.test(inter.musicUrl)) patch.focus = { openUrl: inter.musicUrl };
   }
   const settings = deepMerge(DEFAULT_SETTINGS, patch);
@@ -101,4 +97,15 @@ export function migrate(raw, now = Date.now()) {
   Object.keys(raw).filter((k) => k.startsWith('pomo_')).forEach((k) => removeKeys.push(k));
 
   return { settings, tasks, habits, captures, days, meta: { schemaVersion: SCHEMA_VERSION, installedAt: raw.meta?.installedAt || now, migratedFrom: hadV1 ? '1.x' : null }, removeKeys };
+}
+
+/** 2.0 -> 2.1 settings: the old top-level `theme` / `accent` moved into `appearance`. */
+export function upgradeSettingsV2(settings) {
+  const s = { ...(settings || {}) };
+  const ap = { ...(s.appearance || {}) };
+  if (['system', 'light', 'dark'].includes(s.theme)) ap.mode = s.theme;
+  if (s.accent && s.accent !== 'ember') ap.accent = s.accent; // ember was the default, which is now simply "the look's own accent"
+  delete s.theme; delete s.accent;
+  s.appearance = ap;
+  return s;
 }
