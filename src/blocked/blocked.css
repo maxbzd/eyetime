@@ -23,3 +23,7 @@ h1 { font-size: clamp(30px, 5vw, 44px); letter-spacing: -.035em; line-height: 1.
 @keyframes breathe { 0%, 100% { transform: scale(.68); } 50% { transform: scale(1); } }
 @keyframes counter { 0%, 100% { transform: scale(1.47); } 50% { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .orb, .orb span { animation: none; } }
+
+.why { display: flex; flex-direction: column; align-items: center; gap: var(--s-2); margin-top: var(--s-2); }
+.why-q { font-size: var(--fs-sm); color: var(--text-2); font-weight: 600; }
+.why-note { min-height: 1.4em; font-size: var(--fs-sm); color: var(--accent-text); }

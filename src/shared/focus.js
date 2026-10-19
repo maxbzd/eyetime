@@ -3,9 +3,9 @@
 export const MIN_MINUTES = 1;
 export const MAX_MINUTES = 12 * 60;
 
-export function createSession({ minutes, goal = '', strict = false, now = Date.now() }) {
+export function createSession({ minutes, goal = '', strict = false, taskId = '', scope = 'distractions', now = Date.now() }) {
   const m = Math.min(MAX_MINUTES, Math.max(MIN_MINUTES, Math.round(minutes)));
-  return { id: String(now), startedAt: now, endsAt: now + m * 60_000, minutes: m, goal: String(goal).trim().slice(0, 140), strict: !!strict };
+  return { id: String(now), startedAt: now, endsAt: now + m * 60_000, minutes: m, goal: String(goal).trim().slice(0, 140), strict: !!strict, taskId: String(taskId || '').slice(0, 40), scope: scope === 'only-mine' ? 'only-mine' : 'distractions' };
 }
 
 export const remainingMs = (s, now = Date.now()) => (s ? Math.max(0, s.endsAt - now) : 0);
