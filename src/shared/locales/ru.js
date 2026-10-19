@@ -1,0 +1,83 @@
+// Русский. Плюральные формы: one / few / many / other.
+export const ru = {
+  'unit.h': 'ч', 'unit.m': 'м', 'unit.s': 'с',
+  'common.confirm': 'Подтвердить', 'common.cancel': 'Отмена', 'common.save': 'Сохранить', 'common.add': 'Добавить', 'common.remove': 'Удалить',
+  'common.error': 'Что-то пошло не так', 'common.done': 'Готово', 'common.back': 'Назад', 'common.next': 'Далее', 'common.skip': 'Пропустить', 'common.close': 'Закрыть', 'common.on': 'Вкл', 'common.off': 'Выкл',
+  'class.productive': 'Полезный', 'class.neutral': 'Нейтральный', 'class.distracting': 'Отвлекающий',
+  'badge.defaultTitle': 'EyeTime', 'badge.todayTitle': 'EyeTime — сегодня {time}', 'badge.focusTitle': 'Фокус — осталось {n} мин',
+
+  'popup.insights': 'Статистика', 'popup.settings': 'Настройки',
+  'focus.title': 'Фокус', 'focus.tagline': 'Отключить отвлечения на время',
+  'focus.goalPlaceholder': 'Над чем работаем? (необязательно)',
+  'focus.minutesShort': '{n} м', 'focus.custom': 'Своё',
+  'focus.start': 'Начать фокус · {time}',
+  'focus.strict': 'Строгий режим', 'focus.strictHint': 'Без обхода и досрочного выхода до конца таймера.',
+  'focus.running': 'Фокус', 'focus.endsAt': 'до {time}', 'focus.end': 'Завершить', 'focus.keepGoing': 'Продолжить',
+  'focus.strictLocked': 'Строгая сессия — досрочный выход закрыт',
+  'focus.endConfirmTitle': 'Завершить сессию досрочно?', 'focus.endConfirmBody': 'Время фокуса засчитается, если вы работали больше 2 минут.',
+  'focus.doneTitle': 'Фокус-сессия завершена', 'focus.doneBody': 'Вы сфокусировались на {n} мин. Отличная работа.', 'focus.doneBodyGoal': '{n} мин над «{goal}». Отличная работа.', 'focus.again': 'Ещё сессию',
+
+  'site.today': 'сегодня {time}', 'site.justStarted': 'Только начали', 'site.classLabel': 'Отметить сайт как',
+  'site.alwaysBlock': 'Всегда блокировать', 'site.unblock': 'Разблокировать',
+
+  'today.title': 'Сегодня', 'today.emptyTitle': 'Пока ничего не записано', 'today.emptyBody': 'Просто пользуйтесь браузером — время появится здесь в течение минуты.',
+  'today.sameAsYesterday': 'Примерно как вчера', 'today.moreThanYesterday': 'На {time} больше, чем вчера', 'today.lessThanYesterday': 'На {time} меньше, чем вчера',
+  'today.splitLabel': 'Время по полезным, нейтральным и отвлекающим сайтам',
+
+  'eye.due': 'Пора дать глазам отдых', 'eye.nextIn': 'Перерыв для глаз через {time}', 'eye.breakNow': 'Перерыв',
+  'eye.notifTitle': 'Дайте глазам отдохнуть', 'eye.notifBody': '{n} минут у экрана. Посмотрите на предмет в 6 м от вас в течение {s} секунд.',
+  'eye.startBreak': 'Начать перерыв', 'eye.snooze': 'Отложить на 5 мин',
+  'eye.bedtimeTitle': 'Пора сбавлять темп', 'eye.bedtimeBody': 'Отбой в {time} — осталось около {n} минут. Завершайте дела и отдохните от экрана.',
+
+  'capture.placeholder': 'Записать мысль… ⏎', 'capture.saved': 'Сохранено в заметки',
+  'track.pause': 'Приостановить учёт', 'track.resume': 'Возобновить учёт', 'track.pausedUntil': 'Пауза до {time}',
+
+  'weekly.title': 'Итоги вашей недели', 'weekly.total': 'Экранное время: {time}', 'weekly.distracting': 'Отвлечения: {time}',
+  'weekly.focus': { one: '{n} фокус-сессия · {time}', few: '{n} фокус-сессии · {time}', many: '{n} фокус-сессий · {time}', other: '{n} фокус-сессии · {time}' }, 'weekly.top': 'Больше всего времени: {sites}',
+
+  /* block page */
+  'block.pageTitle': 'Пауза — EyeTime', 'block.back': 'Вернуться к работе', 'block.continue': 'Перейти на сайт',
+  'block.continueIn': 'Продолжить через {n} с', 'block.continueFor': 'Продолжить на {n} мин', 'block.passNote': 'Вы получите {n} минут, затем пауза вернётся.',
+  'block.pause.title': 'Сделайте вдох.', 'block.pause.lead': 'Вам правда нужен {host} прямо сейчас?',
+  'block.breatheIn': 'Вдох', 'block.breatheOut': 'Выдох',
+  'block.focus.title': 'Вы в фокус-сессии.', 'block.focus.lead': '{host} на паузе до её завершения.',
+  'block.strictNote': 'Строгий режим включён — сайт откроется в {time}.', 'block.strictScheduleNote': 'Строгие рабочие часы — сейчас обхода нет.',
+  'block.schedule.title': 'Сейчас рабочее время.', 'block.schedule.lead': 'Отвлекающие сайты на паузе до {end}.',
+  'block.limit.title': 'Дневной лимит исчерпан', 'block.limit.lead': 'Сегодня на {host} уже {used}. Ваш лимит — {limit}.',
+  'block.always.title': '{host} заблокирован', 'block.always.lead': 'Вы сами заблокировали этот сайт.', 'block.manage': 'Управление блокировкой', 'block.invalid': 'Здесь нечего показывать.',
+
+  /* shell & nav */
+  'nav.home': 'Главная', 'nav.insights': 'Статистика', 'nav.settings': 'Настройки', 'common.undo': 'Отменить',
+  'range.today': 'Сегодня', 'range.7': '7 дней', 'range.30': '30 дней',
+  'chart.total': 'Всего', 'chart.noData': 'Нет данных',
+
+  /* insights */
+  'insights.range': 'Период', 'insights.export': 'Экспорт CSV',
+  'insights.screenTime': 'Экранное время', 'insights.focusTime': 'Время в фокусе', 'insights.distractionShare': 'Доля отвлечений', 'insights.eyeBreaks': 'Перерывы для глаз',
+  'insights.vsYesterday': 'к вчера', 'insights.vsPrev': 'к предыдущим {n} дням', 'insights.noComparison': 'Пока не с чем сравнивать',
+  'insights.sessions': { one: '{n} сессия', few: '{n} сессии', many: '{n} сессий', other: '{n} сессии' }, 'insights.pts': ' п.п.', 'insights.perDay': '{n} в день',
+  'insights.byHour': 'Время по часам', 'insights.byHourSub': 'Куда ушли сегодняшние минуты, по типам сайтов',
+  'insights.byDay': 'Время по дням', 'insights.byDaySub': 'Полезное, нейтральное и отвлекающее время',
+  'insights.date': 'Дата', 'insights.tableView': 'Показать таблицей',
+  'insights.sites': 'Сайты', 'insights.sitesSub': 'Меняйте тип сайта, чтобы научить EyeTime, что считать отвлечением', 'insights.site': 'Сайт', 'insights.class': 'Тип', 'insights.time': 'Время',
+  'insights.classifyAria': 'Тип сайта {host}', 'insights.marked': '{host}: теперь «{cls}»', 'insights.noSites': 'За этот период сайтов нет.',
+  'insights.showMore': 'Показать ещё {n}',
+  'insights.highlights': 'Главное', 'insights.highlightsSub': 'Закономерности в ваших данных — считаются на этом устройстве',
+  'insights.needMoreData': 'Выводы появятся после нескольких дней использования.',
+  'insights.typicalDay': 'Обычный день', 'insights.typicalDaySub': 'Среднее время по часам в дни, когда вы были онлайн', 'insights.typicalAt': 'Обычно в {time}',
+  'insights.calendar': 'Календарь', 'insights.calendarSub': 'Экранное время по дням, последние 16 недель', 'insights.less': 'Меньше', 'insights.more': 'Больше',
+  'insights.apps': 'Приложения', 'insights.appsSub': 'Из необязательного десктопного помощника',
+  'insights.emptyTitle': 'Здесь появится ваша статистика', 'insights.emptyBody': 'EyeTime только начал считать. Всё остаётся на этом устройстве.',
+  'insights.step1': 'Просто пользуйтесь браузером', 'insights.step1b': 'Время по сайтам записывается автоматически — только домен, не страница.',
+  'insights.step2': 'Отметьте, что отвлекает', 'insights.step2b': 'Откройте popup на любом сайте и задайте тип в один клик.',
+  'insights.step3': 'Запустите фокус-сессию', 'insights.step3b': 'Отключите отвлечения на 25 минут и посмотрите, как это меняет день.',
+  'insight.worstDay': 'Самый отвлекающий день — {weekday}: {time} на отвлекающих сайтах.',
+  'insight.bestDay': '{weekday} — самый собранный день: отвлечений всего {pct}%.',
+  'insight.peakHour': 'Больше всего полезной работы в браузере — около {time}.',
+  'insight.lateNight': 'Вы провели {time} онлайн поздней ночью (23:00–05:00). Сон — часть фокуса.',
+  'insight.distractionShare': '{pct}% времени ушло на отвлекающие сайты.',
+  'insight.moreThanBefore': 'Это на {pct}% больше, чем раньше.', 'insight.lessThanBefore': 'Это на {pct}% меньше, чем раньше.',
+  'insight.topDistraction': 'Больше всего отвлекающего времени съел {host}: {time}.',
+  'insight.focusTotal': { one: '{n} фокус-сессия — {time} глубокой работы.', few: '{n} фокус-сессии — {time} глубокой работы.', many: '{n} фокус-сессий — {time} глубокой работы.', other: '{n} фокус-сессии — {time} глубокой работы.' },
+  'insight.streak': { one: 'Серия фокуса: {n} день.', few: 'Серия фокуса: {n} дня. Так держать!', many: 'Серия фокуса: {n} дней. Так держать!', other: 'Серия фокуса: {n} дня. Так держать!' },
+};

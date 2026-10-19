@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="nav.insights">Insights</title>
+  <script src="../ui/theme-init.js"></script>
+  <link rel="stylesheet" href="../ui/tokens.css">
+  <link rel="stylesheet" href="../ui/base.css">
+  <link rel="stylesheet" href="../ui/components.css">
+  <link rel="stylesheet" href="../ui/shell.css">
+  <link rel="stylesheet" href="../ui/charts.css">
+  <link rel="stylesheet" href="insights.css">
+</head>
+<body>
+  <header class="app-header" id="header"></header>
+  <main class="page">
+    <div class="page-head">
+      <div>
+        <h1 data-i18n="nav.insights">Insights</h1>
+        <p id="subtitle"></p>
+      </div>
+      <div class="row gap-2">
+        <div class="segmented" id="range" role="group" data-i18n-attr="aria-label:insights.range"></div>
+        <button class="btn btn-sm" id="export" type="button"><i data-icon="download"></i><span data-i18n="insights.export">Export CSV</span></button>
+      </div>
+    </div>
+    <div id="content" class="stack gap-4"></div>
+  </main>
+  <script type="module" src="insights.js"></script>
+</body>
+</html>
