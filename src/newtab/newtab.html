@@ -1,1 +1,50 @@
-<!doctype html><meta charset="utf-8"><title>EyeTime</title><p>stub</p>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="nav.home">Home</title>
+  <script src="../ui/theme-init.js"></script>
+  <link rel="stylesheet" href="../ui/tokens.css">
+  <link rel="stylesheet" href="../ui/base.css">
+  <link rel="stylesheet" href="../ui/components.css">
+  <link rel="stylesheet" href="../ui/focus-card.css">
+  <link rel="stylesheet" href="../ui/today-card.css">
+  <link rel="stylesheet" href="newtab.css">
+</head>
+<body data-bg="dawn">
+  <div class="bg" aria-hidden="true"></div>
+
+  <header class="nt-top">
+    <a class="nt-brand" href="newtab.html" aria-label="EyeTime"><img src="../../icons/logo.svg" alt="" width="28" height="28"></a>
+    <div class="row gap-1">
+      <a class="btn btn-ghost btn-icon on-bg" href="../insights/insights.html" data-i18n-attr="aria-label:nav.insights;data-tip:nav.insights"><i data-icon="chart-column"></i></a>
+      <a class="btn btn-ghost btn-icon on-bg" href="../options/options.html" data-i18n-attr="aria-label:nav.settings;data-tip:nav.settings"><i data-icon="settings"></i></a>
+      <button class="btn btn-ghost btn-icon on-bg" id="customize" type="button" data-i18n-attr="aria-label:home.customize;data-tip:home.customize"><i data-icon="sliders-horizontal"></i></button>
+    </div>
+  </header>
+
+  <main class="nt">
+    <section class="hero">
+      <div class="clock num" id="clock"></div>
+      <h1 id="greeting"></h1>
+      <p id="date"></p>
+    </section>
+
+    <section class="card focus-card" id="focus"></section>
+
+    <div class="modules" id="modules"></div>
+  </main>
+
+  <aside class="drawer" id="drawer" aria-labelledby="drawerTitle" hidden>
+    <div class="drawer-head">
+      <h2 id="drawerTitle" data-i18n="home.customize">Customize</h2>
+      <button class="btn btn-ghost btn-icon btn-sm" id="drawerClose" type="button" data-i18n-attr="aria-label:common.close"><i data-icon="x"></i></button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <script type="module" src="newtab.js"></script>
+</body>
+</html>
