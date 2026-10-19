@@ -2,25 +2,22 @@
 
 import { h, icon, toast, confirmDialog } from '../ui/dom.js';
 import { send } from '../ui/api.js';
-import { row, group, toggle, select, segmented, domainEditor, sectionHead } from './ui.js';
+import { row, group, toggle, select, domainEditor, sectionHead } from './ui.js';
 import { t, LANGUAGES, weekdayName } from '../shared/i18n.js';
 import { PRESETS, PRESET_IDS } from '../shared/catalog.js';
-import { ACCENT_NAMES } from '../ui/page.js';
 import { exportAll, importAll, resetAll } from '../shared/storage.js';
 import { parseUserDomain } from '../shared/domains.js';
 import { dayKey } from '../shared/time.js';
 
+export { appearance } from './appearance-section.js';
 const sec = (id, ...kids) => h('section', { class: 'sec', id }, kids);
 const mins = (list) => list.map((m) => [m, t('opt.minutes', { n: m })]);
 
 /* ============================== General ============================== */
 export function general({ s, save, refresh }) {
-  const swatches = h('div', { class: 'row gap-2 wrap' }, ACCENT_NAMES.map((a) => h('button', { type: 'button', class: 'swatch-btn', 'aria-pressed': String(s.accent === a), 'aria-label': t('accent.' + a), 'data-tip': t('accent.' + a), style: { '--c': window.EyeTimeTheme.ACCENTS[a].l[0] }, onclick: () => save((x) => { x.accent = a; }, true) })));
   return sec('general', sectionHead(t('sec.general'), t('sec.generalDesc')),
     group(null,
-      row({ title: t('opt.language'), control: select([['auto', t('opt.auto')], ...Object.entries(LANGUAGES)], s.language, (v) => save((x) => { x.language = v; }, true), { label: t('opt.language') }) }),
-      row({ title: t('opt.theme'), control: segmented([['system', t('opt.themeSystem'), 'monitor'], ['light', t('opt.themeLight'), 'sun'], ['dark', t('opt.themeDark'), 'moon']], s.theme, (v) => save((x) => { x.theme = v; }, true), t('opt.theme')) }),
-      row({ title: t('opt.accent'), control: swatches })),
+      row({ title: t('opt.language'), control: select([['auto', t('opt.auto')], ...Object.entries(LANGUAGES)], s.language, (v) => save((x) => { x.language = v; }, true), { label: t('opt.language') }) })),
     group(t('opt.groupHome'),
       row({ title: t('opt.homeEnabled'), desc: t('opt.homeEnabledDesc'), control: toggle(s.newtab.enabled, (v) => save((x) => { x.newtab.enabled = v; }), t('opt.homeEnabled')) }),
       row({ title: t('opt.homeCustomize'), desc: t('opt.homeCustomizeDesc'), control: h('a', { class: 'btn', href: chrome.runtime.getURL('src/newtab/newtab.html') }, icon('sliders-horizontal'), t('home.customize')) })),

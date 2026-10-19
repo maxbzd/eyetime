@@ -1,5 +1,5 @@
-/* EyeTime design tokens. See docs/DESIGN.md.
-   Theme is chosen with <html data-theme="light|dark|system">; "system" (default) follows the OS. */
+/* EyeTime design tokens. See docs/DESIGN.md. These are the *fallback* (Calm) values: the theme engine (src/shared/looks.js,
+   applied by theme-init.js before first paint) overrides them per look. Scheme is <html data-scheme="light|dark">. */
 
 @font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap;
   src: url("fonts/inter-cyrillic-wght-normal.woff2") format("woff2-variations");
@@ -7,129 +7,88 @@
 @font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap;
   src: url("fonts/inter-latin-wght-normal.woff2") format("woff2-variations");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Manrope"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("fonts/manrope-cyrillic-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Manrope"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("fonts/manrope-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Nunito"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("fonts/nunito-cyrillic-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Nunito"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("fonts/nunito-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Source Serif 4"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("fonts/source-serif-4-cyrillic-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Source Serif 4"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("fonts/source-serif-4-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "JetBrains Mono"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("fonts/jetbrains-mono-cyrillic-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "JetBrains Mono"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
   /* type */
   --font: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-display: var(--font);
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --fw-heading: 650; --ls-heading: -.015em;
   --fs-xs: 12px; --fs-sm: 13px; --fs-md: 14px; --fs-lg: 16px; --fs-xl: 20px; --fs-2xl: 28px; --fs-3xl: 40px;
 
-  /* space (4pt grid) */
-  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-10: 40px; --s-12: 48px; --s-16: 64px;
+  /* density: --d scales every spacing step, --ctl-h is the height of buttons and inputs */
+  --d: 1; --ctl-h: 36px; --ui-scale: 1;
+  --s-1: calc(4px * var(--d)); --s-2: calc(8px * var(--d)); --s-3: calc(12px * var(--d)); --s-4: calc(16px * var(--d)); --s-5: calc(20px * var(--d));
+  --s-6: calc(24px * var(--d)); --s-8: calc(32px * var(--d)); --s-10: calc(40px * var(--d)); --s-12: calc(48px * var(--d)); --s-16: calc(64px * var(--d));
 
   /* shape */
-  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 24px; --r-full: 999px;
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 24px; --r-full: 999px; --border-w: 1px;
 
   /* motion */
   --ease: cubic-bezier(.2, .7, .2, 1);
   --t-fast: 120ms; --t-med: 200ms; --t-slow: 400ms;
 
-  /* accent (overridden per-user by theme.js; --accent-h is the hue used by tints) */
-  --accent: #cf450a;       /* fills with white text: contrast 4.7:1 */
-  --accent-hover: #b83d08;
-  --accent-fg: #ffffff;
-  --accent-text: #b83d08;  /* accent used as text on surfaces: 5.7:1 */
-  --accent-soft: #fdeee6;  /* tinted background */
-  --accent-ring: rgba(207, 69, 10, .35);
-}
+  /* page backdrop (looks like Aurora add colour here) */
+  --page-bg: none;
 
-/* ---------- light ---------- */
-:root, :root[data-theme="light"] {
-  --bg: #faf9f7;
-  --surface: #ffffff;
-  --surface-2: #f4f2ef;
-  --surface-3: #ebe8e4;
-  --border: #e7e3de;
-  --border-strong: #d3cec7;
-  --text: #1c1917;
-  --text-2: #4f4a45;
-  --text-3: #6b655f;
-  --overlay: rgba(28, 25, 23, .45);
+  /* ---------- Calm · light ---------- */
+  --accent: #cf450a; --accent-hover: #b83d08; --accent-fg: #ffffff; --accent-text: #b83d08; --accent-soft: #fdeee6; --accent-ring: rgba(207, 69, 10, .35);
+  --bg: #faf9f7; --surface: #ffffff; --surface-2: #f4f2ef; --surface-3: #ebe8e4; --border: #e7e3de; --border-strong: #d3cec7;
+  --text: #1c1917; --text-2: #4f4a45; --text-3: #6b655f; --overlay: rgba(28, 25, 23, .45);
   --shadow-1: 0 1px 2px rgba(28, 25, 23, .05);
   --shadow-2: 0 1px 2px rgba(28, 25, 23, .04), 0 8px 24px rgba(28, 25, 23, .08);
   --shadow-3: 0 2px 4px rgba(28, 25, 23, .06), 0 16px 48px rgba(28, 25, 23, .14);
+  --productive: #2d6cdf; --productive-text: #1f56b8; --productive-soft: #e7effd;
+  --neutral: #9a948c; --neutral-text: #5f5a54; --neutral-soft: #efedea;
+  --distracting: #e0483f; --distracting-text: #b92f35; --distracting-soft: #fdeceb;
+  --warning: #d98a00; --warning-text: #8f5b00; --warning-soft: #fdf3dc;
+  --success: #1f9d6b; --success-text: #0f7a52; --success-soft: #e2f6ec;
+  --grid: #ece8e3; --bar-empty: #efece8;
 
-  /* semantic: how a site is classified */
-  --productive: #2d6cdf;       --productive-text: #1f56b8;  --productive-soft: #e7effd;
-  --neutral: #9a948c;          --neutral-text: #5f5a54;     --neutral-soft: #efedea;
-  --distracting: #e0483f;      --distracting-text: #b92f35; --distracting-soft: #fdeceb;
-  --warning: #d98a00;          --warning-text: #8f5b00;     --warning-soft: #fdf3dc;
-  --success: #1f9d6b;          --success-text: #0f7a52;     --success-soft: #e2f6ec;
-
-  /* chart */
-  --grid: #ece8e3;
-  --bar-empty: #efece8;
+  /* cards */
+  --card-bg: var(--surface); --card-border: var(--border); --card-shadow: var(--shadow-1); --card-blur: 0px;
 }
 
-/* ---------- dark ---------- */
-:root[data-theme="dark"] {
-  --accent: #ff7a3d;
-  --accent-hover: #ff8e58;
-  --accent-fg: #1a0e07;
-  --accent-text: #ff9a66;
-  --accent-soft: #2b1a11;
-  --accent-ring: rgba(255, 122, 61, .4);
-
-  --bg: #0f0e0d;
-  --surface: #181716;
-  --surface-2: #211f1d;
-  --surface-3: #2b2826;
-  --border: #2d2a27;
-  --border-strong: #433f3b;
-  --text: #f5f3f0;
-  --text-2: #bdb7b0;
-  --text-3: #938d86;
-  --overlay: rgba(0, 0, 0, .6);
-  --shadow-1: 0 0 0 1px rgba(255, 255, 255, .02);
-  --shadow-2: 0 8px 24px rgba(0, 0, 0, .4);
-  --shadow-3: 0 16px 48px rgba(0, 0, 0, .55);
-
-  --productive: #4a89ee;       --productive-text: #8db4f5;  --productive-soft: #12233f;
-  --neutral: #9a948c;          --neutral-text: #aaa49d;     --neutral-soft: #26231f;
-  --distracting: #e8584f;      --distracting-text: #ff9090; --distracting-soft: #331a1b;
-  --warning: #f2b233;          --warning-text: #f5c25e;     --warning-soft: #33270d;
-  --success: #3ddc97;          --success-text: #5ee3aa;     --success-soft: #0f2c1f;
-
-  --grid: #2a2724;
-  --bar-empty: #24211f;
+:root[data-scheme="dark"] {
+  color-scheme: dark;
+  --accent: #ff7a3d; --accent-hover: #ff8e58; --accent-fg: #1a0e07; --accent-text: #ff9a66; --accent-soft: #2b1a11; --accent-ring: rgba(255, 122, 61, .4);
+  --bg: #0f0e0d; --surface: #181716; --surface-2: #211f1d; --surface-3: #2b2826; --border: #2d2a27; --border-strong: #433f3b;
+  --text: #f5f3f0; --text-2: #bdb7b0; --text-3: #938d86; --overlay: rgba(0, 0, 0, .6);
+  --shadow-1: 0 0 0 1px rgba(255, 255, 255, .02); --shadow-2: 0 8px 24px rgba(0, 0, 0, .4); --shadow-3: 0 16px 48px rgba(0, 0, 0, .55);
+  --productive: #4a89ee; --productive-text: #8db4f5; --productive-soft: #12233f;
+  --neutral: #9a948c; --neutral-text: #aaa49d; --neutral-soft: #26231f;
+  --distracting: #e8584f; --distracting-text: #ff9090; --distracting-soft: #331a1b;
+  --warning: #f2b233; --warning-text: #f5c25e; --warning-soft: #33270d;
+  --success: #3ddc97; --success-text: #5ee3aa; --success-soft: #0f2c1f;
+  --grid: #2a2724; --bar-empty: #24211f;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --accent: #ff7a3d;
-    --accent-hover: #ff8e58;
-    --accent-fg: #1a0e07;
-    --accent-text: #ff9a66;
-    --accent-soft: #2b1a11;
-    --accent-ring: rgba(255, 122, 61, .4);
-
-    --bg: #0f0e0d;
-    --surface: #181716;
-    --surface-2: #211f1d;
-    --surface-3: #2b2826;
-    --border: #2d2a27;
-    --border-strong: #433f3b;
-    --text: #f5f3f0;
-    --text-2: #bdb7b0;
-    --text-3: #938d86;
-    --overlay: rgba(0, 0, 0, .6);
-    --shadow-1: 0 0 0 1px rgba(255, 255, 255, .02);
-    --shadow-2: 0 8px 24px rgba(0, 0, 0, .4);
-    --shadow-3: 0 16px 48px rgba(0, 0, 0, .55);
-
-    --productive: #4a89ee;       --productive-text: #8db4f5;  --productive-soft: #12233f;
-    --neutral: #9a948c;          --neutral-text: #aaa49d;     --neutral-soft: #26231f;
-    --distracting: #e8584f;      --distracting-text: #ff9090; --distracting-soft: #331a1b;
-    --warning: #f2b233;          --warning-text: #f5c25e;     --warning-soft: #33270d;
-    --success: #3ddc97;          --success-text: #5ee3aa;     --success-soft: #0f2c1f;
-
-    --grid: #2a2724;
-    --bar-empty: #24211f;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :root { --t-fast: 0ms; --t-med: 0ms; --t-slow: 0ms; }
-}
+@media (prefers-reduced-motion: reduce) { :root { --t-fast: 0ms; --t-med: 0ms; --t-slow: 0ms; } }
+:root[data-motion="reduced"] { --t-fast: 0ms; --t-med: 0ms; --t-slow: 0ms; }
+:root[data-motion="reduced"] *, :root[data-motion="reduced"] *::before, :root[data-motion="reduced"] *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }

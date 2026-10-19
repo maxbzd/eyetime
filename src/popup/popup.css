@@ -1,5 +1,5 @@
-html { width: 380px; }
-body { min-height: 200px; max-height: 600px; overflow-y: auto; }
+html { width: calc(380px * var(--ui-scale, 1)); }
+body { min-height: calc(200px / var(--ui-scale, 1)); max-height: calc(600px / var(--ui-scale, 1)); overflow-y: auto; }
 .top { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px 6px 16px; position: sticky; top: 0; background: var(--bg); z-index: 5; }
 .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; letter-spacing: -.02em; font-size: var(--fs-lg); }
 #app { padding: 4px 12px 14px; }

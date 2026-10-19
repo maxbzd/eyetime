@@ -203,3 +203,11 @@ test('suggestLimit: caps the heaviest distracting site at ~60% of its daily aver
   assert.equal(suggestLimit({ activeDays: 5, topSites: [{ host: 'x.com', cls: 'distracting', sec: 5 * 10 * 60 }] }), null); // small: nothing to suggest
   assert.equal(suggestLimit({ activeDays: 0, topSites: [] }), null);
 });
+
+test('upgradeSettingsV2: theme/accent move into appearance', async () => {
+  const { upgradeSettingsV2 } = await import('../../src/shared/migrate.js');
+  const u = upgradeSettingsV2({ theme: 'dark', accent: 'violet', language: 'ru' });
+  assert.equal(u.appearance.mode, 'dark'); assert.equal(u.appearance.accent, 'violet'); assert.equal('theme' in u, false); assert.equal(u.language, 'ru');
+  assert.equal(upgradeSettingsV2({ theme: 'system', accent: 'ember' }).appearance.accent, undefined); // default accent = the look's own
+  assert.deepEqual(deepMerge(DEFAULT_SETTINGS, upgradeSettingsV2({})).appearance.look, 'calm');
+});

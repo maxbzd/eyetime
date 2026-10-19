@@ -1,0 +1,36 @@
+/* Look cards (live miniatures) and accent swatches */
+.looks { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--s-4); }
+.looks.compact { grid-template-columns: repeat(2, 1fr); gap: var(--s-2); }
+.look-card { display: flex; flex-direction: column; gap: var(--s-2); padding: 6px; text-align: left; border-radius: var(--r-lg); border: 2px solid transparent; background: var(--surface-2); color: var(--text); transition: border-color var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast); }
+.look-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
+.look-card[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+.look-meta { display: flex; flex-direction: column; gap: 1px; padding: 2px 6px 6px; position: relative; }
+.look-name { font-weight: 650; font-size: var(--fs-md); }
+.look-desc { font-size: var(--fs-xs); color: var(--text-3); line-height: 1.35; }
+.look-check { position: absolute; right: 6px; top: 2px; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: var(--accent-fg); display: grid; place-items: center; font-size: 12px; }
+.look-check .ico { stroke-width: 3; }
+
+/* the miniature: all colours/radii/fonts come from inline custom properties set by lookPreview() */
+.lp { display: flex; flex-direction: column; gap: 7px; padding: 10px; border-radius: calc(var(--r-lg) - 2px); background: var(--page-bg), var(--bg); color: var(--text); overflow: hidden; pointer-events: none; min-height: 128px; border: 1px solid var(--border); }
+.compact .lp { min-height: 104px; padding: 8px; gap: 5px; }
+.lp-head { display: flex; align-items: center; justify-content: space-between; }
+.lp-head h4 { font-size: 11px; }
+.lp-card { padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+.lp-time { font-family: var(--font-display); font-weight: var(--fw-heading); font-size: 20px; letter-spacing: var(--ls-heading); line-height: 1; }
+.lp .btn { height: 20px; padding: 0 8px; font-size: 9px; }
+.lp .chip { height: 18px; padding: 0 7px; font-size: 8px; }
+.lp .tag { height: 16px; font-size: 8px; padding: 0 6px; }
+.lp .badge { height: 16px; font-size: 8px; padding: 0 6px; }
+.lp-bars { display: flex; gap: 3px; height: 22px; align-items: flex-end; }
+.lp-col { flex: 1; height: 100%; display: flex; flex-direction: column-reverse; gap: 1px; justify-content: flex-start; }
+.compact .lp-bars { display: none; }
+
+.swatch-btn.look-own { background: conic-gradient(from 0deg, var(--c), color-mix(in srgb, var(--c) 40%, var(--surface)), var(--c)); }
+.swatch-btn.custom { position: relative; display: grid; place-items: center; background: conic-gradient(#ff5f6d, #ffc371, #7dd87d, #4fc3f7, #9575ff, #ff5f6d); color: #fff; overflow: hidden; cursor: pointer; }
+.swatch-btn.custom[aria-pressed="true"] { background: var(--c); }
+.swatch-btn.custom input[type="color"] { position: absolute; inset: -8px; width: 150%; height: 150%; opacity: 0; cursor: pointer; }
+.swatch-btn.custom .ico { font-size: 14px; stroke-width: 3; filter: drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
+
+.lp-split { position: relative; display: block; }
+.lp-dark { position: absolute; inset: 0; display: block; clip-path: polygon(62% 0, 100% 0, 100% 100%, 38% 100%); }
+.lp-dark .lp { height: 100%; }

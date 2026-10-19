@@ -4,10 +4,11 @@ import { getSettings, onChange } from '../shared/storage.js';
 import { resolveLocale, setLocale, applyI18n } from '../shared/i18n.js';
 import { hydrateIcons } from './dom.js';
 
-export const ACCENT_NAMES = ['ember', 'blue', 'violet', 'pink', 'teal', 'green'];
+import { buildCache } from '../shared/looks.js';
 
+/** Resolve the user's look and paint it (also refreshes the cache theme-init.js reads before first paint). */
 export function applyTheme(settings) {
-  window.EyeTimeTheme?.apply(settings.theme, settings.accent);
+  window.EyeTimeTheme?.apply(buildCache(settings.appearance), true);
 }
 
 export function localize(settings) {

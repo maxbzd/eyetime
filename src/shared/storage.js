@@ -10,7 +10,7 @@
 //   newtabBg            custom background photo (data URL)
 
 import { DEFAULT_SETTINGS, deepMerge, clone, SCHEMA_VERSION } from './defaults.js';
-import { migrate, needsMigration } from './migrate.js';
+import { migrate, needsMigration, upgradeSettingsV2 } from './migrate.js';
 import { dayKey, rangeKeys, addDays } from './time.js';
 import { emptyDay } from './stats.js';
 
@@ -116,6 +116,11 @@ export const setCollection = (name, value) => area().set({ [name]: value });
 export async function ensureSchema() {
   const { meta } = await area().get('meta');
   if (meta && (meta.schemaVersion || 0) >= SCHEMA_VERSION) return { migrated: false };
+  if (meta && meta.schemaVersion === 2) { // 2.0 -> 2.1: settings only
+    const { settings } = await area().get('settings');
+    await area().set({ settings: deepMerge(DEFAULT_SETTINGS, upgradeSettingsV2(settings)), meta: { ...meta, schemaVersion: SCHEMA_VERSION } });
+    return { migrated: true, from: '2.0' };
+  }
   const raw = await area().get(null);
   if (!needsMigration(raw)) return { migrated: false };
   const m = migrate(raw);
@@ -138,7 +143,8 @@ export async function exportAll() {
 export async function importAll(payload) {
   if (!payload || payload.app !== 'eyetime' || typeof payload.data !== 'object') throw new Error('Not an EyeTime backup');
   const data = payload.data;
-  const m = (data.meta?.schemaVersion || 0) >= 2 ? null : migrate(data);
+  const ver = data.meta?.schemaVersion || 0;
+  const m = ver >= 2 ? null : migrate(data);
   // never trust a file blindly: keep only the keys EyeTime itself writes
   const KNOWN = new Set(['settings', 'meta', 'tasks', 'habits', 'captures']);
   const clean = {};
@@ -150,6 +156,8 @@ export async function importAll(payload) {
     for (const [k, rec] of Object.entries(m.days)) out[dayStorageKey(k)] = rec;
     await area().set(out);
   } else {
+    if (ver === 2 && clean.settings) clean.settings = upgradeSettingsV2(clean.settings);
+    if (clean.meta) clean.meta = { ...clean.meta, schemaVersion: 2 };
     await area().set(clean);
   }
   await ensureSchema();
