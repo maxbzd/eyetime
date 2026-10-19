@@ -233,4 +233,5 @@ export const en = {
   'opt.review': 'Ask how a session went', 'opt.reviewDesc': 'A quick rating and “mark the task done” after each session. It feeds your best-hours insight.',
   'opt.reminders': 'Focus reminders', 'opt.remindersDesc': 'Plan your deep-work blocks: a notification starts the session with one click.', 'opt.addReminder': 'Add a reminder', 'opt.remindTime': 'Reminder time', 'opt.remindLen': 'Session length',
   'opt.longBreak': 'Long break', 'opt.longBreakDesc': 'A longer rest after every few sessions of the day.', 'opt.longBreakLen': 'Long break length', 'opt.everyN': 'Every {n} sessions',
+  'block.why.back': 'Turned back',
 };
