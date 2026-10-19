@@ -1,1 +1,30 @@
-<!doctype html><meta charset="utf-8"><title>EyeTime</title><p>stub</p>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="break.pageTitle">Eye break — EyeTime</title>
+  <script src="../ui/theme-init.js"></script>
+  <link rel="stylesheet" href="../ui/tokens.css">
+  <link rel="stylesheet" href="../ui/base.css">
+  <link rel="stylesheet" href="../ui/components.css">
+  <link rel="stylesheet" href="break.css">
+</head>
+<body>
+  <div class="glow" aria-hidden="true"></div>
+  <main class="stage" aria-live="polite">
+    <div class="eyebrow" data-i18n="break.eyebrow">20-20-20 eye break</div>
+    <div class="ring" id="ring">
+      <svg viewBox="0 0 200 200" aria-hidden="true"><circle class="track" cx="100" cy="100" r="90" fill="none" stroke-width="6"/><circle class="bar" id="bar" cx="100" cy="100" r="90" fill="none" stroke-width="6" stroke-linecap="round"/></svg>
+      <div class="center"><div class="num" id="count">20</div></div>
+    </div>
+    <h1 id="title"></h1>
+    <p class="lead" id="lead"></p>
+    <div class="actions">
+      <button class="btn btn-lg" id="skip" type="button" data-i18n="break.skip">Skip</button>
+      <button class="btn btn-primary btn-lg" id="done" type="button" hidden data-i18n="break.done">Back to work</button>
+    </div>
+  </main>
+  <script type="module" src="break.js"></script>
+</body>
+</html>

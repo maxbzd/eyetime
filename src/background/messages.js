@@ -23,6 +23,7 @@ const handlers = {
   'break:open': async () => { await openBreakPage(); return { ok: true }; },
   'break:state': () => getEyeState(),
   'tracking:pause': async (m) => { await setRaw({ pausedUntil: m.minutes ? Date.now() + m.minutes * 60_000 : 0 }); await sync('pause'); return { ok: true }; },
+  'tab:close': async (m, sender) => { if (sender.tab) await chrome.tabs.remove(sender.tab.id); return { ok: true }; },
   'settings:changed': async () => { await scheduleBedtime(); await sweepTabs(); await sync('settings'); return { ok: true }; },
 };
 

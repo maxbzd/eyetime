@@ -1,6 +1,26 @@
 {
-  "extName": { "message": "EyeTime — Focus, Screen Time & Eye Care" },
-  "extDescription": { "message": "Start a focus session in one click, block distractions gently, see where your time goes and rest your eyes. Free, open source, 100% local." },
-  "actionTitle": { "message": "EyeTime" },
-  "cmdToggleFocus": { "message": "Start or stop a focus session" }
+  "extName": {
+    "message": "EyeTime — Focus, Screen Time & Eye Care"
+  },
+  "extDescription": {
+    "message": "Start a focus session in one click, block distractions gently, see where your time goes and rest your eyes. Free, open source, 100% local."
+  },
+  "actionTitle": {
+    "message": "EyeTime"
+  },
+  "cmdToggleFocus": {
+    "message": "Start or stop a focus session"
+  },
+  "feedTitle": {
+    "message": "Time to stop scrolling"
+  },
+  "feedBody": {
+    "message": "You’ve been watching short videos for {n} minutes. The page is paused and in grayscale so you can choose what’s next."
+  },
+  "feedLeave": {
+    "message": "Close this tab"
+  },
+  "feedMore": {
+    "message": "5 more minutes"
+  }
 }

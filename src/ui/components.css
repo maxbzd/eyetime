@@ -177,3 +177,8 @@ dialog.dialog[open] { animation: dlg-in var(--t-med) var(--ease); }
 .legend { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4); font-size: var(--fs-xs); color: var(--text-2); }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .legend i { width: 8px; height: 8px; border-radius: 3px; display: block; }
+
+/* accent swatch button */
+.swatch-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--c); border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--border-strong); padding: 0; }
+.swatch-btn:hover { box-shadow: 0 0 0 1px var(--text-3); }
+.swatch-btn[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--text); }
