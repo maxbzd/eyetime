@@ -105,3 +105,23 @@ Eye-break page ─ (opened from notification / popup)
 Shipped: everything under "Core" and "Supporting" above, plus the safe companion rewrite and an automatic 1.x → 2.0 data migration.
 Verified by: 15 unit tests (logic, migration, i18n, WCAG contrast), 12 companion tests, a 42-step end-to-end run in real Chromium (also against the packaged build), and visual QA of every surface in light/dark, English/Russian and at phone width.
 Not yet done: store listings (copy and screenshots are ready in `store/`), more languages, macOS/Linux companion backends, in-app weekly review.
+
+## 9. Round 3 — personal design and measurable productivity
+
+**Why.** Two things kept people from sticking with focus tools: the app never felt *theirs*, and blocking alone does not produce good days — it removes the worst option but doesn't help you choose the best one.
+
+**Design principle:** a look is a handful of choices (palette + character); everything else is derived and contrast-checked, so wild variety never costs readability. 11 looks × any accent × fonts/shape/density gives thousands of combinations that are all legible.
+
+**Productivity principle:** close the **plan → focus → review** loop on the surface people already open every day (the new tab):
+
+| Step | What EyeTime does | Why it works |
+|---|---|---|
+| Plan | ≤ 3 starred priorities; morning nudge if none | A short, explicit list beats a long backlog; the limit forces choosing |
+| Start | Task chips set the goal in one tap; "just 5 minutes" | Starting is the hard part — lower the bar, name the target |
+| Protect | Scope *only my sites*; intent chips on the pause page; strict per session | Friction with a reason, not a wall; autopilot gets named |
+| Rest | Short breaks, long break every Nth session | Sustained focus needs recovery |
+| Review | One-tap rating, "mark task done", daily goal + streak, best hours | Feedback loops make the habit stick and reveal when you actually focus well |
+
+Nothing leaves the device; ratings and reasons are stored per day next to the existing records.
+
+**Success signals (self-judged by maintainers):** sessions per active day, share of sessions linked to a task, goal-day rate over 30 days, share of pause pages that end in "back".
