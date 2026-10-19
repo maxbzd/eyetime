@@ -63,7 +63,7 @@ async function paintNudge() {
   if (!kind || kind === 'start' || nudgeOff(kind)) { el.hidden = true; return; }
   const r = dayReview(day);
   const rated = r.avgRating ? t(r.avgRating >= 2.5 ? 'review.r3' : r.avgRating >= 1.75 ? 'review.r2' : 'review.r1').toLowerCase() : '';
-  const msg = { plan: t('nudge.plan'), goal: t('nudge.goal'), review: t('nudge.review', { n: r.sessions, time: fmtDuration(r.minutes * 60) }) + (rated ? ' · ' + rated : '') }[kind];
+  const msg = { plan: t('nudge.plan'), goal: t('nudge.goal'), review: r.sessions ? t('nudge.review', { n: r.sessions, time: fmtDuration(r.minutes * 60) }) + (rated ? ' · ' + rated : '') : t('nudge.reviewEmpty') }[kind];
   const ico = { plan: { icon: 'star' }, goal: { icon: 'trophy' }, review: { icon: 'moon' } }[kind].icon;
   clear(el, icon(ico), h('span', { class: 'nudge-text', text: msg }),
     kind === 'review' ? h('button', { class: 'btn btn-sm btn-primary', type: 'button', onclick: openShutdown }, icon('moon'), t('nudge.closeDay')) : null,
@@ -124,16 +124,8 @@ function renderModules() {
   layoutModules();
 }
 
-/** Cards fill columns left-to-right in the saved order (round-robin), so the order the user set is the order they read. */
-function layoutModules() {
-  const root = $('#modules');
-  const w = root.clientWidth || window.innerWidth;
-  const cols = Math.max(1, Math.min(3, Math.floor(w / 320)));
-  root.style.setProperty('--cols', cols);
-  const columns = Array.from({ length: cols }, () => h('div', { class: 'col' }));
-  modEls.forEach((el, i) => columns[i % cols].append(el));
-  clear(root, columns);
-}
+/** A flat bento grid (see newtab.css): the saved order is the reading order, rows share one height. */
+function layoutModules() { clear($('#modules'), modEls); }
 
 /* ---------- customize drawer ---------- */
 
@@ -223,7 +215,6 @@ async function morningPlan() {
   renderModules();
   $('#customize').addEventListener('click', openDrawer);
   $('#moreMods').addEventListener('click', () => document.body.classList.toggle('show-mods'));
-  let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(layoutModules, 120); });
   $('#drawerClose').addEventListener('click', closeDrawer);
   $('#scrim').addEventListener('click', closeDrawer);
   document.addEventListener('keydown', (e) => {

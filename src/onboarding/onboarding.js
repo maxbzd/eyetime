@@ -5,10 +5,11 @@ import { t, LANGUAGES, fmtDuration } from '../shared/i18n.js';
 import { updateSettings } from '../shared/storage.js';
 import { PRESETS, PRESET_IDS } from '../shared/catalog.js';
 import { parseUserDomain } from '../shared/domains.js';
+import { looksGallery, accentPicker } from '../ui/appearance.js';
 
-const STEPS = ['welcome', 'distractions', 'rhythm', 'ready'];
+const STEPS = ['welcome', 'distractions', 'rhythm', 'look', 'ready'];
 let step = 0, s;
-const pick = { presets: {}, custom: [], minutes: 25, eye: true, friction: true, schedule: false, start: '09:00', end: '18:00' };
+const pick = { presets: {}, custom: [], minutes: 25, goal: 120, eye: true, friction: true, schedule: false, start: '09:00', end: '18:00' };
 
 function dots() { clear($('#dots'), STEPS.map((_, i) => h('li', { class: i === step ? 'on' : i < step ? 'done' : '' }))); }
 
@@ -21,7 +22,7 @@ async function finish(startFocus) {
     x.onboarded = true;
     for (const id of PRESET_IDS) x.blocking.presets[id] = !!pick.presets[id];
     x.blocking.custom = [...new Set([...x.blocking.custom, ...pick.custom])];
-    x.focus.minutes = pick.minutes;
+    x.focus.minutes = pick.minutes; x.focus.dailyGoal = pick.goal;
     x.eye.enabled = pick.eye; x.eye.notify = pick.eye;
     x.blocking.friction.enabled = pick.friction;
     x.blocking.schedule.enabled = pick.schedule; x.blocking.schedule.start = pick.start; x.blocking.schedule.end = pick.end;
@@ -62,10 +63,24 @@ const views = {
     h('div', {},
       h('div', { class: 'opt' }, h('div', {}, h('b', { text: t('ob.focusLen') }), h('span', { class: 'd', text: t('ob.focusLenD') })),
         h('div', { class: 'segmented', role: 'group', 'aria-label': t('ob.focusLen') }, [15, 25, 50, 90].map((m) => h('button', { type: 'button', 'aria-pressed': String(pick.minutes === m), text: fmtDuration(m * 60), onclick: (e) => { pick.minutes = m; e.currentTarget.parentNode.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === e.currentTarget))); } })))),
+      h('div', { class: 'opt' }, h('div', {}, h('b', { text: t('ob.goal') }), h('span', { class: 'd', text: t('ob.goalD') })),
+        h('div', { class: 'segmented', role: 'group', 'aria-label': t('ob.goal') }, [[0, t('common.off')], [60, '1h'], [120, '2h'], [180, '3h']].map(([m, label]) => h('button', { type: 'button', 'aria-pressed': String(pick.goal === m), text: label, onclick: (e) => { pick.goal = m; e.currentTarget.parentNode.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === e.currentTarget))); } })))),
       h('div', { class: 'opt' }, h('div', {}, h('b', { text: t('ob.friction') }), h('span', { class: 'd', text: t('ob.frictionD') })), sw(pick.friction, (v) => { pick.friction = v; }, t('ob.friction'))),
       h('div', { class: 'opt' }, h('div', {}, h('b', { text: t('ob.eye') }), h('span', { class: 'd', text: t('ob.eyeD') })), sw(pick.eye, (v) => { pick.eye = v; }, t('ob.eye'))),
       h('div', { class: 'opt' }, h('div', {}, h('b', { text: t('ob.schedule') }), h('span', { class: 'd', text: t('ob.scheduleD') })), sw(pick.schedule, (v) => { pick.schedule = v; }, t('ob.schedule')))),
     nav()),
+
+  look: () => {
+    const ap = s.appearance;
+    const set = (fn) => updateSettings((x) => { fn(x.appearance); });
+    return h('div', { class: 'step step-look' },
+      h('h1', { text: t('ob.lookTitle') }), h('p', { class: 'lead', text: t('ob.lookLead') }),
+      h('div', { class: 'looks ob-looks' }, [...looksGallery(ap, { compact: true, onPick: (id) => set((a) => { a.look = id; }) }).children]),
+      h('div', { class: 'opt' }, h('b', { text: t('opt.theme') }),
+        h('div', { class: 'segmented', role: 'group', 'aria-label': t('opt.theme') }, [['system', t('opt.themeSystem')], ['light', t('opt.themeLight')], ['dark', t('opt.themeDark')]].map(([v, label]) => h('button', { type: 'button', 'aria-pressed': String(ap.mode === v), text: label, onclick: () => set((a) => { a.mode = v; }) })))),
+      h('div', { class: 'opt' }, h('b', { text: t('opt.accent') }), accentPicker(ap, (v) => set((a) => { a.accent = v; }))),
+      nav());
+  },
 
   ready: () => h('div', { class: 'step' },
     h('h1', { text: t('ob.readyTitle') }), h('p', { class: 'lead', text: t('ob.readyLead') }),
@@ -81,7 +96,7 @@ function nav() {
 }
 function next() { step = Math.min(STEPS.length - 1, step + 1); render(); }
 function back() { step = Math.max(0, step - 1); render(); }
-function render() { dots(); clear($('#card'), views[STEPS[step]]()); $('#card').scrollIntoView({ block: 'nearest' }); $('#skip').hidden = step === STEPS.length - 1; }
+function render() { dots(); $('#card').classList.toggle('wide', STEPS[step] === 'look'); clear($('#card'), views[STEPS[step]]()); $('#card').scrollIntoView({ block: 'nearest' }); $('#skip').hidden = step === STEPS.length - 1; }
 
 function drawLang() {
   clear($('#lang'), Object.entries(LANGUAGES).map(([code, name]) => h('button', { type: 'button', 'aria-pressed': String(document.documentElement.lang === code), text: name, onclick: async () => { await updateSettings((x) => { x.language = code; }); } })));

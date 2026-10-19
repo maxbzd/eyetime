@@ -8,7 +8,7 @@ import { makeClassifier } from '../shared/classify.js';
 import { summarize, focusStreak } from '../shared/stats.js';
 import { dayKey, rangeKeys } from '../shared/time.js';
 
-export function mountToday(root, { closeOnBreak = false, sites = 3 } = {}) {
+export function mountToday(root, { closeOnBreak = false, sites = 3, compact = false } = {}) {
   const st = { settings: null, today: null, yesterday: null, eye: { since: 0, due: false }, streak: 0 };
 
   async function load() {
@@ -37,26 +37,35 @@ export function mountToday(root, { closeOnBreak = false, sites = 3 } = {}) {
 
     if (sum.total < 60) {
       clear(root,
-        h('div', { class: 'eyebrow', text: t('today.title') }),
-        h('div', { class: 'empty', style: { padding: 'var(--s-4)' } }, h('div', { class: 'empty-icon' }, icon('chart-column')), h('h4', { text: t('today.emptyTitle') }), h('p', { text: t('today.emptyBody') })),
-        eyeRow());
+        compact ? null : h('div', { class: 'eyebrow', text: t('today.title') }),
+        compact
+          ? h('div', { class: 'today-empty-row' }, h('div', { class: 'em-ico' }, icon('chart-column')), h('div', {}, h('div', { class: 'em-title', text: t('today.emptyTitle') }), h('div', { class: 'em-body', text: t('today.emptyBody') })))
+          : h('div', { class: 'empty', style: { padding: 'var(--s-4)' } }, h('div', { class: 'empty-icon' }, icon('chart-column')), h('h4', { text: t('today.emptyTitle') }), h('p', { text: t('today.emptyBody') })),
+        compact ? null : eyeRow());
       return;
     }
     const diff = y.total >= 60 ? sum.total - y.total : null;
     const deltaTxt = diff === null ? '' : Math.abs(diff) < 300 ? t('today.sameAsYesterday') : t(diff > 0 ? 'today.moreThanYesterday' : 'today.lessThanYesterday', { time: fmtDuration(Math.abs(diff)) });
     const seg = (cls, key) => sum[key] > 0 ? h('i', { class: cls, style: { flexGrow: sum[key] }, 'data-tip': `${t('class.' + { p: 'productive', n: 'neutral', d: 'distracting' }[cls])}: ${fmtDuration(sum[key])}` }) : null;
-    const top = sum.topSites.slice(0, sites);
+    if (compact) {
+      // popup: one line — the total and the productive / neutral / distracting split; details live on Insights
+      clear(root, h('div', { class: 'today-line' },
+        h('div', { class: 'tl-total' }, h('span', { class: 'eyebrow', text: t('today.title') }), h('b', { class: 'num', text: fmtDuration(sum.total) })),
+        h('div', { class: 'split', role: 'img', 'aria-label': t('today.splitLabel') }, seg('p', 'productive'), seg('n', 'neutral'), seg('d', 'distracting'))));
+      return;
+    }
+    const top = sites ? sum.topSites.slice(0, sites) : [];
     const max = top[0]?.sec || 1;
     clear(root,
       h('div', { class: 'today-head' },
         h('div', {}, h('div', { class: 'eyebrow', text: t('today.title') }), h('div', { class: 'today-total num', text: fmtDuration(sum.total) })),
         h('div', { class: 'delta-note', text: deltaTxt })),
       h('div', { class: 'split', role: 'img', 'aria-label': t('today.splitLabel') }, seg('p', 'productive'), seg('n', 'neutral'), seg('d', 'distracting')),
-      h('div', { class: 'legend-grid' }, [['productive', 'dot-productive'], ['neutral', 'dot-neutral'], ['distracting', 'dot-distracting']].map(([k, dot]) =>
+      h('div', { class: 'legend-grid' + (compact ? ' inline' : '') }, [['productive', 'dot-productive'], ['neutral', 'dot-neutral'], ['distracting', 'dot-distracting']].map(([k, dot]) =>
         h('div', {}, h('span', { class: 'lg' }, h('i', { class: 'dot ' + dot }), t('class.' + k)), h('b', { class: 'num', text: fmtDuration(sum[k]) })))),
       top.length ? h('div', { class: 'top-sites' }, top.map((s) => h('div', { class: 'top-site' }, favicon(s.host), h('span', { class: 'truncate', text: s.host }), h('span', { class: 't num', text: fmtDuration(s.sec) }), h('div', { class: 'bar' }, h('i', { class: 'cls-' + s.cls, style: { width: (s.sec / max) * 100 + '%' } }))))) : null,
-      st.streak >= 2 ? h('div', { class: 'streak' }, icon('flame'), t('insight.streak', { n: st.streak })) : null,
-      eyeRow());
+      !compact && st.streak >= 2 ? h('div', { class: 'streak' }, icon('flame'), t('insight.streak', { n: st.streak })) : null,
+      compact ? null : eyeRow());
   }
 
   async function refresh() { await load(); render(); }
