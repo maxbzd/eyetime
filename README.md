@@ -1,121 +1,128 @@
-# ⚡ EyeTime OS — Personal Attention Guardian & Deep Work System
-
 <div align="center">
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-orange.svg)](https://opensource.org/licenses/MIT)
-[![Platform](https://img.shields.io/badge/Platform-Chrome%20%7C%20Windows%2010%2F11-blue.svg)]()
-[![Privacy](https://img.shields.io/badge/Privacy-100%25%20Local--First-brightgreen.svg)]()
-[![UI Theme](https://img.shields.io/badge/Design-Fintrixity%20Neo--Dark-FF5E0E.svg)]()
+<img src="icons/icon128.png" width="84" alt="EyeTime logo">
 
-**A local-first, distraction-free productivity operating system.**  
-*Combines an interactive Chromium Cockpit (Fintrixity Neo-Dark Glass) and a background Windows Sentinel daemon.*
+# EyeTime
 
-[English](README.md) • [Русская версия (Документация на русском)](README_RU.md)
+**Focus, screen time and eye care for your browser.**<br>
+Free, open source and 100% local — no account, no servers, no tracking.
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-orange.svg)](LICENSE)
+[![CI](https://github.com/maxbzd/eyetime/actions/workflows/ci.yml/badge.svg)](https://github.com/maxbzd/eyetime/actions/workflows/ci.yml)
+[![Privacy: local-first](https://img.shields.io/badge/privacy-local--first-2d6cdf.svg)](PRIVACY.md)
+[![Manifest V3](https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4.svg)]()
+
+[English](README.md) · [Русский](README_RU.md)
+
+<img src="store/screenshots/1-home.png" alt="EyeTime home page with focus card, today's stats, tasks and notes" width="860">
 
 </div>
 
 ---
 
-## 💡 Why EyeTime OS?
+## Why EyeTime
 
-Most website blockers fail because:
-1. They feel restrictive rather than empowering.
-2. They are trivially bypassed by opening another browser or an incognito window.
-3. They lack flow-state triggers and acoustic feedback.
+Most blockers feel like punishment and most trackers feel like surveillance. EyeTime is built around three ideas:
 
-**EyeTime OS fixes this** by turning productivity into a tactile, high-agency cockpit with soundscapes, an automated 100% Grayscale doomscroll interceptor, and a background Windows sentinel.
+1. **One click to focus.** Start a timed session from the toolbar, the new tab or a shortcut. Distracting sites pause until it ends.
+2. **Honest, calm data.** See where your time really goes — per site, per hour, per day — with plain-language highlights. Empty means empty; nothing is invented.
+3. **Friction, not force.** A breathing pause before a distracting site beats a lockout. Strict mode exists, but you choose it per session.
 
----
+And because the name says it: it looks after your **eyes** too — 20-20-20 reminders counted in real screen time.
 
-## ✨ Core Superpowers
+## Features
 
-### 1. 🛡️ Daily Flow Cockpit (New Tab)
-* **Hero Focus Blocks**: Presets for 25m, 50m, or 90m deep work sessions.
-* **Procedural Tibetan Singing Bowl Gong**: Authentic ~196 Hz acoustic resonance synthesized via the Web Audio API without heavy external audio files. Resonates smoothly for 4.8 seconds to prime your nervous system for flow.
-* **🎧 Seamless Endel Focus Integration**: Launching focus automatically opens your personalized focus soundscape at `https://app.endel.io/player/focus` in an active tab while the gong rings out in the background.
-* **Daily Goals & Counters**: Track custom daily metrics (e.g. Focus Sessions, Key Tasks Closed, Pages Read) with live plus/minus steppers.
-* **Mental Scratchpad**: Instant thought dumping box to park intrusive thoughts without losing your train of thought.
-* **Bedtime Countdown**: Live countdown to your sleep schedule, automatically transitioning the interface into night relaxation mode.
+| | |
+|---|---|
+| 🎯 **Focus sessions** | 15 / 25 / 50 / 90 min or custom, optional goal text, soft start/end sound, optional *Strict* mode, "open my music" link. Distracting tabs are paused instantly and released automatically when the session ends. |
+| 🛡 **Blocking that respects you** | Category presets (social, video, forums, news, games, shopping, messengers), your own sites, an allow-list, work-hours schedule, per-site daily limits, always-blocked list and a short breathing pause with a timed "continue". |
+| 📊 **Insights** | Today / 7 / 30 days: screen time, focus time, distraction share, breaks. Stacked charts by day and hour, a calendar heatmap, a sortable site table where one tap re-classifies a site (productive / neutral / distracting), highlights like "your most distracting day was Sunday", CSV export, table view for accessibility. |
+| 👁 **Eye care** | 20-20-20 reminders based on *active* screen time, a guided 20-second break page, break counter, bedtime nudge. |
+| 🏠 **Home (new tab)** | Clock, focus card, today's summary, tasks, habits with streaks, notes, quick links, six gradient backdrops or your own photo, 6 accent colours, light/dark. Can be switched off. |
+| 📱 **Short-video guard** | After a limit of Shorts / Reels / TikTok / VK Clips scrolling the page turns grayscale and pauses. Optional hiding of Shorts, recommendations, comments and the YouTube home feed. |
+| 🌍 **English & Russian** | Key-based i18n; adding a language is one file. |
+| 🔒 **Private by design** | Only domain names and seconds are stored, on your device. [Details](PRIVACY.md). |
 
-### 2. 🩻 Anti-Doomscroll (Shorts / Reels / Clips Killer)
-* **Platforms Protected**: YouTube Shorts, Instagram Reels, VK Clips, and TikTok.
-* **What happens after 60 seconds of doomscrolling**:
-  1. The entire screen smoothly desaturates into **100% Black & White (Grayscale)**.
-  2. All videos are instantly paused.
-  3. A high-contrast intervention modal appears: *"You've been caught doomscrolling. Return to your primary task!"* with one-click exits to focus or Endel.
+<details>
+<summary><b>More screenshots</b></summary>
 
-### 3. 📊 Full-Page Analytics & 7-Day Matrix
-* **Honest 7-Day Calendar**: True Monday–Sunday matrix showing daily completion and streak status.
-* **24-Hour Activity Curve**: Visual hourly breakdown of your focus hours and peaks.
-* **Category Breakdown**: Dynamic donut chart categorizing time into AI Tools (`#FF5E0E`), Development (`#818CF8`), Communication, Media, and System apps.
+<img src="store/screenshots/2-focus.png" width="860" alt="Popup with a running focus session and the paused-site page">
+<img src="store/screenshots/3-insights.png" width="860" alt="Insights page">
+<img src="store/screenshots/5-settings.png" width="860" alt="Settings page">
+<img src="store/screenshots/4-home-dark.png" width="860" alt="Home page in dark mode">
+<img src="store/screenshots/6-onboarding.png" width="860" alt="Onboarding">
 
-### 4. 💻 Windows Desktop Sentinel (Python 3 Win32)
-* **Runs 24/7 in Windows System Tray**: Resides silently down by the clock, consuming only ~4.9 MB of RAM.
-* **Accurate Process Detection**: Uses `QueryFullProcessImageNameW` (0x1000) for cross-integrity process tracking (VS Code, Chrome, Telegram, Figma, etc.).
-* **Anti-Bypass Guard**: Closes unauthorized secondary browsers (Edge, Firefox, Brave, Opera, Tor) and blocks Chrome Incognito mode.
+</details>
 
----
+## Install
 
-## 🚀 1-Click Installation (Windows)
+> EyeTime is not in the Chrome Web Store yet. Until it is, install it in a minute from a release or from source.
 
-We created a **single-click installer** so anyone can set up the entire system in under 60 seconds:
+**Chrome, Edge, Brave, Arc (Chromium 120+)**
 
-1. Clone or download this repository:
-   ```bash
-   git clone https://github.com/maxbzd/eyetime.git
-   ```
-2. Double-click **`INSTALL.bat`** in the project folder.
-   - It will automatically set up the Windows System Tray sentinel.
-   - It will copy the extension folder path to your clipboard.
-   - It will open `chrome://extensions/` for you.
-3. In Chrome:
-   - Toggle **Developer mode** on (top-right).
-   - Click **Load unpacked** (top-left) and press `Ctrl + V` then Enter.
-4. **Interactive Onboarding Wizard**:
-   - The first time you launch, EyeTime greets you with a guided setup where you choose your bedtime, set your custom daily goals, test the Tibetan gong, and personalize your experience.
+1. Download `eyetime-chrome.zip` from the [latest release](https://github.com/maxbzd/eyetime/releases) and unzip it — *or* `git clone https://github.com/maxbzd/eyetime.git` (no build step needed).
+2. Open `chrome://extensions`, switch on **Developer mode**, click **Load unpacked** and select the folder that contains `manifest.json`.
+3. The setup wizard opens. Pin EyeTime from the puzzle-piece menu so it is one click away.
 
----
+**Firefox (121+)** — experimental: run `npm run build`, then `about:debugging` → *This Firefox* → *Load Temporary Add-on* → `dist/firefox/manifest.json`. (Sound and site icons are Chrome-only for now.)
 
-## 🆕 What's new in 1.1
-- **Habit tracker**: your own habits, challenge length from 7 to 365 days, streaks, day grid.
-- **Work hours**: pick days and hours; distracting sites are blocked on schedule (strict mode or a short "allow for 5 min" pass).
-- **Blocking presets**: toggle whole categories, add your own sites, keep an allow-list.
-- **Toolbar badge** with today's screen time.
-- English + Russian interface, JSON/CSV export and import, fixed day-boundary bug for non-UTC time zones.
+> Updating from EyeTime 1.x? Your settings, tasks, habits, notes and history migrate automatically. See [what changed](docs/PRODUCT.md#1-audit-of-v11-why-a-redesign).
 
-## 🧩 Build your own new tab
-Click **Customize** on the new tab: drag widgets (or use the arrows), **drag a widget's right edge to resize it**, add / duplicate / remove widgets, and restyle everything. `Ctrl+Z` / `Ctrl+Shift+Z` undo and redo every change. Shortcuts: `E` toggles Customize, `/` jumps to the search widget. Rows always stay tidy — whatever you move, each row is stretched to the full width.
-- **8 ready-made sets**: Classic, Minimal, Deep work, Developer, Student, Zen, Morning ritual, Control panel — plus export / import of your own layout as a file.
-- **Screen profiles**: keep several screens (e.g. *Work* and *Home*) and switch from the header — or let EyeTime switch automatically with your **work-hours schedule**.
-- **29 widgets**: Focus Block, Leak guard, Habits, Tasks, Thought parking, Goals, Daily focus chart, Clock & greeting, Time today, Eye rest, Daily rules, Quick links, Notes, Search, Countdown, Pomodoro, To-do list, Quote of the day, Calendar, Time progress, Water, Breathing, World time, Counter, Motto, Stopwatch, **Most visited**, **Bookmarks** and **Weather** (the last three ask for an optional permission only when you add them).
-- **Appearance**: 12 accent colors + custom color, 8 backgrounds + your own photo (blur / dimming), 6 card styles, corner radius, 4 fonts, interface size, page width, row stretching, density, minimal header, animations (respects "reduce motion"). The accent color and font are applied to every EyeTime page. Any widget can also get its own accent color or a transparent background.
+## Using it
 
-## 🔒 Privacy
-100% local: no accounts, no analytics, only domain names are stored. See [PRIVACY.md](PRIVACY.md). Backups (JSON/CSV export + import) are in Settings → Data.
+- **Start focus:** toolbar icon → type what you're working on → *Start focus*. Or press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd>.
+- **Teach it what distracts you:** open the popup on any site and tap *Productive / Neutral / Distracting*. The same works per row in Insights.
+- **Set limits:** Settings → Blocking → *Daily limits* (works for any site).
+- **Rest your eyes:** a reminder appears after 20 minutes of active screen time; the break page walks you through 20 seconds.
 
-## 🗺️ Roadmap (help wanted!)
-- [x] English + Russian UI (auto-detected from browser language, switch in Settings). Add a language: copy `assets/i18n_en.js`, translate the values, register it in `assets/i18n.js`
-- [ ] More languages (ES, DE, PT, ZH, UK…)
-- [ ] macOS / Linux desktop tracker (currently Windows only)
-- [ ] Firefox port and Chrome Web Store / Edge Add-ons listing
-- [x] Blocking presets (social, video, forums, news, games, shopping, messengers) and a work-hours schedule
-- [x] Customizable habit tracker / N-day challenge
-- [ ] Weekly report
+## Privacy in one table
 
-Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
+| Stored on your device | Never stored or sent |
+|---|---|
+| Domain names and seconds per hour | Page URLs, titles, content, keystrokes |
+| Your settings, tasks, notes, habits | Anything about you — there is no account |
+| (optional) per-app seconds from the desktop companion | Analytics, crash reports, ads — none |
 
-## 🎨 Design System: Fintrixity Neo-Dark Glass
-* **Obsidian Base**: `#0B0C10` with top radial orange glow.
-* **Specular Highlight Bento Cards**: Dual-layer reflections (`rgba(255, 255, 255, 0.28)` specular edge).
-* **Radiant Fire Orange**: `#FF5E0E` gradients and glowing interactive states.
-* **Tabular Figures**: High-contrast typography optimized for rapid scanning.
+Permissions are minimal and each one is explained in **Settings → Data & privacy**. The only network request EyeTime ever makes is to `127.0.0.1` if *you* enable the desktop companion. See [PRIVACY.md](PRIVACY.md).
 
----
+## Desktop companion (optional)
 
-## 🔒 100% Privacy & Local-First
-No analytics trackers, no cloud accounts, and no data telemetry. All metrics and timestamps remain strictly on your own local hard drive.
+A tiny read-only Windows helper that adds time spent in desktop apps. It only notes the front app's executable name, is protected by a pairing token and can never touch your browser. → [companion/README.md](companion/README.md)
 
----
+## Project layout
 
-## 📄 License
-This project is open-source under the [MIT License](LICENSE). Contributions, forks, and feature suggestions are welcome!
+```
+manifest.json          MV3 manifest (Chrome/Edge; Firefox variant built by npm run build)
+src/shared/            pure logic: time, domains, classify, blocking, stats, migrate, i18n, storage
+src/background/        service worker: tracker, focus, blocker, eye breaks, weekly report
+src/popup|newtab|insights|options|onboarding|blocked|break/   the seven surfaces
+src/content/feed.js    short-video guard (only YouTube / Instagram / TikTok / VK)
+src/ui/                design tokens, components, charts, icons (Lucide), Inter font
+companion/             optional Windows desktop companion (Python, stdlib only)
+docs/                  PRODUCT.md · DESIGN.md · ARCHITECTURE.md
+scripts-dev/           checker, tests, icon + package builders
+```
+
+No framework, no bundler, no runtime dependencies — open the folder, read the code.
+
+## Development
+
+```bash
+npm run check     # syntax, manifest, i18n parity, icons + 15 unit tests (Node 20+)
+npm run build     # dist/eyetime-chrome.zip and dist/eyetime-firefox.zip
+python -m unittest -v test_companion   # in companion/
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the architecture tour, adding a language and the browser-level test.
+
+## Roadmap
+
+- [x] Redesign, light/dark themes, key-based i18n, safer desktop companion (2.0)
+- [ ] Chrome Web Store, Edge Add-ons and Firefox AMO listings
+- [ ] More languages (ES, DE, PT, UK, ZH …) — [one file each](CONTRIBUTING.md#adding-a-language)
+- [ ] macOS / Linux companion backends — [guide](companion/README.md#contributing-a-backend)
+- [ ] In-app weekly review
+
+## License
+
+[MIT](LICENSE). Fonts: Inter (SIL OFL 1.1). Icons: Lucide (ISC). Both are bundled locally — EyeTime loads nothing from the internet.
