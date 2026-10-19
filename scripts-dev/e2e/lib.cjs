@@ -9,6 +9,8 @@ const net = require('net');
 const fs = require('fs');
 const os = require('os');
 const cp = require('child_process');
+const tls = require('tls');
+const { Duplex } = require('stream');
 const path = require('path');
 const EXT = process.env.EXT || path.join(__dirname, '../..'); // folder with manifest.json (repo root or dist/chrome)
 const PORT = 8099;
@@ -25,10 +27,21 @@ function server() {
     rsp.end(`<!doctype html><title>${req.headers.host}</title><body style="font:20px sans-serif;padding:40px"><h1>Fake site: ${req.headers.host}</h1><p>path ${req.url}</p></body>`);
   };
   const plain = http.createServer(handler);
-  const secure = https.createServer({ key: fs.readFileSync(path.join(dir, 'k.pem')), cert: fs.readFileSync(path.join(dir, 'c.pem')) }, handler);
+  const secure = https.createServer({}, handler);
+  const secureContext = tls.createSecureContext({ key: fs.readFileSync(path.join(dir, 'k.pem')), cert: fs.readFileSync(path.join(dir, 'c.pem')) });
+  // a TLSWrap reads the raw handle, so the byte we peeked at is replayed through a small Duplex
+  const replay = (socket, first) => {
+    const d = new Duplex({ read() {}, write(chunk, enc, cb) { socket.write(chunk, enc, cb); }, final(cb) { socket.end(); cb(); } });
+    d.push(first); socket.on('data', (c) => d.push(c)); socket.on('end', () => d.push(null)); socket.on('close', () => d.destroy()); socket.on('error', () => d.destroy());
+    return d;
+  };
   return new Promise((res) => {
     const s = net.createServer((socket) => {
-      socket.once('data', (buf) => { socket.pause(); socket.unshift(buf); (buf[0] === 0x16 ? secure : plain).emit('connection', socket); socket.resume(); }); // 0x16 = TLS handshake
+      socket.once('data', (buf) => {
+        if (buf[0] !== 0x16) { socket.pause(); socket.unshift(buf); plain.emit('connection', socket); socket.resume(); return; }   // 0x16 = TLS handshake
+        const t = new tls.TLSSocket(replay(socket, buf), { isServer: true, secureContext });
+        t.on('error', () => {}); t.on('secure', () => secure.emit('secureConnection', t));
+      });
       socket.on('error', () => {});
     }).listen(PORT, '127.0.0.1', () => res(s));
   });
@@ -40,7 +53,7 @@ async function launch(opts = {}) {
     channel: 'chromium', headless: true,
     args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`, `--host-resolver-rules=MAP * 127.0.0.1, EXCLUDE localhost`,
       // newer Chromium upgrades http:// to https:// by default; the fake local server only speaks http
-      '--ignore-certificate-errors', '--disable-features=HttpsUpgrades,HttpsFirstBalancedModeAutoEnable,HttpsFirstModeV2ForEngagedSites,HttpsFirstModeIncognito,HttpsFirstModeV2,HttpsFirstBalancedMode'],
+      '--ignore-certificate-errors', '--no-proxy-server', '--disable-features=HttpsUpgrades,HttpsFirstBalancedModeAutoEnable,HttpsFirstModeV2ForEngagedSites,HttpsFirstModeIncognito,HttpsFirstModeV2,HttpsFirstBalancedMode'],
     viewport: opts.viewport || { width: 1280, height: 800 }, colorScheme: opts.colorScheme || 'light',
   });
   let [sw] = ctx.serviceWorkers();
