@@ -4,16 +4,16 @@
 import { h, svg, icon, clear, toast, confirmDialog, $ } from './dom.js';
 import { send } from './api.js';
 import { t, fmtDuration, fmtTime } from '../shared/i18n.js';
-import { getSettings, getRaw, getDays, getCollection, onChange } from '../shared/storage.js';
+import { getSettings, getRaw, getDays, getCollection, setCollection, onChange } from '../shared/storage.js';
 import { goalStrip, reviewCard } from './day-loop.js';
-import { goalStreak } from '../shared/productivity.js';
+import { goalStreak, suggestMinutes } from '../shared/productivity.js';
 import { rangeKeys } from '../shared/time.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { remainingMs, progress, isRestActive } from '../shared/focus.js';
 
 export function mountFocusCard(root, { variant = 'compact' } = {}) {
   const large = variant === 'large';
-  const st = { settings: null, focus: null, rest: null, review: null, today: null, streak: 0, tasks: [], draft: { goal: '', taskId: '', minutes: null, strict: null, scope: null, custom: false } };
+  const st = { settings: null, focus: null, rest: null, review: null, today: null, streak: 0, suggest: null, tasks: [], draft: { goal: '', taskId: '', minutes: null, strict: null, scope: null, custom: false } };
   let tickId = null;
   const uid = Math.random().toString(36).slice(2, 7);
 
@@ -23,7 +23,8 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     st.review = review || null;
     const days = await getDays(rangeKeys(30));
     st.today = days[29][1];
-    st.streak = goalStreak(days, st.settings.focus.dailyGoal);
+    st.suggest = suggestMinutes(days, st.settings.focus.presets);
+    st.streak = goalStreak(days, st.settings.focus.dailyGoal, st.settings.focus.goalDays);
     st.tasks = (await getCollection('tasks', [])).filter((x) => !x.done);
     st.focus = isFocusActive(focus) ? focus : null;
     st.rest = !st.focus && isRestActive(rest) ? rest : null;
@@ -49,7 +50,7 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
 
   function renderIdle() {
     const d = st.draft, s = st.settings.focus;
-    const chips = s.presets.map((m) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(!d.custom && d.minutes === m), onclick: () => { d.minutes = m; d.custom = false; render(); } }, t('focus.minutesShort', { n: m })));
+    const chips = s.presets.map((m) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(!d.custom && d.minutes === m), 'data-tip': st.suggest?.minutes === m ? t('focus.suggestedTip') : undefined, onclick: () => { d.minutes = m; d.custom = false; render(); } }, st.suggest?.minutes === m ? icon('sparkles') : null, t('focus.minutesShort', { n: m })));
     const custom = d.custom
       ? h('span', { class: 'custom-min' }, h('input', { class: 'input input-sm num', type: 'number', min: 1, max: 720, value: d.minutes, id: 'cm' + uid, 'aria-label': t('focus.custom'), style: { width: '68px', textAlign: 'center' },
           oninput: (e) => { d.minutes = Math.min(720, Math.max(1, Number(e.target.value) || 1)); const b = $('#sb' + uid, root); if (b) b.querySelector('span').textContent = startLabel(); } }), h('span', { class: 'muted', text: t('unit.m') }))
@@ -71,6 +72,9 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
       const on = d.taskId !== x.id;
       d.taskId = on ? x.id : ''; d.goal = on ? x.text : ''; render(); $('#goal' + uid, root)?.focus();
     } }, x.starred ? icon('star') : icon('circle'), h('span', { class: 'truncate', text: x.text }))));
+    const picked = st.tasks.find((x) => x.id === d.taskId);
+    const resumeLine = picked?.resume ? h('div', { class: 'resume-line' }, icon('corner-down-right'), h('span', {}, h('b', { text: t('focus.leftOff') + ' ' }), picked.resume)) : null;
+    const suggestLine = st.suggest ? h('div', { class: 'hint' }, icon('sparkles'), t('focus.suggested', { n: st.suggest.minutes })) : null;
     const noEffort = st.today?.fs ? null : h('button', { class: 'just5', type: 'button', onclick: () => { d.minutes = 5; d.custom = false; start(); } }, icon('sparkles'), t('focus.just5'));
     const strip = goalStrip({ fsSec: st.today?.fs || 0, goalMin: st.settings.focus.dailyGoal, streak: st.streak });
 
@@ -78,11 +82,33 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
       st.review ? reviewCard(st.review, { onDone: refresh }) : null,
       large ? null : h('div', { class: 'focus-head' }, h('h2', { text: t('focus.title') }), h('span', { class: 'hint', text: t('focus.tagline') })),
       strip,
-      goal, taskRow,
+      goal, taskRow, resumeLine,
       large
         ? h('div', { class: 'focus-row' }, h('div', { class: 'durations' }, chips, custom), btn)
         : [h('div', { class: 'durations' }, chips, custom), btn],
-      strict, noEffort));
+      suggestLine, strict, noEffort));
+  }
+
+  /** While focusing: park stray thoughts (so they stop pulling), see what was held back, pick a sound. */
+  function runningExtras() {
+    const held = st.today?.fa || 0;
+    const park = h('input', { class: 'input input-sm', placeholder: t('focus.park'), 'aria-label': t('focus.park'), maxlength: 300, onkeydown: async (e) => {
+      if (e.key !== 'Enter' || !e.target.value.trim()) return;
+      const notes = await getCollection('captures', []);
+      notes.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text: e.target.value.trim(), at: Date.now() });
+      await setCollection('captures', notes);
+      e.target.value = ''; toast(t('focus.parked'));
+    } });
+    const cur = st.settings.focus.ambient || 'off';
+    const sounds = h('div', { class: 'segmented segmented-sm', role: 'group', 'aria-label': t('focus.ambient') }, ['off', 'brown', 'rain', 'cafe'].map((k) => h('button', { type: 'button', 'aria-pressed': String(cur === k), text: t('ambient.' + k), onclick: () => send('ambient:set', { kind: k }) })));
+    return h('div', { class: 'run-extras' }, park, sounds, held ? h('div', { class: 'held', 'data-tip': t('focus.heldTip') }, icon('shield-check'), t('focus.held', { n: held })) : null);
+  }
+
+  /** Breaks work best away from the screen and with movement — offer something concrete instead of a bare countdown. */
+  function restIdeas() {
+    const ideas = ['rest.i1', 'rest.i2', 'rest.i3', 'rest.i4', 'rest.i5', 'rest.i6'];
+    const pick = ideas[Math.floor(st.rest.startedAt / 60000) % ideas.length];
+    return h('div', { class: 'rest-idea' }, icon('sparkles'), h('span', { text: t(pick) }));
   }
 
   function renderRunning(restMode = false) {
@@ -99,11 +125,12 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
       : f.strict
         ? h('span', { class: 'locked' }, icon('lock'), t('focus.strictLocked'))
         : h('button', { class: 'btn btn-ghost', type: 'button', onclick: endEarly }, t('focus.end'));
+    const extras = restMode ? restIdeas() : runningExtras();
     clear(root, h('div', { class: 'focus-run' + (large ? ' large' : '') + (restMode ? ' rest' : '') },
       h('span', { class: 'badge ' + (restMode ? 'badge-success' : 'badge-accent') + ' badge-dot', text: restMode ? t(f.long ? 'rest.long' : 'rest.title') : t('focus.running') }),
       h('div', { class: 'ring', role: 'timer', 'aria-label': restMode ? t(f.long ? 'rest.long' : 'rest.title') : t('focus.running'), style: { width: size + 'px', height: size + 'px' } }, ring, h('div', { class: 'center' }, time, sub)),
       restMode ? h('div', { class: 'goal-line', text: t('rest.hint') }) : (f.goal ? h('div', { class: 'goal-line', text: f.goal }) : null),
-      h('div', { class: 'run-actions' }, actions)));
+      h('div', { class: 'run-actions' }, actions), extras));
     const paint = () => {
       const rem = remainingMs(f);
       if (rem <= 0) { clearInterval(tickId); refresh(); return; }
