@@ -1,0 +1,78 @@
+import { DEFAULT_PRESETS_ON, PRESET_IDS } from './catalog.js';
+
+export const SCHEMA_VERSION = 2;
+
+const presets = Object.fromEntries(PRESET_IDS.map((id) => [id, DEFAULT_PRESETS_ON.includes(id)]));
+
+export const DEFAULT_SETTINGS = {
+  language: 'auto',            // auto | en | ru
+  theme: 'system',             // system | light | dark
+  accent: 'ember',
+
+  focus: {
+    minutes: 25,               // last used / default length
+    presets: [15, 25, 50, 90],
+    strict: false,             // last used: no early exit, no bypass on the block page
+    openUrl: '',               // e.g. a music page, opened when a session starts
+    sound: true,               // soft chime at start / end
+    suggestBreak: true,        // after a session, suggest an eye break
+  },
+
+  blocking: {
+    presets,
+    custom: [],                // extra distracting domains
+    allow: [],                 // never blocked, never "distracting"
+    always: [],                // always blocked
+    limits: {},                // domain -> minutes per day
+    friction: { enabled: true, seconds: 8, passMinutes: 10 }, // breathing pause before distracting sites
+    schedule: { enabled: false, days: [1, 2, 3, 4, 5], start: '09:00', end: '18:00', strict: false, passMinutes: 5 },
+    feed: { shortLimit: true, shortMinutes: 3, hideShorts: false, hideRecs: false, hideComments: false, hideHome: false },
+  },
+
+  eye: {
+    enabled: true,
+    intervalMin: 20,           // of active screen time
+    breakSeconds: 20,
+    notify: true,
+    bedtime: { enabled: false, time: '23:00', leadMin: 30 },
+  },
+
+  tracking: {
+    enabled: true,
+    excluded: ['localhost', '127.0.0.1'],
+    idleSeconds: 60,
+    countAudible: true,        // keep counting while a tab plays sound, even without input
+    incognito: false,          // incognito windows are not tracked unless switched on
+    badge: true,               // today's time on the toolbar icon
+  },
+
+  sites: {},                   // user overrides: domain -> productive | neutral | distracting
+
+  newtab: {
+    enabled: true,
+    modules: { focus: true, today: true, tasks: true, habits: true, notes: true, links: true },
+    background: 'dawn',        // gradient id | 'photo'
+    links: [],
+    clock24: null,             // null = follow locale
+    greeting: true,
+  },
+
+  weeklyReport: true,
+  companion: { enabled: false, token: '' },
+  onboarded: false,
+};
+
+export const DEFAULT_META = { schemaVersion: SCHEMA_VERSION, installedAt: 0 };
+
+/** Deep-merge `patch` into a clone of `base`. Arrays and non-plain values are replaced, never merged. */
+export function deepMerge(base, patch) {
+  if (!isPlain(base) || !isPlain(patch)) return patch === undefined ? clone(base) : clone(patch);
+  const out = {};
+  for (const k of new Set([...Object.keys(base), ...Object.keys(patch)])) {
+    out[k] = k in patch ? (isPlain(base[k]) && isPlain(patch[k]) ? deepMerge(base[k], patch[k]) : clone(patch[k])) : clone(base[k]);
+  }
+  return out;
+}
+
+export const isPlain = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+export const clone = (v) => (v === undefined ? undefined : JSON.parse(JSON.stringify(v)));

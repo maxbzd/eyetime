@@ -1,75 +1,34 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "__MSG_extDescription__",
-  "incognito": "spanning",
-  "permissions": [
-    "tabs",
-    "storage",
-    "alarms",
-    "notifications",
-    "idle",
-    "webNavigation"
-  ],
-  "host_permissions": [
-    "http://127.0.0.1:8765/*",
-    "https://api.ticktick.com/*",
-    "https://ticktick.com/*"
-  ],
-  "commands": {
-    "quick-capture": {
-      "suggested_key": {
-        "default": "Alt+K"
-      },
-      "description": "__MSG_cmdQuickCapture__"
-    }
+  "default_locale": "en",
+  "minimum_chrome_version": "120",
+  "icons": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
+
+  "action": {
+    "default_title": "__MSG_actionTitle__",
+    "default_popup": "src/popup/popup.html",
+    "default_icon": { "16": "icons/icon16.png", "32": "icons/icon32.png" }
   },
-  "background": {
-    "service_worker": "background.js"
-  },
-  "chrome_url_overrides": {
-    "newtab": "newtab/newtab.html"
-  },
+  "background": { "service_worker": "src/background/index.js", "type": "module" },
+  "chrome_url_overrides": { "newtab": "src/newtab/newtab.html" },
+  "options_page": "src/options/options.html",
+
+  "permissions": ["storage", "alarms", "notifications", "idle", "tabs", "webNavigation", "offscreen", "favicon"],
+  "optional_host_permissions": ["http://127.0.0.1:8765/*"],
+
   "content_scripts": [
     {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "js": [
-        "assets/i18n_en.js",
-        "assets/i18n.js",
-        "content/content.js"
-      ],
-      "css": [
-        "content/content.css"
-      ],
-      "run_at": "document_start"
+      "matches": ["*://*.youtube.com/*", "*://*.instagram.com/*", "*://*.tiktok.com/*", "*://*.vk.com/*", "*://vkvideo.ru/*"],
+      "js": ["src/content/feed.js"],
+      "run_at": "document_idle"
     }
   ],
-  "action": {
-    "default_popup": "popup/popup.html",
-    "default_title": "__MSG_actionTitle__",
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-    }
-  },
-  "options_page": "options/options.html",
-  "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
-  },
-  "default_locale": "en",
-  "optional_permissions": [
-    "topSites",
-    "bookmarks"
-  ],
-  "optional_host_permissions": [
-    "https://api.open-meteo.com/*",
-    "https://geocoding-api.open-meteo.com/*"
-  ]
+
+  "commands": {
+    "toggle-focus": { "suggested_key": { "default": "Alt+Shift+F" }, "description": "__MSG_cmdToggleFocus__" },
+    "_execute_action": { "suggested_key": { "default": "Alt+Shift+E" } }
+  }
 }

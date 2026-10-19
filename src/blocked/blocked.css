@@ -1,0 +1,25 @@
+body { min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+.glow { position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(900px 520px at 50% 18%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%); }
+.top { position: relative; z-index: 1; display: flex; align-items: center; gap: 8px; padding: 20px 28px; font-weight: 700; letter-spacing: -.02em; }
+.stage { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 24px 72px; max-width: 640px; width: 100%; margin: 0 auto; gap: var(--s-4); }
+.site-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px 6px 8px; border-radius: var(--r-full); background: var(--surface); border: 1px solid var(--border); color: var(--text-2); font-size: var(--fs-sm); font-weight: 560; box-shadow: var(--shadow-1); }
+h1 { font-size: clamp(30px, 5vw, 44px); letter-spacing: -.035em; line-height: 1.1; max-width: 18ch; text-wrap: balance; }
+.lead { color: var(--text-2); font-size: var(--fs-lg); max-width: 44ch; text-wrap: pretty; }
+.goal { font-size: var(--fs-xl); font-weight: 600; letter-spacing: -.02em; max-width: 36ch; padding: var(--s-3) var(--s-5); border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--border); }
+.clock { font-size: clamp(56px, 12vw, 96px); font-weight: 650; letter-spacing: -.05em; line-height: 1; }
+.actions { display: flex; gap: var(--s-3); flex-wrap: wrap; justify-content: center; margin-top: var(--s-4); }
+.note { color: var(--text-3); font-size: var(--fs-sm); min-height: 1.5em; }
+.manage { font-size: var(--fs-sm); }
+#cont[disabled] { opacity: 1; color: var(--text-3); }
+
+/* breathing orb */
+.breath { margin: var(--s-4) 0 var(--s-2); }
+.orb { width: 176px; height: 176px; border-radius: 50%; display: grid; place-items: center;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--accent) 38%, var(--surface)), color-mix(in srgb, var(--accent) 12%, var(--surface)));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent), 0 20px 60px color-mix(in srgb, var(--accent) 22%, transparent);
+  animation: breathe 8s ease-in-out infinite; }
+.orb span { font-weight: 600; font-size: var(--fs-md); color: var(--text); animation: counter 8s ease-in-out infinite; }
+@keyframes breathe { 0%, 100% { transform: scale(.68); } 50% { transform: scale(1); } }
+@keyframes counter { 0%, 100% { transform: scale(1.47); } 50% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .orb, .orb span { animation: none; } }

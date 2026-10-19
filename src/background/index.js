@@ -1,0 +1,45 @@
+// EyeTime service worker (ES module). Event-driven: every listener is registered synchronously at load;
+// there are no setInterval / setTimeout loops — only chrome.alarms and browser events.
+
+import { ensureSchema, getSettings, getRaw, pruneOldDays } from '../shared/storage.js';
+import { isFocusActive } from '../shared/blocking.js';
+import { initTracker } from './tracker.js';
+import { startFocus, stopFocus, finishFocus } from './focus.js';
+import { scheduleBedtime } from './breaks.js';
+import { updateBadge } from './badge.js';
+import './blocker.js';
+import './weekly.js';
+import './messages.js';
+import './companion.js';
+
+async function boot() {
+  const { migrated } = await ensureSchema();
+  const { focus } = await getRaw('focus');
+  if (focus && !isFocusActive(focus)) await finishFocus(); // the end alarm may have been missed while the browser was closed
+  else if (focus) await chrome.alarms.create('focus-end', { when: focus.endsAt });
+  await initTracker();
+  await scheduleBedtime();
+  await updateBadge(await getSettings());
+  return migrated;
+}
+
+chrome.runtime.onInstalled.addListener(async (details) => {
+  await boot();
+  const settings = await getSettings();
+  if (details.reason === 'install' && !settings.onboarded) chrome.tabs.create({ url: chrome.runtime.getURL('src/onboarding/onboarding.html') });
+  chrome.alarms.create('prune', { periodInMinutes: 60 * 24 });
+});
+
+chrome.runtime.onStartup.addListener(boot);
+chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'prune') pruneOldDays(); });
+
+chrome.commands.onCommand.addListener(async (cmd) => {
+  if (cmd !== 'toggle-focus') return;
+  const { focus } = await getRaw('focus');
+  if (isFocusActive(focus)) { if (!focus.strict) await stopFocus(); return; }
+  const s = await getSettings();
+  await startFocus({ minutes: s.focus.minutes, strict: s.focus.strict });
+});
+
+// Every cold start of the worker (it is suspended when idle) must leave state consistent.
+boot();
