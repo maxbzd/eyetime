@@ -41,7 +41,14 @@ export function decide(host, ctx) {
 
   if (matchesAny(host, b.always)) return { action: 'block', reason: 'always', rule, canPass: false };
 
-  const distracting = classifier.classify(host) === 'distracting';
+  const cls = classifier.classify(host);
+  const distracting = cls === 'distracting';
+
+  // "only my sites": a session of this scope closes everything that is not productive or on the allow-list
+  if (isFocusActive(focus, now) && focus.scope === 'only-mine' && cls !== 'productive' && !matchesAny(host, settings.tracking?.excluded || [])) {
+    const strict = !!focus.strict;
+    if (strict || !passed) return { action: 'block', reason: 'focus', scope: 'only-mine', rule, strict, canPass: !strict, passMinutes: b.friction.passMinutes };
+  }
 
   if (distracting) {
     if (isFocusActive(focus, now)) {

@@ -44,3 +44,6 @@ section.sec + section.sec { padding-top: var(--s-8); border-top: 1px solid var(-
   .side a { white-space: nowrap; }
   .preset-grid { grid-template-columns: 1fr; }
 }
+
+.reminder { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); }
+.chip-day { padding: 0 8px; min-width: 34px; justify-content: center; }

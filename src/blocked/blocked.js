@@ -3,7 +3,7 @@ import { $, favicon, clear, h } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { t, fmtDuration, fmtTime } from '../shared/i18n.js';
 import { evaluate } from '../shared/policy.js';
-import { getSettings, getRaw, dayStorageKey } from '../shared/storage.js';
+import { getSettings, getRaw, dayStorageKey, updateSettings } from '../shared/storage.js';
 import { clock } from '../shared/focus.js';
 import { dayKey } from '../shared/time.js';
 import { usageOf } from '../shared/policy.js';
@@ -20,6 +20,7 @@ const host = target ? new URL(target).hostname.replace(/^www\./, '') : '';
 let decision = null, settings = null, timers = [];
 
 function goBack() {
+  if (decision?.reason === 'friction') send('pause:reason', { reason: 'back' });
   if (history.length > 1) history.back();
   else location.href = chrome.runtime.getURL('src/newtab/newtab.html');
 }
@@ -54,7 +55,7 @@ async function render() {
   const wait = Math.max(5, settings.blocking.friction.seconds || 8);
   $('#sitePill').replaceChildren(favicon(host), h('span', { text: host }));
   back.textContent = t('block.back'); back.onclick = goBack;
-  $('#breath').hidden = true; $('#bigClock').hidden = true; $('#goal').hidden = true; $('#manage').hidden = true;
+  $('#breath').hidden = true; $('#bigClock').hidden = true; $('#goal').hidden = true; $('#manage').hidden = true; $('#why').hidden = true; $('#allowSite').hidden = true;
   cont.hidden = true; cont.onclick = null; note.textContent = '';
 
   const offerContinue = (minutes) => {
@@ -74,16 +75,29 @@ async function render() {
     const flip = () => { label.textContent = label.textContent === t('block.breatheIn') ? t('block.breatheOut') : t('block.breatheIn'); };
     label.textContent = t('block.breatheOut'); flip();
     timers.push(setInterval(flip, 4000));
+    // intent: naming why you are here is the speed bump — and "autopilot" is a cue to turn around
+    let chosen = '';
+    const chips = $('#why'); chips.hidden = false;
+    clear($('#whyChips'), ['work', 'break', 'habit', 'bored'].map((r) => h('button', { type: 'button', class: 'chip', 'aria-pressed': 'false', text: t('block.why.' + r), onclick: (e) => {
+      chosen = chosen === r ? '' : r;
+      $('#whyChips').querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', String(c === e.currentTarget && !!chosen)));
+      $('#whyNote').textContent = chosen === 'habit' || chosen === 'bored' ? t('block.why.nudge') : '';
+    } })));
     waitThen(cont, decision.seconds || wait, t('block.continue'), () => { note.textContent = t('block.passNote', { n: decision.passMinutes }); });
     cont.hidden = false;
-    cont.onclick = async () => { await send('pass:grant', { rule: decision.rule, minutes: decision.passMinutes }); release(); };
+    cont.onclick = async () => { if (chosen) await send('pause:reason', { reason: chosen }); await send('pass:grant', { rule: decision.rule, minutes: decision.passMinutes }); release(); };
     return;
   }
 
   if (reason === 'focus') {
     const f = decision.focus;
-    title.textContent = t('block.focus.title');
-    lead.textContent = t('block.focus.lead', { host });
+    const only = decision.scope === 'only-mine';
+    title.textContent = t(only ? 'block.only.title' : 'block.focus.title');
+    lead.textContent = t(only ? 'block.only.lead' : 'block.focus.lead', { host });
+    if (only) {
+      const a = $('#allowSite'); a.hidden = false;
+      a.onclick = async () => { await updateSettings((s) => { if (!s.blocking.allow.includes(host)) s.blocking.allow.push(host); }); await send('settings:changed'); release(); };
+    }
     if (f?.goal) { $('#goal').hidden = false; $('#goal').textContent = f.goal; }
     const big = $('#bigClock'); big.hidden = false;
     const paint = () => { const left = f.endsAt - Date.now(); big.textContent = clock(Math.max(0, left)); if (left <= 0) { render(); } };

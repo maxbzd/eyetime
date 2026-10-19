@@ -28,6 +28,11 @@ export const DEFAULT_SETTINGS = {
     sound: true,               // soft chime at start / end
     suggestBreak: true,        // after a session, suggest an eye break
     breakMinutes: 5,           // rest timer that starts when a session completes (0 = off)
+    longBreak: { every: 4, minutes: 15 }, // a longer rest after every Nth session of the day (every: 0 = off)
+    dailyGoal: 120,            // minutes of focus per day (0 = no goal)
+    scope: 'distractions',     // what a session closes: 'distractions' (sites classed distracting) | 'only-mine' (everything except productive and allowed sites)
+    review: true,              // after a session: "did you finish it? how did it go?"
+    reminders: [],             // [{ id, time: 'HH:MM', days: [1..5], minutes }] – a nudge to start a session
   },
 
   blocking: {

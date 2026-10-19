@@ -1,6 +1,7 @@
 // Focus sessions: start / stop / finish. The running session is stored under `focus`; an alarm ends it.
 
-import { getSettings, getRaw, setRaw, updateDay, updateSettings } from '../shared/storage.js';
+import { getSettings, getRaw, setRaw, updateDay, updateSettings, getCollection, setCollection } from '../shared/storage.js';
+import { restFor, makeSessionEntry, addSession, rateSession } from '../shared/productivity.js';
 import { createSession, createRest, elapsedMs } from '../shared/focus.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { dayKey } from '../shared/time.js';
@@ -12,13 +13,15 @@ import { playChime } from './audio.js';
 const ICON = 'icons/icon128.png';
 const MIN_CREDIT_SEC = 120; // an early stop counts as focus time only after 2 minutes
 
-export async function startFocus({ minutes, goal = '', strict = false }) {
+export async function startFocus({ minutes, goal = '', strict = false, taskId = '', scope }) {
   const settings = await getSettings();
-  const session = createSession({ minutes, goal, strict });
-  await setRaw({ focus: session, rest: null });
+  let text = goal;
+  if (taskId && !text) text = ((await getCollection('tasks', [])).find((x) => x.id === taskId) || {}).text || '';
+  const session = createSession({ minutes, goal: text, strict, taskId, scope: scope || settings.focus.scope });
+  await setRaw({ focus: session, rest: null, review: null });
   await chrome.alarms.clear('rest-end');
   await chrome.alarms.create('focus-end', { when: session.endsAt });
-  await updateSettings((s) => { s.focus.minutes = session.minutes; s.focus.strict = session.strict; });
+  await updateSettings((s) => { s.focus.minutes = session.minutes; s.focus.strict = session.strict; s.focus.scope = session.scope; });
 
   if (/^https?:\/\//.test(settings.focus.openUrl || '')) chrome.tabs.create({ url: settings.focus.openUrl, active: false }).catch(() => {});
   if (settings.focus.sound) playChime('start');
@@ -34,8 +37,40 @@ export async function stopFocus() {
   await chrome.alarms.clear('focus-end');
   await setRaw({ focus: null });
   const sec = Math.round(elapsedMs(focus) / 1000);
-  if (sec >= MIN_CREDIT_SEC) await updateDay(dayKey(), (d) => { d.fs = (d.fs || 0) + sec; });
-  await updateBadge(await getSettings());
+  const settings = await getSettings();
+  if (sec >= MIN_CREDIT_SEC) {
+    await updateDay(dayKey(), (d) => { d.fs = (d.fs || 0) + sec; addSession(d, makeSessionEntry(focus, { sec, completed: false })); });
+    await creditTask(focus, sec);
+    if (settings.focus.review) await setRaw({ review: reviewOf(focus, sec, false) });
+  }
+  await updateBadge(settings);
+}
+
+/** What the "how did it go?" card needs. Lives under `review` until the user answers or dismisses it. */
+const reviewOf = (focus, sec, completed) => ({ id: focus.id, day: dayKey(new Date(focus.startedAt)), goal: focus.goal, taskId: focus.taskId || '', minutes: Math.max(1, Math.round(sec / 60)), completed });
+
+/** Time spent in a session is added to the task it was started for. */
+async function creditTask(focus, sec) {
+  if (!focus.taskId) return;
+  const tasks = await getCollection('tasks', []);
+  const task = tasks.find((x) => x.id === focus.taskId);
+  if (!task) return;
+  task.focusSec = (task.focusSec || 0) + sec;
+  await setCollection('tasks', tasks);
+}
+
+/** The user's answer to the review card: rate the session, optionally tick the task off. */
+export async function reviewSession({ id, rating, done }) {
+  const { review } = await getRaw('review');
+  if (!review || review.id !== id) return { ok: false };
+  if (rating) await updateDay(review.day, (d) => { rateSession(d, id, rating); });
+  if (done && review.taskId) {
+    const tasks = await getCollection('tasks', []);
+    const task = tasks.find((x) => x.id === review.taskId);
+    if (task && !task.done) { task.done = true; task.doneAt = Date.now(); await setCollection('tasks', tasks); }
+  }
+  await setRaw({ review: null });
+  return { ok: true };
 }
 
 /** Alarm fired (or the worker woke up after the end time). */
@@ -43,13 +78,17 @@ export async function finishFocus() {
   const { focus } = await getRaw('focus');
   if (!focus || isFocusActive(focus)) return;
   await setRaw({ focus: null });
-  await updateDay(dayKey(), (d) => { d.fs = (d.fs || 0) + focus.minutes * 60; d.fc = (d.fc || 0) + 1; });
+  let sessionsToday = 0;
+  await updateDay(dayKey(), (d) => { d.fs = (d.fs || 0) + focus.minutes * 60; d.fc = (d.fc || 0) + 1; sessionsToday = d.fc; addSession(d, makeSessionEntry(focus, { sec: focus.minutes * 60, completed: true })); });
+  await creditTask(focus, focus.minutes * 60);
   const settings = await getSettings();
+  if (settings.focus.review) await setRaw({ review: reviewOf(focus, focus.minutes * 60, true) });
   setLocale(resolveLocale(settings.language));
   if (settings.focus.sound) playChime('end');
   const fresh = Date.now() - focus.endsAt < 2 * 60_000; // a session that ended long ago (browser was closed) gets no rest
-  if (settings.focus.breakMinutes > 0 && fresh) {
-    const rest = createRest({ minutes: settings.focus.breakMinutes });
+  const next = restFor(settings.focus, sessionsToday);
+  if (next.minutes > 0 && fresh) {
+    const rest = { ...createRest({ minutes: next.minutes }), long: next.long };
     await setRaw({ rest });
     await chrome.alarms.create('rest-end', { when: rest.endsAt });
   }

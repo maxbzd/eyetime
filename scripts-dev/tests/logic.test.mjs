@@ -211,3 +211,24 @@ test('upgradeSettingsV2: theme/accent move into appearance', async () => {
   assert.equal(upgradeSettingsV2({ theme: 'system', accent: 'ember' }).appearance.accent, undefined); // default accent = the look's own
   assert.deepEqual(deepMerge(DEFAULT_SETTINGS, upgradeSettingsV2({})).appearance.look, 'calm');
 });
+
+test('decide: "only my sites" sessions close everything that is not productive or allowed', () => {
+  const s = settings();
+  s.blocking.allow = ['mail.example.com'];
+  const now = new Date(2026, 9, 24, 12, 0).getTime();
+  const base = { settings: s, classifier: makeClassifier(s), passes: {}, usageOf: () => 0, now };
+  const session = (extra) => ({ ...createSession({ minutes: 25, now: now - 60_000, scope: 'only-mine', ...extra }) });
+  const f = session();
+  assert.equal(f.scope, 'only-mine');
+  assert.equal(decide('github.com', { ...base, focus: f }).action, 'allow');                    // productive
+  assert.equal(decide('mail.example.com', { ...base, focus: f }).action, 'allow');              // on the allow-list
+  assert.equal(decide('localhost', { ...base, focus: f }).action, 'allow');                     // excluded from tracking
+  const news = decide('example.org', { ...base, focus: f });                                    // neutral → closed
+  assert.equal(news.action, 'block'); assert.equal(news.scope, 'only-mine'); assert.equal(news.canPass, true);
+  assert.equal(decide('example.org', { ...base, focus: session({ strict: true }) }).canPass, false);
+  assert.equal(decide('example.org', { ...base, focus: f, passes: { 'example.org': now + 1000 } }).action, 'allow'); // continue pass
+  assert.equal(decide('example.org', { ...base, focus: createSession({ minutes: 25, now: now - 60_000 }) }).action, 'allow'); // default scope leaves neutral sites alone
+  assert.equal(decide('example.org', { ...base, focus: null }).action, 'allow');
+  assert.equal(createSession({ minutes: 5, scope: 'bogus' }).scope, 'distractions');
+  assert.equal(createSession({ minutes: 5, taskId: 'x'.repeat(99) }).taskId.length, 40);
+});

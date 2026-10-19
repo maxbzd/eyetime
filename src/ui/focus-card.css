@@ -31,3 +31,23 @@
 
 /* rest (break) variant */
 .focus-run.rest .ring .bar { stroke: var(--success); }
+
+/* day loop: goal, task picks, options, review */
+.focus-opts { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-5); justify-content: space-between; }
+.focus-idle.large .focus-opts { justify-content: flex-start; }
+.focus-opts .strict-row { flex: 0 1 auto; gap: var(--s-3); }
+.task-picks { display: flex; flex-wrap: wrap; gap: 6px; } .task-picks.none { display: none; }
+.chip-task { max-width: 100%; } .chip-task .truncate { max-width: 180px; } .chip-task .ico { font-size: 12px; flex: none; }
+.just5 { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; color: var(--accent-text); font-size: var(--fs-sm); font-weight: 560; padding: 2px 0; }
+.just5:hover { text-decoration: underline; text-underline-offset: 3px; } .just5 .ico { font-size: 14px; }
+.goal-strip { display: flex; flex-direction: column; gap: 6px; }
+.goal-top { display: flex; justify-content: space-between; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--text-2); }
+.goal-lbl, .goal-streak { display: inline-flex; align-items: center; gap: 6px; } .goal-lbl .ico, .goal-streak .ico { font-size: 14px; color: var(--text-3); }
+.goal-streak .ico { color: var(--accent-text); }
+.goal-bar { height: 6px; border-radius: 99px; background: var(--surface-3); overflow: hidden; } .goal-bar i { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width var(--t-med) var(--ease); }
+.goal-strip.reached .goal-bar i { background: var(--success); } .goal-strip.reached .goal-lbl, .goal-strip.reached .goal-lbl .ico { color: var(--success-text, var(--success)); }
+.review-card { display: flex; flex-direction: column; gap: var(--s-2); padding: var(--s-3) var(--s-4); border-radius: var(--r-md); background: var(--accent-soft); border: var(--border-w) solid var(--accent-ring); }
+.review-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s-2); }
+.review-title { font-weight: 650; } .review-sub { font-size: var(--fs-sm); color: var(--text-2); overflow-wrap: anywhere; }
+.review-q { font-size: var(--fs-sm); color: var(--text-2); } .review-rate { display: flex; flex-wrap: wrap; gap: 6px; } .review-rate .chip .ico { font-size: 14px; }
+.review-task { display: flex; align-items: center; gap: 8px; font-size: var(--fs-sm); }

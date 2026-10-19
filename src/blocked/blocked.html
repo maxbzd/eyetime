@@ -28,9 +28,16 @@
     <p class="lead" id="lead"></p>
     <p class="goal" id="goal" hidden></p>
 
+    <div class="why" id="why" hidden>
+      <div class="why-q" data-i18n="block.why.q">Why are you here?</div>
+      <div class="row gap-2 wrap" id="whyChips" style="justify-content:center"></div>
+      <div class="why-note" id="whyNote"></div>
+    </div>
+
     <div class="actions">
       <button class="btn btn-primary btn-lg" id="back" type="button"></button>
       <button class="btn btn-lg" id="cont" type="button" hidden></button>
+      <button class="btn btn-lg btn-ghost" id="allowSite" type="button" hidden data-i18n="block.only.allow">Add to my sites</button>
     </div>
     <p class="note" id="note"></p>
     <a class="manage" id="manage" href="../options/options.html#blocking" target="_blank" hidden data-i18n="block.manage">Manage blocked sites</a>
