@@ -176,4 +176,17 @@ export const en = {
   'break.pageTitle': 'Eye break — EyeTime', 'break.eyebrow': '20-20-20 eye break', 'break.look': 'Look far away', 'break.lookLead': 'Find something about 6 metres (20 feet) away and rest your gaze on it. Let your shoulders drop.',
   'break.blink': 'Blink slowly', 'break.blinkLead': 'Close your eyes gently for a moment, then blink a few times to refresh them.', 'break.skip': 'Skip', 'break.done': 'Back to work',
   'break.well': 'Well done', 'break.wellLead': 'Your eyes thank you. Break logged.',
+
+  /* rest after a session */
+  'rest.title': 'Break', 'rest.hint': 'Stretch, drink water, look away from the screen.', 'rest.skip': 'Skip break', 'rest.overTitle': 'Break over', 'rest.overBody': 'Ready for another {n}-minute session?', 'rest.badgeTitle': 'Break — {n} min left',
+  'opt.restAfter': 'Break after a session', 'opt.restAfterDesc': 'A rest timer starts automatically. Distracting sites stay open during the break.',
+
+  'perm.contextMenus': 'Adds the right-click menu to classify or block the current site.',
+  'menu.markAs': 'Mark site as {cls}', 'menu.alwaysBlock': 'Always block this site (toggle)', 'menu.toggleFocus': 'Start / stop focus session',
+  'menu.marked': '{host} is now {cls}.', 'menu.blocked': '{host} is blocked.', 'menu.unblocked': '{host} is unblocked.',
+
+  'review.title': 'Weekly review', 'review.sub': 'The last 7 days at a glance — and one idea for next week.',
+  'review.focus': { one: 'Focus time {time} in {n} session', other: 'Focus time {time} in {n} sessions' }, 'review.share': '{pct}% of screen time went to distractions', 'review.breaks': { one: '{n} eye break taken', other: '{n} eye breaks taken' },
+  'review.suggestTitle': 'An idea for next week', 'review.suggestBody': 'You spent about {avg} min a day on {host}. A limit of {limit} min a day would give you time back without a hard block.',
+  'review.setLimit': 'Set {n} min limit', 'review.limitSet': 'Limit set: {host}, {n} min a day', 'review.balanced': 'Nicely balanced week — nothing to fix. Keep it up.',
 };

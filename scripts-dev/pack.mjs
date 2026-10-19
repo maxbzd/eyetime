@@ -48,6 +48,6 @@ const firefox = stage('firefox', (m) => {
   delete m.minimum_chrome_version;
   m.permissions = m.permissions.filter((p) => !['offscreen', 'favicon'].includes(p)); // Chrome-only APIs; the code feature-detects them
   m.background = { scripts: ['src/background/index.js'], type: 'module' };
-  m.browser_specific_settings = { gecko: { id: 'eyetime@maxbzd.github.io', strict_min_version: '121.0', data_collection_permissions: { required: ['none'] } } };
+  m.browser_specific_settings = { gecko: { id: 'eyetime@maxbzd.github.io', strict_min_version: '142.0', data_collection_permissions: { required: ['none'] } } };
 });
 zip(firefox, path.join(dist, 'eyetime-firefox.zip'));

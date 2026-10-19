@@ -28,3 +28,6 @@
 .focus-run.large .goal-line { font-size: var(--fs-xl); letter-spacing: -.02em; }
 .run-actions { display: flex; gap: var(--s-2); align-items: center; }
 .locked { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-sm); color: var(--text-3); }
+
+/* rest (break) variant */
+.focus-run.rest .ring .bar { stroke: var(--success); }

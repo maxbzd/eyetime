@@ -16,6 +16,7 @@ export const DEFAULT_SETTINGS = {
     openUrl: '',               // e.g. a music page, opened when a session starts
     sound: true,               // soft chime at start / end
     suggestBreak: true,        // after a session, suggest an eye break
+    breakMinutes: 5,           // rest timer that starts when a session completes (0 = off)
   },
 
   blocking: {

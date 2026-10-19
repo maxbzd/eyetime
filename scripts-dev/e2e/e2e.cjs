@@ -81,6 +81,18 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   ok(tab.url().startsWith('http://reddit.com') || tab.url().includes('r=friction'), 'block page auto-released after session end', tab.url().slice(0, 100));
   const rec2 = await get('d:' + day()); ok(rec2 && rec2.fc >= 1 && rec2.fs >= 300, 'completed session counted (fc/fs)', JSON.stringify({ fc: rec2 && rec2.fc, fs: rec2 && rec2.fs }));
 
+  console.log('5b. rest after a session');
+  await helper.evaluate(async () => { const m = await import('/src/shared/storage.js'); await m.updateSettings((s) => { s.focus.breakMinutes = 5; }); });
+  await send(helper, { type: 'focus:start', minutes: 5, goal: '', strict: false });
+  await sw.evaluate(async () => { const { focus } = await chrome.storage.local.get('focus'); focus.endsAt = Date.now() + 800; await chrome.storage.local.set({ focus }); await chrome.alarms.create('focus-end', { when: focus.endsAt }); });
+  await sleep(4500);
+  const rest = await get('rest'); ok(rest && rest.minutes === 5 && rest.endsAt > Date.now(), 'rest timer started after the session', JSON.stringify(rest));
+  await tab.goto(url('reddit.com', '/rest')).catch(() => {}); await sleep(800);
+  ok(!tab.url().includes('r=focus') && !tab.url().includes('r=schedule'), 'no focus block during the break', tab.url().slice(0, 90));
+  const pg5 = await ctx.newPage(); await pg5.goto(ext('src/popup/popup.html')); await sleep(1200);
+  ok(await pg5.locator('.focus-run.rest').count() === 1, 'popup shows the break card');
+  await pg5.click('text=Skip break'); await sleep(800); ok(!(await get('rest')), 'skipping clears the rest timer'); await pg5.close();
+
   console.log('6. eye break + pause tracking');
   await send(helper, { type: 'break:complete' }); const rec3 = await get('d:' + day()); ok(rec3.b >= 1, 'break counted');
   await send(helper, { type: 'tracking:pause', minutes: 30 }); ok((await get('pausedUntil')) > Date.now(), 'tracking paused');
