@@ -99,3 +99,9 @@ Eye-break page ─ (opened from notification / popup)
 2. Additional languages (ES, DE, PT, UK, ZH…): drop-in files under `src/shared/locales/`.
 3. Weekly summary card (in-app, not just a notification).
 4. Companion apps for macOS and Linux.
+
+## 8. Status (2.0.0)
+
+Shipped: everything under "Core" and "Supporting" above, plus the safe companion rewrite and an automatic 1.x → 2.0 data migration.
+Verified by: 15 unit tests (logic, migration, i18n, WCAG contrast), 12 companion tests, a 42-step end-to-end run in real Chromium (also against the packaged build), and visual QA of every surface in light/dark, English/Russian and at phone width.
+Not yet done: store listings (copy and screenshots are ready in `store/`), more languages, macOS/Linux companion backends, in-app weekly review.

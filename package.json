@@ -9,6 +9,7 @@
     "check": "node scripts-dev/check.mjs && node --test scripts-dev/tests/*.test.mjs",
     "test": "node --test scripts-dev/tests/*.test.mjs",
     "icons": "node scripts-dev/build-icons.mjs",
+    "lint": "npx --yes eslint src scripts-dev/*.mjs",
     "build": "node scripts-dev/check.mjs && node scripts-dev/pack.mjs"
   }
 }

@@ -3,7 +3,7 @@
 import { h, icon, favicon, toast, clear } from '../ui/dom.js';
 import { t, fmtNumber } from '../shared/i18n.js';
 import { getCollection, setCollection, onChange, updateSettings } from '../shared/storage.js';
-import { dayKey, rangeKeys, addDays, parseKey } from '../shared/time.js';
+import { dayKey, rangeKeys, addDays } from '../shared/time.js';
 import { parseUserDomain } from '../shared/domains.js';
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);

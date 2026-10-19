@@ -1,7 +1,9 @@
 // Redirects tabs to the block page when policy says so. Uses only `tabs` + `webNavigation`
 // (no content script on every page, no all-sites host permission).
 
-import { evaluate, blockedPageUrl } from '../shared/policy.js';
+import { evaluate, loadContext, blockedPageUrl } from '../shared/policy.js';
+import { decide } from '../shared/blocking.js';
+import { hostFromUrl } from '../shared/domains.js';
 import { getRaw, setRaw } from '../shared/storage.js';
 
 const isWeb = (url) => /^https?:\/\//i.test(url || '');
@@ -13,13 +15,15 @@ export async function checkTab(tabId, url) {
   try { await chrome.tabs.update(tabId, { url: blockedPageUrl(url, d) }); } catch { /* tab closed */ }
 }
 
-/** Re-check every open tab (after a focus session starts or the schedule / lists change). */
+/** Re-check every open tab (after a focus session starts or the schedule / lists change). Loads policy context once. */
 export async function sweepTabs() {
-  const tabs = await chrome.tabs.query({ url: ['http://*/*', 'https://*/*'] });
-  // pause-style friction should not hit tabs that were already open; only hard blocks do
+  const [tabs, ctx] = await Promise.all([chrome.tabs.query({ url: ['http://*/*', 'https://*/*'] }), loadContext()]);
   for (const tab of tabs) {
-    const d = await evaluate(tab.url);
-    if (d.action === 'block') { try { await chrome.tabs.update(tab.id, { url: blockedPageUrl(tab.url, d) }); } catch { /* ignore */ } }
+    const host = hostFromUrl(tab.url);
+    if (!host) continue;
+    const d = decide(host, ctx);
+    // pause-style friction should not hit tabs that were already open; only hard blocks do
+    if (d.action === 'block') { try { await chrome.tabs.update(tab.id, { url: blockedPageUrl(tab.url, d) }); } catch { /* tab closed */ } }
   }
 }
 

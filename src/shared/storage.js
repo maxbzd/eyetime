@@ -139,6 +139,10 @@ export async function importAll(payload) {
   if (!payload || payload.app !== 'eyetime' || typeof payload.data !== 'object') throw new Error('Not an EyeTime backup');
   const data = payload.data;
   const m = (data.meta?.schemaVersion || 0) >= 2 ? null : migrate(data);
+  // never trust a file blindly: keep only the keys EyeTime itself writes
+  const KNOWN = new Set(['settings', 'meta', 'tasks', 'habits', 'captures']);
+  const clean = {};
+  for (const [k, v] of Object.entries(data)) if (KNOWN.has(k) || /^d:\d{4}-\d{2}-\d{2}$/.test(k)) clean[k] = v;
   await area().clear();
   if (m) {
     const out = { settings: m.settings, meta: m.meta, tasks: m.tasks, captures: m.captures };
@@ -146,8 +150,7 @@ export async function importAll(payload) {
     for (const [k, rec] of Object.entries(m.days)) out[dayStorageKey(k)] = rec;
     await area().set(out);
   } else {
-    delete data.focus; delete data.passes;
-    await area().set(data);
+    await area().set(clean);
   }
   await ensureSchema();
 }

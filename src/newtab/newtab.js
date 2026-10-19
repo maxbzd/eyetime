@@ -3,8 +3,10 @@ import { $, h, icon, clear, toast } from '../ui/dom.js';
 import { mountFocusCard } from '../ui/focus-card.js';
 import { mountToday } from '../ui/today-card.js';
 import { tasksModule, habitsModule, notesModule, linksModule } from './modules.js';
-import { t, fmtDate, fmtTime, getLocale } from '../shared/i18n.js';
-import { getSettings, updateSettings, getRaw, setRaw, onChange } from '../shared/storage.js';
+import { t, fmtDate, fmtTime } from '../shared/i18n.js';
+import { updateSettings, getRaw, setRaw, onChange } from '../shared/storage.js';
+import { clock, remainingMs } from '../shared/focus.js';
+import { isFocusActive } from '../shared/blocking.js';
 import { ACCENT_NAMES } from '../ui/page.js';
 
 const BACKGROUNDS = ['dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'plain'];
@@ -19,7 +21,17 @@ function paintClock() {
   $('#date').textContent = fmtDate(now);
   const hr = now.getHours();
   $('#greeting').textContent = settings.newtab.greeting ? t(hr < 5 ? 'greet.night' : hr < 12 ? 'greet.morning' : hr < 18 ? 'greet.afternoon' : 'greet.evening') : '';
-  document.title = settings.newtab.greeting ? 'EyeTime' : 'EyeTime';
+}
+
+/** While a session runs the tab title shows the countdown, so it is visible from other tabs. */
+let runningFocus = null;
+function paintTitle() {
+  document.title = runningFocus && isFocusActive(runningFocus) ? `${clock(remainingMs(runningFocus))} · EyeTime` : 'EyeTime';
+}
+async function watchFocus() {
+  runningFocus = (await getRaw('focus')).focus; paintTitle();
+  onChange('focus', async () => { runningFocus = (await getRaw('focus')).focus; paintTitle(); });
+  setInterval(paintTitle, 1000);
 }
 
 /* ---------- background ---------- */
@@ -130,5 +142,5 @@ async function applySettings(s, first = false) {
   $('#scrim').addEventListener('click', closeDrawer);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#drawer').hidden) closeDrawer(); });
   onChange('newtabBg', applyBackground);
-  void getLocale; void getSettings;
+  watchFocus();
 })();
