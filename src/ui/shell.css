@@ -1,0 +1,21 @@
+/* App shell for full-page surfaces (Insights, Settings). */
+.app-header { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter: saturate(1.4) blur(12px); border-bottom: 1px solid var(--border); }
+.app-header-in { max-width: 1160px; margin: 0 auto; padding: 0 var(--s-6); height: 60px; display: flex; align-items: center; gap: var(--s-6); }
+.app-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: var(--fs-lg); letter-spacing: -.02em; color: var(--text); }
+.app-brand:hover { text-decoration: none; }
+.app-nav { display: flex; gap: 2px; margin-left: var(--s-2); }
+.app-nav a { padding: 7px 12px; border-radius: 9px; color: var(--text-2); font-weight: 560; font-size: var(--fs-md); }
+.app-nav a:hover { background: var(--surface-2); color: var(--text); text-decoration: none; }
+.app-nav a[aria-current="page"] { background: var(--surface-2); color: var(--text); }
+.app-header .spacer { flex: 1; }
+
+.page { max-width: 1160px; margin: 0 auto; padding: var(--s-8) var(--s-6) 96px; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap; margin-bottom: var(--s-6); }
+.page-head h1 { font-size: var(--fs-2xl); }
+.page-head p { color: var(--text-3); margin-top: 4px; }
+
+@media (max-width: 720px) {
+  .app-header-in, .page { padding-left: var(--s-4); padding-right: var(--s-4); }
+  .app-header-in { gap: var(--s-3); }
+  .app-brand span { display: none; }
+}
