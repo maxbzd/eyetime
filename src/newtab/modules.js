@@ -16,6 +16,11 @@ function card(id, ico, title, ...body) {
   return h('section', { class: 'card mod', id: 'mod-' + id }, h('div', { class: 'mod-head' }, h('h3', {}, ico, title)), body);
 }
 
+/** A calm, centred empty state shared by the modules: soft icon, one line of guidance. */
+function emptyMini({ ico, title, body }) {
+  return h('div', { class: 'empty-mini' }, h('div', { class: 'em-ico' }, icon(ico)), h('div', { class: 'em-title', text: title }), body ? h('div', { class: 'em-body', text: body }) : null);
+}
+
 /* ---------- tasks ---------- */
 export function tasksModule() {
   const root = card('tasks', icon('list-checks'), t('mod.tasks'));
@@ -66,18 +71,29 @@ export function tasksModule() {
     };
     const startOn = async (x) => { const s = await getSettings(); const r = await send('focus:start', { minutes: s.focus.minutes, strict: s.focus.strict, scope: s.focus.scope, taskId: x.id }); if (r && r.ok === false) toast(t('common.error')); };
 
-    const row = (x) => h('div', { class: 'item' + (x.done ? ' done' : '') + (x.starred && !x.done ? ' prio' : '') },
-      h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: x.done, 'aria-label': x.text, onchange: (e) => { x.done = e.target.checked; x.doneAt = x.done ? Date.now() : 0; if (x.done) x.starred = false; save(); render(); } }), h('span', { class: 'box' }, icon('check'))),
-      h('span', { class: 'txt' }, x.text, x.at && x.atDay === dayKey() && !x.done ? h('span', { class: 'at num', 'data-tip': t('tasks.scheduledAt') }, icon('alarm-clock'), x.at) : null, x.focusSec >= 60 ? h('span', { class: 'spent num', 'data-tip': t('tasks.spent'), text: fmtDuration(x.focusSec) }) : null),
-      !x.done && x.resume ? h('span', { class: 'resume-note', title: x.resume }, icon('corner-down-right'), x.resume) : null,
-      x.done ? null : h('button', { class: 'x act star' + (x.starred ? ' on' : ''), type: 'button', 'aria-pressed': String(!!x.starred), 'aria-label': t('tasks.priority') + ': ' + x.text, 'data-tip': t('tasks.priority'), onclick: () => toggleStar(x) }, icon('star')),
-      x.done ? null : h('button', { class: 'x act', type: 'button', 'aria-label': t('tasks.schedule') + ': ' + x.text, 'data-tip': t('tasks.schedule'), onclick: () => askTime(x) }, icon('alarm-clock')),
-      x.done ? null : h('button', { class: 'x act', type: 'button', 'aria-label': t('tasks.focusOn') + ': ' + x.text, 'data-tip': t('tasks.focusOn'), onclick: () => startOn(x) }, icon('play')),
-      h('button', { class: 'x', type: 'button', 'aria-label': t('common.remove'), onclick: () => { const i = tasks.indexOf(x); tasks.splice(i, 1); save(); render(); toast(t('tasks.removed'), { action: t('common.undo'), onAction: () => { tasks.splice(i, 0, x); save(); render(); } }); } }, icon('x')));
+    const priStar = () => { const el = icon('star'); el.classList.add('pri'); return el; };
+    const row = (x) => {
+      const scheduled = x.at && x.atDay === dayKey() && !x.done;
+      const meta = [
+        scheduled ? h('span', { class: 'tagm at num', 'data-tip': t('tasks.scheduledAt') }, icon('alarm-clock'), x.at) : null,
+        x.focusSec >= 60 ? h('span', { class: 'tagm num', 'data-tip': t('tasks.spent') }, icon('timer'), fmtDuration(x.focusSec)) : null,
+        !x.done && x.resume ? h('span', { class: 'resume', title: x.resume }, icon('corner-down-right'), h('span', { text: x.resume })) : null,
+      ].filter(Boolean);
+      return h('div', { class: 'item' + (x.done ? ' done' : '') + (x.starred && !x.done ? ' prio' : '') },
+        h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: x.done, 'aria-label': x.text, onchange: (e) => { x.done = e.target.checked; x.doneAt = x.done ? Date.now() : 0; if (x.done) x.starred = false; save(); render(); } }), h('span', { class: 'box' }, icon('check'))),
+        h('div', { class: 'item-main' },
+          h('div', { class: 'item-title' }, x.starred && !x.done ? priStar() : null, x.text),
+          meta.length ? h('div', { class: 'item-meta' }, meta) : null),
+        h('div', { class: 'item-acts' },
+          x.done ? null : h('button', { class: 'star' + (x.starred ? ' on' : ''), type: 'button', 'aria-pressed': String(!!x.starred), 'aria-label': t('tasks.priority') + ': ' + x.text, 'data-tip': t('tasks.priority'), onclick: () => toggleStar(x) }, icon('star')),
+          x.done ? null : h('button', { type: 'button', 'aria-label': t('tasks.schedule') + ': ' + x.text, 'data-tip': t('tasks.schedule'), onclick: () => askTime(x) }, icon('alarm-clock')),
+          x.done ? null : h('button', { type: 'button', 'aria-label': t('tasks.focusOn') + ': ' + x.text, 'data-tip': t('tasks.focusOn'), onclick: () => startOn(x) }, icon('play')),
+          h('button', { type: 'button', 'aria-label': t('common.remove'), onclick: () => { const i = tasks.indexOf(x); tasks.splice(i, 1); save(); render(); toast(t('tasks.removed'), { action: t('common.undo'), onAction: () => { tasks.splice(i, 0, x); save(); render(); } }); } }, icon('x'))));
+    };
 
     clear(body, input,
       prio ? h('div', { class: 'eyebrow', text: t('tasks.priorities', { n: prio, max: MAX_PRIORITIES }) }) : null,
-      visible.length ? h('div', { class: 'items' }, visible.map(row)) : h('div', { class: 'hint', text: t('tasks.empty') }),
+      visible.length ? h('div', { class: 'items' }, visible.map(row)) : emptyMini({ ico: 'list-checks', title: t('tasks.emptyTitle'), body: t('tasks.empty') }),
       ordered.length > LIMIT ? h('button', { class: 'more-link', type: 'button', onclick: () => { showAll = !showAll; render(); } }, showAll ? t('mod.showLess') : t('mod.showAll', { n: ordered.length })) : null,
       done.length ? h('button', { class: 'more-link', type: 'button', onclick: () => { tasks = tasks.filter((x) => !x.done); save(); render(); } }, t('tasks.clearDone')) : null,
       open.length ? h('button', { class: 'more-link plan-link', type: 'button', onclick: openShutdown }, icon('moon'), t('tasks.planTomorrow')) : null);
@@ -204,7 +220,7 @@ export function linksModule(settings) {
         return h('a', { class: 'link', href: l.url }, favicon(host.replace(/^www\./, ''), 'fav'), h('span', { class: 't', text: l.title }),
           h('button', { class: 'x', type: 'button', 'aria-label': t('common.remove'), onclick: async (e) => { e.preventDefault(); e.stopPropagation(); await updateSettings((st) => { st.newtab.links.splice(i, 1); }); } }, icon('x')));
       }),
-      h('button', { class: 'link add', type: 'button', onclick: openAdd }, h('span', { class: 'plus' }, icon('plus')), h('span', { class: 't', text: t('links.add') }))));
+      h('button', { class: 'link add' + (links.length ? '' : ' alone'), type: 'button', onclick: openAdd }, h('span', { class: 'plus' }, icon('plus')), h('span', { class: 't', text: links.length ? t('links.addShort') : t('links.addFirst') }))));
   }
   render(settings);
   return { el: root, update: render };

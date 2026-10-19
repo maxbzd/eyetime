@@ -30,8 +30,8 @@
 .chart-tip > .sub:first-child { margin-bottom: 2px; }
 
 /* heatmap */
-.heatmap { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 14px); grid-auto-columns: 14px; gap: 3px; }
-.hm-cell { width: 14px; height: 14px; border-radius: 4px; background: var(--bar-empty); }
+.heatmap { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, auto); grid-template-columns: repeat(var(--weeks, 16), minmax(0, 1fr)); gap: 4px; max-width: calc(var(--weeks, 16) * 36px); }
+.hm-cell { aspect-ratio: 1; border-radius: 5px; background: var(--bar-empty); }
 .hm-cell.pad { background: transparent; }
 .hm-cell.l1 { background: color-mix(in srgb, var(--accent) 24%, var(--bar-empty)); }
 .hm-cell.l2 { background: color-mix(in srgb, var(--accent) 46%, var(--bar-empty)); }

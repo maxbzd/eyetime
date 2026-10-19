@@ -9,7 +9,7 @@ import { makeClassifier } from '../shared/classify.js';
 import { dayKey } from '../shared/time.js';
 import { hostFromUrl, matches } from '../shared/domains.js';
 
-const CLASSES = [{ id: 'productive', icon: 'circle-check' }, { id: 'neutral', icon: 'minus' }, { id: 'distracting', icon: 'circle-alert' }];
+const CLASSES = [{ id: 'productive' }, { id: 'neutral' }, { id: 'distracting' }];
 let tab = null;
 
 /* ---------- current site ---------- */
@@ -28,26 +28,41 @@ async function renderSite() {
   const blocked = b.always.includes(host);
   const limitKey = Object.keys(b.limits).find((d) => matches(host, d));
 
-  const seg = CLASSES.map(({ id: c, icon: ico }) => h('button', {
+  const seg = CLASSES.map(({ id: c }) => h('button', {
     type: 'button', 'data-cls': c, 'aria-pressed': String(cls === c),
     onclick: async () => {
       await updateSettings((s) => { s.sites[host] = c; if (c !== 'distracting') s.blocking.always = s.blocking.always.filter((x) => x !== host); });
       send('settings:changed'); renderSite();
     },
-  }, icon(ico), t('class.' + c)));
+  }, t('class.' + c)));
 
-  const extra = h('div', { class: 'site-extra' },
-    limitKey ? [h('span', { class: 'num', text: fmtDuration(sec) }), h('div', { class: 'progress' }, h('i', { style: { width: Math.min(100, (sec / (b.limits[limitKey] * 60)) * 100) + '%' } })), h('span', { class: 'num', text: fmtDuration(b.limits[limitKey] * 60) })] : h('span'),
-    h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: async () => {
-      await updateSettings((s) => { s.blocking.always = blocked ? s.blocking.always.filter((x) => x !== host) : [...new Set([...s.blocking.always, host])]; });
-      await send('settings:changed');
-      if (!blocked) window.close(); else renderSite();
-    } }, icon(blocked ? 'unlock' : 'ban'), blocked ? t('site.unblock') : t('site.alwaysBlock')));
+  const blockBtn = h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': blocked ? t('site.unblock') : t('site.alwaysBlock'), 'data-tip': blocked ? t('site.unblock') : t('site.alwaysBlock'), onclick: async () => {
+    await updateSettings((s) => { s.blocking.always = blocked ? s.blocking.always.filter((x) => x !== host) : [...new Set([...s.blocking.always, host])]; });
+    await send('settings:changed');
+    if (!blocked) window.close(); else renderSite();
+  } }, icon(blocked ? 'unlock' : 'ban'));
+  const limit = limitKey ? h('div', { class: 'site-extra' }, h('span', { class: 'num', text: fmtDuration(sec) }), h('div', { class: 'progress' }, h('i', { style: { width: Math.min(100, (sec / (b.limits[limitKey] * 60)) * 100) + '%' } })), h('span', { class: 'num', text: fmtDuration(b.limits[limitKey] * 60) })) : null;
 
   clear(el,
     h('div', { class: 'site-row' }, favicon(host, 'fav-lg'),
-      h('div', { class: 'grow' }, h('div', { class: 'name truncate', text: host }), h('div', { class: 'meta num', text: sec >= 60 ? t('site.today', { time: fmtDuration(sec) }) : t('site.justStarted') }))),
-    h('div', { class: 'site-class', role: 'group', 'aria-label': t('site.classLabel') }, seg), extra);
+      h('div', { class: 'grow' }, h('div', { class: 'name truncate', text: host }), h('div', { class: 'meta num', text: sec >= 60 ? t('site.today', { time: fmtDuration(sec) }) : t('site.justStarted') })), blockBtn),
+    h('div', { class: 'site-class', role: 'group', 'aria-label': t('site.classLabel') }, seg), limit);
+}
+
+/* ---------- eye break chip in the header: next 20-20-20 break, or "now" ---------- */
+
+async function renderEye() {
+  const chip = $('#eyeChip');
+  const settings = await getSettings();
+  if (!settings.eye.enabled) { chip.hidden = true; return; }
+  const eye = await send('break:state');
+  if (!eye || typeof eye.since !== 'number') { chip.hidden = true; return; }
+  const left = Math.max(0, settings.eye.intervalMin * 60 - (eye.since || 0));
+  chip.hidden = false; chip.classList.toggle('due', !!eye.due);
+  clear(chip, icon('eye'), h('span', { class: 'num', text: eye.due ? t('eye.now') : fmtDuration(left) }));
+  chip.setAttribute('aria-label', eye.due ? t('eye.due') : t('eye.nextIn', { time: fmtDuration(left) }));
+  chip.setAttribute('data-tip', eye.due ? t('eye.due') : t('eye.nextIn', { time: fmtDuration(left) }));
+  chip.onclick = () => { send('break:open'); window.close(); };
 }
 
 /* ---------- footer ---------- */
@@ -66,10 +81,9 @@ async function renderFooter() {
   } });
   const paused = pausedUntil > Date.now();
   const pause = paused
-    ? h('button', { type: 'button', onclick: async () => { await send('tracking:pause', { minutes: 0 }); renderFooter(); } }, icon('play'), t('track.resume'))
-    : h('button', { type: 'button', onclick: async () => { await send('tracking:pause', { minutes: 60 }); renderFooter(); } }, icon('pause'), t('track.pause'));
-  clear(el, h('div', { class: 'capture' }, input),
-    h('div', { class: 'foot-row' }, pause, h('span', { class: 'num', text: paused ? t('track.pausedUntil', { time: fmtTime(new Date(pausedUntil), settings.newtab.clock24 ?? undefined) }) : '' })));
+    ? h('button', { class: 'btn btn-sm', type: 'button', 'data-tip': t('track.resume'), onclick: async () => { await send('tracking:pause', { minutes: 0 }); renderFooter(); } }, icon('play'), t('track.pausedUntil', { time: fmtTime(new Date(pausedUntil), settings.newtab.clock24 ?? undefined) }))
+    : h('button', { class: 'btn btn-ghost btn-icon', type: 'button', 'aria-label': t('track.pause'), 'data-tip': t('track.pause'), onclick: async () => { await send('tracking:pause', { minutes: 60 }); renderFooter(); } }, icon('pause'));
+  clear(el, h('div', { class: 'foot-row' }, h('div', { class: 'capture grow' }, input), pause));
 }
 
 (async function main() {
@@ -79,7 +93,7 @@ async function renderFooter() {
   const preview = new URLSearchParams(location.search).get('site'); // ?site=github.com renders the site card without a real tab (docs, screenshots)
   if (preview) tab = { id: -1, host: preview };
   mountFocusCard($('#focus'), { variant: 'compact' });
-  mountToday($('#today'), { closeOnBreak: true });
-  renderSite(); renderFooter();
+  mountToday($('#today'), { closeOnBreak: true, compact: true });
+  renderSite(); renderFooter(); renderEye(); setInterval(renderEye, 30_000);
   onChange(['d:*', 'pausedUntil'], () => { renderSite(); renderFooter(); });
 })();

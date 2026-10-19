@@ -63,24 +63,23 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
       h('span', { class: 'lbl', 'data-tip': t(hint) }, icon(ico), t(key)),
       h('span', { class: 'switch' }, h('input', { type: 'checkbox', checked, 'aria-label': t(key), onchange: (e) => onchange(e.target.checked) }), h('span', { class: 'track' }), h('span', { class: 'thumb' })));
     const strict = h('div', { class: 'focus-opts' },
-      opt('lock', 'focus.strict', 'focus.strictHint', d.strict, (v) => { d.strict = v; }),
-      opt('shield-check', 'focus.onlyMine', 'focus.onlyMineHint', d.scope === 'only-mine', (v) => { d.scope = v ? 'only-mine' : 'distractions'; }));
+      opt('lock', large ? 'focus.strict' : 'focus.strictShort', 'focus.strictHint', d.strict, (v) => { d.strict = v; }),
+      opt('shield-check', large ? 'focus.onlyMine' : 'focus.onlyMineShort', 'focus.onlyMineHint', d.scope === 'only-mine', (v) => { d.scope = v ? 'only-mine' : 'distractions'; }));
 
     // task picker: priorities first, then the newest open tasks — one tap sets the goal and links the session to the task
-    const picks = [...st.tasks.filter((x) => x.starred), ...st.tasks.filter((x) => !x.starred)].slice(0, large ? 4 : 3);
+    const picks = [...st.tasks.filter((x) => x.starred), ...st.tasks.filter((x) => !x.starred)].slice(0, large ? 4 : 2);
     const taskRow = h('div', { class: 'task-picks' + (picks.length ? '' : ' none') }, picks.map((x) => h('button', { class: 'chip chip-task', type: 'button', 'aria-pressed': String(d.taskId === x.id), 'data-tip': x.text, onclick: () => {
       const on = d.taskId !== x.id;
       d.taskId = on ? x.id : ''; d.goal = on ? x.text : ''; render(); $('#goal' + uid, root)?.focus();
     } }, x.starred ? icon('star') : icon('circle'), h('span', { class: 'truncate', text: x.text }))));
     const picked = st.tasks.find((x) => x.id === d.taskId);
     const resumeLine = picked?.resume ? h('div', { class: 'resume-line' }, icon('corner-down-right'), h('span', {}, h('b', { text: t('focus.leftOff') + ' ' }), picked.resume)) : null;
-    const suggestLine = st.suggest ? h('div', { class: 'hint' }, icon('sparkles'), t('focus.suggested', { n: st.suggest.minutes })) : null;
-    const noEffort = st.today?.fs ? null : h('button', { class: 'just5', type: 'button', onclick: () => { d.minutes = 5; d.custom = false; start(); } }, icon('sparkles'), t('focus.just5'));
+    const suggestLine = st.suggest && large ? h('div', { class: 'hint' }, icon('sparkles'), t('focus.suggested', { n: st.suggest.minutes })) : null;
+    const noEffort = st.today?.fs || !large ? null : h('button', { class: 'just5', type: 'button', onclick: () => { d.minutes = 5; d.custom = false; start(); } }, icon('sparkles'), t('focus.just5'));
     const strip = goalStrip({ fsSec: st.today?.fs || 0, goalMin: st.settings.focus.dailyGoal, streak: st.streak });
 
     clear(root, h('div', { class: 'focus-idle' + (large ? ' large' : '') },
       st.review ? reviewCard(st.review, { onDone: refresh }) : null,
-      large ? null : h('div', { class: 'focus-head' }, h('h2', { text: t('focus.title') }), h('span', { class: 'hint', text: t('focus.tagline') })),
       strip,
       goal, taskRow, resumeLine,
       large
@@ -113,24 +112,29 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
 
   function renderRunning(restMode = false) {
     const f = restMode ? st.rest : st.focus;
-    const size = large ? 220 : 168, R = size / 2 - 8, C = 2 * Math.PI * R, mid = size / 2;
+    const size = large ? 220 : 104, sw = large ? 8 : 7, R = size / 2 - sw, C = 2 * Math.PI * R, mid = size / 2;
     const time = h('div', { class: 'time num' });
-    const sub = h('div', { class: 'sub', text: t('focus.endsAt', { time: fmtTime(new Date(f.endsAt), st.settings.newtab.clock24 ?? undefined) }) });
-    const track = svg('circle', { cx: mid, cy: mid, r: R, fill: 'none', 'stroke-width': 8, class: 'track' });
-    const bar = svg('circle', { cx: mid, cy: mid, r: R, fill: 'none', 'stroke-width': 8, 'stroke-linecap': 'round', class: 'bar', 'stroke-dasharray': C });
+    const ends = t('focus.endsAt', { time: fmtTime(new Date(f.endsAt), st.settings.newtab.clock24 ?? undefined) });
+    const track = svg('circle', { cx: mid, cy: mid, r: R, fill: 'none', 'stroke-width': sw, class: 'track' });
+    const bar = svg('circle', { cx: mid, cy: mid, r: R, fill: 'none', 'stroke-width': sw, 'stroke-linecap': 'round', class: 'bar', 'stroke-dasharray': C });
     const ring = svg('svg', { viewBox: `0 0 ${size} ${size}` }, track, bar);
+    const label = restMode ? t(f.long ? 'rest.long' : 'rest.title') : t('focus.running');
     const actions = restMode
-      ? [h('button', { class: 'btn btn-primary', type: 'button', onclick: async () => { await send('rest:skip'); await start(); } }, icon('play'), startLabel()),
-         h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => send('rest:skip') }, t('rest.skip'))]
+      ? [h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: async () => { await send('rest:skip'); await start(); } }, icon('play'), startLabel()),
+         h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: () => send('rest:skip') }, t('rest.skip'))]
       : f.strict
         ? h('span', { class: 'locked' }, icon('lock'), t('focus.strictLocked'))
-        : h('button', { class: 'btn btn-ghost', type: 'button', onclick: endEarly }, t('focus.end'));
+        : h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: endEarly }, t('focus.end'));
     const extras = restMode ? restIdeas() : runningExtras();
-    clear(root, h('div', { class: 'focus-run' + (large ? ' large' : '') + (restMode ? ' rest' : '') },
-      h('span', { class: 'badge ' + (restMode ? 'badge-success' : 'badge-accent') + ' badge-dot', text: restMode ? t(f.long ? 'rest.long' : 'rest.title') : t('focus.running') }),
-      h('div', { class: 'ring', role: 'timer', 'aria-label': restMode ? t(f.long ? 'rest.long' : 'rest.title') : t('focus.running'), style: { width: size + 'px', height: size + 'px' } }, ring, h('div', { class: 'center' }, time, sub)),
-      restMode ? h('div', { class: 'goal-line', text: t('rest.hint') }) : (f.goal ? h('div', { class: 'goal-line', text: f.goal }) : null),
-      h('div', { class: 'run-actions' }, actions), extras));
+    const ringEl = h('div', { class: 'ring', role: 'timer', 'aria-label': label, style: { width: size + 'px', height: size + 'px' } }, ring, h('div', { class: 'center' }, time, large ? h('div', { class: 'sub', text: ends }) : null));
+    const badge = h('span', { class: 'badge ' + (restMode ? 'badge-success' : 'badge-accent') + ' badge-dot', text: label });
+    const goalEl = restMode ? (large ? h('div', { class: 'goal-line', text: t('rest.hint') }) : null) : (f.goal ? h('div', { class: 'goal-line', text: f.goal }) : null);
+    clear(root, large
+      ? h('div', { class: 'focus-run large' + (restMode ? ' rest' : '') }, badge, ringEl, goalEl, h('div', { class: 'run-actions' }, actions), extras)
+      // popup: ring and details side by side — a running session must leave room for the rest of the popup
+      : h('div', { class: 'focus-run compact' + (restMode ? ' rest' : '') },
+          h('div', { class: 'run-top' }, ringEl, h('div', { class: 'run-info' }, badge, goalEl, h('div', { class: 'muted run-ends', text: ends }), h('div', { class: 'run-actions' }, actions))),
+          extras));
     const paint = () => {
       const rem = remainingMs(f);
       if (rem <= 0) { clearInterval(tickId); refresh(); return; }

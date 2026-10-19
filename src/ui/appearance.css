@@ -34,3 +34,5 @@
 .lp-split { position: relative; display: block; }
 .lp-dark { position: absolute; inset: 0; display: block; clip-path: polygon(62% 0, 100% 0, 100% 100%, 38% 100%); }
 .lp-dark .lp { height: 100%; }
+
+.compact .lp .row .chip:last-child { display: none; }

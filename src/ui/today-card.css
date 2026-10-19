@@ -17,6 +17,19 @@
 .streak { display: flex; align-items: center; gap: 8px; margin-top: var(--s-3); font-size: var(--fs-sm); color: var(--text-2); }
 .streak .ico { color: var(--accent-text); font-size: 16px; }
 .breaks { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); margin-top: var(--s-4); padding-top: var(--s-3); border-top: 1px solid var(--border); font-size: var(--fs-sm); color: var(--text-2); }
-.breaks .lbl { display: flex; align-items: center; gap: 8px; }
+.breaks .lbl { display: flex; align-items: center; gap: 8px; min-width: 0; } .breaks .btn { flex: none; white-space: nowrap; }
 .breaks .ico { font-size: 16px; color: var(--text-3); }
 .breaks.due { color: var(--accent-text); } .breaks.due .ico { color: var(--accent-text); }
+
+.breaks .btn { padding: 0 10px; }
+
+/* popup */
+.legend-grid.inline { display: flex; gap: var(--s-4); } .legend-grid.inline > div { flex-direction: row; align-items: center; gap: 6px; }
+.legend-grid.inline .lg { color: var(--text-2); }
+
+.today-empty-row { display: flex; align-items: center; gap: var(--s-3); }
+.today-empty-row .em-ico { width: 38px; height: 38px; font-size: 18px; flex: none; margin: 0; } .today-empty-row .em-title { font-weight: 650; font-size: var(--fs-md); } .today-empty-row .em-body { font-size: var(--fs-sm); color: var(--text-3); line-height: 1.35; }
+
+.today-line { display: flex; align-items: center; gap: var(--s-4); }
+.tl-total { display: flex; flex-direction: column; line-height: 1.15; flex: none; } .tl-total b { font-size: 22px; font-weight: 650; letter-spacing: -.02em; }
+.today-line .split { flex: 1; margin: 0; height: 10px; }

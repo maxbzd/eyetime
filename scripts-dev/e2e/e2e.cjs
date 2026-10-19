@@ -27,6 +27,9 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   await ob.click('.chips .chip >> nth=3'); // news on
   await ob.click('text=Next'); await ob.waitForSelector('.opt');
   await ob.click('#card .segmented button >> nth=2'); // 50m
+  await ob.click('text=Next'); await ob.waitForSelector('.ob-looks');   // new step: pick a look (applies instantly)
+  await ob.locator('.ob-looks .look-card').nth(2).click(); await sleep(500);
+  ok((await get('settings')).appearance.look === 'midnight', 'look picked during onboarding is applied and saved');
   await ob.click('text=Next'); await ob.waitForSelector('text=You’re all set');
   await ob.click('text=Start my first');
   await sleep(1500);
@@ -137,7 +140,7 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   await tab.locator('#park').click(); await sleep(900);
   const caps = await get('captures'); ok(Array.isArray(caps) && caps.some((c) => /reddit\.com/.test(c.text)), '"Park it for later" saves the urge to the parked list');
   const pg7 = await ctx.newPage(); await pg7.goto(ext('src/newtab/newtab.html')); await sleep(1300);
-  ok((await pg7.locator('.resume-note').count()) >= 1, 'Home shows the resume note under the task');
+  ok((await pg7.locator('.item-meta .resume').count()) >= 1, 'Home shows the resume note under the task');
   await pg7.locator('.plan-link').click(); await pg7.waitForSelector('dialog[open] .sd-stats'); 
   await pg7.locator('dialog[open] input[type=text], dialog[open] .input').first().fill('Shipped the draft');
   await pg7.locator('dialog[open] .items .check input').first().check();

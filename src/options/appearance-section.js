@@ -68,7 +68,7 @@ export function appearance({ s, save }) {
       row({ title: t('ap.motion'), desc: t('ap.motionDesc'), control: toggle(ap.motion === 'reduced', (v) => save((x) => { x.appearance.motion = v ? 'reduced' : 'system'; }, true), t('ap.motion')) })),
     group(t('ap.advanced'),
       row({ title: t('ap.css'), desc: t('ap.cssDesc'), stack: true, control: h('div', { class: 'stack gap-2', style: { width: '100%' } }, css, cssErr) }),
-      row({ title: t('ap.share'), desc: t('ap.shareDesc'), control: h('div', { class: 'row gap-2 wrap' },
+      row({ title: t('ap.share'), desc: t('ap.shareDesc'), stack: true, control: h('div', { class: 'row gap-2 wrap' },
         h('button', { class: 'btn', type: 'button', onclick: share }, icon('copy'), t('ap.copy')),
         h('button', { class: 'btn', type: 'button', onclick: () => importDialog((clean) => save((x) => { Object.assign(x.appearance, clean); }, true)) }, icon('download'), t('ap.import')),
         h('button', { class: 'btn btn-ghost', type: 'button', onclick: reset }, icon('rotate-ccw'), t('ap.reset'))) })));
