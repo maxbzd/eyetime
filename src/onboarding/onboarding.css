@@ -1,10 +1,5 @@
-:root { --g-strength: 78%; }
-:root[data-theme="dark"] { --g-strength: 30%; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --g-strength: 30%; } }
-body { min-height: 100vh; display: flex; flex-direction: column; --g1: #ffb68a; --g2: #c9b8ff; }
-.bg { position: fixed; inset: 0; z-index: -1; background:
-  radial-gradient(900px 620px at 12% -5%, color-mix(in srgb, var(--g1) var(--g-strength), transparent), transparent 70%),
-  radial-gradient(900px 640px at 100% 8%, color-mix(in srgb, var(--g2) var(--g-strength), transparent), transparent 72%), var(--bg); }
+body { min-height: 100vh; display: flex; flex-direction: column; }
+.bg { position: fixed; inset: 0; z-index: -1; background: radial-gradient(900px 620px at 12% -5%, color-mix(in srgb, var(--accent) 24%, transparent), transparent 70%), radial-gradient(900px 640px at 100% 8%, color-mix(in srgb, var(--productive) 18%, transparent), transparent 72%), radial-gradient(800px 520px at 50% 115%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%); }
 .ob-top { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: var(--fs-lg); letter-spacing: -.02em; }
 .ob { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s-5); padding: 0 var(--s-4) var(--s-12); }
@@ -33,3 +28,9 @@ body { min-height: 100vh; display: flex; flex-direction: column; --g1: #ffb68a; 
 .done-actions { display: flex; flex-direction: column; gap: var(--s-3); }
 .times { display: flex; align-items: center; gap: var(--s-2); }
 @media (max-width: 560px) { .ob-card { padding: var(--s-5); } .step h1 { font-size: 25px; } }
+
+.step-look { max-width: 100%; }
+.ob-card.wide { width: min(760px, 100%); }
+.looks.ob-looks { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s-3); max-height: 34vh; overflow-y: auto; padding: 4px; margin: -4px; }
+.opt .segmented { flex: none; }
+.goal-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
