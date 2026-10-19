@@ -2,12 +2,12 @@
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body {
-  margin: 0; background: var(--bg); color: var(--text);
+  margin: 0; background: var(--page-bg), var(--bg); background-attachment: fixed; color: var(--text); zoom: var(--ui-scale, 1);
   font: 400 var(--fs-md)/1.5 var(--font); font-feature-settings: "cv11", "ss03";
   -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
 }
 h1, h2, h3, h4, p { margin: 0; }
-h1, h2, h3, h4 { font-weight: 650; letter-spacing: -.015em; line-height: 1.2; }
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: var(--fw-heading); letter-spacing: var(--ls-heading); line-height: 1.2; }
 h1 { font-size: var(--fs-2xl); } h2 { font-size: var(--fs-xl); } h3 { font-size: var(--fs-lg); } h4 { font-size: var(--fs-md); }
 a { color: var(--accent-text); text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: 3px; }

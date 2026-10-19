@@ -8,7 +8,7 @@ import { debounce } from '../ui/dom.js';
 import * as S from './sections.js';
 
 const SECTIONS = [
-  { id: 'general', icon: 'settings-2', fn: S.general }, { id: 'focus', icon: 'target', fn: S.focus }, { id: 'blocking', icon: 'shield', fn: S.blocking },
+  { id: 'general', icon: 'settings-2', fn: S.general }, { id: 'appearance', icon: 'palette', fn: S.appearance }, { id: 'focus', icon: 'target', fn: S.focus }, { id: 'blocking', icon: 'shield', fn: S.blocking },
   { id: 'eye', icon: 'eye', fn: S.eye }, { id: 'tracking', icon: 'activity', fn: S.tracking }, { id: 'data', icon: 'database', fn: S.data }, { id: 'about', icon: 'info', fn: S.about },
 ];
 
