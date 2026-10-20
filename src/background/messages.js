@@ -14,6 +14,7 @@ import { sync } from './tracker.js';
 import { scheduleReminders } from './reminders.js';
 import { buildMenus } from './menus.js';
 import { isFocusActive } from '../shared/blocking.js';
+import { syncNow } from './sync.js';
 
 const handlers = {
   'focus:start': (m) => startFocus(m),
@@ -23,6 +24,7 @@ const handlers = {
     await stopFocus();
     return { ok: true };
   },
+  'sync:now': () => syncNow(),
   'focus:extend': (m) => extendFocus(m.minutes),
   'session:review': (m) => reviewSession(m),
   'pause:reason': async (m) => {
