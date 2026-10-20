@@ -19,3 +19,12 @@ test('i18n: duration formatting and locale resolution', () => {
   setLocale('ru'); assert.equal(fmtDuration(5400), '1ч\u00a030м'); setLocale('en');
   assert.equal(resolveLocale('auto', 'ru-RU'), 'ru'); assert.equal(resolveLocale('auto', 'uk'), 'ru'); assert.equal(resolveLocale('auto', 'de-DE'), 'en'); assert.equal(resolveLocale('ru', 'en-US'), 'ru');
 });
+
+test('fmtTime: true = 24-hour, false = 12-hour', async () => {
+  const { fmtTime, setLocale } = await import('../../src/shared/i18n.js');
+  setLocale('en');
+  const d = new Date(2026, 0, 1, 15, 5), mid = new Date(2026, 0, 1, 0, 5);
+  assert.equal(fmtTime(d, true), '15:05'); assert.equal(fmtTime(mid, true), '00:05');
+  assert.match(fmtTime(d, false), /^3:05\sPM$/);
+  assert.equal(fmtTime(d, null), fmtTime(d)); // follows the language
+});

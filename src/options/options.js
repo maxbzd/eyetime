@@ -54,9 +54,9 @@ function applyFilter() {
   const rows = [...root.querySelectorAll('.setting')];
   rows.forEach((r) => { r.hidden = false; r.classList.remove('hit'); });
   root.querySelectorAll('section.sec, section.sec > div').forEach((e) => { e.hidden = false; });
+  $('#qcount').textContent = '';
   if (!q) return;
   let any = false;
-  $('#qcount').textContent = '';
   for (const r of rows) { const hit = r.textContent.toLowerCase().includes(q); r.hidden = !hit; if (hit) { r.classList.add('hit'); any = true; } }
   $('#qcount').textContent = t('opt.results', { n: rows.filter((r) => !r.hidden).length });
   for (const g of root.querySelectorAll('section.sec > div')) if (g.querySelector('.card') && !g.querySelector('.setting:not([hidden])')) g.hidden = true;

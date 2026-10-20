@@ -10,6 +10,7 @@ import { goalStreak, suggestMinutes } from '../shared/productivity.js';
 import { rangeKeys } from '../shared/time.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { remainingMs, progress, isRestActive } from '../shared/focus.js';
+import { modeName } from '../shared/modes.js';
 
 export function mountFocusCard(root, { variant = 'compact' } = {}) {
   const large = variant === 'large';
@@ -49,7 +50,6 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     if (ok) await send('focus:stop');
   }
 
-  const modeName = (m) => m.name || t('mode.' + m.id);
   /** A mode is a preset for the whole session: length, scope, strictness (sound and extra allowed sites are applied by the worker). */
   function applyMode(id) {
     const d = st.draft, s = st.settings.focus, m = s.modes.find((x) => x.id === id);

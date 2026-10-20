@@ -275,6 +275,7 @@ export function data({ s, save, refresh }) {
       } }, icon('trash-2'), t('opt.resetBtn')) }))));
 }
 
+let syncPaint = null, syncListening = false;
 /** Optional settings sync: the toggle is a device-level flag (not part of the synced settings). */
 function syncGroup(s) {
   const status = h('div', { class: 'setting-desc' });
@@ -287,10 +288,11 @@ function syncGroup(s) {
     status.textContent = !syncSettings ? t('opt.syncOff')
       : !syncStatus ? t('opt.syncWait')
       : syncStatus.ok ? t('opt.syncOk', { time: fmtTime(new Date(syncStatus.at), s.newtab.clock24 ?? undefined) })
-      : syncStatus.error === 'unsupported' ? t('opt.syncUnsupported') : syncStatus.error === 'too_big' ? t('opt.syncTooBig') : t('opt.syncError', { e: syncStatus.error });
+      : syncStatus.error === 'unsupported' ? t('opt.syncUnsupported') : syncStatus.error === 'incompatible' ? t('opt.syncIncompatible') : syncStatus.error === 'too_big' ? t('opt.syncTooBig') : t('opt.syncError', { e: syncStatus.error });
   }
   paint();
-  chrome.storage.onChanged.addListener((c, area) => { if (area === 'local' && (c.syncStatus || c.syncSettings)) paint(); });
+  syncPaint = paint; // one page-wide listener repaints the newest status row (the page redraws often; per-draw listeners would pile up)
+  if (!syncListening) { syncListening = true; chrome.storage.onChanged.addListener((c, area) => { if (area === 'local' && (c.syncStatus || c.syncSettings) && syncPaint) syncPaint(); }); }
   return group(t('opt.groupSync'),
     (() => { const r = row({ title: t('opt.sync'), desc: t('opt.syncDesc'), control: h('div', { class: 'row gap-3' }, nowBtn, sw) }); r.querySelector('.setting-text').append(status); status.classList.add('sync-status'); return r; })());
 }

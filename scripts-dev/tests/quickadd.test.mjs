@@ -50,3 +50,12 @@ test('fuzzy: substring beats subsequence, word starts rank higher, no match = 0'
   assert.deepEqual(rank('op', items).map((x) => x.label), ['Open Insights', 'Open Settings']);
   assert.equal(rank('zzz', items).length, 0);
 });
+
+test('decimals and versions are not times', async () => {
+  const { parseQuickAdd } = await import('../../src/shared/quickadd.js');
+  const now = new Date(2026, 9, 20, 10, 0);
+  for (const s of ['Pay 12.50 for rent', 'Read chapter 10.15', 'Version 1.10 release', 'Write report 9.30']) { const r = parseQuickAdd(s, now); assert.equal(r.at, null, s); assert.equal(r.text, s); }
+  assert.equal(parseQuickAdd('Call Anna 9.30pm', now).at, '21:30');
+  assert.equal(parseQuickAdd('Call Anna @9.30', now).at, '09:30');
+  assert.equal(parseQuickAdd('Call Anna 16:45', now).at, '16:45');
+});

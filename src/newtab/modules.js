@@ -9,7 +9,7 @@ import { openShutdown } from './shutdown.js';
 import { getCollection, setCollection, onChange, updateSettings } from '../shared/storage.js';
 import { dayKey, rangeKeys, addDays } from '../shared/time.js';
 import { parseUserDomain } from '../shared/domains.js';
-import { taskFromInput } from '../shared/tasks.js';
+import { taskFromInput, updateEstLog } from '../shared/tasks.js';
 import { parseQuickAdd } from '../shared/quickadd.js';
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -94,7 +94,7 @@ export function tasksModule() {
         !x.done && x.resume ? h('span', { class: 'resume', title: x.resume }, icon('corner-down-right'), h('span', { text: x.resume })) : null,
       ].filter(Boolean);
       return h('div', { class: 'item' + (x.done ? ' done' : '') + (x.starred && !x.done ? ' prio' : '') },
-        h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: x.done, 'aria-label': x.text, onchange: (e) => { x.done = e.target.checked; x.doneAt = x.done ? Date.now() : 0; if (x.done) x.starred = false; save(); render(); if (x.done && x.est && x.focusSec >= 300) toast(t('tasks.tookVs', { actual: fmtDuration(x.focusSec), est: fmtDuration(x.est * 60) })); } }), h('span', { class: 'box' }, icon('check'))),
+        h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: x.done, 'aria-label': x.text, onchange: (e) => { x.done = e.target.checked; x.doneAt = x.done ? Date.now() : 0; if (x.done) x.starred = false; save(); render(); getCollection('estLog', []).then((log) => setCollection('estLog', updateEstLog(log, x))); if (x.done && x.est && x.focusSec >= 300) toast(t('tasks.tookVs', { actual: fmtDuration(x.focusSec), est: fmtDuration(x.est * 60) })); } }), h('span', { class: 'box' }, icon('check'))),
         h('div', { class: 'item-main' },
           h('div', { class: 'item-title' }, x.starred && !x.done ? priStar() : null, x.text),
           meta.length ? h('div', { class: 'item-meta' }, meta) : null),
@@ -114,7 +114,7 @@ export function tasksModule() {
   }
 
   getCollection('tasks', []).then((v) => { tasks = v; render(); });
-  onChange('tasks', async () => { const v = await getCollection('tasks', []); if (JSON.stringify(v) !== JSON.stringify(tasks) && !root.contains(document.activeElement)) { tasks = v; render(); } });
+  onChange('tasks', async () => { const v = await getCollection('tasks', []); if (JSON.stringify(v) === JSON.stringify(tasks)) return; tasks = v; if (!root.contains(document.activeElement)) render(); }); // keep memory fresh even while typing, so a later save never overwrites a task added elsewhere (palette, another tab)
   return root;
 }
 

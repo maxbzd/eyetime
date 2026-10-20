@@ -16,9 +16,11 @@ export function parseQuickAdd(input, now = new Date()) {
   const out = { text: '', at: null, atDay: null, est: null, priority: false, tags: [] };
 
   // time: @14:30 · at 2pm · в 14:30 · 14:30 · 2:30pm   (a bare number such as "3" is NOT a time)
-  const timeRe = /(?<=\s)(?:@|at\s+|в\s+)?(\d{1,2})(?:[:.](\d{2}))?\s?(am|pm|a\.m\.|p\.m\.)?(?=\s|$)/i;
-  const ts = [...text.matchAll(new RegExp(timeRe.source, 'gi'))].find((m) => (m[2] !== undefined || m[3] !== undefined || /^(@|at|в)/i.test(m[0].trim())) && toTime(m[1], m[2], m[3] && m[3].replace(/\./g, '')));
-  if (ts) { out.at = toTime(ts[1], ts[2], ts[3] && ts[3].replace(/\./g, '')); text = text.replace(ts[0], ' '); }
+  // a dot is a decimal point far more often than a time separator ("12.50", "chapter 10.15"): it only counts with am/pm or @/at/в
+  const timeRe = /(?<=\s)(@|at\s+|в\s+)?(\d{1,2})(?:([:.])(\d{2}))?\s?(am|pm|a\.m\.|p\.m\.)?(?=\s|$)/i;
+  const matches = [...text.matchAll(new RegExp(timeRe.source, 'gi'))].map((m) => ({ raw: m[0], prefix: m[1], h: m[2], sep: m[3], m: m[4], ap: m[5] && m[5].replace(/\./g, '') }));
+  const ts = matches.find((x) => (x.m !== undefined || x.ap !== undefined || x.prefix) && (x.sep !== '.' || x.ap || x.prefix) && toTime(x.h, x.m, x.ap));
+  if (ts) { out.at = toTime(ts.h, ts.m, ts.ap); text = text.replace(ts.raw, ' '); }
 
   // estimate: 25m · 25 min · 45мин · 1.5h · 2ч
   const est = /(?<=\s)(\d{1,3}(?:[.,]\d)?)\s?(m|min|mins|мин|м|h|hr|hrs|ч)(?=\s|$)/i.exec(text);
@@ -53,5 +55,5 @@ export function estimateAccuracy(tasks) {
   if (rows.length < 3) return null;
   const sorted = rows.map((r) => r.ratio).sort((a, b) => a - b);
   const median = sorted.length % 2 ? sorted[(sorted.length - 1) / 2] : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;
-  return { n: rows.length, median, verdict: median > 1.15 ? 'under' : median < 0.85 ? 'over' : 'good', rows: rows.slice(-5) };
+  return { n: rows.length, median, verdict: median > 1.15 ? 'under' : median < 0.85 ? 'over' : 'good', rows: rows.slice(0, 5) };
 }

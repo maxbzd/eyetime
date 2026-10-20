@@ -9,6 +9,7 @@ import { LOOK_IDS } from '../shared/looks.js';
 import { rank } from '../shared/fuzzy.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { taskFromInput } from '../shared/tasks.js';
+import { modeName } from '../shared/modes.js';
 
 const SECTIONS = ['general', 'appearance', 'focus', 'blocking', 'eye', 'tracking', 'data', 'about'];
 const ITABS = ['overview', 'focus', 'sites', 'patterns'];
@@ -30,7 +31,7 @@ async function commands(extra) {
   } else {
     add('focus', { icon: 'play' }, t('focus.start', { time: fmtDuration(settings.focus.minutes * 60) }), async () => { const r = await send('focus:start', { minutes: settings.focus.minutes, strict: settings.focus.strict, scope: settings.focus.scope, mode: settings.focus.mode }); if (r && r.ok === false) toast(t('common.error')); }, { keys: ['start', 'focus', 'session'] });
     for (const m of settings.focus.modes || []) {
-      add('focus', { icon: m.icon || 'zap' }, `${m.name || t('mode.' + m.id)} · ${fmtDuration(m.minutes * 60)}`, () => send('focus:start', { minutes: m.minutes, strict: !!m.strict, scope: m.scope, mode: m.id }), { hint: t('palette.mode'), keys: ['focus', 'start', 'mode'] });
+      add('focus', { icon: m.icon || 'zap' }, `${modeName(m)} · ${fmtDuration(m.minutes * 60)}`, () => send('focus:start', { minutes: m.minutes, strict: !!m.strict, scope: m.scope, mode: m.id }), { hint: t('palette.mode'), keys: ['focus', 'start', 'mode'] });
     }
     for (const x of tasks.filter((y) => !y.done).slice(0, 30)) {
       add('tasks', { icon: 'play' }, x.text, () => send('focus:start', { minutes: x.est || settings.focus.minutes, strict: settings.focus.strict, scope: settings.focus.scope, taskId: x.id }), { hint: t('palette.focusOn'), keys: ['focus on'] });
@@ -116,7 +117,7 @@ export function installPalette({ extra } = {}) {
   if (!document.querySelector('link[data-palette]')) document.head.append(h('link', { rel: 'stylesheet', href: new URL('./palette.css', import.meta.url).href, 'data-palette': '' }));
   window.addEventListener('et:palette', () => mount(extra));
   document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'k') { e.preventDefault(); mount(extra); }
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.code === 'KeyK' || e.key.toLowerCase() === 'k')) { e.preventDefault(); mount(extra); }
   });
   return { open: () => mount(extra) };
 }

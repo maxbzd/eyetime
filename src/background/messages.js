@@ -8,13 +8,12 @@ import { dayKey } from '../shared/time.js';
 import { PAUSE_REASONS } from '../shared/productivity.js';
 import { setAmbient } from './audio.js';
 import { updateSettings } from '../shared/storage.js';
-import { grantPass, sweepTabs } from './blocker.js';
-import { completeBreak, skipBreak, snoozeBreak, openBreakPage, scheduleBedtime, getEyeState } from './breaks.js';
+import { grantPass } from './blocker.js';
+import { completeBreak, skipBreak, snoozeBreak, openBreakPage, getEyeState } from './breaks.js';
 import { sync } from './tracker.js';
-import { scheduleReminders } from './reminders.js';
-import { buildMenus } from './menus.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { syncNow } from './sync.js';
+import { applySettings } from './apply.js';
 
 const handlers = {
   'focus:start': (m) => startFocus(m),
@@ -48,7 +47,7 @@ const handlers = {
   'break:state': () => getEyeState(),
   'tracking:pause': async (m) => { await setRaw({ pausedUntil: m.minutes ? Date.now() + m.minutes * 60_000 : 0 }); await sync('pause'); return { ok: true }; },
   'tab:close': async (m, sender) => { if (sender.tab) await chrome.tabs.remove(sender.tab.id); return { ok: true }; },
-  'settings:changed': async () => { await buildMenus(); await scheduleBedtime(); await scheduleReminders(); await sweepTabs(); await sync('settings'); return { ok: true }; },
+  'settings:changed': async () => { await applySettings(); return { ok: true }; },
 };
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {

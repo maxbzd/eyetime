@@ -15,3 +15,19 @@ export function taskFromInput(input, tasks = [], now = new Date()) {
   if (p.tags.length) task.tags = p.tags.slice(0, 5);
   return { task, parsed: p, prioDenied: p.priority && !prioFree };
 }
+
+/* ---------- estimate log: finished tasks with a planned length outlive "Clear completed" ---------- */
+export const EST_LOG_MAX = 100;
+
+/** New log after `task` changed: finished + estimated tasks are (re)recorded, anything else is removed. Pure. */
+export function updateEstLog(log, task) {
+  const rest = (log || []).filter((e) => e.id !== task.id);
+  if (!task.done || !(task.est > 0)) return rest;
+  return [{ id: task.id, text: String(task.text || '').slice(0, 120), est: task.est, focusSec: task.focusSec || 0, at: task.doneAt || Date.now() }, ...rest].slice(0, EST_LOG_MAX);
+}
+
+/** Tasks + log as one list for estimateAccuracy(): a live task wins over its log entry. */
+export function accuracyInput(tasks, log) {
+  const live = new Set((tasks || []).map((x) => x.id));
+  return [...(tasks || []), ...(log || []).filter((e) => !live.has(e.id)).map((e) => ({ id: e.id, text: e.text, est: e.est, focusSec: e.focusSec, done: true }))];
+}

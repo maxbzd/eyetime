@@ -291,4 +291,6 @@ export const en = {
   'wrapped.footer': 'EyeTime · free & open source', 'wrapped.share': 'Share as image', 'wrapped.preview': 'Your week as an image', 'wrapped.privacy': 'Only totals — no site names, no task titles.', 'wrapped.save': 'Download PNG', 'wrapped.copy': 'Copy', 'wrapped.copied': 'Image copied',
   'prod.remindBest': 'Remind me to focus at {time}', 'prod.remindSet': 'Reminder set: {time} on weekdays', 'prod.remindHave': 'You already have a reminder around {time}.',
   'habits.ideas': 'Ideas to start with:',
+  'opt.syncIncompatible': 'The synced settings come from a newer EyeTime. Update this browser to sync.',
+  'prod.remindFull': 'You already have 5 reminders — remove one in Settings → Focus first.',
 };

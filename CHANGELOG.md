@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.3.1 — 2026-10-20
+
+Hardening release after an independent code review and a new upgrade/empty-profile regression crawl (now part of CI).
+
+### Fixed
+- **Clock format was inverted**: choosing *24-hour* showed 12-hour times and vice versa (Home clock, schedules, timeline, block pages). Now correct.
+- **Settings sync**: a freshly installed browser adopts your cloud settings on first sync instead of overwriting them with its defaults; starting a focus session no longer counts as an edit (so a stale browser can't overwrite real changes); the companion token is never synced; pulled settings take effect immediately (alarms, menus, reminders); the cloud copy is written before old chunks are removed; newer-format data is never overwritten; emoji can't be split across chunks.
+- **Quick-add** no longer reads decimals or versions (`12.50`, `chapter 10.15`) as a time; a dot counts only with am/pm or `@`/`at`/`в`.
+- A task added from the command palette can no longer be lost by the Home task field; **Ctrl+K works on a Russian keyboard layout**.
+- Estimate accuracy shows the latest tasks and keeps finished tasks after *Clear completed*.
+- Task-time notifications start the session with the task's planned length; custom focus modes without a name show a neutral label; the toolbar badge updates after **+5 min**; a mode's ambient sound survives a browser restart.
+- Empty Focus tab no longer logs a missing-icon error; "Remind me at your best hour" handles a full reminder list and midnight neighbours; timeline summary hidden on days without hourly data; settings search count clears; no listener pile-up on the Data page.
+
 ## 2.3.0 — 2026-10-20
 
 A second exhaustive audit (every screen × state × width × language × look, with an automatic horizontal-overflow report) and a round of new features.

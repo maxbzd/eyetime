@@ -9,6 +9,7 @@ import { focusTab } from './focus-tab.js';
 import { installPalette } from '../ui/palette.js';
 import { timelineCard } from './timeline.js';
 import { openWrapped } from './wrapped.js';
+import { accuracyInput } from '../shared/tasks.js';
 import { makeClassifier } from '../shared/classify.js';
 import { summarize, delta, insights as computeInsights, focusStreak, suggestLimit } from '../shared/stats.js';
 import { rangeKeys, addDays, dayKey, parseKey } from '../shared/time.js';
@@ -31,7 +32,8 @@ async function load() {
     getDays(rangeKeys(15 * 7 + ((today.getDay() + 6) % 7) + 1, today)), // 16 calendar weeks (Mon-aligned) ending today
   ]);
   const tasks = await getCollection('tasks', []);
-  return { cur, prev, heat, tasks };
+  const estLog = await getCollection('estLog', []);
+  return { cur, prev, heat, tasks, estLog };
 }
 
 /* ---------- pieces ---------- */
@@ -243,7 +245,7 @@ function render() {
 
   const views = {
     overview: () => [renderKpis(sum, prev), range === '7' && sum.total >= 3600 && sum.activeDays >= 3 ? reviewCard(sum, prev) : null, mainChart(sum), insightsCard(sum, prev, streak)],
-    focus: () => [focusTab({ cur: data.cur, heat: data.heat, tasks: data.tasks, settings })],
+    focus: () => [focusTab({ cur: data.cur, heat: data.heat, tasks: data.tasks, estTasks: accuracyInput(data.tasks, data.estLog), settings })],
     sites: () => (sum.topApps.length ? [h('div', { class: 'grid-2' }, sitesCard(sum), appsCard(sum))] : [sitesCard(sum)]),
     patterns: () => {
       const entry = data.heat[data.heat.length - 1 - tlBack];

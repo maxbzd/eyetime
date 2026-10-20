@@ -24,3 +24,13 @@ test('stale chunks and decisions', () => {
   assert.deepEqual(staleKeys({ 'sync:meta': {}, 'sync:0': 'a', 'sync:1': 'b', 'sync:2': 'c' }, 2), ['sync:2']);
   assert.equal(decide(1, 2), 'pull'); assert.equal(decide(3, 2), 'push'); assert.equal(decide(2, 2), 'none');
 });
+
+test('companion token never syncs; surrogate pairs survive chunk boundaries', async () => {
+  const { forSync } = await import('../../src/shared/syncpack.js');
+  assert.equal(forSync({ companion: { enabled: true, token: 'secret' }, a: 1 }).companion, undefined);
+  for (let pad = 0; pad < 4; pad++) {
+    const settings = { x: 'a'.repeat(CHUNK_CHARS - 12 + pad) + '😀'.repeat(10) };
+    const back = unpack(pack(settings, 1).items);
+    assert.equal(back.settings.x, settings.x);
+  }
+});

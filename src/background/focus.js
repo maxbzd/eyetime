@@ -6,6 +6,7 @@ import { createSession, createRest, elapsedMs } from '../shared/focus.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { dayKey } from '../shared/time.js';
 import { resolveLocale, setLocale, t, fmtDuration } from '../shared/i18n.js';
+import { updateEstLog } from '../shared/tasks.js';
 import { sweepTabs } from './blocker.js';
 import { updateBadge } from './badge.js';
 import { playChime, setAmbient } from './audio.js';
@@ -22,7 +23,7 @@ export async function startFocus({ minutes, goal = '', strict = false, taskId = 
   await setRaw({ focus: session, rest: null, review: null });
   await chrome.alarms.clear('rest-end');
   await chrome.alarms.create('focus-end', { when: session.endsAt });
-  await updateSettings((s) => { s.focus.minutes = session.minutes; s.focus.strict = session.strict; s.focus.scope = session.scope; if (modeCfg) s.focus.mode = modeCfg.id; });
+  await updateSettings((s) => { s.focus.minutes = session.minutes; s.focus.strict = session.strict; s.focus.scope = session.scope; if (modeCfg) s.focus.mode = modeCfg.id; }, { touch: false });
 
   if (/^https?:\/\//.test(settings.focus.openUrl || '')) chrome.tabs.create({ url: settings.focus.openUrl, active: false }).catch(() => {});
   if (settings.focus.sound) playChime('start');
@@ -84,7 +85,7 @@ export async function reviewSession({ id, rating, done, resume = '' }) {
   if (review.taskId && (done || resume)) {
     const tasks = await getCollection('tasks', []);
     const task = tasks.find((x) => x.id === review.taskId);
-    if (task && done && !task.done) { task.done = true; task.doneAt = Date.now(); delete task.resume; }
+    if (task && done && !task.done) { task.done = true; task.doneAt = Date.now(); delete task.resume; await setCollection('estLog', updateEstLog(await getCollection('estLog', []), task)); }
     // "ready to resume": where you left off, so the next start does not begin from zero (and the open loop stops nagging)
     else if (task && !done) task.resume = String(resume).trim().slice(0, 140) || task.resume;
     await setCollection('tasks', tasks);

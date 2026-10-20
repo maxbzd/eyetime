@@ -20,7 +20,7 @@ function bars({ values, best = new Set(), label, tip, axis, cls = '' }) {
     h('div', { class: 'bars-axis' }, axis));
 }
 
-export function focusTab({ cur, heat, tasks, settings }) {
+export function focusTab({ cur, heat, tasks, estTasks, settings }) {
   const goal = settings.focus.dailyGoal;
   const clock24 = settings.newtab.clock24 ?? undefined;
   const hourLabel = (i) => fmtTime(new Date(2000, 0, 1, i), clock24);
@@ -48,9 +48,11 @@ export function focusTab({ cur, heat, tasks, settings }) {
           tip: (i, v) => `${hourLabel(i)} · ${fmtDuration(Math.round(v) * 60)}`,
           axis: Array.from({ length: 24 }, (_, i) => h('span', { text: i % 6 === 0 ? String(i).padStart(2, '0') : '' })) }), h('p', { class: 'chart-note', text: t('prod.bestLegend') }), (() => {
           const time = `${String(best.start).padStart(2, '0')}:00`;
-          const have = (settings.focus.reminders || []).some((r) => Math.abs(Number(r.time.slice(0, 2)) - best.start) <= 1);
+          const near = (r) => { const d = Math.abs(Number(r.time.slice(0, 2)) - best.start); return Math.min(d, 24 - d) <= 1; }; // around midnight 23:00 and 00:00 are neighbours
+          const have = (settings.focus.reminders || []).some(near);
           return have ? h('p', { class: 'chart-note', text: t('prod.remindHave', { time: hourLabel(best.start) }) })
             : h('button', { class: 'btn btn-sm', type: 'button', style: { marginTop: 'var(--s-3)' }, onclick: async () => {
+              if ((settings.focus.reminders || []).length >= 5) { toast(t('prod.remindFull')); return; }
               await updateSettings((x) => { x.focus.reminders = [...x.focus.reminders, { id: Date.now().toString(36), time, days: [1, 2, 3, 4, 5], minutes: x.focus.minutes }].slice(0, 5); });
               await send('settings:changed'); toast(t('prod.remindSet', { time: hourLabel(best.start) }));
             } }, icon('alarm-clock'), t('prod.remindBest', { time: hourLabel(best.start) }));
@@ -109,7 +111,7 @@ export function focusTab({ cur, heat, tasks, settings }) {
       : lock(t('prod.noPauses'), 'wind'));
 
   /* planning fallacy: planned vs actual on finished tasks */
-  const acc = estimateAccuracy(tasks);
+  const acc = estimateAccuracy(estTasks || tasks);
   const estCard = card(t('prod.estimate'), t('prod.estimateSub'), 'allTime',
     acc
       ? h('div', { class: 'stack gap-3' },
