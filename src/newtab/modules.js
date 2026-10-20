@@ -169,7 +169,7 @@ export function notesModule() {
   }
 
   function render() {
-    const input = h('textarea', { class: 'textarea', rows: 2, placeholder: t('notes.add'), 'aria-label': t('notes.add'), maxlength: 500, onkeydown: (e) => {
+    const input = h('textarea', { class: 'textarea textarea-grow', rows: 2, oninput: (e) => { e.target.style.height = 'auto'; e.target.style.height = Math.min(160, e.target.scrollHeight + 2) + 'px'; }, placeholder: t('notes.add'), 'aria-label': t('notes.add'), maxlength: 500, onkeydown: (e) => {
       if (e.key === 'Enter' && !e.shiftKey && e.target.value.trim()) { e.preventDefault(); notes.unshift({ id: uid(), text: e.target.value.trim(), at: Date.now() }); save(); render(); document.querySelector('#mod-notes textarea')?.focus(); }
     } });
     const visible = showAll ? notes : notes.slice(0, LIMIT);

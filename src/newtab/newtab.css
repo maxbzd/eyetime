@@ -200,3 +200,8 @@ body[data-layout="minimal"] .more-mods { display: inline-flex; }
 
 .sc-list { display: flex; flex-direction: column; gap: 10px; } .sc-row { display: flex; align-items: center; gap: var(--s-3); }
 .kbd-hint { position: fixed; right: 20px; bottom: 14px; font-size: var(--fs-xs); color: var(--hero-fg-2); opacity: .7; display: inline-flex; gap: 6px; align-items: center; } .kbd-hint:hover { opacity: 1; }
+
+/* audit round 6 */
+.textarea-grow { resize: none; min-height: 56px; }
+@media (max-width: 900px) { .kbd-hint { display: none; } }
+body[data-layout="split"] .hero .clock { white-space: nowrap; font-size: clamp(56px, 7.4vw, 108px); }

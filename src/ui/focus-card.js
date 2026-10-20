@@ -94,6 +94,11 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     const noEffort = st.today?.fs || !large ? null : h('button', { class: 'just5', type: 'button', onclick: () => { d.minutes = 5; d.custom = false; start(); } }, icon('sparkles'), t('focus.just5'));
     const strip = goalStrip({ fsSec: st.today?.fs || 0, goalMin: st.settings.focus.dailyGoal, streak: st.streak });
 
+    // in the popup a pending review takes the place of the whole start form: one decision at a time, and it fits
+    if (!large && st.review) {
+      clear(root, h('div', { class: 'focus-idle review-only' }, reviewCard(st.review, { onDone: refresh }), h('button', { class: 'btn btn-primary btn-lg btn-block', type: 'button', onclick: start }, icon('play'), h('span', { text: startLabel() }))));
+      return;
+    }
     clear(root, h('div', { class: 'focus-idle' + (large ? ' large' : '') },
       st.review ? reviewCard(st.review, { onDone: refresh }) : null,
       strip,
@@ -116,7 +121,7 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     } });
     const cur = st.settings.focus.ambient || 'off';
     const sounds = h('div', { class: 'segmented segmented-sm', role: 'group', 'aria-label': t('focus.ambient') }, ['off', 'brown', 'rain', 'cafe'].map((k) => h('button', { type: 'button', 'aria-pressed': String(cur === k), text: t('ambient.' + k), onclick: () => send('ambient:set', { kind: k }) })));
-    return h('div', { class: 'run-extras' }, park, sounds, held ? h('div', { class: 'held', 'data-tip': t('focus.heldTip') }, icon('shield-check'), t('focus.held', { n: held })) : null);
+    return h('div', { class: 'run-extras' }, large ? park : null, sounds, held ? h('div', { class: 'held', 'data-tip': t('focus.heldTip') }, icon('shield-check'), t('focus.held', { n: held })) : null);
   }
 
   /** Breaks work best away from the screen and with movement — offer something concrete instead of a bare countdown. */
@@ -136,11 +141,12 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     const ring = svg('svg', { viewBox: `0 0 ${size} ${size}` }, track, bar);
     const label = restMode ? t(f.long ? 'rest.long' : 'rest.title') : t('focus.running');
     const actions = restMode
-      ? [h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: async () => { await send('rest:skip'); await start(); } }, icon('play'), startLabel()),
-         h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: () => send('rest:skip') }, t('rest.skip'))]
+      ? [h('button', { class: 'btn btn-sm', type: 'button', onclick: () => send('rest:skip') }, t('rest.skip')),
+         h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: async () => { await send('rest:skip'); await start(); } }, icon('play'), startLabel())]
       : f.strict
         ? h('span', { class: 'locked' }, icon('lock'), t('focus.strictLocked'))
-        : h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: endEarly }, t('focus.end'));
+        : [h('button', { class: 'btn btn-sm', type: 'button', 'data-tip': t('focus.extendTip', { n: 5 }), onclick: () => send('focus:extend', { minutes: 5 }) }, icon('plus'), t('focus.extend', { n: 5 })),
+           h('button', { class: 'btn btn-sm', type: 'button', onclick: endEarly }, t('focus.end'))];
     const extras = restMode ? restIdeas() : runningExtras();
     const ringEl = h('div', { class: 'ring', role: 'timer', 'aria-label': label, style: { width: size + 'px', height: size + 'px' } }, ring, h('div', { class: 'center' }, time, large ? h('div', { class: 'sub', text: ends }) : null));
     const badge = h('span', { class: 'badge ' + (restMode ? 'badge-success' : 'badge-accent') + ' badge-dot', text: label });
