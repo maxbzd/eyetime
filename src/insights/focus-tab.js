@@ -4,6 +4,7 @@
 import { h, icon, favicon } from '../ui/dom.js';
 import { t, fmtDuration, fmtDate, fmtTime, weekdayName } from '../shared/i18n.js';
 import { parseKey } from '../shared/time.js';
+import { estimateAccuracy } from '../shared/quickadd.js';
 import { goalStreak, bestHours, sessionsOf, pauseReasonTotals, PAUSE_REASONS, switchRate, topTemptations, recentWins, weekdayPattern, suggestMinutes } from '../shared/productivity.js';
 
 const card = (title, sub, scope, ...body) => h('section', { class: 'card pcard' }, h('div', { class: 'card-head' }, h('div', {}, h('h3', { text: title }), sub ? h('p', { text: sub }) : null), scope ? h('span', { class: 'scope', text: t('scope.' + scope) }) : null), h('div', { class: 'card-body' }, body));
@@ -97,8 +98,19 @@ export function focusTab({ cur, heat, tasks, settings }) {
     reasonTotal ? h('div', { class: 'row gap-2 wrap' }, PAUSE_REASONS.filter((r) => reasons[r]).map((r) => h('span', { class: 'chip' + (r === 'back' ? ' good' : ''), text: `${t('block.why.' + r)} · ${reasons[r]}` })))
       : lock(t('prod.noPauses'), 'wind'));
 
+  /* planning fallacy: planned vs actual on finished tasks */
+  const acc = estimateAccuracy(tasks);
+  const estCard = card(t('prod.estimate'), t('prod.estimateSub'), 'allTime',
+    acc
+      ? h('div', { class: 'stack gap-3' },
+          h('p', { class: 'est-verdict ' + acc.verdict, text: acc.verdict === 'under' ? t('prod.estimateUnder', { x: (Math.round(acc.median * 10) / 10).toString() }) : acc.verdict === 'over' ? t('prod.estimateOver', { pct: Math.round(acc.median * 100) }) : t('prod.estimateGood') }),
+          h('div', { class: 'meter-list' }, acc.rows.map((r) => h('div', { class: 'meter-row est-row' }, h('span', { class: 'truncate', text: r.text }), h('span', { class: 'num muted-2', text: `${fmtDuration(r.est * 60)} → ${fmtDuration(r.actual * 60)}` }),
+            h('div', { class: 'progress est-bar', 'data-tip': `${t('prod.estPlanned')} ${fmtDuration(r.est * 60)} · ${t('prod.estActual')} ${fmtDuration(r.actual * 60)}` }, h('i', { class: r.ratio > 1.15 ? 'distracting' : 'productive', style: { width: Math.min(100, Math.max(4, (r.actual / Math.max(r.est, r.actual)) * 100)) + '%' } }))))))
+      : lock(t('prod.estimateNeed'), 'timer'));
+
   return h('div', { class: 'stack gap-4' }, kpis,
     h('div', { class: 'grid-eq' }, hoursCard, weekCard),
     h('div', { class: 'grid-eq' }, sessionsCard, taskCard),
-    h('div', { class: 'grid-3' }, temptCard, winsCard, pauseCard));
+    h('div', { class: 'grid-3' }, temptCard, winsCard, pauseCard),
+    estCard);
 }

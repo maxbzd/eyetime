@@ -1,5 +1,6 @@
 import { bootPage } from '../ui/page.js';
 import { mountHeader } from '../ui/header.js';
+import { installPalette } from '../ui/palette.js';
 import { $, h, icon, clear } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { t } from '../shared/i18n.js';
@@ -84,6 +85,7 @@ function spy() {
   await bootPage({ onSettings: async (s) => { if (JSON.stringify(s) === lastSaved) return; settings = s; draw(); spy(); } });
   settings = await getSettings();
   mountHeader($('#header'), 'settings');
+  installPalette();
   $('#q').addEventListener('input', (e) => { query = e.target.value; applyFilter(); });
   document.addEventListener('keydown', (e) => { if (e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName)) { e.preventDefault(); $('#q').focus(); } });
   draw(); spy();

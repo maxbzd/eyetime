@@ -25,3 +25,7 @@
   .app-nav a { padding: 7px 9px; white-space: nowrap; }
   .page { padding-inline: var(--s-4); }
 }
+
+.pal-trigger { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 8px 0 12px; border: 1px solid var(--border-strong); border-radius: var(--r-md); background: var(--surface); color: var(--text-3); font-size: var(--fs-sm); cursor: pointer; transition: border-color var(--t-fast), color var(--t-fast); }
+.pal-trigger:hover { color: var(--text); border-color: var(--text-3); } .pal-trigger .ico { font-size: 15px; } .pal-trigger .kbd { margin-left: 8px; }
+@media (max-width: 640px) { .pal-trigger-t, .pal-trigger .kbd { display: none; } .pal-trigger { padding: 0 10px; } }
