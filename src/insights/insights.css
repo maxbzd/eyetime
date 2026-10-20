@@ -307,3 +307,9 @@ select.tag { appearance: none; padding-right: 9px; font-family: inherit; }
 .tl-sum { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-5); font-size: var(--fs-sm); color: var(--text-2); } .tl-sum span { display: inline-flex; align-items: center; gap: 6px; } .tl-sum .ico { font-size: 14px; color: var(--text-3); }
 @media (max-width: 600px) { .tl-lane-k { width: 32px; } }
 .wrapped-dlg { width: min(560px, calc(100vw - 32px)); } .wrapped-img { width: 100%; max-height: 62vh; object-fit: contain; border-radius: var(--r-md); border: 1px solid var(--border); background: var(--surface-2); }
+
+.kpi .label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.kpi .label .ico { display: inline-block; vertical-align: -3px; margin-right: 8px; }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.win { grid-template-columns: 16px auto minmax(0, 1fr); }
+@media (max-width: 600px) { .pcard .card-head { flex-wrap: wrap; } .pcard .card-head .scope { order: 2; } }
