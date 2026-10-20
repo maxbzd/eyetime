@@ -45,30 +45,36 @@ const views = {
     const custom = h('div', { class: 'chips' });
     const drawCustom = () => clear(custom, pick.custom.map((d) => h('span', { class: 'chip chip-x' }, d, h('button', { type: 'button', 'aria-label': t('common.remove') + ' ' + d, onclick: () => { pick.custom = pick.custom.filter((x) => x !== d); drawCustom(); } }, icon('x')))));
     drawCustom();
-    const input = h('input', { class: 'input', placeholder: t('ob.customPh'), 'aria-label': t('ob.customPh'), spellcheck: false, onkeydown: (e) => {
-      if (e.key !== 'Enter') return; e.preventDefault();
-      const d = parseUserDomain(e.target.value);
-      if (!d) { err.textContent = t('domains.invalid', { v: e.target.value }); return; }
-      err.textContent = ''; if (!pick.custom.includes(d)) pick.custom.push(d); e.target.value = ''; drawCustom();
-    } });
+    const addDomain = () => {
+      const d = parseUserDomain(input.value);
+      if (!input.value.trim()) return;
+      if (!d) { err.textContent = t('domains.invalid', { v: input.value }); return; }
+      err.textContent = ''; if (!pick.custom.includes(d)) pick.custom.push(d); input.value = ''; drawCustom();
+    };
+    const input = h('input', { class: 'input', placeholder: t('ob.customPh'), 'aria-label': t('ob.customPh'), spellcheck: false, onkeydown: (e) => { if (e.key === 'Enter') { e.preventDefault(); addDomain(); } } });
     return h('div', { class: 'step' },
       h('h1', { text: t('ob.distTitle') }), h('p', { class: 'lead', text: t('ob.distLead') }),
       h('div', { class: 'chips' }, PRESET_IDS.map((id) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(!!pick.presets[id]), onclick: (e) => { pick.presets[id] = !pick.presets[id]; e.currentTarget.setAttribute('aria-pressed', String(pick.presets[id])); } }, icon(PRESETS[id].icon), t('preset.' + id)))),
-      h('div', { class: 'stack gap-2' }, input, err, custom),
+      h('div', { class: 'stack gap-2' }, h('div', { class: 'row gap-2' }, input, h('button', { class: 'btn', type: 'button', onclick: addDomain }, icon('plus'), t('ob.add'))), err, custom),
       nav());
   },
 
-  rhythm: () => h('div', { class: 'step' },
+  rhythm: () => {
+    const time = (key) => h('input', { class: 'input input-sm', type: 'time', value: pick[key], 'aria-label': t(key === 'start' ? 'ob.from' : 'ob.to'), onchange: (e) => { if (e.target.value) pick[key] = e.target.value; } });
+    const hours = h('div', { class: 'opt hours', hidden: !pick.schedule }, h('span', { class: 'muted', text: t('ob.from') }), time('start'), h('span', { class: 'muted', text: t('ob.to') }), time('end'));
+    return h('div', { class: 'step' },
     h('h1', { text: t('ob.rhythmTitle') }), h('p', { class: 'lead', text: t('ob.rhythmLead') }),
     h('div', {},
       h('div', { class: 'opt' }, h('div', {}, h('b', { text: t('ob.focusLen') }), h('span', { class: 'd', text: t('ob.focusLenD') })),
         h('div', { class: 'segmented', role: 'group', 'aria-label': t('ob.focusLen') }, [15, 25, 50, 90].map((m) => h('button', { type: 'button', 'aria-pressed': String(pick.minutes === m), text: fmtDuration(m * 60), onclick: (e) => { pick.minutes = m; e.currentTarget.parentNode.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === e.currentTarget))); } })))),
       h('div', { class: 'opt' }, h('div', {}, h('b', { text: t('ob.goal') }), h('span', { class: 'd', text: t('ob.goalD') })),
-        h('div', { class: 'segmented', role: 'group', 'aria-label': t('ob.goal') }, [[0, t('common.off')], [60, '1h'], [120, '2h'], [180, '3h']].map(([m, label]) => h('button', { type: 'button', 'aria-pressed': String(pick.goal === m), text: label, onclick: (e) => { pick.goal = m; e.currentTarget.parentNode.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === e.currentTarget))); } })))),
+        h('div', { class: 'segmented', role: 'group', 'aria-label': t('ob.goal') }, [[0, t('common.off')], [60, fmtDuration(3600)], [120, fmtDuration(7200)], [180, fmtDuration(10800)]].map(([m, label]) => h('button', { type: 'button', 'aria-pressed': String(pick.goal === m), text: label, onclick: (e) => { pick.goal = m; e.currentTarget.parentNode.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === e.currentTarget))); } })))),
       h('div', { class: 'opt' }, h('div', {}, h('b', { text: t('ob.friction') }), h('span', { class: 'd', text: t('ob.frictionD') })), sw(pick.friction, (v) => { pick.friction = v; }, t('ob.friction'))),
       h('div', { class: 'opt' }, h('div', {}, h('b', { text: t('ob.eye') }), h('span', { class: 'd', text: t('ob.eyeD') })), sw(pick.eye, (v) => { pick.eye = v; }, t('ob.eye'))),
-      h('div', { class: 'opt' }, h('div', {}, h('b', { text: t('ob.schedule') }), h('span', { class: 'd', text: t('ob.scheduleD') })), sw(pick.schedule, (v) => { pick.schedule = v; }, t('ob.schedule')))),
-    nav()),
+      h('div', { class: 'opt' }, h('div', {}, h('b', { text: t('ob.schedule') }), h('span', { class: 'd', text: t('ob.scheduleD') })), sw(pick.schedule, (v) => { pick.schedule = v; hours.hidden = !v; }, t('ob.schedule'))),
+      hours),
+    nav());
+  },
 
   look: () => {
     const ap = s.appearance;
