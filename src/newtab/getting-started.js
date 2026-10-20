@@ -19,14 +19,17 @@ export function stepsState({ days, settings, tasks, paletteUsed }) {
 }
 
 export async function mountGettingStarted(el, { startShortSession }) {
+  let shown = ''; // what is on screen now: skip identical repaints (the tracker writes day records every few seconds)
   async function paint() {
     const [{ gsDismissed, meta }, settings, tasks, days] = await Promise.all([getRaw(['gsDismissed', 'meta']), getSettings(), getCollection('tasks', []), getDays(rangeKeys(60))]);
     const born = (meta && meta.installedAt) || Date.now();
     let paletteUsed = false; try { paletteUsed = localStorage.getItem('et-palette-used') === '1'; } catch { /* ignore */ }
     const s = stepsState({ days, settings, tasks, paletteUsed });
     const done = Object.values(s).filter(Boolean).length;
-    if (gsDismissed || done === 4 || Date.now() - born > MAX_AGE_DAYS * 86_400_000) { el.hidden = true; return; }
-    el.hidden = false;
+    if (gsDismissed || done === 4 || Date.now() - born > MAX_AGE_DAYS * 86_400_000) { el.hidden = true; shown = ''; return; }
+    const sig = JSON.stringify(s);
+    if (sig === shown && !el.hidden) return;
+    shown = sig; el.hidden = false;
     const step = (key, ico, action) => h('li', { class: 'gs-step' + (s[key] ? ' done' : '') },
       h('span', { class: 'gs-mark', 'aria-hidden': 'true' }, s[key] ? icon('check') : icon(ico)),
       h('div', { class: 'gs-text' }, h('b', { text: t('gs.' + key) }), h('span', { text: t('gs.' + key + 'D') })),
@@ -37,7 +40,7 @@ export async function mountGettingStarted(el, { startShortSession }) {
       h('ol', { class: 'gs-list' },
         step('focus', 'play', { label: t('gs.tryFocus'), run: startShortSession }),
         step('classify', 'tag', { label: t('gs.openSites'), run: () => { try { localStorage.setItem('et-itab', 'sites'); } catch { /* ignore */ } location.href = '../insights/insights.html'; } }),
-        step('task', 'list-plus', { label: t('gs.addTask'), run: () => { const i = document.querySelector('#mod-tasks input'); i?.scrollIntoView({ block: 'center' }); i?.focus(); } }),
+        step('task', 'list-plus', { label: t('gs.addTask'), run: () => { document.body.classList.add('show-mods'); const i = document.querySelector('#mod-tasks input'); if (!i) { window.dispatchEvent(new window.CustomEvent('et:palette')); return; } i.scrollIntoView({ block: 'center' }); i.focus(); } }),
         step('palette', 'search', { label: t('gs.openPalette'), run: () => window.dispatchEvent(new window.CustomEvent('et:palette')) })));
   }
   await paint();

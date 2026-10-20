@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
-      - run: npm i --no-save playwright && npx playwright install --with-deps chromium
+      - run: npm i --no-save playwright axe-core && npx playwright install --with-deps chromium
       - run: node scripts-dev/e2e/e2e.cjs
       - run: node scripts-dev/e2e/upgrade.cjs
-      - run: npm i --no-save axe-core && node scripts-dev/e2e/a11y.cjs --strict
+      - run: node scripts-dev/e2e/a11y.cjs --strict
