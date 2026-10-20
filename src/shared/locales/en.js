@@ -272,4 +272,8 @@ export const en = {
   'ap.mode.system': 'Follows your device’s light or dark setting.', 'ap.mode.light': 'Always light.', 'ap.mode.dark': 'Always dark.', 'ap.mode.schedule': 'Dark in the evening, light in the morning — set the times below.',
   'ap.importOk': 'Valid look: {look}, {n} settings will change.', 'ap.paste': 'Paste from clipboard', 'ap.resetRow': 'Back to the default look, colors, type and custom CSS. Your data is not touched.',
   'opt.noResultsHint': 'Try “sound”, “break” or “block”.', 'opt.clearSearch': 'Clear search', 'opt.results': { one: '{n} setting found', other: '{n} settings found' },
+  'insights.viewChart': 'Chart', 'insights.viewTable': 'Table', 'insights.breaksSub': 'Taken from reminders', 'insights.sitesSummary': '{n} sites', 'insights.hmActive': 'Active days', 'insights.hmAvg': 'Avg per active day', 'insights.hmBusiest': 'Busiest day', 'insights.hmNone': 'Not tracked yet',
+  'scope.period': 'Selected period', 'scope.weeks16': 'Last 16 weeks', 'scope.allTime': 'All time', 'prod.bestLegend': 'Highlighted: your best two hours.',
+  'review.rising': 'Distractions took {pts} points more of your screen time than the week before. Pick the one site that pulls you in most and give it a limit or a little friction.',
+  'insights.share': 'Share',
 };
