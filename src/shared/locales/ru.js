@@ -274,4 +274,5 @@ export const ru = {
   'review.rising': 'На отвлечения ушло на {pts} п.п. больше экранного времени, чем неделей раньше. Выберите сайт, который затягивает сильнее всего, и поставьте ему лимит или небольшое трение.',
   'insights.share': 'Доля',
   'focus.extend': '+{n} мин', 'focus.extendTip': 'Добавить к сессии ещё {n} мин', 'review.save': 'Сохранить', 'review.skip': 'Пропустить', 'track.pausedBanner': 'Учёт приостановлен до {time}', 'track.resumeShort': 'Возобновить',
+  'block.goalK': 'Ваш фокус', 'block.remaining': 'осталось', 'block.changeLimit': 'Изменить лимит', 'block.invalidBody': 'Эта страница открывается, когда EyeTime ставит сайт на паузу. Здесь пока нечего показывать.', 'block.newTab': 'Открыть новую вкладку', 'block.only.allowHost': 'Разрешить {host}', 'break.snooze': 'Ещё 5 минут', 'ob.add': 'Добавить', 'ob.from': 'С', 'ob.to': 'до',
 };

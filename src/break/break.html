@@ -12,6 +12,7 @@
 </head>
 <body>
   <div class="glow" aria-hidden="true"></div>
+  <header class="top"><img src="../../icons/logo.svg" alt="" width="24" height="24"><span>EyeTime</span></header>
   <main class="stage" aria-live="polite">
     <div class="eyebrow" data-i18n="break.eyebrow">20-20-20 eye break</div>
     <div class="ring" id="ring">
@@ -21,6 +22,7 @@
     <h1 id="title"></h1>
     <p class="lead" id="lead"></p>
     <div class="actions">
+      <button class="btn btn-lg btn-ghost" id="snooze" type="button" data-i18n="break.snooze">5 more minutes</button>
       <button class="btn btn-lg" id="skip" type="button" data-i18n="break.skip">Skip</button>
       <button class="btn btn-primary btn-lg" id="done" type="button" hidden data-i18n="break.done">Back to work</button>
     </div>
