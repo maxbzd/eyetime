@@ -58,6 +58,9 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 <img src="store/screenshots/8-variant-1-terminal.png" width="420" alt="Terminal"><img src="store/screenshots/8-variant-2-sakura.png" width="420" alt="Sakura">
 <img src="store/screenshots/8-variant-3-paper.png" width="420" alt="Paper"><img src="store/screenshots/8-variant-4-aurora.png" width="420" alt="Aurora">
 <img src="store/screenshots/9-pause-plan.png" width="420" alt="Pause page with your own if-then plan"><img src="store/screenshots/10-close-the-day.png" width="420" alt="Close the day">
+<img src="store/screenshots/11-palette.png" width="860" alt="Command palette (Ctrl/Cmd+K)">
+<img src="store/screenshots/12-timeline.png" width="860" alt="A day in detail: hours and focus sessions">
+<img src="store/screenshots/13-week-card.png" width="420" alt="Shareable My week card">
 <img src="store/screenshots/5-settings.png" width="860" alt="Settings page">
 <img src="store/screenshots/4-home-dark.png" width="860" alt="Home page in dark mode">
 <img src="store/screenshots/6-onboarding.png" width="860" alt="Onboarding">

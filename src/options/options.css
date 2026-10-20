@@ -71,7 +71,7 @@ section.sec + section.sec { padding-top: var(--s-8); border-top: 1px solid var(-
 @media (max-width: 640px) { .plan-row { grid-template-columns: minmax(0, 1fr) auto; } .plan-row > .muted:nth-child(1), .plan-row > .muted:nth-child(3) { grid-column: 1 / -1; margin-bottom: -4px; } .plan-row .input { grid-column: 1 / -1; } }
 .reminder { display: grid; grid-template-columns: 132px minmax(0, 1fr) auto auto; gap: var(--s-2) var(--s-3); align-items: center; } .reminder .input { width: 100%; }
 @media (max-width: 640px) { .reminder { grid-template-columns: minmax(0, 1fr) auto; } .reminder > .row { grid-column: 1 / -1; } }
-.chip-x { max-width: 100%; } .chip-x > :first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.chip-x { max-width: 100%; min-width: 0; } .chip-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .look-card { border: 1px solid var(--border) !important; } .look-card[aria-pressed="true"] { border: 2px solid var(--accent) !important; }
 .dur-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .privacy-head { display: grid; grid-template-columns: minmax(120px, 210px) minmax(0, 1fr); gap: var(--s-3); padding: var(--s-3) var(--s-5); font-size: var(--fs-xs); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); border-top: 1px solid var(--border); }
@@ -81,4 +81,5 @@ textarea.is-invalid, .input.is-invalid { border-color: var(--distracting); box-s
 
 .sync-status { margin-top: 6px; font-weight: 560; color: var(--text-2); }
 @media (max-width: 640px) { .perm, .privacy-head { grid-template-columns: minmax(0, 1fr); gap: 2px; } .privacy-head span:nth-child(2) { display: none; } }
-.chip-x { flex-wrap: nowrap; white-space: nowrap; } .chip-x > button { flex: none; }
+.chip-x > button { flex: none; }
+.row.wrap > a.btn, .row.wrap > button.btn { max-width: 100%; white-space: normal; height: auto; min-height: var(--ctl-h); padding-block: 6px; text-align: left; }
