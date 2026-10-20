@@ -232,3 +232,26 @@ test('decide: "only my sites" sessions close everything that is not productive o
   assert.equal(createSession({ minutes: 5, scope: 'bogus' }).scope, 'distractions');
   assert.equal(createSession({ minutes: 5, taskId: 'x'.repeat(99) }).taskId.length, 40);
 });
+
+test('decide: focus modes bring their own allowed sites; the distraction budget closes everything once used', () => {
+  const s = settings();
+  const now = new Date(2026, 9, 24, 12, 0).getTime();
+  const base = { settings: s, classifier: makeClassifier(s), passes: {}, usageOf: () => 0, now };
+  const study = createSession({ minutes: 45, now: now - 60_000, mode: 'study', allow: ['youtube.com'] });
+  assert.equal(study.mode, 'study'); assert.deepEqual(study.allow, ['youtube.com']);
+  assert.equal(decide('youtube.com', { ...base, focus: study }).action, 'pause');              // allowed by the mode: only the usual friction remains
+  assert.equal(decide('reddit.com', { ...base, focus: study }).action, 'block');                // everything else is still closed
+  const deep = createSession({ minutes: 50, now: now - 60_000, scope: 'only-mine', allow: ['example.org'] });
+  assert.equal(decide('example.org', { ...base, focus: deep }).action, 'allow');                // neutral site, allowed by the mode
+  assert.equal(decide('news.example.net', { ...base, focus: deep }).action, 'block');
+  assert.deepEqual(createSession({ minutes: 5, allow: 'nope' }).allow, []);
+
+  const b = JSON.parse(JSON.stringify(s)); b.blocking.budget = { enabled: true, minutes: 30 };
+  const ctx = { ...base, settings: b, classifier: makeClassifier(b) };
+  assert.equal(decide('reddit.com', { ...ctx, distractingSec: 29 * 60 }).action, 'pause');      // inside the budget: just the pause page
+  const over = decide('reddit.com', { ...ctx, distractingSec: 30 * 60 });
+  assert.equal(over.action, 'block'); assert.equal(over.reason, 'budget'); assert.equal(over.canPass, true);
+  assert.equal(decide('github.com', { ...ctx, distractingSec: 99 * 60 }).action, 'allow');       // productive sites never count
+  assert.equal(decide('reddit.com', { ...ctx, distractingSec: 99 * 60, passes: { 'reddit.com': now + 1000 } }).action, 'allow'); // a granted pass works
+  assert.equal(decide('reddit.com', { ...base, distractingSec: 99 * 60 }).action, 'pause');     // budget off by default
+});

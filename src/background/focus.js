@@ -13,19 +13,21 @@ import { playChime, setAmbient } from './audio.js';
 const ICON = 'icons/icon128.png';
 const MIN_CREDIT_SEC = 120; // an early stop counts as focus time only after 2 minutes
 
-export async function startFocus({ minutes, goal = '', strict = false, taskId = '', scope }) {
+export async function startFocus({ minutes, goal = '', strict = false, taskId = '', scope, mode = '' }) {
   const settings = await getSettings();
   let text = goal;
   if (taskId && !text) text = ((await getCollection('tasks', [])).find((x) => x.id === taskId) || {}).text || '';
-  const session = createSession({ minutes, goal: text, strict, taskId, scope: scope || settings.focus.scope });
+  const modeCfg = (settings.focus.modes || []).find((m) => m.id === mode);
+  const session = createSession({ minutes, goal: text, strict, taskId, scope: scope || modeCfg?.scope || settings.focus.scope, mode: modeCfg?.id || '', allow: modeCfg?.allow || [] });
   await setRaw({ focus: session, rest: null, review: null });
   await chrome.alarms.clear('rest-end');
   await chrome.alarms.create('focus-end', { when: session.endsAt });
-  await updateSettings((s) => { s.focus.minutes = session.minutes; s.focus.strict = session.strict; s.focus.scope = session.scope; });
+  await updateSettings((s) => { s.focus.minutes = session.minutes; s.focus.strict = session.strict; s.focus.scope = session.scope; if (modeCfg) s.focus.mode = modeCfg.id; });
 
   if (/^https?:\/\//.test(settings.focus.openUrl || '')) chrome.tabs.create({ url: settings.focus.openUrl, active: false }).catch(() => {});
   if (settings.focus.sound) playChime('start');
-  if (settings.focus.ambient && settings.focus.ambient !== 'off') setAmbient(settings.focus.ambient);
+  const ambient = modeCfg && modeCfg.ambient && modeCfg.ambient !== 'off' ? modeCfg.ambient : settings.focus.ambient;
+  if (ambient && ambient !== 'off') setAmbient(ambient);
   await sweepTabs();
   await updateBadge(settings);
   return session;
