@@ -144,6 +144,16 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   await pg7.keyboard.press('n'); ok(await pg7.evaluate(() => document.activeElement?.closest('#mod-tasks') !== null && document.activeElement.tagName === 'INPUT'), 'shortcut "n" focuses the task input');
   await pg7.keyboard.press('Escape'); await pg7.locator('body').click({ position: { x: 5, y: 300 } });
   await pg7.keyboard.press('?'); ok(await pg7.locator('dialog[open] .sc-row').count() >= 5, 'shortcut "?" lists the keyboard shortcuts'); await pg7.keyboard.press('Escape');
+  // command palette + quick-add
+  await pg7.keyboard.press('Control+k'); await pg7.waitForSelector('dialog.palette[open]');
+  ok(await pg7.locator('.pal-item').count() >= 5, 'Ctrl+K opens the command palette with commands');
+  await pg7.locator('.pal-input').fill('Call Anna 16:45 30m !'); await sleep(250);
+  ok(/Call Anna/.test(await pg7.locator('.pal-item[aria-selected="true"], .pal-item >> nth=-1').last().innerText()), 'typed text offers "Add task"');
+  await pg7.locator('.pal-item', { hasText: 'Add task' }).click(); await sleep(700);
+  const tkq = await get('tasks'); const qa = tkq.find((x) => x.text === 'Call Anna');
+  ok(qa && qa.est === 30 && qa.at === '16:45' && qa.starred === true, 'quick-add parsed time, length and priority', JSON.stringify(qa));
+  await pg7.keyboard.press('Control+k'); await pg7.waitForSelector('dialog.palette[open]');
+  await pg7.locator('.pal-input').fill('settings sec'); await sleep(200); ok(await pg7.locator('.pal-item').count() >= 1, 'palette finds settings sections'); await pg7.keyboard.press('Escape');
   await pg7.locator('.plan-link').click(); await pg7.waitForSelector('dialog[open] .sd-stats'); 
   await pg7.locator('dialog[open] input[type=text], dialog[open] .input').first().fill('Shipped the draft');
   await pg7.locator('dialog[open] .items .check input').first().check();

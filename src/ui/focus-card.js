@@ -86,7 +86,9 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     const picks = [...st.tasks.filter((x) => x.starred), ...st.tasks.filter((x) => !x.starred)].slice(0, large ? 4 : 2);
     const taskRow = h('div', { class: 'task-picks' + (picks.length ? '' : ' none') }, picks.map((x) => h('button', { class: 'chip chip-task', type: 'button', 'aria-pressed': String(d.taskId === x.id), 'data-tip': x.text, onclick: () => {
       const on = d.taskId !== x.id;
-      d.taskId = on ? x.id : ''; d.goal = on ? x.text : ''; render(); $('#goal' + uid, root)?.focus();
+      d.taskId = on ? x.id : ''; d.goal = on ? x.text : '';
+      if (on && x.est) { d.minutes = Math.min(720, Math.max(1, x.est)); d.custom = !s.presets.includes(d.minutes); } // the planned length becomes the session length
+      render(); $('#goal' + uid, root)?.focus();
     } }, x.starred ? icon('star') : icon('circle'), h('span', { class: 'truncate', text: x.text }))));
     const picked = st.tasks.find((x) => x.id === d.taskId);
     const resumeLine = picked?.resume ? h('div', { class: 'resume-line' }, icon('corner-down-right'), h('span', {}, h('b', { text: t('focus.leftOff') + ' ' }), picked.resume)) : null;
