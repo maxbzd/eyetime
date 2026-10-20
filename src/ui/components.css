@@ -201,3 +201,10 @@ dialog.dialog[open] { animation: dlg-in var(--t-med) var(--ease); }
 .input::placeholder { text-overflow: ellipsis; }
 .kbd { white-space: nowrap; }
 .dialog-actions { border-top: 1px solid var(--border); padding-top: var(--s-4); }
+
+/* narrow layouts: form controls must be able to shrink below their intrinsic width */
+.input, .select, .textarea { min-width: 0; max-width: 100%; }
+.setting-ctl { min-width: 0; max-width: 100%; }
+.select-auto { max-width: 100%; }
+.row > .input { flex: 1 1 120px; }
+.setting-ctl > *, .stack, .stack > .row { min-width: 0; }

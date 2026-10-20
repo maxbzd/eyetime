@@ -42,7 +42,43 @@ async function crawl(label, { seed, lang }) {
   await app.close();
 }
 
+
+// (3) narrow + large text + very long hostnames/goals: no page may scroll sideways.
+async function narrow(label, lang) {
+  const app = await launch({ viewport: { width: 400, height: 900 } });
+  const ext = (p) => `chrome-extension://${app.id}/${p}`;
+  const LONG = 'extremely-long-subdomain-name.some-company-internal-tools.example.com';
+  const sp = await app.ctx.newPage(); await sp.goto(ext('src/options/options.html')); await sp.waitForTimeout(500); await sp.close();
+  await app.sw.evaluate(async ([old, lang, LONG]) => {
+    const settings = { ...old, onboarded: true, language: lang, appearance: { ...old.appearance, scale: 125, look: 'terminal', mode: 'dark' }, blocking: { ...old.blocking, custom: ['example.org', LONG], allow: ['docs.google.com'], always: [LONG], plans: [{ id: 'p', when: LONG, then: 'Prepare the quarterly business review deck for the leadership team' }], limits: { [LONG]: 30 } } };
+    const out = { settings, tasks: [{ id: 'a', text: 'Prepare the quarterly business review deck for the leadership team including revenue forecast and hiring plan', done: false, starred: true, createdAt: 1, est: 45, focusSec: 600, resume: 'Draft section two then the charts and the appendix with all numbers' }] };
+    const d = new Date();
+    for (let i = 0; i < 20; i++) { const x = new Date(d); x.setDate(d.getDate() - i); const k = `d:${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; out[k] = { d: { [LONG]: 3000, 'github.com': 900 }, h: { 10: { [LONG]: 3000 } }, fs: 3000, fc: 2, b: 3, ss: [{ id: 's' + i, t: x.setHours(10, 0, 0, 0), m: 25, c: 1, r: 2, g: 'Prepare the quarterly business review deck for the leadership team' }] }; }
+    await chrome.storage.local.set(out);
+  }, [OLD, lang, LONG]);
+  const urls = ['src/newtab/newtab.html', 'src/popup/popup.html?site=' + LONG, 'src/break/break.html', 'src/onboarding/onboarding.html', 'src/blocked/blocked.html?u=' + encodeURIComponent('http://' + LONG + '/x') + '&r=limit&a=block'];
+  for (const tab of ['overview', 'focus', 'sites', 'patterns']) urls.push('INS:' + tab);
+  for (const sec of ['general', 'appearance', 'focus', 'blocking', 'eye', 'tracking', 'data', 'about']) urls.push('src/options/options.html#' + sec);
+  const bad = [];
+  const p = await app.ctx.newPage(); await p.setViewportSize({ width: 400, height: 900 });
+  for (const u of urls) {
+    if (u.startsWith('INS:')) { await p.goto(ext('src/insights/insights.html')); await p.evaluate((t) => localStorage.setItem('et-itab', t), u.slice(4)); await p.reload(); } else await p.goto(ext(u));
+    await p.waitForTimeout(700);
+    const w = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
+    const popup = u.includes('popup'); // the popup is wider than 400 px by design at 125 % (380 px × scale)
+    if (!popup && w.sw > w.cw + 1) {
+      const who = await p.evaluate(() => { const cw = document.documentElement.clientWidth; const clipped = (el) => { for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) { const o = getComputedStyle(a).overflowX; if (o === 'auto' || o === 'scroll' || o === 'hidden') return true; } return false; }; const out = []; for (const el of document.querySelectorAll('body *')) { const r = el.getBoundingClientRect(); if (r.width > 0 && r.right > cw + 1 && !clipped(el)) out.push(`${el.tagName.toLowerCase()}.${String(el.className.baseVal ?? el.className).split(' ').join('.')}→${Math.round(r.right)}[${(el.textContent || '').trim().slice(0, 24)}|${el.parentElement && el.parentElement.className}]`); } return out.slice(0, 5).join(' '); });
+      bad.push(`${u}: scrollWidth ${w.sw} > ${w.cw}  [${who}]`);
+    }
+  }
+  console.log(bad.length ? `FAIL ${label}\n  ` + bad.join('\n  ') : `PASS ${label}: no horizontal scroll on ${urls.length} narrow pages`);
+  if (bad.length) failed++;
+  await app.close();
+}
+
 (async () => {
+  await narrow('narrow + 125% + long names (ru)', 'ru');
+  await narrow('narrow + 125% + long names (en)', 'en');
   await crawl('upgrade from v2.2.0 (en)', { seed: true, lang: 'en' });
   await crawl('upgrade from v2.2.0 (ru)', { seed: true, lang: 'ru' });
   await crawl('empty profile (en)', { seed: false, lang: 'en' });
