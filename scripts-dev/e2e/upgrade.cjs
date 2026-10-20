@@ -37,6 +37,21 @@ async function crawl(label, { seed, lang }) {
   const nt = await app.ctx.newPage(); await nt.goto(ext('src/newtab/newtab.html')); await nt.waitForTimeout(900);
   await nt.keyboard.press('Control+k'); await nt.waitForTimeout(300); await nt.keyboard.type('zzzz plan 25m'); await nt.waitForTimeout(250); await nt.keyboard.press('Escape');
   await nt.keyboard.press('?'); await nt.waitForTimeout(200);
+  // feature checks that depend on the profile kind
+  const logic = [];
+  if (!seed) {
+    await nt.reload(); await nt.waitForTimeout(900);
+    if (!(await nt.locator('#gs').isVisible())) logic.push('Get-started card missing on a brand-new profile');
+    else if ((await nt.locator('.gs-step').count()) !== 4) logic.push('Get-started card should list 4 steps');
+    await nt.locator('#gs button[aria-label]').first().click(); await nt.waitForTimeout(300); await nt.reload(); await nt.waitForTimeout(700);
+    if (await nt.locator('#gs').isVisible()) logic.push('Get-started card came back after being dismissed');
+  } else {
+    await opt.goto(ext('src/options/options.html#data')); await opt.waitForTimeout(500);
+    const [dl] = await Promise.all([opt.waitForEvent('download', { timeout: 8000 }).catch(() => null), opt.locator('button', { hasText: /Export journal|Экспорт дневника/ }).click()]);
+    if (!dl) logic.push('Journal export did not download');
+    else { const body = fs.readFileSync(await dl.path(), 'utf8'); if (!/EyeTime|EyeTime/.test(body) || !/Old goal/.test(body) || /github\.com|reddit\.com/.test(body)) logic.push('Journal content wrong: ' + body.slice(0, 120)); }
+  }
+  for (const m of logic) errs.push('logic ' + m);
   console.log(errs.length ? `FAIL ${label}\n  ` + [...new Set(errs)].join('\n  ') : `PASS ${label}: no console errors on ${PAGES.length + 12 + 8 + 1} page loads`);
   if (errs.length) failed++;
   await app.close();
