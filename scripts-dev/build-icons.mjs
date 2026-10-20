@@ -3,7 +3,7 @@
 //   npm i --no-save lucide-static && node scripts-dev/build-icons.mjs
 //
 // An icon is "referenced" when the source contains  icon('name')  icon("name")  data-icon="name"  or  icon: 'name'.
-// Names must be literals somewhere in the code (use  icon: 'name'  in data tables for dynamic cases).
+// Also: the second argument of lock(text, 'name') in Insights. Names must be literals somewhere in the code (use  icon: 'name'  in data tables for dynamic cases).
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -22,6 +22,7 @@ const re = /(?:icon\(\s*['"`]|data-icon=["']|\bicon:\s*['"`]|\bico:\s*['"`])([a-
     if (!/\.(js|html|mjs)$/.test(f) || f === 'icons.js') continue;
     const src = fs.readFileSync(p, 'utf8');
     for (const m of src.matchAll(re)) names.add(m[1]);
+    for (const m of src.matchAll(/\block\([^\n]*?,\s*'([a-z][a-z0-9-]*)'\)/g)) names.add(m[1]); // lock(text, 'icon') helpers in Insights
     for (const call of src.matchAll(/\bicon\(([^()]*)\)/g)) for (const q of call[1].matchAll(/'([a-z][a-z0-9-]*)'/g)) names.add(q[1]); // conditionals: icon(a ? 'x' : 'y')
   }
 })(path.join(root, 'src'));
