@@ -6,7 +6,7 @@ import { t, fmtDuration, fmtDate, fmtTime, weekdayName } from '../shared/i18n.js
 import { parseKey } from '../shared/time.js';
 import { goalStreak, bestHours, sessionsOf, pauseReasonTotals, PAUSE_REASONS, switchRate, topTemptations, recentWins, weekdayPattern, suggestMinutes } from '../shared/productivity.js';
 
-const card = (title, sub, ...body) => h('section', { class: 'card pcard' }, h('div', { class: 'card-head' }, h('div', {}, h('h3', { text: title }), sub ? h('p', { text: sub }) : null)), h('div', { class: 'card-body' }, body));
+const card = (title, sub, scope, ...body) => h('section', { class: 'card pcard' }, h('div', { class: 'card-head' }, h('div', {}, h('h3', { text: title }), sub ? h('p', { text: sub }) : null), scope ? h('span', { class: 'scope', text: t('scope.' + scope) }) : null), h('div', { class: 'card-body' }, body));
 const kpi = ({ ico, label, value, sub }) => h('div', { class: 'card kpi' }, h('div', { class: 'label' }, icon(ico), label), h('div', { class: 'value num', text: value }), h('div', { class: 'sub', text: sub || '' }));
 const lock = (text, ico = 'lock') => h('div', { class: 'locked-hint' }, icon(ico), h('span', { text }));
 
@@ -39,11 +39,11 @@ export function focusTab({ cur, heat, tasks, settings }) {
 
   /* best hours */
   const best = bestHours(heat);
-  const hoursCard = card(t('prod.best'), best ? t('prod.bestBody', { from: hourLabel(best.start), to: hourLabel(best.end), pct: Math.round(best.share * 100) }) : t('prod.bestLocked'),
+  const hoursCard = card(t('prod.best'), best ? t('prod.bestBody', { from: hourLabel(best.start), to: hourLabel(best.end), pct: Math.round(best.share * 100) }) : t('prod.bestLocked'), 'weeks16',
     best
-      ? bars({ values: best.byHour, best: new Set([best.start, (best.start + 1) % 24]), label: t('prod.bestAria', { from: hourLabel(best.start), to: hourLabel(best.end) }), cls: 'h24',
+      ? h('div', {}, bars({ values: best.byHour, best: new Set([best.start, (best.start + 1) % 24]), label: t('prod.bestAria', { from: hourLabel(best.start), to: hourLabel(best.end) }), cls: 'h24',
           tip: (i, v) => `${hourLabel(i)} · ${fmtDuration(Math.round(v) * 60)}`,
-          axis: Array.from({ length: 24 }, (_, i) => h('span', { text: i % 6 === 0 ? String(i).padStart(2, '0') : '' })) })
+          axis: Array.from({ length: 24 }, (_, i) => h('span', { text: i % 6 === 0 ? String(i).padStart(2, '0') : '' })) }), h('p', { class: 'chart-note', text: t('prod.bestLegend') }))
       : lock(t('prod.bestNeed', { n: all.length, total: 6 }), 'clock'));
 
   /* weekday pattern */
@@ -51,7 +51,7 @@ export function focusTab({ cur, heat, tasks, settings }) {
   const wkOk = wk.reduce((a, d) => a + d.days, 0) >= 10 && wk.some((d) => d.avgMin > 0);
   const order = [1, 2, 3, 4, 5, 6, 0];
   const wkMax = Math.max(...wk.map((d) => d.avgMin));
-  const weekCard = card(t('prod.weekdays'), t('prod.weekdaysSub'),
+  const weekCard = card(t('prod.weekdays'), t('prod.weekdaysSub'), 'weeks16',
     wkOk ? bars({ values: order.map((w) => wk[w].avgMin), best: new Set(order.map((w, i) => (wk[w].avgMin === wkMax ? i : -1)).filter((i) => i >= 0)), label: t('prod.weekdays'), cls: 'wk',
       tip: (i, v) => `${weekdayName(order[i], 'long')} · ${fmtDuration(v * 60)}`,
       axis: order.map((w) => h('span', {}, weekdayName(w), h('b', { class: 'num', text: wk[w].avgMin ? fmtDuration(wk[w].avgMin * 60) : '–' }))) })
@@ -59,11 +59,11 @@ export function focusTab({ cur, heat, tasks, settings }) {
 
   /* recent sessions */
   const ratingIcon = (r) => (r ? h('span', { class: 'rating r' + r, 'data-tip': t('review.r' + r) }, icon(r === 3 ? 'zap' : r === 2 ? 'meh' : 'frown')) : h('span', { class: 'muted', text: '–' }));
-  const sessionsCard = card(t('prod.recent'), null,
+  const sessionsCard = card(t('prod.recent'), null, 'period',
     sessions.length
       ? h('table', { class: 'sites' }, h('tbody', {}, sessions.slice(0, 7).map((s) => h('tr', {},
           h('td', { class: 'time', style: { textAlign: 'left', width: '1%' }, text: fmtDate(new Date(s.t), { weekday: 'short' }) + ' ' + fmtTime(new Date(s.t), clock24) }),
-          h('td', {}, h('span', { class: 'truncate', text: s.g || t('prod.noGoal') })),
+          h('td', { class: 'name' }, h('span', { class: 'truncate', text: s.g || t('prod.noGoal'), title: s.g || '' })),
           h('td', { class: 'time', text: fmtDuration(s.m * 60) + (s.c ? '' : ' · ' + t('prod.early')) }),
           h('td', { class: 'time', style: { width: '32px' } }, ratingIcon(s.r))))))
       : lock(t('prod.noSessions'), 'target'));
@@ -72,7 +72,7 @@ export function focusTab({ cur, heat, tasks, settings }) {
   const topTasks = tasks.filter((x) => x.focusSec >= 60).sort((a, b) => b.focusSec - a.focusSec).slice(0, 5);
   const tMax = topTasks[0]?.focusSec || 1;
   const len = suggestMinutes(heat, settings.focus.presets);
-  const taskCard = card(t('prod.byTask'), null,
+  const taskCard = card(t('prod.byTask'), null, 'allTime',
     topTasks.length
       ? h('div', { class: 'meter-list' }, topTasks.map((x) => h('div', { class: 'meter-row' }, h('span', { class: 'truncate', text: x.text }), h('span', { class: 'num muted-2', text: fmtDuration(x.focusSec) }), h('div', { class: 'progress' }, h('i', { class: 'productive', style: { width: Math.max(3, (x.focusSec / tMax) * 100) + '%' } })))))
       : lock(t('prod.noTaskTime'), 'list-checks'),
@@ -82,18 +82,18 @@ export function focusTab({ cur, heat, tasks, settings }) {
   /* temptations, wins, pause page */
   const tempt = topTemptations(cur, 5);
   const tMaxN = tempt[0]?.count || 1;
-  const temptCard = card(t('prod.tempt'), t('prod.temptSub'),
+  const temptCard = card(t('prod.tempt'), t('prod.temptSub'), 'period',
     tempt.length ? h('div', { class: 'meter-list' }, tempt.map((x) => h('div', { class: 'meter-row' }, h('span', { class: 'site' }, favicon(x.host), h('span', { class: 'truncate', text: x.host })), h('span', { class: 'num muted-2', text: t('prod.times', { n: x.count }) }), h('div', { class: 'progress' }, h('i', { class: 'distracting', style: { width: Math.max(3, (x.count / tMaxN) * 100) + '%' } })))))
       : lock(t('prod.noTempt'), 'shield-check'));
 
   const wins = recentWins(heat, 5);
-  const winsCard = card(t('prod.wins'), null,
+  const winsCard = card(t('prod.wins'), null, 'weeks16',
     wins.length ? h('div', { class: 'wins' }, wins.map((w) => h('div', { class: 'win' }, icon('sparkles'), h('span', { class: 'win-d', text: fmtDate(parseKey(w.key), { weekday: 'short', day: 'numeric', month: 'short' }) }), h('span', { text: w.text }))))
       : lock(t('prod.noWins'), 'moon'));
 
   const reasons = pauseReasonTotals(cur);
   const reasonTotal = PAUSE_REASONS.reduce((a, r) => a + (reasons[r] || 0), 0);
-  const pauseCard = card(t('prod.pauses'), reasonTotal ? t('prod.pausesSub', { n: reasons.back || 0, total: reasonTotal }) : null,
+  const pauseCard = card(t('prod.pauses'), reasonTotal ? t('prod.pausesSub', { n: reasons.back || 0, total: reasonTotal }) : null, 'period',
     reasonTotal ? h('div', { class: 'row gap-2 wrap' }, PAUSE_REASONS.filter((r) => reasons[r]).map((r) => h('span', { class: 'chip' + (r === 'back' ? ' good' : ''), text: `${t('block.why.' + r)} · ${reasons[r]}` })))
       : lock(t('prod.noPauses'), 'wind'));
 
