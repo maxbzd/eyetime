@@ -57,10 +57,6 @@ export function delta(cur, prev) {
   return Math.round(((cur - prev) / prev) * 100);
 }
 
-/**
- * Plain-language observations. Returns [{ id, params }]; the UI turns each into a sentence.
- * Needs at least a few days of data before saying anything about patterns.
- */
 /** The same day without the per-hour breakdown (the biggest part of a day record). Returns the input itself when there is nothing to drop. */
 export function slimDay(day) {
   if (!day || !day.h || !Object.keys(day.h).length) return day;
@@ -68,6 +64,10 @@ export function slimDay(day) {
   return rest;
 }
 
+/**
+ * Plain-language observations. Returns [{ id, params }]; the UI turns each into a sentence.
+ * Needs at least a few days of data before saying anything about patterns.
+ */
 export function insights(cur, prev) {
   const out = [];
   if (cur.total < 600) return out;
