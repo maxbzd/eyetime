@@ -289,4 +289,5 @@ export const en = {
   'wrapped.title': 'My week with EyeTime', 'wrapped.focusOf': 'of focus time', 'wrapped.goalDays': 'Goal days', 'wrapped.activeDays': 'Active days', 'wrapped.distraction': 'Distraction share', 'wrapped.breaks': 'Eye breaks',
   'wrapped.msgGoal': 'Consistent week — daily goal reached on {n} days.', 'wrapped.msgUp': 'Focus time is up {pct}% on the week before.', 'wrapped.msgBest': 'Best day: {day}, {time} of focus.', 'wrapped.msgSteady': 'Every focused hour counts. Here is to the next one.',
   'wrapped.footer': 'EyeTime · free & open source', 'wrapped.share': 'Share as image', 'wrapped.preview': 'Your week as an image', 'wrapped.privacy': 'Only totals — no site names, no task titles.', 'wrapped.save': 'Download PNG', 'wrapped.copy': 'Copy', 'wrapped.copied': 'Image copied',
+  'prod.remindBest': 'Remind me to focus at {time}', 'prod.remindSet': 'Reminder set: {time} on weekdays', 'prod.remindHave': 'You already have a reminder around {time}.',
 };
