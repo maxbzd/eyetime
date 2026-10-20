@@ -33,7 +33,8 @@ function paintClock() {
   const clockEl = $('#clock');
   if (settings.newtab.clockStyle === 'stacked') {
     const [hh, ...rest] = time.split(':');
-    clear(clockEl, h('span', { class: 'h', text: hh }), h('span', { class: 'm', text: rest.join(':').replace(/\s?[AP]M$/i, '') }));
+    const tail = rest.join(':'), ap = /\s?([AP]M)$/i.exec(tail);
+    clear(clockEl, h('span', { class: 'h', text: hh }), h('span', { class: 'm' }, tail.replace(/\s?[AP]M$/i, ''), ap ? h('span', { class: 'ap', text: ap[1].toUpperCase() }) : null));
   } else clockEl.textContent = time;
   document.body.dataset.clock = CLOCKS.includes(settings.newtab.clockStyle) ? settings.newtab.clockStyle : 'thin';
   document.body.dataset.layout = LAYOUTS.includes(settings.newtab.layout) ? settings.newtab.layout : 'center';

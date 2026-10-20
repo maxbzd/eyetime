@@ -108,3 +108,4 @@
 .review-task input { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; }
 .focus-idle.review-only { gap: var(--s-3); }
 .review-rate .chip { white-space: nowrap; font-size: var(--fs-xs); gap: 4px; } .review-rate .chip .ico { margin-right: 0; flex: none; }
+.review-rate { display: flex; flex-wrap: wrap; } .review-rate .chip { flex: 1 1 auto; }

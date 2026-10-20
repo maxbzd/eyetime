@@ -158,7 +158,7 @@ export function habitsModule() {
           h('button', { class: 'x', type: 'button', 'aria-label': t('common.remove'), onclick: () => { const i = data.items.indexOf(it); data.items.splice(i, 1); save(); render(); toast(t('habits.removed'), { action: t('common.undo'), onAction: () => { data.items.splice(i, 0, it); save(); render(); } }); } }, icon('x')));
       })) : h('div', { class: 'hint', text: t('habits.empty') }),
       adding ? addInput : h('button', { class: 'btn btn-sm btn-ghost', style: { alignSelf: 'flex-start' }, type: 'button', onclick: () => { adding = true; render(); document.querySelector('#mod-habits input.input')?.focus(); } }, icon('plus'), t('habits.addBtn')),
-      !data.items.length ? h('div', { class: 'suggest' }, SUGGESTIONS.map((k) => h('button', { class: 'chip', type: 'button', onclick: () => addHabit(t(k)) }, t(k)))) : null);
+      !data.items.length ? h('div', { class: 'suggest' }, h('span', { class: 'hint', text: t('habits.ideas') }), SUGGESTIONS.map((k) => h('button', { class: 'chip', type: 'button', onclick: () => addHabit(t(k)) }, t(k)))) : null);
   }
 
   getCollection('habits', { items: [], log: {} }).then((v) => { data = v; render(); });

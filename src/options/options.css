@@ -78,3 +78,7 @@ section.sec + section.sec { padding-top: var(--s-8); border-top: 1px solid var(-
 
 textarea.is-invalid, .input.is-invalid { border-color: var(--distracting); box-shadow: 0 0 0 3px color-mix(in srgb, var(--distracting) 22%, transparent); }
 .side-count { font-size: var(--fs-xs); color: var(--text-3); min-height: 16px; margin: -4px 4px var(--s-2); }
+
+.sync-status { margin-top: 6px; font-weight: 560; color: var(--text-2); }
+@media (max-width: 640px) { .perm, .privacy-head { grid-template-columns: minmax(0, 1fr); gap: 2px; } .privacy-head span:nth-child(2) { display: none; } }
+.chip-x { flex-wrap: nowrap; white-space: nowrap; } .chip-x > button { flex: none; }

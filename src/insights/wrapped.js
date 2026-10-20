@@ -62,7 +62,7 @@ export async function drawWrapped({ sum, prev, cur, goalMin }) {
   tiles.forEach(([label, value, sub], i) => {
     const x = pad + i * (tw + 28);
     ctx.fillStyle = col.surface; rr(ctx, x, ty, tw, 180, 30); ctx.fill(); ctx.strokeStyle = col.border; ctx.stroke();
-    ctx.fillStyle = col.text3; ctx.font = F(600, 27); ctx.fillText(label, x + 28, ty + 50);
+    ctx.fillStyle = col.text3; let lp = 27; ctx.font = F(600, lp); while (ctx.measureText(label).width > tw - 56 && lp > 18) { lp -= 1; ctx.font = F(600, lp); } ctx.fillText(label, x + 28, ty + 50);
     ctx.fillStyle = col.text; ctx.font = F(750, 70); ctx.fillText(value, x + 28, ty + 122);
     if (sub) { ctx.fillStyle = s.shareDelta > 0 ? col.bad : col.good; ctx.font = F(650, 26); ctx.fillText(sub, x + 28, ty + 162); }
   });

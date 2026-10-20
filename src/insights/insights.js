@@ -237,7 +237,9 @@ function render() {
   $('#subtitle').textContent = range === 'today' ? fmtDate(new Date()) : `${fmtDate(parseKey(keys[0]), { day: 'numeric', month: 'short' })} – ${fmtDate(parseKey(keys[keys.length - 1]), { day: 'numeric', month: 'short', year: 'numeric' })}`;
 
   const root = $('#content');
-  if (sum.total < 60 && sum.topApps.length === 0 && data.heat.every(([, d]) => !d)) { clear(root, emptyState()); return; }
+  const empty = sum.total < 60 && sum.topApps.length === 0 && data.heat.every(([, d]) => !d);
+  $('#export').disabled = empty;
+  if (empty) { clear(root, emptyState()); return; }
 
   const views = {
     overview: () => [renderKpis(sum, prev), range === '7' && sum.total >= 3600 && sum.activeDays >= 3 ? reviewCard(sum, prev) : null, mainChart(sum), insightsCard(sum, prev, streak)],
