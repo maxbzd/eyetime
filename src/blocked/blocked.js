@@ -46,7 +46,7 @@ function waitThen(btn, seconds, label, onReady) {
 
 async function render() {
   timers.forEach(clearInterval); timers = [];
-  if (!target) { clear($('#stage'), h('h1', { text: t('block.invalid') })); return; }
+  if (!target) { clear($('#stage'), h('h1', { text: t('block.invalid') }), h('p', { class: 'lead', text: t('block.invalidBody') }), h('div', { class: 'actions' }, h('a', { class: 'btn btn-primary btn-lg', href: chrome.runtime.getURL('src/newtab/newtab.html'), text: t('block.newTab') }))); return; }
   settings = await getSettings();
   decision = await check();
   if (!decision) return;
@@ -54,9 +54,9 @@ async function render() {
   const reason = decision.reason;
   const back = $('#back'), cont = $('#cont'), lead = $('#lead'), title = $('#title'), note = $('#note');
   const wait = Math.max(5, settings.blocking.friction.seconds || 8);
-  $('#sitePill').replaceChildren(favicon(host), h('span', { text: host }));
+  $('#sitePill').replaceChildren(favicon(host), h('span', { class: 'host', text: host, title: host }));
   back.textContent = t('block.back'); back.onclick = goBack;
-  $('#breath').hidden = true; $('#bigClock').hidden = true; $('#goal').hidden = true; $('#manage').hidden = true; $('#why').hidden = true; $('#allowSite').hidden = true; $('#plan').hidden = true; $('#park').hidden = true;
+  $('#breath').hidden = true; $('#bigClock').hidden = true; $('#goal').hidden = true; $('#manage').hidden = true; $('#manage').textContent = t('block.manage'); $('#why').hidden = true; $('#allowSite').hidden = true; $('#plan').hidden = true; $('#park').hidden = true;
   cont.hidden = true; cont.onclick = null; note.textContent = '';
 
   const offerContinue = (minutes) => {
@@ -96,7 +96,8 @@ async function render() {
       $('#whyChips').querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', String(c === e.currentTarget && !!chosen)));
       $('#whyNote').textContent = chosen === 'habit' || chosen === 'bored' ? t('block.why.nudge') : '';
     } })));
-    waitThen(cont, decision.seconds || wait, t('block.continue'), () => { note.textContent = t('block.passNote', { n: decision.passMinutes }); });
+    note.textContent = t('block.passNote', { n: decision.passMinutes });
+    waitThen(cont, decision.seconds || wait, t('block.continue'));
     cont.hidden = false;
     cont.onclick = async () => { if (chosen) await send('pause:reason', { reason: chosen }); await send('pass:grant', { rule: decision.rule, minutes: decision.passMinutes }); release(); };
     return;
@@ -108,30 +109,33 @@ async function render() {
     title.textContent = t(only ? 'block.only.title' : 'block.focus.title');
     lead.textContent = t(only ? 'block.only.lead' : 'block.focus.lead', { host });
     if (only) {
-      const a = $('#allowSite'); a.hidden = false;
+      const a = $('#allowSite'); a.hidden = false; a.textContent = t('block.only.allowHost', { host });
       a.onclick = async () => { await updateSettings((s) => { if (!s.blocking.allow.includes(host)) s.blocking.allow.push(host); }); await send('settings:changed'); release(); };
     }
-    if (f?.goal) { $('#goal').hidden = false; $('#goal').textContent = f.goal; }
+    if (f?.goal) { $('#goal').hidden = false; $('#goal').replaceChildren(h('span', { class: 'goal-k', text: t('block.goalK') }), h('span', { text: f.goal })); }
     const big = $('#bigClock'); big.hidden = false;
-    const paint = () => { const left = f.endsAt - Date.now(); big.textContent = clock(Math.max(0, left)); if (left <= 0) { render(); } };
+    const paint = () => { const left = f.endsAt - Date.now(); big.textContent = clock(Math.max(0, left)); big.dataset.k = t('block.remaining'); if (left <= 0) { render(); } };
     paint(); timers.push(setInterval(paint, 1000));
     if (decision.strict) note.textContent = t('block.strictNote', { time: fmtTime(new Date(f.endsAt), settings.newtab.clock24 === null ? undefined : settings.newtab.clock24) });
     else offerContinue(decision.passMinutes);
   } else if (reason === 'schedule') {
     const s = settings.blocking.schedule;
     title.textContent = t('block.schedule.title');
-    lead.textContent = t('block.schedule.lead', { end: s.end });
+    const [eh, em] = String(s.end).split(':').map(Number);
+    lead.textContent = t('block.schedule.lead', { end: fmtTime(new Date(2000, 0, 1, eh || 0, em || 0), settings.newtab.clock24 === null ? undefined : settings.newtab.clock24) });
     if (decision.strict) note.textContent = t('block.strictScheduleNote');
     else offerContinue(decision.passMinutes);
   } else if (reason === 'budget') {
     title.textContent = t('block.budget.title');
     lead.textContent = t('block.budget.lead', { used: fmtDuration(decision.usedSec), limit: fmtDuration(decision.budgetMin * 60) });
     offerContinue(decision.passMinutes);
+    $('#manage').hidden = false; $('#manage').textContent = t('block.changeLimit');
   } else if (reason === 'limit') {
     const day = (await getRaw(dayStorageKey(dayKey())))[dayStorageKey(dayKey())] || {};
     title.textContent = t('block.limit.title');
     lead.textContent = t('block.limit.lead', { host: decision.rule, used: fmtDuration(usageOf(day, decision.rule)), limit: fmtDuration(decision.limitMin * 60) });
     offerContinue(decision.passMinutes);
+    $('#manage').hidden = false; $('#manage').textContent = t('block.changeLimit');
   } else {
     title.textContent = t('block.always.title', { host });
     lead.textContent = t('block.always.lead');

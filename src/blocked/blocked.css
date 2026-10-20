@@ -30,3 +30,12 @@ h1 { font-size: clamp(30px, 5vw, 44px); letter-spacing: -.035em; line-height: 1.
 
 .plan { display: flex; flex-direction: column; gap: 2px; align-items: center; max-width: 460px; padding: 10px 16px; border-radius: var(--r-lg); background: var(--accent-soft); border: var(--border-w) solid var(--accent-ring); font-size: var(--fs-md); }
 .plan-k { font-size: var(--fs-xs); letter-spacing: .06em; text-transform: uppercase; color: var(--accent-text); font-weight: 650; }
+
+/* audit round 6 */
+.site-pill { max-width: 100%; } .site-pill .host { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.goal { overflow-wrap: anywhere; display: flex; flex-direction: column; gap: 4px; text-align: left; max-width: min(100%, 44ch); }
+.goal .goal-k { font-size: var(--fs-xs); letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); font-weight: 650; }
+.clock[data-k]::after { content: attr(data-k); display: block; margin-top: 6px; font-size: var(--fs-xs); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+.orb { width: 140px; height: 140px; }
+.plan { background: var(--surface-2); border-color: var(--border); } .plan-k { color: var(--text-3); }
+h1 { overflow-wrap: anywhere; }

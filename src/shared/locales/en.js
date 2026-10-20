@@ -277,4 +277,5 @@ export const en = {
   'review.rising': 'Distractions took {pts} points more of your screen time than the week before. Pick the one site that pulls you in most and give it a limit or a little friction.',
   'insights.share': 'Share',
   'focus.extend': '+{n} min', 'focus.extendTip': 'Add {n} more minutes to this session', 'review.save': 'Save', 'review.skip': 'Skip', 'track.pausedBanner': 'Tracking is paused until {time}', 'track.resumeShort': 'Resume',
+  'block.goalK': 'Your focus', 'block.remaining': 'remaining', 'block.changeLimit': 'Change limit', 'block.invalidBody': 'This page opens when EyeTime pauses a site. Nothing to show here.', 'block.newTab': 'Open a new tab', 'block.only.allowHost': 'Allow {host}', 'break.snooze': '5 more minutes', 'ob.add': 'Add', 'ob.from': 'From', 'ob.to': 'to',
 };
