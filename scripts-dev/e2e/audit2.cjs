@@ -104,13 +104,13 @@ async function seed(page, level) {
   await scene('home-review', async (n) => { await putRaw({ review: { id: 's1', day: new Date().toISOString().slice(0, 10), goal: long ? LONG : 'Write the quarterly report', taskId: 'a', minutes: 25, completed: true } }); const p = await open('src/newtab/newtab.html', 1280, 900); await snap(n, p); await p.close(); await putRaw({ review: null }); });
 
   /* ---------- Popup ---------- */
-  await scene('popup-idle', async (n) => { const p = await open('src/popup/popup.html', 380, 640); await snap(n, p); await p.close(); });
-  await scene('popup-site', async (n) => { const p = await open('src/popup/popup.html?site=' + (long ? VLONG_HOST : 'github.com'), 380, 640); await snap(n, p); await p.close(); });
-  await scene('popup-site-limit', async (n) => { const p = await open('src/popup/popup.html?site=youtube.com', 380, 640); await snap(n, p); await p.close(); });
-  await scene('popup-running', async (n) => { await putRaw({ focus: FOCUS }); const p = await open('src/popup/popup.html?site=github.com', 380, 640); await snap(n, p); await p.close(); await putRaw({ focus: null }); });
-  await scene('popup-strict', async (n) => { await putRaw({ focus: { ...FOCUS, strict: true } }); const p = await open('src/popup/popup.html', 380, 640); await snap(n, p); await p.close(); await putRaw({ focus: null }); });
-  await scene('popup-rest', async (n) => { await putRaw({ rest: { startedAt: Date.now() - 60000, endsAt: Date.now() + 240000, minutes: 5, long: false } }); const p = await open('src/popup/popup.html', 380, 640); await snap(n, p); await p.close(); await putRaw({ rest: null }); });
-  await scene('popup-paused', async (n) => { await putRaw({ pausedUntil: Date.now() + 3600e3 }); const p = await open('src/popup/popup.html', 380, 640); await snap(n, p); await p.close(); await putRaw({ pausedUntil: 0 }); });
+  await scene('popup-idle', async (n) => { const p = await open('src/popup/popup.html', Math.round(380 * ((CFG.scale || 100) / 100)), 640); await snap(n, p); await p.close(); });
+  await scene('popup-site', async (n) => { const p = await open('src/popup/popup.html?site=' + (long ? VLONG_HOST : 'github.com'), Math.round(380 * ((CFG.scale || 100) / 100)), 640); await snap(n, p); await p.close(); });
+  await scene('popup-site-limit', async (n) => { const p = await open('src/popup/popup.html?site=youtube.com', Math.round(380 * ((CFG.scale || 100) / 100)), 640); await snap(n, p); await p.close(); });
+  await scene('popup-running', async (n) => { await putRaw({ focus: FOCUS }); const p = await open('src/popup/popup.html?site=github.com', Math.round(380 * ((CFG.scale || 100) / 100)), 640); await snap(n, p); await p.close(); await putRaw({ focus: null }); });
+  await scene('popup-strict', async (n) => { await putRaw({ focus: { ...FOCUS, strict: true } }); const p = await open('src/popup/popup.html', Math.round(380 * ((CFG.scale || 100) / 100)), 640); await snap(n, p); await p.close(); await putRaw({ focus: null }); });
+  await scene('popup-rest', async (n) => { await putRaw({ rest: { startedAt: Date.now() - 60000, endsAt: Date.now() + 240000, minutes: 5, long: false } }); const p = await open('src/popup/popup.html', Math.round(380 * ((CFG.scale || 100) / 100)), 640); await snap(n, p); await p.close(); await putRaw({ rest: null }); });
+  await scene('popup-paused', async (n) => { await putRaw({ pausedUntil: Date.now() + 3600e3 }); const p = await open('src/popup/popup.html', Math.round(380 * ((CFG.scale || 100) / 100)), 640); await snap(n, p); await p.close(); await putRaw({ pausedUntil: 0 }); });
   await scene('popup-review', async (n) => { await putRaw({ review: { id: 's1', day: new Date().toISOString().slice(0, 10), goal: long ? LONG : 'Write the quarterly report', taskId: 'a', minutes: 25, completed: false } }); const p = await open('src/popup/popup.html', 380, 760); await snap(n, p); await p.close(); await putRaw({ review: null }); });
 
   /* ---------- Insights ---------- */
