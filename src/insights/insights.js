@@ -110,7 +110,7 @@ function sitesCard(sum) {
   return h('section', { class: 'card' },
     h('div', { class: 'card-head' }, h('div', {}, h('h3', { text: t('insights.sites') }), h('p', { text: t('insights.sitesSub') }))),
     h('div', { class: 'card-body', style: { paddingTop: 'var(--s-3)' } },
-      all.length ? h('table', { class: 'sites sites-sel' }, h('thead', {}, h('tr', {}, h('th', { text: t('insights.site') }), h('th', { text: t('insights.class') }), h('th', { class: 'share', text: t('insights.share') }), h('th', { text: t('insights.time'), style: { textAlign: 'right' } }), h('th', { class: 'pct', 'aria-label': '%' }))), h('tbody', {}, rows))
+      all.length ? h('table', { class: 'sites sites-sel' }, h('thead', {}, h('tr', {}, h('th', { text: t('insights.site') }), h('th', { text: t('insights.class') }), h('th', { class: 'share', text: t('insights.share') }), h('th', { text: t('insights.time'), style: { textAlign: 'right' } }), h('th', { class: 'pct' }, h('span', { class: 'sr-only', text: '%' })))), h('tbody', {}, rows))
         : h('div', { class: 'empty' }, h('p', { text: t('insights.noSites') })),
       all.length > shown ? h('div', { class: 'more' }, h('button', { class: 'btn btn-sm', type: 'button', onclick: () => { shown += 15; render(); } }, t('insights.showMore', { n: all.length - shown }))) : null));
 }
@@ -256,6 +256,7 @@ function render() {
   const tabIcons = { overview: { icon: 'layout-dashboard' }, focus: { icon: 'target' }, sites: { icon: 'globe' }, patterns: { icon: 'calendar-days' } };
   const tabs = h('div', { class: 'tabs', role: 'tablist', 'aria-label': t('insights.tabs') }, TABS.map((id) => h('button', { class: 'tab', type: 'button', role: 'tab', 'aria-selected': String(id === tab), onclick: () => { tab = id; try { localStorage.setItem('et-itab', id); } catch { /* ignore */ } render(); } }, icon(tabIcons[id].icon), t('itab.' + id))));
   clear(root, tabs, h('div', { class: 'stack gap-4', role: 'tabpanel', style: { marginTop: 'var(--s-5)' } }, views[tab]()));
+  root.querySelectorAll('.card-head h3').forEach((el) => el.setAttribute('aria-level', '2')); // page h1 → card titles are level 2
   tabs.querySelector('[aria-selected="true"]')?.scrollIntoView({ inline: 'center', block: 'nearest' });
 }
 

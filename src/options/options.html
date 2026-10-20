@@ -15,8 +15,8 @@
 <body>
   <header class="app-header" id="header"></header>
   <div class="settings-layout">
-    <div class="side-wrap"><div class="side-search"><i data-icon="search"></i><input class="input" id="q" type="search" autocomplete="off" spellcheck="false" data-i18n-attr="placeholder:opt.search;aria-label:opt.search"></div><div class="side-count" id="qcount" aria-live="polite"></div><nav class="side" id="side" aria-label="Settings sections"></nav></div>
-    <main class="settings-main">
+    <aside class="side-wrap" aria-label="Settings"><div class="side-search"><i data-icon="search"></i><input class="input" id="q" type="search" autocomplete="off" spellcheck="false" data-i18n-attr="placeholder:opt.search;aria-label:opt.search"></div><div class="side-count" id="qcount" aria-live="polite"></div><nav class="side" id="side" aria-label="Settings sections"></nav></aside>
+    <main class="settings-main"><h1 class="sr-only" data-i18n="nav.settings">Settings</h1>
       <div class="saved" id="saved" role="status" aria-live="polite"></div>
       <div id="content" class="stack gap-6"></div>
     </main>
