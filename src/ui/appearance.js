@@ -1,6 +1,7 @@
 // Shared appearance controls: look cards with live miniature previews, accent picker, scheme helpers.
 // Used by Settings → Appearance and by the Home "Customize" drawer.
 
+import { fmtDuration } from '../shared/i18n.js';
 import { h, icon } from './dom.js';
 import { t } from '../shared/i18n.js';
 import { LOOKS, LOOK_IDS, ACCENTS, resolveVars, pickScheme } from '../shared/looks.js';
@@ -14,10 +15,10 @@ export function lookPreview(lookId, scheme, ap = {}) {
   Object.assign(vars, { '--ctl-h': '24px', '--d': '0.6', '--fs-xs': '8px', '--fs-sm': '9px', '--fs-md': '10px', '--fs-lg': '11px', '--fs-xl': '14px', '--ui-scale': '1' });
   const bars = [[5, 2, 1], [6, 1, 2], [4, 2, 3], [7, 2, 1], [3, 1, 4], [5, 3, 2], [6, 1, 1]];
   const root = h('div', { class: 'lp', 'aria-hidden': 'true' },
-    h('div', { class: 'lp-head' }, h('h4', { text: t('lp.title') }), h('span', { class: 'badge badge-accent', text: '25m' })),
+    h('div', { class: 'lp-head' }, h('h4', { text: t('lp.title') }), h('span', { class: 'badge badge-accent', text: fmtDuration(1500) })),
     h('div', { class: 'card lp-card' },
       h('div', { class: 'lp-time num', text: '24:59' }),
-      h('div', { class: 'row gap-2' }, h('span', { class: 'btn btn-primary btn-sm', text: t('lp.start') }), h('span', { class: 'chip', 'aria-pressed': 'true', text: '25m' }), h('span', { class: 'chip', text: '50m' }))),
+      h('div', { class: 'row gap-2' }, h('span', { class: 'btn btn-primary btn-sm', text: t('lp.start') }), h('span', { class: 'chip', 'aria-pressed': 'true', text: fmtDuration(1500) }), h('span', { class: 'chip', text: fmtDuration(3000) }))),
     h('div', { class: 'lp-bars' }, bars.map((b) => h('span', { class: 'lp-col' }, ['productive', 'neutral', 'distracting'].map((c, i) => h('i', { class: 'seg ' + c, style: { flexGrow: b[i] } }))))),
     h('div', { class: 'row gap-1' }, h('span', { class: 'tag tag-productive', text: t('class.productive') }), h('span', { class: 'tag tag-distracting', text: t('class.distracting') })));
   for (const [k, v] of Object.entries(vars)) root.style.setProperty(k, v);

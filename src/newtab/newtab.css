@@ -79,7 +79,8 @@ body[data-clock="serif"] .clock { font-family: "Source Serif 4", Georgia, serif;
 body[data-clock="compact"] .clock { font-size: clamp(40px, 5.5vw, 56px); font-weight: 560; letter-spacing: -.03em; }
 body[data-clock="compact"] .hero { padding-top: var(--s-2); }
 body[data-clock="stacked"] .clock { display: flex; flex-direction: column; line-height: .88; font-size: clamp(88px, 15vw, 148px); font-weight: 760; letter-spacing: -.06em; }
-body[data-clock="stacked"] .clock .m { color: transparent; -webkit-text-stroke: 2px var(--hero-fg); font-weight: 760; }
+body[data-clock="stacked"] .clock .m { color: color-mix(in srgb, var(--hero-fg) 52%, transparent); font-weight: 760; position: relative; align-self: center; }
+body[data-clock="stacked"] .clock .ap { position: absolute; left: calc(100% + .12em); bottom: .14em; font-size: .17em; font-weight: 650; letter-spacing: .02em; color: var(--hero-fg-2); }
 body[data-clock="none"] .clock { display: none; }
 body[data-clock="none"] .hero h1 { font-size: clamp(30px, 4.5vw, 46px); margin-top: 0; }
 
@@ -206,3 +207,5 @@ body[data-layout="minimal"] .more-mods { display: inline-flex; }
 @media (max-width: 900px) { .kbd-hint { display: none; } }
 body[data-layout="split"] .hero .clock { white-space: nowrap; font-size: clamp(56px, 7.4vw, 108px); }
 .qa-preview { display: flex; flex-wrap: wrap; gap: 6px; min-height: 0; margin-top: -4px; } .qa-preview:empty { display: none; } .qa-preview .hint { font-size: var(--fs-xs); } .tag-hash { color: var(--accent-text); }
+@media (max-width: 1360px) { .kbd-hint { display: none; } }
+@media (max-width: 600px) { .focus-idle.large .focus-row .btn-lg { width: 100%; } }
