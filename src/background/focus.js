@@ -42,6 +42,7 @@ export async function extendFocus(minutes = 5) {
   const next = { ...focus, endsAt: focus.endsAt + add * 60_000, minutes: focus.minutes + add };
   await setRaw({ focus: next });
   await chrome.alarms.create('focus-end', { when: next.endsAt });
+  await updateBadge(await getSettings());
   return { ok: true };
 }
 

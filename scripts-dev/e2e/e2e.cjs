@@ -76,6 +76,9 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   ok(tab.url().includes('r=focus'), 'reddit blocked during strict focus even with a pass', tab.url().slice(0, 100));
   const cont = await tab.$('#cont'); ok(!cont || await cont.isHidden(), 'no continue button in strict mode');
   const stop = await send(helper, { type: 'focus:stop' }); ok(stop && stop.ok === false, 'strict session cannot be stopped from UI');
+  const endsBefore = (await get('focus')).endsAt; const ext5 = await send(helper, { type: 'focus:extend', minutes: 5 });
+  const fAfter = await get('focus'); ok(ext5 && ext5.ok && fAfter.endsAt === endsBefore + 300000 && fAfter.minutes === 10, '+5 min extends the running session (and its minutes)', JSON.stringify(fAfter));
+  const badgeTxt = await sw.evaluate(() => chrome.action.getBadgeText({})); ok(Number(badgeTxt) >= 9, 'toolbar badge refreshed after extending', badgeTxt);
   await tab.goto(url('github.com', '/ok')); await sleep(500); ok(/^https?:\/\/github.com/.test(tab.url()), 'productive site unaffected during focus');
   // end the session by rewriting its end time, then the block page must auto-release
   await tab.goto(url('reddit.com', '/z')).catch(() => {}); await sleep(1000);
