@@ -54,6 +54,6 @@ export function accentPicker(ap, onPick) {
   return h('div', { class: 'row gap-2 wrap', style: { alignItems: 'center' } },
     sw('look', look[scheme].accent, t('ap.lookAccent'), { class: 'swatch-btn look-own' }),
     Object.entries(ACCENTS).map(([id, pair]) => sw(id, pair[scheme === 'dark' ? 1 : 0], t('accent.' + id))),
-    h('label', { class: 'swatch-btn custom', 'aria-pressed': String(isCustom), style: { '--c': customHex }, 'data-tip': t('ap.customColor') }, picker, icon('plus')),
+    h('label', { class: 'swatch-btn custom' + (isCustom ? ' is-on' : ''), style: { '--c': customHex }, 'data-tip': t('ap.customColor') }, picker, icon('plus')),
     hex);
 }
