@@ -31,7 +31,7 @@ export function isScheduleActive(schedule, now = new Date()) {
  *   reason: 'always' | 'focus' | 'schedule' | 'limit' | 'friction'
  */
 export function decide(host, ctx) {
-  const { settings, classifier, focus, passes = {}, usageOf = () => 0 } = ctx;
+  const { settings, classifier, focus, passes = {}, usageOf = () => 0, distractingSec = 0 } = ctx;
   const now = ctx.now ?? Date.now();
   const b = settings.blocking;
   if (!host || matchesAny(host, b.allow)) return { action: 'allow' };
@@ -44,14 +44,17 @@ export function decide(host, ctx) {
   const cls = classifier.classify(host);
   const distracting = cls === 'distracting';
 
+  // a focus mode can bring its own allowed sites (e.g. "Study" keeps YouTube open): those are never closed by the session
+  const modeAllowed = isFocusActive(focus, now) && matchesAny(host, focus.allow || []);
+
   // "only my sites": a session of this scope closes everything that is not productive or on the allow-list
-  if (isFocusActive(focus, now) && focus.scope === 'only-mine' && cls !== 'productive' && !matchesAny(host, settings.tracking?.excluded || [])) {
+  if (!modeAllowed && isFocusActive(focus, now) && focus.scope === 'only-mine' && cls !== 'productive' && !matchesAny(host, settings.tracking?.excluded || [])) {
     const strict = !!focus.strict;
     if (strict || !passed) return { action: 'block', reason: 'focus', scope: 'only-mine', rule, strict, canPass: !strict, passMinutes: b.friction.passMinutes };
   }
 
   if (distracting) {
-    if (isFocusActive(focus, now)) {
+    if (isFocusActive(focus, now) && !modeAllowed) {
       const strict = !!focus.strict;
       if (strict || !passed) return { action: 'block', reason: 'focus', rule, strict, canPass: !strict, passMinutes: b.friction.passMinutes };
     }
@@ -64,6 +67,11 @@ export function decide(host, ctx) {
   const limitKey = bestMatch(host, Object.keys(b.limits));
   if (limitKey && usageOf(limitKey) >= b.limits[limitKey] * 60 && !(passes[limitKey] > now) && !passed) {
     return { action: 'block', reason: 'limit', rule: limitKey, canPass: true, passMinutes: b.friction.passMinutes, limitMin: b.limits[limitKey] };
+  }
+
+  // the distraction budget: one daily allowance for all distracting sites together
+  if (distracting && b.budget?.enabled && distractingSec >= b.budget.minutes * 60 && !passed && !modeAllowed) {
+    return { action: 'block', reason: 'budget', rule, canPass: true, passMinutes: b.friction.passMinutes, budgetMin: b.budget.minutes, usedSec: distractingSec };
   }
 
   if (distracting && b.friction.enabled && !passed) {

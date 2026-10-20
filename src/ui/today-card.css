@@ -33,3 +33,7 @@
 .today-line { display: flex; align-items: center; gap: var(--s-4); }
 .tl-total { display: flex; flex-direction: column; line-height: 1.15; flex: none; } .tl-total b { font-size: 22px; font-weight: 650; letter-spacing: -.02em; }
 .today-line .split { flex: 1; margin: 0; height: 10px; }
+
+.budget { margin-top: var(--s-3); display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-sm); color: var(--text-2); }
+.budget-top { display: flex; justify-content: space-between; gap: var(--s-2); } .budget .lbl { display: inline-flex; align-items: center; gap: 8px; } .budget .ico { font-size: 15px; color: var(--text-3); }
+.budget .progress { height: 6px; background: var(--bar-empty); } .budget .progress i { background: var(--neutral); } .budget.over .progress i { background: var(--distracting); }
