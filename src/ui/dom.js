@@ -93,14 +93,14 @@ export function toast(message, { action, onAction, ms = 3200 } = {}) {
 }
 
 /** Promise-based confirm dialog using <dialog>. Resolves true / false. */
-export function confirmDialog({ title, body, confirm = t('common.confirm'), cancel = t('common.cancel'), danger = false }) {
+export function confirmDialog({ title, body, extra = null, confirm = t('common.confirm'), cancel = t('common.cancel'), danger = false }) {
   return new Promise((resolve) => {
     const dlg = h('dialog', { class: 'dialog' },
       h('form', { method: 'dialog' },
-        h('div', { class: 'dialog-body' }, h('h3', { text: title }), body ? h('p', { class: 'muted-2', text: body }) : null),
+        h('div', { class: 'dialog-body stack gap-3' }, h('h3', { text: title }), body ? h('p', { class: 'muted-2', text: body }) : null, extra),
         h('div', { class: 'dialog-actions' },
-          h('button', { class: 'btn btn-ghost', value: 'no', text: cancel }),
-          h('button', { class: 'btn ' + (danger ? 'btn-danger' : 'btn-primary'), value: 'yes', text: confirm, autofocus: true }))));
+          h('button', { class: 'btn btn-ghost', value: 'no', text: cancel, autofocus: true }),
+          h('button', { class: 'btn ' + (danger ? 'btn-danger-solid' : 'btn-primary'), value: 'yes', text: confirm }))));
     dlg.addEventListener('close', () => { resolve(dlg.returnValue === 'yes'); dlg.remove(); });
     document.body.append(dlg);
     dlg.showModal();

@@ -55,10 +55,14 @@ function applyFilter() {
   root.querySelectorAll('section.sec, section.sec > div').forEach((e) => { e.hidden = false; });
   if (!q) return;
   let any = false;
+  $('#qcount').textContent = '';
   for (const r of rows) { const hit = r.textContent.toLowerCase().includes(q); r.hidden = !hit; if (hit) { r.classList.add('hit'); any = true; } }
+  $('#qcount').textContent = t('opt.results', { n: rows.filter((r) => !r.hidden).length });
   for (const g of root.querySelectorAll('section.sec > div')) if (g.querySelector('.card') && !g.querySelector('.setting:not([hidden])')) g.hidden = true;
   for (const sec of root.querySelectorAll('section.sec')) { const vis = sec.querySelector('.setting:not([hidden])'); sec.hidden = !vis; }
-  if (!any) root.append(h('div', { class: 'no-results', text: t('opt.noResults', { q: query.trim() }) }));
+  document.querySelectorAll('#side a').forEach((a) => a.setAttribute('aria-current', 'false'));
+  if (!any) root.append(h('div', { class: 'no-results' }, h('div', { class: 'em-ico' }, icon('search')), h('div', { class: 'em-title', text: t('opt.noResults', { q: query.trim() }) }), h('div', { class: 'em-body', text: t('opt.noResultsHint') }),
+    h('button', { class: 'btn btn-sm', type: 'button', onclick: () => { query = ''; $('#q').value = ''; applyFilter(); $('#q').focus(); } }, t('opt.clearSearch'))));
 }
 
 function nav() {
