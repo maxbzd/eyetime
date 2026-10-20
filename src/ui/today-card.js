@@ -30,6 +30,14 @@ export function mountToday(root, { closeOnBreak = false, sites = 3, compact = fa
       h('button', { class: 'btn btn-sm ' + (due ? 'btn-primary' : 'btn-ghost'), type: 'button', onclick: () => { send('break:open'); if (closeOnBreak) window.close(); } }, t('eye.breakNow')));
   }
 
+  /** The distraction budget as a quiet meter: it should feel like an allowance, not a punishment. */
+  function budgetRow(usedSec) {
+    const b = st.settings.blocking.budget, total = b.minutes * 60, pct = Math.min(100, Math.round((usedSec / total) * 100));
+    return h('div', { class: 'budget' + (pct >= 100 ? ' over' : '') },
+      h('div', { class: 'budget-top' }, h('span', { class: 'lbl' }, icon('wallet'), t('budget.label')), h('span', { class: 'num', text: t('budget.used', { used: fmtDuration(usedSec), total: fmtDuration(total) }) })),
+      h('div', { class: 'progress' }, h('i', { style: { width: Math.max(2, pct) + '%' } })));
+  }
+
   function render() {
     const { classify } = makeClassifier(st.settings);
     const sum = summarize([[dayKey(), st.today]], classify);
@@ -64,6 +72,7 @@ export function mountToday(root, { closeOnBreak = false, sites = 3, compact = fa
       h('div', { class: 'legend-grid' + (compact ? ' inline' : '') }, [['productive', 'dot-productive'], ['neutral', 'dot-neutral'], ['distracting', 'dot-distracting']].map(([k, dot]) =>
         h('div', {}, h('span', { class: 'lg' }, h('i', { class: 'dot ' + dot }), t('class.' + k)), h('b', { class: 'num', text: fmtDuration(sum[k]) })))),
       top.length ? h('div', { class: 'top-sites' }, top.map((s) => h('div', { class: 'top-site' }, favicon(s.host), h('span', { class: 'truncate', text: s.host }), h('span', { class: 't num', text: fmtDuration(s.sec) }), h('div', { class: 'bar' }, h('i', { class: 'cls-' + s.cls, style: { width: (s.sec / max) * 100 + '%' } }))))) : null,
+      !compact && st.settings.blocking.budget?.enabled ? budgetRow(sum.distracting) : null,
       !compact && st.streak >= 2 ? h('div', { class: 'streak' }, icon('flame'), t('insight.streak', { n: st.streak })) : null,
       compact ? null : eyeRow());
   }

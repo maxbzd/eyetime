@@ -123,6 +123,10 @@ async function render() {
     lead.textContent = t('block.schedule.lead', { end: s.end });
     if (decision.strict) note.textContent = t('block.strictScheduleNote');
     else offerContinue(decision.passMinutes);
+  } else if (reason === 'budget') {
+    title.textContent = t('block.budget.title');
+    lead.textContent = t('block.budget.lead', { used: fmtDuration(decision.usedSec), limit: fmtDuration(decision.budgetMin * 60) });
+    offerContinue(decision.passMinutes);
   } else if (reason === 'limit') {
     const day = (await getRaw(dayStorageKey(dayKey())))[dayStorageKey(dayKey())] || {};
     title.textContent = t('block.limit.title');

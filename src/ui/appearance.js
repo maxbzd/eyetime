@@ -47,8 +47,8 @@ export function accentPicker(ap, onPick) {
   const sw = (id, color, label, extra = {}) => h('button', { type: 'button', class: 'swatch-btn', 'aria-pressed': String(ap.accent === id), 'aria-label': label, 'data-tip': label, style: { '--c': color }, onclick: () => onPick(id), ...extra });
   const isCustom = ap.accent && ap.accent !== 'look' && !ACCENTS[ap.accent];
   const customHex = isCustom ? ap.accent : '#7c5cff';
-  const hex = h('input', { class: 'input input-sm token', style: { width: '96px' }, value: customHex, maxlength: 7, spellcheck: false, 'aria-label': t('ap.customHex'),
-    onchange: (e) => { const n = normalizeHex(e.target.value); if (n) onPick(n); else e.target.value = customHex; } });
+  const hex = h('input', { class: 'input input-sm token', style: { width: '104px' }, value: isCustom ? customHex : '', placeholder: '#rrggbb', maxlength: 7, spellcheck: false, 'aria-label': t('ap.customHex'),
+    onchange: (e) => { const n = normalizeHex(e.target.value); if (n) onPick(n); else e.target.value = isCustom ? customHex : ''; } });
   const picker = h('input', { type: 'color', value: customHex, 'aria-label': t('ap.customColor'), onchange: (e) => onPick(normalizeHex(e.target.value)) });
   return h('div', { class: 'row gap-2 wrap', style: { alignItems: 'center' } },
     sw('look', look[scheme].accent, t('ap.lookAccent'), { class: 'swatch-btn look-own' }),

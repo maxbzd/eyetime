@@ -35,6 +35,12 @@ export const DEFAULT_SETTINGS = {
     scope: 'distractions',     // what a session closes: 'distractions' (sites classed distracting) | 'only-mine' (everything except productive and allowed sites)
     review: true,              // after a session: "did you finish it? how did it go?"
     reminders: [],             // [{ id, time: 'HH:MM', days: [1..5], minutes }] – a nudge to start a session
+    mode: 'sprint',            // last used focus mode id
+    modes: [                   // focus modes: one tap sets length, scope, strictness, sound and extra allowed sites for a session
+      { id: 'deep', icon: 'brain', minutes: 50, scope: 'only-mine', strict: false, ambient: 'off', allow: [] },
+      { id: 'sprint', icon: 'zap', minutes: 25, scope: 'distractions', strict: false, ambient: 'off', allow: [] },
+      { id: 'study', icon: 'book-open', minutes: 45, scope: 'distractions', strict: false, ambient: 'off', allow: ['youtube.com'] },
+    ],
   },
 
   blocking: {
@@ -43,6 +49,7 @@ export const DEFAULT_SETTINGS = {
     allow: [],                 // never blocked, never "distracting"
     always: [],                // always blocked
     limits: {},                // domain -> minutes per day
+    budget: { enabled: false, minutes: 30 }, // a daily allowance for ALL distracting sites together; when it is used up they are closed (with a pass)
     plans: [],                 // if-then plans shown on the pause page: [{ id, when: 'domain' | '', then: 'text' }] – implementation intentions
     friction: { enabled: true, seconds: 8, passMinutes: 10 }, // breathing pause before distracting sites
     schedule: { enabled: false, days: [1, 2, 3, 4, 5], start: '09:00', end: '18:00', strict: false, passMinutes: 5 },

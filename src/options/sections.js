@@ -1,6 +1,6 @@
 // Settings sections. Each takes ctx = { s: settings, save(fn), refresh() } and returns an element.
 
-import { h, icon, toast, confirmDialog } from '../ui/dom.js';
+import { h, icon, toast, confirmDialog, clear } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { row, group, toggle, select, domainEditor, sectionHead } from './ui.js';
 import { t, LANGUAGES, weekdayName, fmtDuration } from '../shared/i18n.js';
@@ -28,35 +28,62 @@ export function general({ s, save, refresh }) {
 
 /* ============================== Focus ============================== */
 
+/** Focus modes: presets for a whole session — length, scope, strictness, sound and sites that stay open. */
+function modesEditor(s, save) {
+  const modes = s.focus.modes;
+  const upd = (id, fn) => save((x) => { const m = x.focus.modes.find((y) => y.id === id); if (m) fn(m); });
+  const card = (m) => h('div', { class: 'mode-card' },
+    h('div', { class: 'row gap-2' },
+      icon(m.icon || 'zap'),
+      h('input', { class: 'input input-sm grow', value: m.name || '', maxlength: 24, placeholder: t('mode.' + m.id) === 'mode.' + m.id ? t('mode.new') : t('mode.' + m.id), 'aria-label': t('mode.name'), onchange: (e) => upd(m.id, (y) => { y.name = e.target.value.trim(); }) }),
+      modes.length > 1 ? h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.remove'), onclick: () => save((x) => { x.focus.modes = x.focus.modes.filter((y) => y.id !== m.id); if (x.focus.mode === m.id) x.focus.mode = x.focus.modes[0].id; }, true) }, icon('x')) : null),
+    h('div', { class: 'mode-fields' },
+      select([15, 25, 30, 45, 50, 60, 90, 120].map((n) => [n, fmtDuration(n * 60)]), m.minutes, (v) => upd(m.id, (y) => { y.minutes = Number(v); }), { label: t('opt.focusDefault') }),
+      select([['distractions', t('opt.scopeDistractions')], ['only-mine', t('focus.onlyMine')]], m.scope, (v) => upd(m.id, (y) => { y.scope = v; }), { label: t('opt.scope') }),
+      select(['off', 'brown', 'rain', 'cafe'].map((k) => [k, t('ambient.' + k)]), m.ambient || 'off', (v) => upd(m.id, (y) => { y.ambient = v; }), { label: t('opt.ambient') }),
+      h('label', { class: 'row gap-2 mode-strict' }, toggle(!!m.strict, (v) => upd(m.id, (y) => { y.strict = v; }), t('focus.strict')), h('span', { text: t('focus.strictShort') }))),
+    h('div', { class: 'stack gap-2' }, h('div', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, text: t('mode.allow') }),
+      domainEditor({ items: m.allow || [], placeholder: 'example.com', onAdd: (d) => upd(m.id, (y) => { y.allow = [...new Set([...(y.allow || []), d])]; }), onRemove: (d) => upd(m.id, (y) => { y.allow = (y.allow || []).filter((x) => x !== d); }) })));
+  return h('div', { class: 'stack gap-3', style: { alignItems: 'stretch' } }, modes.map(card),
+    modes.length < 6 ? h('button', { class: 'btn btn-sm', type: 'button', style: { alignSelf: 'flex-start' }, onclick: () => save((x) => { x.focus.modes.push({ id: 'm' + Date.now().toString(36), icon: 'zap', name: '', minutes: 25, scope: 'distractions', strict: false, ambient: 'off', allow: [] }); }, true) }, icon('plus'), t('mode.add')) : null);
+}
+
 /** Scheduled "time to focus" nudges: a time, the weekdays it repeats on and how long the session is. */
 function remindersEditor(s, save) {
   const list = s.focus.reminders;
   const upd = (id, fn) => save((x) => { const r = x.focus.reminders.find((y) => y.id === id); if (r) fn(r); });
   const days = [1, 2, 3, 4, 5, 6, 0];
   const rows = list.map((r) => h('div', { class: 'reminder' },
-    h('input', { class: 'input input-sm', type: 'time', value: r.time, 'aria-label': t('opt.remindTime'), style: { width: '108px' }, onchange: (e) => e.target.value && upd(r.id, (x) => { x.time = e.target.value; }) }),
+    h('input', { class: 'input input-sm', type: 'time', value: r.time, 'aria-label': t('opt.remindTime'), onchange: (e) => e.target.value && upd(r.id, (x) => { x.time = e.target.value; }) }),
     h('div', { class: 'row gap-1 wrap' }, days.map((d) => h('button', { class: 'chip chip-day', type: 'button', 'aria-pressed': String(r.days.includes(d)), text: weekdayName(d), onclick: () => upd(r.id, (x) => { x.days = x.days.includes(d) ? x.days.filter((n) => n !== d) : [...x.days, d]; }) }))),
-    select([15, 25, 50, 90].map((m) => [m, t('opt.minutes', { n: m })]), r.minutes, (v) => upd(r.id, (x) => { x.minutes = Number(v); }), { label: t('opt.remindLen') }),
+    select([...new Set([...s.focus.presets, r.minutes])].sort((a, b) => a - b).map((m) => [m, t('opt.minutes', { n: m })]), r.minutes, (v) => upd(r.id, (x) => { x.minutes = Number(v); }), { label: t('opt.remindLen') }),
     h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.remove'), onclick: () => save((x) => { x.focus.reminders = x.focus.reminders.filter((y) => y.id !== r.id); }, true) }, icon('x'))));
   return h('div', { class: 'stack gap-3', style: { alignItems: 'stretch' } }, rows,
     list.length < 5 ? h('button', { class: 'btn btn-sm', type: 'button', style: { alignSelf: 'flex-start' }, onclick: () => save((x) => { x.focus.reminders.push({ id: Date.now().toString(36), time: '09:00', days: [1, 2, 3, 4, 5], minutes: 50 }); }, true) }, icon('plus'), t('opt.addReminder')) : null);
 }
 
 export function focus({ s, save, refresh }) {
-  const presetsIn = h('input', { class: 'input input-sm', style: { width: '180px' }, value: s.focus.presets.join(', '), 'aria-label': t('opt.focusPresets'), onchange: (e) => {
-    const list = [...new Set(e.target.value.split(/[\s,;]+/).map(Number).filter((n) => n >= 1 && n <= 720))].slice(0, 5);
-    if (!list.length) { e.target.value = s.focus.presets.join(', '); return; }
-    save((x) => { x.focus.presets = list; if (!list.includes(x.focus.minutes)) x.focus.minutes = list[0]; }, true);
-  } });
+  const presetErr = h('div', { class: 'hint', style: { color: 'var(--distracting-text)' } });
+  const setPresets = (list) => save((x) => { x.focus.presets = list; if (!list.includes(x.focus.minutes)) x.focus.minutes = list[0]; }, true);
+  const presetsIn = h('div', { class: 'stack gap-2' },
+    h('div', { class: 'dur-chips' }, s.focus.presets.map((m) => h('span', { class: 'chip chip-x' }, fmtDuration(m * 60), s.focus.presets.length > 1 ? h('button', { type: 'button', 'aria-label': t('common.remove') + ' ' + fmtDuration(m * 60), onclick: () => setPresets(s.focus.presets.filter((n) => n !== m)) }, icon('x')) : null)),
+      s.focus.presets.length < 5 ? h('input', { class: 'input input-sm num', type: 'number', min: 1, max: 720, placeholder: t('opt.addMinutes'), 'aria-label': t('opt.addMinutes'), style: { width: '110px' }, onkeydown: (e) => {
+        if (e.key !== 'Enter') return; e.preventDefault();
+        const n = Math.round(Number(e.target.value));
+        if (!(n >= 1 && n <= 720)) { presetErr.textContent = t('opt.presetBad'); return; }
+        if (s.focus.presets.includes(n)) { presetErr.textContent = ''; e.target.value = ''; return; }
+        setPresets([...s.focus.presets, n].sort((a, b) => a - b));
+      } }) : null), presetErr);
   const urlIn = h('input', { class: 'input input-sm', style: { width: '260px' }, type: 'url', placeholder: 'https://…', value: s.focus.openUrl, 'aria-label': t('opt.focusUrl'), onchange: (e) => {
     const v = e.target.value.trim();
-    if (v && !/^https?:\/\//i.test(v)) { toast(t('links.invalid')); e.target.value = s.focus.openUrl; return; }
+    if (v && !/^https?:\/\//i.test(v)) { toast(t('links.invalid')); e.target.value = s.focus.openUrl; e.target.setAttribute('aria-invalid', 'true'); return; }
+    e.target.removeAttribute('aria-invalid');
     save((x) => { x.focus.openUrl = v; });
   } });
   return sec('focus', sectionHead(t('sec.focus'), t('sec.focusDesc')),
     group(null,
       row({ title: t('opt.focusDefault'), desc: t('opt.focusDefaultDesc'), control: select(s.focus.presets.map((m) => [m, t('opt.minutes', { n: m })]), s.focus.minutes, (v) => save((x) => { x.focus.minutes = Number(v); }), { label: t('opt.focusDefault') }) }),
-      row({ title: t('opt.focusPresets'), desc: t('opt.focusPresetsDesc'), control: presetsIn }),
+      row({ title: t('opt.focusPresets'), desc: t('opt.focusPresetsDesc'), stack: true, control: presetsIn }),
       row({ title: t('opt.restAfter'), desc: t('opt.restAfterDesc'), control: select([[0, t('common.off')], ...[3, 5, 10, 15].map((m) => [m, t('opt.minutes', { n: m })])], s.focus.breakMinutes, (v) => save((x) => { x.focus.breakMinutes = Number(v); }), { label: t('opt.restAfter') }) }),
       row({ title: t('opt.longBreak'), desc: t('opt.longBreakDesc'), control: h('div', { class: 'row gap-2' },
         select([[0, t('common.off')], ...[2, 3, 4, 5].map((n) => [n, t('opt.everyN', { n })])], s.focus.longBreak.every, (v) => save((x) => { x.focus.longBreak.every = Number(v); }), { label: t('opt.longBreak') }),
@@ -68,6 +95,7 @@ export function focus({ s, save, refresh }) {
       row({ title: t('opt.ambient'), desc: t('opt.ambientDesc'), control: select(['off', 'brown', 'rain', 'cafe'].map((k) => [k, t('ambient.' + k)]), s.focus.ambient, (v) => send('ambient:set', { kind: v }).then(() => {}), { label: t('opt.ambient') }) }),
       row({ title: t('opt.scope'), desc: t('opt.scopeDesc'), control: select([['distractions', t('opt.scopeDistractions')], ['only-mine', t('focus.onlyMine')]], s.focus.scope, (v) => save((x) => { x.focus.scope = v; }), { label: t('opt.scope') }) }),
       row({ title: t('opt.review'), desc: t('opt.reviewDesc'), control: toggle(s.focus.review, (v) => save((x) => { x.focus.review = v; }), t('opt.review')) }),
+      row({ title: t('opt.modes'), desc: t('opt.modesDesc'), stack: true, control: modesEditor(s, save) }),
       row({ title: t('opt.reminders'), desc: t('opt.remindersDesc'), stack: true, control: remindersEditor(s, save) })),
     group(t('opt.groupExtras'),
       row({ title: t('opt.focusSound'), desc: t('opt.focusSoundDesc'), control: toggle(s.focus.sound, (v) => save((x) => { x.focus.sound = v; }), t('opt.focusSound')) }),
@@ -86,7 +114,7 @@ function plansEditor(s, save) {
   return h('div', { class: 'stack gap-3', style: { alignItems: 'stretch' } },
     list.map((p) => h('div', { class: 'plan-row' },
       h('span', { class: 'muted', text: t('plan.if') }),
-      h('input', { class: 'input input-sm', style: { width: '150px' }, value: p.when, placeholder: t('plan.whenPh'), spellcheck: false, 'aria-label': t('plan.if'), onchange: (e) => { const v = e.target.value.trim(); if (!v) { upd(p.id, (y) => { y.when = ''; }); return; } const d = parseUserDomain(v); if (d) upd(p.id, (y) => { y.when = d; }); else { toast(t('domains.invalid', { v })); e.target.value = p.when; } } }),
+      h('input', { class: 'input input-sm', value: p.when, placeholder: t('plan.whenPh'), spellcheck: false, 'aria-label': t('plan.if'), onchange: (e) => { const v = e.target.value.trim(); if (!v) { upd(p.id, (y) => { y.when = ''; }); return; } const d = parseUserDomain(v); if (d) upd(p.id, (y) => { y.when = d; }); else { toast(t('domains.invalid', { v })); e.target.value = p.when; } } }),
       h('span', { class: 'muted', text: t('plan.then') }),
       h('input', { class: 'input input-sm grow', value: p.then, maxlength: 100, placeholder: t('plan.thenPh'), 'aria-label': t('plan.then'), onchange: (e) => upd(p.id, (y) => { y.then = e.target.value.trim().slice(0, 100); }) }),
       h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.remove'), onclick: () => save((x) => { x.blocking.plans = x.blocking.plans.filter((y) => y.id !== p.id); }, true) }, icon('x')))),
@@ -138,6 +166,7 @@ export function blocking({ s, save, refresh }) {
       row({ title: t('opt.friction'), desc: t('opt.frictionDesc'), control: toggle(fr.enabled, (v) => save((x) => { x.blocking.friction.enabled = v; }, true), t('opt.friction')) }),
       fr.enabled ? row({ title: t('opt.frictionSeconds'), control: select([5, 8, 10, 15, 30].map((n) => [n, t('opt.seconds', { n })]), fr.seconds, (v) => save((x) => { x.blocking.friction.seconds = Number(v); }), { label: t('opt.frictionSeconds') }) }) : null,
       row({ title: t('opt.passMinutes'), desc: t('opt.passMinutesDesc'), control: select(mins([5, 10, 15, 30]), fr.passMinutes, (v) => save((x) => { x.blocking.friction.passMinutes = Number(v); }), { label: t('opt.passMinutes') }) }),
+      row({ title: t('opt.budget'), desc: t('opt.budgetDesc'), control: h('div', { class: 'row gap-2' }, b.budget.enabled ? select([15, 30, 45, 60, 90, 120].map((m) => [m, fmtDuration(m * 60)]), b.budget.minutes, (v) => save((x) => { x.blocking.budget.minutes = Number(v); }), { label: t('opt.budget') }) : null, toggle(b.budget.enabled, (v) => save((x) => { x.blocking.budget.enabled = v; }, true), t('opt.budget'))) }),
       fr.enabled ? row({ title: t('opt.plans'), desc: t('opt.plansDesc'), stack: true, control: plansEditor(s, save) }) : null),
 
     group(t('opt.groupSchedule'),
@@ -204,7 +233,7 @@ export function tracking({ s, save, refresh }) {
     group(t('opt.groupExcluded'), row({ title: t('opt.excluded'), desc: t('opt.excludedDesc'), stack: true, control: domainEditor({ items: tr.excluded, placeholder: 'example.com',
       onAdd: (d) => save((x) => { if (!x.tracking.excluded.includes(d)) x.tracking.excluded.push(d); }, true), onRemove: (d) => save((x) => { x.tracking.excluded = x.tracking.excluded.filter((v) => v !== d); }, true) }) })),
     group(t('opt.groupCompanion'),
-      row({ title: t('opt.comp'), desc: t('opt.compDesc'), control: h('div', { class: 'row gap-3' }, status, toggle(comp.enabled, setCompanion, t('opt.comp'))) }),
+      row({ title: t('opt.comp'), desc: t('opt.compDesc'), control: h('div', { class: 'row gap-3' }, comp.enabled ? status : null, toggle(comp.enabled, setCompanion, t('opt.comp'))) }),
       comp.enabled ? row({ title: t('opt.compToken'), desc: t('opt.compTokenDesc'), control: tokenIn }) : null,
       row({ title: t('opt.compHow'), desc: t('opt.compHowDesc'), control: h('a', { class: 'btn', href: 'https://github.com/maxbzd/eyetime/tree/main/companion', target: '_blank', rel: 'noopener' }, icon('external-link'), t('opt.compDocs')) })));
 }
@@ -229,21 +258,34 @@ export function data({ s, save, refresh }) {
   fileIn.onchange = () => { if (fileIn.files[0]) doImport(fileIn.files[0]); fileIn.value = ''; };
 
   return sec('data', sectionHead(t('sec.data'), t('sec.dataDesc')),
-    group(null,
+    group(t('opt.groupBackup'),
       row({ title: t('opt.export'), desc: t('opt.exportDesc'), control: h('button', { class: 'btn', type: 'button', onclick: doExport }, icon('download'), t('opt.exportBtn')) }),
       row({ title: t('opt.import'), desc: t('opt.importDesc'), control: h('button', { class: 'btn', type: 'button', onclick: () => fileIn.click() }, icon('upload'), t('opt.importBtn')) }),
-      row({ title: t('opt.csv'), desc: t('opt.csvDesc'), control: h('a', { class: 'btn', href: chrome.runtime.getURL('src/insights/insights.html') }, icon('chart-column'), t('nav.insights')) })),
+      row({ title: t('opt.csv'), desc: t('opt.csvDesc'), control: h('a', { class: 'btn', href: chrome.runtime.getURL('src/insights/insights.html') }, icon('arrow-up-right'), t('opt.openInsights')) })),
     h('div', {}, h('h3', { class: 'group-title', text: t('opt.groupPrivacy') }),
       h('div', { class: 'card' }, h('div', { class: 'setting' }, h('div', { class: 'setting-text' }, h('div', { class: 'setting-title', text: t('opt.privacyTitle') }), h('div', { class: 'setting-desc', text: t('opt.privacyBody') }))),
-        h('div', { style: { borderTop: '1px solid var(--border)' } }, PERMS.map(([p, k]) => h('div', { class: 'perm' }, h('b', { text: p }), h('span', { text: t(k) })))))),
+        h('div', { class: 'privacy-head' }, h('span', { text: t('opt.permName') }), h('span', { text: t('opt.permWhy') })),
+        h('div', {}, PERMS.map(([p, k]) => h('div', { class: 'perm' }, h('b', { text: p }), h('span', { text: t(k) })))))),
     h('div', {}, h('h3', { class: 'group-title', text: t('opt.groupDanger') }),
       h('div', { class: 'card danger-zone' }, row({ title: t('opt.reset'), desc: t('opt.resetDesc'), control: h('button', { class: 'btn btn-danger', type: 'button', onclick: async () => {
-        const ok = await confirmDialog({ title: t('opt.resetTitle'), body: t('opt.resetBody'), confirm: t('opt.resetConfirm'), danger: true });
+        const ok = await confirmDialog({ title: t('opt.resetTitle'), body: t('opt.resetBody'), extra: h('button', { class: 'btn btn-sm', type: 'button', style: { alignSelf: 'flex-start' }, onclick: doExport }, icon('download'), t('opt.backupFirst')), confirm: t('opt.resetConfirm'), danger: true });
         if (ok) { await resetAll(); toast(t('opt.resetDone')); setTimeout(() => location.reload(), 600); }
       } }, icon('trash-2'), t('opt.resetBtn')) }))));
 }
 
 /* ============================== About ============================== */
+/** The real binding (the user may have changed it on chrome://extensions/shortcuts); falls back to the default. */
+function shortcutKeys(name, fallback) {
+  const el = h('span', { class: 'shortcut' }, fallback.map((k) => h('span', { class: 'kbd', text: k })));
+  chrome.commands?.getAll?.().then((all) => {
+    const c = all.find((x) => x.name === name);
+    const keys = c && c.shortcut ? c.shortcut.split(/[+]/).filter(Boolean) : null;
+    if (c && !c.shortcut) clear(el, h('span', { class: 'muted', text: t('about.scNone') }));
+    else if (keys) clear(el, keys.map((k) => h('span', { class: 'kbd', text: k })));
+  }).catch(() => {});
+  return el;
+}
+
 export function about() {
   const v = chrome.runtime.getManifest().version;
   const link = (href, ico, label) => h('a', { class: 'btn', href, target: '_blank', rel: 'noopener' }, ico, label);
@@ -252,10 +294,11 @@ export function about() {
       h('div', { class: 'about-logo' }, h('img', { src: '../../icons/logo.svg', alt: '' }), h('div', {}, h('h3', { text: 'EyeTime' }), h('div', { class: 'muted', text: t('about.version', { v }) }), h('div', { class: 'muted', text: t('about.tagline') }))),
       h('div', { class: 'row gap-2 wrap', style: { padding: '0 var(--s-5) var(--s-5)' } },
         link('https://github.com/maxbzd/eyetime', icon('code-xml'), t('about.source')),
+        link('https://github.com/maxbzd/eyetime/blob/main/CHANGELOG.md', icon('sparkles'), t('about.whatsNew')),
         link('https://github.com/maxbzd/eyetime/issues/new/choose', icon('bug'), t('about.report')),
         link('https://github.com/maxbzd/eyetime/blob/main/PRIVACY.md', icon('shield-check'), t('about.privacy')))),
     group(t('about.shortcuts'),
-      row({ title: t('about.scFocus'), control: h('span', { class: 'shortcut' }, ['Alt', 'Shift', 'F'].map((k) => h('span', { class: 'kbd', text: k }))) }),
-      row({ title: t('about.scPopup'), control: h('span', { class: 'shortcut' }, ['Alt', 'Shift', 'E'].map((k) => h('span', { class: 'kbd', text: k }))) }),
+      row({ title: t('about.scFocus'), control: shortcutKeys('toggle-focus', ['Alt', 'Shift', 'F']) }),
+      row({ title: t('about.scPopup'), control: shortcutKeys('_execute_action', ['Alt', 'Shift', 'E']) }),
       row({ title: t('about.scChange'), control: h('button', { class: 'btn', type: 'button', onclick: () => chrome.tabs.create({ url: 'chrome://extensions/shortcuts' }) }, icon('keyboard'), t('about.scBtn')) })));
 }

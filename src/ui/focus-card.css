@@ -88,3 +88,13 @@
 .run-actions { flex-wrap: wrap; }
 .focus-run.compact .run-actions { margin-left: 0; gap: 6px; }
 .focus-run.compact .run-actions .btn-ghost { padding: 0 8px; margin-left: -8px; }
+
+/* focus modes */
+.mode-row { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.mode-chip { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: var(--r-md); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-2); font-weight: 600; font-size: var(--fs-md); transition: all var(--t-fast) var(--ease); }
+.mode-chip:hover { color: var(--text); border-color: var(--text-3); } .mode-chip .ico { font-size: 16px; color: var(--text-3); } .mode-chip .mm { font-weight: 500; color: var(--text-3); font-size: var(--fs-sm); }
+.mode-chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent-ring); color: var(--accent-text); } .mode-chip[aria-pressed="true"] .ico, .mode-chip[aria-pressed="true"] .mm { color: var(--accent-text); }
+.mode-select { align-self: flex-start; max-width: 100%; }
+.focus-idle:not(.large) .mode-select { width: 100%; }
+
+.focus-idle:not(.large) .focus-opts { flex-wrap: nowrap; align-items: center; justify-content: space-between; } .focus-idle:not(.large) .mode-select { width: auto; flex: 1; min-width: 0; }
