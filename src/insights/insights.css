@@ -293,3 +293,4 @@ select.tag { appearance: none; padding-right: 9px; font-family: inherit; }
   .sites-sel td.name { max-width: none; width: auto; } .sites-sel td.name { grid-column: 1 / -1; }
   .sites-sel td.time { text-align: right; }
 }
+.est-verdict { font-size: var(--fs-md); line-height: 1.5; } .est-verdict.under { color: var(--distracting-text); } .est-verdict.good { color: var(--success-text); }
