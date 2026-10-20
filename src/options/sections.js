@@ -36,7 +36,7 @@ function modesEditor(s, save) {
   const card = (m) => h('div', { class: 'mode-card' },
     h('div', { class: 'row gap-2' },
       icon(m.icon || 'zap'),
-      h('input', { class: 'input input-sm grow', value: m.name || '', maxlength: 24, placeholder: t('mode.' + m.id) === 'mode.' + m.id ? t('mode.new') : t('mode.' + m.id), 'aria-label': t('mode.name'), onchange: (e) => upd(m.id, (y) => { y.name = e.target.value.trim(); }) }),
+      h('input', { class: 'input input-sm grow', value: m.name || (t('mode.' + m.id) === 'mode.' + m.id ? '' : t('mode.' + m.id)), maxlength: 24, placeholder: t('mode.new'), 'aria-label': t('mode.name'), onchange: (e) => upd(m.id, (y) => { y.name = e.target.value.trim(); }) }),
       modes.length > 1 ? h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.remove'), onclick: () => save((x) => { x.focus.modes = x.focus.modes.filter((y) => y.id !== m.id); if (x.focus.mode === m.id) x.focus.mode = x.focus.modes[0].id; }, true) }, icon('x')) : null),
     h('div', { class: 'mode-fields' },
       select([15, 25, 30, 45, 50, 60, 90, 120].map((n) => [n, fmtDuration(n * 60)]), m.minutes, (v) => upd(m.id, (y) => { y.minutes = Number(v); }), { label: t('opt.focusDefault') }),
@@ -292,8 +292,7 @@ function syncGroup(s) {
   paint();
   chrome.storage.onChanged.addListener((c, area) => { if (area === 'local' && (c.syncStatus || c.syncSettings)) paint(); });
   return group(t('opt.groupSync'),
-    row({ title: t('opt.sync'), desc: t('opt.syncDesc'), control: sw }),
-    h('div', { class: 'setting' }, h('div', { class: 'setting-text' }, status), h('div', { class: 'setting-ctl' }, nowBtn)));
+    (() => { const r = row({ title: t('opt.sync'), desc: t('opt.syncDesc'), control: h('div', { class: 'row gap-3' }, nowBtn, sw) }); r.querySelector('.setting-text').append(status); status.classList.add('sync-status'); return r; })());
 }
 
 /* ============================== About ============================== */

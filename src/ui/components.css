@@ -196,3 +196,8 @@ dialog.dialog[open] { animation: dlg-in var(--t-med) var(--ease); }
 /* empty-state parts shared by Home modules and the popup */
 .em-ico { width: 44px; height: 44px; border-radius: var(--r-lg); display: grid; place-items: center; background: var(--surface-2); color: var(--text-3); font-size: 22px; margin-bottom: 4px; }
 .em-title { font-weight: 650; } .em-body { font-size: var(--fs-sm); color: var(--text-3); max-width: 34ch; }
+
+.input, .select, .textarea { text-overflow: ellipsis; }
+.input::placeholder { text-overflow: ellipsis; }
+.kbd { white-space: nowrap; }
+.dialog-actions { border-top: 1px solid var(--border); padding-top: var(--s-4); }
