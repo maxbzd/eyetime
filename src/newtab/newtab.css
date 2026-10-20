@@ -218,7 +218,7 @@ body[data-layout="split"] .hero .clock { white-space: nowrap; font-size: clamp(5
 .gs-head { display: flex; align-items: center; gap: var(--s-3); } .gs-head h2 { font-size: var(--fs-lg); flex: 1; } .gs-count { color: var(--text-3); font-size: var(--fs-sm); font-weight: 600; }
 .gs-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
 .gs-step { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3); border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--surface-2); min-width: 0; }
-.gs-step.done { opacity: .62; } .gs-step.done b { text-decoration: line-through; text-decoration-color: var(--text-3); }
+.gs-step.done { background: transparent; } .gs-step.done b { text-decoration: line-through; text-decoration-color: var(--text-3); }
 .gs-mark { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-text); flex: none; font-size: 16px; } .gs-step.done .gs-mark { background: var(--success-soft); color: var(--success-text); }
 .gs-text { display: flex; flex-direction: column; min-width: 0; flex: 1; } .gs-text b { font-weight: 600; font-size: var(--fs-md); } .gs-text span { color: var(--text-3); font-size: var(--fs-xs); line-height: 1.35; }
 .gs-step .btn { flex: none; }
