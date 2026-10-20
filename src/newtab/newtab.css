@@ -205,3 +205,4 @@ body[data-layout="minimal"] .more-mods { display: inline-flex; }
 .textarea-grow { resize: none; min-height: 56px; }
 @media (max-width: 900px) { .kbd-hint { display: none; } }
 body[data-layout="split"] .hero .clock { white-space: nowrap; font-size: clamp(56px, 7.4vw, 108px); }
+.qa-preview { display: flex; flex-wrap: wrap; gap: 6px; min-height: 0; margin-top: -4px; } .qa-preview:empty { display: none; } .qa-preview .hint { font-size: var(--fs-xs); } .tag-hash { color: var(--accent-text); }
