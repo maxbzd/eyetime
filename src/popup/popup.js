@@ -81,9 +81,13 @@ async function renderFooter() {
   } });
   const paused = pausedUntil > Date.now();
   const pause = paused
-    ? h('button', { class: 'btn btn-sm', type: 'button', 'data-tip': t('track.resume'), onclick: async () => { await send('tracking:pause', { minutes: 0 }); renderFooter(); } }, icon('play'), t('track.pausedUntil', { time: fmtTime(new Date(pausedUntil), settings.newtab.clock24 ?? undefined) }))
+    ? null
     : h('button', { class: 'btn btn-ghost btn-icon', type: 'button', 'aria-label': t('track.pause'), 'data-tip': t('track.pause'), onclick: async () => { await send('tracking:pause', { minutes: 60 }); renderFooter(); } }, icon('pause'));
-  clear(el, h('div', { class: 'foot-row' }, h('div', { class: 'capture grow' }, input), pause));
+  const banner = paused
+    ? h('div', { class: 'paused-banner' }, icon('pause'), h('span', { class: 'grow', text: t('track.pausedBanner', { time: fmtTime(new Date(pausedUntil), settings.newtab.clock24 ?? undefined) }) }),
+        h('button', { class: 'btn btn-sm', type: 'button', onclick: async () => { await send('tracking:pause', { minutes: 0 }); renderFooter(); } }, icon('play'), t('track.resumeShort')))
+    : null;
+  clear(el, banner, h('div', { class: 'foot-row' }, h('div', { class: 'capture grow' }, input), pause));
 }
 
 (async function main() {
