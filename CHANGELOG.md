@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.5.1 — 2026-10-20
+
+### Fixed
+- Completed *Get started* steps keep full text contrast (caught by the axe check, which now runs on every change).
+
 ## 2.5.0 — 2026-10-20
 
 ### New
@@ -8,7 +13,6 @@
 - A note turned into a task keeps its time, length and priority (`Call Anna 16:45 30m !`).
 
 ### Fixed
-- Completed *Get started* steps keep full text contrast (caught by the new axe check).
 - Home *Notes*: a note added from another page (popup, pause page) is no longer overwritten by a stale list while the field is focused.
 
 ## 2.4.0 — 2026-10-20
