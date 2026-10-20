@@ -16,6 +16,8 @@ test('every look, scheme and accent keeps text readable', () => {
     chk('text-2', 'text-2', ['surface', 'bg', 'surface-2'], 4.5);
     chk('text-3', 'text-3', ['surface', 'bg', 'surface-2'], 4.5);
     chk('accent-fg/accent', 'accent-fg', ['accent'], 4.5);
+    chk('danger-fg/danger', 'danger-fg', ['danger'], 4.5);
+    chk('danger vs surface (UI)', 'danger', ['surface'], 3);
     chk('accent-text', 'accent-text', ['surface', 'accent-soft'], 4.5);
     chk('accent vs surface (UI)', 'accent', ['surface'], 3);
     for (const k of ['productive', 'neutral', 'distracting', 'success', 'warning']) chk(k + '-text', k + '-text', ['surface', k + '-soft'], 4.5);
