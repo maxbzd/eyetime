@@ -12,7 +12,7 @@
 import { DEFAULT_SETTINGS, deepMerge, clone, SCHEMA_VERSION } from './defaults.js';
 import { migrate, needsMigration, upgradeSettingsV2 } from './migrate.js';
 import { dayKey, rangeKeys, addDays } from './time.js';
-import { emptyDay } from './stats.js';
+import { emptyDay, slimDay } from './stats.js';
 
 export const DAY_PREFIX = 'd:';
 export const RETENTION_DAYS = 400;
@@ -105,7 +105,23 @@ export async function pruneOldDays(now = new Date()) {
   const all = await area().get(null);
   const stale = Object.keys(all).filter((k) => k.startsWith(DAY_PREFIX) && k.slice(DAY_PREFIX.length) < cutoff);
   if (stale.length) await area().remove(stale);
+  await slimIfNearQuota(all, cutoff);
   return stale.length;
+}
+
+/** chrome.storage.local holds 10 MB. A very heavy browser (100+ sites a day) can approach that over 400 days:
+ *  past 8 MB the per-hour breakdown of days older than 120 days is dropped first (daily totals, sessions and the calendar stay). */
+const SOFT_QUOTA = 8_000_000, SLIM_AFTER_DAYS = 120;
+async function slimIfNearQuota(all, cutoff) {
+  if ((await area().getBytesInUse(null)) < SOFT_QUOTA) return 0;
+  const slimBefore = dayKey(addDays(new Date(), -SLIM_AFTER_DAYS));
+  const patch = {};
+  for (const [k, v] of Object.entries(all)) {
+    if (!k.startsWith(DAY_PREFIX) || k.slice(DAY_PREFIX.length) < cutoff || k.slice(DAY_PREFIX.length) >= slimBefore) continue;
+    const slim = slimDay(v); if (slim !== v) patch[k] = slim;
+  }
+  if (Object.keys(patch).length) await area().set(patch);
+  return Object.keys(patch).length;
 }
 
 /* ---------- small collections ---------- */

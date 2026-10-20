@@ -13,7 +13,7 @@ export function goalStrip({ fsSec, goalMin, streak = 0 }) {
     h('div', { class: 'goal-top' },
       h('span', { class: 'goal-lbl' }, icon(g.reached ? 'circle-check' : 'target'), g.reached ? t('goal.reached') : t('goal.progress', { done: g.doneMin ? fmtDuration(g.doneMin * 60) : '0', goal: fmtDuration(goalMin * 60) })),
       streak >= 2 ? h('span', { class: 'goal-streak' }, icon('flame'), t('goal.streak', { n: streak })) : null),
-    h('div', { class: 'goal-bar', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': goalMin, 'aria-valuenow': g.doneMin }, h('i', { style: { width: Math.round(g.pct * 100) + '%' } })));
+    h('div', { class: 'goal-bar', role: 'progressbar', 'aria-label': t('goal.label'), 'aria-valuemin': 0, 'aria-valuemax': goalMin, 'aria-valuenow': g.doneMin }, h('i', { style: { width: Math.round(g.pct * 100) + '%' } })));
 }
 
 /** "How did it go?" after a session: rate it, and tick the task off if it was one. */

@@ -27,7 +27,7 @@
 
 .swatch-btn.look-own { background: conic-gradient(from 0deg, var(--c), color-mix(in srgb, var(--c) 40%, var(--surface)), var(--c)); }
 .swatch-btn.custom { position: relative; display: grid; place-items: center; background: conic-gradient(#ff5f6d, #ffc371, #7dd87d, #4fc3f7, #9575ff, #ff5f6d); color: #fff; overflow: hidden; cursor: pointer; }
-.swatch-btn.custom[aria-pressed="true"] { background: var(--c); }
+.swatch-btn.custom.is-on { background: var(--c); }
 .swatch-btn.custom input[type="color"] { position: absolute; inset: -8px; width: 150%; height: 150%; opacity: 0; cursor: pointer; }
 .swatch-btn.custom .ico { font-size: 14px; stroke-width: 3; filter: drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
 

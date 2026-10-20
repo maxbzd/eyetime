@@ -14,6 +14,8 @@ jobs:
       - run: npm run build
       - uses: actions/upload-artifact@v4
         with: { name: eyetime-packages, path: dist/*.zip }
+      - name: Lint the Firefox package (web-ext)
+        run: mkdir /tmp/ff && unzip -q dist/eyetime-firefox.zip -d /tmp/ff && npx --yes web-ext lint -s /tmp/ff --warnings-as-errors=false
   companion:
     runs-on: ubuntu-latest
     steps:
@@ -31,3 +33,4 @@ jobs:
       - run: npm i --no-save playwright && npx playwright install --with-deps chromium
       - run: node scripts-dev/e2e/e2e.cjs
       - run: node scripts-dev/e2e/upgrade.cjs
+      - run: npm i --no-save axe-core && node scripts-dev/e2e/a11y.cjs --strict

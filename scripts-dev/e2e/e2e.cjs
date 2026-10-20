@@ -72,6 +72,7 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   console.log('5. focus & strict');
   const r = await send(helper, { type: 'focus:start', minutes: 5, goal: 'Test goal', strict: true });
   ok(r && r.strict === true, 'strict focus started');
+  await sleep(600); const offc = await sw.evaluate(async () => (await chrome.runtime.getContexts({ contextTypes: ['OFFSCREEN_DOCUMENT'] })).length); ok(offc === 1, 'session start sound goes through the offscreen document (Chrome path intact)', String(offc));
   await tab.goto(url('reddit.com', '/z')).catch(() => {}); await sleep(1200);
   ok(tab.url().includes('r=focus'), 'reddit blocked during strict focus even with a pass', tab.url().slice(0, 100));
   const cont = await tab.$('#cont'); ok(!cont || await cont.isHidden(), 'no continue button in strict mode');

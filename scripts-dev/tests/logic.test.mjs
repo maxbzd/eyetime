@@ -255,3 +255,11 @@ test('decide: focus modes bring their own allowed sites; the distraction budget 
   assert.equal(decide('reddit.com', { ...ctx, distractingSec: 99 * 60, passes: { 'reddit.com': now + 1000 } }).action, 'allow'); // a granted pass works
   assert.equal(decide('reddit.com', { ...base, distractingSec: 99 * 60 }).action, 'pause');     // budget off by default
 });
+
+test('slimDay drops only the hourly breakdown', async () => {
+  const { slimDay } = await import('../../src/shared/stats.js');
+  const day = { d: { 'a.com': 5 }, h: { 10: { 'a.com': 5 } }, fs: 60, ss: [{ id: 1 }] };
+  const slim = slimDay(day);
+  assert.equal(slim.h, undefined); assert.deepEqual(slim.d, day.d); assert.equal(slim.fs, 60); assert.equal(day.h[10]['a.com'], 5); // original untouched
+  const empty = { d: {} }; assert.equal(slimDay(empty), empty); assert.equal(slimDay(null), null);
+});

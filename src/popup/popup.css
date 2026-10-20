@@ -42,3 +42,4 @@ section.card { padding: var(--s-4); }
 .paused-banner { display: flex; align-items: center; gap: var(--s-2); padding: 8px 8px 8px 12px; margin-bottom: var(--s-2); border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--border); font-size: var(--fs-sm); color: var(--text-2); }
 .paused-banner > .ico { font-size: 15px; color: var(--text-3); flex: none; }
 #footer { display: flex; flex-direction: column; }
+.brand { margin: 0; }

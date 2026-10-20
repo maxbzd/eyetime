@@ -13,7 +13,7 @@ export function mountHeader(mount, active) {
       link('insights', 'src/insights/insights.html', t('nav.insights')),
       link('settings', 'src/options/options.html', t('nav.settings'))),
     h('span', { class: 'spacer' }),
-    h('button', { class: 'pal-trigger', type: 'button', 'aria-label': t('palette.title'), onclick: () => window.dispatchEvent(new window.CustomEvent('et:palette')) }, icon('search'), h('span', { class: 'pal-trigger-t', text: t('palette.search') }), h('span', { class: 'kbd', text: /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘K' : 'Ctrl K' }))));
+    h('button', { class: 'pal-trigger', type: 'button', onclick: () => window.dispatchEvent(new window.CustomEvent('et:palette')) }, icon('search'), h('span', { class: 'pal-trigger-t', text: t('palette.search') }), h('span', { class: 'kbd', text: /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘K' : 'Ctrl K' }))));
   return mount;
 }
 

@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.4.0 — 2026-10-20
+
+Accessibility, resilience and Firefox.
+
+### Accessibility
+- Automated **axe-core audit** of every page and state (running session, review, break, block pages, palette, dialogs) in a light and a dark look, English and Russian — now 0 violations and enforced in CI.
+- Fixed: the progress bar of the daily goal has a name; the custom-accent swatch no longer misuses `aria-pressed`; the search button's accessible name contains its visible text; real heading structure (`h1` on Settings and in the popup, card titles at level 2); the sidebar is a landmark; empty table header made readable.
+
+### Resilience
+- Very heavy browsing could approach the browser's 10 MB storage limit over 400 days. Past 8 MB the hourly breakdown of days older than 120 days is dropped first (totals, sessions and the calendar stay). Measured: a profile with 400 days × 40 sites × 12 hours uses 5 MB; Home opens in ~220 ms and Insights in ~300 ms with 300 tasks.
+
+### Firefox
+- Sounds (session start/end chime and ambient noise) now work in Firefox too: its background is an event page with Web Audio, so the same synthesis code runs there directly. The Firefox package passes `web-ext lint` with no errors (CI-checked).
+
 ## 2.3.2 — 2026-10-20
 
 ### Fixed
