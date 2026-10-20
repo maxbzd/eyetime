@@ -66,8 +66,15 @@ async function seed(page, level) {
   await sp.close();
 
   const open = async (url, w, h) => { const p = await app.ctx.newPage(); await p.setViewportSize({ width: w, height: h }); p.on('pageerror', (e) => errs.push(url + ': ' + e.message)); p.on('console', (m) => { if (m.type() === 'error' && !/ERR_|favicon|net::/.test(m.text())) errs.push(url + ': ' + m.text()); }); await p.goto(ext(url)); await p.waitForTimeout(1100); return p; };
-  const scene = async (name, fn) => { try { await fn(name); } catch (e) { console.log('scene failed:', name, String(e.message).split('\n')[0]); } };
-  const snap = async (name, p, opts = {}) => { await p.waitForTimeout(250); await p.screenshot({ path: `${OUT}/${name}.png`, ...opts }); };
+  const ONLY = process.env.ONLY ? new RegExp(process.env.ONLY) : null;
+  const scene = async (name, fn) => { if (ONLY && !ONLY.test(name)) return; try { await fn(name); } catch (e) { console.log('scene failed:', name, String(e.message).split('\n')[0]); } };
+  const snap = async (name, p, opts = {}) => {
+    await p.waitForTimeout(250);
+    // horizontal overflow report: widest offenders when the page scrolls sideways
+    const bad = await p.evaluate(() => { const w = document.documentElement.clientWidth; if (document.documentElement.scrollWidth <= w + 1) return null; const out = []; const clipped = (el) => { for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) { const o = getComputedStyle(a).overflowX; if (o === 'auto' || o === 'scroll' || o === 'hidden') return true; } return false; }; for (const el of document.querySelectorAll('body *')) { const r = el.getBoundingClientRect(); if (r.width > 0 && r.right > w + 2 && !clipped(el)) out.push(`${el.tagName.toLowerCase()}.${String(el.className.baseVal ?? el.className).split(' ')[0]}:${Math.round(r.right)}`); } return `${document.documentElement.scrollWidth}>${w} ` + out.slice(0, 6).join(' '); }).catch(() => null);
+    if (bad) console.log('OVERFLOW', name, bad);
+    await p.screenshot({ path: `${OUT}/${name}.png`, ...opts });
+  };
   /** patch = { 'dot.path': value } applied to settings inside the service worker (no eval: extension CSP forbids it). */
   const set = (patch) => app.sw.evaluate(async (patch) => { const { settings } = await chrome.storage.local.get('settings'); for (const [path, v] of Object.entries(patch)) { const keys = path.split('.'); let o = settings; for (const k of keys.slice(0, -1)) o = o[k]; o[keys[keys.length - 1]] = v; } await chrome.storage.local.set({ settings }); }, patch);
   const putRaw = (obj) => app.sw.evaluate((o) => chrome.storage.local.set(o), obj);

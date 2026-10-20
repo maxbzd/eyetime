@@ -19,3 +19,9 @@
   .app-header-in { gap: var(--s-3); }
   .app-brand span { display: none; }
 }
+@media (max-width: 520px) {
+  .app-header-in { padding: 0 var(--s-3); gap: var(--s-2); }
+  .app-nav { margin-left: 0; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .app-nav a { padding: 7px 9px; white-space: nowrap; }
+  .page { padding-inline: var(--s-4); }
+}

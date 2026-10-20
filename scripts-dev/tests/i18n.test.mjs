@@ -15,7 +15,7 @@ test('i18n: plurals, params and fallbacks', () => {
 
 test('i18n: duration formatting and locale resolution', () => {
   setLocale('en');
-  assert.equal(fmtDuration(0), '0s'); assert.equal(fmtDuration(59), '59s'); assert.equal(fmtDuration(3600), '1h'); assert.equal(fmtDuration(5400), '1h 30m');
-  setLocale('ru'); assert.equal(fmtDuration(5400), '1ч 30м'); setLocale('en');
+  assert.equal(fmtDuration(0), '0s'); assert.equal(fmtDuration(59), '59s'); assert.equal(fmtDuration(3600), '1h'); assert.equal(fmtDuration(5400), '1h\u00a030m');
+  setLocale('ru'); assert.equal(fmtDuration(5400), '1ч\u00a030м'); setLocale('en');
   assert.equal(resolveLocale('auto', 'ru-RU'), 'ru'); assert.equal(resolveLocale('auto', 'uk'), 'ru'); assert.equal(resolveLocale('auto', 'de-DE'), 'en'); assert.equal(resolveLocale('ru', 'en-US'), 'ru');
 });

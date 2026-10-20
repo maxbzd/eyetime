@@ -38,3 +38,7 @@
 .hm-cell.l3 { background: color-mix(in srgb, var(--accent) 72%, var(--bar-empty)); }
 .hm-cell.l4 { background: var(--accent); }
 .hm-cell:hover:not(.pad), .hm-cell:focus-visible { outline: 2px solid var(--text); outline-offset: 1px; }
+.hm-cell.l1 { background: color-mix(in srgb, var(--accent) 28%, var(--bar-empty)); }
+.hm-cell.l2 { background: color-mix(in srgb, var(--accent) 52%, var(--bar-empty)); }
+.hm-cell.l3 { background: color-mix(in srgb, var(--accent) 76%, var(--bar-empty)); }
+.chart .col.is-future { cursor: default; } .chart .col.is-future:hover { background: none; }

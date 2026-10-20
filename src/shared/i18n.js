@@ -63,8 +63,8 @@ export function applyI18n(root = document) {
 export function fmtDuration(sec, { seconds = false } = {}) {
   sec = Math.max(0, Math.round(sec));
   const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
-  if (h) return m ? `${h}${t('unit.h')} ${m}${t('unit.m')}` : `${h}${t('unit.h')}`;
-  if (m) return seconds && s ? `${m}${t('unit.m')} ${s}${t('unit.s')}` : `${m}${t('unit.m')}`;
+  if (h) return m ? `${h}${t('unit.h')}\u00a0${m}${t('unit.m')}` : `${h}${t('unit.h')}`;
+  if (m) return seconds && s ? `${m}${t('unit.m')}\u00a0${s}${t('unit.s')}` : `${m}${t('unit.m')}`;
   return `${s}${t('unit.s')}`;
 }
 

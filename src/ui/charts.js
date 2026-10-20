@@ -60,6 +60,7 @@ export function stackedColumns(items, { height = 220, axisEvery = 1, caption = '
   const grid = h('div', { class: 'grid' }, scale.ticks.map((tk) => h('div', { class: 'gl', style: { bottom: (tk / scale.top) * 100 + '%' } }, h('span', { class: 'num', text: tickLabel(tk) }))));
   const cols = h('div', { class: 'cols' }, items.map((it, i) => {
     const total = totals[i];
+    if (it.future) return h('div', { class: 'col is-future', 'aria-hidden': 'true' });
     const stack = h('div', { class: 'stack-bar', style: { height: (total / scale.top) * 100 + '%' } },
       CLASS_ORDER.filter((c) => (it.values[c] || 0) > 0).map((c) => h('i', { class: 'seg ' + c, style: { flexGrow: ((it.values[c] / total) * 1000).toFixed(3) } })));
     const col = h('div', { class: 'col' + (total === 0 ? ' is-empty' : ''), tabindex: 0, role: 'img', 'aria-label': `${it.label}: ${total ? fmtDuration(total) : t('chart.noData')}` }, stack);
@@ -89,8 +90,8 @@ export function heatmap(cells, max, { startsOn = 1, level } = {}) {
   for (let i = 0; i < lead; i++) nodes.push(h('span', { class: 'hm-cell pad' }));
   for (const c of cells) {
     const lv = level(c.sec, max);
-    const cell = h('span', { class: 'hm-cell l' + lv, tabindex: 0, role: 'img', 'aria-label': `${c.title}: ${c.sec ? fmtDuration(c.sec) : t('chart.noData')}` });
-    attachTip(cell, () => tipBody(c.title, [], c.sec ? fmtDuration(c.sec) : t('chart.noData')));
+    const cell = h('span', { class: 'hm-cell l' + lv + (c.pre ? ' pre' : ''), tabindex: 0, role: 'img', 'aria-label': `${c.title}: ${c.sec ? fmtDuration(c.sec) : c.pre ? t('insights.hmNone') : t('chart.noData')}` });
+    attachTip(cell, () => tipBody(c.title, [], c.sec ? fmtDuration(c.sec) : c.pre ? t('insights.hmNone') : t('chart.noData')));
     nodes.push(cell);
   }
   const el = h('div', { class: 'heatmap' }, nodes);
