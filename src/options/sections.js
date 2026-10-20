@@ -5,7 +5,9 @@ import { send } from '../ui/api.js';
 import { row, group, toggle, select, domainEditor, sectionHead } from './ui.js';
 import { t, LANGUAGES, weekdayName, fmtDuration } from '../shared/i18n.js';
 import { PRESETS, PRESET_IDS } from '../shared/catalog.js';
-import { exportAll, importAll, resetAll, getRaw, setRaw } from '../shared/storage.js';
+import { exportAll, importAll, resetAll, getRaw, setRaw, getRange } from '../shared/storage.js';
+import { buildJournal } from '../shared/journal.js';
+import { makeClassifier } from '../shared/classify.js';
 import { fmtTime } from '../shared/i18n.js';
 import { parseUserDomain } from '../shared/domains.js';
 import { dayKey } from '../shared/time.js';
@@ -262,6 +264,12 @@ export function data({ s, save, refresh }) {
     syncGroup(s),
     group(t('opt.groupBackup'),
       row({ title: t('opt.export'), desc: t('opt.exportDesc'), control: h('button', { class: 'btn', type: 'button', onclick: doExport }, icon('download'), t('opt.exportBtn')) }),
+      row({ title: t('opt.journal'), desc: t('opt.journalDesc'), control: h('button', { class: 'btn', type: 'button', onclick: async () => {
+        const entries = await getRange(90);
+        const md = buildJournal(entries, { classify: makeClassifier(s).classify, clock24: s.newtab.clock24 ?? undefined });
+        const url = URL.createObjectURL(new Blob([md], { type: 'text/markdown' }));
+        const a = h('a', { href: url, download: `eyetime-journal-${dayKey()}.md` }); document.body.append(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      } }, icon('file-text'), t('opt.journalBtn')) }),
       row({ title: t('opt.import'), desc: t('opt.importDesc'), control: h('button', { class: 'btn', type: 'button', onclick: () => fileIn.click() }, icon('upload'), t('opt.importBtn')) }),
       row({ title: t('opt.csv'), desc: t('opt.csvDesc'), control: h('a', { class: 'btn', href: chrome.runtime.getURL('src/insights/insights.html') }, icon('arrow-up-right'), t('opt.openInsights')) })),
     h('div', {}, h('h3', { class: 'group-title', text: t('opt.groupPrivacy') }),

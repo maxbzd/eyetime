@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.5.0 — 2026-10-20
+
+### New
+- **Get started** checklist on Home for new profiles: a first 5-minute session, marking what distracts you, writing a task, trying the command palette. Steps tick themselves from real use; it disappears when done, when dismissed, or after three weeks.
+- **Journal export** (Settings → Data & privacy): your last 90 days as a readable Markdown file — focus time, screen time, distraction share, sessions with goals and ratings, and your "went well" line. No site names. Handy for any notes app.
+- A note turned into a task keeps its time, length and priority (`Call Anna 16:45 30m !`).
+
+### Fixed
+- Home *Notes*: a note added from another page (popup, pause page) is no longer overwritten by a stale list while the field is focused.
+
 ## 2.4.0 — 2026-10-20
 
 Accessibility, resilience and Firefox.

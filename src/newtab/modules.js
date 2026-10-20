@@ -177,7 +177,7 @@ export function notesModule() {
 
   async function toTask(n) {
     const tasks = await getCollection('tasks', []);
-    tasks.unshift({ id: uid(), text: n.text.slice(0, 300), done: false, starred: false, createdAt: Date.now() });
+    tasks.unshift(taskFromInput(n.text, tasks).task); // a note like "Call Anna 16:45 30m" keeps its time and length when it becomes a task
     await setCollection('tasks', tasks);
     notes = notes.filter((x) => x !== n); save(); render(); toast(t('notes.movedToTasks'));
   }
@@ -198,7 +198,7 @@ export function notesModule() {
   }
 
   getCollection('captures', []).then((v) => { notes = v; render(); });
-  onChange('captures', async () => { const v = await getCollection('captures', []); if (!root.contains(document.activeElement)) { notes = v; render(); } });
+  onChange('captures', async () => { const v = await getCollection('captures', []); if (JSON.stringify(v) === JSON.stringify(notes)) return; notes = v; if (!root.contains(document.activeElement)) render(); });
   return root;
 }
 

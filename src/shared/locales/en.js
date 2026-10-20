@@ -293,4 +293,10 @@ export const en = {
   'habits.ideas': 'Ideas to start with:',
   'opt.syncIncompatible': 'The synced settings come from a newer EyeTime. Update this browser to sync.',
   'prod.remindFull': 'You already have 5 reminders — remove one in Settings → Focus first.',
+  'gs.title': 'Get started', 'gs.dismiss': 'Hide this checklist', 'gs.focus': 'Do a first focus session', 'gs.focusD': 'Even five minutes counts — it sets up your stats and streak.', 'gs.tryFocus': 'Start 5 min',
+  'gs.classify': 'Tell EyeTime what distracts you', 'gs.classifyD': 'Mark a few sites as productive or distracting — one tap each.', 'gs.openSites': 'Open sites',
+  'gs.task': 'Write down one task', 'gs.taskD': 'Add a time or length, like “Report 14:30 45m”.', 'gs.addTask': 'Add a task',
+  'gs.palette': 'Try the command palette', 'gs.paletteD': 'Press Ctrl/Cmd + K to do anything from the keyboard.', 'gs.openPalette': 'Open it',
+  'journal.title': 'EyeTime journal', 'journal.empty': 'No activity recorded yet.', 'journal.focus': 'Focus', 'journal.screen': 'Screen time', 'journal.wins': 'Went well',
+  'opt.journal': 'Journal (Markdown)', 'opt.journalDesc': 'Your last 90 days as a readable text file: focus time, sessions and what went well. No site names. Great for a notes app.', 'opt.journalBtn': 'Export journal',
 };
