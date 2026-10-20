@@ -39,3 +39,5 @@ h1 { font-size: clamp(30px, 5vw, 44px); letter-spacing: -.035em; line-height: 1.
 .orb { width: 140px; height: 140px; }
 .plan { background: var(--surface-2); border-color: var(--border); } .plan-k { color: var(--text-3); }
 h1 { overflow-wrap: anywhere; }
+#cont[disabled] { color: var(--text-2); border-color: var(--border-strong); }
+.manage { display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: var(--r-md); font-weight: 560; color: var(--text); } .manage:hover { background: var(--surface-2); text-decoration: none; }
