@@ -286,4 +286,5 @@ export const ru = {
   'wrapped.title': 'Моя неделя с EyeTime', 'wrapped.focusOf': 'времени в фокусе', 'wrapped.goalDays': 'Дней с целью', 'wrapped.activeDays': 'Активных дней', 'wrapped.distraction': 'Доля отвлечений', 'wrapped.breaks': 'Перерывов для глаз',
   'wrapped.msgGoal': 'Стабильная неделя — дневная цель выполнена {n} дн.', 'wrapped.msgUp': 'Время в фокусе выросло на {pct}% по сравнению с прошлой неделей.', 'wrapped.msgBest': 'Лучший день: {day}, {time} в фокусе.', 'wrapped.msgSteady': 'Каждый час фокуса важен. Впереди следующий.',
   'wrapped.footer': 'EyeTime · бесплатно и с открытым кодом', 'wrapped.share': 'Поделиться картинкой', 'wrapped.preview': 'Ваша неделя картинкой', 'wrapped.privacy': 'Только итоги — без названий сайтов и задач.', 'wrapped.save': 'Скачать PNG', 'wrapped.copy': 'Копировать', 'wrapped.copied': 'Картинка скопирована',
+  'prod.remindBest': 'Напоминать о фокусе в {time}', 'prod.remindSet': 'Напоминание: {time} по будням', 'prod.remindHave': 'Напоминание около {time} у вас уже есть.',
 };

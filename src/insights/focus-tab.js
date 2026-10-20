@@ -1,7 +1,9 @@
 // Insights → Focus: how the focus sessions went — goal, quality, best hours, weekdays, sessions, tasks, temptations, wins.
 // Every block is its own card; blocks without data say what they need instead of disappearing.
 
-import { h, icon, favicon } from '../ui/dom.js';
+import { h, icon, favicon, toast } from '../ui/dom.js';
+import { send } from '../ui/api.js';
+import { updateSettings } from '../shared/storage.js';
 import { t, fmtDuration, fmtDate, fmtTime, weekdayName } from '../shared/i18n.js';
 import { parseKey } from '../shared/time.js';
 import { estimateAccuracy } from '../shared/quickadd.js';
@@ -44,7 +46,15 @@ export function focusTab({ cur, heat, tasks, settings }) {
     best
       ? h('div', {}, bars({ values: best.byHour, best: new Set([best.start, (best.start + 1) % 24]), label: t('prod.bestAria', { from: hourLabel(best.start), to: hourLabel(best.end) }), cls: 'h24',
           tip: (i, v) => `${hourLabel(i)} · ${fmtDuration(Math.round(v) * 60)}`,
-          axis: Array.from({ length: 24 }, (_, i) => h('span', { text: i % 6 === 0 ? String(i).padStart(2, '0') : '' })) }), h('p', { class: 'chart-note', text: t('prod.bestLegend') }))
+          axis: Array.from({ length: 24 }, (_, i) => h('span', { text: i % 6 === 0 ? String(i).padStart(2, '0') : '' })) }), h('p', { class: 'chart-note', text: t('prod.bestLegend') }), (() => {
+          const time = `${String(best.start).padStart(2, '0')}:00`;
+          const have = (settings.focus.reminders || []).some((r) => Math.abs(Number(r.time.slice(0, 2)) - best.start) <= 1);
+          return have ? h('p', { class: 'chart-note', text: t('prod.remindHave', { time: hourLabel(best.start) }) })
+            : h('button', { class: 'btn btn-sm', type: 'button', style: { marginTop: 'var(--s-3)' }, onclick: async () => {
+              await updateSettings((x) => { x.focus.reminders = [...x.focus.reminders, { id: Date.now().toString(36), time, days: [1, 2, 3, 4, 5], minutes: x.focus.minutes }].slice(0, 5); });
+              await send('settings:changed'); toast(t('prod.remindSet', { time: hourLabel(best.start) }));
+            } }, icon('alarm-clock'), t('prod.remindBest', { time: hourLabel(best.start) }));
+        })())
       : lock(t('prod.bestNeed', { n: all.length, total: 6 }), 'clock'));
 
   /* weekday pattern */
