@@ -57,6 +57,7 @@ async function commands(extra) {
 function mount(extra) {
   if (open) return;
   open = true;
+  try { localStorage.setItem('et-palette-used', '1'); window.dispatchEvent(new window.CustomEvent('et:palette-used')); } catch { /* ignore */ }
   let items = [], shown = [], sel = 0, token = 0;
   const input = h('input', { class: 'pal-input', type: 'text', role: 'combobox', 'aria-expanded': 'true', 'aria-controls': 'pal-list', 'aria-autocomplete': 'list', placeholder: t('palette.placeholder'), spellcheck: false, autocomplete: 'off' });
   const list = h('div', { class: 'pal-list', id: 'pal-list', role: 'listbox' });
