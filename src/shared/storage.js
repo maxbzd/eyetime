@@ -30,12 +30,18 @@ export async function getSettings() {
 }
 
 let settingsQueue = Promise.resolve();
-/** Read-modify-write with a per-context queue. `fn` may mutate and return nothing, or return a new object. */
-export function updateSettings(fn) {
+/**
+ * Read-modify-write with a per-context queue. `fn` may mutate and return nothing, or return a new object.
+ * `settingsUpdatedAt` (what settings sync compares) moves only when the settings really changed, and not at all with
+ * `{ touch: false }` — for "last used" bookkeeping (session length, mode…) that must never win over a deliberate edit made elsewhere.
+ */
+export function updateSettings(fn, { touch = true } = {}) {
   const run = async () => {
     const cur = await getSettings();
+    const before = JSON.stringify(cur);
     const next = fn(cur) || cur;
-    await area().set({ settings: next, settingsUpdatedAt: Date.now() });
+    const changed = JSON.stringify(next) !== before;
+    await area().set(changed && touch ? { settings: next, settingsUpdatedAt: Date.now() } : { settings: next });
     return next;
   };
   const p = settingsQueue.then(run, run);

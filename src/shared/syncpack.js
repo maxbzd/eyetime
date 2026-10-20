@@ -10,17 +10,28 @@ export const chunkKey = (i) => `sync:${i}`;
 export function forSync(settings) {
   const s = JSON.parse(JSON.stringify(settings || {}));
   delete s.onboarded;
+  delete s.companion; // a bearer token for this computer's companion app: never leaves the device
   return s;
 }
+
+/** Version of the payload found in storage.sync (0 = none). A newer version than we understand must not be overwritten. */
+export function remoteVersion(all) { const m = all && all[META_KEY]; return m && typeof m.v === 'number' ? m.v : 0; }
+export const SYNC_VERSION = 1;
 
 /** → { items, count } to hand to storage.sync.set, or null when the settings are too large to sync. */
 export function pack(settings, ts) {
   const json = JSON.stringify(forSync(settings));
-  const n = Math.ceil(json.length / CHUNK_CHARS);
-  if (n > MAX_CHUNKS) return null;
-  const items = { [META_KEY]: { v: 1, n, ts } };
-  for (let i = 0; i < n; i++) items[chunkKey(i)] = json.slice(i * CHUNK_CHARS, (i + 1) * CHUNK_CHARS);
-  return { items, count: n };
+  const parts = [];
+  for (let at = 0; at < json.length;) {
+    let end = Math.min(json.length, at + CHUNK_CHARS);
+    const last = json.charCodeAt(end - 1);
+    if (end < json.length && last >= 0xd800 && last <= 0xdbff) end--; // never split a surrogate pair (emoji) across two chunks
+    parts.push(json.slice(at, end)); at = end;
+  }
+  if (parts.length > MAX_CHUNKS) return null;
+  const items = { [META_KEY]: { v: 1, n: parts.length, ts } };
+  parts.forEach((p, i) => { items[chunkKey(i)] = p; });
+  return { items, count: parts.length };
 }
 
 /** Rebuild { settings, ts } from everything in storage.sync; null when absent or incomplete/corrupt. */
@@ -37,7 +48,7 @@ export function staleKeys(all, count) {
   return Object.keys(all || {}).filter((k) => /^sync:\d+$/.test(k) && Number(k.slice(5)) >= count);
 }
 
-/** Newest write wins. 'pull' = take the remote copy, 'push' = upload ours, 'none' = already in step. */
+/** Newest write wins. (The very first sync on a device is decided by the worker: an existing cloud copy always wins.) 'pull' = take the remote copy, 'push' = upload ours, 'none' = already in step. */
 export function decide(localTs, remoteTs) {
   if (remoteTs > localTs) return 'pull';
   if (localTs > remoteTs) return 'push';

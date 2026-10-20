@@ -157,12 +157,33 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   ok(qa && qa.est === 30 && qa.at === '16:45' && qa.starred === true, 'quick-add parsed time, length and priority', JSON.stringify(qa));
   await pg7.keyboard.press('Control+k'); await pg7.waitForSelector('dialog.palette[open]');
   await pg7.locator('.pal-input').fill('settings sec'); await sleep(200); ok(await pg7.locator('.pal-item').count() >= 1, 'palette finds settings sections'); await pg7.keyboard.press('Escape');
-  // settings sync (chrome.storage.sync is local-only under automation, but the push path is real)
-  await sw.evaluate(() => chrome.storage.local.set({ syncSettings: true })); await sleep(1500);
-  const syncMeta = await sw.evaluate(async () => (await chrome.storage.sync.get('sync:meta'))['sync:meta']);
-  ok(syncMeta && syncMeta.n >= 1 && syncMeta.v === 1, 'enabling sync uploads the settings to storage.sync', JSON.stringify(syncMeta));
-  const syncStatus = await get('syncStatus'); ok(syncStatus && syncStatus.ok === true, 'sync status recorded as ok', JSON.stringify(syncStatus));
-  await sw.evaluate(() => chrome.storage.local.set({ syncSettings: false }));
+  // settings sync (storage.sync is local-only under automation; we play "the other browser" by writing to it directly)
+  // 1. first sync on a "new browser" while the cloud already has a configuration: the cloud wins, the local onboarding defaults do not overwrite it
+  const cloud = await helper.evaluate(async () => { const m = await import('/src/shared/syncpack.js'); const { settings } = await chrome.storage.local.get('settings'); const remote = { ...settings, appearance: { ...settings.appearance, look: 'terminal' }, companion: { enabled: true, token: 'CLOUD-TOKEN' } }; await chrome.storage.sync.clear(); await chrome.storage.sync.set(m.pack(remote, 1000).items); return true; }).catch((e) => String(e));
+  ok(cloud === true, 'sync test fixture written to storage.sync', String(cloud));
+  await sw.evaluate(() => chrome.storage.local.set({ syncSettings: true })); await sleep(1800);
+  const afterPull = await get('settings'); const tsPull = await get('settingsUpdatedAt');
+  ok(afterPull.appearance.look === 'terminal' && tsPull === 1000, 'first sync adopts the cloud settings instead of overwriting them', JSON.stringify({ look: afterPull.appearance.look, ts: tsPull }));
+  ok(!(afterPull.companion && afterPull.companion.token === 'CLOUD-TOKEN'), 'companion token is never taken from the cloud');
+  ok((await get('syncStatus')).ok === true, 'sync status recorded as ok');
+  // 2. a deliberate local edit is pushed
+  await helper.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((x) => { x.appearance.look = 'sakura'; }); });
+  await send(helper, { type: 'sync:now' }); await sleep(500);
+  const pushed = await helper.evaluate(async () => { const m = await import('/src/shared/syncpack.js'); const all = await chrome.storage.sync.get(null); const r = m.unpack(all); return r && { look: r.settings.appearance.look, hasCompanion: 'companion' in r.settings, ts: r.ts }; });
+  ok(pushed && pushed.look === 'sakura' && !pushed.hasCompanion && pushed.ts > 1000, 'local edit is pushed (without the companion token)', JSON.stringify(pushed));
+  // 3. "last used" bookkeeping (a focus start) must not count as an edit
+  const tsBefore = await get('settingsUpdatedAt'); await send(helper, { type: 'focus:start', minutes: 7, goal: '', strict: false }); await sleep(300); await send(helper, { type: 'focus:stop' });
+  ok((await get('settingsUpdatedAt')) === tsBefore, 'starting a session does not touch the settings timestamp');
+  // 4. a newer cloud copy is pulled and applied; a copy from a newer format is never overwritten
+  await helper.evaluate(async () => { const m = await import('/src/shared/syncpack.js'); const { settings } = await chrome.storage.local.get('settings'); await chrome.storage.sync.set(m.pack({ ...settings, appearance: { ...settings.appearance, look: 'nord' } }, Date.now() + 5000).items); });
+  await send(helper, { type: 'sync:now' }); await sleep(500);
+  ok((await get('settings')).appearance.look === 'nord', 'a newer cloud copy is pulled');
+  await helper.evaluate(async () => { await chrome.storage.sync.set({ 'sync:meta': { v: 99, n: 1, ts: Date.now() + 9000 } }); });
+  await send(helper, { type: 'sync:now' }); await sleep(400);
+  const metaAfter = await helper.evaluate(async () => (await chrome.storage.sync.get('sync:meta'))['sync:meta']);
+  ok(metaAfter.v === 99 && (await get('syncStatus')).error === 'incompatible', 'a cloud copy from a newer format is left alone');
+  await sw.evaluate(() => chrome.storage.local.set({ syncSettings: false })); await helper.evaluate(() => chrome.storage.sync.clear());
+  await helper.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((x) => { x.appearance.look = 'calm'; }, { touch: false }); });
   await pg7.locator('.plan-link').click(); await pg7.waitForSelector('dialog[open] .sd-stats'); 
   await pg7.locator('dialog[open] input[type=text], dialog[open] .input').first().fill('Shipped the draft');
   await pg7.locator('dialog[open] .items .check input').first().check();
