@@ -65,7 +65,7 @@ async function paintNudge() {
   if (!kind || kind === 'start' || nudgeOff(kind)) { el.hidden = true; return; }
   const r = dayReview(day);
   const rated = r.avgRating ? t(r.avgRating >= 2.5 ? 'review.r3' : r.avgRating >= 1.75 ? 'review.r2' : 'review.r1').toLowerCase() : '';
-  const msg = { plan: t('nudge.plan'), goal: t('nudge.goal'), review: r.sessions ? t('nudge.review', { n: r.sessions, time: fmtDuration(r.minutes * 60) }) + (rated ? ' · ' + rated : '') : t('nudge.reviewEmpty') }[kind];
+  const msg = { plan: t('nudge.plan'), goal: t('nudge.goal'), review: r.sessions ? (rated ? t('nudge.review', { n: r.sessions, time: fmtDuration(r.minutes * 60) }).replace(/\.$/, '') + ' · ' + rated + '.' : t('nudge.review', { n: r.sessions, time: fmtDuration(r.minutes * 60) })) : t('nudge.reviewEmpty') }[kind];
   const ico = { plan: { icon: 'star' }, goal: { icon: 'trophy' }, review: { icon: 'moon' } }[kind].icon;
   clear(el, icon(ico), h('span', { class: 'nudge-text', text: msg }),
     kind === 'review' ? h('button', { class: 'btn btn-sm btn-primary', type: 'button', onclick: openShutdown }, icon('moon'), t('nudge.closeDay')) : null,
