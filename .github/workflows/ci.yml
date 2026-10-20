@@ -30,3 +30,4 @@ jobs:
         with: { node-version: 20 }
       - run: npm i --no-save playwright && npx playwright install --with-deps chromium
       - run: node scripts-dev/e2e/e2e.cjs
+      - run: node scripts-dev/e2e/upgrade.cjs
