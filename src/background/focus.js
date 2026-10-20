@@ -33,6 +33,18 @@ export async function startFocus({ minutes, goal = '', strict = false, taskId = 
   return session;
 }
 
+/** +N minutes on the running session: finishing what you are in the middle of beats starting over. */
+export async function extendFocus(minutes = 5) {
+  const { focus } = await getRaw('focus');
+  if (!focus || !isFocusActive(focus)) return { ok: false };
+  const add = Math.min(60, Math.max(1, Math.round(minutes)));
+  if ((focus.endsAt - focus.startedAt) / 60_000 + add > 12 * 60) return { ok: false };
+  const next = { ...focus, endsAt: focus.endsAt + add * 60_000, minutes: focus.minutes + add };
+  await setRaw({ focus: next });
+  await chrome.alarms.create('focus-end', { when: next.endsAt });
+  return { ok: true };
+}
+
 /** Ends the session early. Strict sessions can only be ended by the owner of the browser via the extensions page. */
 export async function stopFocus() {
   const { focus } = await getRaw('focus');

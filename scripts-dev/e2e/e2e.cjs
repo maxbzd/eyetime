@@ -107,7 +107,7 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   const tk = await get('tasks'); ok(tk[0].focusSec >= 300, 'focus time credited to the task', String(tk[0].focusSec));
   const pg6 = await ctx.newPage(); await pg6.goto(ext('src/newtab/newtab.html')); await sleep(1200);
   ok(await pg6.locator('.review-card').count() === 1, 'Home shows the "how did it go?" card');
-  await pg6.locator('.review-task input').check(); await pg6.locator('.review-rate .chip >> nth=2').click(); await sleep(800);
+  await pg6.locator('.review-task input').check(); await pg6.locator('.review-rate .chip >> nth=2').click(); await pg6.locator('.review-actions .btn-primary').click(); await sleep(800);
   const dr2 = await get('d:' + day()); const tk2 = await get('tasks');
   ok(dr2.ss.find((x) => x.k === 't1').r === 3 && tk2[0].done === true && !(await get('review')), 'rating saved, task marked done, review cleared');
   await pg6.close();
