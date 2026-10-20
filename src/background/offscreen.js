@@ -87,10 +87,14 @@ function stopAmbient() {
   setTimeout(() => nodes.forEach((n) => { try { n.stop?.(); n.disconnect?.(); } catch { /* already stopped */ } }), 2000);
 }
 
-chrome.runtime.onMessage.addListener((msg) => {
+/** One entry point for both homes of this code: the Chrome offscreen document (via messages) and, where there is
+ *  no offscreen API (Firefox: the background is an event *page* with Web Audio), a direct call from audio.js. */
+export function handle(msg) {
   if (msg?.target !== 'offscreen') return;
   if (msg.kind === 'start') bowl();
   else if (msg.kind === 'end') chime();
   else if (msg.kind === 'ambient-start') startAmbient(msg.sound);
   else if (msg.kind === 'ambient-stop') stopAmbient();
-});
+}
+
+if (typeof location !== 'undefined' && location.pathname.endsWith('offscreen.html')) chrome.runtime.onMessage.addListener((msg) => handle(msg));

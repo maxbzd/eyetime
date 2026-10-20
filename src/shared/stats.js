@@ -61,6 +61,13 @@ export function delta(cur, prev) {
  * Plain-language observations. Returns [{ id, params }]; the UI turns each into a sentence.
  * Needs at least a few days of data before saying anything about patterns.
  */
+/** The same day without the per-hour breakdown (the biggest part of a day record). Returns the input itself when there is nothing to drop. */
+export function slimDay(day) {
+  if (!day || !day.h || !Object.keys(day.h).length) return day;
+  const { h, ...rest } = day; // eslint-disable-line no-unused-vars
+  return rest;
+}
+
 export function insights(cur, prev) {
   const out = [];
   if (cur.total < 600) return out;
