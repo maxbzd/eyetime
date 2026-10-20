@@ -69,6 +69,8 @@ chrome.notifications.onButtonClicked?.addListener(async (id) => {
   if (!id.startsWith('task-slot:')) return;
   chrome.notifications.clear(id);
   const s = await getSettings();
-  await startFocus({ minutes: s.focus.minutes, strict: s.focus.strict, taskId: id.slice('task-slot:'.length) });
+  const taskId = id.slice('task-slot:'.length);
+  const task = (await getCollection('tasks', [])).find((x) => x.id === taskId);
+  await startFocus({ minutes: (task && task.est) || s.focus.minutes, strict: s.focus.strict, taskId }); // the task's planned length, like everywhere else
 });
 chrome.notifications.onClicked.addListener((id) => { if (id.startsWith('task-slot:')) { chrome.notifications.clear(id); chrome.tabs.create({ url: chrome.runtime.getURL('src/newtab/newtab.html') }); } });

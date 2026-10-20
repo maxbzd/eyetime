@@ -32,7 +32,7 @@ export function timelineCard({ entry, classify, clock24, nav }) {
     }),
     sessions.length ? null : h('span', { class: 'tl-none', text: t('insights.noSessionsDay') }));
 
-  const summary = sum.total >= 60
+  const summary = sum.total >= 60 && first >= 0
     ? h('div', { class: 'tl-sum' },
         h('span', {}, icon('clock'), t('insights.firstLast', { from: hourLabel(first), to: hourLabel(Math.min(23, last + 1)) })),
         h('span', {}, icon('target'), t('insights.sessions', { n: sessions.length }) + (day?.fs ? ' · ' + fmtDuration(day.fs) : '')),
