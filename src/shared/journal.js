@@ -8,15 +8,16 @@ const RATING = { 1: 'review.r1', 2: 'review.r2', 3: 'review.r3' };
 
 /** entries: [[dayKey, day]] (any order). classify(host) → 'productive'|'neutral'|'distracting'. clock24: see fmtTime. Returns Markdown. */
 export function buildJournal(entries, { classify = () => 'neutral', clock24 } = {}) {
-  const days = entries.filter(([, d]) => d && ((d.fs || 0) > 0 || (d.ss || []).length || d.w || Object.keys(d.d || {}).length)).sort((a, b) => (a[0] < b[0] ? 1 : -1));
+  const days = entries.filter(([, d]) => d && ((d.fs || 0) > 0 || (d.ss || []).length || d.w || Object.keys(d.d || {}).length || Object.keys(d.a || {}).length)).sort((a, b) => (a[0] < b[0] ? 1 : -1));
   if (!days.length) return `# ${t('journal.title')}\n\n${t('journal.empty')}\n`;
   const from = parseKey(days[days.length - 1][0]), to = parseKey(days[0][0]);
   const fmt = { day: 'numeric', month: 'short', year: 'numeric' };
   const out = [`# ${t('journal.title')}`, '', `${fmtDate(from, fmt)} – ${fmtDate(to, fmt)}`, ''];
   for (const [key, d] of days) {
-    out.push(`## ${fmtDate(parseKey(key), { weekday: 'long', day: 'numeric', month: 'long' })}`, '');
+    out.push(`## ${fmtDate(parseKey(key), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}`, '');
     let total = 0, bad = 0;
     for (const [host, sec] of Object.entries(d.d || {})) { total += sec; if (classify(host) === 'distracting') bad += sec; }
+    for (const sec of Object.values(d.a || {})) total += sec; // desktop apps (companion) count as neutral, like in Insights
     const bits = [`${t('journal.focus')}: ${fmtDuration(d.fs || 0)}${(d.ss || []).length ? ` (${t('insights.sessions', { n: (d.ss || []).length })})` : ''}`];
     if (total >= 60) bits.push(`${t('journal.screen')}: ${fmtDuration(total)}`, `${t('insights.distractionShare')}: ${Math.round((bad / total) * 100)}%`);
     if (d.b) bits.push(`${t('insights.eyeBreaks')}: ${d.b}`);

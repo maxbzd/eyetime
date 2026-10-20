@@ -223,3 +223,4 @@ body[data-layout="split"] .hero .clock { white-space: nowrap; font-size: clamp(5
 .gs-text { display: flex; flex-direction: column; min-width: 0; flex: 1; } .gs-text b { font-weight: 600; font-size: var(--fs-md); } .gs-text span { color: var(--text-3); font-size: var(--fs-xs); line-height: 1.35; }
 .gs-step .btn { flex: none; }
 @media (max-width: 700px) { .gs-list { grid-template-columns: 1fr; } }
+body[data-layout="split"] .gs { grid-column: 1 / -1; grid-row: 2; } body[data-layout="split"] .modules { grid-row: 3; }

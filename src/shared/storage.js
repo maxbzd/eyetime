@@ -92,7 +92,7 @@ export function addTime({ host, app, sec, hour, date = new Date() }) {
   return updateDay(dayKey(date), (day) => {
     if (host) {
       day.d[host] = (day.d[host] || 0) + sec;
-      const slot = (day.h[hour] ||= {});
+      const slot = ((day.h ||= {})[hour] ||= {});
       slot[host] = (slot[host] || 0) + sec;
     } else if (app) {
       day.a[app] = (day.a[app] || 0) + sec;
@@ -113,7 +113,9 @@ export async function pruneOldDays(now = new Date()) {
  *  past 8 MB the per-hour breakdown of days older than 120 days is dropped first (daily totals, sessions and the calendar stay). */
 const SOFT_QUOTA = 8_000_000, SLIM_AFTER_DAYS = 120;
 async function slimIfNearQuota(all, cutoff) {
-  if ((await area().getBytesInUse(null)) < SOFT_QUOTA) return 0;
+  if (typeof chrome.runtime.getBrowserInfo === 'function') return 0; // Firefox has no 10 MB cap: never thin out history there
+  const dayKeys = Object.keys(all).filter((k) => k.startsWith(DAY_PREFIX));
+  if ((await area().getBytesInUse(dayKeys)) < SOFT_QUOTA) return 0; // only the day records decide (a big background photo is not a reason to drop history)
   const slimBefore = dayKey(addDays(new Date(), -SLIM_AFTER_DAYS));
   const patch = {};
   for (const [k, v] of Object.entries(all)) {
