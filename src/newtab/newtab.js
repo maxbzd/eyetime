@@ -59,7 +59,7 @@ async function paintNudge() {
   const el = $('#nudge');
   const [[, day]] = await getDays([dayKey()]);
   const tasks = (await getCollection('tasks', [])).filter((x) => !x.done);
-  const kind = pickNudge({ now: new Date(), fsSec: day?.fs || 0, goalMin: settings.focus.dailyGoal, openTasks: tasks.length, starred: tasks.filter((x) => x.starred).length, sessionsToday: (day?.ss || []).length });
+  const kind = pickNudge({ now: new Date(), fsSec: day?.fs || 0, goalMin: 0, openTasks: tasks.length, starred: tasks.filter((x) => x.starred).length, sessionsToday: (day?.ss || []).length });
   if (!kind || kind === 'start' || nudgeOff(kind)) { el.hidden = true; return; }
   const r = dayReview(day);
   const rated = r.avgRating ? t(r.avgRating >= 2.5 ? 'review.r3' : r.avgRating >= 1.75 ? 'review.r2' : 'review.r1').toLowerCase() : '';
