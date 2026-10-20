@@ -2,7 +2,7 @@
 // service workers have no Web Audio. Everything is synthesised — there are no audio files.
 
 let ctx;
-const audio = () => (ctx ||= new AudioContext());
+const audio = () => { ctx ||= new AudioContext(); if (ctx.state === 'suspended') ctx.resume?.(); return ctx; }; // a page-hosted context (Firefox) may start suspended
 
 function bowl() {
   const c = audio(), now = c.currentTime;
