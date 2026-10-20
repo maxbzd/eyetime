@@ -134,6 +134,10 @@ export function deriveColors(look, scheme, accentBase) {
     const soft = mix(surface, sem[k], dark ? 0.17 : 0.12);
     out[k] = sem[k]; out[k + '-soft'] = soft; out[k + '-text'] = ensureContrast(sem[k], [surface, soft, bg], 4.5);
   }
+  // a solid fill for destructive actions (readable text on it, visible on the card)
+  let danger = readableFill(sem.distracting);
+  if (contrast(danger.fill, surface) < 3) danger = readableFill(ensureContrast(danger.fill, [surface], 3));
+  out.danger = danger.fill; out['danger-fg'] = danger.fg; out['danger-hover'] = mix(danger.fill, '#000000', 0.14);
   return out;
 }
 

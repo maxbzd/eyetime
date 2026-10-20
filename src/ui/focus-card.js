@@ -13,7 +13,7 @@ import { remainingMs, progress, isRestActive } from '../shared/focus.js';
 
 export function mountFocusCard(root, { variant = 'compact' } = {}) {
   const large = variant === 'large';
-  const st = { settings: null, focus: null, rest: null, review: null, today: null, streak: 0, suggest: null, tasks: [], draft: { goal: '', taskId: '', minutes: null, strict: null, scope: null, custom: false } };
+  const st = { settings: null, focus: null, rest: null, review: null, today: null, streak: 0, suggest: null, tasks: [], draft: { goal: '', taskId: '', minutes: null, strict: null, scope: null, mode: null, custom: false } };
   let tickId = null;
   const uid = Math.random().toString(36).slice(2, 7);
 
@@ -32,13 +32,14 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     if (d.minutes === null) d.minutes = s.minutes;
     if (d.strict === null) d.strict = s.strict;
     if (d.scope === null) d.scope = s.scope;
+    if (d.mode === null) d.mode = s.mode;
   }
 
   function startLabel() { return t('focus.start', { time: fmtDuration(st.draft.minutes * 60) }); }
 
   async function start() {
     const d = st.draft;
-    const res = await send('focus:start', { minutes: d.minutes, goal: d.goal, strict: d.strict, taskId: d.taskId, scope: d.scope });
+    const res = await send('focus:start', { minutes: d.minutes, goal: d.goal, strict: d.strict, taskId: d.taskId, scope: d.scope, mode: d.mode });
     if (res && res.ok === false) toast(t('common.error'));
     d.goal = ''; d.taskId = '';
   }
@@ -46,6 +47,15 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
   async function endEarly() {
     const ok = await confirmDialog({ title: t('focus.endConfirmTitle'), body: t('focus.endConfirmBody'), confirm: t('focus.end'), cancel: t('focus.keepGoing'), danger: true });
     if (ok) await send('focus:stop');
+  }
+
+  const modeName = (m) => m.name || t('mode.' + m.id);
+  /** A mode is a preset for the whole session: length, scope, strictness (sound and extra allowed sites are applied by the worker). */
+  function applyMode(id) {
+    const d = st.draft, s = st.settings.focus, m = s.modes.find((x) => x.id === id);
+    if (!m) return;
+    d.mode = m.id; d.minutes = m.minutes; d.custom = !s.presets.includes(m.minutes); d.strict = !!m.strict; d.scope = m.scope || 'distractions';
+    render();
   }
 
   function renderIdle() {
@@ -59,12 +69,18 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     const goal = h('input', { class: 'input' + (large ? ' input-lg' : ''), id: 'goal' + uid, maxlength: 140, value: d.goal, placeholder: t(large ? 'focus.goalPlaceholderLarge' : 'focus.goalPlaceholder'), 'aria-label': t('focus.goalPlaceholder'),
       oninput: (e) => { d.goal = e.target.value; if (d.taskId) { const task = st.tasks.find((x) => x.id === d.taskId); if (!task || task.text !== d.goal) { d.taskId = ''; taskRow.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', 'false')); } } }, onkeydown: (e) => { if (e.key === 'Enter') start(); } });
     const btn = h('button', { class: 'btn btn-primary btn-lg ' + (large ? '' : 'btn-block'), id: 'sb' + uid, type: 'button', onclick: start }, icon('play'), h('span', { text: startLabel() }));
+    const modes = s.modes || [];
+    const modeRow = modes.length ? (large
+      ? h('div', { class: 'mode-row', role: 'group', 'aria-label': t('focus.mode') }, modes.map((m) => h('button', { class: 'mode-chip', type: 'button', 'aria-pressed': String(d.mode === m.id), onclick: () => applyMode(m.id) }, icon(m.icon || 'zap'), h('span', { class: 'mn', text: modeName(m) }), h('span', { class: 'mm num', text: fmtDuration(m.minutes * 60) }))))
+      : null) : null;
+    const modeSelectEl = () => h('select', { class: 'select select-sm mode-select', 'aria-label': t('focus.mode'), onchange: (e) => applyMode(e.target.value) }, modes.map((m) => h('option', { value: m.id, selected: d.mode === m.id, text: modeName(m) + ' · ' + fmtDuration(m.minutes * 60) })));
     const opt = (ico, key, hint, checked, onchange) => h('label', { class: 'strict-row' },
       h('span', { class: 'lbl', 'data-tip': t(hint) }, icon(ico), t(key)),
       h('span', { class: 'switch' }, h('input', { type: 'checkbox', checked, 'aria-label': t(key), onchange: (e) => onchange(e.target.checked) }), h('span', { class: 'track' }), h('span', { class: 'thumb' })));
     const strict = h('div', { class: 'focus-opts' },
+      !large && modes.length ? modeSelectEl() : null,
       opt('lock', large ? 'focus.strict' : 'focus.strictShort', 'focus.strictHint', d.strict, (v) => { d.strict = v; }),
-      opt('shield-check', large ? 'focus.onlyMine' : 'focus.onlyMineShort', 'focus.onlyMineHint', d.scope === 'only-mine', (v) => { d.scope = v ? 'only-mine' : 'distractions'; }));
+      large || !modes.length ? opt('shield-check', large ? 'focus.onlyMine' : 'focus.onlyMineShort', 'focus.onlyMineHint', d.scope === 'only-mine', (v) => { d.scope = v ? 'only-mine' : 'distractions'; }) : null);
 
     // task picker: priorities first, then the newest open tasks — one tap sets the goal and links the session to the task
     const picks = [...st.tasks.filter((x) => x.starred), ...st.tasks.filter((x) => !x.starred)].slice(0, large ? 4 : 2);
@@ -81,7 +97,7 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     clear(root, h('div', { class: 'focus-idle' + (large ? ' large' : '') },
       st.review ? reviewCard(st.review, { onDone: refresh }) : null,
       strip,
-      goal, taskRow, resumeLine,
+      goal, taskRow, resumeLine, modeRow,
       large
         ? h('div', { class: 'focus-row' }, h('div', { class: 'durations' }, chips, custom), btn)
         : [h('div', { class: 'durations' }, chips, custom), btn],

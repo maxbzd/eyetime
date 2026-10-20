@@ -20,9 +20,12 @@ export async function loadContext(now = Date.now()) {
   const raw = await getRaw(['settings', 'focus', 'passes', dk]);
   const settings = deepMerge(DEFAULT_SETTINGS, raw.settings || {});
   const day = raw[dk] || emptyDay();
+  const classifier = makeClassifier(settings);
+  const distractingSec = Object.entries(day.d || {}).reduce((a, [host, sec]) => (classifier.classify(host) === 'distracting' ? a + sec : a), 0);
   return {
     settings,
-    classifier: makeClassifier(settings),
+    classifier,
+    distractingSec,
     focus: isFocusActive(raw.focus, now) ? raw.focus : null,
     passes: raw.passes || {},
     usageOf: (domain) => usageOf(day, domain),
