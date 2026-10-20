@@ -9,6 +9,8 @@ import { openShutdown } from './shutdown.js';
 import { getCollection, setCollection, onChange, updateSettings } from '../shared/storage.js';
 import { dayKey, rangeKeys, addDays } from '../shared/time.js';
 import { parseUserDomain } from '../shared/domains.js';
+import { taskFromInput } from '../shared/tasks.js';
+import { parseQuickAdd } from '../shared/quickadd.js';
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
@@ -41,11 +43,22 @@ export function tasksModule() {
     head.querySelector('.count')?.remove();
     if (tasks.length) head.append(h('span', { class: 'count num', text: `${done.length}/${tasks.length}` }));
 
-    const input = h('input', { class: 'input', placeholder: t('tasks.add'), 'aria-label': t('tasks.add'), maxlength: 300, onkeydown: (e) => {
+    // what EyeTime understood from the line, shown while typing: time · length · priority · tags
+    const preview = h('div', { class: 'qa-preview', 'aria-live': 'polite' });
+    const drawPreview = (value) => {
+      const p = parseQuickAdd(value);
+      const chips = [p.at ? [{ icon: 'alarm-clock' }, t('tasks.qaAt', { time: p.at })] : null, p.est ? [{ icon: 'timer' }, t('tasks.qaEst', { time: fmtDuration(p.est * 60) })] : null, p.priority ? [{ icon: 'star' }, t('tasks.qaPri')] : null, ...p.tags.map((g) => [{ icon: 'tag' }, '#' + g])].filter(Boolean);
+      clear(preview, chips.length ? chips.map(([ico, text]) => h('span', { class: 'tagm' }, icon(ico.icon), text)) : (value.trim() ? null : h('span', { class: 'hint', text: t('tasks.qaHint') })));
+    };
+    const input = h('input', { class: 'input', placeholder: t('tasks.add'), 'aria-label': t('tasks.add'), maxlength: 300, oninput: (e) => drawPreview(e.target.value), onkeydown: (e) => {
       if (e.key !== 'Enter' || !e.target.value.trim()) return;
-      tasks.unshift({ id: uid(), text: e.target.value.trim(), done: false, starred: false, createdAt: Date.now() }); save(); render();
+      const { task, prioDenied } = taskFromInput(e.target.value, tasks);
+      tasks.unshift(task); save(); render();
+      if (prioDenied) toast(t('tasks.maxPriorities', { n: MAX_PRIORITIES }));
       document.querySelector('#mod-tasks input')?.focus();
     } });
+    input.addEventListener('focus', () => { if (!input.value) drawPreview(''); });
+    input.addEventListener('blur', () => { if (!input.value) clear(preview); });
 
     const toggleStar = (x) => {
       if (!x.starred && tasks.filter((y) => y.starred && !y.done).length >= MAX_PRIORITIES) { toast(t('tasks.maxPriorities', { n: MAX_PRIORITIES })); return; }
@@ -69,18 +82,19 @@ export function tasksModule() {
       });
       document.body.append(dlg); dlg.showModal();
     };
-    const startOn = async (x) => { const s = await getSettings(); const r = await send('focus:start', { minutes: s.focus.minutes, strict: s.focus.strict, scope: s.focus.scope, taskId: x.id }); if (r && r.ok === false) toast(t('common.error')); };
+    const startOn = async (x) => { const s = await getSettings(); const r = await send('focus:start', { minutes: x.est || s.focus.minutes, strict: s.focus.strict, scope: s.focus.scope, taskId: x.id }); if (r && r.ok === false) toast(t('common.error')); };
 
     const priStar = () => { const el = icon('star'); el.classList.add('pri'); return el; };
     const row = (x) => {
       const scheduled = x.at && x.atDay === dayKey() && !x.done;
       const meta = [
         scheduled ? h('span', { class: 'tagm at num', 'data-tip': t('tasks.scheduledAt') }, icon('alarm-clock'), x.at) : null,
-        x.focusSec >= 60 ? h('span', { class: 'tagm num', 'data-tip': t('tasks.spent') }, icon('timer'), fmtDuration(x.focusSec)) : null,
+        x.focusSec >= 60 ? h('span', { class: 'tagm num', 'data-tip': t('tasks.spent') }, icon('timer'), x.est ? t('tasks.estOf', { spent: fmtDuration(x.focusSec), est: fmtDuration(x.est * 60) }) : fmtDuration(x.focusSec)) : (x.est && !x.done ? h('span', { class: 'tagm num', 'data-tip': t('prod.estPlanned') }, icon('timer'), t('tasks.estOnly', { est: fmtDuration(x.est * 60) })) : null),
+        ...(x.tags || []).map((g) => h('span', { class: 'tagm tag-hash', text: '#' + g })),
         !x.done && x.resume ? h('span', { class: 'resume', title: x.resume }, icon('corner-down-right'), h('span', { text: x.resume })) : null,
       ].filter(Boolean);
       return h('div', { class: 'item' + (x.done ? ' done' : '') + (x.starred && !x.done ? ' prio' : '') },
-        h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: x.done, 'aria-label': x.text, onchange: (e) => { x.done = e.target.checked; x.doneAt = x.done ? Date.now() : 0; if (x.done) x.starred = false; save(); render(); } }), h('span', { class: 'box' }, icon('check'))),
+        h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: x.done, 'aria-label': x.text, onchange: (e) => { x.done = e.target.checked; x.doneAt = x.done ? Date.now() : 0; if (x.done) x.starred = false; save(); render(); if (x.done && x.est && x.focusSec >= 300) toast(t('tasks.tookVs', { actual: fmtDuration(x.focusSec), est: fmtDuration(x.est * 60) })); } }), h('span', { class: 'box' }, icon('check'))),
         h('div', { class: 'item-main' },
           h('div', { class: 'item-title' }, x.starred && !x.done ? priStar() : null, x.text),
           meta.length ? h('div', { class: 'item-meta' }, meta) : null),
@@ -91,7 +105,7 @@ export function tasksModule() {
           h('button', { type: 'button', 'aria-label': t('common.remove'), onclick: () => { const i = tasks.indexOf(x); tasks.splice(i, 1); save(); render(); toast(t('tasks.removed'), { action: t('common.undo'), onAction: () => { tasks.splice(i, 0, x); save(); render(); } }); } }, icon('x'))));
     };
 
-    clear(body, input,
+    clear(body, input, preview,
       prio ? h('div', { class: 'eyebrow', text: t('tasks.priorities', { n: prio, max: MAX_PRIORITIES }) }) : null,
       visible.length ? h('div', { class: 'items' }, visible.map(row)) : emptyMini({ ico: 'list-checks', title: t('tasks.emptyTitle'), body: t('tasks.empty') }),
       ordered.length > LIMIT ? h('button', { class: 'more-link', type: 'button', onclick: () => { showAll = !showAll; render(); } }, showAll ? t('mod.showLess') : t('mod.showAll', { n: ordered.length })) : null,

@@ -7,6 +7,7 @@ import { t, fmtDate, fmtTime } from '../shared/i18n.js';
 import { updateSettings, getRaw, setRaw, onChange, getDays, getCollection } from '../shared/storage.js';
 import { nudge as pickNudge, dayReview, applyPlans } from '../shared/productivity.js';
 import { openShutdown } from './shutdown.js';
+import { installPalette } from '../ui/palette.js';
 import { setCollection } from '../shared/storage.js';
 import { dayKey } from '../shared/time.js';
 import { fmtDuration } from '../shared/i18n.js';
@@ -200,7 +201,7 @@ async function morningPlan() {
 }
 
 /** Single-key shortcuts (ignored while typing): the new tab is where work starts, so it should be drivable from the keyboard. */
-const SHORTCUTS = [['f', 'sc.focus'], ['n', 'sc.task'], ['d', 'sc.closeDay'], ['c', 'sc.customize'], ['i', 'sc.insights'], ['s', 'sc.settings'], ['?', 'sc.help']];
+const SHORTCUTS = [['Ctrl K', 'sc.palette'], ['f', 'sc.focus'], ['n', 'sc.task'], ['d', 'sc.closeDay'], ['c', 'sc.customize'], ['i', 'sc.insights'], ['s', 'sc.settings'], ['?', 'sc.help']];
 function homeShortcuts(e) {
   if (e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName) || document.querySelector('dialog[open]') || !$('#drawer').hidden) return;
   const k = e.key;
@@ -230,6 +231,7 @@ function openShortcutHelp() {
     try { const tab = await chrome.tabs.getCurrent(); await chrome.tabs.update(tab.id, { url: 'chrome://new-tab-page/' }); return; } catch { /* stay */ }
   }
   await morningPlan();
+  installPalette({ extra: () => [{ group: 'go', icon: 'moon', label: t('sc.closeDay'), run: openShutdown, keys: ['shutdown', 'review', 'plan tomorrow'] }, { group: 'go', icon: 'sliders-horizontal', label: t('sc.customize'), run: openDrawer, keys: ['customize', 'layout', 'background', 'clock'] }] });
   paintClock(); await applyBackground();
   setInterval(paintClock, 10_000);
   mountFocusCard($('#focus'), { variant: 'large' });

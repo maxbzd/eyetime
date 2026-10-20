@@ -6,6 +6,7 @@ import { stackedColumns, classLegend, heatmap, CLASS_ORDER } from '../ui/charts.
 import { t, fmtDuration, fmtDate, fmtNumber, weekdayName, fmtTime, monthName } from '../shared/i18n.js';
 import { getSettings, updateSettings, getDays, getCollection, onChange } from '../shared/storage.js';
 import { focusTab } from './focus-tab.js';
+import { installPalette } from '../ui/palette.js';
 import { makeClassifier } from '../shared/classify.js';
 import { summarize, delta, insights as computeInsights, focusStreak, suggestLimit } from '../shared/stats.js';
 import { rangeKeys, addDays, dayKey, parseKey } from '../shared/time.js';
@@ -270,6 +271,7 @@ function exportCsv() {
   await bootPage({ onSettings: async () => { data = await load(); drawRange(); render(); } });
   mountHeader($('#header'), 'insights');
   $('#export').addEventListener('click', exportCsv);
+  installPalette({ extra: () => [{ group: 'go', icon: 'download', label: t('insights.export'), run: exportCsv, keys: ['csv', 'download', 'export'] }] });
   drawRange();
   data = await load();
   render();
