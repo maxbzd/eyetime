@@ -288,4 +288,6 @@ export const ru = {
   'wrapped.footer': 'EyeTime · бесплатно и с открытым кодом', 'wrapped.share': 'Поделиться картинкой', 'wrapped.preview': 'Ваша неделя картинкой', 'wrapped.privacy': 'Только итоги — без названий сайтов и задач.', 'wrapped.save': 'Скачать PNG', 'wrapped.copy': 'Копировать', 'wrapped.copied': 'Картинка скопирована',
   'prod.remindBest': 'Напоминать о фокусе в {time}', 'prod.remindSet': 'Напоминание: {time} по будням', 'prod.remindHave': 'Напоминание около {time} у вас уже есть.',
   'habits.ideas': 'С чего начать:',
+  'opt.syncIncompatible': 'Синхронизированные настройки созданы более новой версией EyeTime. Обновите расширение в этом браузере.',
+  'prod.remindFull': 'Уже есть 5 напоминаний — сначала удалите одно в Настройки → Фокус.',
 };

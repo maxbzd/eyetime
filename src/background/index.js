@@ -20,7 +20,7 @@ async function boot() {
   const { migrated } = await ensureSchema();
   const { focus } = await getRaw('focus');
   if (focus && !isFocusActive(focus)) await finishFocus(); // the end alarm may have been missed while the browser was closed
-  else if (focus) { await chrome.alarms.create('focus-end', { when: focus.endsAt }); const { focus: f } = await getSettings(); if (f.ambient !== 'off') setAmbient(f.ambient); }
+  else if (focus) { await chrome.alarms.create('focus-end', { when: focus.endsAt }); const { focus: f } = await getSettings(); const mode = (f.modes || []).find((m) => m.id === focus.mode); const amb = mode && mode.ambient && mode.ambient !== 'off' ? mode.ambient : f.ambient; if (amb !== 'off') setAmbient(amb); }
   const { rest } = await getRaw('rest');
   if (rest && Date.now() >= rest.endsAt) await endRest({ notify: false });
   else if (rest) await chrome.alarms.create('rest-end', { when: rest.endsAt });
