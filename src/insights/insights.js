@@ -7,6 +7,8 @@ import { t, fmtDuration, fmtDate, fmtNumber, weekdayName, fmtTime, monthName } f
 import { getSettings, updateSettings, getDays, getCollection, onChange } from '../shared/storage.js';
 import { focusTab } from './focus-tab.js';
 import { installPalette } from '../ui/palette.js';
+import { timelineCard } from './timeline.js';
+import { openWrapped } from './wrapped.js';
 import { makeClassifier } from '../shared/classify.js';
 import { summarize, delta, insights as computeInsights, focusStreak, suggestLimit } from '../shared/stats.js';
 import { rangeKeys, addDays, dayKey, parseKey } from '../shared/time.js';
@@ -17,7 +19,7 @@ if (!(range in RANGES)) range = '7';
 const TABS = ['overview', 'focus', 'sites', 'patterns'];
 let tab = (() => { try { return localStorage.getItem('et-itab'); } catch { return null; } })();
 if (!TABS.includes(tab)) tab = 'overview';
-let settings, shown = 10, tableView = false;
+let settings, shown = 10, tableView = false, tlBack = 0; // tlBack: days before today shown in the day timeline
 
 async function load() {
   settings = await getSettings();
@@ -128,7 +130,8 @@ function reviewCard(cur, prev) {
       ? h('div', { class: 'review-suggest warn' }, icon('trending-up'), h('span', { text: t('review.rising', { pts: share - sharePrev }) }))
       : h('div', { class: 'review-suggest ok' }, icon('sparkles'), h('span', { text: t('review.balanced') }));
   return h('section', { class: 'card review' },
-    h('div', { class: 'card-head' }, h('div', {}, h('h3', { text: t('review.title') }), h('p', { text: t('review.sub') }))),
+    h('div', { class: 'card-head' }, h('div', {}, h('h3', { text: t('review.title') }), h('p', { text: t('review.sub') })),
+      h('button', { class: 'btn btn-sm', type: 'button', onclick: () => openWrapped({ sum: cur, prev, cur: data.cur, goalMin: settings.focus.dailyGoal }) }, icon('image'), t('wrapped.share'))),
     h('div', { class: 'card-body', style: { paddingTop: 'var(--s-3)' } },
       line('target', t('review.focus', { time: fmtDuration(cur.focusSec), n: cur.focusSessions }), deltaChip(delta(cur.focusSec, prev.focusSec))),
       line('circle-alert', t('review.share', { pct: share }), deltaChip(sharePrev === null ? null : share - sharePrev, { tone: 'upBad', unit: t('insights.pts') })),
@@ -240,7 +243,11 @@ function render() {
     overview: () => [renderKpis(sum, prev), range === '7' && sum.total >= 3600 && sum.activeDays >= 3 ? reviewCard(sum, prev) : null, mainChart(sum), insightsCard(sum, prev, streak)],
     focus: () => [focusTab({ cur: data.cur, heat: data.heat, tasks: data.tasks, settings })],
     sites: () => (sum.topApps.length ? [h('div', { class: 'grid-2' }, sitesCard(sum), appsCard(sum))] : [sitesCard(sum)]),
-    patterns: () => [range === 'today' ? null : typicalDay(sum), heatCard(data.heat)],
+    patterns: () => {
+      const entry = data.heat[data.heat.length - 1 - tlBack];
+      return [entry ? timelineCard({ entry, classify, clock24: settings.newtab.clock24 ?? undefined, nav: { onPrev: tlBack < data.heat.length - 1 ? () => { tlBack++; render(); } : null, onNext: tlBack > 0 ? () => { tlBack--; render(); } : null } }) : null,
+        range === 'today' ? null : typicalDay(sum), heatCard(data.heat)];
+    },
   };
   const tabIcons = { overview: { icon: 'layout-dashboard' }, focus: { icon: 'target' }, sites: { icon: 'globe' }, patterns: { icon: 'calendar-days' } };
   const tabs = h('div', { class: 'tabs', role: 'tablist', 'aria-label': t('insights.tabs') }, TABS.map((id) => h('button', { class: 'tab', type: 'button', role: 'tab', 'aria-selected': String(id === tab), onclick: () => { tab = id; try { localStorage.setItem('et-itab', id); } catch { /* ignore */ } render(); } }, icon(tabIcons[id].icon), t('itab.' + id))));
