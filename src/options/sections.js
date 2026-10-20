@@ -67,7 +67,7 @@ export function focus({ s, save, refresh }) {
   const presetErr = h('div', { class: 'hint', style: { color: 'var(--distracting-text)' } });
   const setPresets = (list) => save((x) => { x.focus.presets = list; if (!list.includes(x.focus.minutes)) x.focus.minutes = list[0]; }, true);
   const presetsIn = h('div', { class: 'stack gap-2' },
-    h('div', { class: 'dur-chips' }, s.focus.presets.map((m) => h('span', { class: 'chip chip-x' }, fmtDuration(m * 60), s.focus.presets.length > 1 ? h('button', { type: 'button', 'aria-label': t('common.remove') + ' ' + fmtDuration(m * 60), onclick: () => setPresets(s.focus.presets.filter((n) => n !== m)) }, icon('x')) : null)),
+    h('div', { class: 'dur-chips' }, s.focus.presets.map((m) => h('span', { class: 'chip chip-x' }, h('span', { class: 'chip-t', text: fmtDuration(m * 60) }), s.focus.presets.length > 1 ? h('button', { type: 'button', 'aria-label': t('common.remove') + ' ' + fmtDuration(m * 60), onclick: () => setPresets(s.focus.presets.filter((n) => n !== m)) }, icon('x')) : null)),
       s.focus.presets.length < 5 ? h('input', { class: 'input input-sm num', type: 'number', min: 1, max: 720, placeholder: t('opt.addMinutes'), 'aria-label': t('opt.addMinutes'), style: { width: '110px' }, onkeydown: (e) => {
         if (e.key !== 'Enter') return; e.preventDefault();
         const n = Math.round(Number(e.target.value));

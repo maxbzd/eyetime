@@ -43,7 +43,7 @@ const views = {
   distractions: () => {
     const err = h('div', { class: 'hint', style: { color: 'var(--distracting-text)' } });
     const custom = h('div', { class: 'chips' });
-    const drawCustom = () => clear(custom, pick.custom.map((d) => h('span', { class: 'chip chip-x' }, d, h('button', { type: 'button', 'aria-label': t('common.remove') + ' ' + d, onclick: () => { pick.custom = pick.custom.filter((x) => x !== d); drawCustom(); } }, icon('x')))));
+    const drawCustom = () => clear(custom, pick.custom.map((d) => h('span', { class: 'chip chip-x' }, h('span', { class: 'chip-t', text: d }), h('button', { type: 'button', 'aria-label': t('common.remove') + ' ' + d, onclick: () => { pick.custom = pick.custom.filter((x) => x !== d); drawCustom(); } }, icon('x')))));
     drawCustom();
     const addDomain = () => {
       const d = parseUserDomain(input.value);

@@ -45,7 +45,7 @@ export function domainEditor({ items, onAdd, onRemove, placeholder, empty }) {
   return h('div', { class: 'stack gap-3' },
     h('div', { class: 'row gap-2' }, input, h('button', { class: 'btn', type: 'button', onclick: add }, icon('plus'), t('common.add'))), err,
     items.length
-      ? h('div', { class: 'row gap-2 wrap' }, items.map((d) => h('span', { class: 'chip chip-x' }, d, h('button', { type: 'button', 'aria-label': t('common.remove') + ' ' + d, onclick: () => onRemove(d) }, icon('x')))))
+      ? h('div', { class: 'row gap-2 wrap' }, items.map((d) => h('span', { class: 'chip chip-x' }, h('span', { class: 'chip-t', text: d }), h('button', { type: 'button', 'aria-label': t('common.remove') + ' ' + d, onclick: () => onRemove(d) }, icon('x')))))
       : (empty ? h('div', { class: 'hint', text: empty }) : null));
 }
 

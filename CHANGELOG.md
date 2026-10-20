@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.2 — 2026-10-20
+
+### Fixed
+- **Narrow screens and large text**: Settings no longer scroll sideways with long site names (chips shorten with an ellipsis, input rows wrap), the Home reminder pill wraps, the *Privacy* buttons wrap, look previews stay inside their cards. A new CI check opens 17 pages at 400 px with 125 % text and very long names in English and Russian and fails on any horizontal scroll.
+- *Close the day* dialog fades its scrolling list above the buttons; the shortcuts list has an aligned key column; the evening nudge no longer shows a stray ". ·".
+- Refreshed store screenshots (with realistic hourly data) plus new ones: command palette, day timeline, *My week* card.
+
 ## 2.3.1 — 2026-10-20
 
 Hardening release after an independent code review and a new upgrade/empty-profile regression crawl (now part of CI).

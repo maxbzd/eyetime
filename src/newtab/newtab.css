@@ -209,3 +209,6 @@ body[data-layout="split"] .hero .clock { white-space: nowrap; font-size: clamp(5
 .qa-preview { display: flex; flex-wrap: wrap; gap: 6px; min-height: 0; margin-top: -4px; } .qa-preview:empty { display: none; } .qa-preview .hint { font-size: var(--fs-xs); } .tag-hash { color: var(--accent-text); }
 @media (max-width: 1360px) { .kbd-hint { display: none; } }
 @media (max-width: 600px) { .focus-idle.large .focus-row .btn-lg { width: 100%; } }
+.dialog-wide .dialog-body { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent); padding-bottom: var(--s-6); }
+.sc-row { display: grid; grid-template-columns: 64px 1fr; align-items: center; } .sc-row .kbd { justify-self: start; }
+.nudge { flex-wrap: wrap; justify-content: center; max-width: 100%; } .nudge .nudge-text { min-width: 0; }

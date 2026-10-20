@@ -18,14 +18,14 @@ async function seed(page, { look, mode, background, clockStyle }) {
     for (let i = 0; i < keys.length; i++) {
       await st.updateDay(keys[i], (d) => {
         d.d = {}; d.h = {}; d.ss = []; d.fs = 0; d.fc = 0;
-        hosts.forEach((h, k) => { const sec = Math.round((k < 2 ? 0.5 + rnd() : rnd()) * 4800); d.d[h] = sec; for (let hr = 8; hr < 20; hr++) { (d.h[hr] ||= {})[h] = Math.round(sec / 12); } });
+        hosts.forEach((h, k) => { const sec = Math.round((k < 2 ? 0.5 + rnd() : rnd()) * 4800); d.d[h] = sec; const W = [0.5, 1.2, 1.5, 1.1, 0.7, 0.25, 0.8, 1.3, 1.2, 0.9, 0.6, 0.25]; for (let hr = 8; hr < 20; hr++) { (d.h[hr] ||= {})[h] = Math.round((sec / 12) * W[hr - 8] * (0.7 + rnd() * 0.6)); } });
         const c = 1 + Math.floor(rnd() * 3); d.fc = c;
         for (let k = 0; k < c; k++) { const t = new Date(); t.setDate(t.getDate() - (29 - i)); t.setHours(k === 0 ? 9 : k === 1 ? 10 : 15, 5); d.ss.push({ id: 's' + i + k, t: t.getTime(), m: 25 + k * 25, p: 25 + k * 25, g: ['Write the quarterly report', 'Plan the sprint', 'Review pull requests'][k % 3], k: '', c: 1, r: 1 + ((i + k) % 3) }); d.fs += (25 + k * 25) * 60; }
         d.b = 2; d.pr = { back: 2, work: 1, bored: 1 }; d.sw = 20 + Math.floor(rnd() * 30); d.fa = Math.floor(rnd() * 4); d.pa = { 'reddit.com': 1 + Math.floor(rnd() * 5), 'youtube.com': Math.floor(rnd() * 4) }; if (i % 3 === 0) d.w = ['Shipped the draft', 'Finished the review', 'Walked every break'][(i / 3 | 0) % 3];
       });
     }
     await st.setCollection('tasks', [
-      { id: 'a', text: 'Write the quarterly report', done: false, starred: true, createdAt: 1, focusSec: 4500, resume: 'Draft section 2, then the charts' },
+      { id: 'a', text: 'Write the quarterly report', done: false, starred: true, createdAt: 1, est: 90, focusSec: 4500, resume: 'Draft section 2, then the charts' },
       { id: 'b', text: 'Review pull requests', done: false, starred: true, createdAt: 2, focusSec: 1500 },
       { id: 'c', text: 'Book flights for the conference', done: false, starred: false, createdAt: 3 },
       { id: 'd', text: 'Send the invoice', done: true, starred: false, createdAt: 4, focusSec: 900 }]);
@@ -66,5 +66,11 @@ async function seed(page, { look, mode, background, clockStyle }) {
   await seed(seedPage, { look: 'calm', mode: 'light', background: 'dawn', clockStyle: 'thin' });
   p = await open('src/blocked/blocked.html?u=http%3A%2F%2Freddit.com%2F&r=friction&a=pause', { width: 1000, height: 700 }); await shot('9-pause-plan.png', p); await p.close();
   p = await open('src/newtab/newtab.html', { width: 1280, height: 900 }); await p.waitForTimeout(800); await p.locator('.plan-link').click(); await shot('10-close-the-day.png', p); await p.close();
+  // command palette, the day timeline and the shareable week card
+  p = await open('src/newtab/newtab.html', { width: 1280, height: 800 }); await p.waitForTimeout(900); await p.keyboard.press('Control+k'); await p.waitForSelector('dialog.palette[open]'); await p.keyboard.type('rep'); await shot('11-palette.png', p); await p.close();
+  p = await open('src/insights/insights.html', { width: 1280, height: 1000 }); await p.evaluate(() => localStorage.setItem('et-itab', 'patterns')); await p.reload(); await shot('12-timeline.png', p); await p.close();
+  p = await open('src/insights/insights.html?range=7', { width: 1280, height: 900 }); await p.evaluate(() => localStorage.setItem('et-itab', 'overview')); await p.reload(); await p.waitForTimeout(800); await p.locator('.review .btn').first().click(); await p.waitForSelector('.wrapped-img');
+  const src = await p.locator('.wrapped-img').getAttribute('src'); const b64 = await p.evaluate(async (u) => { const b = await (await fetch(u)).blob(); return await new Promise((r) => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(b); }); }, src);
+  require('fs').writeFileSync(path.join(OUT, '13-week-card.png'), Buffer.from(b64.split(',')[1], 'base64')); await p.close();
   await app.close();
 })();

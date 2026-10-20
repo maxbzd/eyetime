@@ -27,7 +27,7 @@ async function seed(page, level) {
     const today = new Date().toISOString().slice(0, 10);
     for (let i = 0; i < keys.length; i++) await st.updateDay(keys[i], (d) => {
       d.d = {}; d.h = {}; d.ss = []; d.fs = 0; d.fc = 0;
-      hosts.forEach(([h], k) => { const sec = Math.round((k < 2 ? 0.5 + rnd() : rnd()) * 4800); d.d[h] = sec; for (let hr = 8; hr < 20; hr++) (d.h[hr] ||= {})[h] = Math.round(sec / 12); });
+      hosts.forEach(([h], k) => { const sec = Math.round((k < 2 ? 0.5 + rnd() : rnd()) * 4800); d.d[h] = sec; { const W = [0.5, 1.2, 1.5, 1.1, 0.7, 0.25, 0.8, 1.3, 1.2, 0.9, 0.6, 0.25]; for (let hr = 8; hr < 20; hr++) (d.h[hr] ||= {})[h] = Math.round((sec / 12) * W[hr - 8] * (0.7 + rnd() * 0.6)); } });
       const c = 1 + Math.floor(rnd() * 3); d.fc = c;
       for (let k = 0; k < c; k++) { const t = new Date(); t.setDate(t.getDate() - (keys.length - 1 - i)); t.setHours(k === 0 ? 9 : k === 1 ? 10 : 15, 5); d.ss.push({ id: 's' + i + k, t: t.getTime(), m: 25 + k * 25, p: 25 + k * 25, g: stress ? LONG.slice(0, 80) : ['Write the quarterly report', 'Plan the sprint', 'Review pull requests'][k % 3], k: '', c: 1, r: 1 + ((i + k) % 3) }); d.fs += (25 + k * 25) * 60; }
       d.b = 2; d.pr = { back: 2, work: 1, bored: 1, habit: 2 }; d.sw = 20 + Math.floor(rnd() * 30); d.fa = Math.floor(rnd() * 4); d.pa = { 'reddit.com': 1 + Math.floor(rnd() * 5), 'youtube.com': Math.floor(rnd() * 4) }; if (stress) d.pa[VLONG_HOST] = 3; if (i % 3 === 0) d.w = stress ? LONG : ['Shipped the draft', 'Finished the review'][(i / 3 | 0) % 2];
