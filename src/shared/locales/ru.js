@@ -273,4 +273,5 @@ export const ru = {
   'scope.period': 'Выбранный период', 'scope.weeks16': 'Последние 16 недель', 'scope.allTime': 'За всё время', 'prod.bestLegend': 'Выделены два лучших часа.',
   'review.rising': 'На отвлечения ушло на {pts} п.п. больше экранного времени, чем неделей раньше. Выберите сайт, который затягивает сильнее всего, и поставьте ему лимит или небольшое трение.',
   'insights.share': 'Доля',
+  'focus.extend': '+{n} мин', 'focus.extendTip': 'Добавить к сессии ещё {n} мин', 'review.save': 'Сохранить', 'review.skip': 'Пропустить', 'track.pausedBanner': 'Учёт приостановлен до {time}', 'track.resumeShort': 'Возобновить',
 };

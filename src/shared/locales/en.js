@@ -276,4 +276,5 @@ export const en = {
   'scope.period': 'Selected period', 'scope.weeks16': 'Last 16 weeks', 'scope.allTime': 'All time', 'prod.bestLegend': 'Highlighted: your best two hours.',
   'review.rising': 'Distractions took {pts} points more of your screen time than the week before. Pick the one site that pulls you in most and give it a limit or a little friction.',
   'insights.share': 'Share',
+  'focus.extend': '+{n} min', 'focus.extendTip': 'Add {n} more minutes to this session', 'review.save': 'Save', 'review.skip': 'Skip', 'track.pausedBanner': 'Tracking is paused until {time}', 'track.resumeShort': 'Resume',
 };

@@ -98,3 +98,13 @@
 .focus-idle:not(.large) .mode-select { width: 100%; }
 
 .focus-idle:not(.large) .focus-opts { flex-wrap: nowrap; align-items: center; justify-content: space-between; } .focus-idle:not(.large) .mode-select { width: auto; flex: 1; min-width: 0; }
+
+/* audit round 6 */
+.segmented-sm button { height: 22px; } .segmented-sm { height: auto; padding: 2px; align-self: center; }
+.focus-run.compact .run-actions .btn-ghost { margin-left: 0; }
+.focus-run.large .run-actions { justify-content: center; }
+.review-rate { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; } .review-rate .chip { justify-content: center; padding: 0 6px; min-width: 0; }
+.review-actions { display: flex; justify-content: flex-end; gap: var(--s-2); margin-top: var(--s-1); }
+.review-task input { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; }
+.focus-idle.review-only { gap: var(--s-3); }
+.review-rate .chip { white-space: nowrap; font-size: var(--fs-xs); gap: 4px; } .review-rate .chip .ico { margin-right: 0; flex: none; }
