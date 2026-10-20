@@ -74,8 +74,10 @@ export const fmtHM = (sec) => { const m = Math.round(sec / 60); return `${Math.f
 export const fmtNumber = (n, opts) => new Intl.NumberFormat(lang, opts).format(n);
 export const fmtPercent = (n) => `${Math.round(n)}%`;
 export const fmtDate = (d, opts = { weekday: 'long', day: 'numeric', month: 'long' }) => new Intl.DateTimeFormat(lang, opts).format(d);
-export function fmtTime(d, hour12) {
-  return new Intl.DateTimeFormat(lang, { hour: 'numeric', minute: '2-digit', ...(hour12 === null || hour12 === undefined ? {} : { hour12 }) }).format(d);
+/** `clock24`: true = 24-hour, false = 12-hour, null/undefined = follow the language. */
+export function fmtTime(d, clock24) {
+  const pick = clock24 === null || clock24 === undefined ? {} : clock24 ? { hourCycle: 'h23' } : { hour12: true };
+  return new Intl.DateTimeFormat(lang, { hour: 'numeric', minute: '2-digit', ...pick }).format(d);
 }
 export const weekdayName = (dayIndex, style = 'short') => new Intl.DateTimeFormat(lang, { weekday: style }).format(new Date(2024, 0, 7 + dayIndex)); // 2024-01-07 is a Sunday
 export const monthName = (m, style = 'short') => new Intl.DateTimeFormat(lang, { month: style }).format(new Date(2024, m, 1));
