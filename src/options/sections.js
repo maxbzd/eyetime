@@ -5,7 +5,8 @@ import { send } from '../ui/api.js';
 import { row, group, toggle, select, domainEditor, sectionHead } from './ui.js';
 import { t, LANGUAGES, weekdayName, fmtDuration } from '../shared/i18n.js';
 import { PRESETS, PRESET_IDS } from '../shared/catalog.js';
-import { exportAll, importAll, resetAll } from '../shared/storage.js';
+import { exportAll, importAll, resetAll, getRaw, setRaw } from '../shared/storage.js';
+import { fmtTime } from '../shared/i18n.js';
 import { parseUserDomain } from '../shared/domains.js';
 import { dayKey } from '../shared/time.js';
 
@@ -258,6 +259,7 @@ export function data({ s, save, refresh }) {
   fileIn.onchange = () => { if (fileIn.files[0]) doImport(fileIn.files[0]); fileIn.value = ''; };
 
   return sec('data', sectionHead(t('sec.data'), t('sec.dataDesc')),
+    syncGroup(s),
     group(t('opt.groupBackup'),
       row({ title: t('opt.export'), desc: t('opt.exportDesc'), control: h('button', { class: 'btn', type: 'button', onclick: doExport }, icon('download'), t('opt.exportBtn')) }),
       row({ title: t('opt.import'), desc: t('opt.importDesc'), control: h('button', { class: 'btn', type: 'button', onclick: () => fileIn.click() }, icon('upload'), t('opt.importBtn')) }),
@@ -271,6 +273,27 @@ export function data({ s, save, refresh }) {
         const ok = await confirmDialog({ title: t('opt.resetTitle'), body: t('opt.resetBody'), extra: h('button', { class: 'btn btn-sm', type: 'button', style: { alignSelf: 'flex-start' }, onclick: doExport }, icon('download'), t('opt.backupFirst')), confirm: t('opt.resetConfirm'), danger: true });
         if (ok) { await resetAll(); toast(t('opt.resetDone')); setTimeout(() => location.reload(), 600); }
       } }, icon('trash-2'), t('opt.resetBtn')) }))));
+}
+
+/** Optional settings sync: the toggle is a device-level flag (not part of the synced settings). */
+function syncGroup(s) {
+  const status = h('div', { class: 'setting-desc' });
+  const input = h('input', { type: 'checkbox', 'aria-label': t('opt.sync'), onchange: async (e) => { await setRaw({ syncSettings: e.target.checked }); paint(); } });
+  const sw = h('label', { class: 'switch' }, input, h('span', { class: 'track' }), h('span', { class: 'thumb' }));
+  const nowBtn = h('button', { class: 'btn btn-sm', type: 'button', onclick: async () => { await send('sync:now'); setTimeout(paint, 400); } }, icon('refresh-cw'), t('opt.syncNow'));
+  async function paint() {
+    const { syncSettings, syncStatus } = await getRaw(['syncSettings', 'syncStatus']);
+    input.checked = !!syncSettings; nowBtn.hidden = !syncSettings;
+    status.textContent = !syncSettings ? t('opt.syncOff')
+      : !syncStatus ? t('opt.syncWait')
+      : syncStatus.ok ? t('opt.syncOk', { time: fmtTime(new Date(syncStatus.at), s.newtab.clock24 ?? undefined) })
+      : syncStatus.error === 'unsupported' ? t('opt.syncUnsupported') : syncStatus.error === 'too_big' ? t('opt.syncTooBig') : t('opt.syncError', { e: syncStatus.error });
+  }
+  paint();
+  chrome.storage.onChanged.addListener((c, area) => { if (area === 'local' && (c.syncStatus || c.syncSettings)) paint(); });
+  return group(t('opt.groupSync'),
+    row({ title: t('opt.sync'), desc: t('opt.syncDesc'), control: sw }),
+    h('div', { class: 'setting' }, h('div', { class: 'setting-text' }, status), h('div', { class: 'setting-ctl' }, nowBtn)));
 }
 
 /* ============================== About ============================== */

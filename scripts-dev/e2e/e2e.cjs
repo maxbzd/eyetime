@@ -154,6 +154,12 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   ok(qa && qa.est === 30 && qa.at === '16:45' && qa.starred === true, 'quick-add parsed time, length and priority', JSON.stringify(qa));
   await pg7.keyboard.press('Control+k'); await pg7.waitForSelector('dialog.palette[open]');
   await pg7.locator('.pal-input').fill('settings sec'); await sleep(200); ok(await pg7.locator('.pal-item').count() >= 1, 'palette finds settings sections'); await pg7.keyboard.press('Escape');
+  // settings sync (chrome.storage.sync is local-only under automation, but the push path is real)
+  await sw.evaluate(() => chrome.storage.local.set({ syncSettings: true })); await sleep(1500);
+  const syncMeta = await sw.evaluate(async () => (await chrome.storage.sync.get('sync:meta'))['sync:meta']);
+  ok(syncMeta && syncMeta.n >= 1 && syncMeta.v === 1, 'enabling sync uploads the settings to storage.sync', JSON.stringify(syncMeta));
+  const syncStatus = await get('syncStatus'); ok(syncStatus && syncStatus.ok === true, 'sync status recorded as ok', JSON.stringify(syncStatus));
+  await sw.evaluate(() => chrome.storage.local.set({ syncSettings: false }));
   await pg7.locator('.plan-link').click(); await pg7.waitForSelector('dialog[open] .sd-stats'); 
   await pg7.locator('dialog[open] input[type=text], dialog[open] .input').first().fill('Shipped the draft');
   await pg7.locator('dialog[open] .items .check input').first().check();

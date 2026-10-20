@@ -43,6 +43,8 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 | 🎨 **Make it yours** | Eleven looks (Calm, Paper, Midnight, Terminal, Sakura, Forest, Aurora, Mono, Sunset, Nord, Ocean), any accent colour, fonts, corners, density, card style, light/dark/schedule, custom CSS and shareable looks. Contrast stays accessible. [Details](docs/THEMES.md). |
 | 🧠 **Research-driven** | If-then plans on the pause page, ready-to-resume notes, a two-minute *Close the day* ritual, break ideas, your own best session length — each tied to published research (and honest about how strong it is): [docs/RESEARCH.md](docs/RESEARCH.md). |
 | 🚀 **Productivity loop** | Plan (≤ 3 priorities) → focus on a task → rate the session → see your goal streak and **best focus hours**. "Only my sites" sessions, long breaks, focus reminders, intent-based pause page. |
+| ⌨️ **Fast by keyboard** | `Ctrl/Cmd + K` command palette (start a mode, focus on a task, switch look, jump anywhere, add a task), quick-add tasks (`Report 14:30 45m !`), single-key shortcuts on Home. |
+| 🔁 **Know yourself** | Estimate accuracy (planned vs actual), a day timeline with your focus sessions, a shareable *My week* card (totals only), optional settings sync across browsers. |
 | 📱 **Short-video guard** | After a limit of Shorts / Reels / TikTok / VK Clips scrolling the page turns grayscale and pauses. Optional hiding of Shorts, recommendations, comments and the YouTube home feed. |
 | 🌍 **English & Russian** | Key-based i18n; adding a language is one file. |
 | 🔒 **Private by design** | Only domain names and seconds are stored, on your device. [Details](PRIVACY.md). |

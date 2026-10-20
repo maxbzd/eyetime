@@ -35,7 +35,7 @@ export function updateSettings(fn) {
   const run = async () => {
     const cur = await getSettings();
     const next = fn(cur) || cur;
-    await area().set({ settings: next });
+    await area().set({ settings: next, settingsUpdatedAt: Date.now() });
     return next;
   };
   const p = settingsQueue.then(run, run);

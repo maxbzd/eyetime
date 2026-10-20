@@ -1,5 +1,26 @@
 # Changelog
 
+## 2.3.0 — 2026-10-20
+
+A second exhaustive audit (every screen × state × width × language × look, with an automatic horizontal-overflow report) and a round of new features.
+
+### New
+- **Command palette** — `Ctrl/Cmd + K` on Home, Insights and Settings: start a focus mode, focus on a task, take an eye break, pause tracking, jump to any Insights tab or Settings section, switch look or theme, close the day. Type anything and press Enter to add it as a task.
+- **Quick-add tasks** — write `Report 14:30 45m ! #work` and EyeTime takes out the time (schedules the start reminder), planned length, priority and tags, with a live preview while you type. Starting a focus session on a task uses its planned length.
+- **Estimate accuracy** (Insights → Focus) — planned vs. actual focus time on finished tasks, with a plain verdict on the planning fallacy, plus a "took X, planned Y" toast when you tick a task off.
+- **Day timeline** (Insights → Patterns) — one day hour by hour with your focus sessions on a lane underneath; step back through the last weeks.
+- **My week card** — turn the weekly review into a shareable PNG (totals only: no site names or task titles). Download or copy.
+- **Sync settings across browsers** (Settings → Data & privacy, off by default) — looks, focus modes and preferences via your browser's own sync. Tasks, notes and history never sync.
+- **+5 min** on a running session; **Save / Skip** on the session review (rating is optional); **5 more minutes** on the eye-break page.
+
+### Fixed and polished
+- Insights: tables become stacked rows on phones, no horizontal scroll in any tab, scope captions on every Focus card, no future hours on today's chart, weekly review no longer says "balanced" while distractions are rising, calendar redesigned (weekday labels, quantile scale, untracked days).
+- Popup: a pending review replaces the start form so everything fits 600 px; paused-tracking banner with a clear *Resume*; one capture field instead of two.
+- Home: split-layout clock no longer wraps, notes grow instead of showing a resize handle, no duplicate "goal reached" message.
+- Block pages: long hostnames, a helpful invalid-link page, goal and *remaining* labels, schedule end time in your clock format, *Allow {site}* wording.
+- Onboarding: stable layout, an *Add* button for custom sites, editable work hours, localized goal labels.
+- Narrow settings header and Insights header no longer overflow at large text scales.
+
 ## 2.2.0 — 2026-10-19
 
 A full pass over every screen, found by auditing each surface in light/dark, English/Russian and at several widths.

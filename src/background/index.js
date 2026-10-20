@@ -11,6 +11,7 @@ import { updateBadge } from './badge.js';
 import { setAmbient } from './audio.js';
 import './blocker.js';
 import './weekly.js';
+import { syncNow } from './sync.js';
 import './messages.js';
 import './companion.js';
 import { buildMenus } from './menus.js';
@@ -29,6 +30,7 @@ async function boot() {
   await scheduleReminders();
   await scheduleTaskSlot();
   await updateBadge(await getSettings());
+  syncNow();
   return migrated;
 }
 
