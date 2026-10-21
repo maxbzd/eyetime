@@ -30,6 +30,7 @@ export const DEFAULT_SETTINGS = {
     breakMinutes: 5,           // rest timer that starts when a session completes (0 = off)
     longBreak: { every: 4, minutes: 15 }, // a longer rest after every Nth session of the day (every: 0 = off)
     dailyGoal: 120,            // minutes of focus per day (0 = no goal)
+    streakGrace: true,         // one missed goal day in any seven does not break the goal streak
     goalDays: [1, 2, 3, 4, 5], // weekdays the goal applies to (0 = Sunday); days off neither count nor break the streak
     ambient: 'off',            // ambient sound during a session: off | brown | rain | river | forest
     scope: 'distractions',     // what a session closes: 'distractions' (sites classed distracting) | 'only-mine' (everything except productive and allowed sites)

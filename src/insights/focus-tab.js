@@ -7,6 +7,7 @@ import { updateSettings } from '../shared/storage.js';
 import { t, fmtDuration, fmtDate, fmtTime, weekdayName } from '../shared/i18n.js';
 import { parseKey } from '../shared/time.js';
 import { estimateAccuracy } from '../shared/quickadd.js';
+import { projectRows } from '../shared/projects.js';
 import { goalStreak, bestHours, sessionsOf, pauseReasonTotals, PAUSE_REASONS, switchRate, topTemptations, recentWins, weekdayPattern, suggestMinutes } from '../shared/productivity.js';
 
 const card = (title, sub, scope, ...body) => h('section', { class: 'card pcard' }, h('div', { class: 'card-head' }, h('div', {}, h('h3', { text: title }), sub ? h('p', { text: sub }) : null), scope ? h('span', { class: 'scope', text: t('scope.' + scope) }) : null), h('div', { class: 'card-body' }, body));
@@ -20,7 +21,7 @@ function bars({ values, best = new Set(), label, tip, axis, cls = '' }) {
     h('div', { class: 'bars-axis' }, axis));
 }
 
-export function focusTab({ cur, heat, tasks, estTasks, settings }) {
+export function focusTab({ cur, prev = [], heat, tasks, estTasks, settings }) {
   const goal = settings.focus.dailyGoal;
   const clock24 = settings.newtab.clock24 ?? undefined;
   const hourLabel = (i) => fmtTime(new Date(2000, 0, 1, i), clock24);
@@ -31,7 +32,7 @@ export function focusTab({ cur, heat, tasks, estTasks, settings }) {
   const rates = cur.map(([, d]) => switchRate(d)).filter((r) => r !== null);
   const swPerHour = rates.length ? rates.reduce((a, b) => a + b, 0) / rates.length : null;
   const daysHit = goal ? cur.filter(([, d]) => (d?.fs || 0) >= goal * 60).length : 0;
-  const streak = goalStreak(heat, goal, settings.focus.goalDays);
+  const streak = goalStreak(heat, goal, settings.focus.goalDays, { grace: settings.focus.streakGrace });
 
   const kpis = h('div', { class: 'kpis kpis-auto' },
     goal ? kpi({ ico: 'target', label: t('prod.goalDays'), value: `${daysHit}/${cur.length}`, sub: t('prod.goalIs', { time: fmtDuration(goal * 60) }) }) : null,
@@ -120,9 +121,24 @@ export function focusTab({ cur, heat, tasks, estTasks, settings }) {
             h('div', { class: 'progress est-bar', 'data-tip': `${t('prod.estPlanned')} ${fmtDuration(r.est * 60)} · ${t('prod.estActual')} ${fmtDuration(r.actual * 60)}` }, h('i', { class: r.ratio > 1.15 ? 'distracting' : 'productive', style: { width: Math.min(100, Math.max(4, (r.actual / Math.max(r.est, r.actual)) * 100)) + '%' } }))))))
       : lock(t('prod.estimateNeed'), 'timer'));
 
+  // focus time per project (#tag of the task a session was started for)
+  const pr = projectRows(cur, prev);
+  const maxSec = Math.max(...pr.rows.map((r) => r.sec), 1);
+  const deltaText = (r) => (r.delta === null ? t('prod.projectsNew') : `${r.delta >= 0 ? '+' : '−'}${Math.round(Math.abs(r.delta) * 100)}%`);
+  const projectsCard = card(t('prod.projects'), t('prod.projectsSub'), 'period',
+    pr.rows.length
+      ? h('div', { class: 'stack gap-3' },
+          h('div', { class: 'meter-list' }, pr.rows.slice(0, 8).map((r) => h('div', { class: 'meter-row proj-row' },
+            h('span', { class: 'truncate', text: '#' + r.tag }),
+            h('span', { class: 'num muted-2', text: `${fmtDuration(r.sec)} · ${t('prod.projectsSessions', { n: r.sessions })} · ${deltaText(r)}` }),
+            h('div', { class: 'progress', 'data-tip': `${Math.round(r.share * 100)}%` }, h('i', { class: 'productive', style: { width: Math.max(4, (r.sec / maxSec) * 100) + '%' } })))) ),
+          pr.untaggedSec >= 60 ? h('p', { class: 'chart-note', text: t('prod.projectsUntagged', { time: fmtDuration(pr.untaggedSec) }) }) : null)
+      : lock(t('prod.projectsNone'), 'tag'));
+
   return h('div', { class: 'stack gap-4' }, kpis,
     h('div', { class: 'grid-eq' }, hoursCard, weekCard),
     h('div', { class: 'grid-eq' }, sessionsCard, taskCard),
+    projectsCard,
     h('div', { class: 'grid-3' }, temptCard, winsCard, pauseCard),
     estCard);
 }
