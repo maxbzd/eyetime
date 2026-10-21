@@ -25,7 +25,7 @@ export function planDay({ tasks, nowMin, bestStart = null, calibration = null, b
   if (end < 6 * 60) end = 24 * 60; // an overnight end such as 02:00 means "until midnight" for a day plan
   const fixed = tasks.filter((x) => x.at && x.atDay === today).map((x) => ({ taskId: x.id, text: x.text, start: x.at, minutes: blockMinutes(x, { calibration, defaultMinutes }), fixed: true }));
   const taken = [...busy.map((b) => ({ start: b.start, end: b.end })), ...fixed.map((f) => ({ start: toMin(f.start), end: toMin(f.start) + f.minutes }))];
-  const flexible = tasks.filter((x) => !(x.at && x.atDay && x.atDay >= today)) // fixed today, or booked for another day: not ours to move
+  const flexible = tasks.filter((x) => !(x.at && x.atDay && x.atDay >= today) && !(x.due && x.due > today)) // fixed today, or booked for another day: not ours to move
     .sort((a, b) => (b.starred ? 1 : 0) - (a.starred ? 1 : 0) || (b.planFor === today ? 1 : 0) - (a.planFor === today ? 1 : 0) || (a.createdAt || 0) - (b.createdAt || 0));
   const blocks = [];
   let cursor = up5(nowMin + 5);

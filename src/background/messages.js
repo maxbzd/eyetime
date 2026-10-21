@@ -16,7 +16,10 @@ import { syncNow } from './sync.js';
 import { applySettings } from './apply.js';
 import { logError } from '../shared/errorlog.js';
 
+import { syncCalendar, armCalendar } from './calendar.js';
+
 const handlers = {
+  'calendar:sync': async () => { await armCalendar(); return syncCalendar(); },
   'focus:start': (m) => startFocus(m),
   'focus:stop': async () => {
     const { focus } = await getRaw('focus');

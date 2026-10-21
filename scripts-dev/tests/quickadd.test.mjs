@@ -74,3 +74,33 @@ test('repeat phrases in Spanish, German, French and Portuguese', () => {
   for (const [input, repeat, text] of cases) { const r = parseQuickAdd(input); assert.deepEqual([r.repeat, r.text], [repeat, text], input); }
   assert.equal(parseQuickAdd('Das tägliche Brot kaufen').repeat, null);
 });
+
+const WED = new Date(2026, 9, 21, 10, 0); // Wednesday 21 October 2026, 10:00
+const due = (s) => { const r = parseQuickAdd(s, WED); return [r.text, r.due, r.atDay, r.at]; };
+
+test('dates in words (English): tomorrow, weekdays, in N days, next week, ISO', () => {
+  assert.deepEqual(due('Prepare the slides tomorrow'), ['Prepare the slides', '2026-10-22', null, null]);
+  assert.deepEqual(due('Call mom today'), ['Call mom', '2026-10-21', null, null]);
+  assert.deepEqual(due('Report on friday 45m'), ['Report', '2026-10-23', null, null]);
+  assert.deepEqual(due('Report wednesday'), ['Report', '2026-10-28', null, null]);              // the same weekday as today means next week
+  assert.deepEqual(due('Pay rent in 3 days'), ['Pay rent', '2026-10-24', null, null]);
+  assert.deepEqual(due('Plan the quarter next week'), ['Plan the quarter', '2026-10-26', null, null]); // the coming Monday
+  assert.deepEqual(due('Submit 2026-11-02'), ['Submit', '2026-11-02', null, null]);
+  assert.deepEqual(due('Dentist tomorrow 9:30'), ['Dentist', null, '2026-10-22', '09:30']);       // a time pins the day on atDay
+  assert.deepEqual(due('Ring Bob today 9:00'), ['Ring Bob', null, '2026-10-21', '09:00']);       // explicit "today" even if the time has passed
+});
+
+test('dates in words: Russian, Spanish, German, French, Portuguese', () => {
+  const cases = [['Отчёт завтра', '2026-10-22', 'Отчёт'], ['Звонок в пятницу', '2026-10-23', 'Звонок'], ['Оплатить через 3 дня', '2026-10-24', 'Оплатить'], ['Врач послезавтра', '2026-10-23', 'Врач'],
+    ['Informe mañana', '2026-10-22', 'Informe'], ['Llamar el lunes', '2026-10-26', 'Llamar'], ['Entrega pasado mañana', '2026-10-23', 'Entrega'], ['Pagar en 3 días', '2026-10-24', 'Pagar'],
+    ['Bericht morgen', '2026-10-22', 'Bericht'], ['Anruf am Freitag', '2026-10-23', 'Anruf'], ['Miete in 3 Tagen', '2026-10-24', 'Miete'], ['Plan nächste Woche', '2026-10-26', 'Plan'],
+    ['Rapport demain', '2026-10-22', 'Rapport'], ['Appeler vendredi', '2026-10-23', 'Appeler'], ['Payer dans 3 jours', '2026-10-24', 'Payer'], ['Réunion la semaine prochaine', '2026-10-26', 'Réunion'],
+    ['Relatório amanhã', '2026-10-22', 'Relatório'], ['Ligar sexta-feira', '2026-10-23', 'Ligar'], ['Ligar na segunda', '2026-10-26', 'Ligar'], ['Pagar em 3 dias', '2026-10-24', 'Pagar']];
+  for (const [input, day, text] of cases) assert.deepEqual(due(input).slice(0, 2), [text, day], input);
+});
+
+test('words that only look like dates stay in the title', () => {
+  for (const s of ['Review the segunda parte', 'Read about Monday blues club', 'Sat on the sun', 'Pasado mañana tarde'.slice(0, 0) + 'Trabajo por la mañana', 'Check today’s PRs', 'Plan in 3 months']) {
+    const r = parseQuickAdd(s, WED); assert.equal(r.due, s.startsWith('Read about Monday') ? '2026-10-26' : null, s);
+  }
+});

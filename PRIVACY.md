@@ -13,10 +13,11 @@ EyeTime is **local-first**. It has no account, no servers of its own, no analyti
 
 ## What is sent anywhere
 
-**Nothing.** The extension makes no network requests. The single exception is entirely opt-in:
+**Nothing.** The extension makes no network requests of its own. Two exceptions, both entirely opt-in:
 
 - **Desktop companion** — if you switch it on in Settings → Tracking, the extension reads `http://127.0.0.1:8765/v1/today` on **your own computer** using a pairing token. Nothing is sent to it.
 
+- **Calendar subscription** — if you paste your calendar's secret iCal address in Settings → Data & privacy, the extension downloads that one file from the address you gave, once an hour, directly from your browser (a plain request without cookies, no third party involved). Only the events of the next 14 days are kept, on your device. The address is secret, so it is stored locally only: never synced and never included in a backup. *Unsubscribe* deletes it and withdraws the browser permission.
 - **Settings sync** — off by default. If you switch it on in Settings → Data & privacy, your *settings only* (look, focus modes, preferences) are stored in your browser's own sync storage (`chrome.storage.sync`) and travel through your browser account like bookmarks do. Tasks, notes, habits, links and browsing statistics are never included.
 
 Fonts and icons are bundled inside the extension; no content is loaded from the internet.
@@ -36,6 +37,7 @@ Fonts and icons are bundled inside the extension; no content is loaded from the 
 | `favicon` | Show site icons from the browser's own cache (nothing is downloaded) |
 | Sites: youtube.com, instagram.com, tiktok.com, vk.com, vkvideo.ru | Only to limit short-video scrolling and hide YouTube feeds |
 | Optional: `127.0.0.1:8765` | Only when you enable the desktop companion |
+| Optional: one `https://` address | Asked only when you subscribe to a calendar link, and only for that one address; withdrawn when you unsubscribe |
 
 ## Your control
 

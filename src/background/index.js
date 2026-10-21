@@ -2,7 +2,8 @@
 // there are no setInterval / setTimeout loops — only chrome.alarms and browser events.
 
 import { captureErrors } from '../shared/errorlog.js';
-import { ensureSchema, getSettings, getRaw, pruneOldDays } from '../shared/storage.js';
+import { ensureSchema, getSettings, getRaw, setRaw, pruneOldDays } from '../shared/storage.js';
+import { isMinorUpdate } from '../shared/whatsnew.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { initTracker } from './tracker.js';
 import { startFocus, stopFocus, finishFocus, endRest } from './focus.js';
@@ -14,6 +15,7 @@ import './blocker.js';
 import './weekly.js';
 import { syncNow } from './sync.js';
 import { rolloverTasks } from './rollover.js';
+import { armCalendar } from './calendar.js';
 import './messages.js';
 import './companion.js';
 import { buildMenus } from './menus.js';
@@ -36,12 +38,14 @@ async function boot() {
   await updateBadge(await getSettings());
   syncNow();
   rolloverTasks();
+  armCalendar({ refresh: true });
   return migrated;
 }
 
 chrome.runtime.onInstalled.addListener(async (details) => {
   await boot();
   const settings = await getSettings();
+  if (details.reason === 'update' && isMinorUpdate(details.previousVersion, chrome.runtime.getManifest().version)) await setRaw({ whatsNew: { version: chrome.runtime.getManifest().version, from: details.previousVersion } });
   if (details.reason === 'install' && !settings.onboarded) chrome.tabs.create({ url: chrome.runtime.getURL('src/onboarding/onboarding.html') });
   chrome.alarms.create('prune', { periodInMinutes: 60 * 24 });
 });

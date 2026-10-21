@@ -10,6 +10,7 @@ import { applyRepeats } from '../shared/tasks.js';
 import { openShutdown } from './shutdown.js';
 import { installPalette } from '../ui/palette.js';
 import { mountGettingStarted } from './getting-started.js';
+import { mountWhatsNew } from './whatsnew.js';
 import { openDayPlan } from './dayplan.js';
 import { downloadBackup, needsBackup } from '../ui/backup.js';
 import { send } from '../ui/api.js';
@@ -255,6 +256,7 @@ function openShortcutHelp() {
   paintClock(); await applyBackground();
   setInterval(paintClock, 10_000);
   mountFocusCard($('#focus'), { variant: 'large' });
+  mountWhatsNew($('#wn'));
   mountGettingStarted($('#gs'), { startShortSession: async () => { const s = await getSettings(); await send('focus:start', { minutes: 5, strict: false, scope: s.focus.scope }); } });
   paintNudge(); setInterval(paintNudge, 60_000); paintBackupNudge();
   onChange(['tasks', 'd:*'], paintNudge);
