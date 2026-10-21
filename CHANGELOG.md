@@ -1,5 +1,31 @@
 # Changelog
 
+## 3.0.0 — 2026-10-21
+
+Plan with your own words, see where focus goes, reach people in their language.
+
+### New
+- **Calendar by link.** Paste your calendar's secret iCal address (Google, Outlook, iCloud…) in Settings → Data & privacy and EyeTime refreshes it every hour, straight from your browser; the next meeting shows on the focus card. The browser asks for access to that one address only. The address stays on the device: never synced, never in a backup. Importing a file still works.
+- **Dates in plain words** in quick add, in six languages: `Report tomorrow 14:30 45m !`, `Call on Friday`, `Pay rent in 3 days`, `Plan next week`, `Отчёт завтра`, `Informe el lunes`, `Bericht morgen`, `Rapport demain`, `Relatório amanhã`. A task with a date gets a due chip and stays out of today's plan. Repeat words ("every day", "cada día", "jeden Tag", "chaque jour", "todo dia"…) work in all six languages too.
+- **Focus time by project.** The first `#tag` of the task you focus on becomes the session's project; Insights → Focus shows time per project with the change against the previous period.
+- **Tasks in and out:** export as a Markdown checklist or CSV; import from Markdown, CSV or a plain list (each line understands quick-add words); duplicates are skipped and you confirm first.
+- **Forgive one missed day a week** for the goal streak (on by default; Settings → Focus).
+- **"What's new"** card after an update that brings new features (never after a small fix, never on first install).
+- **Suggest an idea** button next to *Report a problem*; GitHub templates for ideas and translation fixes.
+- The **Monday digest** also tells how many weekly goals you reached and where most focus went.
+- The language picker in onboarding is a drop-down (six languages no longer fit in a row).
+
+### For the stores
+- Descriptions for the Chrome / Edge / Firefox listings in all six languages and localized screenshots for each (`store/listing/`, `store/screenshots/<lang>/`); Edge submission steps; the permission texts explain the new optional address permission.
+
+### Under the hood
+- **Tests:** visual regression of the main screens (English, Russian, German · light and dark), a load check (a year of dense data and 60 open tabs: Home opens in 0.4 s), an end-to-end test of the calendar subscription with a local server (no cookies, errors keep old events, unsubscribe cleans up, the address never reaches a backup), date-word and import/export unit tests in all languages.
+- **Types:** `npm run types` checks `src/shared` and `src/background` with TypeScript from JSDoc comments (zero errors, in CI).
+- The two biggest files were split (`modules.js` → one file per Home module; `sections.js` → data and about sections); the interface is pixel-identical (the visual test proves it).
+
+### Fixed
+- Seed data for store screenshots (empty Habits card, first-run checklist in the picture).
+
 ## 2.8.0 — 2026-10-21
 
 Four new languages, calendar and planning fixes, a demo video.

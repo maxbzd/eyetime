@@ -92,7 +92,8 @@ export function updateDay(key, fn) {
 }
 
 /** Add `sec` seconds on `host` (or a desktop app) to a day. */
-export function addTime({ host, app, sec, hour, date = new Date() }) {
+/** @param {{ host?: string, app?: string, sec: number, hour: number, date?: Date }} p */
+export function addTime({ host = undefined, app = undefined, sec, hour, date = new Date() }) {
   return updateDay(dayKey(date), (day) => {
     if (host) {
       day.d[host] = (day.d[host] || 0) + sec;

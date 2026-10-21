@@ -56,6 +56,13 @@ All pure and unit-tested; the UI only renders their output.
 - **Calendar** (`ics.js`) — the user imports an .ics file; only events of the next 14 days are kept in `calendar`/`calendarMeta` (local storage, never uploaded). The focus card shows the next meeting and offers a session that ends before it.
 - **Triggers** (`triggers.js`) — from the hourly data: when a distracting site pulls the user in and for how long, with a one-tap daily limit.
 
+### Month 2 additions
+- **Dates in words** (`datewords.js`) — pure `findDateWord(text, now)`; quick add turns it into `task.due` (date only) or `atDay` (with a time). Only unambiguous words count (no 3-letter weekday abbreviations).
+- **Calendar subscription** (`calsub.js`, `background/calendar.js`) — the address lives in the local `calendarSub` key only (excluded from `exportAll`, never in settings, so never in sync); an hourly `calendar-sync` alarm downloads it with `credentials: 'omit'` under an *optional* host permission requested for that one origin.
+- **Projects** (`projects.js`) — a session entry carries `tg` (first `#tag` of its task); Insights groups by it.
+- **Task import/export** (`taskio.js`) — Markdown round-trips through quick add; CSV has a fixed header.
+- **What's new** (`whatsnew.js`) — the worker sets `whatsNew` on a minor update; Home shows and clears it.
+
 ## Classification (`classify.js`)
 
 Candidates: built-in productive list, enabled presets, custom/always lists, user overrides. The **most specific** (longest) domain wins; on a tie, user > custom > built-in. The allow-list demotes "distracting" to "neutral" unless the user explicitly marked the site.
@@ -82,7 +89,11 @@ Pure function from a raw 1.x storage snapshot to the 2.0 layout (settings mappin
 | Companion | `python -m unittest` |
 | Narrow windows, 125 % zoom and long names in every language; upgrade from old versions; accessibility (axe) | `upgrade.cjs`, `a11y.cjs` |
 | Real-world blocking scenarios (second window, SPA navigation, restarted service worker, shared pass) | `blocking.cjs` |
-| Store screenshots and the demo video | `screenshots.cjs`, `demo.cjs` |
+| Store screenshots (English and per language) and the demo video | `screenshots.cjs`, `screenshots-lang.cjs`, `demo.cjs` |
+| Calendar subscription against a local server | `calendar.cjs` |
+| Visual regression (en/ru/de × light/dark, frozen clock): `--update` rewrites the baseline after an intended change | `visual.cjs`, `visual-baseline/` |
+| Load: a year of dense data, 60 open tabs, with budgets | `perf.cjs` |
+| Types from JSDoc (`src/shared`, `src/background`) | `npm run types` |
 
 ## Why these permissions
 
