@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { triggerInsights } from '../../src/shared/triggers.js';
 
 const cls = (h) => (h === 'reddit.com' || h === 'youtube.com' ? 'distracting' : 'productive');
-const day = (o) => ['2026-10-2' + Math.floor(Math.random() * 9), o];
 const mk = (n, f) => Array.from({ length: n }, (_, i) => [`2026-10-${10 + i}`, f(i)]);
 
 test('a site used mostly in one two-hour window is a "window" trigger', () => {

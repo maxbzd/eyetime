@@ -1,0 +1,26 @@
+{
+  "extName": {
+    "message": "EyeTime — Fokus, Bildschirmzeit & Augenpflege"
+  },
+  "extDescription": {
+    "message": "Fokus-Sitzung mit einem Klick, Ablenkungen sanft sperren, Zeit im Blick, Augen schonen. Kostenlos, Open Source, 100 % lokal."
+  },
+  "actionTitle": {
+    "message": "EyeTime"
+  },
+  "cmdToggleFocus": {
+    "message": "Fokus-Sitzung starten oder beenden"
+  },
+  "feedTitle": {
+    "message": "Zeit, mit dem Scrollen aufzuhören"
+  },
+  "feedBody": {
+    "message": "Du schaust seit {n} Minuten Kurzvideos. Die Seite ist pausiert und grau, damit du entscheiden kannst, was als Nächstes kommt."
+  },
+  "feedLeave": {
+    "message": "Diesen Tab schließen"
+  },
+  "feedMore": {
+    "message": "5 weitere Minuten"
+  }
+}

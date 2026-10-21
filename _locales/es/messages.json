@@ -1,0 +1,26 @@
+{
+  "extName": {
+    "message": "EyeTime — Enfoque, tiempo de pantalla y cuidado visual"
+  },
+  "extDescription": {
+    "message": "Enfoque con un clic, bloqueo amable de distracciones, tu tiempo a la vista y descansos visuales. Gratis, abierto y 100 % local."
+  },
+  "actionTitle": {
+    "message": "EyeTime"
+  },
+  "cmdToggleFocus": {
+    "message": "Iniciar o detener una sesión de enfoque"
+  },
+  "feedTitle": {
+    "message": "Hora de dejar de hacer scroll"
+  },
+  "feedBody": {
+    "message": "Llevas {n} minutos viendo vídeos cortos. La página está en pausa y en escala de grises para que elijas qué sigue."
+  },
+  "feedLeave": {
+    "message": "Cerrar esta pestaña"
+  },
+  "feedMore": {
+    "message": "5 minutos más"
+  }
+}

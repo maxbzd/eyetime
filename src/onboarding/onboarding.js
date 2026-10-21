@@ -105,7 +105,9 @@ function back() { step = Math.max(0, step - 1); render(); }
 function render() { dots(); $('#card').classList.toggle('wide', STEPS[step] === 'look'); clear($('#card'), views[STEPS[step]]()); $('#card').scrollIntoView({ block: 'nearest' }); $('#skip').hidden = step === STEPS.length - 1; }
 
 function drawLang() {
-  clear($('#lang'), Object.entries(LANGUAGES).map(([code, name]) => h('button', { type: 'button', 'aria-pressed': String(document.documentElement.lang === code), text: name, onclick: async () => { await updateSettings((x) => { x.language = code; }); } })));
+  const sel = h('select', { class: 'select select-auto', 'aria-label': t('opt.language'), onchange: async (e) => { await updateSettings((x) => { x.language = e.target.value; }); } },
+    Object.entries(LANGUAGES).map(([code, name]) => h('option', { value: code, text: name, selected: document.documentElement.lang === code })));
+  clear($('#lang'), sel);
 }
 
 (async function main() {

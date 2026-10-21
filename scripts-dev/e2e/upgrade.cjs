@@ -125,6 +125,7 @@ async function narrow(label, lang) {
 (async () => {
   await narrow('narrow + 125% + long names (ru)', 'ru');
   await narrow('narrow + 125% + long names (en)', 'en');
+  for (const l of ['de', 'fr', 'es', 'pt']) await narrow(`narrow + 125% + long names (${l})`, l);
   await crawl('upgrade from v2.1.0 (en)', { seed: true, lang: 'en', from: fx('2.1.0') });
   await crawl('upgrade from v2.5.3 (en)', { seed: true, lang: 'en', from: fx('2.5.3') });
   await crawl('upgrade from v2.2.0 (en)', { seed: true, lang: 'en' });
