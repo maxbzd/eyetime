@@ -59,3 +59,11 @@ test('decimals and versions are not times', async () => {
   assert.equal(parseQuickAdd('Call Anna @9.30', now).at, '09:30');
   assert.equal(parseQuickAdd('Call Anna 16:45', now).at, '16:45');
 });
+
+test('repeat words inside a sentence stay in the task; clear phrases and a trailing keyword repeat it', () => {
+  assert.deepEqual([parseQuickAdd('Prepare weekly report').text, parseQuickAdd('Prepare weekly report').repeat], ['Prepare weekly report', null]);
+  assert.deepEqual([parseQuickAdd('Read the daily news 10m').text, parseQuickAdd('Read the daily news 10m').repeat], ['Read the daily news', null]);
+  const a = parseQuickAdd('Stretch daily 10:30 5m'); assert.deepEqual([a.text, a.repeat, a.at, a.est], ['Stretch', 'daily', '10:30', 5]);
+  assert.equal(parseQuickAdd('Plan the week every week').repeat, 'weekly');
+  assert.equal(parseQuickAdd('Зарядка по будням').repeat, 'weekdays');
+});

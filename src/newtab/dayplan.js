@@ -17,7 +17,7 @@ export async function openDayPlan() {
   const best = bestHours(days);
   const acc = estimateAccuracy(accuracyInput(tasks, estLog));
   const busy = events.filter((e) => e.day === today).map((e) => ({ start: toMin(e.start), end: toMin(e.end) }));
-  const plan = planDay({ tasks: open, nowMin: now.getHours() * 60 + now.getMinutes(), bestStart: best ? best.start : null, calibration: acc ? acc.median : null, busy, defaultMinutes: settings.focus.minutes, goalMinutes: settings.focus.dailyGoal, workEnd: (settings.blocking.schedule && settings.blocking.schedule.end) || '18:00', today });
+  const plan = planDay({ tasks: open, nowMin: now.getHours() * 60 + now.getMinutes(), bestStart: best ? best.start : null, calibration: acc ? acc.median : null, busy, defaultMinutes: settings.focus.minutes, goalMinutes: settings.focus.dailyGoal, workEnd: (settings.blocking.schedule && settings.blocking.schedule.enabled && settings.blocking.schedule.end) || '18:00', today });
 
   const rows = plan.blocks.map((b) => {
     const on = h('input', { type: 'checkbox', checked: true, 'aria-label': b.text, disabled: b.fixed });
