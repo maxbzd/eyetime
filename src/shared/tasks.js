@@ -22,15 +22,19 @@ export const EST_LOG_MAX = 100;
 
 /** New log after `task` changed: finished + estimated tasks are (re)recorded, anything else is removed. Pure. */
 export function updateEstLog(log, task) {
-  const rest = (log || []).filter((e) => e.id !== task.id);
+  // a recurring task finishes many times: one log entry per day it was done (id@day), so earlier days survive its reopening
+  const d = new Date(task.doneAt || Date.now());
+  const id = task.repeat ? `${task.id}@${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` : task.id;
+  const rest = (log || []).filter((e) => e.id !== id);
   if (!task.done || !(task.est > 0)) return rest;
-  return [{ id: task.id, text: String(task.text || '').slice(0, 120), est: task.est, focusSec: task.focusSec || 0, at: task.doneAt || Date.now() }, ...rest].slice(0, EST_LOG_MAX);
+  return [{ id, text: String(task.text || '').slice(0, 120), est: task.est, focusSec: task.focusSec || 0, at: task.doneAt || Date.now() }, ...rest].slice(0, EST_LOG_MAX);
 }
 
 /** Tasks + log as one list for estimateAccuracy(): a live task wins over its log entry. */
 export function accuracyInput(tasks, log) {
   const live = new Set((tasks || []).map((x) => x.id));
-  return [...(tasks || []), ...(log || []).filter((e) => !live.has(e.id)).map((e) => ({ id: e.id, text: e.text, est: e.est, focusSec: e.focusSec, done: true }))];
+  const doneAt = new Map((tasks || []).filter((x) => x.repeat && x.done).map((x) => [x.id, x.doneAt])); // today's finish of a recurring task is the live task itself
+  return [...(tasks || []), ...(log || []).filter((e) => !live.has(e.id) && !(e.id.includes('@') && doneAt.get(e.id.split('@')[0]) === e.at)).map((e) => ({ id: e.id, text: e.text, est: e.est, focusSec: e.focusSec, done: true }))];
 }
 
 /* ---------- recurring tasks: a finished daily / weekday / weekly task comes back on its next day ---------- */
@@ -50,6 +54,7 @@ export function nextOccurrence(repeat, doneKey) {
 export function applyRepeats(tasks, todayKey, keyOf) {
   let changed = false;
   const out = tasks.map((x) => {
+    if (x.repeat && !x.done && x.at && x.atDay && x.atDay < todayKey) { changed = true; return { ...x, atDay: todayKey }; } // missed yesterday: today's reminder still fires
     if (!x.repeat || !x.done || !x.doneAt) return x;
     if (todayKey < nextOccurrence(x.repeat, keyOf(x.doneAt))) return x;
     changed = true;

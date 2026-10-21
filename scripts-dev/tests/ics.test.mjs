@@ -42,3 +42,42 @@ test('nextEvent finds the next or ongoing event today', () => {
   const n = nextEvent(ev, '2026-10-21', 10 * 60 + 15); assert.equal(n.title, 'B'); assert.equal(n.inMin, 225);
   assert.equal(nextEvent(ev, '2026-10-21', 16 * 60), null);
 });
+
+test('long-running series, reminders, moved and cancelled occurrences', () => {
+  const ics = wrap(
+    ['UID:old', 'DTSTART:20240108T100000', 'DTEND:20240108T103000', 'RRULE:FREQ=WEEKLY;BYDAY=MO,WE', 'SUMMARY:Standup', 'BEGIN:VALARM', 'ACTION:EMAIL', 'SUMMARY:Alarm notification', 'END:VALARM'],
+    ['UID:day', 'DTSTART:20261001T100000', 'DTEND:20261001T103000', 'RRULE:FREQ=DAILY', 'SUMMARY:Daily'],
+    ['UID:day', 'RECURRENCE-ID:20261022T100000', 'DTSTART:20261022T150000', 'DTEND:20261022T153000', 'SUMMARY:Daily (moved)'],
+    ['UID:day', 'RECURRENCE-ID:20261023T100000', 'DTSTART:20261023T100000', 'STATUS:CANCELLED', 'SUMMARY:Daily'],
+    ['UID:x', 'DTSTART:20261021T120000', 'DTEND:20261021T130000', 'STATUS:CANCELLED', 'SUMMARY:Cancelled'],
+  );
+  const ev = parseIcs(ics, { from });
+  assert.ok(ev.some((e) => e.title === 'Standup' && e.day === '2026-10-21'), 'a series from 2024 still appears');
+  assert.ok(!ev.some((e) => e.title === 'Alarm notification'), 'a VALARM summary is not the title');
+  assert.ok(!ev.some((e) => e.title === 'Cancelled'));
+  const d22 = ev.filter((e) => e.day === '2026-10-22' && /Daily/.test(e.title));
+  assert.deepEqual(d22.map((e) => [e.title, e.start]), [['Daily (moved)', '15:00']]);
+  assert.ok(!ev.some((e) => e.day === '2026-10-23' && /Daily/.test(e.title)), 'a cancelled occurrence is gone');
+  assert.ok(ev.some((e) => e.day === '2026-10-24' && e.title === 'Daily'));
+});
+
+test('MONTHLY 3rd Tuesday, bi-weekly BYDAY, date-only UNTIL / EXDATE, escapes', () => {
+  const ics = wrap(
+    ['UID:m', 'DTSTART:20260915T090000', 'DTEND:20260915T093000', 'RRULE:FREQ=MONTHLY;BYDAY=3TU', 'SUMMARY:Monthly'],
+    ['UID:w', 'DTSTART:20261021T090000', 'DTEND:20261021T093000', 'RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE', 'SUMMARY:Biweekly'],
+    ['UID:u', 'DTSTART:20261019T080000', 'DTEND:20261019T083000', 'RRULE:FREQ=DAILY;UNTIL=20261022', 'EXDATE;VALUE=DATE:20261020', 'SUMMARY:Until'],
+    ['UID:p', 'DTSTART:20261021T180000', 'DTEND:20261021T183000', 'SUMMARY:C:\\\\new'],
+  );
+  const ev = parseIcs(ics, { from, days: 30 });
+  assert.deepEqual(ev.filter((e) => e.title === 'Monthly').map((e) => e.day), ['2026-11-17']);
+  assert.deepEqual(ev.filter((e) => e.title === 'Biweekly').map((e) => e.day).slice(0, 4), ['2026-10-21', '2026-11-02', '2026-11-04', '2026-11-16']);
+  assert.deepEqual(ev.filter((e) => e.title === 'Until').map((e) => e.day), ['2026-10-21', '2026-10-22']);
+  assert.equal(ev.find((e) => e.id.startsWith('p@')).title, 'C:\\new');
+});
+
+test('a UTC series keeps its instant across clock changes', () => {
+  const ics = wrap(['UID:z', 'DTSTART:20260715T130000Z', 'DTEND:20260715T133000Z', 'RRULE:FREQ=WEEKLY', 'SUMMARY:Utc weekly']);
+  const ev = parseIcs(ics, { from: new Date(2026, 9, 26, 0, 0), days: 14 });
+  for (const e of ev) { const [y, m, d] = e.day.split('-').map(Number); const local = new Date(y, m - 1, d, +e.start.slice(0, 2), +e.start.slice(3)); assert.equal(local.getUTCHours(), 13); }
+  assert.ok(ev.length >= 2);
+});

@@ -138,6 +138,15 @@ export async function getCollection(name, fallback) {
 }
 export const setCollection = (name, value) => area().set({ [name]: value });
 
+const collectionQueues = new Map();
+/** Read-modify-write of one collection through a per-name queue, so the worker's own writers (credit time, review, rollover) never overwrite each other. `fn` mutates or returns the new value. */
+export function updateCollection(name, fallback, fn) {
+  const run = async () => { const cur = await getCollection(name, fallback); const next = fn(cur); await setCollection(name, next === undefined ? cur : next); return next === undefined ? cur : next; };
+  const p = (collectionQueues.get(name) || Promise.resolve()).then(run, run);
+  collectionQueues.set(name, p.catch(() => {}));
+  return p;
+}
+
 /* ---------- first run & migration ---------- */
 
 /** Ensure the storage layout is current. Safe to call on every service-worker start. */
@@ -174,7 +183,7 @@ export async function importAll(payload) {
   const ver = data.meta?.schemaVersion || 0;
   const m = ver >= 2 ? null : migrate(data);
   // never trust a file blindly: keep only the keys EyeTime itself writes
-  const KNOWN = new Set(['settings', 'meta', 'tasks', 'habits', 'captures']);
+  const KNOWN = new Set(['settings', 'meta', 'tasks', 'habits', 'captures', 'weekPlan', 'estLog']);
   const clean = {};
   for (const [k, v] of Object.entries(data)) if (KNOWN.has(k) || /^d:\d{4}-\d{2}-\d{2}$/.test(k)) clean[k] = v;
   await area().clear();

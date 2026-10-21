@@ -62,3 +62,16 @@ test('finished repeating tasks reopen on their day and keep a counter', () => {
   assert.equal(next.changed, true); assert.equal(next.tasks[0].done, false); assert.equal(next.tasks[0].doneCount, 1); assert.equal(next.tasks[0].focusSec, 0); assert.equal(next.tasks[0].atDay, '2026-10-24');
   assert.equal(next.tasks[1].done, true); assert.equal(next.tasks[2].done, true); // plain and weekly tasks stay done
 });
+
+test('recurring tasks: a missed reminder moves to today; estimate log is per day and never counted twice', () => {
+  const key = (ms) => new Date(ms).toISOString().slice(0, 10);
+  const r = applyRepeats([{ id: 'r', text: 'Stretch', repeat: 'daily', at: '10:30', atDay: '2026-10-20', done: false }], '2026-10-22', key);
+  assert.equal(r.changed, true); assert.equal(r.tasks[0].atDay, '2026-10-22');
+  assert.equal(applyRepeats([{ id: 'p', text: 'x', done: false, at: '10:30', atDay: '2026-10-20' }], '2026-10-22', key).changed, false); // not recurring: untouched
+  const doneAt = Date.parse('2026-10-21T12:00:00');
+  let log = updateEstLog([], { id: 'r', text: 'R', est: 20, focusSec: 1500, done: true, doneAt: doneAt - 86400000, repeat: 'daily' });
+  log = updateEstLog(log, { id: 'r', text: 'R', est: 20, focusSec: 1200, done: true, doneAt, repeat: 'daily' });
+  assert.equal(log.length, 2); assert.ok(log.every((e) => /^r@\d{4}-\d\d-\d\d$/.test(e.id)));
+  const live = { id: 'r', text: 'R', est: 20, focusSec: 1200, done: true, doneAt, repeat: 'daily' };
+  assert.equal(accuracyInput([live], log).length, 2, 'today (live) + yesterday (log), not three');
+});

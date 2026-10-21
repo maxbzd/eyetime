@@ -1,6 +1,6 @@
 // Focus sessions: start / stop / finish. The running session is stored under `focus`; an alarm ends it.
 
-import { getSettings, getRaw, setRaw, updateDay, updateSettings, getCollection, setCollection } from '../shared/storage.js';
+import { getSettings, getRaw, setRaw, updateDay, updateSettings, getCollection, updateCollection } from '../shared/storage.js';
 import { restFor, makeSessionEntry, addSession, rateSession } from '../shared/productivity.js';
 import { createSession, createRest, elapsedMs } from '../shared/focus.js';
 import { isFocusActive } from '../shared/blocking.js';
@@ -70,11 +70,7 @@ const reviewOf = (focus, sec, completed) => ({ id: focus.id, day: dayKey(new Dat
 /** Time spent in a session is added to the task it was started for. */
 async function creditTask(focus, sec) {
   if (!focus.taskId) return;
-  const tasks = await getCollection('tasks', []);
-  const task = tasks.find((x) => x.id === focus.taskId);
-  if (!task) return;
-  task.focusSec = (task.focusSec || 0) + sec;
-  await setCollection('tasks', tasks);
+  await updateCollection('tasks', [], (tasks) => { const task = tasks.find((x) => x.id === focus.taskId); if (task) task.focusSec = (task.focusSec || 0) + sec; });
 }
 
 /** The user's answer to the review card: rate the session, optionally tick the task off. */
@@ -83,12 +79,14 @@ export async function reviewSession({ id, rating, done, resume = '' }) {
   if (!review || review.id !== id) return { ok: false };
   if (rating) await updateDay(review.day, (d) => { rateSession(d, id, rating); });
   if (review.taskId && (done || resume)) {
-    const tasks = await getCollection('tasks', []);
-    const task = tasks.find((x) => x.id === review.taskId);
-    if (task && done && !task.done) { task.done = true; task.doneAt = Date.now(); delete task.resume; await setCollection('estLog', updateEstLog(await getCollection('estLog', []), task)); }
-    // "ready to resume": where you left off, so the next start does not begin from zero (and the open loop stops nagging)
-    else if (task && !done) task.resume = String(resume).trim().slice(0, 140) || task.resume;
-    await setCollection('tasks', tasks);
+    let finished = null;
+    await updateCollection('tasks', [], (tasks) => {
+      const task = tasks.find((x) => x.id === review.taskId);
+      if (task && done && !task.done) { task.done = true; task.doneAt = Date.now(); delete task.resume; finished = { ...task }; }
+      // "ready to resume": where you left off, so the next start does not begin from zero (and the open loop stops nagging)
+      else if (task && !done) task.resume = String(resume).trim().slice(0, 140) || task.resume;
+    });
+    if (finished) await updateCollection('estLog', [], (log) => updateEstLog(log, finished));
   }
   await setRaw({ review: null });
   return { ok: true };

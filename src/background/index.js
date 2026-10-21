@@ -47,7 +47,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 });
 
 chrome.runtime.onStartup.addListener(boot);
-chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'prune') { pruneOldDays(); rolloverTasks(); } });
+chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'prune') pruneOldDays(); });
 
 chrome.commands.onCommand.addListener(async (cmd) => {
   if (cmd !== 'toggle-focus') return;
