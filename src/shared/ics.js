@@ -54,6 +54,7 @@ const DAY_MS = 86_400_000;
 function occurrences(st, rule, from, to) {
   const r = Object.fromEntries(String(rule).split(';').map((p) => p.split('=')));
   const interval = Math.max(1, Number(r.INTERVAL) || 1), limit = r.COUNT ? Number(r.COUNT) : Infinity;
+  /** @type {any} */
   let until = r.UNTIL ? parseDate(r.UNTIL, '') : null;
   if (until && until.allDay) until = { date: new Date(until.wall.y, until.wall.mo - 1, until.wall.d, 23, 59, 59) };
   const wkst = Math.max(0, DAYS.indexOf(r.WKST || 'MO'));

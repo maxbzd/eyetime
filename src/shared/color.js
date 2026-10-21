@@ -33,7 +33,7 @@ export function hslToRgb([h, s, l]) {
 /** Linear blend of two hex colours: t=0 -> a, t=1 -> b. */
 export function mix(a, b, t) {
   const A = hexToRgb(a), B = hexToRgb(b);
-  return rgbToHex(A.map((v, i) => v + (B[i] - v) * t));
+  return rgbToHex(/** @type {[number, number, number]} */ (A.map((v, i) => v + (B[i] - v) * t)));
 }
 
 export function luminance(hex) {
@@ -53,10 +53,10 @@ export function ensureContrast(fg, bgs, min = 4.5, dir = 'auto') {
   if (minContrast(fg, bgs) >= min) return fg;
   const avg = bgs.reduce((a, b) => a + luminance(b), 0) / bgs.length;
   const goDark = dir === 'dark' || (dir === 'auto' && avg > 0.4);
-  const [h, s, l] = rgbToHsl(hexToRgb(fg));
+  const [h, s, l] = rgbToHsl(/** @type {[number, number, number]} */ (hexToRgb(fg)));
   for (let i = 1; i <= 100; i++) {
     const nl = clamp(l + (goDark ? -i : i) / 100);
-    const c = rgbToHex(hslToRgb([h, s, nl]));
+    const c = rgbToHex(/** @type {[number, number, number]} */ (hslToRgb([h, s, nl])));
     if (minContrast(c, bgs) >= min) return c;
   }
   return goDark ? '#000000' : '#ffffff';

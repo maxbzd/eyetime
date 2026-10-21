@@ -39,7 +39,7 @@ const BUDGET = { homeMs: 3500, insightsMs: 5000, optionsMs: 3000, storageMB: 6, 
   };
   await timed('homeMs', 'src/newtab/newtab.html', '#mod-tasks .item', BUDGET.homeMs);
   await timed('insightsMs', 'src/insights/insights.html?range=30', '.kpi', BUDGET.insightsMs);
-  await timed('insightsAllMs', 'src/insights/insights.html?range=30', '.kpi', BUDGET.insightsMs, () => localStorage.setItem('et-itab', 'sites'));
+  await timed('insightsSitesMs', 'src/insights/insights.html?range=30', '.card table, .card .site-row, .card', BUDGET.insightsMs, () => localStorage.setItem('et-itab', 'sites'));
   await timed('optionsMs', 'src/options/options.html#data', '.setting', BUDGET.optionsMs);
 
   // a crowded browser: the worker keeps answering while many tabs are open

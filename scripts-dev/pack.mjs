@@ -10,7 +10,7 @@ const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
 const INCLUDE = ['src', '_locales', 'icons', 'LICENSE'];
-const SKIP = /(\.md$|icon512\.png$|LICENSE-.*\.txt$)/; // docs and store-only assets stay out of the package; font/icon licences ship in src/ui/
+const SKIP = /(\.md$|\.d\.ts$|icon512\.png$|LICENSE-.*\.txt$)/; // docs and store-only assets stay out of the package; font/icon licences ship in src/ui/
 
 fs.rmSync(dist, { recursive: true, force: true });
 

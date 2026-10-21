@@ -14,7 +14,8 @@ import { playChime, setAmbient } from './audio.js';
 const ICON = 'icons/icon128.png';
 const MIN_CREDIT_SEC = 120; // an early stop counts as focus time only after 2 minutes
 
-export async function startFocus({ minutes, goal = '', strict = false, taskId = '', scope, mode = '' }) {
+/** @param {{ minutes: number, goal?: string, strict?: boolean, taskId?: string, scope?: string, mode?: string }} p */
+export async function startFocus({ minutes, goal = '', strict = false, taskId = '', scope = undefined, mode = '' }) {
   const settings = await getSettings();
   let text = goal, tag = '';
   if (taskId) { const task = (await getCollection('tasks', [])).find((x) => x.id === taskId) || {}; if (!text) text = task.text || ''; tag = (task.tags || [])[0] || ''; }

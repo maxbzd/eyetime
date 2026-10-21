@@ -7,10 +7,12 @@ import { parseKey } from './time.js';
 const RATING = { 1: 'review.r1', 2: 'review.r2', 3: 'review.r3' };
 
 /** entries: [[dayKey, day]] (any order). classify(host) → 'productive'|'neutral'|'distracting'. clock24: see fmtTime. Returns Markdown. */
-export function buildJournal(entries, { classify = () => 'neutral', clock24 } = {}) {
+/** @param {any[]} entries @param {{ classify?: (host: string) => string, clock24?: boolean }} [opts] */
+export function buildJournal(entries, { classify = () => 'neutral', clock24 = undefined } = {}) {
   const days = entries.filter(([, d]) => d && ((d.fs || 0) > 0 || (d.ss || []).length || d.w || Object.keys(d.d || {}).length || Object.keys(d.a || {}).length)).sort((a, b) => (a[0] < b[0] ? 1 : -1));
   if (!days.length) return `# ${t('journal.title')}\n\n${t('journal.empty')}\n`;
   const from = parseKey(days[days.length - 1][0]), to = parseKey(days[0][0]);
+  /** @type {Intl.DateTimeFormatOptions} */
   const fmt = { day: 'numeric', month: 'short', year: 'numeric' };
   const out = [`# ${t('journal.title')}`, '', `${fmtDate(from, fmt)} – ${fmtDate(to, fmt)}`, ''];
   for (const [key, d] of days) {
