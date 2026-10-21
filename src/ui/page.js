@@ -5,6 +5,7 @@ import { resolveLocale, setLocale, applyI18n } from '../shared/i18n.js';
 import { hydrateIcons } from './dom.js';
 
 import { buildCache } from '../shared/looks.js';
+import { captureErrors } from '../shared/errorlog.js';
 
 /** Resolve the user's look and paint it (also refreshes the cache theme-init.js reads before first paint). */
 export function applyTheme(settings) {
@@ -21,6 +22,7 @@ export function localize(settings) {
  * Calls `onSettings(settings)` again whenever settings change (from any other page).
  */
 export async function bootPage({ onSettings } = {}) {
+  captureErrors('page:' + location.pathname.split('/').slice(-2).join('/'));
   const settings = await getSettings();
   localize(settings);
   applyTheme(settings);
