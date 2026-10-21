@@ -1,6 +1,8 @@
 // Natural quick-add for tasks: "Write the report 14:30 45m !" → { text, at, est, priority, tags }.
 // Conservative on purpose: only well-formed tokens are taken out of the text, everything else stays part of the title.
 
+import { findDateWord } from './datewords.js';
+
 const pad = (n) => String(n).padStart(2, '0');
 
 /** Parse a time token to 'HH:MM' or null. Accepts 14:30, 14.30, 2pm, 2:30pm, @14:30, at 14:30, в 14:30. */
@@ -13,7 +15,11 @@ function toTime(h, m, ap) {
 
 export function parseQuickAdd(input, now = new Date()) {
   let text = ` ${String(input || '').trim()} `;
-  const out = { text: '', at: null, atDay: null, est: null, priority: false, tags: [], repeat: null };
+  const out = { text: '', at: null, atDay: null, due: null, est: null, priority: false, tags: [], repeat: null };
+
+  // a day in words: tomorrow · friday · in 3 days · next week (6 languages)
+  const dw = findDateWord(text, now);
+  if (dw) { text = text.slice(0, dw.index) + ' ' + text.slice(dw.index + dw.raw.length); out.due = dw.day; }
 
   // time: @14:30 · at 2pm · в 14:30 · 14:30 · 2:30pm   (a bare number such as "3" is NOT a time)
   // a dot is a decimal point far more often than a time separator ("12.50", "chapter 10.15"): it only counts with am/pm or @/at/в
@@ -54,9 +60,10 @@ export function parseQuickAdd(input, now = new Date()) {
     const [hh, mm] = out.at.split(':').map(Number);
     const when = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm);
     const day = when.getTime() <= now.getTime() ? new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1) : now;
-    out.atDay = `${day.getFullYear()}-${pad(day.getMonth() + 1)}-${pad(day.getDate())}`;
+    out.atDay = out.due || `${day.getFullYear()}-${pad(day.getMonth() + 1)}-${pad(day.getDate())}`;
+    out.due = null; // a time already pins the day
   }
-  if (!out.text) return { text: String(input || '').trim(), at: null, atDay: null, est: null, priority: false, tags: [], repeat: null }; // never turn a task into nothing
+  if (!out.text) return { text: String(input || '').trim(), at: null, atDay: null, due: null, est: null, priority: false, tags: [], repeat: null }; // never turn a task into nothing
   return out;
 }
 

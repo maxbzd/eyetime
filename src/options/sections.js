@@ -5,10 +5,11 @@ import { send } from '../ui/api.js';
 import { row, group, toggle, select, domainEditor, sectionHead } from './ui.js';
 import { t, LANGUAGES, weekdayName, fmtDuration, getLocale } from '../shared/i18n.js';
 import { PRESETS, PRESET_IDS } from '../shared/catalog.js';
-import { importAll, resetAll, getRaw, setRaw, getRange } from '../shared/storage.js';
+import { importAll, resetAll, getRaw, setRaw, getRange, onChange } from '../shared/storage.js';
 import { buildJournal } from '../shared/journal.js';
 import { downloadBackup } from '../ui/backup.js';
 import { parseIcs } from '../shared/ics.js';
+import { normalizeCalendarUrl } from '../shared/calsub.js';
 import { buildReport, issueUrl } from '../shared/diagnostics.js';
 import { readErrors, clearErrors } from '../shared/errorlog.js';
 import { makeClassifier } from '../shared/classify.js';
@@ -263,11 +264,36 @@ export function data({ s, save, refresh }) {
   /* calendar file: events of the next 14 days, kept locally */
   const calStatus = h('div', { class: 'setting-desc sync-status' });
   const calFile = h('input', { type: 'file', accept: '.ics,text/calendar', hidden: true, 'aria-label': t('opt.calendarBtn') });
+  const subIn = h('input', { class: 'input input-sm', type: 'url', autocomplete: 'off', spellcheck: false, placeholder: t('opt.calSubPh'), 'aria-label': t('opt.calSubTitle'), style: { width: '280px', maxWidth: '100%' } });
+  const subBtn = h('button', { class: 'btn', type: 'button', onclick: () => subscribeCal() }, icon('link'), t('opt.calSubBtn'));
+  const unsubBtn = h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: () => unsubscribeCal() }, t('opt.calUnsub'));
+  const subStatus = h('div', { class: 'setting-desc sync-status', 'aria-live': 'polite' });
   async function paintCal() {
-    const [events, meta] = await Promise.all([getRaw('calendar'), getRaw('calendarMeta')]);
+    const [events, meta, subRaw] = await Promise.all([getRaw('calendar'), getRaw('calendarMeta'), getRaw('calendarSub')]);
     const list = (events.calendar || []).filter((e) => e.day >= dayKey());
     calStatus.textContent = list.length && meta.calendarMeta ? t('opt.calendarStatus', { n: list.length, date: new Date(meta.calendarMeta.at).toLocaleDateString(getLocale()) }) : t('opt.calendarNone');
+    const sub = subRaw.calendarSub;
+    subIn.hidden = subBtn.hidden = !!sub; unsubBtn.hidden = !sub;
+    const host = sub ? (normalizeCalendarUrl(sub.url).host || '') : '';
+    subStatus.textContent = !sub ? '' : sub.error ? t('opt.calErr.' + sub.error, { status: sub.status || '' }) : sub.ok ? t('opt.calSubOk', { host, n: sub.n || 0, time: new Date(sub.at).toLocaleTimeString(getLocale(), { hour: 'numeric', minute: '2-digit' }) }) : t('opt.calSubWait', { host });
   }
+  async function subscribeCal() {
+    const n = normalizeCalendarUrl(subIn.value);
+    if (!n.ok) { toast(t('opt.calBadUrl')); return; }
+    const ok = await chrome.permissions.request({ origins: [n.pattern] }).catch(() => false); // must be the first await: it needs the click
+    if (!ok) { toast(t('opt.calDenied')); return; }
+    await setRaw({ calendarSub: { url: n.url, since: Date.now(), host: n.host } });
+    subIn.value = ''; paintCal();
+    await send('calendar:sync'); paintCal();
+  }
+  async function unsubscribeCal() {
+    const { calendarSub } = await getRaw('calendarSub');
+    await chrome.storage.local.remove(['calendarSub', 'calendar', 'calendarMeta']);
+    const n = calendarSub ? normalizeCalendarUrl(calendarSub.url) : null;
+    if (n && n.ok) await chrome.permissions.remove({ origins: [n.pattern] }).catch(() => {});
+    send('calendar:sync'); paintCal();
+  }
+  onChange(['calendarSub', 'calendar'], paintCal);
   calFile.onchange = async () => {
     const f = calFile.files[0]; calFile.value = ''; if (!f) return;
     const text = await f.text();
@@ -277,7 +303,7 @@ export function data({ s, save, refresh }) {
     toast(events.length ? t('opt.calendarDone', { n: events.length }) : t('opt.calendarEmpty')); paintCal();
   };
   paintCal();
-  const calendarGroup = group(t('opt.groupCalendar'), (() => { const r = row({ title: t('opt.calendar'), desc: t('opt.calendarDesc'), control: h('div', { class: 'row gap-2 wrap' }, h('button', { class: 'btn', type: 'button', onclick: () => calFile.click() }, icon('upload'), t('opt.calendarBtn')), h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: async () => { await chrome.storage.local.remove(['calendar', 'calendarMeta']); paintCal(); } }, t('opt.calendarClear')), calFile) }); r.querySelector('.setting-text').append(calStatus); return r; })());
+  const calendarGroup = group(t('opt.groupCalendar'), (() => { const r = row({ title: t('opt.calendar'), desc: t('opt.calendarDesc'), control: h('div', { class: 'row gap-2 wrap' }, h('button', { class: 'btn', type: 'button', onclick: () => calFile.click() }, icon('upload'), t('opt.calendarBtn')), h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: async () => { await chrome.storage.local.remove(['calendar', 'calendarMeta']); paintCal(); } }, t('opt.calendarClear')), calFile) }); r.querySelector('.setting-text').append(calStatus); return r; })(), (() => { const r = row({ title: t('opt.calSubTitle'), desc: t('opt.calSubDesc'), control: h('div', { class: 'row gap-2 wrap' }, subIn, subBtn, unsubBtn) }); r.querySelector('.setting-text').append(subStatus); return r; })());
 
   return sec('data', sectionHead(t('sec.data'), t('sec.dataDesc')),
     calendarGroup,
@@ -368,6 +394,7 @@ export function about({ s }) {
         link('https://github.com/maxbzd/eyetime/issues/new/choose', icon('bug'), t('about.report')),
         link('https://github.com/maxbzd/eyetime/blob/main/PRIVACY.md', icon('shield-check'), t('about.privacy')))),
     group(t('opt.groupSupport'),
+      row({ title: t('opt.ideaTitle'), desc: t('opt.ideaDesc'), control: h('a', { class: 'btn', href: 'https://github.com/maxbzd/eyetime/issues/new?template=feature_request.md&title=Idea%3A+', target: '_blank', rel: 'noopener' }, icon('lightbulb'), t('opt.ideaBtn')) }),
       row({ title: t('opt.reportTitle'), desc: t('opt.reportDesc'), control: h('button', { class: 'btn', type: 'button', onclick: () => openReport(s) }, icon('bug'), t('opt.reportBtn')) })),
     group(t('about.shortcuts'),
       row({ title: t('about.scFocus'), control: shortcutKeys('toggle-focus', ['Alt', 'Shift', 'F']) }),
