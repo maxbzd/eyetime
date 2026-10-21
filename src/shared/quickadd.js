@@ -15,10 +15,6 @@ export function parseQuickAdd(input, now = new Date()) {
   let text = ` ${String(input || '').trim()} `;
   const out = { text: '', at: null, atDay: null, est: null, priority: false, tags: [], repeat: null };
 
-  // repetition: daily / weekdays / weekly (English and Russian phrasing)
-  const rep = /(?<=\s)(every\s+day|daily|каждый\s+день|ежедневно|every\s+weekday|weekdays|по\s+будням|every\s+week|weekly|еженедельно|каждую\s+неделю)(?=\s|$)/i.exec(text);
-  if (rep) { const w = rep[1].toLowerCase(); out.repeat = /weekday|будням/.test(w) ? 'weekdays' : /week|недел/.test(w) ? 'weekly' : 'daily'; text = text.replace(rep[0], ' '); }
-
   // time: @14:30 · at 2pm · в 14:30 · 14:30 · 2:30pm   (a bare number such as "3" is NOT a time)
   // a dot is a decimal point far more often than a time separator ("12.50", "chapter 10.15"): it only counts with am/pm or @/at/в
   const timeRe = /(?<=\s)(@|at\s+|в\s+)?(\d{1,2})(?:([:.])(\d{2}))?\s?(am|pm|a\.m\.|p\.m\.)?(?=\s|$)/i;
@@ -41,6 +37,11 @@ export function parseQuickAdd(input, now = new Date()) {
   // #tags
   for (const m of text.matchAll(/(?<=\s)#([\p{L}\p{N}_-]{1,24})(?=\s|$)/gu)) out.tags.push(m[1].toLowerCase());
   text = text.replace(/(?<=\s)#[\p{L}\p{N}_-]{1,24}(?=\s|$)/gu, ' ');
+
+  // repetition (English and Russian). Clear phrases count anywhere; the bare words daily / weekly / weekdays only at the very end,
+  // so "Prepare weekly report" stays a task called "Prepare weekly report".
+  const rep = /(?<=\s)(every\s+day|каждый\s+день|ежедневно|every\s+weekday|по\s+будням|every\s+week|еженедельно|каждую\s+неделю)(?=\s|$)/i.exec(text) || /(?<=\s)(daily|weekdays|weekly)(?=\s*$)/i.exec(text);
+  if (rep) { const w = rep[1].toLowerCase(); out.repeat = /weekday|будням/.test(w) ? 'weekdays' : /week|недел/.test(w) ? 'weekly' : 'daily'; text = text.replace(rep[0], ' '); }
 
   out.text = text.replace(/\s+/g, ' ').trim();
   if (out.at) {
