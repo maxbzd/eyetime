@@ -13,7 +13,11 @@ function toTime(h, m, ap) {
 
 export function parseQuickAdd(input, now = new Date()) {
   let text = ` ${String(input || '').trim()} `;
-  const out = { text: '', at: null, atDay: null, est: null, priority: false, tags: [] };
+  const out = { text: '', at: null, atDay: null, est: null, priority: false, tags: [], repeat: null };
+
+  // repetition: daily / weekdays / weekly (English and Russian phrasing)
+  const rep = /(?<=\s)(every\s+day|daily|каждый\s+день|ежедневно|every\s+weekday|weekdays|по\s+будням|every\s+week|weekly|еженедельно|каждую\s+неделю)(?=\s|$)/i.exec(text);
+  if (rep) { const w = rep[1].toLowerCase(); out.repeat = /weekday|будням/.test(w) ? 'weekdays' : /week|недел/.test(w) ? 'weekly' : 'daily'; text = text.replace(rep[0], ' '); }
 
   // time: @14:30 · at 2pm · в 14:30 · 14:30 · 2:30pm   (a bare number such as "3" is NOT a time)
   // a dot is a decimal point far more often than a time separator ("12.50", "chapter 10.15"): it only counts with am/pm or @/at/в
@@ -45,7 +49,7 @@ export function parseQuickAdd(input, now = new Date()) {
     const day = when.getTime() <= now.getTime() ? new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1) : now;
     out.atDay = `${day.getFullYear()}-${pad(day.getMonth() + 1)}-${pad(day.getDate())}`;
   }
-  if (!out.text) return { text: String(input || '').trim(), at: null, atDay: null, est: null, priority: false, tags: [] }; // never turn a task into nothing
+  if (!out.text) return { text: String(input || '').trim(), at: null, atDay: null, est: null, priority: false, tags: [], repeat: null }; // never turn a task into nothing
   return out;
 }
 

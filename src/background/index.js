@@ -13,6 +13,7 @@ import { setAmbient } from './audio.js';
 import './blocker.js';
 import './weekly.js';
 import { syncNow } from './sync.js';
+import { rolloverTasks } from './rollover.js';
 import './messages.js';
 import './companion.js';
 import { buildMenus } from './menus.js';
@@ -34,6 +35,7 @@ async function boot() {
   await scheduleTaskSlot();
   await updateBadge(await getSettings());
   syncNow();
+  rolloverTasks();
   return migrated;
 }
 
@@ -45,7 +47,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 });
 
 chrome.runtime.onStartup.addListener(boot);
-chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'prune') pruneOldDays(); });
+chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'prune') { pruneOldDays(); rolloverTasks(); } });
 
 chrome.commands.onCommand.addListener(async (cmd) => {
   if (cmd !== 'toggle-focus') return;
