@@ -16,7 +16,7 @@ h1 { font-size: clamp(36px, 6vw, 62px); line-height: 1.05; letter-spacing: -.035
 .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 14px; font-weight: 650; text-decoration: none; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 16px; } .btn:hover { border-color: var(--text2); }
 .btn.primary { background: var(--accent); color: var(--accent-fg); border-color: transparent; } .btn.primary:hover { filter: brightness(1.06); }
 .note { color: var(--text2); font-size: 14px; margin-top: 14px; }
-.shot { margin: 48px auto 0; border-radius: 20px; border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; background: var(--surface); } .shot img { width: 100%; }
+.shot { margin: 48px auto 0; border-radius: 20px; border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; background: var(--surface); } .shot img, .shot video { width: 100%; height: auto; display: block; }
 section { padding: 56px 0; } h2 { font-size: clamp(26px, 4vw, 38px); letter-spacing: -.03em; line-height: 1.15; margin: 0 0 14px; text-wrap: balance; } .sub { color: var(--text2); max-width: 60ch; margin: 0 0 32px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 22px; } .card h3 { margin: 0 0 6px; font-size: 18px; letter-spacing: -.01em; } .card p { margin: 0; color: var(--text2); font-size: 15.5px; }
