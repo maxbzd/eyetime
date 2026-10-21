@@ -13,6 +13,7 @@ export function taskFromInput(input, tasks = [], now = new Date()) {
   if (p.est) task.est = p.est;
   if (p.at) { task.at = p.at; task.atDay = p.atDay; }
   if (p.tags.length) task.tags = p.tags.slice(0, 5);
+  if (p.repeat) task.repeat = p.repeat;
   return { task, parsed: p, prioDenied: p.priority && !prioFree };
 }
 
@@ -30,4 +31,30 @@ export function updateEstLog(log, task) {
 export function accuracyInput(tasks, log) {
   const live = new Set((tasks || []).map((x) => x.id));
   return [...(tasks || []), ...(log || []).filter((e) => !live.has(e.id)).map((e) => ({ id: e.id, text: e.text, est: e.est, focusSec: e.focusSec, done: true }))];
+}
+
+/* ---------- recurring tasks: a finished daily / weekday / weekly task comes back on its next day ---------- */
+
+const addDaysKey = (key, n) => { const [y, m, d] = key.split('-').map(Number); const x = new Date(y, m - 1, d + n); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; };
+const weekdayOf = (key) => { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d).getDay(); };
+
+/** The first day (key) on which a task finished on `doneKey` is due again. */
+export function nextOccurrence(repeat, doneKey) {
+  if (repeat === 'weekly') return addDaysKey(doneKey, 7);
+  let k = addDaysKey(doneKey, 1);
+  if (repeat === 'weekdays') while ([0, 6].includes(weekdayOf(k))) k = addDaysKey(k, 1);
+  return k;
+}
+
+/** Reopens finished repeating tasks whose next day has come. Pure: returns { tasks, changed }. `keyOf(ms)` turns a timestamp into a day key. */
+export function applyRepeats(tasks, todayKey, keyOf) {
+  let changed = false;
+  const out = tasks.map((x) => {
+    if (!x.repeat || !x.done || !x.doneAt) return x;
+    if (todayKey < nextOccurrence(x.repeat, keyOf(x.doneAt))) return x;
+    changed = true;
+    const { atDay, ...rest } = x; // eslint-disable-line no-unused-vars
+    return { ...rest, done: false, doneAt: 0, focusSec: 0, doneCount: (x.doneCount || 0) + 1, ...(x.at ? { atDay: todayKey } : {}) };
+  });
+  return { tasks: out, changed };
 }

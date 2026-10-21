@@ -11,6 +11,8 @@ import { rangeKeys } from '../shared/time.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { remainingMs, progress, isRestActive } from '../shared/focus.js';
 import { modeName } from '../shared/modes.js';
+import { nextEvent } from '../shared/ics.js';
+import { dayKey } from '../shared/time.js';
 
 export function mountFocusCard(root, { variant = 'compact' } = {}) {
   const large = variant === 'large';
@@ -27,6 +29,7 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     st.suggest = suggestMinutes(days, st.settings.focus.presets);
     st.streak = goalStreak(days, st.settings.focus.dailyGoal, st.settings.focus.goalDays);
     st.tasks = (await getCollection('tasks', [])).filter((x) => !x.done);
+    st.events = (await getRaw('calendar')).calendar || [];
     st.focus = isFocusActive(focus) ? focus : null;
     st.rest = !st.focus && isRestActive(rest) ? rest : null;
     const d = st.draft, s = st.settings.focus;
@@ -94,6 +97,15 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     const resumeLine = picked?.resume ? h('div', { class: 'resume-line' }, icon('corner-down-right'), h('span', {}, h('b', { text: t('focus.leftOff') + ' ' }), picked.resume)) : null;
     const suggestLine = st.suggest && large ? h('div', { class: 'hint' }, icon('sparkles'), t('focus.suggested', { n: st.suggest.minutes })) : null;
     const noEffort = st.today?.fs || !large ? null : h('button', { class: 'just5', type: 'button', onclick: () => { d.minutes = 5; d.custom = false; start(); } }, icon('sparkles'), t('focus.just5'));
+    // next meeting (from an imported calendar file): say when, and warn if the chosen session would run into it
+    const nowD = new Date(), ne = large ? nextEvent(st.events, dayKey(nowD), nowD.getHours() * 60 + nowD.getMinutes()) : null;
+    let calLine = null;
+    if (ne && ne.inMin <= 8 * 60) {
+      const gap = ne.inMin, runsInto = !ne.ongoing && d.minutes > gap - 3, fit = Math.floor((gap - 5) / 5) * 5;
+      calLine = h('div', { class: 'cal-line' + (runsInto ? ' warn' : '') }, icon('calendar-clock'),
+        h('span', { text: (ne.title ? t('cal.next', { title: ne.title, time: ne.start }) : t('cal.nextNoTitle', { time: ne.start })) + ' · ' + (ne.ongoing ? t('cal.ongoing') : t('cal.in', { time: fmtDuration(gap * 60) })) + (runsInto && !ne.ongoing ? '. ' + t('cal.overlap', { n: d.minutes }) : '') }),
+        runsInto && fit >= 10 ? h('button', { class: 'btn btn-sm', type: 'button', onclick: () => { d.minutes = fit; d.custom = !s.presets.includes(fit); render(); } }, t('cal.fit', { n: fit })) : null);
+    }
     const strip = goalStrip({ fsSec: st.today?.fs || 0, goalMin: st.settings.focus.dailyGoal, streak: st.streak });
 
     // in the popup a pending review takes the place of the whole start form: one decision at a time, and it fits
@@ -103,7 +115,7 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     }
     clear(root, h('div', { class: 'focus-idle' + (large ? ' large' : '') },
       st.review ? reviewCard(st.review, { onDone: refresh }) : null,
-      strip,
+      strip, calLine,
       goal, taskRow, resumeLine, modeRow,
       large
         ? h('div', { class: 'focus-row' }, h('div', { class: 'durations' }, chips, custom), btn)
@@ -178,7 +190,7 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
   async function refresh() { await load(); render(); }
 
   refresh();
-  onChange(['focus', 'rest', 'settings', 'review', 'tasks', 'd:*'], async () => {
+  onChange(['focus', 'rest', 'settings', 'review', 'tasks', 'calendar', 'd:*'], async () => {
     const was = !!st.focus + ':' + !!st.rest;
     await load();
     if (was !== !!st.focus + ':' + !!st.rest || (!st.focus && !st.rest && !root.contains(document.activeElement))) render();

@@ -313,3 +313,8 @@ select.tag { appearance: none; padding-right: 9px; font-family: inherit; }
 .grid-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 .win { grid-template-columns: 16px auto minmax(0, 1fr); }
 @media (max-width: 600px) { .pcard .card-head { flex-wrap: wrap; } .pcard .card-head .scope { order: 2; } }
+
+/* triggers */
+.trig { display: flex; flex-direction: column; gap: 6px; padding-bottom: var(--s-4); border-bottom: 1px solid var(--border); } .trig:last-child { border-bottom: 0; padding-bottom: 0; }
+.trig-head { display: flex; align-items: center; gap: var(--s-3); min-width: 0; } .trig-head b { font-weight: 600; } .trig-head .muted { margin-left: auto; font-size: var(--fs-xs); white-space: nowrap; }
+.trig-line { margin: 0; font-weight: 560; } .trig .muted-2 { margin: 0; font-size: var(--fs-sm); max-width: 70ch; }

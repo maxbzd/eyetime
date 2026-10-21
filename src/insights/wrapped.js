@@ -15,8 +15,8 @@ function cssVar(name, fallback) {
 function rr(ctx, x, y, w, hgt, r) { ctx.beginPath(); ctx.roundRect(x, y, w, hgt, r); }
 function loadImage(src) { return new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; }); }
 
-export async function drawWrapped({ sum, prev, cur, goalMin }) {
-  const s = wrappedStats({ sum, prev, cur, goalMin });
+export async function drawWrapped({ sum, prev, cur, goalMin, weekGoals }) {
+  const s = wrappedStats({ sum, prev, cur, goalMin, weekGoals });
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const ctx = c.getContext('2d');
   const col = { bg: cssVar('--bg', '#faf9f7'), surface: cssVar('--surface', '#fff'), text: cssVar('--text', '#1c1917'), text2: cssVar('--text-2', '#57534e'), text3: cssVar('--text-3', '#78716c'), accent: cssVar('--accent', '#d4440a'), good: cssVar('--productive', '#2563eb'), bad: cssVar('--distracting', '#dc2626'), border: cssVar('--border', '#e7e5e4'), empty: cssVar('--bar-empty', '#eee') };
@@ -68,7 +68,7 @@ export async function drawWrapped({ sum, prev, cur, goalMin }) {
   });
 
   // one honest sentence
-  const line = s.msg === 'goal' ? t('wrapped.msgGoal', { n: s.goalDays }) : s.msg === 'up' ? t('wrapped.msgUp', { pct: s.focusDelta }) : s.best ? t('wrapped.msgBest', { day: weekdayName(parseKey(s.best.key).getDay(), 'long'), time: fmtDuration(s.best.focus) }) : t('wrapped.msgSteady');
+  const line = s.msg === 'week' ? t('wrapped.msgWeek', { n: s.weekGoals.total }) : s.msg === 'goal' ? t('wrapped.msgGoal', { n: s.goalDays }) : s.msg === 'up' ? t('wrapped.msgUp', { pct: s.focusDelta }) : s.best ? t('wrapped.msgBest', { day: weekdayName(parseKey(s.best.key).getDay(), 'long'), time: fmtDuration(s.best.focus) }) : t('wrapped.msgSteady');
   ctx.fillStyle = col.text; ctx.font = F(650, 40);
   const words = line.split(' '); let row = '', y = 1290; const lines = [];
   for (const w of words) { const test = row ? row + ' ' + w : w; if (ctx.measureText(test).width > chartW && row) { lines.push(row); row = w; } else row = test; }

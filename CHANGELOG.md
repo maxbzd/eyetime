@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.7.0 — 2026-10-21
+
+Planning the day and the week.
+
+### New
+- **Plan my day** (Home → Tasks): pick how much time you really have today and EyeTime fits your tasks into it, using your own estimate history, and shows what does not fit.
+- **Recurring tasks**: type `every day`, `weekdays` or `every week` in quick add (also in Russian). A finished recurring task reappears on its next day by itself.
+- **Weekly outcomes**: a small strip on Home with your 1–3 goals for the week; the weekly review and the shareable card report how many you reached.
+- **Calendar import (.ics)** in Settings → Data & privacy: EyeTime shows your next meeting on the focus card, warns when a session would overlap it and offers a session that ends right before it. The file is read locally; only the next 14 days are kept.
+- **What pulls you** (Insights → Sites): when you are usually drawn to a distracting site, how long it takes you, and a one-tap daily limit.
+
+### Fixed
+- The preview chips under the quick-add field had no styling; they now look like the task chips.
+
+### Tested
+- New unit tests for planning, weeks, calendar parsing and trigger analysis; end-to-end checks for the new dialogs and cards in the upgrade crawl.
+
 ## 2.6.0 — 2026-10-21
 
 Reliability and support.
