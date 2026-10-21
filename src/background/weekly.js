@@ -1,6 +1,8 @@
 // Monday-morning digest of the last completed week, shown as a notification (can be switched off).
 
-import { getSettings, getDays, getRaw, setRaw } from '../shared/storage.js';
+import { getSettings, getDays, getRaw, setRaw, getCollection } from '../shared/storage.js';
+import { mondayKey, weekProgress } from '../shared/week.js';
+import { projectTotals } from '../shared/projects.js';
 import { dayKey, weekStart, addDays } from '../shared/time.js';
 import { makeClassifier } from '../shared/classify.js';
 import { summarize, delta } from '../shared/stats.js';
@@ -21,7 +23,8 @@ export async function maybeSendWeeklyReport(now = new Date()) {
 
   const last = addDays(monday, -7), prev = addDays(monday, -14);
   const { classify } = makeClassifier(settings);
-  const cur = summarize(await getDays(weekKeys(last)), classify);
+  const lastEntries = await getDays(weekKeys(last));
+  const cur = summarize(lastEntries, classify);
   const before = summarize(await getDays(weekKeys(prev)), classify);
   if (cur.total < 600) return;
 
@@ -31,6 +34,10 @@ export async function maybeSendWeeklyReport(now = new Date()) {
   lines.push(t('weekly.total', { time: fmtDuration(cur.total) }) + (d === null ? '' : ` (${d > 0 ? '+' : ''}${d}%)`));
   if (cur.distracting >= 600) lines.push(t('weekly.distracting', { time: fmtDuration(cur.distracting) }));
   if (cur.focusSessions) lines.push(t('weekly.focus', { n: cur.focusSessions, time: fmtDuration(cur.focusSec) }));
+  const wp = weekProgress(await getCollection('weekPlan', null), mondayKey(last));
+  if (wp.total) lines.push(t('weekly.goals', { done: wp.done, total: wp.total }));
+  const top = projectTotals(lastEntries).find((r) => r.tag && r.sec >= 600);
+  if (top) lines.push(t('weekly.project', { tag: top.tag, time: fmtDuration(top.sec) }));
   if (cur.topSites[0]) lines.push(t('weekly.top', { sites: cur.topSites.slice(0, 3).map((s) => s.host).join(', ') }));
   await chrome.notifications.create('weekly', { type: 'basic', iconUrl: 'icons/icon128.png', title: t('weekly.title'), message: lines.join('\n') });
 }
