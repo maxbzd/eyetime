@@ -47,13 +47,22 @@ No content script runs on arbitrary pages and there is no all-sites host permiss
 
 Pure, unit-tested logic for plan → focus → review: long breaks (`restFor`), daily goal and goal streak, session log, best focus hours (`bestHours`, weighted by the user's rating), day review, one gentle Home nudge (`nudge`), scheduled reminders (`nextReminder`). The worker writes sessions in `finishFocus`/`stopFocus`, credits focus time to the linked task and queues `review`; `reminders.js` keeps a single alarm for the next slot. A session carries its `scope` (`distractions` | `only-mine`) and `decide()` closes everything that is not productive or allow-listed in the latter.
 
+## Planning (`tasks.js`, `week.js`, `dayplan.js`, `ics.js`, `triggers.js`)
+
+All pure and unit-tested; the UI only renders their output.
+- **Recurring tasks** — `taskFromInput` stores `task.repeat` (`daily | weekdays | weekly`); `applyRepeats` reopens a finished recurring task on its next day. It runs when Home opens, when the worker boots and on the daily `prune` alarm (`background/rollover.js`), and is idempotent, so the three can race safely.
+- **Weekly outcomes** (`week.js`) — up to three results per ISO week in the `weekPlan` collection; the weekly review and the share card count how many were reached.
+- **Plan my day** (`dayplan.js`) — fits the starred tasks into the time left today using the user's own estimate history (`estLog`), never past the end of the work day.
+- **Calendar** (`ics.js`) — the user imports an .ics file; only events of the next 14 days are kept in `calendar`/`calendarMeta` (local storage, never uploaded). The focus card shows the next meeting and offers a session that ends before it.
+- **Triggers** (`triggers.js`) — from the hourly data: when a distracting site pulls the user in and for how long, with a one-tap daily limit.
+
 ## Classification (`classify.js`)
 
 Candidates: built-in productive list, enabled presets, custom/always lists, user overrides. The **most specific** (longest) domain wins; on a tie, user > custom > built-in. The allow-list demotes "distracting" to "neutral" unless the user explicitly marked the site.
 
 ## i18n (`src/shared/i18n.js`, `locales/`)
 
-Flat key → string maps; plural forms via `Intl.PluralRules`; `{param}` interpolation. English is the reference. `scripts-dev/check.mjs` fails the build when a used key is missing, a language lacks a key, or placeholders differ.
+Flat key → string maps; plural forms via `Intl.PluralRules`; `{param}` interpolation. English is the reference; six languages ship (en, ru, es, de, fr, pt — see [TRANSLATING.md](TRANSLATING.md)). The store texts live in `_locales/<lang>/messages.json`. `scripts-dev/check.mjs` fails the build when a used key is missing, a language lacks a key, or placeholders differ.
 
 ## Migration (`migrate.js`)
 
@@ -71,6 +80,9 @@ Pure function from a raw 1.x storage snapshot to the 2.0 layout (settings mappin
 | Static checks: syntax, manifest refs, HTML refs, i18n parity, icons | `scripts-dev/check.mjs` |
 | Whole extension in real Chromium (install → onboarding → tracking → blocking → focus → migration → feed guard → no console errors) | `scripts-dev/e2e/` (Playwright, not a dependency) |
 | Companion | `python -m unittest` |
+| Narrow windows, 125 % zoom and long names in every language; upgrade from old versions; accessibility (axe) | `upgrade.cjs`, `a11y.cjs` |
+| Real-world blocking scenarios (second window, SPA navigation, restarted service worker, shared pass) | `blocking.cjs` |
+| Store screenshots and the demo video | `screenshots.cjs`, `demo.cjs` |
 
 ## Why these permissions
 
