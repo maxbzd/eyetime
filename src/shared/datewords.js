@@ -1,0 +1,60 @@
+// Dates in plain words for quick add: "tomorrow", "friday", "in 3 days", "next week" — in English, Russian, Spanish, German, French and Portuguese.
+// Pure: findDateWord(text, now) → { day: 'YYYY-MM-DD', raw, index } | null, where `raw` is the matched text at `index` (the caller removes it from the task title).
+// Only unambiguous words count: no 3-letter weekday abbreviations ("sat", "sun", "mon" are ordinary words), no bare "segunda" / "quarta" (also "second", "fourth").
+
+const pad = (n) => String(n).padStart(2, '0');
+const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const plus = (now, n) => new Date(now.getFullYear(), now.getMonth(), now.getDate() + n);
+
+/** Days from today to the next `dow` (0 = Sunday); the same weekday as today means next week. */
+const upcoming = (now, dow) => ((dow - now.getDay() + 7) % 7) || 7;
+
+// [regex source, resolver(match, now) → Date]. Every regex is anchored by the callers with whitespace lookarounds.
+const WEEKDAYS = [
+  // [dow, words in all languages]
+  [1, 'monday|понедельник[а]?|lunes|montag|lundi|segunda-feira'],
+  [2, 'tuesday|вторник[а]?|martes|dienstag|mardi|ter[cç]a-feira'],
+  [3, 'wednesday|сред[ауы]|mi[eé]rcoles|mittwoch|mercredi|quarta-feira'],
+  [4, 'thursday|четверг[а]?|jueves|donnerstag|jeudi|quinta-feira'],
+  [5, 'friday|пятниц[ауы]|viernes|freitag|vendredi|sexta-feira'],
+  [6, 'saturday|суббот[ауы]|s[aá]bado|samstag|sonnabend|samedi'],
+  [0, 'sunday|воскресень[еяю]|domingo|sonntag|dimanche'],
+];
+// Portuguese weekdays without "-feira" are also ordinal numbers: accept them only after "na / no / nesta / próxima".
+const PT_BARE = [[1, 'segunda'], [2, 'ter[cç]a'], [3, 'quarta'], [4, 'quinta'], [5, 'sexta']];
+
+// optional words in front of a weekday that belong to the date phrase ("on friday", "в пятницу", "el lunes", "am montag", "ce vendredi", "na sexta")
+const LEAD = '(?:(?:on|next|this|в|во|к|el|este|pr[oó]ximo|am|n[aä]chsten|kommenden|le|ce|na|no|nesta|neste|pr[oó]xima)\\s+)?';
+// words that may follow ("friday next", "vendredi prochain")
+const TRAIL = '(?:\\s+(?:prochain|next))?';
+
+const RULES = [];
+const add = (src, fn) => RULES.push([new RegExp(`(?<=\\s)(${src})(?=\\s|$)`, 'iu'), fn]);
+
+// the day after tomorrow first (it contains "tomorrow" words)
+add('послезавтра|pasado\\s+ma[nñ]ana|[uü]bermorgen|apr[eè]s-demain|depois\\s+de\\s+amanh[aã]|day\\s+after\\s+tomorrow', (m, now) => plus(now, 2));
+add('today|сегодня|hoy|heute|aujourd[’\']hui|hoje', (m, now) => plus(now, 0));
+add('tomorrow|завтра|ma[nñ]ana|morgen|demain|amanh[aã]', (m, now) => plus(now, 1));
+// "in 3 days" / "через 3 дня" / "en 3 días" / "in 3 Tagen" / "dans 3 jours" / "em 3 dias"
+add('(?:in|через|en|dans|em)\\s+(\\d{1,3})\\s+(?:days?|дн(?:я|ей|ь)|d[ií]as?|tagen?|jours?)', (m, now) => plus(now, Number(/(\d{1,3})/.exec(m[0])[1])));
+// next week → the coming Monday
+add('next\\s+week|на\\s+следующей\\s+неделе|la\\s+semana\\s+que\\s+viene|(?:in\\s+der\\s+)?n[aä]chste[nr]?\\s+woche|la\\s+semaine\\s+prochaine|semana\\s+que\\s+vem', (m, now) => plus(now, upcoming(now, 1)));
+for (const [dow, words] of WEEKDAYS) add(`${LEAD}(?:${words})${TRAIL}`, (m, now) => plus(now, upcoming(now, dow)));
+for (const [dow, word] of PT_BARE) add(`(?:na|no|nesta|neste|pr[oó]xima|pr[oó]ximo)\\s+${word}`, (m, now) => plus(now, upcoming(now, dow)));
+// ISO date: 2026-10-24 (the one numeric form every language agrees on)
+add('(\\d{4})-(\\d{2})-(\\d{2})', (m, now) => { const d = new Date(+m[2], +m[3] - 1, +m[4]); return d.getMonth() === +m[3] - 1 ? d : null; });
+
+export function findDateWord(text, now = new Date()) {
+  const s = ` ${text} `;
+  let best = null;
+  for (const [re, fn] of RULES) {
+    const m = re.exec(s);
+    if (!m) continue;
+    // "mañana" is also "morning" in "por la mañana" / "de la mañana": not a date there
+    if (/ma[nñ]ana/i.test(m[1]) && /(?:la|de\s+la|esta)\s+$/i.test(s.slice(0, m.index))) continue;
+    const d = fn(m, now);
+    if (!d) continue;
+    if (!best || m.index < best.index) best = { index: m.index, raw: m[1], day: keyOf(d) };
+  }
+  return best ? { day: best.day, raw: best.raw, index: best.index - 1 } : null; // index in `text` (the padded copy shifts it by one)
+}
