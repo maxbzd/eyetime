@@ -20,6 +20,9 @@ export function isScheduleActive(schedule, now = new Date()) {
   return false;
 }
 
+export const REDIRECT_GRACE = '*redirect';
+export const REDIRECT_GRACE_MS = 30_000;
+
 /**
  * Decide what to do when the user opens `host`.
  *
@@ -37,7 +40,10 @@ export function decide(host, ctx) {
   if (!host || matchesAny(host, b.allow)) return { action: 'allow' };
 
   const rule = classifier.ruleDomain(host);
-  const passed = (passes[rule] || 0) > now;
+  // A "continue" on the pause page also opens a 30 s window for the redirect chain that follows (youtu.be → youtube.com,
+  // consent hops, link shorteners): otherwise the destination, a different rule domain, would show the pause page a second time.
+  const grace = (passes[REDIRECT_GRACE] || 0) > now;
+  const passed = (passes[rule] || 0) > now || grace;
 
   if (matchesAny(host, b.always)) return { action: 'block', reason: 'always', rule, canPass: false };
 

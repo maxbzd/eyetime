@@ -1,5 +1,26 @@
 # Changelog
 
+## 2.5.3 — 2026-10-21
+
+From real-world use.
+
+### Fixed
+- **A second pause page after "Continue"** on short links (e.g. `youtu.be` → `youtube.com`): the pass covered only the first site, the redirect target was a different rule domain. A "Continue" now also opens a 30-second window for the redirect chain that follows (never for always-blocked sites or strict sessions). Covered by an end-to-end test that fails without the fix.
+- **Cut-off tooltips** on the icons in the top corner of Home and in the popup header: they now open downwards and stay inside the window.
+
+### Changed
+- **Ambient focus sounds are now real recordings.** The synthesised rain and café were replaced: *Rain*, *River* and *Forest* are seamless loops cut from CC0 field recordings (credits in `src/audio/CREDITS.txt`), *Brown noise* stays synthesised. The old *Café* choice becomes *Rain* automatically.
+
+## 2.5.2 — 2026-10-20
+
+Fixes from a second independent review.
+
+- CI: the accessibility step could not run (a second `npm i --no-save` removed Playwright); both are now installed together.
+- *Get started → Add a task* works when the cards are hidden (minimal layout) or the Tasks card is off (opens the palette); the checklist sits in the right place in the split layout and stops repainting on every tracker write.
+- Storage thinning near the quota looks only at day records, never runs in Firefox (no 10 MB cap there) and can't throw on a thinned day.
+- Journal: desktop-app time is included in totals like in Insights; day headings carry the year.
+- Sounds start even if the audio context was created suspended (Firefox event page).
+
 ## 2.5.1 — 2026-10-20
 
 ### Fixed

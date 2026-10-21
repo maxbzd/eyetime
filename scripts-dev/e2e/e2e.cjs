@@ -68,6 +68,14 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   ok(/^https?:\/\/reddit.com/.test(tab.url()), 'continue releases the site', tab.url());
   await tab.goto(url('reddit.com', '/r/y')); await sleep(800);
   ok(/^https?:\/\/reddit.com/.test(tab.url()), 'pass still valid for subsequent navigation');
+  // a short link that redirects to another rule domain (youtu.be → youtube.com) must show the pause page only once
+  await ctx.route(/^https?:\/\/youtu\.be\//, (route) => route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><script>location.replace("http://www.youtube.com/watch?v=redir")</script>' })); // client-side redirect, like a short link
+  const savedPasses = await get('passes'); await sw.evaluate(() => chrome.storage.local.set({ passes: {} }));
+  await tab.goto('http://youtu.be/abc123').catch(() => {}); await sleep(1200);
+  ok(tab.url().includes('blocked.html') && tab.url().includes('r=friction'), 'youtu.be paused with friction', tab.url().slice(0, 100));
+  await tab.waitForSelector('#cont:not([disabled])', { timeout: 14000 }); await tab.click('#cont'); await sleep(2500);
+  ok(/^https?:\/\/www\.youtube\.com\/watch\?v=redir/.test(tab.url()), 'after continuing, the redirect target opens without a second pause page', tab.url().slice(0, 110));
+  await ctx.unroute(/^https?:\/\/youtu\.be\//); await sw.evaluate((p) => chrome.storage.local.set({ passes: p || {} }), savedPasses);
 
   console.log('5. focus & strict');
   const r = await send(helper, { type: 'focus:start', minutes: 5, goal: 'Test goal', strict: true });
@@ -130,6 +138,12 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   ok(dsw.pa && dsw.pa['reddit.com'] >= 1, 'temptations logged when a pause/block page steps in', JSON.stringify(dsw.pa));
   const r2 = await send(helper, { type: 'ambient:set', kind: 'rain' }); const stA = await get('settings'); ok(r2.ok && stA.focus.ambient === 'rain', 'ambient sound choice saved');
   await send(helper, { type: 'ambient:set', kind: 'off' }); ok((await send(helper, { type: 'ambient:set', kind: 'bogus' })).ok === false, 'unknown ambient sound rejected');
+  // the real recordings decode and loop (run the audio module in a page: headless Chromium has no sound card but decodes fine)
+  for (const kind of ['rain', 'river', 'forest', 'brown']) {
+    const st = await helper.evaluate(async (kind) => { const m = await import('/src/background/offscreen.js'); m.handle({ target: 'offscreen', kind: 'ambient-start', sound: kind }); for (let i = 0; i < 40; i++) { if (m.ambientState().kind === kind) break; await new Promise((r) => setTimeout(r, 100)); } const r = m.ambientState(); m.handle({ target: 'offscreen', kind: 'ambient-stop' }); return r; }, kind);
+    ok(st.kind === kind && st.seconds >= 7, `ambient "${kind}" loads and loops`, JSON.stringify(st));
+  }
+  ok((await send(helper, { type: 'ambient:set', kind: 'cafe' })).ok === false, 'retired "cafe" sound is rejected');
   await helper.evaluate(async () => { const m = await import('/src/shared/storage.js'); await m.setCollection('tasks', [{ id: 't2', text: 'Draft the proposal', done: false, starred: false, createdAt: Date.now() }, { id: 't3', text: 'Reply to Sam', done: false, starred: false, createdAt: Date.now() }]); await m.updateSettings((s) => { s.focus.breakMinutes = 0; s.focus.review = true; s.blocking.plans = [{ id: 'p1', when: 'reddit.com', then: 'stand up and drink water' }]; }); });
   await send(helper, { type: 'focus:start', minutes: 5, strict: false, taskId: 't2' });
   await sw.evaluate(async () => { const { focus } = await chrome.storage.local.get('focus'); focus.endsAt = Date.now() + 800; await chrome.storage.local.set({ focus }); await chrome.alarms.create('focus-end', { when: focus.endsAt }); });

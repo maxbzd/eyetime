@@ -236,7 +236,7 @@ export const en = {
   'block.why.back': 'Turned back',
   'remind.taskTitle': 'Time for your task', 'remind.taskResume': '{task} — you left off at: {resume}',
   'focus.park': 'Park a thought… ⏎', 'focus.parked': 'Parked. Back to it.', 'focus.held': { one: 'Held back {n} distraction today', other: 'Held back {n} distractions today' }, 'focus.heldTip': 'Times a pause or block page stepped in during a session today', 'focus.ambient': 'Sound',
-  'ambient.off': 'Silent', 'ambient.brown': 'Brown noise', 'ambient.rain': 'Rain', 'ambient.cafe': 'Café',
+  'ambient.off': 'Silent', 'ambient.brown': 'Brown noise', 'ambient.rain': 'Rain', 'ambient.river': 'River', 'ambient.forest': 'Forest',
   'focus.leftOff': 'You left off:', 'focus.suggested': 'Your best-rated sessions are {n} min — EyeTime learns this from your own ratings.', 'focus.suggestedTip': 'Works best for you',
   'review.resume': 'Where did you leave off? (next step)', 'review.resumePh': 'e.g. Draft the intro, then charts',
   'rest.i1': 'Stand up, roll your shoulders and walk to a window.', 'rest.i2': 'Look at something far away for 20 seconds.', 'rest.i3': 'Drink a glass of water.', 'rest.i4': 'Take five slow breaths. Screens can wait.', 'rest.i5': 'Do a minute of stretching — neck, wrists, back.', 'rest.i6': 'Step outside or walk down the hall. Movement beats scrolling.',

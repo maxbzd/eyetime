@@ -29,7 +29,7 @@ export async function playChime(kind) {
   } catch { /* sound is a nicety, never an error */ }
 }
 
-/** Ambient focus sound (synthesised in the offscreen document): 'brown' | 'rain' | 'cafe', or 'off'. */
+/** Ambient focus sound (synthesised in the offscreen document): 'brown' | 'rain' | 'river' | 'forest', or 'off'. */
 export async function setAmbient(kind) {
   try {
     if (await direct(kind === 'off' ? { target: 'offscreen', kind: 'ambient-stop' } : { target: 'offscreen', kind: 'ambient-start', sound: kind })) return;

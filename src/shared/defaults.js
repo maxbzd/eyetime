@@ -31,7 +31,7 @@ export const DEFAULT_SETTINGS = {
     longBreak: { every: 4, minutes: 15 }, // a longer rest after every Nth session of the day (every: 0 = off)
     dailyGoal: 120,            // minutes of focus per day (0 = no goal)
     goalDays: [1, 2, 3, 4, 5], // weekdays the goal applies to (0 = Sunday); days off neither count nor break the streak
-    ambient: 'off',            // ambient sound during a session: off | brown | rain | cafe
+    ambient: 'off',            // ambient sound during a session: off | brown | rain | river | forest
     scope: 'distractions',     // what a session closes: 'distractions' (sites classed distracting) | 'only-mine' (everything except productive and allowed sites)
     review: true,              // after a session: "did you finish it? how did it go?"
     reminders: [],             // [{ id, time: 'HH:MM', days: [1..5], minutes }] – a nudge to start a session

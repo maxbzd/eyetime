@@ -208,3 +208,7 @@ dialog.dialog[open] { animation: dlg-in var(--t-med) var(--ease); }
 .select-auto { max-width: 100%; }
 .row > .input { flex: 1 1 120px; }
 .setting-ctl > *, .stack, .stack > .row { min-width: 0; }
+
+/* tooltips in a top bar (new tab corner icons, popup header) open downwards and never leave the window on the right edge */
+.nt-top [data-tip]:hover::after, .nt-top [data-tip]:focus-visible::after, .top [data-tip]:hover::after, .top [data-tip]:focus-visible::after { bottom: auto; top: calc(100% + 6px); }
+.nt-top .btn:last-child[data-tip]:hover::after, .nt-top .btn:last-child[data-tip]:focus-visible::after, .top .btn:last-child[data-tip]:hover::after, .top .btn:last-child[data-tip]:focus-visible::after { left: auto; right: 0; transform: none; }

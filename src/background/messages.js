@@ -32,7 +32,7 @@ const handlers = {
     return { ok: true };
   },
   'ambient:set': async (m) => {
-    if (!['off', 'brown', 'rain', 'cafe'].includes(m.kind)) return { ok: false };
+    if (!['off', 'brown', 'rain', 'river', 'forest'].includes(m.kind)) return { ok: false };
     await updateSettings((s) => { s.focus.ambient = m.kind; });
     const { focus } = await getRaw('focus');
     await setAmbient(isFocusActive(focus) ? m.kind : 'off');
