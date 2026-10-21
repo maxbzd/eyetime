@@ -24,10 +24,11 @@ export async function openDayPlan() {
     const time = h('input', { class: 'input input-sm', type: 'time', value: b.start, 'aria-label': t('plan.start') + ': ' + b.text, disabled: b.fixed });
     return { b, on, time, el: h('div', { class: 'plan-block' + (b.fixed ? ' fixed' : '') }, h('label', { class: 'check' }, on, h('span', { class: 'box' }, icon('check'))), h('div', { class: 'plan-text' }, h('b', { class: 'truncate', text: b.text }), h('span', { class: 'muted', text: fmtDuration(b.minutes * 60) + (b.fixed ? ' · ' + t('plan.fixed') : '') })), time) };
   });
-  const notes = [best ? t('plan.bestNote', { time: `${String(best.start).padStart(2, '0')}:00` }) : null, plan.calibrated ? t('plan.calibNote', { x: (Math.round(acc.median * 10) / 10).toString() }) : null, busy.length ? t('plan.calNote') : null].filter(Boolean);
+  const flex = rows.some((r) => !r.b.fixed);
+  const notes = flex ? [best ? t('plan.bestNote', { time: `${String(best.start).padStart(2, '0')}:00` }) : null, plan.calibrated ? t('plan.calibNote', { x: (Math.round(acc.median * 10) / 10).toString() }) : null, busy.length ? t('plan.calNote') : null].filter(Boolean) : [];
 
   const dlg = h('dialog', { class: 'dialog dialog-wide' }, h('form', { method: 'dialog' },
-    h('div', { class: 'dialog-body stack gap-3' }, h('h3', { text: t('plan.title') }), h('p', { class: 'muted-2', text: rows.length ? t('plan.lead') : (open.length ? t('plan.late') : t('plan.none')) }),
+    h('div', { class: 'dialog-body stack gap-3' }, h('h3', { text: t('plan.title') }), h('p', { class: 'muted-2', text: flex ? t('plan.lead') : rows.length ? t('plan.booked') : (open.length ? t('plan.late') : t('plan.none')) }),
       rows.length ? h('div', { class: 'plan-list' }, rows.map((r) => r.el)) : null,
       notes.length ? h('ul', { class: 'plan-notes' }, notes.map((n) => h('li', { text: n }))) : null),
     h('div', { class: 'dialog-actions' },
