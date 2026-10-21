@@ -13,7 +13,7 @@ async function launch(opts = {}) {
   const ctx = await chromium.launchPersistentContext('/tmp/pw-profile-' + Date.now() + Math.random().toString(36).slice(2), {
     channel: 'chromium', headless: true,
     args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`, '--no-proxy-server'],
-    viewport: opts.viewport || { width: 1280, height: 800 }, colorScheme: opts.colorScheme || 'light',
+    viewport: opts.viewport || { width: 1280, height: 800 }, colorScheme: opts.colorScheme || 'light', ...(opts.recordVideo ? { recordVideo: opts.recordVideo } : {}),
   });
   await ctx.route(/^https?:\/\//, (route) => { const u = new URL(route.request().url()); return route.fulfill({ status: 200, contentType: 'text/html', body: fakePage(u.host, u.pathname + u.search) }); });
   let [sw] = ctx.serviceWorkers();
