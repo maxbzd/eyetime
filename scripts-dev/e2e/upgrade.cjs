@@ -49,6 +49,30 @@ async function crawl(label, { seed, lang, from = OLD }) {
   } else {
     await opt.goto(ext('src/options/options.html#data')); await opt.waitForTimeout(500);
     const [dl] = await Promise.all([opt.waitForEvent('download', { timeout: 8000 }).catch(() => null), opt.locator('button', { hasText: /Export journal|Экспорт дневника/ }).click()]);
+    await nt.goto(ext('src/newtab/newtab.html')); await nt.waitForTimeout(900);
+    await nt.locator('#mod-tasks .plan-btn').click(); await nt.waitForSelector('dialog[open] .dialog-body');
+    const planTxt = await nt.locator('dialog[open]').innerText();
+    if (!/Plan my day|План на день/.test(planTxt) || !(/Old task/.test(planTxt) || /Nothing fits|До конца рабочего дня/.test(planTxt))) logic.push('Plan dialog content wrong: ' + planTxt.slice(0, 120));
+    await nt.keyboard.press('Escape');
+    // "what pulls you": reddit.com is used at 14:00 every day → a window trigger with a one-tap limit
+    const insp = await app.ctx.newPage(); await insp.goto(ext('src/insights/insights.html')); await insp.evaluate(() => localStorage.setItem('et-itab', 'sites')); await insp.reload(); await insp.waitForTimeout(900);
+    if (!(await insp.locator('.trig').count())) logic.push('No trigger card for a daily distracting site');
+    else {
+      const txt = await insp.locator('.trig').first().innerText();
+      if (!/reddit\.com/.test(txt) || !/100%/.test(txt) || !/(1:00|13:00)/.test(txt)) logic.push('Trigger card text wrong: ' + txt.slice(0, 100));
+      await insp.locator('.trig button', { hasText: /Limit to|Лимит/ }).first().click(); await insp.waitForTimeout(600);
+      const lim = await insp.evaluate(async () => (await chrome.storage.local.get('settings')).settings.blocking.limits);
+      if (!lim['reddit.com']) logic.push('One-tap limit was not saved');
+    }
+    await insp.close();
+    // calendar file → status in Settings, next-meeting line on Home
+    const soon = new Date(Date.now() + 90 * 60000), p2 = (n) => String(n).padStart(2, '0'), stamp = (d) => `${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}T${p2(d.getHours())}${p2(d.getMinutes())}00`;
+    const endAt = new Date(soon.getTime() + 30 * 60000), sameDay = soon.getDate() === new Date().getDate();
+    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'BEGIN:VEVENT', 'UID:t1', `DTSTART:${stamp(soon)}`, `DTEND:${stamp(endAt)}`, 'SUMMARY:Team sync', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    await opt.goto(ext('src/options/options.html#data')); await opt.waitForTimeout(500);
+    await opt.setInputFiles('input[type=file][accept*=ics]', { name: 'cal.ics', mimeType: 'text/calendar', buffer: Buffer.from(ics) }); await opt.waitForTimeout(700);
+    if (!/1 event|1 событие/.test(await opt.locator('.sync-status').first().innerText())) logic.push('Calendar status did not update');
+    if (sameDay) { await nt.goto(ext('src/newtab/newtab.html')); await nt.waitForTimeout(1200); if (!(await nt.locator('.cal-line').count()) || !/Team sync/.test(await nt.locator('.cal-line').first().innerText())) logic.push('Home does not show the next meeting'); }
     await opt.goto(ext('src/options/options.html#about')); await opt.waitForTimeout(500);
     await opt.locator('button', { hasText: /Prepare report|Подготовить отчёт/ }).click(); await opt.waitForSelector('dialog[open] textarea');
     const rep = await opt.locator('dialog[open] textarea').inputValue();

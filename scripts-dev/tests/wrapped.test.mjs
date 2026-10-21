@@ -16,3 +16,9 @@ test('up week without a goal, and steady fallback', () => {
   const flat = wrappedStats({ sum: { total: 0, distracting: 0, focusSec: 0 }, prev: { total: 0, distracting: 0, focusSec: 0 }, cur: [['2026-10-14', {}]], goalMin: 0 });
   assert.equal(flat.msg, 'steady'); assert.equal(flat.best, null); assert.equal(flat.shareDelta, null);
 });
+
+test('all weekly goals done wins the headline', () => {
+  const s = wrappedStats({ sum: { total: 100, distracting: 10, focusSec: 100 }, prev: { total: 0, distracting: 0, focusSec: 0 }, cur: [['2026-10-14', { fs: 9000 }]], goalMin: 60, weekGoals: { done: 3, total: 3 } });
+  assert.equal(s.msg, 'week');
+  assert.equal(wrappedStats({ sum: { total: 100, distracting: 10, focusSec: 100 }, prev: { total: 0, distracting: 0, focusSec: 0 }, cur: [['2026-10-14', { fs: 9000 }]], goalMin: 60, weekGoals: { done: 1, total: 3 } }).msg, 'steady');
+});

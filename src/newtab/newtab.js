@@ -6,9 +6,11 @@ import { tasksModule, habitsModule, notesModule, linksModule } from './modules.j
 import { t, fmtDate, fmtTime } from '../shared/i18n.js';
 import { getSettings, updateSettings, getRaw, setRaw, onChange, getDays, getCollection } from '../shared/storage.js';
 import { nudge as pickNudge, dayReview, applyPlans } from '../shared/productivity.js';
+import { applyRepeats } from '../shared/tasks.js';
 import { openShutdown } from './shutdown.js';
 import { installPalette } from '../ui/palette.js';
 import { mountGettingStarted } from './getting-started.js';
+import { openDayPlan } from './dayplan.js';
 import { downloadBackup, needsBackup } from '../ui/backup.js';
 import { send } from '../ui/api.js';
 import { setCollection } from '../shared/storage.js';
@@ -214,7 +216,8 @@ async function applySettings(s, first = false) {
 async function morningPlan() {
   const tasks = await getCollection('tasks', []);
   const r = applyPlans(tasks, dayKey());
-  if (r.changed) await setCollection('tasks', r.tasks);
+  const rep = applyRepeats(r.tasks, dayKey(), (ms) => dayKey(new Date(ms))); // finished daily/weekly tasks that are due again
+  if (r.changed || rep.changed) await setCollection('tasks', rep.tasks);
 }
 
 /** Single-key shortcuts (ignored while typing): the new tab is where work starts, so it should be drivable from the keyboard. */
@@ -248,7 +251,7 @@ function openShortcutHelp() {
     try { const tab = await chrome.tabs.getCurrent(); await chrome.tabs.update(tab.id, { url: 'chrome://new-tab-page/' }); return; } catch { /* stay */ }
   }
   await morningPlan();
-  installPalette({ extra: () => [{ group: 'go', icon: 'moon', label: t('sc.closeDay'), run: openShutdown, keys: ['shutdown', 'review', 'plan tomorrow'] }, { group: 'go', icon: 'sliders-horizontal', label: t('sc.customize'), run: openDrawer, keys: ['customize', 'layout', 'background', 'clock'] }] });
+  installPalette({ extra: () => [{ group: 'focus', icon: 'calendar-clock', label: t('plan.title'), run: openDayPlan, keys: ['plan', 'schedule', 'day', 'blocks'] }, { group: 'go', icon: 'moon', label: t('sc.closeDay'), run: openShutdown, keys: ['shutdown', 'review', 'plan tomorrow'] }, { group: 'go', icon: 'sliders-horizontal', label: t('sc.customize'), run: openDrawer, keys: ['customize', 'layout', 'background', 'clock'] }] });
   paintClock(); await applyBackground();
   setInterval(paintClock, 10_000);
   mountFocusCard($('#focus'), { variant: 'large' });

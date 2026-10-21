@@ -10,6 +10,8 @@ import { installPalette } from '../ui/palette.js';
 import { timelineCard } from './timeline.js';
 import { openWrapped } from './wrapped.js';
 import { accuracyInput } from '../shared/tasks.js';
+import { mondayKey, weekProgress } from '../shared/week.js';
+import { triggerInsights } from '../shared/triggers.js';
 import { makeClassifier } from '../shared/classify.js';
 import { summarize, delta, insights as computeInsights, focusStreak, suggestLimit } from '../shared/stats.js';
 import { rangeKeys, addDays, dayKey, parseKey } from '../shared/time.js';
@@ -133,7 +135,7 @@ function reviewCard(cur, prev) {
       : h('div', { class: 'review-suggest ok' }, icon('sparkles'), h('span', { text: t('review.balanced') }));
   return h('section', { class: 'card review' },
     h('div', { class: 'card-head' }, h('div', {}, h('h3', { text: t('review.title') }), h('p', { text: t('review.sub') })),
-      h('button', { class: 'btn btn-sm', type: 'button', onclick: () => openWrapped({ sum: cur, prev, cur: data.cur, goalMin: settings.focus.dailyGoal }) }, icon('image'), t('wrapped.share'))),
+      h('button', { class: 'btn btn-sm', type: 'button', onclick: async () => { const plan = await getCollection('weekPlan', null); openWrapped({ sum: cur, prev, cur: data.cur, goalMin: settings.focus.dailyGoal, weekGoals: weekProgress(plan, mondayKey(parseKey(data.cur[data.cur.length - 1][0]))) }); } }, icon('image'), t('wrapped.share'))),
     h('div', { class: 'card-body', style: { paddingTop: 'var(--s-3)' } },
       line('target', t('review.focus', { time: fmtDuration(cur.focusSec), n: cur.focusSessions }), deltaChip(delta(cur.focusSec, prev.focusSec))),
       line('circle-alert', t('review.share', { pct: share }), deltaChip(sharePrev === null ? null : share - sharePrev, { tone: 'upBad', unit: t('insights.pts') })),
@@ -207,6 +209,25 @@ function heatCard(heatEntries) {
         h('div', { class: 'heat-legend' }, t('insights.less'), [0, 1, 2, 3, 4].map((l) => h('span', { class: 'hm-cell l' + l })), t('insights.more')))));
 }
 
+function triggersCard(classify) {
+  const rows = triggerInsights(data.heat, classify);
+  const hour = (n) => fmtTime(new Date(2000, 0, 1, n), settings.newtab.clock24 ?? undefined);
+  const body = rows.length ? rows.map((r) => {
+    const has = Object.keys(settings.blocking.limits).some((d) => r.host === d || r.host.endsWith('.' + d));
+    return h('div', { class: 'trig' },
+      h('div', { class: 'trig-head' }, favicon(r.host), h('b', { class: 'truncate', text: r.host }), r.attempts ? h('span', { class: 'muted', text: t('trig.visits', { n: r.attempts }) }) : null),
+      h('p', { class: 'trig-line', text: [r.peak ? t('trig.window', { from: hour(r.peak.from), to: hour(r.peak.to), pct: Math.round(r.peak.share * 100) }) : null, t('trig.avg', { n: r.avgMin })].filter(Boolean).join(' · ') }),
+      h('p', { class: 'muted-2', text: t('trig.tip' + { window: 'Window', limit: 'Limit', watch: 'Watch' }[r.kind]) }),
+      r.kind === 'watch' ? null : h('div', { class: 'row gap-2 wrap' },
+        has ? h('span', { class: 'chip good', text: t('trig.hasLimit') }) : h('button', { class: 'btn btn-sm', type: 'button', onclick: async () => {
+          await updateSettings((st) => { st.blocking.limits[r.host] = r.limitMin; }); send('settings:changed');
+          toast(t('trig.limitSet', { host: r.host, n: r.limitMin }), { action: t('common.undo'), onAction: async () => { await updateSettings((st) => { delete st.blocking.limits[r.host]; }); send('settings:changed'); } }); render();
+        } }, icon('timer'), t('trig.setLimit', { n: r.limitMin })),
+        h('a', { class: 'btn btn-sm btn-ghost', href: '../options/options.html#blocking' }, icon('pencil'), t('trig.writePlan'))));
+  }) : [h('div', { class: 'locked-hint' }, icon('clock'), h('span', { text: t('trig.need') }))];
+  return h('section', { class: 'card pcard' }, h('div', { class: 'card-head' }, h('div', {}, h('h3', { text: t('trig.title') }), h('p', { text: t('trig.sub') })), h('span', { class: 'scope', text: t('scope.weeks16') })), h('div', { class: 'card-body stack gap-4' }, body));
+}
+
 function appsCard(sum) {
   if (!sum.topApps.length) return null;
   const max = sum.topApps[0].sec;
@@ -246,7 +267,7 @@ function render() {
   const views = {
     overview: () => [renderKpis(sum, prev), range === '7' && sum.total >= 3600 && sum.activeDays >= 3 ? reviewCard(sum, prev) : null, mainChart(sum), insightsCard(sum, prev, streak)],
     focus: () => [focusTab({ cur: data.cur, heat: data.heat, tasks: data.tasks, estTasks: accuracyInput(data.tasks, data.estLog), settings })],
-    sites: () => (sum.topApps.length ? [h('div', { class: 'grid-2' }, sitesCard(sum), appsCard(sum))] : [sitesCard(sum)]),
+    sites: () => [triggersCard(classify)].concat(sum.topApps.length ? [h('div', { class: 'grid-2' }, sitesCard(sum), appsCard(sum))] : [sitesCard(sum)]),
     patterns: () => {
       const entry = data.heat[data.heat.length - 1 - tlBack];
       return [entry ? timelineCard({ entry, classify, clock24: settings.newtab.clock24 ?? undefined, nav: { onPrev: tlBack < data.heat.length - 1 ? () => { tlBack++; render(); } : null, onNext: tlBack > 0 ? () => { tlBack--; render(); } : null } }) : null,

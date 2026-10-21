@@ -8,6 +8,7 @@ import { PRESETS, PRESET_IDS } from '../shared/catalog.js';
 import { importAll, resetAll, getRaw, setRaw, getRange } from '../shared/storage.js';
 import { buildJournal } from '../shared/journal.js';
 import { downloadBackup } from '../ui/backup.js';
+import { parseIcs } from '../shared/ics.js';
 import { buildReport, issueUrl } from '../shared/diagnostics.js';
 import { readErrors, clearErrors } from '../shared/errorlog.js';
 import { makeClassifier } from '../shared/classify.js';
@@ -259,7 +260,27 @@ export function data({ s, save, refresh }) {
   const fileIn = document.getElementById('importFile');
   fileIn.onchange = () => { if (fileIn.files[0]) doImport(fileIn.files[0]); fileIn.value = ''; };
 
+  /* calendar file: events of the next 14 days, kept locally */
+  const calStatus = h('div', { class: 'setting-desc sync-status' });
+  const calFile = h('input', { type: 'file', accept: '.ics,text/calendar', hidden: true, 'aria-label': t('opt.calendarBtn') });
+  async function paintCal() {
+    const [events, meta] = await Promise.all([getRaw('calendar'), getRaw('calendarMeta')]);
+    const list = (events.calendar || []).filter((e) => e.day >= dayKey());
+    calStatus.textContent = list.length && meta.calendarMeta ? t('opt.calendarStatus', { n: list.length, date: new Date(meta.calendarMeta.at).toLocaleDateString() }) : t('opt.calendarNone');
+  }
+  calFile.onchange = async () => {
+    const f = calFile.files[0]; calFile.value = ''; if (!f) return;
+    const text = await f.text();
+    if (!/BEGIN:VCALENDAR/i.test(text)) { toast(t('opt.calendarBad')); return; }
+    const events = parseIcs(text, { from: new Date(), days: 14 });
+    await setRaw({ calendar: events, calendarMeta: { at: Date.now(), name: String(f.name).slice(0, 60) } });
+    toast(events.length ? t('opt.calendarDone', { n: events.length }) : t('opt.calendarEmpty')); paintCal();
+  };
+  paintCal();
+  const calendarGroup = group(t('opt.groupCalendar'), (() => { const r = row({ title: t('opt.calendar'), desc: t('opt.calendarDesc'), control: h('div', { class: 'row gap-2' }, h('button', { class: 'btn', type: 'button', onclick: () => calFile.click() }, icon('upload'), t('opt.calendarBtn')), h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: async () => { await chrome.storage.local.remove(['calendar', 'calendarMeta']); paintCal(); } }, t('opt.calendarClear')), calFile) }); r.querySelector('.setting-text').append(calStatus); return r; })());
+
   return sec('data', sectionHead(t('sec.data'), t('sec.dataDesc')),
+    calendarGroup,
     syncGroup(s),
     group(t('opt.groupBackup'),
       row({ title: t('opt.export'), desc: t('opt.exportDesc'), control: h('button', { class: 'btn', type: 'button', onclick: doExport }, icon('download'), t('opt.exportBtn')) }),

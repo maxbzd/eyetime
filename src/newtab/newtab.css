@@ -224,3 +224,21 @@ body[data-layout="split"] .hero .clock { white-space: nowrap; font-size: clamp(5
 .gs-step .btn { flex: none; }
 @media (max-width: 700px) { .gs-list { grid-template-columns: 1fr; } }
 body[data-layout="split"] .gs { grid-column: 1 / -1; grid-row: 2; } body[data-layout="split"] .modules { grid-row: 3; }
+
+/* this week */
+.week { display: flex; flex-direction: column; gap: 6px; padding-bottom: var(--s-2); border-bottom: 1px solid var(--border); }
+.week-head { display: flex; align-items: center; gap: var(--s-2); } .week-head .eyebrow { flex: 1; } .week-count { color: var(--text-3); font-size: var(--fs-xs); font-weight: 600; }
+.week-items { display: flex; flex-wrap: wrap; gap: 6px; }
+.week-item { display: inline-flex; align-items: center; border: 1px solid var(--border-strong); border-radius: var(--r-full); background: var(--surface); max-width: 100%; min-width: 0; }
+.week-item.done { background: var(--success-soft); border-color: transparent; } .week-item.done .truncate { text-decoration: line-through; text-decoration-color: var(--text-3); }
+.week-tick { display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; padding: 4px 6px 4px 10px; font-size: var(--fs-sm); font-weight: 560; color: var(--text); min-width: 0; cursor: pointer; } .week-tick .ico { font-size: 15px; color: var(--accent-text); flex: none; } .week-item.done .week-tick .ico { color: var(--success-text); }
+.week-tick .truncate { max-width: 220px; }
+.week-x { border: 0; background: transparent; color: var(--text-3); width: 22px; height: 22px; margin-right: 4px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; opacity: 0; } .week-item:hover .week-x, .week-item:focus-within .week-x { opacity: 1; } .week-x:hover { background: var(--surface-3); color: var(--text); } .week-x .ico { font-size: 12px; }
+.week-add { display: flex; gap: var(--s-2); } .week-add .input { flex: 1; }
+.qa-preview .tagm { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: var(--r-full); background: var(--surface-2); font-size: var(--fs-xs); color: var(--text-2); } .qa-preview .tagm .ico { font-size: 11px; }
+
+/* plan my day */
+.plan-list { display: flex; flex-direction: column; gap: var(--s-2); } .plan-block { display: grid; grid-template-columns: auto minmax(0, 1fr) 118px; gap: var(--s-3); align-items: center; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface-2); } .plan-block.fixed { opacity: 1; background: transparent; }
+.plan-text { display: flex; flex-direction: column; min-width: 0; } .plan-text b { font-weight: 600; } .plan-text .muted { font-size: var(--fs-xs); }
+.plan-notes { margin: 0; padding-left: 18px; color: var(--text-3); font-size: var(--fs-sm); } .plan-notes li { margin: 2px 0; }
+.mod-head .plan-btn { margin-left: auto; } .mod-head .count { margin-left: var(--s-2); }

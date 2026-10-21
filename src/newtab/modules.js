@@ -10,6 +10,8 @@ import { getCollection, setCollection, onChange, updateSettings } from '../share
 import { dayKey, rangeKeys, addDays } from '../shared/time.js';
 import { parseUserDomain } from '../shared/domains.js';
 import { taskFromInput, updateEstLog } from '../shared/tasks.js';
+import { openDayPlan } from './dayplan.js';
+import { mondayKey, itemsFor, addItem, toggleItem, removeItem, weekProgress, MAX_WEEK_ITEMS } from '../shared/week.js';
 import { parseQuickAdd } from '../shared/quickadd.js';
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -29,7 +31,8 @@ export function tasksModule() {
   const body = h('div', { class: 'stack gap-3' });
   const head = root.querySelector('.mod-head');
   root.append(body);
-  let tasks = [], showAll = false;
+  let tasks = [], showAll = false, weekPlan = null, weekEditing = false;
+  const saveWeek = (p) => { weekPlan = p; setCollection('weekPlan', p); };
 
   const save = () => setCollection('tasks', tasks);
   const LIMIT = 6;
@@ -41,13 +44,15 @@ export function tasksModule() {
     const visible = showAll ? ordered : ordered.slice(0, LIMIT);
     const prio = open.filter((x) => x.starred).length;
     head.querySelector('.count')?.remove();
+    head.querySelector('.plan-btn')?.remove();
+    if (open.length) head.append(h('button', { class: 'btn btn-ghost btn-sm plan-btn', type: 'button', onclick: openDayPlan }, icon('calendar-clock'), t('plan.title')));
     if (tasks.length) head.append(h('span', { class: 'count num', text: `${done.length}/${tasks.length}` }));
 
     // what EyeTime understood from the line, shown while typing: time · length · priority · tags
     const preview = h('div', { class: 'qa-preview', 'aria-live': 'polite' });
     const drawPreview = (value) => {
       const p = parseQuickAdd(value);
-      const chips = [p.at ? [{ icon: 'alarm-clock' }, t('tasks.qaAt', { time: p.at })] : null, p.est ? [{ icon: 'timer' }, t('tasks.qaEst', { time: fmtDuration(p.est * 60) })] : null, p.priority ? [{ icon: 'star' }, t('tasks.qaPri')] : null, ...p.tags.map((g) => [{ icon: 'tag' }, '#' + g])].filter(Boolean);
+      const chips = [p.at ? [{ icon: 'alarm-clock' }, t('tasks.qaAt', { time: p.at })] : null, p.est ? [{ icon: 'timer' }, t('tasks.qaEst', { time: fmtDuration(p.est * 60) })] : null, p.priority ? [{ icon: 'star' }, t('tasks.qaPri')] : null, p.repeat ? [{ icon: 'repeat' }, t('tasks.rep.' + p.repeat)] : null, ...p.tags.map((g) => [{ icon: 'tag' }, '#' + g])].filter(Boolean);
       clear(preview, chips.length ? chips.map(([ico, text]) => h('span', { class: 'tagm' }, icon(ico.icon), text)) : (value.trim() ? null : h('span', { class: 'hint', text: t('tasks.qaHint') })));
     };
     const input = h('input', { class: 'input', placeholder: t('tasks.add'), 'aria-label': t('tasks.add'), maxlength: 300, oninput: (e) => drawPreview(e.target.value), onkeydown: (e) => {
@@ -85,16 +90,17 @@ export function tasksModule() {
     const startOn = async (x) => { const s = await getSettings(); const r = await send('focus:start', { minutes: x.est || s.focus.minutes, strict: s.focus.strict, scope: s.focus.scope, taskId: x.id }); if (r && r.ok === false) toast(t('common.error')); };
 
     const priStar = () => { const el = icon('star'); el.classList.add('pri'); return el; };
-    const row = (x) => {
+    const row = (x) => { // (finishing a repeating task logs a separate estimate data point each time)
       const scheduled = x.at && x.atDay === dayKey() && !x.done;
       const meta = [
         scheduled ? h('span', { class: 'tagm at num', 'data-tip': t('tasks.scheduledAt') }, icon('alarm-clock'), x.at) : null,
         x.focusSec >= 60 ? h('span', { class: 'tagm num', 'data-tip': t('tasks.spent') }, icon('timer'), x.est ? t('tasks.estOf', { spent: fmtDuration(x.focusSec), est: fmtDuration(x.est * 60) }) : fmtDuration(x.focusSec)) : (x.est && !x.done ? h('span', { class: 'tagm num', 'data-tip': t('prod.estPlanned') }, icon('timer'), t('tasks.estOnly', { est: fmtDuration(x.est * 60) })) : null),
+        x.repeat ? h('span', { class: 'tagm', 'data-tip': t('tasks.repeatTip') }, icon('repeat'), t('tasks.rep.' + x.repeat)) : null,
         ...(x.tags || []).map((g) => h('span', { class: 'tagm tag-hash', text: '#' + g })),
         !x.done && x.resume ? h('span', { class: 'resume', title: x.resume }, icon('corner-down-right'), h('span', { text: x.resume })) : null,
       ].filter(Boolean);
       return h('div', { class: 'item' + (x.done ? ' done' : '') + (x.starred && !x.done ? ' prio' : '') },
-        h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: x.done, 'aria-label': x.text, onchange: (e) => { x.done = e.target.checked; x.doneAt = x.done ? Date.now() : 0; if (x.done) x.starred = false; save(); render(); getCollection('estLog', []).then((log) => setCollection('estLog', updateEstLog(log, x))); if (x.done && x.est && x.focusSec >= 300) toast(t('tasks.tookVs', { actual: fmtDuration(x.focusSec), est: fmtDuration(x.est * 60) })); } }), h('span', { class: 'box' }, icon('check'))),
+        h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: x.done, 'aria-label': x.text, onchange: (e) => { x.done = e.target.checked; x.doneAt = x.done ? Date.now() : 0; if (x.done) x.starred = false; save(); render(); getCollection('estLog', []).then((log) => setCollection('estLog', updateEstLog(log, x.repeat ? { ...x, id: x.id + '@' + dayKey(new Date(x.doneAt || Date.now())) } : x))); if (x.done && x.est && x.focusSec >= 300) toast(t('tasks.tookVs', { actual: fmtDuration(x.focusSec), est: fmtDuration(x.est * 60) })); } }), h('span', { class: 'box' }, icon('check'))),
         h('div', { class: 'item-main' },
           h('div', { class: 'item-title' }, x.starred && !x.done ? priStar() : null, x.text),
           meta.length ? h('div', { class: 'item-meta' }, meta) : null),
@@ -105,7 +111,25 @@ export function tasksModule() {
           h('button', { type: 'button', 'aria-label': t('common.remove'), onclick: () => { const i = tasks.indexOf(x); tasks.splice(i, 1); save(); render(); toast(t('tasks.removed'), { action: t('common.undo'), onAction: () => { tasks.splice(i, 0, x); save(); render(); } }); } }, icon('x'))));
     };
 
-    clear(body, input, preview,
+    // this week's outcomes: up to three results, tap to tick off; the week resets itself on Monday
+    const wk = mondayKey(), wItems = itemsFor(weekPlan, wk), wp = weekProgress(weekPlan, wk);
+    const weekAdd = () => {
+      const inp = h('input', { class: 'input input-sm', maxlength: 80, placeholder: t('week.ph'), 'aria-label': t('week.ph'), onkeydown: (e) => {
+        if (e.key === 'Enter' && e.target.value.trim()) { saveWeek(addItem(weekPlan, wk, e.target.value)); weekEditing = itemsFor(weekPlan, wk).length < MAX_WEEK_ITEMS; render(); if (weekEditing) document.querySelector('#mod-tasks .week-add input')?.focus(); }
+        else if (e.key === 'Escape') { weekEditing = false; render(); }
+      } });
+      return h('div', { class: 'week-add' }, inp, h('button', { class: 'btn btn-sm', type: 'button', onclick: () => { if (inp.value.trim()) { saveWeek(addItem(weekPlan, wk, inp.value)); } weekEditing = false; render(); } }, t('week.add')));
+    };
+    const week = h('div', { class: 'week' },
+      h('div', { class: 'week-head' }, h('span', { class: 'eyebrow', text: t('week.title') }), wItems.length ? h('span', { class: 'week-count num', text: `${wp.done}/${wp.total}` }) : null,
+        !weekEditing && wItems.length < MAX_WEEK_ITEMS ? h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('week.set'), 'data-tip': t('week.set'), onclick: () => { weekEditing = true; render(); document.querySelector('#mod-tasks .week-add input')?.focus(); } }, icon('plus')) : null),
+      wItems.length ? h('div', { class: 'week-items' }, wItems.map((x) => h('span', { class: 'week-item' + (x.done ? ' done' : '') },
+        h('button', { class: 'week-tick', type: 'button', 'aria-pressed': String(x.done), onclick: () => { saveWeek(toggleItem(weekPlan, wk, x.id)); render(); } }, icon(x.done ? 'circle-check' : 'circle'), h('span', { class: 'truncate', text: x.text })),
+        h('button', { class: 'week-x', type: 'button', 'aria-label': t('week.remove') + ': ' + x.text, onclick: () => { saveWeek(removeItem(weekPlan, wk, x.id)); render(); } }, icon('x'))))) : (weekEditing ? null : h('button', { class: 'more-link', type: 'button', onclick: () => { weekEditing = true; render(); document.querySelector('#mod-tasks .week-add input')?.focus(); } }, t('week.prompt'))),
+      weekEditing ? weekAdd() : null,
+      wItems.length && wp.done === wp.total ? h('div', { class: 'hint', text: t('week.allDone') }) : null);
+
+    clear(body, week, input, preview,
       prio ? h('div', { class: 'eyebrow', text: t('tasks.priorities', { n: prio, max: MAX_PRIORITIES }) }) : null,
       visible.length ? h('div', { class: 'items' }, visible.map(row)) : emptyMini({ ico: 'list-checks', title: t('tasks.emptyTitle'), body: t('tasks.empty') }),
       ordered.length > LIMIT ? h('button', { class: 'more-link', type: 'button', onclick: () => { showAll = !showAll; render(); } }, showAll ? t('mod.showLess') : t('mod.showAll', { n: ordered.length })) : null,
@@ -113,7 +137,8 @@ export function tasksModule() {
       open.length ? h('button', { class: 'more-link plan-link', type: 'button', onclick: openShutdown }, icon('moon'), t('tasks.planTomorrow')) : null);
   }
 
-  getCollection('tasks', []).then((v) => { tasks = v; render(); });
+  Promise.all([getCollection('tasks', []), getCollection('weekPlan', null)]).then(([v, w]) => { tasks = v; weekPlan = w; render(); });
+  onChange('weekPlan', async () => { const w = await getCollection('weekPlan', null); if (JSON.stringify(w) !== JSON.stringify(weekPlan)) { weekPlan = w; if (!root.contains(document.activeElement)) render(); } });
   onChange('tasks', async () => { const v = await getCollection('tasks', []); if (JSON.stringify(v) === JSON.stringify(tasks)) return; tasks = v; if (!root.contains(document.activeElement)) render(); }); // keep memory fresh even while typing, so a later save never overwrites a task added elsewhere (palette, another tab)
   return root;
 }

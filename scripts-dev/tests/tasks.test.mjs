@@ -35,3 +35,30 @@ test('accuracyInput prefers live tasks over log entries', () => {
   const out = accuracyInput([{ id: 'a', est: 10, focusSec: 900, done: true }], [{ id: 'a', est: 10, focusSec: 1, text: 'old' }, { id: 'z', est: 20, focusSec: 1200, text: 'Z' }]);
   assert.equal(out.length, 2); assert.equal(out.find((x) => x.id === 'a').focusSec, 900); assert.equal(out.find((x) => x.id === 'z').done, true);
 });
+
+import { nextOccurrence, applyRepeats } from '../../src/shared/tasks.js';
+import { parseQuickAdd as pq } from '../../src/shared/quickadd.js';
+
+test('repeat tokens in quick-add (EN/RU)', () => {
+  assert.equal(pq('Stretch daily').repeat, 'daily'); assert.equal(pq('Stretch daily').text, 'Stretch');
+  assert.equal(pq('Report every weekday 10:00').repeat, 'weekdays');
+  assert.equal(pq('Review every week').repeat, 'weekly'); assert.equal(pq('Отчёт каждый день').repeat, 'daily'); assert.equal(pq('Планёрка по будням 9:30').repeat, 'weekdays');
+  assert.equal(pq('Buy milk').repeat, null);
+  assert.equal(pq('Everyday items').repeat, null); // not a repeat phrase
+});
+
+test('next occurrence skips weekends for weekday tasks', () => {
+  assert.equal(nextOccurrence('daily', '2026-10-23'), '2026-10-24');
+  assert.equal(nextOccurrence('weekdays', '2026-10-23'), '2026-10-26'); // Friday → Monday
+  assert.equal(nextOccurrence('weekly', '2026-10-23'), '2026-10-30');
+});
+
+test('finished repeating tasks reopen on their day and keep a counter', () => {
+  const key = (ms) => new Date(ms).toISOString().slice(0, 10);
+  const done = new Date('2026-10-23T10:00:00Z').getTime();
+  const tasks = [{ id: 'a', text: 'A', repeat: 'daily', done: true, doneAt: done, focusSec: 900, at: '09:00', atDay: '2026-10-23' }, { id: 'b', text: 'B', done: true, doneAt: done }, { id: 'c', text: 'C', repeat: 'weekly', done: true, doneAt: done }];
+  const same = applyRepeats(tasks, '2026-10-23', key); assert.equal(same.changed, false);
+  const next = applyRepeats(tasks, '2026-10-24', key);
+  assert.equal(next.changed, true); assert.equal(next.tasks[0].done, false); assert.equal(next.tasks[0].doneCount, 1); assert.equal(next.tasks[0].focusSec, 0); assert.equal(next.tasks[0].atDay, '2026-10-24');
+  assert.equal(next.tasks[1].done, true); assert.equal(next.tasks[2].done, true); // plain and weekly tasks stay done
+});
