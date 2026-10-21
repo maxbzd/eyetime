@@ -16,8 +16,8 @@ test('i18n: plurals, params and fallbacks', () => {
 test('i18n: duration formatting and locale resolution', () => {
   setLocale('en');
   assert.equal(fmtDuration(0), '0s'); assert.equal(fmtDuration(59), '59s'); assert.equal(fmtDuration(3600), '1h'); assert.equal(fmtDuration(5400), '1h\u00a030m');
-  setLocale('ru'); assert.equal(fmtDuration(5400), '1ч\u00a030м'); setLocale('en');
-  assert.equal(resolveLocale('auto', 'ru-RU'), 'ru'); assert.equal(resolveLocale('auto', 'uk'), 'ru'); assert.equal(resolveLocale('auto', 'de-DE'), 'en'); assert.equal(resolveLocale('ru', 'en-US'), 'ru');
+  setLocale('ru'); assert.equal(fmtDuration(5400), '1ч\u00a030м'); setLocale('de'); assert.equal(fmtDuration(5400), '1h\u00a030min'); setLocale('en');
+  assert.equal(resolveLocale('auto', 'ru-RU'), 'ru'); assert.equal(resolveLocale('auto', 'uk'), 'ru'); assert.equal(resolveLocale('auto', 'de-DE'), 'de'); assert.equal(resolveLocale('auto', 'es-MX'), 'es'); assert.equal(resolveLocale('auto', 'fr-CA'), 'fr'); assert.equal(resolveLocale('auto', 'pt-BR'), 'pt'); assert.equal(resolveLocale('auto', 'ja-JP'), 'en'); assert.equal(resolveLocale('ru', 'en-US'), 'ru');
 });
 
 test('fmtTime: true = 24-hour, false = 12-hour', async () => {
