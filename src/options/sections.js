@@ -43,7 +43,7 @@ function modesEditor(s, save) {
     h('div', { class: 'mode-fields' },
       select([15, 25, 30, 45, 50, 60, 90, 120].map((n) => [n, fmtDuration(n * 60)]), m.minutes, (v) => upd(m.id, (y) => { y.minutes = Number(v); }), { label: t('opt.focusDefault') }),
       select([['distractions', t('opt.scopeDistractions')], ['only-mine', t('focus.onlyMine')]], m.scope, (v) => upd(m.id, (y) => { y.scope = v; }), { label: t('opt.scope') }),
-      select(['off', 'brown', 'rain', 'cafe'].map((k) => [k, t('ambient.' + k)]), m.ambient || 'off', (v) => upd(m.id, (y) => { y.ambient = v; }), { label: t('opt.ambient') }),
+      select(['off', 'brown', 'rain', 'river', 'forest'].map((k) => [k, t('ambient.' + k)]), m.ambient || 'off', (v) => upd(m.id, (y) => { y.ambient = v; }), { label: t('opt.ambient') }),
       h('label', { class: 'row gap-2 mode-strict' }, toggle(!!m.strict, (v) => upd(m.id, (y) => { y.strict = v; }), t('focus.strict')), h('span', { text: t('focus.strictShort') }))),
     h('div', { class: 'stack gap-2' }, h('div', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, text: t('mode.allow') }),
       domainEditor({ items: m.allow || [], placeholder: 'example.com', onAdd: (d) => upd(m.id, (y) => { y.allow = [...new Set([...(y.allow || []), d])]; }), onRemove: (d) => upd(m.id, (y) => { y.allow = (y.allow || []).filter((x) => x !== d); }) })));
@@ -95,7 +95,7 @@ export function focus({ s, save, refresh }) {
     group(t('opt.groupProductivity'),
       row({ title: t('opt.dailyGoal'), desc: t('opt.dailyGoalDesc'), control: select([[0, t('common.off')], ...[30, 60, 90, 120, 180, 240, 300].map((m) => [m, fmtDuration(m * 60)])], s.focus.dailyGoal, (v) => save((x) => { x.focus.dailyGoal = Number(v); }), { label: t('opt.dailyGoal') }) }),
       s.focus.dailyGoal ? row({ title: t('opt.goalDays'), desc: t('opt.goalDaysDesc'), control: h('div', { class: 'row gap-1 wrap' }, [1, 2, 3, 4, 5, 6, 0].map((d) => h('button', { class: 'chip chip-day', type: 'button', 'aria-pressed': String(s.focus.goalDays.includes(d)), text: weekdayName(d), onclick: () => save((x) => { const on = x.focus.goalDays.includes(d); if (on && x.focus.goalDays.length === 1) return; x.focus.goalDays = on ? x.focus.goalDays.filter((n) => n !== d) : [...x.focus.goalDays, d]; }, true) }))) }) : null,
-      row({ title: t('opt.ambient'), desc: t('opt.ambientDesc'), control: select(['off', 'brown', 'rain', 'cafe'].map((k) => [k, t('ambient.' + k)]), s.focus.ambient, (v) => send('ambient:set', { kind: v }).then(() => {}), { label: t('opt.ambient') }) }),
+      row({ title: t('opt.ambient'), desc: t('opt.ambientDesc'), control: select(['off', 'brown', 'rain', 'river', 'forest'].map((k) => [k, t('ambient.' + k)]), s.focus.ambient, (v) => send('ambient:set', { kind: v }).then(() => {}), { label: t('opt.ambient') }) }),
       row({ title: t('opt.scope'), desc: t('opt.scopeDesc'), control: select([['distractions', t('opt.scopeDistractions')], ['only-mine', t('focus.onlyMine')]], s.focus.scope, (v) => save((x) => { x.focus.scope = v; }), { label: t('opt.scope') }) }),
       row({ title: t('opt.review'), desc: t('opt.reviewDesc'), control: toggle(s.focus.review, (v) => save((x) => { x.focus.review = v; }), t('opt.review')) }),
       row({ title: t('opt.modes'), desc: t('opt.modesDesc'), stack: true, control: modesEditor(s, save) }),

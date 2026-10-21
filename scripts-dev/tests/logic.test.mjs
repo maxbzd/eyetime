@@ -263,3 +263,25 @@ test('slimDay drops only the hourly breakdown', async () => {
   assert.equal(slim.h, undefined); assert.deepEqual(slim.d, day.d); assert.equal(slim.fs, 60); assert.equal(day.h[10]['a.com'], 5); // original untouched
   const empty = { d: {} }; assert.equal(slimDay(empty), empty); assert.equal(slimDay(null), null);
 });
+
+test('a pass grants a short redirect window: youtu.be → youtube.com shows the pause page once', async () => {
+  const { decide, REDIRECT_GRACE } = await import('../../src/shared/blocking.js');
+  const { makeClassifier } = await import('../../src/shared/classify.js');
+  const { DEFAULT_SETTINGS, clone } = await import('../../src/shared/defaults.js');
+  const settings = clone(DEFAULT_SETTINGS); settings.blocking.presets.video = true;
+  const base = { settings, classifier: makeClassifier(settings), focus: null, now: 1_000_000 };
+  assert.equal(decide('www.youtube.com', { ...base, passes: {} }).action, 'pause');
+  assert.equal(decide('www.youtube.com', { ...base, passes: { 'youtu.be': base.now + 600_000 } }).action, 'pause'); // a pass for another rule does not cover it…
+  assert.equal(decide('www.youtube.com', { ...base, passes: { 'youtu.be': base.now + 600_000, [REDIRECT_GRACE]: base.now + 20_000 } }).action, 'allow'); // …but the redirect window does
+  assert.equal(decide('www.youtube.com', { ...base, passes: { [REDIRECT_GRACE]: base.now - 1 } }).action, 'pause'); // and it expires
+  settings.blocking.always = ['youtube.com'];
+  assert.equal(decide('www.youtube.com', { ...base, settings, classifier: makeClassifier(settings), passes: { [REDIRECT_GRACE]: base.now + 20_000 } }).action, 'block'); // always-blocked stays blocked
+});
+
+test('legacy "cafe" ambience maps to rain', async () => {
+  globalThis.chrome = { storage: { local: { get: async () => ({ settings: { focus: { ambient: 'cafe', modes: [{ id: 'm', ambient: 'cafe' }, { id: 'n', ambient: 'brown' }] } } }) } } };
+  const { getSettings } = await import('../../src/shared/storage.js');
+  const s = await getSettings();
+  assert.equal(s.focus.ambient, 'rain'); assert.equal(s.focus.modes[0].ambient, 'rain'); assert.equal(s.focus.modes[1].ambient, 'brown');
+  delete globalThis.chrome;
+});
