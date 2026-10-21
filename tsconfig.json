@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "allowJs": true, "checkJs": true, "noEmit": true,
+    "target": "ES2023", "module": "ESNext", "moduleResolution": "Bundler",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "strict": false, "noImplicitAny": false, "skipLibCheck": true,
+    "types": []
+  },
+  "include": ["src/shared/*.js", "src/shared/locales/*.js", "src/background/*.js", "src/types.d.ts"]
+}

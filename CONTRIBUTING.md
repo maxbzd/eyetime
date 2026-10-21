@@ -46,6 +46,10 @@ npm i --no-save lucide-static && npm run icons
 |---|---|
 | `npm run check` | static checks + unit tests |
 | `node scripts-dev/e2e/e2e.cjs` | the whole extension in real Chromium ([how](scripts-dev/e2e/README.md)) |
+| `npm run types` | TypeScript check of `src/shared` and `src/background` from JSDoc comments |
+| `node scripts-dev/e2e/upgrade.cjs` | upgrade from old versions, every language at 400 px / 125 % zoom (`ONLY=regex` runs one case) |
+| `node scripts-dev/e2e/visual.cjs [--update]` | screenshots of the main screens against `visual-baseline/`; `--update` after a change you meant to make |
+| `node scripts-dev/e2e/perf.cjs`, `a11y.cjs --strict`, `blocking.cjs`, `calendar.cjs` | load budgets, accessibility (axe), real blocking scenarios, calendar subscription |
 | `cd companion && python -m unittest -v test_companion` | desktop companion |
 | `npm run build` | store packages in `dist/` |
 
