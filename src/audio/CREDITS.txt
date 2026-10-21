@@ -1,0 +1,11 @@
+# Audio credits
+
+Ambient focus sounds are short seamless loops cut and loudness-normalised from public-domain (CC0) field recordings on OpenGameArt.org:
+
+| File | Source | License |
+|---|---|---|
+| `rain.ogg` | "Ambient rain loop" (amb_rain2) — https://opengameart.org/content/amb-rain-loop-2 | CC0 |
+| `river.ogg` | "Park ambiences" (river) — https://opengameart.org/content/park-ambiences | CC0 |
+| `forest.ogg` | "Park ambiences" (birds) — https://opengameart.org/content/park-ambiences | CC0 |
+
+Brown noise and the session start/end sounds are synthesised in `src/background/offscreen.js`.
