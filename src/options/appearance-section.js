@@ -68,7 +68,7 @@ export function appearance({ s, save }) {
         h('span', { class: 'muted', text: t('ap.lightFrom') }), timeIn(ap.schedule.light, t('ap.lightFrom'), (v) => save((x) => { x.appearance.schedule.light = v; }, true))) }) : null,
       row({ title: t('opt.accent'), desc: t('ap.accentDesc'), stack: true, control: accentPicker(ap, set('accent')) })),
     group(t('ap.shape'),
-      row({ title: t('ap.font'), desc: t('ap.fontDesc'), control: select([['look', t('ap.fromLook')], ...Object.entries(FONTS).map(([id, f]) => [id, f.label])], ap.font, set('font'), { label: t('ap.font') }) }),
+      row({ title: t('ap.font'), desc: t('ap.fontDesc'), control: select([['look', t('ap.fromLook')], ...Object.entries(FONTS).map(([id, f]) => [id, id === 'system' ? t('ap.fontSystem') : f.label])], ap.font, set('font'), { label: t('ap.font') }) }),
       row({ title: t('ap.scale'), desc: t('ap.scaleDesc'), control: segmented(SCALES.map((v) => [v, v + '%']), ap.scale, set('scale'), t('ap.scale')) }),
       row({ title: t('ap.radius'), desc: t('ap.radiusDesc'), control: select([['look', t('ap.fromLook')], ...Object.keys(RADII).map((id) => [id, t('radius.' + id)])], ap.radius, set('radius'), { label: t('ap.radius') }) }),
       row({ title: t('ap.density'), desc: t('ap.densityDesc'), control: segmented(Object.keys(DENSITY).map((id) => [id, t('density.' + id)]), ap.density, set('density'), t('ap.density')) }),
