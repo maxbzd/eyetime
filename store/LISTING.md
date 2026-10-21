@@ -2,62 +2,19 @@
 
 Everything below is ready to paste. Screenshots: `store/screenshots/` (1280×800). Privacy policy URL: `https://maxbzd.github.io/eyetime/privacy.html` (published by `.github/workflows/pages.yml`; the same text lives in `PRIVACY.md`).
 
-## Name
-EyeTime — Focus, Screen Time & Eye Care
+## Name, summary, description, screenshot captions, keywords
+One file per language, same structure — paste the sections into the store form of that language:
 
-## Summary (≤ 132 chars)
-EN: Focus sessions, gentle pauses before distracting sites, honest screen-time stats and eye care. Free, open source, 100% local.
-RU: Фокус-сессии, мягкая пауза перед отвлекающими сайтами, честная статистика и забота о глазах. Бесплатно, открытый код, всё локально.
+| Language | File | Screenshots |
+|---|---|---|
+| English (source) | `store/listing/en.md` | `store/screenshots/*.png` |
+| Русский | `store/listing/ru.md` | `store/screenshots/ru/*.jpg` |
+| Español | `store/listing/es.md` | `store/screenshots/es/*.jpg` |
+| Deutsch | `store/listing/de.md` | `store/screenshots/de/*.jpg` |
+| Français | `store/listing/fr.md` | `store/screenshots/fr/*.jpg` |
+| Português | `store/listing/pt.md` | `store/screenshots/pt/*.jpg` |
 
-## Description (EN)
-EyeTime helps you do deep work without fighting your browser. It is free, open source and keeps everything on your device.
-
-FOCUS IN ONE CLICK
-Start a timed session from the toolbar, the new tab, Alt+Shift+F or the command palette (Ctrl/Cmd+K). Pick a mode — Deep work, Sprint, Study — add five more minutes when you are in the flow, and let the break timer do its job. Distracting sites pause until the session ends and open again by themselves. Strict mode is there when you really mean it.
-
-BLOCKING THAT RESPECTS YOU
-Choose categories (social, video, forums, news, games, shopping, messengers) or add your own sites. A short breathing pause with your own if–then plan beats a lockout. Add work hours, daily limits per site and a daily "distraction budget".
-
-HONEST STATISTICS
-Time per site, hour and day; a day timeline with your focus sessions; a calendar; estimate accuracy (planned vs. actual); your best focus hours; a weekly review and a shareable "My week" picture. Re-classify any site as productive, neutral or distracting with one tap. Export CSV or a Markdown journal.
-
-A CALM NEW TAB
-Clock, focus card with a daily goal, tasks with priorities (type "Report 14:30 45m !" and it understands), habits, notes and quick links. Eleven looks, any accent colour, 17 backdrops, real ambient sounds. Light and dark. Switch it off any time.
-
-LOOK AFTER YOUR EYES
-20-20-20 reminders based on real, active screen time and a guided 20-second break page.
-
-SHORT-VIDEO GUARD
-After a limit of Shorts / Reels / TikTok / VK Clips scrolling, the page goes grayscale and pauses.
-
-PRIVATE BY DESIGN
-No account. No servers. No analytics. Only domain names and seconds are stored — on your device. Optional settings sync uses your browser's own sync and never includes your history. The code is open source (MIT): https://github.com/maxbzd/eyetime
-
-English, Russian, Spanish, German, French and Portuguese (Spanish, German, French and Portuguese are machine-translated and reviewed; corrections are welcome on GitHub).
-
-## Описание (RU)
-EyeTime помогает работать глубоко, а не бороться с браузером. Бесплатно, открытый код, все данные остаются на вашем устройстве.
-
-ФОКУС В ОДНО НАЖАТИЕ
-Запускайте сессию с панели, с новой вкладки, по Alt+Shift+F или из палитры команд (Ctrl/Cmd+K). Выберите режим — Глубокая работа, Спринт, Учёба — добавьте пять минут, если вошли в поток, и пусть таймер отдыха сделает своё дело. Отвлекающие сайты ставятся на паузу до конца сессии и открываются сами. Строгий режим — когда вы действительно серьёзны.
-
-БЛОКИРОВКА С УВАЖЕНИЕМ
-Выберите категории (соцсети, видео, форумы, новости, игры, покупки, мессенджеры) или добавьте свои сайты. Короткая пауза на вдох с вашим планом «если — то» лучше запрета. Рабочие часы, дневные лимиты по сайтам и дневной «бюджет отвлечений».
-
-ЧЕСТНАЯ СТАТИСТИКА
-Время по сайтам, часам и дням; таймлайн дня с фокус-сессиями; календарь; точность оценок (план и факт); лучшие часы фокуса; недельный обзор и картинка «Моя неделя». Меняйте тип сайта одним нажатием. Экспорт CSV и дневника в Markdown.
-
-СПОКОЙНАЯ НОВАЯ ВКЛАДКА
-Часы, карточка фокуса с дневной целью, задачи с приоритетами (напишите «Отчёт 14:30 45м !» — поймёт), привычки, заметки и быстрые ссылки. Одиннадцать стилей, любой акцентный цвет, 17 фонов, настоящие фоновые звуки. Светлая и тёмная темы. Можно отключить.
-
-ЗАБОТА О ГЛАЗАХ
-Напоминания 20-20-20 по реальному экранному времени и страница перерыва на 20 секунд.
-
-ЗАЩИТА ОТ КОРОТКИХ ВИДЕО
-После лимита прокрутки Shorts / Reels / TikTok / VK Клипов страница становится чёрно-белой и ставится на паузу.
-
-ПРИВАТНОСТЬ ПО УМОЛЧАНИЮ
-Без аккаунта, серверов и аналитики. Хранятся только домены и секунды — на вашем устройстве. Необязательная синхронизация настроек идёт через встроенную синхронизацию браузера и не включает историю. Открытый код (MIT): https://github.com/maxbzd/eyetime
+The summary of every language is ≤ 132 characters (a Chrome Web Store limit). Spanish, German, French and Portuguese texts are machine-translated and reviewed; native-speaker corrections are welcome (issues #1–#4 on GitHub). Regenerate the localized screenshots with `node scripts-dev/e2e/screenshots-lang.cjs`.
 
 ## Single purpose (Chrome Web Store field)
 Help users focus and manage screen time: track time per site, pause distracting sites during focus sessions, and remind users to rest their eyes.

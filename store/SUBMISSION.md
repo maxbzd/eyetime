@@ -9,13 +9,13 @@ Repository → Settings → Pages → *Build and deployment* → Source: **GitHu
 1. Sign in at https://addons.mozilla.org/developers/ with a Mozilla account.
 2. *Submit a New Add-on* → **On this site** → upload `eyetime-firefox.zip` from the latest release.
 3. Source code: answer "No" (nothing is minified or generated; see reviewer notes in `store/LISTING.md`) and paste the *Firefox AMO notes* into "Notes to reviewer".
-4. Listing: name, summary, description (EN, add RU as a second locale), category *Productivity* (+ *Privacy & Security*), screenshots with the captions from `store/LISTING.md`, privacy policy URL, support URL `https://github.com/maxbzd/eyetime/issues`.
+4. Listing: name, summary, description (EN as the default; add RU, ES, DE, FR, PT as locales from `store/listing/`), category *Productivity* (+ *Privacy & Security*), screenshots with the captions from `store/LISTING.md`, privacy policy URL, support URL `https://github.com/maxbzd/eyetime/issues`.
 5. Submit. Review usually takes from hours to a few days.
 
 ## 2. Chrome Web Store (one-time developer fee, currently about 5 USD — check the current price)
 1. Register at https://chrome.google.com/webstore/devconsole (pay the fee, verify the e-mail).
 2. *Add new item* → upload `eyetime-chrome.zip` from the latest release.
-3. *Store listing*: paste name/summary/description (EN + RU), category *Productivity*, upload the screenshots, small promo tile `store/promo`.
+3. *Store listing*: paste name/summary/description from `store/listing/<lang>.md` (EN, RU, ES, DE, FR, PT; each language with its own screenshots), category *Productivity*, upload the screenshots, small promo tile `store/promo`.
 4. *Privacy practices*: single purpose, every row of the permission table, "no remote code", data usage = none collected, privacy policy URL.
 5. *Distribution*: public, all regions. Submit for review (typically a few days; a first review with `tabs` + `webNavigation` can ask questions — the justifications are written to pre-empt them).
 6. Edge Add-ons: see section 2b.

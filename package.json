@@ -10,6 +10,7 @@
     "test": "node --test scripts-dev/tests/*.test.mjs",
     "icons": "node scripts-dev/build-icons.mjs",
     "lint": "npx --yes eslint src scripts-dev/*.mjs",
+    "types": "npx --yes -p typescript tsc -p tsconfig.json",
     "build": "node scripts-dev/check.mjs && node scripts-dev/pack.mjs"
   }
 }

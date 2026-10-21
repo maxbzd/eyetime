@@ -37,7 +37,7 @@ export function goalStreak(entries, goalMin, goalDays = [0, 1, 2, 3, 4, 5, 6], {
     if (!goalDays.includes(parseKey(entries[i][0]).getDay())) continue;
     if ((entries[i][1]?.fs || 0) >= need) n++;
     else if (i === entries.length - 1) continue;
-    else if (grace && (forgiven === null || Math.round((parseKey(entries[forgiven][0]) - parseKey(entries[i][0])) / 86_400_000) > 6)) forgiven = i;
+    else if (grace && (forgiven === null || Math.round((parseKey(entries[forgiven][0]).getTime() - parseKey(entries[i][0]).getTime()) / 86_400_000) > 6)) forgiven = i;
     else break;
   }
   return n;
