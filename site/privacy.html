@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy policy — EyeTime</title>
+  <meta name="robots" content="index,follow">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header><a class="brand" href="./"><img src="assets/logo.svg" alt="" width="30" height="30">EyeTime</a><nav aria-label="Main"><a href="./">Home</a><a href="https://github.com/maxbzd/eyetime">GitHub</a></nav></header>
+  <main class="doc">
+<h1>Privacy Policy</h1>
+<p>EyeTime is <strong>local-first</strong>. It has no account, no servers of its own, no analytics, no ads and no remote code.</p>
+<h2>What is stored (on your device only, in <code>chrome.storage.local</code>)</h2>
+<ul>
+<li><strong>Domain names and seconds</strong> per hour, e.g. <code>github.com — 340 s at 10:00</code>. Never full URLs, page titles, page content or keystrokes.</li>
+<li>Your settings, tasks, notes, habits and quick links.</li>
+<li>Nothing else: the shareable "My week" card is drawn locally and contains totals only.</li>
+<li>Optionally (if you enable the desktop companion): seconds per desktop application name.</li>
+</ul>
+<h2>What is sent anywhere</h2>
+<p><strong>Nothing.</strong> The extension makes no network requests. The single exception is entirely opt-in:</p>
+<ul>
+<li><strong>Desktop companion</strong> — if you switch it on in Settings → Tracking, the extension reads <code>http://127.0.0.1:8765/v1/today</code> on <strong>your own computer</strong> using a pairing token. Nothing is sent to it.</li>
+</ul>
+<ul>
+<li><strong>Settings sync</strong> — off by default. If you switch it on in Settings → Data &amp; privacy, your <em>settings only</em> (look, focus modes, preferences) are stored in your browser's own sync storage (<code>chrome.storage.sync</code>) and travel through your browser account like bookmarks do. Tasks, notes, habits, links and browsing statistics are never included.</li>
+</ul>
+<p>Fonts and icons are bundled inside the extension; no content is loaded from the internet.</p>
+<h2>Permissions — why each one</h2>
+<table><thead><tr><th>Permission</th><th>Why</th></tr></thead><tbody>
+<tr><td><code>storage</code></td><td>Save settings and statistics on this device</td></tr>
+<tr><td><code>tabs</code></td><td>Read the address of the active tab to know which site you're on</td></tr>
+<tr><td><code>webNavigation</code></td><td>Stop a paused site before it loads</td></tr>
+<tr><td><code>idle</code></td><td>Detect when you're away so idle time isn't counted</td></tr>
+<tr><td><code>alarms</code></td><td>Wake the extension for timers and reminders without a background loop</td></tr>
+<tr><td><code>contextMenus</code></td><td>Right-click menu to classify or block the current site</td></tr>
+<tr><td><code>notifications</code></td><td>Eye-break and session-complete reminders</td></tr>
+<tr><td><code>offscreen</code></td><td>Play the soft session start/end sound</td></tr>
+<tr><td><code>favicon</code></td><td>Show site icons from the browser's own cache (nothing is downloaded)</td></tr>
+<tr><td>Sites: youtube.com, instagram.com, tiktok.com, vk.com, vkvideo.ru</td><td>Only to limit short-video scrolling and hide YouTube feeds</td></tr>
+<tr><td>Optional: <code>127.0.0.1:8765</code></td><td>Only when you enable the desktop companion</td></tr>
+</tbody></table>
+<h2>Your control</h2>
+<ul>
+<li><strong>Incognito</strong> windows are not tracked unless you switch it on.</li>
+<li><strong>Pause tracking</strong> from the popup; exclude sites in Settings → Tracking.</li>
+<li><strong>Export</strong> everything as JSON, or <strong>delete it all</strong>, in Settings → Data &amp; privacy. Removing the extension also removes the data.</li>
+</ul>
+<h2>Changes</h2>
+<p>Any change to this policy ships with a version bump and is listed in the release notes.</p>
+<p>Questions: open an issue at <a href="https://github.com/maxbzd/eyetime/issues">https://github.com/maxbzd/eyetime/issues</a>.</p>
+  </main>
+</div>
+</body>
+</html>

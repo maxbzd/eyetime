@@ -26,3 +26,5 @@ companion/*.json
 *.zip
 dist/
 node_modules/
+
+site/assets/
