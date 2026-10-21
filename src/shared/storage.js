@@ -26,7 +26,11 @@ export async function setRaw(obj) { return area().set(obj); }
 
 export async function getSettings() {
   const { settings } = await area().get('settings');
-  return deepMerge(DEFAULT_SETTINGS, settings || {});
+  const s = deepMerge(DEFAULT_SETTINGS, settings || {});
+  // the synthesised "café" ambience was replaced by real recordings in 2.5.3
+  if (s.focus.ambient === 'cafe') s.focus.ambient = 'rain';
+  for (const m of s.focus.modes || []) if (m && m.ambient === 'cafe') m.ambient = 'rain';
+  return s;
 }
 
 let settingsQueue = Promise.resolve();
