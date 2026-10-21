@@ -117,6 +117,12 @@ function sitesCard(sum) {
       all.length > shown ? h('div', { class: 'more' }, h('button', { class: 'btn btn-sm', type: 'button', onclick: () => { shown += 15; render(); } }, t('insights.showMore', { n: all.length - shown }))) : null));
 }
 
+/** The week whose goals the review reports: the stored plan's week when the range touches it (Monday morning still sees last week's goals). */
+function weekOfRange(plan, rows) {
+  const first = mondayKey(parseKey(rows[0][0])), last = mondayKey(parseKey(rows[rows.length - 1][0]));
+  return plan && (plan.week === first || plan.week === last) ? plan.week : last;
+}
+
 function reviewCard(cur, prev) {
   const share = cur.total ? Math.round((cur.distracting / cur.total) * 100) : 0;
   const sharePrev = prev.total >= 60 ? Math.round((prev.distracting / prev.total) * 100) : null;
@@ -135,7 +141,7 @@ function reviewCard(cur, prev) {
       : h('div', { class: 'review-suggest ok' }, icon('sparkles'), h('span', { text: t('review.balanced') }));
   return h('section', { class: 'card review' },
     h('div', { class: 'card-head' }, h('div', {}, h('h3', { text: t('review.title') }), h('p', { text: t('review.sub') })),
-      h('button', { class: 'btn btn-sm', type: 'button', onclick: async () => { const plan = await getCollection('weekPlan', null); openWrapped({ sum: cur, prev, cur: data.cur, goalMin: settings.focus.dailyGoal, weekGoals: weekProgress(plan, mondayKey(parseKey(data.cur[data.cur.length - 1][0]))) }); } }, icon('image'), t('wrapped.share'))),
+      h('button', { class: 'btn btn-sm', type: 'button', onclick: async () => { const plan = await getCollection('weekPlan', null); openWrapped({ sum: cur, prev, cur: data.cur, goalMin: settings.focus.dailyGoal, weekGoals: weekProgress(plan, weekOfRange(plan, data.cur)) }); } }, icon('image'), t('wrapped.share'))),
     h('div', { class: 'card-body', style: { paddingTop: 'var(--s-3)' } },
       line('target', t('review.focus', { time: fmtDuration(cur.focusSec), n: cur.focusSessions }), deltaChip(delta(cur.focusSec, prev.focusSec))),
       line('circle-alert', t('review.share', { pct: share }), deltaChip(sharePrev === null ? null : share - sharePrev, { tone: 'upBad', unit: t('insights.pts') })),

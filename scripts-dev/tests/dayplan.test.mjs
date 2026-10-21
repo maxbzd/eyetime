@@ -36,3 +36,12 @@ test('avoids busy intervals and keeps fixed tasks in the plan', () => {
   assert.equal(r.blocks.find((b) => b.taskId === 'fixed').fixed, true);
   assert.equal(hhmm(125), '02:05');
 });
+
+test('tasks booked for another day are left alone; a late best hour or an overnight end does not empty the plan', () => {
+  const tomorrow = '2026-10-22';
+  const r = planDay({ tasks: [T('later', { at: '09:00', atDay: tomorrow, est: 30 }), T('a', { est: 30 })], nowMin: 10 * 60, today });
+  assert.ok(!r.blocks.some((b) => b.taskId === 'later'), 'tomorrow\'s task is not pulled into today');
+  assert.ok(r.blocks.some((b) => b.taskId === 'a'));
+  assert.equal(planDay({ tasks: [T('a', { est: 30 })], nowMin: 9 * 60, bestStart: 20, workEnd: '18:00', today }).blocks.length, 1); // best hour 20:00 is after the work day: plan from now
+  assert.equal(planDay({ tasks: [T('a', { est: 30 })], nowMin: 9 * 60, workEnd: '02:00', today }).blocks.length, 1); // overnight end = until midnight
+});
