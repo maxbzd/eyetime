@@ -8,6 +8,7 @@ import { ACCENTS, LOOK_IDS, RADII, DENSITY, CARD_STYLES } from '../src/shared/lo
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const skip = new Set(['.git', 'node_modules', 'scripts-dev', '.github', 'dist', 'store', 'companion', 'docs']);
+cp.execFileSync(process.execPath, [path.join(root, 'scripts-dev/build-site.mjs')], { stdio: 'ignore' }); // site/assets is generated, not committed
 let errors = 0;
 const fail = (m) => { console.error('✗ ' + m); errors++; };
 const files = [];
