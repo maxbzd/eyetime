@@ -1,0 +1,26 @@
+{
+  "extName": {
+    "message": "EyeTime — Concentration, temps d’écran et yeux"
+  },
+  "extDescription": {
+    "message": "Lance une session de concentration en un clic, bloque les distractions, vois où passe ton temps, repose tes yeux. Gratuit, local."
+  },
+  "actionTitle": {
+    "message": "EyeTime"
+  },
+  "cmdToggleFocus": {
+    "message": "Démarrer ou arrêter une session de concentration"
+  },
+  "feedTitle": {
+    "message": "Il est temps d’arrêter de scroller"
+  },
+  "feedBody": {
+    "message": "Tu regardes des vidéos courtes depuis {n} minutes. La page est en pause et en niveaux de gris pour que tu choisisses la suite."
+  },
+  "feedLeave": {
+    "message": "Fermer cet onglet"
+  },
+  "feedMore": {
+    "message": "5 minutes de plus"
+  }
+}

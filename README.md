@@ -16,6 +16,8 @@ Free, open source and 100% local — no account, no servers, no tracking.
 
 <img src="store/screenshots/1-home.png" alt="EyeTime home page with focus card, today's stats, tasks and notes" width="860">
 
+<img src="store/demo.gif" alt="EyeTime in 30 seconds: add a task by typing, start a focus session, the calm pause page, insights, switching the look" width="860">
+
 </div>
 
 ---
@@ -48,7 +50,7 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 | ⌨️ **Fast by keyboard** | `Ctrl/Cmd + K` command palette (start a mode, focus on a task, switch look, jump anywhere, add a task), quick-add tasks (`Report 14:30 45m !`), single-key shortcuts on Home. |
 | 🔁 **Know yourself** | Estimate accuracy (planned vs actual), a day timeline with your focus sessions, a shareable *My week* card (totals only), optional settings sync across browsers. |
 | 📱 **Short-video guard** | After a limit of Shorts / Reels / TikTok / VK Clips scrolling the page turns grayscale and pauses. Optional hiding of Shorts, recommendations, comments and the YouTube home feed. |
-| 🌍 **English & Russian** | Key-based i18n; adding a language is one file. |
+| 🌍 **6 languages** | English, Русский, Español, Deutsch, Français, Português. Key-based i18n; adding a language is one file ([how](docs/TRANSLATING.md)). |
 | 🔒 **Private by design** | Only domain names and seconds are stored, on your device. [Details](PRIVACY.md). |
 
 <details>
@@ -136,7 +138,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the architecture tour, adding a langu
 
 - [x] Redesign, light/dark themes, key-based i18n, safer desktop companion (2.0)
 - [ ] Chrome Web Store, Edge Add-ons and Firefox AMO listings
-- [ ] More languages (ES, DE, PT, UK, ZH …) — [one file each](CONTRIBUTING.md#adding-a-language)
+- [x] Spanish, German, French and Portuguese (machine-translated — corrections welcome, see [docs/TRANSLATING.md](docs/TRANSLATING.md))
+- [ ] More languages (UK, ZH, JA, IT, PL …) — [one file each](CONTRIBUTING.md#adding-a-language)
 - [ ] macOS / Linux companion backends — [guide](companion/README.md#contributing-a-backend)
 - [ ] In-app weekly review
 

@@ -29,7 +29,7 @@
         <a class="btn" href="https://github.com/maxbzd/eyetime/releases/latest"><span data-en>Download for Firefox</span><span data-ru>Скачать для Firefox</span></a>
       </div>
       <p class="note"><span data-en>Free and open source (MIT). No account, no tracking. Store listings are on the way; until then install from the release page.</span><span data-ru>Бесплатно и с открытым кодом (MIT). Без аккаунта и слежки. Страницы в магазинах готовятся; пока устанавливайте со страницы релизов.</span></p>
-      <div class="shot"><img src="assets/1-home.png" alt="EyeTime new tab with a focus card, tasks, habits and notes" width="1280" height="800"></div>
+      <div class="shot"><video src="assets/demo.mp4" poster="assets/1-home.png" width="1280" height="720" autoplay muted loop playsinline preload="metadata" aria-label="A 30-second tour: add a task by typing, start focus, the calm pause page, insights, switching the look"></video></div>
     </section>
 
     <section id="features">
@@ -72,6 +72,7 @@
   </footer>
 </div>
 <script>
+(function () { var v = document.querySelector('.hero video'); if (v && matchMedia('(prefers-reduced-motion: reduce)').matches) { v.pause(); v.removeAttribute('autoplay'); v.controls = true; } })();
 (function () {
   var html = document.documentElement, btns = document.querySelectorAll('.lang button');
   function set(l) { html.lang = l; btns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.set === l)); }); try { localStorage.setItem('lang', l); } catch (e) {} }

@@ -9,6 +9,7 @@ const out = path.join(root, 'site/assets');
 fs.mkdirSync(out, { recursive: true });
 for (const f of ['1-home.png', '2-focus.png', '3-insights.png', '4-home-dark.png', '7-looks.png', '11-palette.png', '12-timeline.png', '13-week-card.png']) fs.copyFileSync(path.join(root, 'store/screenshots', f), path.join(out, f));
 fs.copyFileSync(path.join(root, 'icons/logo.svg'), path.join(out, 'logo.svg'));
+fs.copyFileSync(path.join(root, 'store/demo.mp4'), path.join(out, 'demo.mp4'));
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const inline = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`(.+?)`/g, '<code>$1</code>').replace(/&lt;(https?:\/\/[^&]+)&gt;/g, '<a href="$1">$1</a>').replace(/\*(.+?)\*/g, '<em>$1</em>');

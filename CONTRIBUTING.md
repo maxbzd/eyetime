@@ -28,6 +28,8 @@ Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) first (5 minutes). The short v
 3. Copy `_locales/en/messages.json` to `_locales/xx/messages.json` and translate it (store name, description, shortcut label, the short-video overlay).
 4. `npm run check` fails if a key is missing or a placeholder differs.
 
+Full guide, including how to fix a wrong translation and what to keep untouched: [docs/TRANSLATING.md](docs/TRANSLATING.md).
+
 ## Icons
 
 Icons are [Lucide](https://lucide.dev). Use `icon('name')` (or `icon: 'name'` in a data table) and run:

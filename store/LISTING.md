@@ -33,7 +33,7 @@ After a limit of Shorts / Reels / TikTok / VK Clips scrolling, the page goes gra
 PRIVATE BY DESIGN
 No account. No servers. No analytics. Only domain names and seconds are stored — on your device. Optional settings sync uses your browser's own sync and never includes your history. The code is open source (MIT): https://github.com/maxbzd/eyetime
 
-English and Russian. More languages are welcome on GitHub.
+English, Russian, Spanish, German, French and Portuguese (Spanish, German, French and Portuguese are machine-translated and reviewed; corrections are welcome on GitHub).
 
 ## Описание (RU)
 EyeTime помогает работать глубоко, а не бороться с браузером. Бесплатно, открытый код, все данные остаются на вашем устройстве.

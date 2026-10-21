@@ -277,7 +277,7 @@ export function data({ s, save, refresh }) {
     toast(events.length ? t('opt.calendarDone', { n: events.length }) : t('opt.calendarEmpty')); paintCal();
   };
   paintCal();
-  const calendarGroup = group(t('opt.groupCalendar'), (() => { const r = row({ title: t('opt.calendar'), desc: t('opt.calendarDesc'), control: h('div', { class: 'row gap-2' }, h('button', { class: 'btn', type: 'button', onclick: () => calFile.click() }, icon('upload'), t('opt.calendarBtn')), h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: async () => { await chrome.storage.local.remove(['calendar', 'calendarMeta']); paintCal(); } }, t('opt.calendarClear')), calFile) }); r.querySelector('.setting-text').append(calStatus); return r; })());
+  const calendarGroup = group(t('opt.groupCalendar'), (() => { const r = row({ title: t('opt.calendar'), desc: t('opt.calendarDesc'), control: h('div', { class: 'row gap-2 wrap' }, h('button', { class: 'btn', type: 'button', onclick: () => calFile.click() }, icon('upload'), t('opt.calendarBtn')), h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: async () => { await chrome.storage.local.remove(['calendar', 'calendarMeta']); paintCal(); } }, t('opt.calendarClear')), calFile) }); r.querySelector('.setting-text').append(calStatus); return r; })());
 
   return sec('data', sectionHead(t('sec.data'), t('sec.dataDesc')),
     calendarGroup,

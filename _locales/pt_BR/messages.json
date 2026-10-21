@@ -1,0 +1,26 @@
+{
+  "extName": {
+    "message": "EyeTime — Foco, Tempo de Tela e Saúde Ocular"
+  },
+  "extDescription": {
+    "message": "Foco com um clique, bloqueio gentil de distrações, seu tempo em números e descanso para os olhos. Grátis, aberto e 100% local."
+  },
+  "actionTitle": {
+    "message": "EyeTime"
+  },
+  "cmdToggleFocus": {
+    "message": "Iniciar ou parar uma sessão de foco"
+  },
+  "feedTitle": {
+    "message": "Hora de parar de rolar a tela"
+  },
+  "feedBody": {
+    "message": "Você está assistindo a vídeos curtos há {n} minutos. A página foi pausada e ficou em tons de cinza para você escolher o que fazer a seguir."
+  },
+  "feedLeave": {
+    "message": "Fechar esta aba"
+  },
+  "feedMore": {
+    "message": "Mais 5 minutos"
+  }
+}
