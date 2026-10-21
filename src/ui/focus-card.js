@@ -122,7 +122,7 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
       e.target.value = ''; toast(t('focus.parked'));
     } });
     const cur = st.settings.focus.ambient || 'off';
-    const sounds = h('div', { class: 'segmented segmented-sm', role: 'group', 'aria-label': t('focus.ambient') }, ['off', 'brown', 'rain', 'cafe'].map((k) => h('button', { type: 'button', 'aria-pressed': String(cur === k), text: t('ambient.' + k), onclick: () => send('ambient:set', { kind: k }) })));
+    const sounds = h('div', { class: 'segmented segmented-sm', role: 'group', 'aria-label': t('focus.ambient') }, ['off', 'brown', 'rain', 'river', 'forest'].map((k) => h('button', { type: 'button', 'aria-pressed': String(cur === k), text: t('ambient.' + k), onclick: () => send('ambient:set', { kind: k }) })));
     return h('div', { class: 'run-extras' }, large ? park : null, sounds, held ? h('div', { class: 'held', 'data-tip': t('focus.heldTip') }, icon('shield-check'), t('focus.held', { n: held })) : null);
   }
 

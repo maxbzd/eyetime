@@ -2,7 +2,7 @@
 // (no content script on every page, no all-sites host permission).
 
 import { evaluate, loadContext, blockedPageUrl } from '../shared/policy.js';
-import { decide } from '../shared/blocking.js';
+import { decide, REDIRECT_GRACE, REDIRECT_GRACE_MS } from '../shared/blocking.js';
 import { hostFromUrl } from '../shared/domains.js';
 import { getRaw, setRaw, updateDay } from '../shared/storage.js';
 import { dayKey } from '../shared/time.js';
@@ -48,6 +48,7 @@ export async function grantPass(rule, minutes) {
   const now = Date.now();
   for (const k of Object.keys(passes)) if (passes[k] <= now) delete passes[k];
   passes[rule] = now + Math.max(1, minutes) * 60_000;
+  passes[REDIRECT_GRACE] = now + REDIRECT_GRACE_MS;
   await setRaw({ passes });
 }
 
