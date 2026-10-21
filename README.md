@@ -30,6 +30,8 @@ Most blockers feel like punishment and most trackers feel like surveillance. Eye
 
 And because the name says it: it looks after your **eyes** too — 20-20-20 reminders counted in real screen time.
 
+**Project page and privacy policy:** https://maxbzd.github.io/eyetime/ · Problems? *Settings → About → Report a problem* builds a short, private diagnostic text you can attach to an issue.
+
 ## Features
 
 | | |

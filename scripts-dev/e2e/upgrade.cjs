@@ -6,11 +6,12 @@ const { launch } = require('./lib.cjs');
 const fs = require('fs');
 const path = require('path');
 
-const OLD = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/settings-v2.2.0.json'), 'utf8'));
+const fx = (v) => JSON.parse(fs.readFileSync(path.join(__dirname, `fixtures/settings-${v}.json`), 'utf8'));
+const OLD = fx('2.2.0');
 const PAGES = ['src/newtab/newtab.html', 'src/popup/popup.html?site=github.com', 'src/insights/insights.html', 'src/options/options.html', 'src/break/break.html', 'src/blocked/blocked.html?u=http%3A%2F%2Freddit.com%2F&r=friction&a=pause', 'src/blocked/blocked.html?u=http%3A%2F%2Freddit.com%2F&r=limit&a=block', 'src/blocked/blocked.html?u=http%3A%2F%2Freddit.com%2F&r=always&a=block', 'src/blocked/blocked.html'];
 let failed = 0;
 
-async function crawl(label, { seed, lang }) {
+async function crawl(label, { seed, lang, from = OLD }) {
   const app = await launch({ viewport: { width: 1280, height: 900 } });
   const errs = [];
   app.ctx.on('page', (p) => { p.on('pageerror', (e) => errs.push(`pageerror ${p.url().split('/').slice(-2).join('/')} ${e.message}`)); p.on('console', (m) => { if (m.type() === 'error') errs.push(`console ${p.url().split('/').slice(-2).join('/')} ${m.text()}`); }); });
@@ -25,7 +26,7 @@ async function crawl(label, { seed, lang }) {
       out.tasks = [{ id: 'a', text: 'Old task', done: false, starred: true, createdAt: 1, focusSec: 600 }, { id: 'b', text: 'Done old', done: true, createdAt: 2, focusSec: 400 }];
     }
     await chrome.storage.local.set(out);
-  }, [seed, OLD, lang]);
+  }, [seed, from, lang]);
   for (const pg of PAGES) { const p = await app.ctx.newPage(); await p.goto(ext(pg)); await p.waitForTimeout(900); await p.close(); }
   const ins = await app.ctx.newPage();
   for (const tab of ['overview', 'focus', 'sites', 'patterns']) for (const r of ['today', '7', '30']) {
@@ -48,6 +49,12 @@ async function crawl(label, { seed, lang }) {
   } else {
     await opt.goto(ext('src/options/options.html#data')); await opt.waitForTimeout(500);
     const [dl] = await Promise.all([opt.waitForEvent('download', { timeout: 8000 }).catch(() => null), opt.locator('button', { hasText: /Export journal|Экспорт дневника/ }).click()]);
+    await opt.goto(ext('src/options/options.html#about')); await opt.waitForTimeout(500);
+    await opt.locator('button', { hasText: /Prepare report|Подготовить отчёт/ }).click(); await opt.waitForSelector('dialog[open] textarea');
+    const rep = await opt.locator('dialog[open] textarea').inputValue();
+    if (!/^EyeTime \d+\.\d+\.\d+/.test(rep) || !/Data: \d+ days/.test(rep)) logic.push('Diagnostic report malformed: ' + rep.slice(0, 80));
+    if (/github\.com|reddit\.com|Old task|Old goal/.test(rep)) logic.push('Diagnostic report leaks site/task names');
+    await opt.keyboard.press('Escape');
     if (!dl) logic.push('Journal export did not download');
     else { const body = fs.readFileSync(await dl.path(), 'utf8'); if (!/EyeTime|EyeTime/.test(body) || !/Old goal/.test(body) || /github\.com|reddit\.com/.test(body)) logic.push('Journal content wrong: ' + body.slice(0, 120)); }
   }
@@ -94,6 +101,8 @@ async function narrow(label, lang) {
 (async () => {
   await narrow('narrow + 125% + long names (ru)', 'ru');
   await narrow('narrow + 125% + long names (en)', 'en');
+  await crawl('upgrade from v2.1.0 (en)', { seed: true, lang: 'en', from: fx('2.1.0') });
+  await crawl('upgrade from v2.5.3 (en)', { seed: true, lang: 'en', from: fx('2.5.3') });
   await crawl('upgrade from v2.2.0 (en)', { seed: true, lang: 'en' });
   await crawl('upgrade from v2.2.0 (ru)', { seed: true, lang: 'ru' });
   await crawl('empty profile (en)', { seed: false, lang: 'en' });

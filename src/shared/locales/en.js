@@ -299,4 +299,7 @@ export const en = {
   'gs.palette': 'Try the command palette', 'gs.paletteD': 'Press Ctrl/Cmd + K to do anything from the keyboard.', 'gs.openPalette': 'Open it',
   'journal.title': 'EyeTime journal', 'journal.empty': 'No activity recorded yet.', 'journal.focus': 'Focus', 'journal.screen': 'Screen time', 'journal.wins': 'Went well',
   'opt.journal': 'Journal (Markdown)', 'opt.journalDesc': 'Your last 90 days as a readable text file: focus time, sessions and what went well. No site names. Great for a notes app.', 'opt.journalBtn': 'Export journal',
+  'opt.groupSupport': 'Help', 'opt.reportTitle': 'Report a problem', 'opt.reportDesc': 'Builds a short technical summary you can read, copy and attach to a bug report. Nothing is sent automatically, and it contains no sites, tasks or notes.', 'opt.reportBtn': 'Prepare report',
+  'opt.reportPreview': 'Diagnostic report', 'opt.reportNote': 'Review the text below. It lists versions, setting switches, counts and recent errors only.', 'opt.reportCopy': 'Copy', 'opt.reportCopied': 'Report copied', 'opt.reportOpen': 'Open GitHub issue', 'opt.reportClear': 'Clear error log',
+  'backup.title': 'Back up your history', 'backup.body': 'Your statistics live only on this device. A backup file takes two seconds and protects months of data.', 'backup.now': 'Save backup', 'backup.later': 'Later',
 };
