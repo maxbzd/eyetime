@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.6.0 — 2026-10-21
+
+Reliability and support.
+
+### New
+- **Report a problem** (Settings → About): builds a short diagnostic text — versions, setting switches, counts and the last errors — that you can read, copy and attach to a GitHub issue, or open a prefilled issue. Nothing is sent automatically and it contains no sites, tasks or notes. A small local log keeps the last 20 errors (no page addresses).
+- **Backup reminder** on Home for people with real history: after 30 days without a backup file EyeTime suggests saving one (snoozable for 14 days).
+- **Project page and privacy policy** site (published from `site/` via GitHub Pages) and ready-to-paste store listing, permission justifications and a step-by-step publishing checklist (`store/`).
+
+### Tested
+- New end-to-end scenarios for what real browsing does: a second window, same-page navigation, the browser stopping the service worker, a session that ended while the browser was closed, a pass shared between tabs. Upgrade tests now start from v2.1.0, v2.2.0 and v2.5.3 settings. All run in CI.
+
 ## 2.5.3 — 2026-10-21
 
 From real-world use.

@@ -9,6 +9,7 @@ import { nudge as pickNudge, dayReview, applyPlans } from '../shared/productivit
 import { openShutdown } from './shutdown.js';
 import { installPalette } from '../ui/palette.js';
 import { mountGettingStarted } from './getting-started.js';
+import { downloadBackup, needsBackup } from '../ui/backup.js';
 import { send } from '../ui/api.js';
 import { setCollection } from '../shared/storage.js';
 import { dayKey } from '../shared/time.js';
@@ -43,6 +44,19 @@ function paintClock() {
   $('#date').textContent = fmtDate(now);
   const hr = now.getHours();
   $('#greeting').textContent = settings.newtab.greeting ? t(hr < 5 ? 'greet.night' : hr < 12 ? 'greet.morning' : hr < 18 ? 'greet.afternoon' : 'greet.evening') : '';
+}
+
+/** A gentle, snoozable reminder to save a backup file (history lives only on this device). */
+async function paintBackupNudge() {
+  const el = $('#backupNudge');
+  const { lastBackupAt = 0, backupSnoozedUntil = 0, meta } = await getRaw(['lastBackupAt', 'backupSnoozedUntil', 'meta']);
+  const all = await chrome.storage.local.get(null);
+  const daysStored = Object.keys(all).filter((k) => k.startsWith('d:')).length;
+  if (!needsBackup({ now: Date.now(), installedAt: meta && meta.installedAt, lastBackupAt, daysStored, snoozedUntil: backupSnoozedUntil })) { el.hidden = true; return; }
+  el.hidden = false;
+  clear(el, icon('database'), h('span', { class: 'nudge-text', text: t('backup.title') + '. ' + t('backup.body') }),
+    h('button', { class: 'btn btn-sm btn-primary', type: 'button', onclick: async () => { await downloadBackup(); el.hidden = true; } }, icon('download'), t('backup.now')),
+    h('button', { class: 'btn btn-sm', type: 'button', onclick: async () => { await setRaw({ backupSnoozedUntil: Date.now() + 14 * 86_400_000 }); el.hidden = true; } }, t('backup.later')));
 }
 
 /** While a session runs the tab title shows the countdown, so it is visible from other tabs. */
@@ -239,7 +253,7 @@ function openShortcutHelp() {
   setInterval(paintClock, 10_000);
   mountFocusCard($('#focus'), { variant: 'large' });
   mountGettingStarted($('#gs'), { startShortSession: async () => { const s = await getSettings(); await send('focus:start', { minutes: 5, strict: false, scope: s.focus.scope }); } });
-  paintNudge(); setInterval(paintNudge, 60_000);
+  paintNudge(); setInterval(paintNudge, 60_000); paintBackupNudge();
   onChange(['tasks', 'd:*'], paintNudge);
   renderModules();
   $('#customize').addEventListener('click', openDrawer);

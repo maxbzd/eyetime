@@ -1,6 +1,7 @@
 // EyeTime service worker (ES module). Event-driven: every listener is registered synchronously at load;
 // there are no setInterval / setTimeout loops — only chrome.alarms and browser events.
 
+import { captureErrors } from '../shared/errorlog.js';
 import { ensureSchema, getSettings, getRaw, pruneOldDays } from '../shared/storage.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { initTracker } from './tracker.js';
@@ -15,6 +16,8 @@ import { syncNow } from './sync.js';
 import './messages.js';
 import './companion.js';
 import { buildMenus } from './menus.js';
+
+captureErrors('worker');
 
 async function boot() {
   const { migrated } = await ensureSchema();

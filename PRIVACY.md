@@ -6,6 +6,7 @@ EyeTime is **local-first**. It has no account, no servers of its own, no analyti
 
 - **Domain names and seconds** per hour, e.g. `github.com — 340 s at 10:00`. Never full URLs, page titles, page content or keystrokes.
 - Your settings, tasks, notes, habits and quick links.
+- A short local log of the last 20 errors (message and code location only, no page addresses). It is never sent anywhere; you can read it in Settings → About → *Report a problem* and clear it there.
 - Nothing else: the shareable "My week" card is drawn locally and contains totals only.
 - Optionally (if you enable the desktop companion): seconds per desktop application name.
 

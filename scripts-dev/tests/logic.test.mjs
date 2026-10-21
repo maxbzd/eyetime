@@ -285,3 +285,14 @@ test('legacy "cafe" ambience maps to rain', async () => {
   assert.equal(s.focus.ambient, 'rain'); assert.equal(s.focus.modes[0].ambient, 'rain'); assert.equal(s.focus.modes[1].ambient, 'brown');
   delete globalThis.chrome;
 });
+
+test('backup reminder only for real history, rarely, and snoozable', async () => {
+  const { needsBackup } = await import('../../src/shared/backup.js');
+  const now = 100 * 86_400_000, d = 86_400_000;
+  assert.equal(needsBackup({ now, installedAt: now - 60 * d, daysStored: 5 }), false);          // too little data
+  assert.equal(needsBackup({ now, installedAt: now - 10 * d, daysStored: 20 }), false);         // installed recently
+  assert.equal(needsBackup({ now, installedAt: now - 60 * d, daysStored: 40 }), true);          // never backed up
+  assert.equal(needsBackup({ now, installedAt: now - 90 * d, lastBackupAt: now - 5 * d, daysStored: 80 }), false);
+  assert.equal(needsBackup({ now, installedAt: now - 90 * d, lastBackupAt: now - 45 * d, daysStored: 80 }), true);
+  assert.equal(needsBackup({ now, installedAt: now - 90 * d, daysStored: 80, snoozedUntil: now + d }), false);
+});

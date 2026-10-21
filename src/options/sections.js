@@ -5,8 +5,11 @@ import { send } from '../ui/api.js';
 import { row, group, toggle, select, domainEditor, sectionHead } from './ui.js';
 import { t, LANGUAGES, weekdayName, fmtDuration } from '../shared/i18n.js';
 import { PRESETS, PRESET_IDS } from '../shared/catalog.js';
-import { exportAll, importAll, resetAll, getRaw, setRaw, getRange } from '../shared/storage.js';
+import { importAll, resetAll, getRaw, setRaw, getRange } from '../shared/storage.js';
 import { buildJournal } from '../shared/journal.js';
+import { downloadBackup } from '../ui/backup.js';
+import { buildReport, issueUrl } from '../shared/diagnostics.js';
+import { readErrors, clearErrors } from '../shared/errorlog.js';
 import { makeClassifier } from '../shared/classify.js';
 import { fmtTime } from '../shared/i18n.js';
 import { parseUserDomain } from '../shared/domains.js';
@@ -244,11 +247,7 @@ export function tracking({ s, save, refresh }) {
 /* ============================== Data & privacy ============================== */
 export function data({ s, save, refresh }) {
   const PERMS = [['storage', 'perm.storage'], ['tabs', 'perm.tabs'], ['webNavigation', 'perm.webNavigation'], ['idle', 'perm.idle'], ['alarms', 'perm.alarms'], ['contextMenus', 'perm.contextMenus'], ['notifications', 'perm.notifications'], ['offscreen', 'perm.offscreen'], ['favicon', 'perm.favicon'], ['youtube/instagram/tiktok/vk', 'perm.hosts']];
-  async function doExport() {
-    const payload = await exportAll();
-    const url = URL.createObjectURL(new Blob([JSON.stringify(payload)], { type: 'application/json' }));
-    const a = h('a', { href: url, download: `eyetime-backup-${dayKey()}.json` }); document.body.append(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-  }
+  const doExport = downloadBackup;
   async function doImport(file) {
     try {
       const payload = JSON.parse(await file.text());
@@ -318,7 +317,25 @@ function shortcutKeys(name, fallback) {
   return el;
 }
 
-export function about() {
+/** "Report a problem": builds the diagnostic text, shows it, lets the person copy it or open a prefilled GitHub issue. */
+async function openReport(s) {
+  const all = await chrome.storage.local.get(null);
+  const keys = Object.keys(all);
+  const info = { version: chrome.runtime.getManifest().version, userAgent: navigator.userAgent, platform: navigator.platform, language: navigator.language, settings: s,
+    counts: { days: keys.filter((k) => k.startsWith('d:')).length, tasks: (all.tasks || []).length, notes: (all.captures || []).length, habits: (all.habits || []).length },
+    bytes: await chrome.storage.local.getBytesInUse(null), sync: !!all.syncSettings, errors: await readErrors() };
+  const report = buildReport(info);
+  const area = h('textarea', { class: 'input token', rows: 14, readonly: true, spellcheck: false, 'aria-label': t('opt.reportPreview'), style: { width: '100%', resize: 'vertical' }, value: report });
+  const dlg = h('dialog', { class: 'dialog' }, h('div', { class: 'dialog-body stack gap-3' }, h('h3', { text: t('opt.reportPreview') }), h('p', { class: 'muted-2', text: t('opt.reportNote') }), area),
+    h('div', { class: 'dialog-actions' },
+      h('button', { class: 'btn btn-ghost', type: 'button', onclick: async () => { await clearErrors(); dlg.close(); toast(t('opt.reportClear')); } }, t('opt.reportClear')),
+      h('button', { class: 'btn', type: 'button', onclick: async () => { try { await navigator.clipboard.writeText(report); toast(t('opt.reportCopied')); } catch { area.select(); } } }, icon('copy'), t('opt.reportCopy')),
+      h('a', { class: 'btn btn-primary', href: issueUrl(report), target: '_blank', rel: 'noopener', onclick: () => navigator.clipboard?.writeText(report).catch(() => {}) }, icon('arrow-up-right'), t('opt.reportOpen'))));
+  dlg.addEventListener('close', () => dlg.remove());
+  document.body.append(dlg); dlg.showModal();
+}
+
+export function about({ s }) {
   const v = chrome.runtime.getManifest().version;
   const link = (href, ico, label) => h('a', { class: 'btn', href, target: '_blank', rel: 'noopener' }, ico, label);
   return sec('about', sectionHead(t('sec.about')),
@@ -329,6 +346,8 @@ export function about() {
         link('https://github.com/maxbzd/eyetime/blob/main/CHANGELOG.md', icon('sparkles'), t('about.whatsNew')),
         link('https://github.com/maxbzd/eyetime/issues/new/choose', icon('bug'), t('about.report')),
         link('https://github.com/maxbzd/eyetime/blob/main/PRIVACY.md', icon('shield-check'), t('about.privacy')))),
+    group(t('opt.groupSupport'),
+      row({ title: t('opt.reportTitle'), desc: t('opt.reportDesc'), control: h('button', { class: 'btn', type: 'button', onclick: () => openReport(s) }, icon('bug'), t('opt.reportBtn')) })),
     group(t('about.shortcuts'),
       row({ title: t('about.scFocus'), control: shortcutKeys('toggle-focus', ['Alt', 'Shift', 'F']) }),
       row({ title: t('about.scPopup'), control: shortcutKeys('_execute_action', ['Alt', 'Shift', 'E']) }),
