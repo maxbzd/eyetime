@@ -7,6 +7,7 @@ async function seed(page, { look, mode, background, clockStyle }) {
       s.onboarded = true; s.language = 'en'; s.focus.dailyGoal = 120; s.blocking.plans = [{ id: 'p', when: '', then: 'stand up and drink water' }];
       Object.assign(s.appearance, { look, mode }); Object.assign(s.newtab, { background, clockStyle });
     });
+    await st.setRaw({ gsDismissed: true }); // the first-run checklist is not what a store screenshot is about
     const keys = rangeKeys(30);
     const hosts = ['github.com', 'docs.google.com', 'youtube.com', 'reddit.com', 'news.ycombinator.com'];
     let n = 7; const rnd = () => (n = (n * 9301 + 49297) % 233280) / 233280;
@@ -24,7 +25,7 @@ async function seed(page, { look, mode, background, clockStyle }) {
       { id: 'b', text: 'Review pull requests', done: false, starred: true, createdAt: 2, focusSec: 1500 },
       { id: 'c', text: 'Book flights for the conference', done: false, starred: false, createdAt: 3 },
       { id: 'd', text: 'Send the invoice', done: true, starred: false, createdAt: 4, focusSec: 900 }]);
-    await st.setCollection('habits', [{ id: 'h1', text: 'Move 20 minutes', createdAt: 1, log: Object.fromEntries(keys.slice(-5).map((k) => [k, true])) }]);
+    await st.setCollection('habits', { items: [{ id: 'h1', name: 'Move 20 minutes' }, { id: 'h2', name: 'Read 15 minutes' }], log: Object.fromEntries(keys.slice(-5).map((k, i) => [k, i === 4 ? ['h1'] : ['h1', 'h2']])) });
   }, [look, mode, background, clockStyle]);
 }
 module.exports = { seed };

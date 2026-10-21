@@ -311,4 +311,5 @@ export const en = {
   'trig.title': 'What pulls you', 'trig.sub': 'When your distracting sites take your time — and a next step for each', 'trig.window': 'Mostly between {from} and {to} ({pct}% of its time)', 'trig.avg': '~{n} min on the days you visit', 'trig.visits': { one: '{n} pause page', other: '{n} pause pages' },
   'trig.tipWindow': 'It clusters in one window. A plan for exactly that time works better than a general rule: decide now what you will do instead.', 'trig.tipLimit': 'It is spread through the day. A daily limit keeps the total in check without a fight each time.', 'trig.tipWatch': 'Small for now — keep an eye on it.',
   'trig.setLimit': 'Limit to {n} min a day', 'trig.writePlan': 'Write an if–then plan', 'trig.limitSet': 'Limit set: {host}, {n} min a day', 'trig.hasLimit': 'Limit set', 'trig.need': 'After a few days of data EyeTime can show when your distracting sites pull you in.',
+  'plan.booked': 'Everything is already scheduled — nothing left to place.', 'nav.main': 'Main', 'opt.sections': 'Settings sections', 'ap.fontSystem': 'System',
 };

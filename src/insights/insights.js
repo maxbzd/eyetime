@@ -222,7 +222,7 @@ function triggersCard(classify) {
     const has = Object.keys(settings.blocking.limits).some((d) => r.host === d || r.host.endsWith('.' + d));
     return h('div', { class: 'trig' },
       h('div', { class: 'trig-head' }, favicon(r.host), h('b', { class: 'truncate', text: r.host }), r.attempts ? h('span', { class: 'muted', text: t('trig.visits', { n: r.attempts }) }) : null),
-      h('p', { class: 'trig-line', text: [r.peak ? t('trig.window', { from: hour(r.peak.from), to: hour(r.peak.to), pct: Math.round(r.peak.share * 100) }) : null, t('trig.avg', { n: r.avgMin })].filter(Boolean).join(' · ') }),
+      h('p', { class: 'trig-line', text: [r.peak && r.kind === 'window' ? t('trig.window', { from: hour(r.peak.from), to: hour(r.peak.to), pct: Math.round(r.peak.share * 100) }) : null, t('trig.avg', { n: r.avgMin })].filter(Boolean).join(' · ') }),
       h('p', { class: 'muted-2', text: t('trig.tip' + { window: 'Window', limit: 'Limit', watch: 'Watch' }[r.kind]) }),
       r.kind === 'watch' ? null : h('div', { class: 'row gap-2 wrap' },
         has ? h('span', { class: 'chip good', text: t('trig.hasLimit') }) : h('button', { class: 'btn btn-sm', type: 'button', onclick: async () => {
