@@ -67,3 +67,10 @@ test('repeat words inside a sentence stay in the task; clear phrases and a trail
   assert.equal(parseQuickAdd('Plan the week every week').repeat, 'weekly');
   assert.equal(parseQuickAdd('Зарядка по будням').repeat, 'weekdays');
 });
+
+test('repeat phrases in Spanish, German, French and Portuguese', () => {
+  const cases = [['Estirar cada día 10:30 5min', 'daily', 'Estirar'], ['Dehnen jeden Tag 10:30', 'daily', 'Dehnen'], ['Étirements chaque jour', 'daily', 'Étirements'], ['Alongar todo dia', 'daily', 'Alongar'],
+    ['Informe semanal', 'weekly', 'Informe'], ['Bericht an Wochentagen', 'weekdays', 'Bericht'], ['Rapport en semaine', 'weekdays', 'Rapport'], ['Relatório dias úteis', 'weekdays', 'Relatório'], ['Revisar entre semana', 'weekdays', 'Revisar']];
+  for (const [input, repeat, text] of cases) { const r = parseQuickAdd(input); assert.deepEqual([r.repeat, r.text], [repeat, text], input); }
+  assert.equal(parseQuickAdd('Das tägliche Brot kaufen').repeat, null);
+});

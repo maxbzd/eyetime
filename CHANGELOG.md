@@ -1,5 +1,28 @@
 # Changelog
 
+## 2.8.0 — 2026-10-21
+
+Four new languages, calendar and planning fixes, a demo video.
+
+### New
+- **Spanish, German, French and Portuguese** — the whole interface plus the store texts (machine-translated and reviewed; corrections are welcome, see `docs/TRANSLATING.md`). Quick add understands "every day / jeden Tag / cada día / chaque jour / todo dia" and the weekday and weekly forms in these languages too.
+- **A 30-second demo** (`store/demo.mp4`, `demo.gif`) on the project page and in the README, recorded by a script (`scripts-dev/e2e/demo.cjs`) so it can be refreshed with every release.
+- The language picker in onboarding is a drop-down (six languages no longer fit in a row).
+
+### Fixed — found by an independent code review
+- **Calendar import** handles real-world files: weekly series that started more than two years ago, "3rd Tuesday of the month", every-other-week on given days, yearly events, date-only end and exception dates, moved and cancelled meetings (no ghost copies), reminders no longer replace an event's title, and times stay right across clock changes and for UTC or other-time-zone series.
+- **"Clear completed" no longer deletes recurring tasks.** A recurring task you did not finish keeps today's reminder. The words *daily*, *weekly*, *weekdays* inside a sentence ("Prepare weekly report") are no longer taken as a repeat rule. Recurring tasks come back right after midnight, not hours later.
+- **Plan my day** leaves tasks you booked for another day alone, no longer returns an empty plan when your best hour is late in the evening, uses the work-day end only when the work schedule is on, and says so when everything is already scheduled.
+- Estimate accuracy no longer counts a recurring task twice; weekly goals and the estimate history are kept when you restore a backup; the week on the share card is the week the goals belong to.
+- *What pulls you* no longer says "mostly between … " and "spread through the day" at once.
+
+### Fixed — narrow windows and long translations
+- Buttons may wrap their label in narrow windows instead of overflowing; the calendar button row and module headers no longer overflow; every language is checked at 400 px / 125 % zoom in the test suite.
+- Wording and clipped labels corrected in all four new languages (share column header, search field, if-then plans, KPI tiles…); dates in the calendar status follow the app language; four screen-reader labels were English-only.
+
+### Fixed — releases
+- The Release workflow failed on a clean checkout (the project-page images are generated); the check now builds them first. Versions 2.6.0 and 2.7.0 were never published as GitHub releases — their changes are all in this one.
+
 ## 2.7.0 — 2026-10-21
 
 Planning the day and the week.

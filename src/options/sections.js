@@ -3,7 +3,7 @@
 import { h, icon, toast, confirmDialog, clear } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { row, group, toggle, select, domainEditor, sectionHead } from './ui.js';
-import { t, LANGUAGES, weekdayName, fmtDuration } from '../shared/i18n.js';
+import { t, LANGUAGES, weekdayName, fmtDuration, getLocale } from '../shared/i18n.js';
 import { PRESETS, PRESET_IDS } from '../shared/catalog.js';
 import { importAll, resetAll, getRaw, setRaw, getRange } from '../shared/storage.js';
 import { buildJournal } from '../shared/journal.js';
@@ -266,7 +266,7 @@ export function data({ s, save, refresh }) {
   async function paintCal() {
     const [events, meta] = await Promise.all([getRaw('calendar'), getRaw('calendarMeta')]);
     const list = (events.calendar || []).filter((e) => e.day >= dayKey());
-    calStatus.textContent = list.length && meta.calendarMeta ? t('opt.calendarStatus', { n: list.length, date: new Date(meta.calendarMeta.at).toLocaleDateString() }) : t('opt.calendarNone');
+    calStatus.textContent = list.length && meta.calendarMeta ? t('opt.calendarStatus', { n: list.length, date: new Date(meta.calendarMeta.at).toLocaleDateString(getLocale()) }) : t('opt.calendarNone');
   }
   calFile.onchange = async () => {
     const f = calFile.files[0]; calFile.value = ''; if (!f) return;
