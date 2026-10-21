@@ -27,7 +27,7 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     const days = await getDays(rangeKeys(30));
     st.today = days[29][1];
     st.suggest = suggestMinutes(days, st.settings.focus.presets);
-    st.streak = goalStreak(days, st.settings.focus.dailyGoal, st.settings.focus.goalDays);
+    st.streak = goalStreak(days, st.settings.focus.dailyGoal, st.settings.focus.goalDays, { grace: st.settings.focus.streakGrace });
     st.tasks = (await getCollection('tasks', [])).filter((x) => !x.done);
     st.events = (await getRaw('calendar')).calendar || [];
     st.focus = isFocusActive(focus) ? focus : null;

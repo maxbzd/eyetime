@@ -29,14 +29,15 @@ export function goalProgress(fsSec, goalMin) {
  * Consecutive goal days (ending today, or the last goal day while today is still in progress) that reached the daily goal.
  * `goalDays` are the weekdays (0 = Sunday) the goal applies to; other days neither count nor break the streak, so a weekend off is not a failure.
  */
-export function goalStreak(entries, goalMin, goalDays = [0, 1, 2, 3, 4, 5, 6]) {
+export function goalStreak(entries, goalMin, goalDays = [0, 1, 2, 3, 4, 5, 6], { grace = false } = {}) {
   if (!goalMin) return 0;
   const need = goalMin * 60;
-  let n = 0;
+  let n = 0, forgiven = null; // with `grace`, one missed goal day in any seven does not break the streak (a sick day is not a failure)
   for (let i = entries.length - 1; i >= 0; i--) {
     if (!goalDays.includes(parseKey(entries[i][0]).getDay())) continue;
     if ((entries[i][1]?.fs || 0) >= need) n++;
     else if (i === entries.length - 1) continue;
+    else if (grace && (forgiven === null || Math.round((parseKey(entries[forgiven][0]) - parseKey(entries[i][0])) / 86_400_000) > 6)) forgiven = i;
     else break;
   }
   return n;
@@ -46,6 +47,7 @@ export function makeSessionEntry(session, { sec, completed, now = Date.now() }) 
   return {
     id: session.id, t: session.startedAt, m: Math.max(1, Math.round(sec / 60)), p: session.minutes,
     g: (session.goal || '').slice(0, 80), k: session.taskId || '', c: completed ? 1 : 0, r: 0,
+    ...(session.tag ? { tg: String(session.tag).slice(0, 24) } : {}),
   };
 }
 

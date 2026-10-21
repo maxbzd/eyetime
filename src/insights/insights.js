@@ -272,7 +272,7 @@ function render() {
 
   const views = {
     overview: () => [renderKpis(sum, prev), range === '7' && sum.total >= 3600 && sum.activeDays >= 3 ? reviewCard(sum, prev) : null, mainChart(sum), insightsCard(sum, prev, streak)],
-    focus: () => [focusTab({ cur: data.cur, heat: data.heat, tasks: data.tasks, estTasks: accuracyInput(data.tasks, data.estLog), settings })],
+    focus: () => [focusTab({ cur: data.cur, prev: data.prev, heat: data.heat, tasks: data.tasks, estTasks: accuracyInput(data.tasks, data.estLog), settings })],
     sites: () => [triggersCard(classify)].concat(sum.topApps.length ? [h('div', { class: 'grid-2' }, sitesCard(sum), appsCard(sum))] : [sitesCard(sum)]),
     patterns: () => {
       const entry = data.heat[data.heat.length - 1 - tlBack];

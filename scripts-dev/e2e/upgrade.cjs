@@ -54,6 +54,22 @@ async function crawl(label, { seed, lang, from = OLD }) {
     const planTxt = await nt.locator('dialog[open]').innerText();
     if (!/Plan my day|План на день/.test(planTxt) || !(/Old task/.test(planTxt) || /Nothing fits|До конца рабочего дня/.test(planTxt))) logic.push('Plan dialog content wrong: ' + planTxt.slice(0, 120));
     await nt.keyboard.press('Escape');
+    // tasks out and in: a Markdown export downloads; an imported list asks first, then lands in the list (duplicates skipped)
+    await opt.goto(ext('src/options/options.html#data')); await opt.waitForTimeout(600);
+    const [mdDl] = await Promise.all([opt.waitForEvent('download', { timeout: 8000 }).catch(() => null), opt.locator('button', { hasText: /^Markdown$/ }).click()]);
+    if (!mdDl || !/^eyetime-tasks-.*\.md$/.test(mdDl.suggestedFilename())) logic.push('Tasks Markdown export did not download');
+    opt.on('pageerror', (e) => logic.push('Tasks import: page error ' + e.message)); opt.on('console', (m) => { if (m.type() === 'error') logic.push('Tasks import: console error ' + m.text().slice(0, 160)); });
+    await opt.locator('input[type=file][accept*=".md"]').setInputFiles({ name: 'tasks.md', mimeType: 'text/markdown', buffer: Buffer.from('# list\n- [ ] Imported alpha tomorrow 30m\n- [x] Imported beta\n') });
+    await opt.waitForTimeout(700); const dlgTxt = await opt.locator('dialog[open]').allInnerTexts();
+    await opt.waitForSelector('dialog[open] button[value=yes]', { timeout: 5000 }).catch(() => logic.push('Tasks import: no confirmation dialog'));
+    await opt.locator('dialog[open] button[value=yes]').click({ timeout: 5000 }).catch((e) => logic.push('Tasks import: confirm click failed: ' + String(e.message).split('\n')[0])); await opt.waitForTimeout(2500);
+    const imp = await opt.evaluate(async () => ((await chrome.storage.local.get('tasks')).tasks || []).filter((x) => /^Imported /.test(x.text)));
+    if (imp.length !== 2 || !imp.find((x) => x.text === 'Imported alpha' && x.est === 30 && x.due) || !imp.find((x) => x.text === 'Imported beta' && x.done)) logic.push('Tasks import wrong: ' + JSON.stringify(imp).slice(0, 200) + ' dialogs=' + JSON.stringify(dlgTxt).slice(0, 200) + ' all=' + JSON.stringify(await opt.evaluate(async () => ((await chrome.storage.local.get('tasks')).tasks || []).map((x) => x.text))).slice(0, 300));
+    // projects: sessions with a tag show up as #tag rows on the Focus tab
+    await opt.evaluate(async () => { const st = await import('/src/shared/storage.js'); const { dayKey } = await import('/src/shared/time.js'); await st.updateDay(dayKey(), (d) => { d.ss = [...(d.ss || []), { id: 'proj1', t: Date.now() - 3600000, m: 40, p: 40, g: 'Draft', k: '', tg: 'zzproject', c: 1, r: 0 }]; d.fs = (d.fs || 0) + 2400; }); });
+    const insf = await app.ctx.newPage(); await insf.goto(ext('src/insights/insights.html?range=7')); await insf.evaluate(() => localStorage.setItem('et-itab', 'focus')); await insf.reload(); await insf.waitForTimeout(900);
+    if (!/#zzproject/.test(await insf.locator('body').innerText())) logic.push('Focus tab: the project (#zzproject) is not shown');
+    await insf.close();
     // dates in words: "tomorrow" shows a preview chip, becomes a due chip, and the task stays out of today's plan
     const qa = nt.locator('#mod-tasks input.input').first(); await qa.fill('Pay the rent tomorrow'); await nt.waitForTimeout(250);
     if (!/Tomorrow|Завтра/.test(await nt.locator('#mod-tasks .qa-preview').innerText())) logic.push('Quick add: no preview chip for "tomorrow"');
