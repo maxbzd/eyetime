@@ -11,7 +11,9 @@ labels: bug
 **Steps to reproduce**
 1.
 
-**Environment**
+**Diagnostic report** — EyeTime → Settings → About → *Report a problem* → Copy, then paste here (it has no sites, tasks or notes)
+
+**Environment** (the report already has these)
 - EyeTime version (Settings → About):
 - Browser + version:
 - OS:

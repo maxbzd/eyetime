@@ -14,6 +14,7 @@ import { sync } from './tracker.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { syncNow } from './sync.js';
 import { applySettings } from './apply.js';
+import { logError } from '../shared/errorlog.js';
 
 const handlers = {
   'focus:start': (m) => startFocus(m),
@@ -53,6 +54,6 @@ const handlers = {
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   const fn = msg && !msg.target && handlers[msg.type];
   if (!fn) return false;
-  Promise.resolve(fn(msg, sender)).then(sendResponse, (e) => sendResponse({ ok: false, error: String(e && e.message || e) }));
+  Promise.resolve(fn(msg, sender)).then(sendResponse, (e) => { logError('msg:' + msg.type, e); sendResponse({ ok: false, error: String(e && e.message || e) }); });
   return true; // async response
 });
