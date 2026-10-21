@@ -35,3 +35,4 @@ jobs:
       - run: node scripts-dev/e2e/upgrade.cjs
       - run: node scripts-dev/e2e/a11y.cjs --strict
       - run: node scripts-dev/e2e/blocking.cjs
+      - run: node scripts-dev/e2e/calendar.cjs

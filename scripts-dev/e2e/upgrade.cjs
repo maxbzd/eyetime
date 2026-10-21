@@ -54,6 +54,17 @@ async function crawl(label, { seed, lang, from = OLD }) {
     const planTxt = await nt.locator('dialog[open]').innerText();
     if (!/Plan my day|План на день/.test(planTxt) || !(/Old task/.test(planTxt) || /Nothing fits|До конца рабочего дня/.test(planTxt))) logic.push('Plan dialog content wrong: ' + planTxt.slice(0, 120));
     await nt.keyboard.press('Escape');
+    // dates in words: "tomorrow" shows a preview chip, becomes a due chip, and the task stays out of today's plan
+    const qa = nt.locator('#mod-tasks input.input').first(); await qa.fill('Pay the rent tomorrow'); await nt.waitForTimeout(250);
+    if (!/Tomorrow|Завтра/.test(await nt.locator('#mod-tasks .qa-preview').innerText())) logic.push('Quick add: no preview chip for "tomorrow"');
+    await qa.press('Enter'); await nt.waitForTimeout(500);
+    const rentRow = nt.locator('#mod-tasks .item', { hasText: 'Pay the rent' });
+    const rentTxt = (await rentRow.count()) ? await rentRow.first().innerText() : '';
+    if (!/Tomorrow|Завтра/.test(rentTxt) || /rent +tomorrow/i.test(rentTxt)) logic.push('Quick add: due chip missing or the word stayed in the title: ' + rentTxt.slice(0, 80) + ' | ' + JSON.stringify((await nt.evaluate(() => chrome.storage.local.get('tasks'))).tasks.slice(0, 2)));
+    // "What's new": the worker sets the key on a minor update; the card shows three lines and a click dismisses it for good
+    await nt.evaluate(() => chrome.storage.local.set({ whatsNew: { version: '9.9.0', from: '9.8.0' } })); await nt.reload(); await nt.waitForTimeout(800);
+    if (!(await nt.locator('#wn').isVisible()) || (await nt.locator('#wn li').count()) !== 3) logic.push("What's new card missing or wrong");
+    else { await nt.locator('#wn .btn-ghost.btn-sm:not(.btn-icon)').click(); await nt.waitForTimeout(300); await nt.reload(); await nt.waitForTimeout(700); if (await nt.locator('#wn').isVisible()) logic.push("What's new card came back after dismissal"); }
     // "what pulls you": reddit.com is used at 14:00 every day → a window trigger with a one-tap limit
     const insp = await app.ctx.newPage(); await insp.goto(ext('src/insights/insights.html')); await insp.evaluate(() => localStorage.setItem('et-itab', 'sites')); await insp.reload(); await insp.waitForTimeout(900);
     if (!(await insp.locator('.trig').count())) logic.push('No trigger card for a daily distracting site');
@@ -123,14 +134,14 @@ async function narrow(label, lang) {
 }
 
 (async () => {
-  await narrow('narrow + 125% + long names (ru)', 'ru');
-  await narrow('narrow + 125% + long names (en)', 'en');
-  for (const l of ['de', 'fr', 'es', 'pt']) await narrow(`narrow + 125% + long names (${l})`, l);
-  await crawl('upgrade from v2.1.0 (en)', { seed: true, lang: 'en', from: fx('2.1.0') });
-  await crawl('upgrade from v2.5.3 (en)', { seed: true, lang: 'en', from: fx('2.5.3') });
-  await crawl('upgrade from v2.2.0 (en)', { seed: true, lang: 'en' });
-  await crawl('upgrade from v2.2.0 (ru)', { seed: true, lang: 'ru' });
-  await crawl('empty profile (en)', { seed: false, lang: 'en' });
-  await crawl('empty profile (ru)', { seed: false, lang: 'ru' });
+  if (!process.env.ONLY || new RegExp(process.env.ONLY).test('narrow + 125% + long names (ru)')) await narrow('narrow + 125% + long names (ru)', 'ru');
+  if (!process.env.ONLY || new RegExp(process.env.ONLY).test('narrow + 125% + long names (en)')) await narrow('narrow + 125% + long names (en)', 'en');
+  for (const l of ['de', 'fr', 'es', 'pt']) if (!process.env.ONLY || new RegExp(process.env.ONLY).test('narrow + 125% + long names (' + l + ')')) await narrow(`narrow + 125% + long names (${l})`, l);
+  if (!process.env.ONLY || new RegExp(process.env.ONLY).test('upgrade from v2.1.0 (en)')) await crawl('upgrade from v2.1.0 (en)', { seed: true, lang: 'en', from: fx('2.1.0') });
+  if (!process.env.ONLY || new RegExp(process.env.ONLY).test('upgrade from v2.5.3 (en)')) await crawl('upgrade from v2.5.3 (en)', { seed: true, lang: 'en', from: fx('2.5.3') });
+  if (!process.env.ONLY || new RegExp(process.env.ONLY).test('upgrade from v2.2.0 (en)')) await crawl('upgrade from v2.2.0 (en)', { seed: true, lang: 'en' });
+  if (!process.env.ONLY || new RegExp(process.env.ONLY).test('upgrade from v2.2.0 (ru)')) await crawl('upgrade from v2.2.0 (ru)', { seed: true, lang: 'ru' });
+  if (!process.env.ONLY || new RegExp(process.env.ONLY).test('empty profile (en)')) await crawl('empty profile (en)', { seed: false, lang: 'en' });
+  if (!process.env.ONLY || new RegExp(process.env.ONLY).test('empty profile (ru)')) await crawl('empty profile (ru)', { seed: false, lang: 'ru' });
   process.exit(failed ? 1 : 0);
 })();

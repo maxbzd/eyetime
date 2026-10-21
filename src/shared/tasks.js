@@ -3,15 +3,16 @@
 import { parseQuickAdd } from './quickadd.js';
 import { MAX_PRIORITIES } from './productivity.js';
 
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+export const newTaskId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
 /** Build a task from raw input. `tasks` (the current list) only decides whether another priority slot is free. */
 export function taskFromInput(input, tasks = [], now = new Date()) {
   const p = parseQuickAdd(input, now);
   const prioFree = tasks.filter((x) => x.starred && !x.done).length < MAX_PRIORITIES;
-  const task = { id: uid(), text: p.text.slice(0, 300), done: false, starred: p.priority && prioFree, createdAt: now.getTime() };
+  const task = { id: newTaskId(), text: p.text.slice(0, 300), done: false, starred: p.priority && prioFree, createdAt: now.getTime() };
   if (p.est) task.est = p.est;
   if (p.at) { task.at = p.at; task.atDay = p.atDay; }
+  if (p.due) task.due = p.due;
   if (p.tags.length) task.tags = p.tags.slice(0, 5);
   if (p.repeat) task.repeat = p.repeat;
   return { task, parsed: p, prioDenied: p.priority && !prioFree };
@@ -58,7 +59,7 @@ export function applyRepeats(tasks, todayKey, keyOf) {
     if (!x.repeat || !x.done || !x.doneAt) return x;
     if (todayKey < nextOccurrence(x.repeat, keyOf(x.doneAt))) return x;
     changed = true;
-    const { atDay, ...rest } = x; // eslint-disable-line no-unused-vars
+    const { atDay, due, ...rest } = x; // eslint-disable-line no-unused-vars
     return { ...rest, done: false, doneAt: 0, focusSec: 0, doneCount: (x.doneCount || 0) + 1, ...(x.at ? { atDay: todayKey } : {}) };
   });
   return { tasks: out, changed };

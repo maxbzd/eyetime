@@ -1,13 +1,13 @@
 // Home-page modules: tasks, habits, notes, quick links. Each returns a card element and manages its own storage.
 
 import { h, icon, favicon, toast, clear } from '../ui/dom.js';
-import { t, fmtNumber, fmtDuration } from '../shared/i18n.js';
+import { t, fmtNumber, fmtDuration, fmtDate, weekdayName } from '../shared/i18n.js';
 import { send } from '../ui/api.js';
 import { getSettings } from '../shared/storage.js';
 import { MAX_PRIORITIES } from '../shared/productivity.js';
 import { openShutdown } from './shutdown.js';
 import { getCollection, setCollection, onChange, updateSettings } from '../shared/storage.js';
-import { dayKey, rangeKeys, addDays } from '../shared/time.js';
+import { dayKey, rangeKeys, addDays, parseKey } from '../shared/time.js';
 import { parseUserDomain } from '../shared/domains.js';
 import { taskFromInput, updateEstLog } from '../shared/tasks.js';
 import { openDayPlan } from './dayplan.js';
@@ -37,6 +37,15 @@ export function tasksModule() {
   const save = () => setCollection('tasks', tasks);
   const LIMIT = 6;
 
+  /** "Today" / "Tomorrow" / "Friday" / "Oct 30" / "Overdue" for a due day. */
+  const dueLabel = (key) => {
+    const today = dayKey(); if (key === today) return t('tasks.dueToday');
+    if (key < today) return t('tasks.overdue');
+    if (key === dayKey(addDays(new Date(), 1))) return t('tasks.dueTomorrow');
+    const d = parseKey(key), days = Math.round((d - parseKey(today)) / 86_400_000);
+    return days < 7 ? weekdayName(d.getDay(), 'long') : fmtDate(d, { day: 'numeric', month: 'short' });
+  };
+
   function render() {
     const open = tasks.filter((x) => !x.done), done = tasks.filter((x) => x.done);
     // priorities first (the day's top three), then the rest, then done
@@ -52,7 +61,7 @@ export function tasksModule() {
     const preview = h('div', { class: 'qa-preview', 'aria-live': 'polite' });
     const drawPreview = (value) => {
       const p = parseQuickAdd(value);
-      const chips = [p.at ? [{ icon: 'alarm-clock' }, t('tasks.qaAt', { time: p.at })] : null, p.est ? [{ icon: 'timer' }, t('tasks.qaEst', { time: fmtDuration(p.est * 60) })] : null, p.priority ? [{ icon: 'star' }, t('tasks.qaPri')] : null, p.repeat ? [{ icon: 'repeat' }, t('tasks.rep.' + p.repeat)] : null, ...p.tags.map((g) => [{ icon: 'tag' }, '#' + g])].filter(Boolean);
+      const chips = [p.due ? [{ icon: 'calendar-days' }, dueLabel(p.due)] : null, p.at ? [{ icon: 'alarm-clock' }, t('tasks.qaAt', { time: p.at })] : null, p.est ? [{ icon: 'timer' }, t('tasks.qaEst', { time: fmtDuration(p.est * 60) })] : null, p.priority ? [{ icon: 'star' }, t('tasks.qaPri')] : null, p.repeat ? [{ icon: 'repeat' }, t('tasks.rep.' + p.repeat)] : null, ...p.tags.map((g) => [{ icon: 'tag' }, '#' + g])].filter(Boolean);
       clear(preview, chips.length ? chips.map(([ico, text]) => h('span', { class: 'tagm' }, icon(ico.icon), text)) : (value.trim() ? null : h('span', { class: 'hint', text: t('tasks.qaHint') })));
     };
     const input = h('input', { class: 'input', placeholder: t('tasks.add'), 'aria-label': t('tasks.add'), maxlength: 300, oninput: (e) => drawPreview(e.target.value), onkeydown: (e) => {
@@ -94,6 +103,8 @@ export function tasksModule() {
       const scheduled = x.at && x.atDay === dayKey() && !x.done;
       const meta = [
         scheduled ? h('span', { class: 'tagm at num', 'data-tip': t('tasks.scheduledAt') }, icon('alarm-clock'), x.at) : null,
+        !x.done && x.due ? h('span', { class: 'tagm due' + (x.due < dayKey() ? ' late' : ''), 'data-tip': t('tasks.dueTip') }, icon('calendar-days'), dueLabel(x.due)) : null,
+        !x.done && x.at && x.atDay && x.atDay > dayKey() ? h('span', { class: 'tagm at num', 'data-tip': t('tasks.scheduledAt') }, icon('alarm-clock'), `${dueLabel(x.atDay)} ${x.at}`) : null,
         x.focusSec >= 60 ? h('span', { class: 'tagm num', 'data-tip': t('tasks.spent') }, icon('timer'), x.est ? t('tasks.estOf', { spent: fmtDuration(x.focusSec), est: fmtDuration(x.est * 60) }) : fmtDuration(x.focusSec)) : (x.est && !x.done ? h('span', { class: 'tagm num', 'data-tip': t('prod.estPlanned') }, icon('timer'), t('tasks.estOnly', { est: fmtDuration(x.est * 60) })) : null),
         x.repeat ? h('span', { class: 'tagm', 'data-tip': t('tasks.repeatTip') }, icon('repeat'), t('tasks.rep.' + x.repeat)) : null,
         ...(x.tags || []).map((g) => h('span', { class: 'tagm tag-hash', text: '#' + g })),

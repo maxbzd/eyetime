@@ -1,10 +1,21 @@
 // Realistic demo data for the store screenshots and the demo video (30 days of browsing, sessions, tasks, habits).
-async function seed(page, { look, mode, background, clockStyle }) {
-  await page.evaluate(async ([look, mode, background, clockStyle]) => {
+
+/** Sample texts per language (tasks, habits, if-then plan, palette query) so localized store screenshots do not mix languages. */
+const SAMPLES = {
+  en: { tasks: ['Write the quarterly report', 'Draft section 2, then the charts', 'Review pull requests', 'Book flights for the conference', 'Send the invoice'], habits: ['Move 20 minutes', 'Read 15 minutes'], then: 'stand up and drink water', query: 'rep' },
+  ru: { tasks: ['Написать квартальный отчёт', 'Набросать раздел 2, затем графики', 'Проверить pull request’ы', 'Забронировать билеты на конференцию', 'Отправить счёт'], habits: ['Зарядка 20 минут', 'Чтение 15 минут'], then: 'встать и выпить воды', query: 'отч' },
+  es: { tasks: ['Escribir el informe trimestral', 'Redactar la sección 2 y luego los gráficos', 'Revisar pull requests', 'Reservar vuelos para la conferencia', 'Enviar la factura'], habits: ['Moverme 20 minutos', 'Leer 15 minutos'], then: 'levantarme y beber agua', query: 'inf' },
+  de: { tasks: ['Quartalsbericht schreiben', 'Abschnitt 2 entwerfen, dann die Diagramme', 'Pull Requests prüfen', 'Flüge zur Konferenz buchen', 'Rechnung senden'], habits: ['20 Minuten Bewegung', '15 Minuten lesen'], then: 'aufstehen und Wasser trinken', query: 'qua' },
+  fr: { tasks: ['Rédiger le rapport trimestriel', 'Rédiger la section 2, puis les graphiques', 'Relire les pull requests', 'Réserver les vols pour la conférence', 'Envoyer la facture'], habits: ['Bouger 20 minutes', 'Lire 15 minutes'], then: 'me lever et boire de l’eau', query: 'rap' },
+  pt: { tasks: ['Escrever o relatório trimestral', 'Rascunhar a seção 2 e depois os gráficos', 'Revisar pull requests', 'Reservar voos para a conferência', 'Enviar a fatura'], habits: ['Mexer o corpo 20 minutos', 'Ler 15 minutos'], then: 'levantar e beber água', query: 'rel' },
+};
+
+async function seed(page, { look, mode, background, clockStyle, lang = 'en' }) {
+  await page.evaluate(async ([look, mode, background, clockStyle, lang, sample]) => {
     const st = await import('/src/shared/storage.js');
     const { rangeKeys } = await import('/src/shared/time.js');
     await st.updateSettings((s) => {
-      s.onboarded = true; s.language = 'en'; s.focus.dailyGoal = 120; s.blocking.plans = [{ id: 'p', when: '', then: 'stand up and drink water' }];
+      s.onboarded = true; s.language = lang; s.focus.dailyGoal = 120; s.blocking.plans = [{ id: 'p', when: '', then: sample.then }];
       Object.assign(s.appearance, { look, mode }); Object.assign(s.newtab, { background, clockStyle });
     });
     await st.setRaw({ gsDismissed: true }); // the first-run checklist is not what a store screenshot is about
@@ -21,11 +32,11 @@ async function seed(page, { look, mode, background, clockStyle }) {
       });
     }
     await st.setCollection('tasks', [
-      { id: 'a', text: 'Write the quarterly report', done: false, starred: true, createdAt: 1, est: 90, focusSec: 4500, resume: 'Draft section 2, then the charts' },
-      { id: 'b', text: 'Review pull requests', done: false, starred: true, createdAt: 2, focusSec: 1500 },
-      { id: 'c', text: 'Book flights for the conference', done: false, starred: false, createdAt: 3 },
-      { id: 'd', text: 'Send the invoice', done: true, starred: false, createdAt: 4, focusSec: 900 }]);
-    await st.setCollection('habits', { items: [{ id: 'h1', name: 'Move 20 minutes' }, { id: 'h2', name: 'Read 15 minutes' }], log: Object.fromEntries(keys.slice(-5).map((k, i) => [k, i === 4 ? ['h1'] : ['h1', 'h2']])) });
-  }, [look, mode, background, clockStyle]);
+      { id: 'a', text: sample.tasks[0], done: false, starred: true, createdAt: 1, est: 90, focusSec: 4500, resume: sample.tasks[1] },
+      { id: 'b', text: sample.tasks[2], done: false, starred: true, createdAt: 2, focusSec: 1500 },
+      { id: 'c', text: sample.tasks[3], done: false, starred: false, createdAt: 3 },
+      { id: 'd', text: sample.tasks[4], done: true, starred: false, createdAt: 4, focusSec: 900 }]);
+    await st.setCollection('habits', { items: [{ id: 'h1', name: sample.habits[0] }, { id: 'h2', name: sample.habits[1] }], log: Object.fromEntries(keys.slice(-5).map((k, i) => [k, i === 4 ? ['h1'] : ['h1', 'h2']])) });
+  }, [look, mode, background, clockStyle, lang, SAMPLES[lang] || SAMPLES.en]);
 }
-module.exports = { seed };
+module.exports = { seed, SAMPLES };

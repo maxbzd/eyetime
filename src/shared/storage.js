@@ -174,6 +174,7 @@ export async function ensureSchema() {
 export async function exportAll() {
   const all = await area().get(null);
   delete all.newtabBg;
+  delete all.calendarSub; // the calendar address is a secret: it never leaves this device, not even in a backup file
   return { app: 'eyetime', version: 2, exportedAt: new Date().toISOString(), data: all };
 }
 

@@ -37,7 +37,7 @@ const CURSOR = `(() => { const c = document.createElement('div'); c.style.cssTex
   await p.mouse.wheel(0, 380); await p.waitForTimeout(1200);
   const input = p.locator('input[placeholder][maxlength="300"]').first();
   await click(input);
-  await input.pressSequentially('Prepare the slides tomorrow 10:00 ~45m !high', { delay: 70 });
+  await input.pressSequentially('Prepare the slides tomorrow 10:00 45m !', { delay: 70 });
   await p.waitForTimeout(1800);
   await input.press('Enter');
   await p.waitForTimeout(1600);
