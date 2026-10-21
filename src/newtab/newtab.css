@@ -103,7 +103,7 @@ body[data-layout="minimal"] .more-mods { display: inline-flex; }
 @media (max-width: 640px) { .modules { grid-template-columns: minmax(0, 1fr); } #mod-tasks { grid-column: auto; } }
 .mod { container-type: inline-size; padding: var(--s-5); border-radius: var(--r-lg); display: flex; flex-direction: column; gap: var(--s-4); min-height: 220px; }
 .mod > .stack { flex: 1; min-height: 0; }
-.mod-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); flex-wrap: wrap; }
+.mod-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); } .mod-head h3 { min-width: 0; }
 .mod-head h3 { font-size: var(--fs-sm); font-weight: 650; color: var(--text-2); display: flex; align-items: center; gap: 8px; letter-spacing: 0; }
 .mod-head h3 .ico { font-size: 16px; color: var(--text-3); }
 .mod-head .count { font-size: var(--fs-xs); color: var(--text-3); }
@@ -211,7 +211,7 @@ body[data-layout="split"] .hero .clock { white-space: nowrap; font-size: clamp(5
 @media (max-width: 600px) { .focus-idle.large .focus-row .btn-lg { width: 100%; } }
 .dialog-wide .dialog-body { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent); padding-bottom: var(--s-6); }
 .sc-row { display: grid; grid-template-columns: 64px 1fr; align-items: center; } .sc-row .kbd { justify-self: start; }
-.nudge { flex-wrap: wrap; justify-content: center; max-width: 100%; } .nudge .nudge-text { min-width: 0; }
+.nudge { flex-wrap: wrap; justify-content: center; max-width: 100%; border-radius: min(var(--r-full), 22px); } .nudge .nudge-text { min-width: 0; }
 
 /* get-started checklist */
 .gs { width: min(760px, 100%); margin: 0 auto; padding: var(--s-5); display: flex; flex-direction: column; gap: var(--s-3); }

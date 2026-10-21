@@ -26,7 +26,7 @@ const { seed } = require('./seed.cjs');
   p = await open('src/newtab/newtab.html'); await shot('4-home-dark.png', p); await p.close();
 
   await seed(seedPage, { look: 'calm', mode: 'system', background: 'dawn', clockStyle: 'thin' });
-  p = await open('src/options/options.html#appearance', { width: 1280, height: 1000 }); await p.evaluate(() => document.getElementById('appearance').scrollIntoView());
+  p = await open('src/options/options.html#appearance', { width: 1280, height: 1000 }); await p.evaluate(() => document.getElementById('appearance')?.scrollIntoView());
   await shot('5-settings.png', p); await p.addStyleTag({ content: '.app-header{display:none!important}' }); await p.locator('.looks').screenshot({ path: path.join(OUT, '7-looks.png') }); await p.close();
 
   // a taste of the variety: the same Home in four looks

@@ -38,10 +38,16 @@ export function parseQuickAdd(input, now = new Date()) {
   for (const m of text.matchAll(/(?<=\s)#([\p{L}\p{N}_-]{1,24})(?=\s|$)/gu)) out.tags.push(m[1].toLowerCase());
   text = text.replace(/(?<=\s)#[\p{L}\p{N}_-]{1,24}(?=\s|$)/gu, ' ');
 
-  // repetition (English and Russian). Clear phrases count anywhere; the bare words daily / weekly / weekdays only at the very end,
-  // so "Prepare weekly report" stays a task called "Prepare weekly report".
-  const rep = /(?<=\s)(every\s+day|каждый\s+день|ежедневно|every\s+weekday|по\s+будням|every\s+week|еженедельно|каждую\s+неделю)(?=\s|$)/i.exec(text) || /(?<=\s)(daily|weekdays|weekly)(?=\s*$)/i.exec(text);
-  if (rep) { const w = rep[1].toLowerCase(); out.repeat = /weekday|будням/.test(w) ? 'weekdays' : /week|недел/.test(w) ? 'weekly' : 'daily'; text = text.replace(rep[0], ' '); }
+  // repetition (English, Russian, Spanish, German, French, Portuguese). Clear phrases count anywhere; the bare one-word forms only at the
+  // very end, so "Prepare weekly report" stays a task called "Prepare weekly report".
+  const CLEAR = 'every\\s+day|every\\s+weekday|every\\s+week|каждый\\s+день|ежедневно|по\\s+будням|каждую\\s+неделю|еженедельно|cada\\s+d[ií]a|todos\\s+los\\s+d[ií]as|entre\\s+semana|cada\\s+semana|jeden\\s+tag|an\\s+wochentagen|jede\\s+woche|chaque\\s+jour|tous\\s+les\\s+jours|en\\s+semaine|chaque\\s+semaine|todo\\s+dia|todos\\s+os\\s+dias|dias\\s+[uú]teis|toda\\s+semana|a\\s+cada\\s+semana';
+  const BARE = 'daily|weekdays|weekly|t[aä]glich|werktags|w[oö]chentlich|diario|semanal|quotidien|hebdomadaire|di[aá]rio|diariamente';
+  const rep = new RegExp(`(?<=\\s)(${CLEAR})(?=\\s|$)`, 'i').exec(text) || new RegExp(`(?<=\\s)(${BARE})(?=\\s*$)`, 'i').exec(text);
+  if (rep) {
+    const w = rep[1].toLowerCase().replace(/\s+/g, ' ');
+    out.repeat = /weekday|будням|wochentag|werktag|entre semana|en semaine|dias [uú]teis/.test(w) ? 'weekdays' : /week|недел|woche|semana|semaine|hebdo/.test(w) ? 'weekly' : 'daily';
+    text = text.replace(rep[0], ' ');
+  }
 
   out.text = text.replace(/\s+/g, ' ').trim();
   if (out.at) {
