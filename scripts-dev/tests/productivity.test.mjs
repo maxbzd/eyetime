@@ -138,3 +138,20 @@ test('nextTaskSlot, switchRate, topTemptations, recentWins, weekdayPattern', asy
   const p = m.weekdayPattern([['2026-10-19', { fs: 7200 }], ['2026-10-26', { fs: 3600 }], ['2026-10-20', { fs: 0 }]], 120);
   assert.deepEqual(p[1], { days: 2, avgMin: 90, hitRate: 0.5 }); assert.equal(p[0].days, 0);
 });
+
+test('goalStreak with grace: one missed day in seven is forgiven, two within a week are not', () => {
+  const day = (min) => ({ fs: min * 60 });
+  const mk = (...mins) => mins.map((m, i) => [`2026-10-${String(11 + i).padStart(2, '0')}`, day(m)]);
+  const all = [0, 1, 2, 3, 4, 5, 6];
+  // 11..17: ok ok MISS ok ok ok (17 = today, in progress)
+  const one = mk(130, 130, 5, 130, 130, 130, 10);
+  assert.equal(goalStreak(one, 120, all), 3);                          // without grace the miss on the 13th ends it
+  assert.equal(goalStreak(one, 120, all, { grace: true }), 5);         // with grace it is forgiven: 5 goal days
+  // two misses six days apart: only the newer one is forgiven
+  const two = mk(130, 5, 130, 130, 130, 130, 5, 130);
+  assert.equal(goalStreak(two, 120, all, { grace: true }), 5);          // 18th ok, 17th missed (forgiven), 16..13 ok, 12th missed and too close -> stop
+  // two misses a week apart: both forgiven
+  const spaced = [['2026-10-04', day(130)], ['2026-10-05', day(5)], ...mk(130, 130, 130, 130, 130, 130, 5, 130).slice(0, 7), ['2026-10-18', day(130)]];
+  assert.ok(goalStreak(spaced, 120, all, { grace: true }) > goalStreak(spaced, 120, all));
+  assert.equal(goalStreak([], 120, all, { grace: true }), 0);
+});

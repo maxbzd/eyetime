@@ -16,10 +16,11 @@ const MIN_CREDIT_SEC = 120; // an early stop counts as focus time only after 2 m
 
 export async function startFocus({ minutes, goal = '', strict = false, taskId = '', scope, mode = '' }) {
   const settings = await getSettings();
-  let text = goal;
-  if (taskId && !text) text = ((await getCollection('tasks', [])).find((x) => x.id === taskId) || {}).text || '';
+  let text = goal, tag = '';
+  if (taskId) { const task = (await getCollection('tasks', [])).find((x) => x.id === taskId) || {}; if (!text) text = task.text || ''; tag = (task.tags || [])[0] || ''; }
   const modeCfg = (settings.focus.modes || []).find((m) => m.id === mode);
   const session = createSession({ minutes, goal: text, strict, taskId, scope: scope || modeCfg?.scope || settings.focus.scope, mode: modeCfg?.id || '', allow: modeCfg?.allow || [] });
+  if (tag) session.tag = tag; // the project this session belongs to (first #tag of its task), kept in the session log for Insights
   await setRaw({ focus: session, rest: null, review: null });
   await chrome.alarms.clear('rest-end');
   await chrome.alarms.create('focus-end', { when: session.endsAt });
