@@ -37,6 +37,8 @@ const server = http.createServer((req, res) => {
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
   const URL = `http://127.0.0.1:${server.address().port}/private/basic.ics`;
   const app = await launch();
+  // newer Playwright versions also route the service worker's requests; the calendar server must answer for itself (later routes win)
+  await app.ctx.route(`http://127.0.0.1:${server.address().port}/**`, (route) => route.continue());
   const page = await app.ctx.newPage(); await page.goto(`chrome-extension://${app.id}/src/options/options.html#data`); await page.waitForTimeout(700);
   const bad = [];
   const sync = () => page.evaluate(async () => { const r = await chrome.runtime.sendMessage({ type: 'calendar:sync' }); const s = await chrome.storage.local.get(['calendar', 'calendarSub']); return { r, ...s }; });
