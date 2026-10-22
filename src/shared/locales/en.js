@@ -322,4 +322,5 @@ export const en = {
   'opt.streakGrace': 'Forgive one missed day a week', 'opt.streakGraceDesc': 'A single day below your goal in any seven does not break the streak — a sick day is not a failure.',
   'opt.calErr.redirect': 'The address redirects to another site, which EyeTime has no access to. Use the direct calendar link.',
   'opt.tasksBig': 'That file is too large for a task list (over 2 MB).',
+  'opt.calMax': 'You can subscribe to up to {n} calendars.', 'opt.calAlready': 'You are already subscribed to that link.', 'opt.calWarn': 'Warn before a meeting during focus', 'opt.calWarnDesc': 'If a focus session would run into a meeting, you get a short notice two minutes before it starts.', 'opt.calQuiet': 'Quiet during meetings', 'opt.calQuietDesc': 'No eye-break notices and no chimes while a meeting from your calendar is on.', 'cal.allDay': 'All day: {title}', 'meet.untitled': 'A meeting', 'meet.soonTitle': 'Meeting at {time}', 'meet.soonBody': '“{title}” starts soon. Your focus session has {n} min left — wrap up or end it.', 'plan.allDayNote': 'You have an all-day event today, so the plan is lighter.',
 };
