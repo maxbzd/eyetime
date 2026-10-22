@@ -29,9 +29,9 @@ export function parseQuickAdd(input, now = new Date()) {
   if (ts) { out.at = toTime(ts.h, ts.m, ts.ap); text = text.replace(ts.raw, ' '); }
 
   // estimate: 25m · 25 min · 45мин · 1.5h · 2ч
-  const est = /(?<=\s)(\d{1,3}(?:[.,]\d)?)\s?(m|min|mins|мин|м|h|hr|hrs|ч|хв|год)(?=\s|$)/i.exec(text);
+  const est = /(?<=\s)(\d{1,3}(?:[.,]\d)?)\s?(m|min|mins|мин|м|h|hr|hrs|ч|хв|год\.|годин)(?=\s|$)/i.exec(text);
   if (est) {
-    const n = Number(est[1].replace(',', '.')), hours = /^(h|hr|hrs|ч|год)$/i.test(est[2]);
+    const n = Number(est[1].replace(',', '.')), hours = /^(h|hr|hrs|ч|год\.|годин)$/i.test(est[2]);
     const minutes = Math.round(hours ? n * 60 : n);
     if (minutes >= 1 && minutes <= 720) { out.est = minutes; text = text.replace(est[0], ' '); }
   }
