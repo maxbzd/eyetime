@@ -323,4 +323,5 @@ export const ja = {
   'opt.calErr.redirect': 'このアドレスは、EyeTimeがアクセスできない別のサイトにリダイレクトされます。カレンダーの直接リンクを使ってください。',
   'opt.tasksBig': 'このファイルはタスクリストとしては大きすぎます（2 MB超）。',
   'opt.calMax': '購読できるカレンダーは最大{n}件です。', 'opt.calAlready': 'そのリンクはすでに購読しています。', 'opt.calWarn': '集中中に会議の前に知らせる', 'opt.calWarnDesc': '集中セッションが会議にかかりそうなときは、開始の2分前に短い通知が届きます。', 'opt.calQuiet': '会議中は静かにする', 'opt.calQuietDesc': 'カレンダーの会議が行われている間は、目の休憩の通知も音も出しません。', 'cal.allDay': '終日：{title}', 'meet.untitled': '会議', 'meet.soonTitle': '{time}の会議', 'meet.soonBody': '「{title}」がまもなく始まります。集中セッションは残り{n}分です。区切りをつけるか終了してください。', 'plan.allDayNote': '今日は終日の予定があるため、プランは軽めです。',
+  'opt.storage': '保存容量', 'opt.storageDesc': 'EyeTimeは履歴をこの端末に保存します。「容量を空ける」は30日より古い日の1時間ごとの詳細を削除します。日ごとの合計、セッション、タスクは残ります。', 'opt.storageUse': '{limit}のうち{used}を使用中', 'opt.storageUseFree': '{used}を使用中', 'opt.storageFree': '容量を空ける', 'opt.storageFreed': '完了。軽くした日数：{n}。', 'store.fullTitle': 'EyeTimeの保存容量がほぼいっぱいです', 'store.fullBody': '履歴がブラウザの上限の{pct}%を使っています。「設定 → データとプライバシー」で容量を空けるか、バックアップを書き出してください。',
 };
