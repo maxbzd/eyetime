@@ -104,3 +104,17 @@ test('words that only look like dates stay in the title', () => {
     const r = parseQuickAdd(s, WED); assert.equal(r.due, s.startsWith('Read about Monday') ? '2026-10-26' : null, s);
   }
 });
+
+test('date words that are really ordinary words, repeats or past dates stay in the title', () => {
+  const F = new Date(2026, 9, 23, 10, 0); // a Friday
+  const on = (s, now = WED) => { const r = parseQuickAdd(s, now); return [r.text, r.due]; };
+  assert.deepEqual(on('Настроить среду разработки'), ['Настроить среду разработки', null]);
+  assert.deepEqual(on('Встреча в среду'), ['Встреча', '2026-10-28']);
+  assert.deepEqual(on('Meditieren jeden Morgen'), ['Meditieren jeden Morgen', null]);
+  assert.deepEqual(on('Stretch every monday'), ['Stretch every monday', null]);
+  assert.deepEqual(on('Report this friday', F), ['Report', '2026-10-23']);   // "this friday" said on a Friday is today
+  assert.deepEqual(on('Report friday', F), ['Report', '2026-10-30']);        // a bare weekday on its own day means next week
+  assert.deepEqual(on('Report 2025-01-01'), ['Report 2025-01-01', null]);
+  assert.deepEqual(on('Ligar no sábado'), ['Ligar', '2026-10-24']);
+  assert.deepEqual(on('Ligar no domingo'), ['Ligar', '2026-10-25']);
+});
