@@ -1,5 +1,26 @@
 # Changelog
 
+## 3.1.0 — 2026-10-22
+
+Five new languages, a calendar that understands your meetings, and a pass on accessibility.
+
+### New
+- **Five new languages:** Italiano, Polski, Українська, 简体中文 and 日本語 (eleven in total), with store texts and localized screenshots. Dates in plain words and repeat words (`domani`, `jutro`, `завтра`, `ogni giorno`, `codziennie`, `щодня`…) work in Italian, Polish and Ukrainian. The texts are machine-translated: native-speaker corrections are welcome (issues labelled `translation`).
+- **Up to three calendars** by link, merged into one list; each can be removed on its own. A file import still works alongside.
+- **All-day events** (a conference day, a trip) mark a busy day: *Plan my day* then puts at most two focus blocks into it, and the focus card says so.
+- **A warning before a meeting** (a notification two minutes ahead, on by default; Settings → Data & privacy) and an optional **quiet mode during meetings** that holds back eye-break notices and the focus chime while a meeting is on.
+- **Accessibility:** a keyboard-only test of every screen (every stop has a name and a visible focus mark, dialogs close with Escape), a **more-contrast** look that follows the system setting (full-strength secondary text, strong borders, a thicker focus ring), support for **forced colours** (Windows High Contrast), and a check that reduced motion stops every endless animation.
+
+### Fixed
+- Polish letters (ł, ś, ż, ą, ę…) were drawn in a fallback font: the bundled fonts now include Latin Extended.
+- The *productive / neutral / distracting* legend on Home broke long words in narrow cards.
+- The previous week's plan is kept for the Monday digest and the share card, so a plan written on Sunday night is not lost.
+- The Ukrainian browser language no longer falls back to Russian.
+
+### Developer
+- Type check now covers the screens (`ui`, `newtab`, `options`, `insights`, `popup`), not only the shared code and the worker.
+- Visual regression covers 7 screens × 4 languages × light/dark and is a blocking CI step; keyboard, calendar and load checks run in CI; CI runs on Node 22.
+
 ## 3.0.0 — 2026-10-21
 
 Plan with your own words, see where focus goes, reach people in their language.
