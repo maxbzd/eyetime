@@ -11,11 +11,11 @@ const { launch } = require('./lib.cjs');
   const sync = () => page.evaluate(() => chrome.runtime.sendMessage({ type: 'sync:now' }));
   const local = () => page.evaluate(async () => (await chrome.storage.local.get('tasks')).tasks || []);
   const cloud = () => page.evaluate(async () => { const { unpackTasks } = await import('/src/shared/tasksync.js'); return unpackTasks(await chrome.storage.sync.get(null)); });
-  const putCloud = (tasks) => page.evaluate(async (tasks) => { // what another browser would write
+  const putCloud = (tasks, del = {}) => page.evaluate(async ([tasks, del]) => { // what another browser would write
     const { packTasks, staleTaskKeys } = await import('/src/shared/tasksync.js');
-    const all = await chrome.storage.sync.get(null); const p = packTasks(tasks, Date.now());
+    const all = await chrome.storage.sync.get(null); const p = packTasks(tasks, Date.now(), del);
     await chrome.storage.sync.set(p.items); const stale = staleTaskKeys(all, p.count); if (stale.length) await chrome.storage.sync.remove(stale);
-  }, tasks);
+  }, [tasks, del]);
   const status = () => page.evaluate(async () => (await chrome.storage.local.get('tasksSyncStatus')).tasksSyncStatus);
 
   await page.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.onboarded = true; }); await chrome.storage.sync.clear(); });
@@ -43,20 +43,29 @@ const { launch } = require('./lib.cjs');
   // the other browser deletes b (unchanged here): it goes here too
   await putCloud([T('a', 'Write the report (edited elsewhere)'), T('c', 'Task from the other browser')]);
   await sync(); l = await local();
-  if (l.some((x) => x.id === 'b')) bad.push('a task deleted in the other browser stayed here');
+  if (!l.some((x) => x.id === 'b')) bad.push('a task merely missing from the cloud copy was deleted here (only a tombstone may delete)');
+  await putCloud([T('a', 'Write the report (edited elsewhere)'), T('c', 'Task from the other browser')], { b: Date.now() });
+  await sync(); l = await local();
+  if (l.some((x) => x.id === 'b')) bad.push('a task deleted in the other browser (tombstone) stayed here');
 
   // we add one: it goes up; ordering alone never makes a new upload
   await page.evaluate(async () => { const { tasks } = await chrome.storage.local.get('tasks'); await chrome.storage.local.set({ tasks: [{ id: 'd', text: 'Added here', done: false, createdAt: 2 }, ...tasks] }); });
   await page.waitForTimeout(500); await sync(); c = await cloud();
   if (!c.tasks.some((x) => x.id === 'd')) bad.push('a task added here did not go up');
+  // the other browser writes before it has seen our new task: ours must survive and go up again
+  await putCloud([T('a', 'Write the report (edited elsewhere)'), T('c', 'Task from the other browser'), T('e', 'Added meanwhile there')]);
+  await sync(); l = await local(); c = await cloud();
+  if (!l.some((x) => x.id === 'd')) bad.push('a task added here vanished when the other browser overwrote the cloud copy');
+  if (!l.some((x) => x.id === 'e')) bad.push('the other browser\'s new task did not arrive');
+  if (!c.tasks.some((x) => x.id === 'd') || !c.tasks.some((x) => x.id === 'e')) bad.push('the cloud copy does not hold both new tasks after the race');
   const ts1 = c.ts; await sync(); await sync(); const ts2 = (await cloud()).ts;
   if (ts1 !== ts2) bad.push('syncing with nothing new rewrote the cloud copy (would loop between devices)');
 
   // the cloud copy vanishes: nothing is deleted here, the list is uploaded again
   await page.evaluate(() => chrome.storage.sync.clear()); await sync();
   l = await local(); c = await cloud();
-  if (l.length !== 3) bad.push('an empty cloud copy deleted local tasks: ' + l.length + ' left');
-  if (!c || c.tasks.length !== 3) bad.push('the list was not uploaded again after the cloud copy vanished');
+  if (l.length !== 4) bad.push('an empty cloud copy deleted local tasks: ' + l.length + ' left');
+  if (!c || c.tasks.length !== 4) bad.push('the list was not uploaded again after the cloud copy vanished');
 
   // a newer EyeTime's payload is never overwritten
   await page.evaluate(() => chrome.storage.sync.set({ 'st:meta': { v: 99, n: 1, ts: 1 }, 'st:0': '[]' })); await sync();

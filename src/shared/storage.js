@@ -206,7 +206,7 @@ async function dropCalendarPermission() {
 export async function exportAll() {
   const all = await area().get(null);
   delete all.newtabBg;
-  delete all.tasksBase; delete all.tasksSyncStatus; // device-level sync bookkeeping
+  delete all.tasksBase; delete all.tasksTomb; delete all.tasksSyncStatus; // device-level sync bookkeeping
   delete all.calendarSub; delete all.calendarSubs; delete all.calendarSrc; // calendar addresses are secrets: they never leave this device, not even in a backup file
   return { app: 'eyetime', version: 2, exportedAt: new Date().toISOString(), data: all };
 }
