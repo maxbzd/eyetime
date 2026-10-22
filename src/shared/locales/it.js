@@ -84,7 +84,7 @@ export const it = {
   'insight.streak': { one: '{n} giorno di focus di fila.', many: '{n} giorni di focus di fila. Continua così!', other: '{n} giorni di focus di fila. Continua così!' },
 
   /* home / new tab */
-  'home.customize': 'Personalizza', 'home.background': 'Sfondo', 'home.accent': 'Colore di risalto', 'home.modules': 'Schede', 'home.clock': 'Orologio', 'home.clockFormat': 'Formato orologio',
+  'home.customize': 'Personalizza', 'home.background': 'Sfondo', 'home.accent': 'Colore di risalto', 'home.modules': 'Riquadri', 'home.clock': 'Orologio', 'home.clockFormat': 'Formato orologio',
   'home.clockAuto': 'Auto', 'home.clock12': '12 ore', 'home.clock24': '24 ore', 'home.greeting': 'Mostra il saluto', 'home.changePhoto': 'Cambia foto', 'home.photoSaved': 'Sfondo aggiornato',
   'bg.dawn': 'Alba', 'bg.ocean': 'Oceano', 'bg.forest': 'Foresta', 'bg.dusk': 'Crepuscolo', 'bg.sand': 'Sabbia', 'bg.slate': 'Ardesia', 'bg.plain': 'Tinta unita', 'bg.photo': 'Foto',
   'accent.ember': 'Brace', 'accent.blue': 'Blu', 'accent.violet': 'Viola', 'accent.teal': 'Verde acqua', 'accent.green': 'Verde',
@@ -106,7 +106,7 @@ export const it = {
 
   'opt.language': 'Lingua', 'opt.auto': 'Automatica', 'opt.theme': 'Tema', 'opt.themeSystem': 'Sistema', 'opt.themeLight': 'Chiaro', 'opt.themeDark': 'Scuro', 'opt.accent': 'Colore di risalto',
   'opt.groupHome': 'Pagina iniziale', 'opt.homeEnabled': 'Usa la pagina iniziale di EyeTime', 'opt.homeEnabledDesc': 'Mostra EyeTime quando apri una nuova scheda. Disattiva per tenere la pagina del tuo browser.',
-  'opt.homeCustomize': 'Personalizza la home', 'opt.homeCustomizeDesc': 'Sfondo, schede, formato orologio.',
+  'opt.homeCustomize': 'Personalizza la home', 'opt.homeCustomizeDesc': 'Sfondo, riquadri, formato orologio.',
   'opt.groupNotify': 'Barra degli strumenti e report', 'opt.badge': 'Mostra il tempo sull’icona', 'opt.badgeDesc': 'Il tempo di schermo di oggi o i minuti rimasti in una sessione di focus.',
   'opt.weekly': 'Riepilogo settimanale', 'opt.weeklyDesc': 'Una notifica il lunedì mattina con i numeri della settimana scorsa.',
 
@@ -191,7 +191,7 @@ export const it = {
   'sec.appearance': 'Aspetto', 'sec.appearanceDesc': 'Rendi EyeTime tuo: undici stili, qualsiasi colore di risalto, carattere, forma e densità a scelta.',
   'look.calm': 'Calmo', 'look.paper': 'Carta', 'look.midnight': 'Mezzanotte', 'look.terminal': 'Terminale', 'look.sakura': 'Sakura', 'look.forest': 'Foresta',
   'look.aurora': 'Aurora', 'look.mono': 'Mono', 'look.sunset': 'Tramonto', 'look.nord': 'Nord', 'look.ocean': 'Oceano',
-  'lookd.calm': 'Quello predefinito: caldo, morbido e amichevole.', 'lookd.paper': 'Atmosfera da sala di lettura: titoli con grazie su carta calda.', 'lookd.midnight': 'Blu-nero profondo con schede di vetro e un accento luminoso.',
+  'lookd.calm': 'Quello predefinito: caldo, morbido e amichevole.', 'lookd.paper': 'Atmosfera da sala di lettura: titoli con grazie su carta calda.', 'lookd.midnight': 'Blu-nero profondo con riquadri di vetro e un accento luminoso.',
   'lookd.terminal': 'Fosforo verde, monospazio, angoli netti.', 'lookd.sakura': 'Rosa delicati e grandi angoli arrotondati.', 'lookd.forest': 'Verdi muschiati, calmi e radicati.',
   'lookd.aurora': 'Bagliore dal viola al verde acqua su un cielo scuro.', 'lookd.mono': 'Bianco e nero puri, contorni, nessun disturbo di colore.', 'lookd.sunset': 'Corallo caldo e ambra, luce dell’ora dorata.',
   'lookd.nord': 'Blu artici freddi con una palette sobria.', 'lookd.ocean': 'Acqua fresca e blu dei fondali.',
@@ -200,7 +200,7 @@ export const it = {
   'ap.looks': 'Stile', 'ap.color': 'Colore', 'ap.shape': 'Carattere e forma', 'ap.advanced': 'Avanzate',
   'ap.modeDesc': 'Sistema segue il tuo dispositivo.', 'ap.modeSchedule': 'Orario', 'ap.schedule': 'Ore scure', 'ap.scheduleDesc': 'Passa allo scuro la sera e torna al chiaro la mattina.', 'ap.darkFrom': 'Scuro dalle', 'ap.lightFrom': 'Chiaro dalle',
   'ap.accentDesc': 'Pulsanti, evidenziazioni e grafici. Il contrasto del testo si regola in automatico.', 'ap.lookAccent': 'Il colore proprio dello stile', 'ap.customColor': 'Colore personalizzato', 'ap.customHex': 'Hex',
-  'ap.font': 'Carattere', 'ap.fromLook': 'Dallo stile', 'ap.scale': 'Dimensione dell’interfaccia', 'ap.scaleDesc': 'Ridimensiona tutta l’interfaccia.', 'ap.radius': 'Angoli', 'ap.density': 'Densità', 'ap.cards': 'Stile delle schede', 'ap.cardsDesc': 'Come vengono disegnati i pannelli.',
+  'ap.font': 'Carattere', 'ap.fromLook': 'Dallo stile', 'ap.scale': 'Dimensione dell’interfaccia', 'ap.scaleDesc': 'Ridimensiona tutta l’interfaccia.', 'ap.radius': 'Angoli', 'ap.density': 'Densità', 'ap.cards': 'Stile dei riquadri', 'ap.cardsDesc': 'Come vengono disegnati i pannelli.',
   'ap.motion': 'Riduci animazioni', 'ap.motionDesc': 'Disattiva animazioni e transizioni.',
   'radius.sharp': 'Netti', 'radius.soft': 'Morbidi', 'radius.round': 'Tondi', 'radius.pill': 'A pillola',
   'density.compact': 'Compatta', 'density.comfortable': 'Comoda', 'density.spacious': 'Spaziosa',
@@ -210,7 +210,7 @@ export const it = {
   'ap.import': 'Importa stile', 'ap.importTitle': 'Importa uno stile', 'ap.importDesc': 'Incolla uno stile che qualcuno ha condiviso con te.', 'ap.importBad': 'Non sembra uno stile valido di EyeTime.',
   'ap.reset': 'Ripristina aspetto', 'ap.resetTitle': 'Ripristinare l’aspetto?', 'ap.resetBody': 'Stile, colori, carattere e CSS personalizzato tornano ai valori predefiniti. I tuoi dati non vengono toccati.',
   'bg.look': 'Dallo stile', 'bg.mesh': 'Sfumato', 'bg.aurora': 'Aurora', 'bg.stars': 'Cielo notturno', 'bg.waves': 'Onde', 'bg.grain': 'Grana', 'bg.dots': 'Puntini', 'bg.grid': 'Griglia', 'bg.living': 'Vivo', 'bg.color': 'Colore',
-  'home.bgColor': 'Colore di sfondo', 'home.layout': 'Layout', 'home.clockStyle': 'Stile dell’orologio', 'home.moveUp': 'Sposta su', 'home.moveDown': 'Sposta giù', 'home.moreAppearance': 'Altre opzioni di aspetto', 'home.showCards': 'Schede',
+  'home.bgColor': 'Colore di sfondo', 'home.layout': 'Layout', 'home.clockStyle': 'Stile dell’orologio', 'home.moveUp': 'Sposta su', 'home.moveDown': 'Sposta giù', 'home.moreAppearance': 'Altre opzioni di aspetto', 'home.showCards': 'Riquadri',
   'layout.center': 'Centrato', 'layout.split': 'Diviso', 'layout.minimal': 'Minimale',
   'clock.thin': 'Sottile', 'clock.bold': 'Grassetto', 'clock.mono': 'Mono', 'clock.serif': 'Serif', 'clock.compact': 'Compatto', 'clock.stacked': 'Impilato', 'clock.none': 'Nascosto',
   'block.why.q': 'Perché sei qui?', 'block.why.work': 'Per lavoro', 'block.why.break': 'Una pausa', 'block.why.habit': 'Pilota automatico', 'block.why.bored': 'Noia', 'block.why.nudge': 'Risposta sincera. Anche tornare indietro è una buona scelta.',
@@ -267,7 +267,7 @@ export const it = {
   'block.budget.title': 'Il budget di distrazione di oggi è esaurito', 'block.budget.lead': 'Oggi hai passato {used} su siti distraenti — il tuo budget era {limit}.',
   'opt.addMinutes': 'Aggiungi minuti ⏎', 'opt.presetBad': 'Inserisci un numero intero di minuti da 1 a 720.', 'opt.groupBackup': 'Backup e ripristino', 'opt.openInsights': 'Apri le statistiche', 'opt.permName': 'Permesso', 'opt.permWhy': 'Perché serve a EyeTime', 'opt.backupFirst': 'Scarica prima un backup',
   'about.scNone': 'Non impostata', 'about.whatsNew': 'Novità',
-  'ap.radiusDesc': 'Quanto sono arrotondati pulsanti, schede e campi.', 'ap.fontDesc': 'Carattere per tutta l’interfaccia.', 'ap.densityDesc': 'Spaziatura e altezza dei controlli.',
+  'ap.radiusDesc': 'Quanto sono arrotondati pulsanti, riquadri e campi.', 'ap.fontDesc': 'Carattere per tutta l’interfaccia.', 'ap.densityDesc': 'Spaziatura e altezza dei controlli.',
   'ap.mode.system': 'Segue l’impostazione chiara o scura del tuo dispositivo.', 'ap.mode.light': 'Sempre chiaro.', 'ap.mode.dark': 'Sempre scuro.', 'ap.mode.schedule': 'Scuro la sera, chiaro la mattina — imposta gli orari qui sotto.',
   'ap.importOk': 'Stile valido: {look}, cambieranno {n} impostazioni.', 'ap.paste': 'Incolla dagli appunti', 'ap.resetRow': 'Torna a stile, colori, carattere e CSS personalizzato predefiniti. I tuoi dati non vengono toccati.',
   'opt.noResultsHint': 'Prova “suono”, “pausa” o “blocco”.', 'opt.clearSearch': 'Cancella ricerca', 'opt.results': { one: '{n} impostazione trovata', many: '{n} impostazioni trovate', other: '{n} impostazioni trovate' },
