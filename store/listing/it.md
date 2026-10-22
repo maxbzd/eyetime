@@ -16,7 +16,7 @@ UN BLOCCO CHE TI RISPETTA
 Scegli le categorie (social, video, forum, notizie, giochi, shopping, messaggistica) o aggiungi i tuoi siti. Una breve pausa di respirazione con il tuo piano “se… allora…” funziona meglio di un blocco totale. Aggiungi orari di lavoro, limiti giornalieri per sito e un “budget di distrazione” giornaliero.
 
 PIANIFICA LA GIORNATA E LA SETTIMANA
-“Pianifica la mia giornata” sistema le tue priorità nel tempo che hai davvero. Scrivi “Relazione domani 14:30 45m !” o “Stretching nei giorni feriali” ed EyeTime capisce — in sei lingue. Iscriviti al link del tuo calendario (o importa un file) per vedere la prossima riunione sulla scheda del focus. Tre obiettivi per la settimana, attività ricorrenti e le tue attività in entrata e in uscita come Markdown o CSV.
+“Pianifica la mia giornata” sistema le tue priorità nel tempo che hai davvero. Scrivi “Relazione domani 14:30 45m !” o “Stretching nei giorni feriali” ed EyeTime capisce — in nove lingue. Iscriviti al link del tuo calendario (o importa un file) per vedere la prossima riunione sulla scheda del focus. Tre obiettivi per la settimana, attività ricorrenti e le tue attività in entrata e in uscita come Markdown o CSV.
 
 STATISTICHE ONESTE
 Tempo per sito, ora e giorno; una linea del tempo della giornata con le tue sessioni di focus; tempo di focus per progetto (#tag); precisione delle stime (previsto e reale); le tue ore di focus migliori; “cosa ti attira” — quando un sito ti tenta, con un limite a un tocco; un resoconto settimanale e un’immagine condivisibile di “La mia settimana”. Riclassifica qualsiasi sito come produttivo, neutro o distraente con un tocco. Esporta in CSV o in un diario Markdown.
