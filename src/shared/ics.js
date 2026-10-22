@@ -24,6 +24,14 @@ function inZone(y, mo, d, h, mi, tz) {
   } catch { return new Date(y, mo - 1, d, h, mi); } // unknown zone name: treat as local
 }
 
+/** RFC 5545 DURATION (P1W, P3D, PT1H30M) → milliseconds, or null. */
+function parseDuration(v) {
+  const m = /^[+-]?P(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/i.exec(String(v).trim());
+  if (!m) return null;
+  const ms = (((Number(m[1] || 0) * 7 + Number(m[2] || 0)) * 24 + Number(m[3] || 0)) * 60 + Number(m[4] || 0)) * 60_000 + Number(m[5] || 0) * 1000;
+  return ms > 0 ? ms : null;
+}
+
 /** Parses DTSTART/DTEND-like values: { date, allDay, kind: 'utc'|'zone'|'local', tz, wall:{y,mo,d,h,mi} } */
 function parseDate(value, params) {
   const m = /^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?$/.exec(String(value || '').trim());
@@ -110,6 +118,7 @@ export function parseIcsFull(text, { from = new Date(), days = 14, max = 500 } =
     const head = line.slice(0, i), value = line.slice(i + 1), name = head.split(';')[0].toUpperCase(), params = head.slice(name.length);
     if (name === 'DTSTART') cur.start = parseDate(value, params);
     else if (name === 'DTEND') cur.end = parseDate(value, params);
+    else if (name === 'DURATION') cur.dur = parseDuration(value);
     else if (name === 'SUMMARY') cur.title = unescapeText(value).slice(0, 80);
     else if (name === 'UID') cur.uid = value.trim();
     else if (name === 'RRULE') cur.rrule = value.trim();
@@ -123,9 +132,9 @@ export function parseIcsFull(text, { from = new Date(), days = 14, max = 500 } =
   const events = [], allDay = [];
   for (const ev of raw) {
     if (ev.start && ev.start.allDay && !ev.cancelled) {
-      const span = ev.end && ev.end.allDay ? Math.min(14, Math.max(1, Math.round((ev.end.date - ev.start.date) / DAY_MS))) : 1;
+      const span = ev.end && ev.end.allDay ? Math.min(14, Math.max(1, Math.round((ev.end.date - ev.start.date) / DAY_MS))) : ev.dur ? Math.min(14, Math.max(1, Math.round(ev.dur / DAY_MS))) : 1;
       const gone = ev.recId ? null : replaced.get(ev.uid);
-      const starts = ev.rrule && !ev.recId ? occurrences(ev.start, ev.rrule, new Date(start0.getTime() - (span - 1) * DAY_MS), to) : [ev.start.date];
+      const starts = ev.rrule && !ev.recId ? occurrences(ev.start, ev.rrule, new Date(start0.getFullYear(), start0.getMonth(), start0.getDate() - (span - 1)), to) : [ev.start.date];
       for (const s0 of starts) {
         if (ev.exDays.includes(key(s0)) || (gone && gone.d.has(key(s0)))) continue;
         for (let k = 0; k < span; k++) {
@@ -136,7 +145,7 @@ export function parseIcsFull(text, { from = new Date(), days = 14, max = 500 } =
       continue;
     }
     if (!ev.start || ev.start.allDay || ev.cancelled) continue;
-    const len = ev.end && !ev.end.allDay ? Math.max(0, ev.end.date - ev.start.date) : 30 * 60000;
+    const len = ev.end && !ev.end.allDay ? Math.max(0, ev.end.date - ev.start.date) : ev.dur || 30 * 60000;
     const gone = ev.recId ? null : replaced.get(ev.uid);
     const starts = ev.rrule && !ev.recId ? occurrences(ev.start, ev.rrule, start0, to) : (ev.start.date >= start0 && ev.start.date < to ? [ev.start.date] : []);
     for (const s of starts) {

@@ -81,3 +81,13 @@ test('a UTC series keeps its instant across clock changes', () => {
   for (const e of ev) { const [y, m, d] = e.day.split('-').map(Number); const local = new Date(y, m - 1, d, +e.start.slice(0, 2), +e.start.slice(3)); assert.equal(local.getUTCHours(), 13); }
   assert.ok(ev.length >= 2);
 });
+
+test('all-day events: DURATION instead of DTEND, and a multi-day weekly event across a DST change', async () => {
+  const { parseIcsFull } = await import('../../src/shared/ics.js');
+  const mk = (body) => ['BEGIN:VCALENDAR', 'BEGIN:VEVENT', 'UID:x', ...body, 'SUMMARY:Trip', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  const from = new Date(2026, 9, 21);
+  const r = parseIcsFull(mk(['DTSTART;VALUE=DATE:20261022', 'DURATION:P3D']), { from, days: 14 });
+  assert.deepEqual(r.allDay.map((d) => d.day), ['2026-10-22', '2026-10-23', '2026-10-24']);
+  const w = parseIcsFull(mk(['DTSTART;VALUE=DATE:20261025', 'DTEND;VALUE=DATE:20261027', 'RRULE:FREQ=WEEKLY']), { from: new Date(2026, 10, 2), days: 7 });
+  assert.ok(w.allDay.some((d) => d.day === '2026-11-02')); // the second day of the occurrence that started on Nov 1
+});
