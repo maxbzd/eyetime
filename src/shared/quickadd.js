@@ -55,6 +55,12 @@ export function parseQuickAdd(input, now = new Date()) {
     text = text.replace(rep[0], ' ');
   }
 
+  // Chinese / Japanese repeat markers carry no spaces around them
+  if (!rep) {
+    const cj = /每天|每日|每个工作日|每(?:周|星期|礼拜)[一二三四五六日天]?|毎日|毎週(?:[月火水木金土日]曜日?)?|毎平日/u.exec(text);
+    if (cj) { out.repeat = /工作日|平日/u.test(cj[0]) ? 'weekdays' : /周|星期|礼拜|週/u.test(cj[0]) ? 'weekly' : 'daily'; text = text.replace(cj[0], ' '); }
+  }
+
   out.text = text.replace(/\s+/g, ' ').trim();
   if (out.at) {
     const [hh, mm] = out.at.split(':').map(Number);
