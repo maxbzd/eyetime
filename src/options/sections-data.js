@@ -1,15 +1,14 @@
 // Settings → Data & privacy: calendar, tasks in/out, settings sync, backup, privacy, danger zone.
 
+import { calendarGroup as calCalendarGroup } from './calendar-group.js';
 import { h, icon, toast, confirmDialog } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { row, group, sectionHead } from './ui.js';
-import { t, getLocale } from '../shared/i18n.js';
-import { importAll, resetAll, getRaw, setRaw, getRange, onChange, getCollection, updateCollection } from '../shared/storage.js';
+import { t } from '../shared/i18n.js';
+import { importAll, resetAll, getRaw, setRaw, getRange, getCollection, updateCollection } from '../shared/storage.js';
 import { tasksToMarkdown, tasksToCsv, parseTasksText } from '../shared/taskio.js';
 import { buildJournal } from '../shared/journal.js';
 import { downloadBackup } from '../ui/backup.js';
-import { parseIcs } from '../shared/ics.js';
-import { normalizeCalendarUrl } from '../shared/calsub.js';
 import { makeClassifier } from '../shared/classify.js';
 import { fmtTime } from '../shared/i18n.js';
 import { dayKey } from '../shared/time.js';
@@ -17,8 +16,6 @@ import { dayKey } from '../shared/time.js';
 const sec = (id, ...kids) => h('section', { class: 'sec', id }, kids);
 
 /* ============================== Data & privacy ============================== */
-let stopCalWatch = null;
-
 export function data({ s, save, refresh }) {
   const PERMS = [['storage', 'perm.storage'], ['tabs', 'perm.tabs'], ['webNavigation', 'perm.webNavigation'], ['idle', 'perm.idle'], ['alarms', 'perm.alarms'], ['contextMenus', 'perm.contextMenus'], ['notifications', 'perm.notifications'], ['offscreen', 'perm.offscreen'], ['favicon', 'perm.favicon'], ['youtube/instagram/tiktok/vk', 'perm.hosts']];
   const doExport = downloadBackup;
@@ -33,50 +30,7 @@ export function data({ s, save, refresh }) {
   const fileIn = document.getElementById('importFile');
   fileIn.onchange = () => { if (fileIn.files[0]) doImport(fileIn.files[0]); fileIn.value = ''; };
 
-  /* calendar file: events of the next 14 days, kept locally */
-  const calStatus = h('div', { class: 'setting-desc sync-status' });
-  const calFile = h('input', { type: 'file', accept: '.ics,text/calendar', hidden: true, 'aria-label': t('opt.calendarBtn') });
-  const subIn = h('input', { class: 'input input-sm', type: 'url', autocomplete: 'off', spellcheck: false, placeholder: t('opt.calSubPh'), 'aria-label': t('opt.calSubTitle'), style: { width: '280px', maxWidth: '100%' } });
-  const subBtn = h('button', { class: 'btn', type: 'button', onclick: () => subscribeCal() }, icon('link'), t('opt.calSubBtn'));
-  const unsubBtn = h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: () => unsubscribeCal() }, t('opt.calUnsub'));
-  const subStatus = h('div', { class: 'setting-desc sync-status', 'aria-live': 'polite' });
-  async function paintCal() {
-    const [events, meta, subRaw] = await Promise.all([getRaw('calendar'), getRaw('calendarMeta'), getRaw('calendarSub')]);
-    const list = (events.calendar || []).filter((e) => e.day >= dayKey());
-    calStatus.textContent = list.length && meta.calendarMeta ? t('opt.calendarStatus', { n: list.length, date: new Date(meta.calendarMeta.at).toLocaleDateString(getLocale()) }) : t('opt.calendarNone');
-    const sub = subRaw.calendarSub;
-    subIn.hidden = subBtn.hidden = !!sub; unsubBtn.hidden = !sub;
-    const host = sub ? (sub.host || normalizeCalendarUrl(sub.url).host || '') : '';
-    subStatus.textContent = !sub ? '' : sub.error ? t('opt.calErr.' + sub.error, { status: sub.status || '' }) : sub.ok ? t('opt.calSubOk', { host, n: sub.n || 0, time: new Date(sub.at).toLocaleTimeString(getLocale(), { hour: 'numeric', minute: '2-digit' }) }) : t('opt.calSubWait', { host });
-  }
-  async function subscribeCal() {
-    const n = normalizeCalendarUrl(subIn.value);
-    if (!n.ok) { toast(t('opt.calBadUrl')); return; }
-    const ok = await chrome.permissions.request({ origins: [n.pattern] }).catch(() => false); // must be the first await: it needs the click
-    if (!ok) { toast(t('opt.calDenied')); return; }
-    await setRaw({ calendarSub: { url: n.url, since: Date.now(), host: n.host } });
-    subIn.value = ''; paintCal();
-    await send('calendar:sync'); paintCal();
-  }
-  async function unsubscribeCal() {
-    const { calendarSub } = await getRaw('calendarSub');
-    await chrome.storage.local.remove(['calendarSub', 'calendar', 'calendarMeta']);
-    const n = calendarSub ? normalizeCalendarUrl(calendarSub.url) : null;
-    if (n && n.ok) await chrome.permissions.remove({ origins: [n.pattern] }).catch(() => {});
-    send('calendar:sync'); paintCal();
-  }
-  if (stopCalWatch) stopCalWatch(); // one listener, however often Settings redraws
-  stopCalWatch = onChange(['calendarSub', 'calendar'], paintCal);
-  calFile.onchange = async () => {
-    const f = calFile.files[0]; calFile.value = ''; if (!f) return;
-    const text = await f.text();
-    if (!/BEGIN:VCALENDAR/i.test(text)) { toast(t('opt.calendarBad')); return; }
-    const events = parseIcs(text, { from: new Date(), days: 14 });
-    await setRaw({ calendar: events, calendarMeta: { at: Date.now(), name: String(f.name).slice(0, 60) } });
-    toast(events.length ? t('opt.calendarDone', { n: events.length }) : t('opt.calendarEmpty')); paintCal();
-  };
-  paintCal();
-  const calendarGroup = group(t('opt.groupCalendar'), (() => { const r = row({ title: t('opt.calendar'), desc: t('opt.calendarDesc'), control: h('div', { class: 'row gap-2 wrap' }, h('button', { class: 'btn', type: 'button', onclick: () => calFile.click() }, icon('upload'), t('opt.calendarBtn')), h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: async () => { await chrome.storage.local.remove(['calendar', 'calendarMeta']); paintCal(); } }, t('opt.calendarClear')), calFile) }); r.querySelector('.setting-text').append(calStatus); return r; })(), (() => { const r = row({ title: t('opt.calSubTitle'), desc: t('opt.calSubDesc'), control: h('div', { class: 'row gap-2 wrap' }, subIn, subBtn, unsubBtn) }); r.querySelector('.setting-text').append(subStatus); return r; })());
+  const calendarGroup = calCalendarGroup(s, save);
 
   /* tasks: Markdown / CSV out, Markdown / CSV / plain list in */
   const download = (name, text, type) => { const url = URL.createObjectURL(new Blob([text], { type })); const a = h('a', { href: url, download: name }); document.body.append(a); a.click(); a.remove(); URL.revokeObjectURL(url); };

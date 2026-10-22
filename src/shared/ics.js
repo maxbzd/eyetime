@@ -87,8 +87,14 @@ function occurrences(st, rule, from, to) {
 
 const minute = (d) => Math.floor(d.getTime() / 60000);
 
-/** → [{ id, title, day, start:'HH:MM', end:'HH:MM' }] for events starting in [from, to), sorted. All-day and cancelled events are skipped; moved occurrences replace the original. */
-export function parseIcs(text, { from = new Date(), days = 14, max = 500 } = {}) {
+/** Timed events only (see parseIcsFull for all-day ones). */
+export function parseIcs(text, opts) { return parseIcsFull(text, opts).events; }
+
+/**
+ * → { events: [{ id, title, day, start:'HH:MM', end:'HH:MM' }], allDay: [{ id, title, day }] } for the window [from, from + days), sorted.
+ * Cancelled events are skipped; moved occurrences replace the original; a multi-day all-day event yields one entry per day.
+ */
+export function parseIcsFull(text, { from = new Date(), days = 14, max = 500 } = {}) {
   const to = new Date(from.getFullYear(), from.getMonth(), from.getDate() + days);
   const start0 = new Date(from.getFullYear(), from.getMonth(), from.getDate());
   const raw = [];
@@ -114,8 +120,21 @@ export function parseIcs(text, { from = new Date(), days = 14, max = 500 } = {})
   // occurrences replaced by a moved/cancelled instance of the same series
   const replaced = new Map();
   for (const ev of raw) if (ev.recId && ev.uid) { if (!replaced.has(ev.uid)) replaced.set(ev.uid, { t: new Set(), d: new Set() }); const set = replaced.get(ev.uid); if (ev.recId.allDay) set.d.add(key(ev.recId.date)); else set.t.add(minute(ev.recId.date)); }
-  const events = [];
+  const events = [], allDay = [];
   for (const ev of raw) {
+    if (ev.start && ev.start.allDay && !ev.cancelled) {
+      const span = ev.end && ev.end.allDay ? Math.min(14, Math.max(1, Math.round((ev.end.date - ev.start.date) / DAY_MS))) : 1;
+      const gone = ev.recId ? null : replaced.get(ev.uid);
+      const starts = ev.rrule && !ev.recId ? occurrences(ev.start, ev.rrule, new Date(start0.getTime() - (span - 1) * DAY_MS), to) : [ev.start.date];
+      for (const s0 of starts) {
+        if (ev.exDays.includes(key(s0)) || (gone && gone.d.has(key(s0)))) continue;
+        for (let k = 0; k < span; k++) {
+          const d = new Date(s0.getFullYear(), s0.getMonth(), s0.getDate() + k);
+          if (d >= start0 && d < to) allDay.push({ id: `${ev.uid || allDay.length}@${key(d)}`, title: ev.title || '', day: key(d) });
+        }
+      }
+      continue;
+    }
     if (!ev.start || ev.start.allDay || ev.cancelled) continue;
     const len = ev.end && !ev.end.allDay ? Math.max(0, ev.end.date - ev.start.date) : 30 * 60000;
     const gone = ev.recId ? null : replaced.get(ev.uid);
@@ -127,7 +146,7 @@ export function parseIcs(text, { from = new Date(), days = 14, max = 500 } = {})
       events.push({ id: `${ev.uid || events.length}@${key(s)}`, title: ev.title || '', day: key(s), start: hm(s), end: key(e) === key(s) ? hm(e) : '23:59' });
     }
   }
-  return events.sort((a, b) => (a.day + a.start < b.day + b.start ? -1 : 1)).slice(0, max);
+  return { events: events.sort((a, b) => (a.day + a.start < b.day + b.start ? -1 : 1)).slice(0, max), allDay: allDay.sort((a, b) => (a.day < b.day ? -1 : 1)).slice(0, max) };
 }
 
 /** Next event today after `nowMin` (minutes since midnight) → { title, start, end, inMin } or null. */
