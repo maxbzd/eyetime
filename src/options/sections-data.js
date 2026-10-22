@@ -5,7 +5,7 @@ import { h, icon, toast, confirmDialog } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { row, group, sectionHead } from './ui.js';
 import { t } from '../shared/i18n.js';
-import { importAll, resetAll, getRaw, setRaw, getRange, getCollection, updateCollection } from '../shared/storage.js';
+import { importAll, resetAll, getRaw, setRaw, getRange, getCollection, updateCollection, storageUsage, slimNow } from '../shared/storage.js';
 import { tasksToMarkdown, tasksToCsv, parseTasksText } from '../shared/taskio.js';
 import { buildJournal } from '../shared/journal.js';
 import { downloadBackup } from '../ui/backup.js';
@@ -52,6 +52,18 @@ export function data({ s, save, refresh }) {
       h('button', { class: 'btn', type: 'button', onclick: async () => download(`eyetime-tasks-${dayKey()}.csv`, tasksToCsv(await getCollection('tasks', [])), 'text/csv') }, icon('download'), 'CSV')) }),
     row({ title: t('opt.tasksImport'), desc: t('opt.tasksImportDesc'), control: h('div', {}, h('button', { class: 'btn', type: 'button', onclick: () => taskFile.click() }, icon('upload'), t('opt.tasksImportBtn')), taskFile) }));
 
+  /* how much room the history takes, and a way to free some */
+  const mb = (b) => (b / 1e6).toFixed(b < 1e7 ? 1 : 0) + ' MB';
+  const usage = h('div', { class: 'setting-desc sync-status', 'aria-live': 'polite' });
+  async function paintUsage() {
+    const u = await storageUsage();
+    usage.textContent = u.limit ? t('opt.storageUse', { used: mb(u.total), limit: mb(u.limit) }) : t('opt.storageUseFree', { used: mb(u.total) });
+    usage.classList.toggle('warn', !!u.limit && u.total / u.limit >= 0.8);
+  }
+  paintUsage();
+  const storageRow = row({ title: t('opt.storage'), desc: t('opt.storageDesc'), control: h('button', { class: 'btn', type: 'button', onclick: async () => { const n = await slimNow(30); toast(t('opt.storageFreed', { n })); paintUsage(); } }, icon('trash-2'), t('opt.storageFree')) });
+  storageRow.querySelector('.setting-text').append(usage);
+
   return sec('data', sectionHead(t('sec.data'), t('sec.dataDesc')),
     calendarGroup,
     tasksGroup,
@@ -64,6 +76,7 @@ export function data({ s, save, refresh }) {
         const url = URL.createObjectURL(new Blob([md], { type: 'text/markdown' }));
         const a = h('a', { href: url, download: `eyetime-journal-${dayKey()}.md` }); document.body.append(a); a.click(); a.remove(); URL.revokeObjectURL(url);
       } }, icon('file-text'), t('opt.journalBtn')) }),
+      storageRow,
       row({ title: t('opt.import'), desc: t('opt.importDesc'), control: h('button', { class: 'btn', type: 'button', onclick: () => fileIn.click() }, icon('upload'), t('opt.importBtn')) }),
       row({ title: t('opt.csv'), desc: t('opt.csvDesc'), control: h('a', { class: 'btn', href: chrome.runtime.getURL('src/insights/insights.html') }, icon('arrow-up-right'), t('opt.openInsights')) })),
     h('div', {}, h('h3', { class: 'group-title', text: t('opt.groupPrivacy') }),

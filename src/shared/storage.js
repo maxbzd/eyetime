@@ -117,12 +117,32 @@ export async function pruneOldDays(now = new Date()) {
 
 /** chrome.storage.local holds 10 MB. A very heavy browser (100+ sites a day) can approach that over 400 days:
  *  past 8 MB the per-hour breakdown of days older than 120 days is dropped first (daily totals, sessions and the calendar stay). */
+export const LOCAL_QUOTA = 10_000_000;
 const SOFT_QUOTA = 8_000_000, SLIM_AFTER_DAYS = 120;
+const isFirefox = () => typeof chrome.runtime.getBrowserInfo === 'function'; // Firefox has no 10 MB cap
+
+/** How much room the history takes: { bytes (day records), total (everything), days, limit (null where there is no cap) }. */
+export async function storageUsage() {
+  const all = await area().get(null);
+  const dayKeys = Object.keys(all).filter((k) => k.startsWith(DAY_PREFIX));
+  return { bytes: await area().getBytesInUse(dayKeys), total: await area().getBytesInUse(null), days: dayKeys.length, limit: isFirefox() ? null : LOCAL_QUOTA };
+}
+
+/** The "Free up space" button: drops the hour-by-hour detail of days older than `afterDays` (totals, sessions and tasks stay). → number of days slimmed. */
+export async function slimNow(afterDays = 30) {
+  const all = await area().get(null);
+  return slimDays(all, dayKey(addDays(new Date(), -RETENTION_DAYS)), afterDays);
+}
+
 async function slimIfNearQuota(all, cutoff) {
-  if (typeof chrome.runtime.getBrowserInfo === 'function') return 0; // Firefox has no 10 MB cap: never thin out history there
+  if (isFirefox()) return 0; // never thin out history there
   const dayKeys = Object.keys(all).filter((k) => k.startsWith(DAY_PREFIX));
   if ((await area().getBytesInUse(dayKeys)) < SOFT_QUOTA) return 0; // only the day records decide (a big background photo is not a reason to drop history)
-  const slimBefore = dayKey(addDays(new Date(), -SLIM_AFTER_DAYS));
+  return slimDays(all, cutoff, SLIM_AFTER_DAYS);
+}
+
+async function slimDays(all, cutoff, afterDays) {
+  const slimBefore = dayKey(addDays(new Date(), -afterDays));
   const patch = {};
   for (const [k, v] of Object.entries(all)) {
     if (!k.startsWith(DAY_PREFIX) || k.slice(DAY_PREFIX.length) < cutoff || k.slice(DAY_PREFIX.length) >= slimBefore) continue;
