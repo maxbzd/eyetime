@@ -31,7 +31,7 @@ export function tasksModule() {
     const today = dayKey(); if (key === today) return t('tasks.dueToday');
     if (key < today) return t('tasks.overdue');
     if (key === dayKey(addDays(new Date(), 1))) return t('tasks.dueTomorrow');
-    const d = parseKey(key), days = Math.round((d - parseKey(today)) / 86_400_000);
+    const d = parseKey(key), days = Math.round((d.getTime() - parseKey(today).getTime()) / 86_400_000);
     return days < 7 ? weekdayName(d.getDay(), 'long') : fmtDate(d, { day: 'numeric', month: 'short' });
   };
 

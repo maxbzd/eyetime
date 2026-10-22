@@ -24,7 +24,7 @@ export function icon(name, cls = '') {
 /** Replace <i data-icon="name"></i> placeholders under root with real icons. */
 export function hydrateIcons(root = document) {
   root.querySelectorAll('[data-icon]').forEach((el) => {
-    const svg = icon(el.dataset.icon, el.className);
+    const svg = icon(/** @type {HTMLElement} */ (el).dataset.icon, el.className);
     el.replaceWith(svg);
   });
 }
@@ -84,6 +84,7 @@ export function favicon(host, cls = '') {
 
 /* ---------- toast ---------- */
 let toastHost;
+/** @param {string} message @param {{ action?: string, onAction?: () => void, ms?: number }} [o] */
 export function toast(message, { action, onAction, ms = 3200 } = {}) {
   if (!toastHost) { toastHost = h('div', { class: 'toasts', role: 'status', 'aria-live': 'polite' }); document.body.append(toastHost); }
   const el = h('div', { class: 'toast' }, h('span', { text: message }), action ? h('button', { type: 'button', text: action, onclick: () => { onAction?.(); close(); } }) : null);
@@ -92,7 +93,11 @@ export function toast(message, { action, onAction, ms = 3200 } = {}) {
   setTimeout(close, ms);
 }
 
-/** Promise-based confirm dialog using <dialog>. Resolves true / false. */
+/**
+ * Promise-based confirm dialog using <dialog>. Resolves true / false.
+ * @param {{ title: string, body?: string, extra?: Node | null, confirm?: string, cancel?: string, danger?: boolean }} o
+ * @returns {Promise<boolean>}
+ */
 export function confirmDialog({ title, body, extra = null, confirm = t('common.confirm'), cancel = t('common.cancel'), danger = false }) {
   return new Promise((resolve) => {
     const dlg = h('dialog', { class: 'dialog' },
