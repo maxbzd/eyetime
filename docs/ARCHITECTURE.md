@@ -37,6 +37,8 @@ Per-day keys keep every write small and independent; reads fetch only the range 
 
 Event-driven. Every `sync()` closes the previous interval (crediting seconds to the host that was active) and opens the next one. Triggers: tab activated/updated/removed, window focus, idle state change, and a 30 s alarm. A gap > 120 s (sleep) is not credited. Counting requires: tracking on, not paused, browser window focused, host not excluded, not incognito (unless enabled), user not idle — *or* the tab is audible. Calls are serialised through a promise chain so overlapping events never double-count.
 
+- **Task sync** (`shared/tasksync.js`, `background/tasksync.js`) — opt-in (`syncTasks`), keys `st:meta`/`st:0..9` in `chrome.storage.sync`. A three-way merge against `tasksBase` (what this device last synced) tells "deleted there" from "new there"; a missing or corrupt cloud copy never deletes anything; the list order is not synced (devices would rewrite each other's); finished tasks travel for three days. Covered by `scripts-dev/tests/tasksync.test.mjs` and `e2e/tasksync.cjs`.
+
 ## Blocking (`src/shared/blocking.js` + `src/background/blocker.js`)
 
 `decide(host, ctx)` is a **pure function**: allow-list → always-blocked → focus session → schedule → daily limit → friction pause. `policy.evaluate(url)` loads the context from storage; the worker calls it on `webNavigation.onBeforeNavigate` and redirects the tab to the block page. The block page re-evaluates continuously, so it releases the original URL the moment the reason disappears. Strict sessions ignore passes and the worker refuses `focus:stop`.

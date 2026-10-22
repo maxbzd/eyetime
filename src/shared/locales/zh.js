@@ -312,7 +312,7 @@ export const zh = {
   'trig.tipWindow': '它集中在一个时间窗口内。针对那个时段制定计划，比泛泛的规则更有效：现在就决定届时改做什么。', 'trig.tipLimit': '它分散在一天各处。设置每日上限，就能控制总量，不必每次都和自己较劲。', 'trig.tipWatch': '目前用时不多——留意一下。',
   'trig.setLimit': '限制为每天 {n} 分钟', 'trig.writePlan': '写一个“如果—那么”计划', 'trig.limitSet': '已设置上限：{host}，每天 {n} 分钟', 'trig.hasLimit': '已设上限', 'trig.need': '有几天的数据后，EyeTime 就能显示你的分心网站在何时把你拉走。',
   'plan.booked': '所有事项都已安排——没有需要再排的了。', 'nav.main': '主导航', 'opt.sections': '设置分区', 'ap.fontSystem': '系统',
-  'wn.title': 'EyeTime {v} 新功能', 'wn.i1': '最多可订阅三个日历，会议前提醒，会议期间进入静音模式。', 'wn.i2': '新增五种语言：Italiano、Polski、Українська、简体中文、日本語。', 'wn.i3': '键盘操作更顺畅，并支持跟随系统的高对比度外观。', 'wn.more': '全部更新', 'wn.ok': '知道了',
+  'wn.title': 'EyeTime {v} 新功能', 'wn.i1': '可在浏览器之间同步任务（可选），并查看历史记录占用的空间。', 'wn.i2': '现在也可以用中文和日文输入日期：“报告 明天”“レポート 明日”。', 'wn.i3': '根据独立审查修复了日历和翻译问题。', 'wn.more': '全部更新', 'wn.ok': '知道了',
   'opt.ideaTitle': '提个建议', 'opt.ideaDesc': '缺了什么，或有什么烦心的地方？提一个简短的 GitHub issue。这里不会发送任何内容。', 'opt.ideaBtn': '提个建议',
   'opt.calSubTitle': '订阅日历链接', 'opt.calSubDesc': '粘贴你日历的私密 iCal 地址（Google：设置 → 你的日历 → “iCal 格式的私密地址”）。EyeTime 每小时直接通过你的浏览器下载一次——不会联系其他任何地方。该地址只保存在本设备上：不同步，也不会进入备份。', 'opt.calSubPh': 'https://…/basic.ics', 'opt.calSubBtn': '订阅', 'opt.calUnsub': '取消订阅', 'opt.calSubOk': { other: '已订阅 {host} · 未来 14 天内有 {n} 个事件 · 更新于 {time}' }, 'opt.calSubWait': '已订阅 {host} · 正在等待首次下载…', 'opt.calBadUrl': '这看起来不是日历地址。请使用 https://（或 webcal://）链接。', 'opt.calDenied': '浏览器没有授予访问该地址的权限。', 'opt.calErr.permission': '不再拥有此地址的权限——请取消订阅后重新订阅。', 'opt.calErr.http': '日历服务器返回了错误（{status}）。一小时后重试。', 'opt.calErr.network': '无法连接日历服务器。一小时后重试。', 'opt.calErr.format': '该地址没有返回日历文件。', 'opt.calErr.size': '日历文件太大。', 'opt.calErr.invalid': '保存的地址无效——请取消订阅后重新订阅。',
   'tasks.dueToday': '今天', 'tasks.dueTomorrow': '明天', 'tasks.overdue': '已逾期', 'tasks.dueTip': '截止日期',
@@ -324,4 +324,5 @@ export const zh = {
   'opt.tasksBig': '该文件对任务列表来说太大了（超过 2 MB）。',
   'opt.calMax': '最多可订阅 {n} 个日历。', 'opt.calAlready': '你已经订阅了这个链接。', 'opt.calWarn': '专注期间会议前提醒', 'opt.calWarnDesc': '如果专注时段会与会议重叠，会议开始前两分钟你会收到一条简短提醒。', 'opt.calQuiet': '会议期间保持安静', 'opt.calQuietDesc': '日历中的会议进行期间，不显示护眼休息提醒，也不播放提示音。', 'cal.allDay': '全天：{title}', 'meet.untitled': '一场会议', 'meet.soonTitle': '{time} 的会议', 'meet.soonBody': '“{title}”即将开始。你的专注时段还剩 {n} 分钟——请收尾或结束。', 'plan.allDayNote': '你今天有全天事件，所以计划更轻松。',
   'opt.storage': '存储空间', 'opt.storageDesc': 'EyeTime 把你的历史记录保存在本设备上。“释放空间”会删除超过 30 天的逐小时明细；每日合计、专注时段和任务都会保留。', 'opt.storageUse': '已用 {used}（共 {limit}）', 'opt.storageUseFree': '已用 {used}', 'opt.storageFree': '释放空间', 'opt.storageFreed': '完成。已精简的天数：{n}。', 'store.fullTitle': 'EyeTime 存储空间快满了', 'store.fullBody': '历史记录已占用浏览器限额的 {pct}%。请打开“设置 → 数据与隐私”释放空间或导出备份。',
+  'opt.syncTasks': '同时同步任务', 'opt.syncTasksDesc': '你的未完成任务（以及最近 3 天内完成的任务）会在登录同一账号的浏览器之间同步。默认关闭：任务内容属于个人信息。习惯、笔记和历史记录永远不会同步。要删除云端副本，请在所有设备上关闭此项，并在浏览器的同步设置中清除同步数据。', 'opt.syncTasksBig': '任务太多，无法同步（约可容纳 150 个）。请完成或删除一些。',
 };

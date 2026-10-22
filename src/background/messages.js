@@ -13,6 +13,7 @@ import { completeBreak, skipBreak, snoozeBreak, openBreakPage, getEyeState } fro
 import { sync } from './tracker.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { syncNow } from './sync.js';
+import { syncTasksNow } from './tasksync.js';
 import { applySettings } from './apply.js';
 import { logError } from '../shared/errorlog.js';
 
@@ -27,7 +28,7 @@ const handlers = {
     await stopFocus();
     return { ok: true };
   },
-  'sync:now': () => syncNow(),
+  'sync:now': async () => { const [settings] = await Promise.all([syncNow(), syncTasksNow()]); return settings; },
   'focus:extend': (m) => extendFocus(m.minutes),
   'session:review': (m) => reviewSession(m),
   'pause:reason': async (m) => {
