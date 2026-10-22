@@ -61,7 +61,11 @@ export function data({ s, save, refresh }) {
     usage.classList.toggle('warn', !!u.limit && u.total / u.limit >= 0.8);
   }
   paintUsage();
-  const storageRow = row({ title: t('opt.storage'), desc: t('opt.storageDesc'), control: h('button', { class: 'btn', type: 'button', onclick: async () => { const n = await slimNow(30); toast(t('opt.storageFreed', { n })); paintUsage(); } }, icon('trash-2'), t('opt.storageFree')) });
+  const storageRow = row({ title: t('opt.storage'), desc: t('opt.storageDesc'), control: h('button', { class: 'btn', type: 'button', onclick: async () => {
+    const ok = await confirmDialog({ title: t('opt.storageFreeTitle'), body: t('opt.storageFreeBody'), extra: h('button', { class: 'btn btn-sm', type: 'button', style: { alignSelf: 'flex-start' }, onclick: doExport }, icon('download'), t('opt.backupFirst')), confirm: t('opt.storageFree'), danger: true });
+    if (!ok) return;
+    const n = await slimNow(30); toast(t('opt.storageFreed', { n })); paintUsage();
+  } }, icon('trash-2'), t('opt.storageFree')) });
   storageRow.querySelector('.setting-text').append(usage);
 
   return sec('data', sectionHead(t('sec.data'), t('sec.dataDesc')),

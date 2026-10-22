@@ -325,4 +325,5 @@ export const zh = {
   'opt.calMax': '最多可订阅 {n} 个日历。', 'opt.calAlready': '你已经订阅了这个链接。', 'opt.calWarn': '专注期间会议前提醒', 'opt.calWarnDesc': '如果专注时段会与会议重叠，会议开始前两分钟你会收到一条简短提醒。', 'opt.calQuiet': '会议期间保持安静', 'opt.calQuietDesc': '日历中的会议进行期间，不显示护眼休息提醒，也不播放提示音。', 'cal.allDay': '全天：{title}', 'meet.untitled': '一场会议', 'meet.soonTitle': '{time} 的会议', 'meet.soonBody': '“{title}”即将开始。你的专注时段还剩 {n} 分钟——请收尾或结束。', 'plan.allDayNote': '你今天有全天事件，所以计划更轻松。',
   'opt.storage': '存储空间', 'opt.storageDesc': 'EyeTime 把你的历史记录保存在本设备上。“释放空间”会删除超过 30 天的逐小时明细；每日合计、专注时段和任务都会保留。', 'opt.storageUse': '已用 {used}（共 {limit}）', 'opt.storageUseFree': '已用 {used}', 'opt.storageFree': '释放空间', 'opt.storageFreed': '完成。已精简的天数：{n}。', 'store.fullTitle': 'EyeTime 存储空间快满了', 'store.fullBody': '历史记录已占用浏览器限额的 {pct}%。请打开“设置 → 数据与隐私”释放空间或导出备份。',
   'opt.syncTasks': '同时同步任务', 'opt.syncTasksDesc': '你的未完成任务（以及最近 3 天内完成的任务）会在登录同一账号的浏览器之间同步。默认关闭：任务内容属于个人信息。习惯、笔记和历史记录永远不会同步。要删除云端副本，请在所有设备上关闭此项，并在浏览器的同步设置中清除同步数据。', 'opt.syncTasksBig': '任务太多，无法同步（约可容纳 150 个）。请完成或删除一些。',
+  'opt.storageFreeTitle': '释放空间？', 'opt.storageFreeBody': '超过 30 天的逐小时明细将被永久删除。每日合计、专注时段和任务会保留。你可以先保存一份备份。',
 };

@@ -19,3 +19,5 @@ export async function checkStorage() {
     await chrome.notifications.create('storage-full', { type: 'basic', iconUrl: ICON, priority: 1, title: t('store.fullTitle'), message: t('store.fullBody', { pct: Math.round((u.total / u.limit) * 100) }) });
   } catch { /* a heads-up is a nicety, never an error */ }
 }
+
+chrome.notifications.onClicked.addListener((id) => { if (id === 'storage-full') chrome.tabs.create({ url: chrome.runtime.getURL('src/options/options.html#data') }); });

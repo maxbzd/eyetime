@@ -147,3 +147,9 @@ test('dates and repeats in Chinese and Japanese', () => {
     const r = parseQuickAdd(input, WED); assert.deepEqual([r.repeat, r.text, r.due], [repeat, text, null], input);
   }
 });
+
+test('review fixes (Chinese / Japanese): ordinary words and past days are not dates; 大后天 is three days away', () => {
+  for (const s of ['本周一定要完成报告', '下周一起开会', '一周一次复盘', '下周日程安排', '这周三个任务要做', '整理上周五的会议记录', '先週の金曜日の議事録をまとめる']) assert.equal(parseQuickAdd(s, WED).due, null, s);
+  assert.equal(parseQuickAdd('大后天交报告', WED).due, '2026-10-24');
+  assert.equal(parseQuickAdd('每周一开会 下周五交', WED).due, '2026-10-30');
+});
