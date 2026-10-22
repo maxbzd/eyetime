@@ -87,7 +87,7 @@ function mainChart(sum) {
   return h('section', { class: 'card' },
     h('div', { class: 'card-head' }, h('div', {}, h('h3', { text: title }), h('p', { text: subtitle })),
       h('div', { class: 'row gap-3 wrap' }, classLegend(sum),
-        h('div', { class: 'segmented seg-sm', role: 'group', 'aria-label': t('insights.tableView') }, [[false, 'insights.viewChart', { icon: 'chart-column' }], [true, 'insights.viewTable', { icon: 'table-2' }]].map(([v, k, ico]) => h('button', { type: 'button', 'aria-pressed': String(tableView === v), onclick: () => { tableView = v; render(); } }, icon(ico.icon), t(k)))))),
+        h('div', { class: 'segmented seg-sm', role: 'group', 'aria-label': t('insights.tableView') }, [[false, 'insights.viewChart', { icon: 'chart-column' }], [true, 'insights.viewTable', { icon: 'table-2' }]].map(/** @param {any} a */ ([v, k, ico]) => h('button', { type: 'button', 'aria-pressed': String(tableView === v), onclick: () => { tableView = v; render(); } }, icon(ico.icon), t(k)))))),
     body);
 }
 
