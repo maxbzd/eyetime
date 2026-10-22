@@ -105,9 +105,22 @@ function syncGroup(s) {
       : syncStatus.ok ? t('opt.syncOk', { time: fmtTime(new Date(syncStatus.at), s.newtab.clock24 ?? undefined) })
       : syncStatus.error === 'unsupported' ? t('opt.syncUnsupported') : syncStatus.error === 'incompatible' ? t('opt.syncIncompatible') : syncStatus.error === 'too_big' ? t('opt.syncTooBig') : t('opt.syncError', { e: syncStatus.error });
   }
-  paint();
-  syncPaint = paint; // one page-wide listener repaints the newest status row (the page redraws often; per-draw listeners would pile up)
-  if (!syncListening) { syncListening = true; chrome.storage.onChanged.addListener((c, area) => { if (area === 'local' && (c.syncStatus || c.syncSettings) && syncPaint) syncPaint(); }); }
+  /* tasks: their own switch (personal text), same status line style */
+  const tStatus = h('div', { class: 'setting-desc sync-status' });
+  const tInput = h('input', { type: 'checkbox', 'aria-label': t('opt.syncTasks'), onchange: async (e) => { await setRaw({ syncTasks: e.target.checked }); paintTasks(); } });
+  const tSw = h('label', { class: 'switch' }, tInput, h('span', { class: 'track' }), h('span', { class: 'thumb' }));
+  async function paintTasks() {
+    const { syncTasks, tasksSyncStatus: st } = await getRaw(['syncTasks', 'tasksSyncStatus']);
+    tInput.checked = !!syncTasks;
+    tStatus.hidden = !syncTasks;
+    tStatus.textContent = !syncTasks ? '' : !st ? t('opt.syncWait')
+      : st.ok ? t('opt.syncOk', { time: fmtTime(new Date(st.at), s.newtab.clock24 ?? undefined) })
+      : st.error === 'unsupported' ? t('opt.syncUnsupported') : st.error === 'incompatible' ? t('opt.syncIncompatible') : st.error === 'too_big' ? t('opt.syncTasksBig') : t('opt.syncError', { e: st.error });
+  }
+  paint(); paintTasks();
+  syncPaint = () => { paint(); paintTasks(); }; // one page-wide listener repaints the newest status row (the page redraws often; per-draw listeners would pile up)
+  if (!syncListening) { syncListening = true; chrome.storage.onChanged.addListener((c, area) => { if (area === 'local' && (c.syncStatus || c.syncSettings || c.tasksSyncStatus || c.syncTasks) && syncPaint) syncPaint(); }); }
   return group(t('opt.groupSync'),
-    (() => { const r = row({ title: t('opt.sync'), desc: t('opt.syncDesc'), control: h('div', { class: 'row gap-3' }, nowBtn, sw) }); r.querySelector('.setting-text').append(status); status.classList.add('sync-status'); return r; })());
+    (() => { const r = row({ title: t('opt.sync'), desc: t('opt.syncDesc'), control: h('div', { class: 'row gap-3' }, nowBtn, sw) }); r.querySelector('.setting-text').append(status); status.classList.add('sync-status'); return r; })(),
+    (() => { const r = row({ title: t('opt.syncTasks'), desc: t('opt.syncTasksDesc'), control: tSw }); r.querySelector('.setting-text').append(tStatus); return r; })());
 }

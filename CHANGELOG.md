@@ -1,5 +1,21 @@
 # Changelog
 
+## 3.2.0 — 2026-10-23
+
+Tasks that follow you, room to breathe, and the Chinese and Japanese you can type dates in.
+
+### New
+- **Sync tasks between browsers** (opt-in, Settings → Data & privacy → *Sync tasks too*): open tasks and ones finished in the last three days travel through the browser's own sync, merged without losing anything (a task deleted or edited on one side is told apart from a new one; an empty or unreadable cloud copy never deletes tasks here). Habits, notes and history never sync.
+- **Storage meter and *Free up space*** in Settings → Data & privacy: see how much of the browser's 10 MB your history takes; one click drops the hour-by-hour detail of days older than 30 days (totals, sessions and tasks stay). EyeTime also tells you once a week when you pass 80 %.
+- **Dates and repeats in Chinese and Japanese** in quick add: `报告 明天 14:30`, `周五前交报告`, `拉伸 每天`, `レポート 明日までに`, `来週の金曜日`, `ストレッチ 毎日`.
+
+### Fixed
+- Italian and Polish no longer call both tabs and cards "schede" / "karty" (cards are now *riquadri* / *kafelki*).
+- Review fixes carried from 3.1: unsubscribing from a calendar cannot be undone by a download that finishes at the same moment; a calendar file imported in 3.0 is kept; multi-day all-day events written with `DURATION`; a meeting moved later the same day warns again; "every Monday" in Italian, Polish and Ukrainian is a repeat, not a date; "1 год" in Russian is not an estimate of one hour.
+
+### Developer
+- The visual baseline is rendered by the CI machine (its text anti-aliasing differs from other machines); the test waits until the layout stops moving.
+
 ## 3.1.0 — 2026-10-22
 
 Five new languages, a calendar that understands your meetings, and a pass on accessibility.
