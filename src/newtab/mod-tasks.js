@@ -21,7 +21,7 @@ export function tasksModule() {
   const head = root.querySelector('.mod-head');
   root.append(body);
   let tasks = [], showAll = false, weekPlan = null, weekEditing = false;
-  const saveWeek = (p) => { weekPlan = p; setCollection('weekPlan', p); };
+  const saveWeek = (p) => { if (weekPlan && weekPlan.week && p.week !== weekPlan.week) setCollection('weekPlanPrev', weekPlan); weekPlan = p; setCollection('weekPlan', p); }; // the finished week is kept one more week for the Monday digest and the share card
 
   const save = () => setCollection('tasks', tasks);
   const LIMIT = 6;

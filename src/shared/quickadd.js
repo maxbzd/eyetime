@@ -29,9 +29,9 @@ export function parseQuickAdd(input, now = new Date()) {
   if (ts) { out.at = toTime(ts.h, ts.m, ts.ap); text = text.replace(ts.raw, ' '); }
 
   // estimate: 25m · 25 min · 45мин · 1.5h · 2ч
-  const est = /(?<=\s)(\d{1,3}(?:[.,]\d)?)\s?(m|min|mins|мин|м|h|hr|hrs|ч)(?=\s|$)/i.exec(text);
+  const est = /(?<=\s)(\d{1,3}(?:[.,]\d)?)\s?(m|min|mins|мин|м|h|hr|hrs|ч|хв|год)(?=\s|$)/i.exec(text);
   if (est) {
-    const n = Number(est[1].replace(',', '.')), hours = /^(h|hr|hrs|ч)$/i.test(est[2]);
+    const n = Number(est[1].replace(',', '.')), hours = /^(h|hr|hrs|ч|год)$/i.test(est[2]);
     const minutes = Math.round(hours ? n * 60 : n);
     if (minutes >= 1 && minutes <= 720) { out.est = minutes; text = text.replace(est[0], ' '); }
   }
@@ -46,12 +46,12 @@ export function parseQuickAdd(input, now = new Date()) {
 
   // repetition (English, Russian, Spanish, German, French, Portuguese). Clear phrases count anywhere; the bare one-word forms only at the
   // very end, so "Prepare weekly report" stays a task called "Prepare weekly report".
-  const CLEAR = 'every\\s+day|every\\s+weekday|every\\s+week|каждый\\s+день|ежедневно|по\\s+будням|каждую\\s+неделю|еженедельно|cada\\s+d[ií]a|todos\\s+los\\s+d[ií]as|entre\\s+semana|cada\\s+semana|jeden\\s+tag|an\\s+wochentagen|jede\\s+woche|chaque\\s+jour|tous\\s+les\\s+jours|en\\s+semaine|chaque\\s+semaine|todo\\s+dia|todos\\s+os\\s+dias|dias\\s+[uú]teis|toda\\s+semana|a\\s+cada\\s+semana';
-  const BARE = 'daily|weekdays|weekly|t[aä]glich|werktags|w[oö]chentlich|diario|semanal|quotidien|hebdomadaire|di[aá]rio|diariamente';
+  const CLEAR = 'every\\s+day|every\\s+weekday|every\\s+week|каждый\\s+день|ежедневно|по\\s+будням|каждую\\s+неделю|еженедельно|cada\\s+d[ií]a|todos\\s+los\\s+d[ií]as|entre\\s+semana|cada\\s+semana|jeden\\s+tag|an\\s+wochentagen|jede\\s+woche|chaque\\s+jour|tous\\s+les\\s+jours|en\\s+semaine|chaque\\s+semaine|todo\\s+dia|todos\\s+os\\s+dias|dias\\s+[uú]teis|toda\\s+semana|a\\s+cada\\s+semana|ogni\\s+giorno|tutti\\s+i\\s+giorni|ogni\\s+settimana|nei\\s+giorni\\s+feriali|co\\s+tydzie[nń]|w\\s+dni\\s+robocze|ka[żz]dego\\s+dnia|по\\s+буднях|щотижня|кожного\\s+дня';
+  const BARE = 'daily|weekdays|weekly|t[aä]glich|werktags|w[oö]chentlich|diario|semanal|quotidien|hebdomadaire|di[aá]rio|diariamente|codziennie|щодня';
   const rep = new RegExp(`(?<=\\s)(${CLEAR})(?=\\s|$)`, 'i').exec(text) || new RegExp(`(?<=\\s)(${BARE})(?=\\s*$)`, 'i').exec(text);
   if (rep) {
     const w = rep[1].toLowerCase().replace(/\s+/g, ' ');
-    out.repeat = /weekday|будням|wochentag|werktag|entre semana|en semaine|dias [uú]teis/.test(w) ? 'weekdays' : /week|недел|woche|semana|semaine|hebdo/.test(w) ? 'weekly' : 'daily';
+    out.repeat = /weekday|будням|буднях|wochentag|werktag|entre semana|en semaine|dias [uú]teis|feriali|robocze/.test(w) ? 'weekdays' : /week|недел|woche|semana|semaine|hebdo|settimana|tydzie|тижн/.test(w) ? 'weekly' : 'daily';
     text = text.replace(rep[0], ' ');
   }
 

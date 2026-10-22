@@ -176,16 +176,16 @@ export async function ensureSchema() {
 /** A calendar subscription's browser permission goes away with its data (reset / restoring a backup), not only with the Unsubscribe button. */
 async function dropCalendarPermission() {
   try {
-    const { calendarSub } = await area().get('calendarSub');
-    const n = calendarSub && calendarSub.url ? normalizeCalendarUrl(calendarSub.url) : null;
-    if (n && n.ok) await chrome.permissions.remove({ origins: [n.pattern] });
+    const raw = await area().get(['calendarSubs', 'calendarSub']);
+    const subs = Array.isArray(raw.calendarSubs) ? raw.calendarSubs : raw.calendarSub ? [raw.calendarSub] : [];
+    for (const sub of subs) { const n = sub && sub.url ? normalizeCalendarUrl(sub.url) : null; if (n && n.ok) await chrome.permissions.remove({ origins: [n.pattern] }); }
   } catch { /* no permissions API or nothing to remove */ }
 }
 
 export async function exportAll() {
   const all = await area().get(null);
   delete all.newtabBg;
-  delete all.calendarSub; // the calendar address is a secret: it never leaves this device, not even in a backup file
+  delete all.calendarSub; delete all.calendarSubs; delete all.calendarSrc; // calendar addresses are secrets: they never leave this device, not even in a backup file
   return { app: 'eyetime', version: 2, exportedAt: new Date().toISOString(), data: all };
 }
 
