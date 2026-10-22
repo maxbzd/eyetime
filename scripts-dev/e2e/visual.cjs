@@ -1,6 +1,8 @@
 // Visual regression: the main screens in English, Russian, German and Polish, light and dark, with a frozen clock and the realistic demo data.
 //   node scripts-dev/e2e/visual.cjs            compare with scripts-dev/e2e/visual-baseline/*.png
 //   node scripts-dev/e2e/visual.cjs --update   rewrite the baseline (after a change you meant to make)
+// The baseline is rendered by the CI machine (its fonts and anti-aliasing differ from other machines by ~0.5 % of the pixels): after an intended UI change,
+// push, download the `visual-diff` artifact of the failed CI run and copy its `*-now.png` files over the baseline (dropping the `-now`).
 // A screen fails when more than THRESHOLD of its pixels differ visibly; a red diff image goes to /tmp/eyetime-visual-diff/.
 // Needs Playwright + Chromium like the other e2e runs. No other dependencies: the comparison runs in a browser canvas.
 const { launch } = require('./lib.cjs');
