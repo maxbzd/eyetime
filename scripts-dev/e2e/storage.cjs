@@ -34,7 +34,7 @@ const { launch } = require('./lib.cjs');
   const dlg = page.locator('dialog[open]');
   if (!(await dlg.count())) bad.push('Free up space did not ask for confirmation');
   else await dlg.locator('button[value="yes"]').click();
-  await page.waitForTimeout(600);
+  await page.waitForSelector('.toast', { timeout: 8000 }).catch(() => {});
   if (!(await page.locator('.toast').count())) bad.push('no confirmation after Free up space');
   console.log(bad.length ? 'FAIL storage\n  ' + bad.join('\n  ') : `PASS storage (slimmed ${n} days, totals and recent days kept, ${(before.total / 1e6).toFixed(2)} → ${(after.usage.total / 1e6).toFixed(2)} MB)`);
   await app.close(); process.exit(bad.length ? 1 : 0);
