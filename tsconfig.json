@@ -6,5 +6,5 @@
     "strict": false, "noImplicitAny": false, "skipLibCheck": true,
     "types": []
   },
-  "include": ["src/shared/*.js", "src/shared/locales/*.js", "src/background/*.js", "src/types.d.ts"]
+  "include": ["src/shared/*.js", "src/shared/locales/*.js", "src/background/*.js", "src/ui/*.js", "src/newtab/*.js", "src/options/*.js", "src/insights/*.js", "src/popup/*.js", "src/blocked/*.js", "src/types.d.ts"]
 }

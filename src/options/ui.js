@@ -3,7 +3,10 @@ import { h, icon, clear } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
 import { parseUserDomain } from '../shared/domains.js';
 
-/** A settings row: title + optional description on the left, control on the right. */
+/**
+ * A settings row: title + optional description on the left, control on the right.
+ * @param {{ title: string, desc?: string, control?: Node | null, stack?: boolean, id?: string }} o
+ */
 export function row({ title, desc, control, stack = false, id }) {
   return h('div', { class: 'setting' + (stack ? ' setting-stack' : ''), id },
     h('div', { class: 'setting-text' }, h('div', { class: 'setting-title', text: title }), desc ? h('div', { class: 'setting-desc', text: desc }) : null),
@@ -19,6 +22,7 @@ export function toggle(checked, onChange, label) {
     h('input', { type: 'checkbox', checked, 'aria-label': label, onchange: (e) => onChange(e.target.checked) }), h('span', { class: 'track' }), h('span', { class: 'thumb' }));
 }
 
+/** @param {any[]} options @param {any} value @param {(v: string) => void} onChange @param {{ label?: string, cls?: string }} [o] */
 export function select(options, value, onChange, { label, cls = '' } = {}) {
   return h('select', { class: ('select select-auto ' + cls).trim(), 'aria-label': label, onchange: (e) => onChange(e.target.value) },
     options.map(([v, text]) => h('option', { value: String(v), selected: String(v) === String(value), text })));
@@ -30,6 +34,7 @@ export function segmented(options, value, onChange, label) {
 }
 
 /** Editable list of domains shown as removable chips with an add field. */
+/** @param {{ items: string[], onAdd: (d: string) => any, onRemove: (d: string) => any, placeholder: string, empty?: string }} o */
 export function domainEditor({ items, onAdd, onRemove, placeholder, empty }) {
   const err = h('div', { class: 'hint', style: { color: 'var(--distracting-text)', minHeight: '0' } });
   const input = h('input', { class: 'input', placeholder, 'aria-label': placeholder, spellcheck: false, autocapitalize: 'off',

@@ -83,6 +83,7 @@ export function classLegend(totals) {
  * Calendar heatmap, one cell per day, weeks as columns (Mon at top).
  * cells: [{ key, date: Date, sec }]; max = busiest day. Sequential single hue (accent), 4 levels.
  */
+/** @param {any[]} cells @param {number} max @param {{ startsOn?: number, level?: (v: number, max: number) => number }} [o] */
 export function heatmap(cells, max, { startsOn = 1, level } = {}) {
   const first = cells[0].date;
   const lead = (first.getDay() - startsOn + 7) % 7;

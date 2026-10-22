@@ -114,6 +114,7 @@ function mount(extra) {
 }
 
 /** Install the Ctrl/Cmd+K shortcut on the current page. */
+/** @param {{ extra?: any }} [o] */
 export function installPalette({ extra } = {}) {
   if (!document.querySelector('link[data-palette]')) document.head.append(h('link', { rel: 'stylesheet', href: new URL('./palette.css', import.meta.url).href, 'data-palette': '' }));
   window.addEventListener('et:palette', () => mount(extra));

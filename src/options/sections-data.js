@@ -27,7 +27,7 @@ export function data({ s, save, refresh }) {
       await importAll(payload); toast(t('opt.importDone')); setTimeout(() => location.reload(), 600);
     } catch { toast(t('opt.importFail')); }
   }
-  const fileIn = document.getElementById('importFile');
+  const fileIn = /** @type {HTMLInputElement} */ (document.getElementById('importFile'));
   fileIn.onchange = () => { if (fileIn.files[0]) doImport(fileIn.files[0]); fileIn.value = ''; };
 
   const calendarGroup = calCalendarGroup(s, save);
