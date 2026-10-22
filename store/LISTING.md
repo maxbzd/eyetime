@@ -33,7 +33,7 @@ Help users focus and manage screen time: track time per site, pause distracting 
 | `favicon` | Shows site icons from the browser's own cache; nothing is downloaded. |
 | Host access: youtube.com, instagram.com, tiktok.com, vk.com, vkvideo.ru | Only to limit short-video scrolling and to hide YouTube recommendations, comments and the home feed when the user turns those options on. No data is read or sent. |
 | Optional: `127.0.0.1:8765` | Only when the user enables the desktop companion app on their own computer. |
-| Optional host access: `https://*/*` (declared as *optional*, never granted at install) | Used only if the user subscribes to their own calendar link (Settings → Data & privacy): the browser then asks for access to that single address, the extension downloads that one .ics file once an hour and keeps the next 14 days of events on the device. The permission is withdrawn when the user unsubscribes. Nothing is sent anywhere. |
+| Optional host access: `https://*/*` (declared as *optional*, never granted at install) | Used only if the user subscribes to their own calendar link (Settings → Data & privacy): the browser then asks for access to the one site that hosts the calendar, the extension downloads that one .ics file once an hour and keeps the next 14 days of events on the device. The permission is withdrawn when the user unsubscribes (or resets / restores data). Redirects are not followed. Nothing is sent anywhere. |
 | `chrome.storage.sync` (covered by `storage`) | Optional, off by default: syncs settings (never history) through the browser's own sync. |
 
 Remote code: **none** (all code is in the package). Data usage: **no user data is collected, transmitted or sold**; certify all three limited-use statements.

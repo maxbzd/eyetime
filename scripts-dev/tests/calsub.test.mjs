@@ -15,8 +15,10 @@ test('calendar addresses: refuses anything that is not a plain calendar link', (
   assert.equal(normalizeCalendarUrl('x'.repeat(2100)).ok, false);
 });
 
-test('calendar addresses: plain http is for the own machine only', () => {
-  const l = normalizeCalendarUrl('http://127.0.0.1:8080/cal.ics');
+test('calendar addresses: plain http only for this machine and only when a test build allows it', () => {
+  assert.equal(normalizeCalendarUrl('http://127.0.0.1:8080/cal.ics').ok, false);
+  assert.equal(normalizeCalendarUrl('http://localhost/cal.ics').ok, false);
+  const l = normalizeCalendarUrl('http://127.0.0.1:8080/cal.ics', { allowLocalHttp: true });
   assert.deepEqual([l.ok, l.pattern], [true, 'http://127.0.0.1:8080/*']);
-  assert.equal(normalizeCalendarUrl('http://localhost/cal.ics').ok, true);
+  assert.equal(normalizeCalendarUrl('http://example.org/c.ics', { allowLocalHttp: true }).ok, false); // never for other hosts
 });

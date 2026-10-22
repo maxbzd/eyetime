@@ -37,7 +37,7 @@ Fonts and icons are bundled inside the extension; no content is loaded from the 
 | `favicon` | Show site icons from the browser's own cache (nothing is downloaded) |
 | Sites: youtube.com, instagram.com, tiktok.com, vk.com, vkvideo.ru | Only to limit short-video scrolling and hide YouTube feeds |
 | Optional: `127.0.0.1:8765` | Only when you enable the desktop companion |
-| Optional: one `https://` address | Asked only when you subscribe to a calendar link, and only for that one address; withdrawn when you unsubscribe |
+| Optional: one `https://` site | Asked only when you subscribe to a calendar link, and only for the site that hosts your calendar (for example calendar.google.com); withdrawn when you unsubscribe, reset or restore a backup |
 
 ## Your control
 
