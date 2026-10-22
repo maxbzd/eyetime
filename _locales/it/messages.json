@@ -1,0 +1,26 @@
+{
+  "extName": {
+    "message": "EyeTime — Focus, tempo di schermo e cura degli occhi"
+  },
+  "extDescription": {
+    "message": "Focus con un clic, distrazioni bloccate con garbo, tempo sotto controllo e occhi a riposo. Gratis, open source, 100% locale."
+  },
+  "actionTitle": {
+    "message": "EyeTime"
+  },
+  "cmdToggleFocus": {
+    "message": "Avvia o ferma una sessione di focus"
+  },
+  "feedTitle": {
+    "message": "È ora di smettere di scorrere"
+  },
+  "feedBody": {
+    "message": "Guardi video brevi da {n} minuti. La pagina è in pausa e in scala di grigi, così puoi scegliere cosa fare dopo."
+  },
+  "feedLeave": {
+    "message": "Chiudi questa scheda"
+  },
+  "feedMore": {
+    "message": "5 minuti in più"
+  }
+}

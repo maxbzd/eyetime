@@ -12,33 +12,33 @@ const upcoming = (now, dow) => ((dow - now.getDay() + 7) % 7) || 7;
 // [regex source, resolver(match, now) → Date]. Every regex is anchored by the callers with whitespace lookarounds.
 const WEEKDAYS = [
   // [dow, words in all languages]
-  [1, 'monday|понедельник[а]?|lunes|montag|lundi|segunda-feira'],
-  [2, 'tuesday|вторник[а]?|martes|dienstag|mardi|ter[cç]a-feira'],
-  [3, 'wednesday|mi[eé]rcoles|mittwoch|mercredi|quarta-feira'],
-  [4, 'thursday|четверг[а]?|jueves|donnerstag|jeudi|quinta-feira'],
-  [5, 'friday|пятниц[ауы]|viernes|freitag|vendredi|sexta-feira'],
-  [6, 'saturday|суббот[ауы]|s[aá]bado|samstag|sonnabend|samedi'],
-  [0, 'sunday|воскресень[еяю]|domingo|sonntag|dimanche'],
+  [1, 'monday|понедельник[а]?|lunes|montag|lundi|segunda-feira|luned[ìi]|poniedzia[łl]ek|понеділок'],
+  [2, 'tuesday|вторник[а]?|martes|dienstag|mardi|ter[cç]a-feira|marted[ìi]|wtorek|вівторок'],
+  [3, 'wednesday|mi[eé]rcoles|mittwoch|mercredi|quarta-feira|mercoled[ìi]|[śs]rod[aęy]|серед[ауи]'],
+  [4, 'thursday|четверг[а]?|jueves|donnerstag|jeudi|quinta-feira|gioved[ìi]|czwartek|четвер'],
+  [5, 'friday|пятниц[ауы]|viernes|freitag|vendredi|sexta-feira|venerd[ìi]|pi[ąa]tek|п[’\'ʼ]ятниц[яюі]'],
+  [6, 'saturday|суббот[ауы]|s[aá]bado|samstag|sonnabend|samedi|sabato|sobot[aęy]|субот[аиу]'],
+  [0, 'sunday|воскресень[еяю]|domingo|sonntag|dimanche|domenica|niedziel[aęi]|неділ[яюі]'],
 ];
 // Portuguese weekdays without "-feira" are also ordinal numbers: accept them only after "na / no / nesta / próxima".
 const PT_BARE = [[1, 'segunda'], [2, 'ter[cç]a'], [3, 'quarta'], [4, 'quinta'], [5, 'sexta']];
 
 // optional words in front of a weekday that belong to the date phrase ("on friday", "в пятницу", "el lunes", "am montag", "ce vendredi", "na sexta")
-const LEAD = '(?:(?:on|next|this|в|во|к|el|este|pr[oó]ximo|am|n[aä]chsten|kommenden|le|ce|na|nesta|neste|pr[oó]xima)\\s+)?';
+const LEAD = '(?:(?:on|next|this|в|во|к|el|este|pr[oó]ximo|am|n[aä]chsten|kommenden|le|ce|na|nesta|neste|pr[oó]xima|il|w|we|u|у)\\s+)?';
 // words that may follow ("friday next", "vendredi prochain")
-const TRAIL = '(?:\\s+(?:prochain|next))?';
+const TRAIL = '(?:\\s+(?:prochain|next|prossimo))?';
 
 const RULES = [];
 const add = (src, fn) => RULES.push([new RegExp(`(?<=\\s)(${src})(?=\\s|$)`, 'iu'), fn]);
 
 // the day after tomorrow first (it contains "tomorrow" words)
-add('послезавтра|pasado\\s+ma[nñ]ana|[uü]bermorgen|apr[eè]s-demain|depois\\s+de\\s+amanh[aã]|day\\s+after\\s+tomorrow', (m, now) => plus(now, 2));
-add('today|сегодня|hoy|heute|aujourd[’\']hui|hoje', (m, now) => plus(now, 0));
-add('tomorrow|завтра|ma[nñ]ana|morgen|demain|amanh[aã]', (m, now) => plus(now, 1));
+add('послезавтра|pasado\\s+ma[nñ]ana|[uü]bermorgen|apr[eè]s-demain|depois\\s+de\\s+amanh[aã]|day\\s+after\\s+tomorrow|dopodomani|pojutrze|післязавтра', (m, now) => plus(now, 2));
+add('today|сегодня|hoy|heute|aujourd[’\']hui|hoje|oggi|dzisiaj|dzi[śs]|сьогодні', (m, now) => plus(now, 0));
+add('tomorrow|завтра|ma[nñ]ana|morgen|demain|amanh[aã]|domani|jutro', (m, now) => plus(now, 1));
 // "in 3 days" / "через 3 дня" / "en 3 días" / "in 3 Tagen" / "dans 3 jours" / "em 3 dias"
-add('(?:in|через|en|dans|em)\\s+(\\d{1,3})\\s+(?:days?|дн(?:я|ей|ь)|d[ií]as?|tagen?|jours?)', (m, now) => plus(now, Number(/(\d{1,3})/.exec(m[0])[1])));
+add('(?:(?:in|через|en|dans|em|tra|fra|za)\\s+(\\d{1,3})\\s+(?:days?|дн(?:я|ей|ь|і|ів)|d[ií]as?|tagen?|jours?|giorn[oi]|dni|dzie[nń])|за\\s+(\\d{1,3})\\s+дн(?:і|ів))', (m, now) => plus(now, Number(/(\d{1,3})/.exec(m[0])[1])));
 // next week → the coming Monday
-add('next\\s+week|на\\s+следующей\\s+неделе|la\\s+semana\\s+que\\s+viene|(?:in\\s+der\\s+)?n[aä]chste[nr]?\\s+woche|la\\s+semaine\\s+prochaine|semana\\s+que\\s+vem', (m, now) => plus(now, upcoming(now, 1)));
+add('next\\s+week|на\\s+следующей\\s+неделе|la\\s+semana\\s+que\\s+viene|(?:in\\s+der\\s+)?n[aä]chste[nr]?\\s+woche|la\\s+semaine\\s+prochaine|semana\\s+que\\s+vem|(?:la\\s+)?settimana\\s+prossima|la\\s+prossima\\s+settimana|w\\s+przysz[łl]ym\\s+tygodniu|przysz[łl]y\\s+tydzie[nń]|наступного\\s+тижня|наступний\\s+тиждень', (m, now) => plus(now, upcoming(now, 1)));
 // "this friday" said on a Friday is today; a bare weekday on its own day means next week
 const thisWord = /^(?:this|este|ce|nesta|neste)\s/i;
 for (const [dow, words] of WEEKDAYS) add(`${LEAD}(?:${words})${TRAIL}`, (m, now) => plus(now, thisWord.test(m[0]) && dow === now.getDay() ? 0 : upcoming(now, dow)));

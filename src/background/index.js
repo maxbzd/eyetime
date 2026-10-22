@@ -13,6 +13,7 @@ import { updateBadge } from './badge.js';
 import { setAmbient } from './audio.js';
 import './blocker.js';
 import './weekly.js';
+import './meetings.js';
 import { syncNow } from './sync.js';
 import { rolloverTasks } from './rollover.js';
 import { armCalendar } from './calendar.js';
