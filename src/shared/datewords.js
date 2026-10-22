@@ -24,7 +24,7 @@ const WEEKDAYS = [
 const PT_BARE = [[1, 'segunda'], [2, 'ter[cç]a'], [3, 'quarta'], [4, 'quinta'], [5, 'sexta']];
 
 // optional words in front of a weekday that belong to the date phrase ("on friday", "в пятницу", "el lunes", "am montag", "ce vendredi", "na sexta")
-const LEAD = '(?:(?:on|next|this|в|во|к|el|este|pr[oó]ximo|am|n[aä]chsten|kommenden|le|ce|na|nesta|neste|pr[oó]xima|il|w|we|u|у)\\s+)?';
+const LEAD = '(?:(?:on|next|this|в|во|к|el|este|pr[oó]ximo|am|n[aä]chsten|kommenden|le|ce|na|nesta|neste|pr[oó]xima|w|we|u|у)\\s+)?';
 // words that may follow ("friday next", "vendredi prochain")
 const TRAIL = '(?:\\s+(?:prochain|next|prossimo))?';
 
@@ -60,7 +60,7 @@ export function findDateWord(text, now = new Date()) {
     if (/ma[nñ]ana/i.test(m[1]) && /(?:la|de\s+la|esta)\s+$/i.test(s.slice(0, m.index))) continue;
     // words that make the weekday a repeat ("every monday") or the "morgen" a morning ("jeden morgen", "am morgen") are not a date
     const before = (/(\S+)\s+$/.exec(s.slice(0, m.index)) || [])[1] || '';
-    if (/^(?:every|каждый|каждую|каждое|cada|jeden|jede|jeder|chaque|todo|toda|todos|tous|toutes)$/i.test(before) && !/\d/.test(m[1])) continue;
+    if (/^(?:every|каждый|каждую|каждое|cada|jeden|jede|jeder|chaque|todo|toda|todos|tous|toutes|ogni|ciascun|ciascuno|ciascuna|il|ka[żz]d[yąaeo]|ka[żz]dej|co|кожен|кожна|кожне|кожну|кожного|кожної|щоп[’']?ятниці)$/i.test(before) && !/\d/.test(m[1])) continue;
     if (/^morgen$/i.test(m[1]) && /^(?:am|jeden|jedem|jeder|guten|heute|gestern|den|dem|der|des|ein|eines|diesen|dieser)$/i.test(before)) continue;
     const d = fn(m, now);
     if (!d) continue;
