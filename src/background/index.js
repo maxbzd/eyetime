@@ -15,6 +15,7 @@ import './blocker.js';
 import './weekly.js';
 import './meetings.js';
 import { syncNow } from './sync.js';
+import { checkStorage } from './storagewatch.js';
 import { rolloverTasks } from './rollover.js';
 import { armCalendar } from './calendar.js';
 import './messages.js';
@@ -52,7 +53,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 });
 
 chrome.runtime.onStartup.addListener(boot);
-chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'prune') pruneOldDays(); });
+chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'prune') pruneOldDays().then(checkStorage); });
 
 chrome.commands.onCommand.addListener(async (cmd) => {
   if (cmd !== 'toggle-focus') return;
