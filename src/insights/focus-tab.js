@@ -124,7 +124,7 @@ export function focusTab({ cur, prev = [], heat, tasks, estTasks, settings }) {
   // focus time per project (#tag of the task a session was started for)
   const pr = projectRows(cur, prev);
   const maxSec = Math.max(...pr.rows.map((r) => r.sec), 1);
-  const deltaText = (r) => (r.delta === null ? t('prod.projectsNew') : `${r.delta >= 0 ? '+' : '−'}${Math.round(Math.abs(r.delta) * 100)}%`);
+  const deltaText = (r) => (r.delta === null ? t('prod.projectsNew') : Math.round(Math.abs(r.delta) * 100) === 0 ? '0%' : `${r.delta >= 0 ? '+' : '−'}${Math.round(Math.abs(r.delta) * 100)}%`);
   const projectsCard = card(t('prod.projects'), t('prod.projectsSub'), 'period',
     pr.rows.length
       ? h('div', { class: 'stack gap-3' },

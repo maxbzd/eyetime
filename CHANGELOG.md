@@ -5,7 +5,7 @@
 Plan with your own words, see where focus goes, reach people in their language.
 
 ### New
-- **Calendar by link.** Paste your calendar's secret iCal address (Google, Outlook, iCloud…) in Settings → Data & privacy and EyeTime refreshes it every hour, straight from your browser; the next meeting shows on the focus card. The browser asks for access to that one address only. The address stays on the device: never synced, never in a backup. Importing a file still works.
+- **Calendar by link.** Paste your calendar's secret iCal address (Google, Outlook…; links that redirect to another site are refused with a clear message) in Settings → Data & privacy and EyeTime refreshes it every hour, straight from your browser; the next meeting shows on the focus card. The browser asks for access to the one site that hosts the calendar; unsubscribing, resetting or restoring a backup withdraws it. Nothing is followed to other sites, at most one download runs at a time, and a failing link is retried at most every 30 minutes. The address stays on the device: never synced, never in a backup. Importing a file still works.
 - **Dates in plain words** in quick add, in six languages: `Report tomorrow 14:30 45m !`, `Call on Friday`, `Pay rent in 3 days`, `Plan next week`, `Отчёт завтра`, `Informe el lunes`, `Bericht morgen`, `Rapport demain`, `Relatório amanhã`. A task with a date gets a due chip and stays out of today's plan. Repeat words ("every day", "cada día", "jeden Tag", "chaque jour", "todo dia"…) work in all six languages too.
 - **Focus time by project.** The first `#tag` of the task you focus on becomes the session's project; Insights → Focus shows time per project with the change against the previous period.
 - **Tasks in and out:** export as a Markdown checklist or CSV; import from Markdown, CSV or a plain list (each line understands quick-add words); duplicates are skipped and you confirm first.
@@ -23,7 +23,11 @@ Plan with your own words, see where focus goes, reach people in their language.
 - **Types:** `npm run types` checks `src/shared` and `src/background` with TypeScript from JSDoc comments (zero errors, in CI).
 - The two biggest files were split (`modules.js` → one file per Home module; `sections.js` → data and about sections); the interface is pixel-identical (the visual test proves it).
 
-### Fixed
+### Fixed — found by an independent review before release
+- Calendar subscription: a failing link is retried at most every 30 minutes (not on every worker wake-up), one download at a time, the hourly alarm is no longer pushed back by wake-ups, a download that finishes after *Unsubscribe* can no longer bring the address back, redirects to other sites are refused, the response size is limited while reading; *Reset* and *Restore backup* now withdraw the browser permission too.
+- Date words: "среда" (environment), German "jeden Morgen", "every monday" (a repeat), "no friday meetings", dates in the past and "this friday" on a Friday behave sensibly; Portuguese "no sábado" works.
+- Task import: quoted CSV headers, invalid dates/times, "Completed" status, re-importing an export no longer duplicates finished tasks and finished tasks no longer count as "done today"; files over 2 MB are refused.
+- Home: deleting a task could remove a different one after another tab or a focus session changed the list; plural forms in the new messages ("1 task", "1 event"); one Settings listener instead of one per redraw.
 - Seed data for store screenshots (empty Habits card, first-run checklist in the picture).
 
 ## 2.8.0 — 2026-10-21
