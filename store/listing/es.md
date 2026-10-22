@@ -16,7 +16,7 @@ BLOQUEO QUE TE RESPETA
 Elige categorías (redes sociales, vídeo, foros, noticias, juegos, compras, mensajería) o añade tus propios sitios. Una breve pausa para respirar, con tu propio plan «si pasa X, hago Y», funciona mejor que un bloqueo total. Añade horarios de trabajo, límites diarios por sitio y un «presupuesto de distracción» diario.
 
 PLANIFICA EL DÍA Y LA SEMANA
-«Planificar mi día» ajusta tus prioridades al tiempo que realmente tienes. Escribe «Informe mañana 14:30 45m !» o «Estirar cada día» y EyeTime lo entiende, en nueve idiomas. Suscríbete al enlace de tu calendario (o importa un archivo) para ver tu próxima reunión en la tarjeta de enfoque. Tres objetivos para la semana, tareas recurrentes e importación y exportación de tareas en Markdown o CSV.
+«Planificar mi día» ajusta tus prioridades al tiempo que realmente tienes. Escribe «Informe mañana 14:30 45m !» o «Estirar cada día» y EyeTime lo entiende, en once idiomas. Suscríbete al enlace de tu calendario (o importa un archivo) para ver tu próxima reunión en la tarjeta de enfoque. Tres objetivos para la semana, tareas recurrentes e importación y exportación de tareas en Markdown o CSV.
 
 ESTADÍSTICAS HONESTAS
 Tiempo por sitio, hora y día; una línea de tiempo del día con tus sesiones de enfoque; tiempo de enfoque por proyecto (#etiqueta); precisión de las estimaciones (previsto frente a real); tus mejores horas de enfoque; «qué te atrae», es decir, cuándo te tienta un sitio, con un límite a un toque; una revisión semanal y una imagen para compartir de «Mi semana». Reclasifica cualquier sitio como productivo, neutral o que distrae con un toque. Exporta a CSV o a un diario en Markdown.

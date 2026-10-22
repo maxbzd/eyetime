@@ -16,7 +16,7 @@ UN BLOCAGE QUI TE RESPECTE
 Choisis des catégories (réseaux sociaux, vidéo, forums, actualités, jeux, shopping, messageries) ou ajoute tes propres sites. Une courte page de pause avec ton propre plan « si… alors… » vaut mieux qu’un verrouillage. Ajoute des heures de travail, des limites quotidiennes par site et un « budget de distraction » par jour.
 
 PLANIFIE TA JOURNÉE ET TA SEMAINE
-« Planifier ma journée » cale tes priorités dans le temps dont tu disposes vraiment. Écris « Rapport demain 14:30 45m ! » ou « Étirements chaque jour » et EyeTime comprend — en neuf langues. Abonne-toi au lien de ton calendrier (ou importe un fichier) pour voir ta prochaine réunion sur la carte de concentration. Trois objectifs pour la semaine, des tâches récurrentes, et tes tâches en import et export Markdown ou CSV.
+« Planifier ma journée » cale tes priorités dans le temps dont tu disposes vraiment. Écris « Rapport demain 14:30 45m ! » ou « Étirements chaque jour » et EyeTime comprend — en onze langues. Abonne-toi au lien de ton calendrier (ou importe un fichier) pour voir ta prochaine réunion sur la carte de concentration. Trois objectifs pour la semaine, des tâches récurrentes, et tes tâches en import et export Markdown ou CSV.
 
 DES STATISTIQUES HONNÊTES
 Temps par site, par heure et par jour ; une chronologie de la journée avec tes sessions de concentration ; le temps de concentration par projet (#tag) ; la précision de tes estimations (prévu et réel) ; tes meilleures heures de concentration ; « ce qui t’attire » — quand un site te tente, avec une limite en un geste ; un bilan de la semaine et une image « Ma semaine » à partager. Reclasse n’importe quel site en productif, neutre ou distrayant d’un seul geste. Export CSV ou journal Markdown.

@@ -16,7 +16,7 @@ BLOQUEIO QUE RESPEITA VOCÊ
 Escolha categorias (redes sociais, vídeo, fóruns, notícias, jogos, compras, mensageiros) ou adicione seus próprios sites. Uma breve página de pausa com respiração e o seu plano "se… então…" funciona melhor do que um bloqueio total. Defina horário de trabalho, limites diários por site e um "orçamento de distração" por dia.
 
 PLANEJE O DIA E A SEMANA
-O "Planejar meu dia" encaixa suas prioridades no tempo que você realmente tem. Digite "Relatório amanhã 14:30 45m !" ou "Alongar todo dia" e o EyeTime entende — em nove idiomas. Assine o link da sua agenda (ou importe um arquivo) para ver a próxima reunião no cartão de foco. Três metas para a semana, tarefas recorrentes e importação e exportação das suas tarefas em Markdown ou CSV.
+O "Planejar meu dia" encaixa suas prioridades no tempo que você realmente tem. Digite "Relatório amanhã 14:30 45m !" ou "Alongar todo dia" e o EyeTime entende — em onze idiomas. Assine o link da sua agenda (ou importe um arquivo) para ver a próxima reunião no cartão de foco. Três metas para a semana, tarefas recorrentes e importação e exportação das suas tarefas em Markdown ou CSV.
 
 ESTATÍSTICAS HONESTAS
 Tempo por site, por hora e por dia; uma linha do tempo do dia com suas sessões de foco; tempo de foco por projeto (#tag); precisão das estimativas (planejado vs. real); suas melhores horas de foco; "o que puxa você" — quando um site tenta você, com um limite em um toque; uma revisão semanal e uma imagem compartilhável da "Minha semana". Reclassifique qualquer site como produtivo, neutro ou distrativo com um toque. Exporte em CSV ou em um diário em Markdown.

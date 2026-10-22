@@ -16,7 +16,7 @@ BLOCKIEREN MIT RESPEKT
 Wähl Kategorien (Soziale Netzwerke, Video, Foren, Nachrichten, Spiele, Shopping, Messenger) oder füge eigene Seiten hinzu. Eine kurze Atempause mit deinem eigenen Wenn-dann-Plan wirkt besser als eine Sperre. Dazu kommen Arbeitszeiten, Tageslimits pro Seite und ein tägliches „Ablenkungsbudget“.
 
 TAG UND WOCHE PLANEN
-„Meinen Tag planen“ passt deine Prioritäten in die Zeit, die du wirklich hast. Tipp „Bericht morgen 14:30 45m !“ oder „Dehnen jeden Tag“ — EyeTime versteht das, in neun Sprachen. Abonniere den Link zu deinem Kalender (oder importiere eine Datei), um deinen nächsten Termin auf der Fokus-Karte zu sehen. Dazu: drei Wochenziele, wiederkehrende Aufgaben und Import und Export deiner Aufgaben als Markdown oder CSV.
+„Meinen Tag planen“ passt deine Prioritäten in die Zeit, die du wirklich hast. Tipp „Bericht morgen 14:30 45m !“ oder „Dehnen jeden Tag“ — EyeTime versteht das, in elf Sprachen. Abonniere den Link zu deinem Kalender (oder importiere eine Datei), um deinen nächsten Termin auf der Fokus-Karte zu sehen. Dazu: drei Wochenziele, wiederkehrende Aufgaben und Import und Export deiner Aufgaben als Markdown oder CSV.
 
 EHRLICHE STATISTIKEN
 Zeit pro Seite, Stunde und Tag; eine Tages-Timeline mit deinen Fokus-Sitzungen; Fokuszeit pro Projekt (#Tag); Schätzgenauigkeit (geplant vs. tatsächlich); deine besten Fokus-Stunden; „Was dich zieht“ — wann dich eine Seite lockt, mit Limit per Fingertipp; eine Wochenübersicht und ein teilbares Bild „Meine Woche“. Stuf jede Seite mit einem Tipp als produktiv, neutral oder ablenkend ein. Export als CSV oder Markdown-Journal.

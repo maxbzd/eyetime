@@ -138,3 +138,12 @@ test('review fixes: "год" is a year in Russian; "every <weekday>" in Italian,
     const r = parseQuickAdd(s, WED); assert.equal(r.due, null, s); assert.equal(r.text, s, s);
   }
 });
+
+test('dates and repeats in Chinese and Japanese', () => {
+  const cases = [['明天写报告', '2026-10-22', '写报告'], ['后天 交报告', '2026-10-23', '交报告'], ['3天后 续费', '2026-10-24', '续费'], ['下周 做计划', '2026-10-26', '做计划'], ['周五前交报告', '2026-10-23', '交报告'], ['星期五 开会', '2026-10-23', '开会'], ['下周五 开会', '2026-10-30', '开会'],
+    ['レポートを明日までに', '2026-10-22', 'レポートを'], ['明後日の会議', '2026-10-23', '会議'], ['3日後 支払い', '2026-10-24', '支払い'], ['来週 計画', '2026-10-26', '計画'], ['金曜日までにレポート', '2026-10-23', 'レポート'], ['来週の金曜日 会議', '2026-10-30', '会議']];
+  for (const [input, day, text] of cases) assert.deepEqual(due(input).slice(0, 2), [text, day], input);
+  for (const [input, repeat, text] of [['拉伸 每天', 'daily', '拉伸'], ['周报 每周五', 'weekly', '周报'], ['ストレッチ 毎日', 'daily', 'ストレッチ'], ['週報 毎週金曜日', 'weekly', '週報']]) {
+    const r = parseQuickAdd(input, WED); assert.deepEqual([r.repeat, r.text, r.due], [repeat, text, null], input);
+  }
+});

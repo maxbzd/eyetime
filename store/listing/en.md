@@ -16,7 +16,7 @@ BLOCKING THAT RESPECTS YOU
 Choose categories (social, video, forums, news, games, shopping, messengers) or add your own sites. A short breathing pause with your own if–then plan beats a lockout. Add work hours, daily limits per site and a daily "distraction budget".
 
 PLAN THE DAY AND THE WEEK
-"Plan my day" fits your priorities into the time you really have. Type "Report tomorrow 14:30 45m !" or "Stretch every weekday" and EyeTime understands — in nine languages. Subscribe to your calendar's link (or import a file) to see your next meeting on the focus card. Three goals for the week, recurring tasks, and your tasks in and out as Markdown or CSV.
+"Plan my day" fits your priorities into the time you really have. Type "Report tomorrow 14:30 45m !" or "Stretch every weekday" and EyeTime understands — in eleven languages. Subscribe to your calendar's link (or import a file) to see your next meeting on the focus card. Three goals for the week, recurring tasks, and your tasks in and out as Markdown or CSV.
 
 HONEST STATISTICS
 Time per site, hour and day; a day timeline with your focus sessions; focus time by project (#tag); estimate accuracy (planned vs. actual); your best focus hours; "what pulls you" — when a site tempts you, with a one-tap limit; a weekly review and a shareable "My week" picture. Re-classify any site as productive, neutral or distracting with one tap. Export CSV or a Markdown journal.
