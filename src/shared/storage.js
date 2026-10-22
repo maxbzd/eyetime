@@ -195,7 +195,7 @@ export async function importAll(payload) {
   const ver = data.meta?.schemaVersion || 0;
   const m = ver >= 2 ? null : migrate(data);
   // never trust a file blindly: keep only the keys EyeTime itself writes
-  const KNOWN = new Set(['settings', 'meta', 'tasks', 'habits', 'captures', 'weekPlan', 'estLog']);
+  const KNOWN = new Set(['settings', 'meta', 'tasks', 'habits', 'captures', 'weekPlan', 'weekPlanPrev', 'estLog']);
   const clean = {};
   for (const [k, v] of Object.entries(data)) if (KNOWN.has(k) || /^d:\d{4}-\d{2}-\d{2}$/.test(k)) clean[k] = v;
   await dropCalendarPermission();

@@ -3,7 +3,7 @@
 // Nothing else is contacted and nothing is sent: a plain GET with no cookies, to that one site, no redirects followed.
 
 import { parseIcsFull } from '../shared/ics.js';
-import { loadSubs, saveSubs, writeSource } from '../shared/calstore.js';
+import { loadSubs, saveSubs, calLock, writeSourceUnlocked } from '../shared/calstore.js';
 import { normalizeCalendarUrl, MAX_ICS_BYTES } from '../shared/calsub.js';
 
 const ALARM = 'calendar-sync';
@@ -14,7 +14,8 @@ const allowLocalHttp = () => { try { return (chrome.runtime.getManifest().host_p
 let inflight = null;
 
 /** Updates one subscription's record; false if it was removed or replaced meanwhile (then a finished download must be dropped). */
-async function patchSub(id, url, patch) {
+const patchSub = (id, url, patch) => calLock(() => patchSubUnlocked(id, url, patch));
+async function patchSubUnlocked(id, url, patch) {
   const subs = await loadSubs();
   const i = subs.findIndex((x) => x.id === id && x.url === url);
   if (i < 0) return false;
@@ -60,9 +61,12 @@ async function runOne(sub) {
     if (!/BEGIN:VCALENDAR/i.test(text)) return fail(sub, 'format');
     const data = parseIcsFull(text, { from: new Date(), days: 14 });
     // the user may have unsubscribed (or subscribed elsewhere) while this was downloading: then the result is dropped, never written back
-    const kept = await patchSub(sub.id, sub.url, { ok: true, at: Date.now(), n: data.events.length, error: null, status: 200, host: n.host });
+    const kept = await calLock(async () => {
+      if (!(await patchSubUnlocked(sub.id, sub.url, { ok: true, at: Date.now(), n: data.events.length, error: null, status: 200, host: n.host }))) return false;
+      await writeSourceUnlocked(sub.id, data);
+      return true;
+    });
     if (!kept) return { state: 'off' };
-    await writeSource(sub.id, data);
     return { state: 'ok', n: data.events.length };
   } catch { return fail(sub, 'network'); }
   finally { clearTimeout(timer); }

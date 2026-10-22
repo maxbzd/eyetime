@@ -19,9 +19,9 @@ export function resolveLocale(pref, uiLang) {
   if (!ui) {
     try { ui = chrome.i18n.getUILanguage(); } catch { ui = (typeof navigator !== 'undefined' && navigator.language) || 'en'; }
   }
-  const base = ui.toLowerCase().split('-')[0];
+  const base = ui.toLowerCase().split(/[-_]/)[0]; // zh-TW / zh-HK get Simplified Chinese too: closer to them than English
   if (LOCALES[base]) return base;
-  if (['uk', 'be', 'kk'].includes(base) && LOCALES.ru) return 'ru';
+  if (['be', 'kk'].includes(base) && LOCALES.ru) return 'ru';
   return 'en';
 }
 

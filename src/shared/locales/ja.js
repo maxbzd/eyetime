@@ -24,7 +24,7 @@ export const ja = {
   'site.alwaysBlock': '常にブロック', 'site.unblock': 'ブロック解除',
 
   'today.title': '今日', 'today.emptyTitle': 'まだ記録がありません', 'today.emptyBody': 'いつも通りブラウズしてください。1分ほどで時間がここに表示されます。',
-  'today.sameAsYesterday': '昨日とほぼ同じです', 'today.moreThanYesterday': '昨日より{time}多い', 'today.lessThanYesterday': '昨日より{time}少ない',
+  'today.sameAsYesterday': '昨日とほぼ同じです', 'today.moreThanYesterday': '昨日より{time}多いです', 'today.lessThanYesterday': '昨日より{time}少ないです',
   'today.splitLabel': '生産的・中立・気が散るサイト別の時間配分',
 
   'eye.due': '目の休憩の時間です', 'eye.nextIn': '目の休憩まで{time}', 'eye.breakNow': '休憩する',
@@ -40,7 +40,7 @@ export const ja = {
 
   /* block page */
   'block.pageTitle': '一時停止 — EyeTime', 'block.back': '作業に戻る', 'block.continue': 'サイトに進む',
-  'block.continueIn': '{n}秒後に進む', 'block.continueFor': '{n}分間進む', 'block.passNote': '{n}分間開けます。その後、また一時停止に戻ります。',
+  'block.continueIn': '{n}秒後に進む', 'block.continueFor': '{n}分だけ開く', 'block.passNote': '{n}分間開けます。その後、また一時停止に戻ります。',
   'block.pause.title': '深呼吸しましょう。', 'block.pause.lead': '今、本当に{host}が必要ですか？',
   'block.breatheIn': '吸って', 'block.breatheOut': '吐いて',
   'block.focus.title': '集中セッション中です。', 'block.focus.lead': '{host}は終了するまで一時停止されています。',
@@ -88,8 +88,8 @@ export const ja = {
   'home.customize': 'カスタマイズ', 'home.background': '背景', 'home.accent': 'アクセントカラー', 'home.modules': 'カード', 'home.clock': '時計', 'home.clockFormat': '時計の形式',
   'home.clockAuto': '自動', 'home.clock12': '12時間制', 'home.clock24': '24時間制', 'home.greeting': 'あいさつを表示', 'home.changePhoto': '写真を変更', 'home.photoSaved': '背景を更新しました',
   'bg.dawn': '夜明け', 'bg.ocean': '海', 'bg.forest': '森', 'bg.dusk': '夕暮れ', 'bg.sand': '砂', 'bg.slate': 'スレート', 'bg.plain': '無地', 'bg.photo': '写真',
-  'accent.ember': '燠火', 'accent.blue': 'ブルー', 'accent.violet': 'バイオレット', 'accent.teal': 'ティール', 'accent.green': 'グリーン',
-  'greet.morning': 'おはようございます', 'greet.afternoon': 'こんにちは', 'greet.evening': 'こんばんは', 'greet.night': 'おやすみなさい',
+  'accent.ember': 'エンバー', 'accent.blue': 'ブルー', 'accent.violet': 'バイオレット', 'accent.teal': 'ティール', 'accent.green': 'グリーン',
+  'greet.morning': 'おはようございます', 'greet.afternoon': 'こんにちは', 'greet.evening': 'こんばんは', 'greet.night': 'こんばんは',
   'focus.goalPlaceholderLarge': '今、いちばん集中したいことは何ですか？',
   'mod.today': '今日', 'mod.tasks': 'タスク', 'mod.habits': '習慣', 'mod.notes': 'メモ', 'mod.links': 'クイックリンク', 'mod.showAll': 'すべて表示 ({n})', 'mod.showLess': '閉じる',
   'tasks.add': 'タスクを追加… ⏎', 'tasks.empty': '大切なことを1つ追加し、優先タスクに最大3つまで星を付けましょう。', 'tasks.clearDone': '完了済みを削除', 'tasks.removed': 'タスクを削除しました',
@@ -178,7 +178,7 @@ export const ja = {
   'break.well': 'よくできました', 'break.wellLead': '目も喜んでいます。休憩を記録しました。',
 
   /* rest after a session */
-  'rest.title': '休憩', 'rest.hint': '体を伸ばして、水を飲んで、画面から目を離しましょう。', 'rest.skip': '休憩をスキップ', 'rest.overTitle': '休憩終了', 'rest.overBody': 'もう{n}分のセッションを始めますか？', 'rest.badgeTitle': '休憩 — 残り{n}分',
+  'rest.title': '休憩', 'rest.hint': '体を伸ばして、水を飲んで、画面から目を離しましょう。', 'rest.skip': '休憩をスキップ', 'rest.overTitle': '休憩終了', 'rest.overBody': 'もう1回、{n}分のセッションを始めますか？', 'rest.badgeTitle': '休憩 — 残り{n}分',
   'opt.restAfter': 'セッション後の休憩', 'opt.restAfterDesc': '休憩タイマーが自動で始まります。休憩中は気が散るサイトを開けます。',
 
   'perm.contextMenus': '右クリックメニューを追加し、現在のサイトの分類やブロックをできるようにします。',
@@ -197,7 +197,7 @@ export const ja = {
   'lookd.aurora': '暗い夜空に広がる、紫からティールへの輝き。', 'lookd.mono': '純粋な白と黒、輪郭線、色のノイズなし。', 'lookd.sunset': 'あたたかいコーラルとアンバー、夕暮れの光。',
   'lookd.nord': '落ち着いた配色の、冷たい北極の青。', 'lookd.ocean': 'さわやかなアクアと深い海の青。',
   'lp.title': '集中', 'lp.start': '開始',
-  'accent.amber': 'アンバー', 'accent.rose': 'ローズ', 'accent.red': 'レッド', 'accent.indigo': '藍', 'accent.slate': 'スレート',
+  'accent.amber': 'アンバー', 'accent.rose': 'ローズ', 'accent.red': 'レッド', 'accent.indigo': 'インディゴ', 'accent.slate': 'スレート',
   'ap.looks': 'テーマ', 'ap.color': '色', 'ap.shape': '書体と形', 'ap.advanced': '詳細',
   'ap.modeDesc': '「システム」はデバイスの設定に従います。', 'ap.modeSchedule': 'スケジュール', 'ap.schedule': 'ダークの時間帯', 'ap.scheduleDesc': '夕方にダーク、朝にライトへ切り替えます。', 'ap.darkFrom': 'ダークにする時刻', 'ap.lightFrom': 'ライトにする時刻',
   'ap.accentDesc': 'ボタン、強調表示、グラフに使います。文字のコントラストは自動で調整されます。', 'ap.lookAccent': 'テーマ固有の色', 'ap.customColor': 'カスタムカラー', 'ap.customHex': '16進コード',
@@ -254,7 +254,7 @@ export const ja = {
   'eye.now': '今すぐ',
   'focus.strictShort': '厳格', 'focus.onlyMineShort': '許可サイトのみ',
   'itab.overview': '概要', 'itab.focus': '集中', 'itab.sites': 'サイトとアプリ', 'itab.patterns': '傾向', 'insights.tabs': '統計のセクション',
-  'prod.bestNeed': '現在{n}セッション。あと約{total}セッション必要です。', 'prod.weekdaysNeed': '約2週間分の集中セッションが必要です。', 'prod.noSessions': 'この期間の集中セッションはまだありません。', 'prod.noTaskTime': 'タスクからセッションを始めると、時間がここに表示されます。',
+  'prod.bestNeed': '現在{n}セッションです。約{total}セッション必要です。', 'prod.weekdaysNeed': '約2週間分の集中セッションが必要です。', 'prod.noSessions': 'この期間の集中セッションはまだありません。', 'prod.noTaskTime': 'タスクからセッションを始めると、時間がここに表示されます。',
   'prod.noTempt': '気を引かれることはありませんでした。または一時停止ページがオフです。', 'prod.noWins': '夜に1日を締めくくると、成果がここに集まります。', 'prod.noPauses': '一時停止ページはまだありません。',
   'opt.search': '設定を検索', 'opt.noResults': '「{q}」に一致する設定はありません。',
   'ob.lookTitle': '自分好みに', 'ob.lookLead': 'テーマを選ぶとすぐに反映されます。設定の「外観」からいつでも変更できます。', 'ob.goal': '1日の集中目標', 'ob.goalD': '良い1日になる深い作業の時間数です。',
@@ -278,7 +278,7 @@ export const ja = {
   'insights.share': '共有',
   'focus.extend': '+{n}分', 'focus.extendTip': 'このセッションをあと{n}分延長します', 'review.save': '保存', 'review.skip': 'スキップ', 'track.pausedBanner': '{time}まで計測を一時停止中', 'track.resumeShort': '再開',
   'block.goalK': 'あなたの集中', 'block.remaining': '残り', 'block.changeLimit': '上限を変更', 'block.invalidBody': 'このページは、EyeTimeがサイトを一時停止したときに開きます。', 'block.newTab': '新しいタブを開く', 'block.only.allowHost': '{host}を許可', 'break.snooze': 'あと5分', 'ob.add': '追加', 'ob.from': '開始', 'ob.to': '〜',
-  'tasks.qaHint': 'ヒント：「レポート 14:30 45m !」のように入力できます', 'tasks.qaAt': '{time}', 'tasks.qaEst': '予定 {time}', 'tasks.qaPri': '優先', 'tasks.estOf': '{spent} / {est}', 'tasks.estOnly': '約{est}', 'tasks.tookVs': '実際 {actual} — 予定 {est}',
+  'tasks.qaHint': 'ヒント：「レポート tomorrow 14:30 45m !」や「ストレッチ daily」のように入力できます', 'tasks.qaAt': '{time}', 'tasks.qaEst': '予定 {time}', 'tasks.qaPri': '優先', 'tasks.estOf': '{spent} / {est}', 'tasks.estOnly': '約{est}', 'tasks.tookVs': '実際 {actual} — 予定 {est}',
   'prod.estimate': '見積もりの精度', 'prod.estimateSub': '完了したタスクの、予定と実際の集中時間', 'prod.estimateNeed': 'タスクを作るときに長さを付け（「レポート 45m」）、3件完了すると、見積もりの精度がEyeTimeに分かります。',
   'prod.estimateUnder': 'タスクは予定の約{x}倍かかっています。余裕を持たせるか、大きなタスクを小さな手順に分けましょう。', 'prod.estimateOver': '予定の約{pct}%の時間で終わることが多いようです。もっと詰めて計画できます。', 'prod.estimateGood': '見積もりの精度は良好です。この調子で計画しましょう。', 'prod.estPlanned': '予定', 'prod.estActual': '実際',
   'palette.title': 'コマンドパレット', 'palette.placeholder': 'コマンド、タスク、設定を入力…', 'palette.navigate': '移動', 'palette.run': '実行', 'palette.close': '閉じる', 'palette.none': '見つかりません。Enterキーでタスクとして追加できます。', 'palette.mode': '集中モード', 'palette.focusOn': 'タスクに集中', 'palette.eyeBreak': '今すぐ目の休憩をとる', 'palette.look': 'テーマ', 'palette.addTask': 'タスクを追加：「{text}」', 'palette.taskAdded': 'タスクを追加しました', 'palette.search': '検索',
@@ -322,5 +322,5 @@ export const ja = {
   'opt.streakGrace': '週に1日の抜けを許容', 'opt.streakGraceDesc': '7日のうち1日だけ目標に届かなくても、連続記録は途切れません。体調の悪い日は失敗ではありません。',
   'opt.calErr.redirect': 'このアドレスは、EyeTimeがアクセスできない別のサイトにリダイレクトされます。カレンダーの直接リンクを使ってください。',
   'opt.tasksBig': 'このファイルはタスクリストとしては大きすぎます（2 MB超）。',
-  'opt.calMax': '購読できるカレンダーは最大 {n} 件です。', 'opt.calAlready': 'そのリンクはすでに購読しています。', 'opt.calWarn': '集中中に会議の前に知らせる', 'opt.calWarnDesc': '集中セッションが会議にかかりそうなときは、開始の2分前に短い通知が届きます。', 'opt.calQuiet': '会議中は静かにする', 'opt.calQuietDesc': 'カレンダーの会議が行われている間は、目の休憩の通知も音も出しません。', 'cal.allDay': '終日：{title}', 'meet.untitled': '会議', 'meet.soonTitle': '{time} の会議', 'meet.soonBody': '「{title}」がまもなく始まります。集中セッションは残り {n} 分です。区切りをつけるか終了してください。', 'plan.allDayNote': '今日は終日の予定があるため、プランは軽めです。',
+  'opt.calMax': '購読できるカレンダーは最大{n}件です。', 'opt.calAlready': 'そのリンクはすでに購読しています。', 'opt.calWarn': '集中中に会議の前に知らせる', 'opt.calWarnDesc': '集中セッションが会議にかかりそうなときは、開始の2分前に短い通知が届きます。', 'opt.calQuiet': '会議中は静かにする', 'opt.calQuietDesc': 'カレンダーの会議が行われている間は、目の休憩の通知も音も出しません。', 'cal.allDay': '終日：{title}', 'meet.untitled': '会議', 'meet.soonTitle': '{time}の会議', 'meet.soonBody': '「{title}」がまもなく始まります。集中セッションは残り{n}分です。区切りをつけるか終了してください。', 'plan.allDayNote': '今日は終日の予定があるため、プランは軽めです。',
 };
