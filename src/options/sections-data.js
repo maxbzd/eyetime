@@ -17,6 +17,8 @@ import { dayKey } from '../shared/time.js';
 const sec = (id, ...kids) => h('section', { class: 'sec', id }, kids);
 
 /* ============================== Data & privacy ============================== */
+let stopCalWatch = null;
+
 export function data({ s, save, refresh }) {
   const PERMS = [['storage', 'perm.storage'], ['tabs', 'perm.tabs'], ['webNavigation', 'perm.webNavigation'], ['idle', 'perm.idle'], ['alarms', 'perm.alarms'], ['contextMenus', 'perm.contextMenus'], ['notifications', 'perm.notifications'], ['offscreen', 'perm.offscreen'], ['favicon', 'perm.favicon'], ['youtube/instagram/tiktok/vk', 'perm.hosts']];
   const doExport = downloadBackup;
@@ -44,7 +46,7 @@ export function data({ s, save, refresh }) {
     calStatus.textContent = list.length && meta.calendarMeta ? t('opt.calendarStatus', { n: list.length, date: new Date(meta.calendarMeta.at).toLocaleDateString(getLocale()) }) : t('opt.calendarNone');
     const sub = subRaw.calendarSub;
     subIn.hidden = subBtn.hidden = !!sub; unsubBtn.hidden = !sub;
-    const host = sub ? (normalizeCalendarUrl(sub.url).host || '') : '';
+    const host = sub ? (sub.host || normalizeCalendarUrl(sub.url).host || '') : '';
     subStatus.textContent = !sub ? '' : sub.error ? t('opt.calErr.' + sub.error, { status: sub.status || '' }) : sub.ok ? t('opt.calSubOk', { host, n: sub.n || 0, time: new Date(sub.at).toLocaleTimeString(getLocale(), { hour: 'numeric', minute: '2-digit' }) }) : t('opt.calSubWait', { host });
   }
   async function subscribeCal() {
@@ -63,7 +65,8 @@ export function data({ s, save, refresh }) {
     if (n && n.ok) await chrome.permissions.remove({ origins: [n.pattern] }).catch(() => {});
     send('calendar:sync'); paintCal();
   }
-  onChange(['calendarSub', 'calendar'], paintCal);
+  if (stopCalWatch) stopCalWatch(); // one listener, however often Settings redraws
+  stopCalWatch = onChange(['calendarSub', 'calendar'], paintCal);
   calFile.onchange = async () => {
     const f = calFile.files[0]; calFile.value = ''; if (!f) return;
     const text = await f.text();
@@ -80,6 +83,7 @@ export function data({ s, save, refresh }) {
   const taskFile = h('input', { type: 'file', accept: '.md,.markdown,.txt,.csv,text/plain,text/markdown,text/csv', hidden: true, 'aria-label': t('opt.tasksImport') });
   taskFile.onchange = async () => {
     const f = taskFile.files[0]; taskFile.value = ''; if (!f) return;
+    if (f.size > 2_000_000) { toast(t('opt.tasksBig')); return; }
     const existing = await getCollection('tasks', []);
     const { tasks: found, skipped } = parseTasksText(await f.text(), { existing });
     if (!found.length) { toast(skipped ? t('opt.tasksNone', { n: skipped }) : t('opt.tasksEmpty')); return; }

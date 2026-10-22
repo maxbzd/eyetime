@@ -108,7 +108,7 @@ export function tasksModule() {
           x.done ? null : h('button', { class: 'star' + (x.starred ? ' on' : ''), type: 'button', 'aria-pressed': String(!!x.starred), 'aria-label': t('tasks.priority') + ': ' + x.text, 'data-tip': t('tasks.priority'), onclick: () => toggleStar(x) }, icon('star')),
           x.done ? null : h('button', { type: 'button', 'aria-label': t('tasks.schedule') + ': ' + x.text, 'data-tip': t('tasks.schedule'), onclick: () => askTime(x) }, icon('alarm-clock')),
           x.done ? null : h('button', { type: 'button', 'aria-label': t('tasks.focusOn') + ': ' + x.text, 'data-tip': t('tasks.focusOn'), onclick: () => startOn(x) }, icon('play')),
-          h('button', { type: 'button', 'aria-label': t('common.remove'), onclick: () => { const i = tasks.indexOf(x); tasks.splice(i, 1); save(); render(); toast(t('tasks.removed'), { action: t('common.undo'), onAction: () => { tasks.splice(i, 0, x); save(); render(); } }); } }, icon('x'))));
+          h('button', { type: 'button', 'aria-label': t('common.remove'), onclick: () => { const i = tasks.findIndex((y) => y.id === x.id); if (i < 0) { render(); return; } x = tasks[i]; tasks.splice(i, 1); save(); render(); toast(t('tasks.removed'), { action: t('common.undo'), onAction: () => { tasks.splice(i, 0, x); save(); render(); } }); } }, icon('x'))));
     };
 
     // this week's outcomes: up to three results, tap to tick off; the week resets itself on Monday
@@ -139,6 +139,6 @@ export function tasksModule() {
 
   Promise.all([getCollection('tasks', []), getCollection('weekPlan', null)]).then(([v, w]) => { tasks = v; weekPlan = w; render(); });
   onChange('weekPlan', async () => { const w = await getCollection('weekPlan', null); if (JSON.stringify(w) !== JSON.stringify(weekPlan)) { weekPlan = w; if (!root.contains(document.activeElement)) render(); } });
-  onChange('tasks', async () => { const v = await getCollection('tasks', []); if (JSON.stringify(v) === JSON.stringify(tasks)) return; tasks = v; if (!root.contains(document.activeElement)) render(); }); // keep memory fresh even while typing, so a later save never overwrites a task added elsewhere (palette, another tab)
+  onChange('tasks', async () => { const v = await getCollection('tasks', []); if (JSON.stringify(v) === JSON.stringify(tasks)) return; tasks = v; if (!root.contains(document.activeElement) || !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) render(); }); // keep memory fresh even while typing (the redraw waits only while a text field has focus), so a later save never overwrites a task added elsewhere (palette, another tab)
   return root;
 }

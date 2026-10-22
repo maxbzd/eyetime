@@ -28,6 +28,8 @@ const server = http.createServer((req, res) => {
   if (req.headers.cookie || req.headers.authorization) { res.writeHead(400); res.end('credentials were sent'); return; }
   if (mode === 'ok') { res.writeHead(200, { 'content-type': 'text/calendar' }); res.end(ICS); }
   else if (mode === '404') { res.writeHead(404); res.end('nope'); }
+  else if (mode === 'redirect') { res.writeHead(302, { location: 'http://127.0.0.1:1/elsewhere.ics' }); res.end(); }
+  else if (mode === 'slow') { setTimeout(() => { res.writeHead(200, { 'content-type': 'text/calendar' }); res.end(ICS); }, 1500); }
   else { res.writeHead(200, { 'content-type': 'text/html' }); res.end('<html>not a calendar</html>'); }
 });
 
@@ -51,13 +53,30 @@ const server = http.createServer((req, res) => {
   mode = 'html'; st = await sync();
   if (!st.calendarSub || st.calendarSub.error !== 'format') bad.push('non-calendar answer not reported: ' + JSON.stringify(st.calendarSub));
 
+  mode = 'redirect'; st = await sync();
+  if (!st.calendarSub || st.calendarSub.error !== 'redirect') bad.push('a redirect was not refused: ' + JSON.stringify(st.calendarSub));
+
   mode = 'ok'; st = await sync();
   if (!st.calendarSub || !st.calendarSub.ok || st.calendarSub.error) bad.push('did not recover after errors');
+
+  // unsubscribing while a download is still running must not bring the secret address (or the events) back
+  mode = 'slow';
+  const racing = page.evaluate(() => chrome.runtime.sendMessage({ type: 'calendar:sync' }));
+  await page.waitForTimeout(300);
+  await page.evaluate(() => chrome.storage.local.remove(['calendarSub', 'calendar', 'calendarMeta']));
+  await racing; await page.waitForTimeout(300);
+  const raced = await page.evaluate(() => chrome.storage.local.get(['calendarSub', 'calendar']));
+  if (raced.calendarSub || raced.calendar) bad.push('a download that finished after Unsubscribe wrote the data back');
+  mode = 'ok';
+  await page.evaluate((url) => chrome.storage.local.set({ calendarSub: { url, since: Date.now() } }), URL); await sync();
+  // two wake-ups at once start one download, not two
+  const before = hits; await Promise.all([sync(), sync(), sync()]);
+  if (hits - before > 1) bad.push('simultaneous syncs made ' + (hits - before) + ' requests');
 
   // the settings screen shows the host (never the secret path) and an unsubscribe button
   await page.reload(); await page.waitForTimeout(900);
   const txt = await page.locator('#data').innerText().catch(() => page.locator('body').innerText());
-  if (!/127\.0\.0\.1/.test(txt)) bad.push('Settings does not show the subscribed host');
+  if (!/127\.0\.0\.1/.test(txt)) bad.push('Settings does not show the subscribed host: ' + txt.replace(/\s+/g, ' ').slice(0, 1600));
   if (/private\/basic\.ics/.test(txt)) bad.push('Settings shows the secret address');
   await page.locator('button', { hasText: /Unsubscribe|Отписаться/ }).first().click(); await page.waitForTimeout(700);
   const after = await page.evaluate(() => chrome.storage.local.get(['calendarSub', 'calendar', 'calendarMeta']));

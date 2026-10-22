@@ -42,3 +42,14 @@ test('garbage in, nothing out', () => {
   assert.deepEqual(parseTasksText('', { now: NOW }), { tasks: [], skipped: 0 });
   assert.deepEqual(parseTasksText('```\n---\n# only a heading\n', { now: NOW }), { tasks: [], skipped: 0 });
 });
+
+test('quoted CSV headers, bad dates, "Completed", and done tasks that are not "done today"', () => {
+  const csv = '"text","status","due","time"\n"A thing","Completed","2026-13-45","99:99"\n"Another","","2026-11-02","09:30"\n';
+  const r = parseTasksText(csv, { now: NOW }).tasks;
+  assert.equal(r.length, 2);
+  assert.equal(r[0].done, true); assert.equal(r[0].doneAt, 1); assert.ok(!r[0].due && !r[0].at);
+  assert.deepEqual([r[1].at, r[1].atDay], ['09:30', '2026-11-02']);
+  // importing the same export twice: nothing doubles (done tasks count as existing too)
+  const again = parseTasksText(tasksToCsv(r), { now: NOW, existing: r });
+  assert.deepEqual([again.tasks.length, again.skipped], [0, 2]);
+});

@@ -5,7 +5,9 @@ import { MAX_PRIORITIES } from './productivity.js';
 
 const REPEAT_PHRASE = { daily: 'every day', weekdays: 'every weekday', weekly: 'every week' };
 const MAX_IMPORT = 500;
-const yes = (v) => /^(1|true|yes|y|x|done|да|si|sí|ja|oui|sim)$/i.test(String(v || '').trim());
+const yes = (v) => /^(1|true|yes|y|x|done|completed?|complete|да|si|sí|ja|oui|sim)$/i.test(String(v || '').trim());
+const validDay = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s || '').trim()); if (!m) return ''; const d = new Date(+m[1], +m[2] - 1, +m[3]); return d.getMonth() === +m[2] - 1 && d.getDate() === +m[3] ? m[0] : ''; };
+const validTime = (s) => { const m = /^(\d{1,2}):(\d{2})$/.exec(String(s || '').trim()); return m && +m[1] < 24 && +m[2] < 60 ? `${m[1].padStart(2, '0')}:${m[2]}` : ''; };
 
 /** One task as a quick-add line: "Write the report 2026-10-22 14:30 45m ! #work every week". */
 export function taskLine(x) {
@@ -58,7 +60,7 @@ const norm = (s) => String(s || '').trim().toLowerCase();
  */
 export function parseTasksText(text, { now = new Date(), existing = [] } = {}) {
   const src = String(text || '').replace(/^﻿/, '');
-  const seen = new Set((existing || []).filter((x) => !x.done).map((x) => norm(x.text)));
+  const seen = new Set((existing || []).map((x) => norm(x.text))); // done ones too: importing an export again must not double the list
   let starred = (existing || []).filter((x) => x.starred && !x.done).length;
   const out = []; let skipped = 0;
   const push = (task, done) => {
@@ -67,13 +69,13 @@ export function parseTasksText(text, { now = new Date(), existing = [] } = {}) {
     if (seen.has(key) || out.length >= MAX_IMPORT) { skipped++; return; }
     seen.add(key);
     if (task.starred) { if (starred >= MAX_PRIORITIES) task.starred = false; else starred++; }
-    if (done) { task.done = true; task.doneAt = now.getTime(); task.starred = false; }
+    if (done) { task.done = true; task.doneAt = 1; task.starred = false; } // finished long ago: it must not count as "done today"
     out.push(task);
   };
 
   const first = src.split(/\r?\n/, 1)[0] || '';
   const delim = [',', ';', '\t'].find((d) => first.includes(d));
-  const head = delim ? first.split(delim).map(norm) : [];
+  const head = delim ? (parseCsv(first, delim)[0] || []).map(norm) : []; // quoted headers ("text","done") included
   const col = (...names) => head.findIndex((h) => names.includes(h));
   const tc = col('text', 'task', 'title', 'name');
   if (delim && tc >= 0) {
@@ -86,9 +88,8 @@ export function parseTasksText(text, { now = new Date(), existing = [] } = {}) {
       const est = ec >= 0 ? Math.round(Number(r[ec])) : 0; if (est >= 1 && est <= 720) task.est = est;
       const tags = gc >= 0 ? String(r[gc] || '').split(/[\s,;]+/).map((g) => g.replace(/^#/, '').toLowerCase()).filter((g) => /^[\p{L}\p{N}_-]{1,24}$/u.test(g)).slice(0, 5) : []; if (tags.length) task.tags = tags;
       const rep = rc >= 0 ? norm(r[rc]) : ''; if (REPEAT_PHRASE[rep]) task.repeat = rep;
-      const when = uc >= 0 ? String(r[uc] || '').trim() : ''; const time = ac >= 0 ? String(r[ac] || '').trim() : '';
-      const day = /^\d{4}-\d{2}-\d{2}/.test(when) ? when.slice(0, 10) : '';
-      if (day && /^\d{2}:\d{2}$/.test(time)) { task.at = time; task.atDay = day; } else if (day) task.due = day;
+      const day = validDay(uc >= 0 ? r[uc] : ''), time = validTime(ac >= 0 ? r[ac] : '');
+      if (day && time) { task.at = time; task.atDay = day; } else if (day) task.due = day;
       push(task, dc >= 0 && yes(r[dc]));
     }
     return { tasks: out, skipped };

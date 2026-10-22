@@ -9,6 +9,7 @@
 //   d:YYYY-MM-DD        one record per day (see stats.js) – small, independent writes
 //   newtabBg            custom background photo (data URL)
 
+import { normalizeCalendarUrl } from './calsub.js';
 import { DEFAULT_SETTINGS, deepMerge, clone, SCHEMA_VERSION } from './defaults.js';
 import { migrate, needsMigration, upgradeSettingsV2 } from './migrate.js';
 import { dayKey, rangeKeys, addDays } from './time.js';
@@ -172,6 +173,15 @@ export async function ensureSchema() {
 
 /* ---------- export / import / reset ---------- */
 
+/** A calendar subscription's browser permission goes away with its data (reset / restoring a backup), not only with the Unsubscribe button. */
+async function dropCalendarPermission() {
+  try {
+    const { calendarSub } = await area().get('calendarSub');
+    const n = calendarSub && calendarSub.url ? normalizeCalendarUrl(calendarSub.url) : null;
+    if (n && n.ok) await chrome.permissions.remove({ origins: [n.pattern] });
+  } catch { /* no permissions API or nothing to remove */ }
+}
+
 export async function exportAll() {
   const all = await area().get(null);
   delete all.newtabBg;
@@ -188,6 +198,7 @@ export async function importAll(payload) {
   const KNOWN = new Set(['settings', 'meta', 'tasks', 'habits', 'captures', 'weekPlan', 'estLog']);
   const clean = {};
   for (const [k, v] of Object.entries(data)) if (KNOWN.has(k) || /^d:\d{4}-\d{2}-\d{2}$/.test(k)) clean[k] = v;
+  await dropCalendarPermission();
   await area().clear();
   if (m) {
     const out = { settings: m.settings, meta: m.meta, tasks: m.tasks, captures: m.captures };
@@ -203,6 +214,7 @@ export async function importAll(payload) {
 }
 
 export async function resetAll() {
+  await dropCalendarPermission();
   await area().clear();
   await ensureSchema();
 }
