@@ -4,9 +4,9 @@
 .split { display: flex; height: 8px; gap: 2px; margin: var(--s-3) 0 var(--s-3); }
 .split i { display: block; height: 100%; border-radius: 4px; min-width: 4px; transition: flex-grow var(--t-slow) var(--ease); }
 .split .p { background: var(--productive); } .split .n { background: var(--neutral); } .split .d { background: var(--distracting); }
-.legend-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); font-size: var(--fs-xs); color: var(--text-2); }
+.legend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min-content, 1fr)); gap: var(--s-2); font-size: var(--fs-xs); color: var(--text-2); }
 .legend-grid > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.legend-grid .lg { display: inline-flex; align-items: center; gap: 6px; color: var(--text-3); min-width: 0; overflow-wrap: anywhere; }
+.legend-grid .lg { display: inline-flex; align-items: center; gap: 6px; color: var(--text-3); min-width: 0; }
 .legend-grid b { font-size: var(--fs-sm); font-weight: 600; color: var(--text); }
 .top-sites { margin-top: var(--s-4); display: flex; flex-direction: column; gap: 2px; }
 .top-site { display: grid; grid-template-columns: 20px 1fr auto; align-items: center; gap: var(--s-3); padding: 6px 0; font-size: var(--fs-sm); }

@@ -16,7 +16,7 @@ const SCENES = [
 
 (async () => {
   const found = new Map(); let serious = 0;
-  for (const [look, mode, lang] of [['calm', 'light', 'en'], ['midnight', 'dark', 'ru']]) {
+  for (const [look, mode, lang] of [['calm', 'light', 'en'], ['midnight', 'dark', 'ru'], ['paper', 'light', 'pl'], ['calm', 'dark', 'ja']]) {
     const app = await launch({ viewport: { width: 1280, height: 900 }, colorScheme: mode });
     const ext = (p) => `chrome-extension://${app.id}/${p}`;
     const sp = await app.ctx.newPage(); await sp.goto(ext('src/options/options.html')); await sp.waitForTimeout(500);

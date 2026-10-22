@@ -128,7 +128,7 @@ No framework, no bundler, no runtime dependencies — open the folder, read the 
 ## Development
 
 ```bash
-npm run check     # syntax, manifest, i18n parity, icons + 15 unit tests (Node 20+)
+npm run check     # syntax, manifest, i18n parity, icons + unit tests (Node 22+)
 npm run build     # dist/eyetime-chrome.zip and dist/eyetime-firefox.zip
 python -m unittest -v test_companion   # in companion/
 ```
