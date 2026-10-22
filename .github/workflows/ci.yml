@@ -38,6 +38,7 @@ jobs:
       - run: node scripts-dev/e2e/keyboard.cjs
       - run: node scripts-dev/e2e/blocking.cjs
       - run: node scripts-dev/e2e/calendar.cjs
+      - run: node scripts-dev/e2e/storage.cjs
       - run: node scripts-dev/e2e/perf.cjs
       # screenshots of the main screens against scripts-dev/e2e/visual-baseline (proved stable on CI fonts); after an intended UI change run `node scripts-dev/e2e/visual.cjs --update`
       - run: node scripts-dev/e2e/visual.cjs
