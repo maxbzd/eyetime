@@ -7,7 +7,7 @@ import { t, getLocale } from '../shared/i18n.js';
 import { getRaw, setRaw, onChange } from '../shared/storage.js';
 import { parseIcsFull } from '../shared/ics.js';
 import { normalizeCalendarUrl } from '../shared/calsub.js';
-import { loadSubs, saveSubs, writeSource, removeSource, FILE_KEY, MAX_SUBS } from '../shared/calstore.js';
+import { loadSubs, saveSubs, writeSource, removeSource, removeSourceUnlocked, calLock, FILE_KEY, MAX_SUBS } from '../shared/calstore.js';
 import { dayKey } from '../shared/time.js';
 
 let stopWatch = null;
@@ -40,19 +40,25 @@ export function calendarGroup(s, save) {
     if (!n.ok) { toast(t('opt.calBadUrl')); return; }
     const ok = await chrome.permissions.request({ origins: [n.pattern] }).catch(() => false); // must be the first await: it needs the click
     if (!ok) { toast(t('opt.calDenied')); return; }
-    const subs = await loadSubs();
-    if (subs.length >= MAX_SUBS) { toast(t('opt.calMax', { n: MAX_SUBS })); return; }
-    if (subs.some((x) => x.url === n.url)) { toast(t('opt.calAlready')); return; }
-    await saveSubs([...subs, { id: 'c' + Date.now().toString(36), url: n.url, since: Date.now(), host: n.host }]);
+    const err = await calLock(async () => {
+      const subs = await loadSubs();
+      if (subs.length >= MAX_SUBS) return t('opt.calMax', { n: MAX_SUBS });
+      if (subs.some((x) => x.url === n.url)) return t('opt.calAlready');
+      await saveSubs([...subs, { id: 'c' + Date.now().toString(36), url: n.url, since: Date.now(), host: n.host }]);
+      return '';
+    });
+    if (err) { toast(err); return; }
     subIn.value = ''; paint();
     await send('calendar:sync'); paint();
   }
 
   async function unsubscribe(id) {
-    const subs = await loadSubs();
-    const gone = subs.find((x) => x.id === id);
-    const rest = subs.filter((x) => x.id !== id);
-    await saveSubs(rest); await removeSource(id);
+    const { gone, rest } = await calLock(async () => {
+      const subs = await loadSubs();
+      const rest = subs.filter((x) => x.id !== id);
+      await saveSubs(rest); await removeSourceUnlocked(id);
+      return { gone: subs.find((x) => x.id === id), rest };
+    });
     const n = gone ? normalizeCalendarUrl(gone.url) : null;
     if (n && n.ok && !rest.some((x) => { const m = normalizeCalendarUrl(x.url); return m.ok && m.pattern === n.pattern; })) await chrome.permissions.remove({ origins: [n.pattern] }).catch(() => {});
     send('calendar:sync'); paint();

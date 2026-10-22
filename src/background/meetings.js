@@ -31,8 +31,9 @@ export async function checkMeetings() {
     const m = upcomingMeeting(calendar || [], dayKey(), nowMin(), Math.max(1, Number(settings.calendar.warnMin) || 2));
     if (!m) return;
     const warned = meetingWarned || [];
-    if (warned.includes(m.id)) return;
-    await setRaw({ meetingWarned: [...warned, m.id].slice(-20) });
+    const wid = m.id + '#' + m.start; // a meeting moved to another time the same day is a new heads-up
+    if (warned.includes(wid)) return;
+    await setRaw({ meetingWarned: [...warned, wid].slice(-20) });
     setLocale(resolveLocale(settings.language));
     const left = Math.max(1, Math.round((focus.endsAt - Date.now()) / 60_000));
     await chrome.notifications.create('meeting-soon', { type: 'basic', iconUrl: ICON, priority: 1, title: t('meet.soonTitle', { time: m.start }), message: t('meet.soonBody', { title: m.title || t('meet.untitled'), n: left }) });

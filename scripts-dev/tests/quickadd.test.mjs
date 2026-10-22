@@ -130,3 +130,11 @@ test('repeat phrases in Italian, Polish, Ukrainian', () => {
   const cases = [['Stretching ogni giorno', 'daily', 'Stretching'], ['Rozciąganie codziennie', 'daily', 'Rozciąganie'], ['Розтяжка щодня', 'daily', 'Розтяжка']];
   for (const [input, repeat, text] of cases) { const r = parseQuickAdd(input); assert.deepEqual([r.repeat, r.text], [repeat, text], input); }
 });
+
+test('review fixes: "год" is a year in Russian; "every <weekday>" in Italian, Polish, Ukrainian is a repeat, not a date', () => {
+  assert.equal(parseQuickAdd('Подписка на 1 год', WED).est, null);
+  assert.equal(parseQuickAdd('Робота 2 год.', WED).est, 120);
+  for (const s of ['Palestra ogni lunedì', 'Siłownia w każdy poniedziałek', 'Basen co środę', 'Тренування кожен четвер', 'Palestra il lunedì']) {
+    const r = parseQuickAdd(s, WED); assert.equal(r.due, null, s); assert.equal(r.text, s, s);
+  }
+});

@@ -10,7 +10,7 @@ Sessioni di focus, pause gentili prima dei siti distraenti, statistiche oneste e
 EyeTime ti aiuta a lavorare in profondità senza litigare con il browser. È gratuito, open source e tiene tutto sul tuo dispositivo.
 
 FOCUS CON UN CLIC
-Avvia una sessione a tempo dalla barra degli strumenti, dalla nuova scheda, con Alt+Shift+F o dalla tavolozza dei comandi (Ctrl/Cmd+K). Scegli una modalità — Lavoro profondo, Sprint, Studio —, aggiungi cinque minuti quando sei in flusso e lascia che il timer della pausa faccia il suo lavoro. I siti distraenti restano in pausa fino alla fine della sessione e poi si riaprono da soli. La modalità rigorosa c’è per quando fai sul serio.
+Avvia una sessione a tempo dalla barra degli strumenti, dalla nuova scheda, con Alt+Shift+F o dalla tavolozza dei comandi (Ctrl/Cmd+K). Scegli una modalità — Lavoro profondo, Sprint, Studio —, aggiungi cinque minuti quando sei concentrato e lascia che il timer della pausa faccia il suo lavoro. I siti distraenti restano in pausa fino alla fine della sessione e poi si riaprono da soli. La modalità rigorosa c’è per quando fai sul serio.
 
 UN BLOCCO CHE TI RISPETTA
 Scegli le categorie (social, video, forum, notizie, giochi, shopping, messaggistica) o aggiungi i tuoi siti. Una breve pausa di respirazione con il tuo piano “se… allora…” funziona meglio di un blocco totale. Aggiungi orari di lavoro, limiti giornalieri per sito e un “budget di distrazione” giornaliero.
