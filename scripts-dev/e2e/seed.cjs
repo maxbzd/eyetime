@@ -8,6 +8,11 @@ const SAMPLES = {
   de: { tasks: ['Quartalsbericht schreiben', 'Abschnitt 2 entwerfen, dann die Diagramme', 'Pull Requests prüfen', 'Flüge zur Konferenz buchen', 'Rechnung senden'], habits: ['20 Minuten Bewegung', '15 Minuten lesen'], then: 'aufstehen und Wasser trinken', query: 'qua' },
   fr: { tasks: ['Rédiger le rapport trimestriel', 'Rédiger la section 2, puis les graphiques', 'Relire les pull requests', 'Réserver les vols pour la conférence', 'Envoyer la facture'], habits: ['Bouger 20 minutes', 'Lire 15 minutes'], then: 'me lever et boire de l’eau', query: 'rap' },
   pt: { tasks: ['Escrever o relatório trimestral', 'Rascunhar a seção 2 e depois os gráficos', 'Revisar pull requests', 'Reservar voos para a conferência', 'Enviar a fatura'], habits: ['Mexer o corpo 20 minutos', 'Ler 15 minutos'], then: 'levantar e beber água', query: 'rel' },
+  it: { tasks: ['Scrivere il report trimestrale', 'Abbozzare la sezione 2, poi i grafici', 'Rivedere le pull request', 'Prenotare i voli per la conferenza', 'Inviare la fattura'], habits: ['Muoversi 20 minuti', 'Leggere 15 minuti'], then: 'alzarmi e bere acqua', query: 'rep' },
+  pl: { tasks: ['Napisać raport kwartalny', 'Naszkicować sekcję 2, potem wykresy', 'Przejrzeć pull requesty', 'Zarezerwować loty na konferencję', 'Wysłać fakturę'], habits: ['Ruch przez 20 minut', 'Czytanie przez 15 minut'], then: 'wstać i napić się wody', query: 'rap' },
+  uk: { tasks: ['Написати квартальний звіт', 'Накидати розділ 2, потім графіки', 'Переглянути pull request’и', 'Забронювати квитки на конференцію', 'Надіслати рахунок'], habits: ['Зарядка 20 хвилин', 'Читання 15 хвилин'], then: 'встати й випити води', query: 'зві' },
+  zh: { tasks: ['撰写季度报告', '起草第二部分，然后做图表', '审查 pull request', '预订会议的机票', '发送发票'], habits: ['运动 20 分钟', '阅读 15 分钟'], then: '站起来喝水', query: '报告' },
+  ja: { tasks: ['四半期レポートを書く', 'セクション2を下書きして、グラフを作る', 'プルリクエストをレビューする', '会議の航空券を予約する', '請求書を送る'], habits: ['20分体を動かす', '15分読書する'], then: '立ち上がって水を飲む', query: 'レポ' },
 };
 
 async function seed(page, { look, mode, background, clockStyle, lang = 'en' }) {

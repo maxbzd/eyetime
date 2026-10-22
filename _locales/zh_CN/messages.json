@@ -1,0 +1,26 @@
+{
+  "extName": {
+    "message": "EyeTime — 专注、屏幕时间与护眼"
+  },
+  "extDescription": {
+    "message": "一键开始专注，温和屏蔽干扰，看清时间花在哪里，让眼睛休息。免费、开源、100% 本地。"
+  },
+  "actionTitle": {
+    "message": "EyeTime"
+  },
+  "cmdToggleFocus": {
+    "message": "开始或停止专注时段"
+  },
+  "feedTitle": {
+    "message": "该停止刷屏了"
+  },
+  "feedBody": {
+    "message": "你已经刷了 {n} 分钟短视频。页面已暂停并变为灰度，好让你决定接下来做什么。"
+  },
+  "feedLeave": {
+    "message": "关闭此标签页"
+  },
+  "feedMore": {
+    "message": "再看 5 分钟"
+  }
+}

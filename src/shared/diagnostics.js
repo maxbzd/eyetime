@@ -1,5 +1,6 @@
 // The text a person can copy into a bug report: versions, counts and recent errors — no site names, tasks, notes or goals.
 // It is built on demand and shown before anything leaves the page; EyeTime never sends it by itself.
+import { LANGUAGES } from './locales/index.js';
 
 
 const pick = (v, allowed) => (allowed.includes(v) ? v : 'other');
@@ -13,7 +14,7 @@ export function buildReport(info) {
     `EyeTime ${info.version}`,
     `Browser: ${String(info.userAgent || '').replace(/^Mozilla\/5\.0 /, '').slice(0, 160)}`,
     `Platform: ${info.platform || '?'}`,
-    `Language: ${pick(s.language, ['auto', 'en', 'ru'])} (browser ${info.language || '?'})`,
+    `Language: ${pick(s.language, ['auto', ...Object.keys(LANGUAGES)])} (browser ${info.language || '?'})`,
     `Look: ${ap.look || '?'} · mode ${ap.mode || '?'} · scale ${ap.scale || 100}% · density ${ap.density || '?'} · custom CSS ${on(ap.customCss)}`,
     `Home: layout ${nt.layout || '?'} · clock ${nt.clockStyle || '?'} · background ${nt.background || '?'}`,
     `Focus: default ${f.minutes || '?'} min · strict ${on(f.strict)} · scope ${f.scope || '?'} · goal ${f.dailyGoal || 0} min · modes ${(f.modes || []).length} · reminders ${(f.reminders || []).length} · ambient ${f.ambient || 'off'}`,
