@@ -5,6 +5,7 @@
   var KEY = 'et-look';
   var root = document.documentElement;
   var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  var more = window.matchMedia ? window.matchMedia('(prefers-contrast: more)') : null;
   var current = null, timer = 0;
 
   function scheme(c) {
@@ -23,6 +24,11 @@
     var set = c[scheme(c)];
     for (var k in set.vars) root.style.setProperty(k, set.vars[k]);
     for (var a in set.attrs) root.setAttribute(a, set.attrs[a]);
+    if (more && more.matches) { // the system asks for more contrast: secondary text becomes full-strength text, hairlines become strong lines
+      root.setAttribute('data-contrast', 'more');
+      root.style.setProperty('--text-2', 'var(--text)'); root.style.setProperty('--text-3', 'var(--text)');
+      root.style.setProperty('--border-strong', 'var(--text)'); root.style.setProperty('--border', 'var(--text)');
+    } else root.removeAttribute('data-contrast');
     var el = document.getElementById('et-custom-css');
     if (c.css) {
       if (!el) { el = document.createElement('style'); el.id = 'et-custom-css'; (document.head || root).appendChild(el); }
@@ -42,6 +48,8 @@
   if (cached && cached.light && cached.dark) paint(cached);
   else root.setAttribute('data-scheme', mq && mq.matches ? 'dark' : 'light'); // first run: tokens.css fallback (Calm)
   if (mq) mq.addEventListener('change', function () { if (current) paint(current); else root.setAttribute('data-scheme', mq.matches ? 'dark' : 'light'); });
+
+  if (more) more.addEventListener('change', function () { if (current) paint(current); });
 
   window.EyeTimeTheme = { apply: apply };
 })();

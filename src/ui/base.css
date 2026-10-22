@@ -35,3 +35,19 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 0; }
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ico { width: 1em; height: 1em; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; } }
+
+/* more contrast (system setting): a heavier focus ring, links stay underlined; --text-2/--text-3/--border are raised in theme-init.js */
+[data-contrast="more"] :focus-visible { outline-width: 3px; }
+[data-contrast="more"] a { text-decoration: underline; }
+[data-contrast="more"] .switch .track, [data-contrast="more"] .check .box { border-width: 2px; }
+
+/* forced colours (Windows High Contrast): use system colours; keep the meaning of coloured marks and show the edges of controls */
+@media (forced-colors: active) {
+  .card, .btn, .input, .chip, .segmented, .switch .track, .check .box, .progress, dialog { border: 1px solid CanvasText; }
+  .switch input:checked ~ .track, .check input:checked ~ .box, .progress > i, .top-site .bar i, .ring .bar { background: Highlight; stroke: Highlight; forced-color-adjust: none; }
+  .switch .thumb { background: ButtonText; forced-color-adjust: none; }
+  .switch input:checked ~ .thumb { background: HighlightText; }
+  .chart .stack-bar > *, .dot-productive, .dot-neutral, .dot-distracting, .hm-cell, .legend-grid .dot { forced-color-adjust: none; }
+  :focus-visible { outline: 3px solid Highlight; }
+  .segmented [aria-pressed="true"], .segmented [aria-selected="true"], .segmented label:has(input:checked), .chip[aria-pressed="true"] { outline: 2px solid Highlight; }
+}

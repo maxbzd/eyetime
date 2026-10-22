@@ -1,4 +1,4 @@
-// Visual regression: the main screens in English, Russian and German, light and dark, with a frozen clock and the realistic demo data.
+// Visual regression: the main screens in English, Russian, German and Polish, light and dark, with a frozen clock and the realistic demo data.
 //   node scripts-dev/e2e/visual.cjs            compare with scripts-dev/e2e/visual-baseline/*.png
 //   node scripts-dev/e2e/visual.cjs --update   rewrite the baseline (after a change you meant to make)
 // A screen fails when more than THRESHOLD of its pixels differ visibly; a red diff image goes to /tmp/eyetime-visual-diff/.
@@ -13,7 +13,7 @@ const DIFF = '/tmp/eyetime-visual-diff';
 const THRESHOLD = Number(process.env.VISUAL_THRESHOLD || 0.002); // 0.2 % of the pixels
 const LOOSE = { popup: 0.02 }; // the toolbar popup re-lays itself out by a pixel or two on some loads: only a real change (2 %) counts
 const UPDATE = process.argv.includes('--update');
-const LANGS = (process.env.VISUAL_LANGS || 'en,ru,de').split(',');
+const LANGS = (process.env.VISUAL_LANGS || 'en,ru,de,pl').split(',');
 const MODES = [['light', 'calm', 'dawn'], ['dark', 'midnight', 'stars']];
 const FROZEN = '(() => { const F = new Date(2026, 9, 21, 10, 30, 0).getTime(); const R = Date; class D extends R { constructor(...a) { if (a.length) super(...a); else super(F); } static now() { return F; } } window.Date = D; })();';
 // site icons arrive from the browser's cache at an unpredictable moment (a letter is swapped for the image): keep the letter so screenshots are stable
@@ -24,6 +24,8 @@ const PAGES = [
   ['insights', 'src/insights/insights.html', { width: 1100, height: 900 }],
   ['settings', 'src/options/options.html#focus', { width: 1000, height: 900 }],
   ['pause', 'src/blocked/blocked.html?u=http%3A%2F%2Freddit.com%2F&r=friction&a=pause', { width: 900, height: 600 }],
+  ['data', 'src/options/options.html#data', { width: 1000, height: 1000 }],
+  ['onboarding', 'src/onboarding/onboarding.html', { width: 900, height: 700 }],
 ];
 const STILL = '*, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; } [data-tip]::after { display: none !important; }';
 
