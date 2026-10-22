@@ -9,7 +9,7 @@ import { captureErrors } from '../shared/errorlog.js';
 
 /** Resolve the user's look and paint it (also refreshes the cache theme-init.js reads before first paint). */
 export function applyTheme(settings) {
-  window.EyeTimeTheme?.apply(buildCache(settings.appearance), true);
+  /** @type {any} */ (window).EyeTimeTheme?.apply(buildCache(settings.appearance), true);
 }
 
 export function localize(settings) {
@@ -21,6 +21,7 @@ export function localize(settings) {
  * Standard startup for every extension page. Returns the loaded settings.
  * Calls `onSettings(settings)` again whenever settings change (from any other page).
  */
+/** @param {{ onSettings?: (s: any) => void }} [o] */
 export async function bootPage({ onSettings } = {}) {
   captureErrors('page:' + location.pathname.split('/').slice(-2).join('/'));
   const settings = await getSettings();

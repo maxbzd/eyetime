@@ -51,5 +51,5 @@
 
   if (more) more.addEventListener('change', function () { if (current) paint(current); });
 
-  window.EyeTimeTheme = { apply: apply };
+  /** @type {any} */ (window).EyeTimeTheme = { apply: apply };
 })();
