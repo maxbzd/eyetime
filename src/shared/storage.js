@@ -162,8 +162,9 @@ export const setCollection = (name, value) => area().set({ [name]: value });
 
 const collectionQueues = new Map();
 /** Read-modify-write of one collection through a per-name queue, so the worker's own writers (credit time, review, rollover) never overwrite each other. `fn` mutates or returns the new value. */
+export const UNCHANGED = Symbol('unchanged');
 export function updateCollection(name, fallback, fn) {
-  const run = async () => { const cur = await getCollection(name, fallback); const next = fn(cur); await setCollection(name, next === undefined ? cur : next); return next === undefined ? cur : next; };
+  const run = async () => { const cur = await getCollection(name, fallback); const next = fn(cur); if (next === UNCHANGED) return cur; await setCollection(name, next === undefined ? cur : next); return next === undefined ? cur : next; };
   const p = (collectionQueues.get(name) || Promise.resolve()).then(run, run);
   collectionQueues.set(name, p.catch(() => {}));
   return p;
@@ -205,6 +206,7 @@ async function dropCalendarPermission() {
 export async function exportAll() {
   const all = await area().get(null);
   delete all.newtabBg;
+  delete all.tasksBase; delete all.tasksSyncStatus; // device-level sync bookkeeping
   delete all.calendarSub; delete all.calendarSubs; delete all.calendarSrc; // calendar addresses are secrets: they never leave this device, not even in a backup file
   return { app: 'eyetime', version: 2, exportedAt: new Date().toISOString(), data: all };
 }
