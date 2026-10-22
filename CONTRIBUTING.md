@@ -7,7 +7,7 @@ Thanks for helping make EyeTime better for everyone! It is free, open source and
 ```bash
 git clone https://github.com/maxbzd/eyetime.git && cd eyetime
 # Chrome: chrome://extensions → Developer mode → Load unpacked → pick this folder (no build step)
-npm run check        # syntax · manifest · HTML refs · i18n parity · icons · 15 unit tests (Node 20+)
+npm run check        # syntax · manifest · HTML refs · i18n parity · icons · unit tests (Node 22+)
 ```
 
 Edit a file, press the reload icon on the extension card, refresh the page you're working on.
