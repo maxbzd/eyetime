@@ -51,16 +51,17 @@ for (const [dow, word] of PT_BARE) add(`(?:na|no|nesta|neste|pr[oó]xima|pr[oó]
 add('(\\d{4})-(\\d{2})-(\\d{2})', (m, now) => { const d = new Date(+m[2], +m[3] - 1, +m[4]); return d.getMonth() === +m[3] - 1 && d >= plus(now, 0) ? d : null; }); // a date in the past is just text
 
 // Chinese and Japanese: no spaces between words, so these rules have no whitespace guards. A repeat marker right before ("每周五", "毎週金曜日") makes it a repeat, not a date.
-const addCjk = (src, fn) => RULES.push([new RegExp(`(${src})`, 'u'), fn, true]);
+const addCjk = (src, fn) => RULES.push([new RegExp(`(${src})`, 'gu'), fn, true]);
 const ZH_DOW = { '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '日': 0, '天': 0 };
 const JA_DOW = { '月': 1, '火': 2, '水': 3, '木': 4, '金': 5, '土': 6, '日': 0 };
 const nextWeekDay = (now, dow) => upcoming(now, 1) + ((dow + 6) % 7); // the coming Monday + the weekday's offset in a Monday-first week
-addCjk('大?后天(?:的)?', (m, now) => plus(now, 2));
+addCjk('大后天(?:的)?', (m, now) => plus(now, 3));
+addCjk('(?<!大)后天(?:的)?', (m, now) => plus(now, 2));
 addCjk('今天(?:的)?', (m, now) => plus(now, 0));
 addCjk('明天(?:的)?', (m, now) => plus(now, 1));
 addCjk('(\\d{1,3})天(?:之)?后', (m, now) => plus(now, Number(m[2])));
-addCjk('下(?:个)?(?:周|星期|礼拜)(?![一二三四五六日天])(?:的)?', (m, now) => plus(now, upcoming(now, 1)));
-addCjk('(这|本|下)?(?:个)?(?:周|星期|礼拜)([一二三四五六日天])(?:之前|以前|前)?', (m, now) => { const dow = ZH_DOW[m[3]]; return plus(now, m[2] === '下' ? nextWeekDay(now, dow) : m[2] && dow === now.getDay() ? 0 : upcoming(now, dow)); });
+addCjk('(?<!下)下(?:个)?(?:周|星期|礼拜)(?![一二三四五六日天])(?:的)?', (m, now) => plus(now, upcoming(now, 1)));
+addCjk('(?<![一二两三四五六七八九十几每上下\\d])(这|本|下)?(?:个)?(?:周|星期|礼拜)([一二三四五六日天])(?!(?<=一)[定起次般直些样切]|(?<=日)[程记报期常用]|(?<=[二三])[个次])(?:之前|以前|前)?', (m, now) => { const dow = ZH_DOW[m[3]]; return plus(now, m[2] === '下' ? nextWeekDay(now, dow) : m[2] && dow === now.getDay() ? 0 : upcoming(now, dow)); });
 addCjk('明後日(?:の|までに|まで|には|に|は)?|明后日', (m, now) => plus(now, 2));
 addCjk('今日(?:の|までに|まで|には|に|は)?', (m, now) => plus(now, 0));
 addCjk('明日(?:の|までに|まで|には|に|は)?', (m, now) => plus(now, 1));
@@ -72,9 +73,11 @@ export function findDateWord(text, now = new Date()) {
   const s = ` ${text} `;
   let best = null;
   for (const [re, fn, cjk] of RULES) {
-    const m = re.exec(s);
+    let m;
+    if (cjk) { // the first match that is not a repeat ("每周五", "毎週金曜日") or a past day ("上周五", "先週の金曜日")
+      for (const c of s.matchAll(re)) { if (!/(?:[每毎](?:个|週|周)?|先週の?|上(?:个)?|前(?:个)?)$/u.test(s.slice(Math.max(0, c.index - 3), c.index))) { m = c; break; } }
+    } else m = re.exec(s);
     if (!m) continue;
-    if (cjk && /[每毎](?:个|週|周)?$/u.test(s.slice(Math.max(0, m.index - 2), m.index))) continue; // "每周五" / "毎週金曜日": a repeat
     // "mañana" is also "morning" in "por la mañana" / "de la mañana": not a date there
     if (/ma[nñ]ana/i.test(m[1]) && /(?:la|de\s+la|esta)\s+$/i.test(s.slice(0, m.index))) continue;
     // words that make the weekday a repeat ("every monday") or the "morgen" a morning ("jeden morgen", "am morgen") are not a date
