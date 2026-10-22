@@ -278,7 +278,7 @@ export const zh = {
   'insights.share': '分享',
   'focus.extend': '+{n} 分钟', 'focus.extendTip': '为本次专注再增加 {n} 分钟', 'review.save': '保存', 'review.skip': '跳过', 'track.pausedBanner': '统计已暂停至 {time}', 'track.resumeShort': '恢复',
   'block.goalK': '你的专注', 'block.remaining': '剩余', 'block.changeLimit': '更改上限', 'block.invalidBody': '当 EyeTime 暂停某个网站时，会打开此页面。', 'block.newTab': '打开新标签页', 'block.only.allowHost': '允许 {host}', 'break.snooze': '再等 5 分钟', 'ob.add': '添加', 'ob.from': '从', 'ob.to': '到',
-  'tasks.qaHint': '提示：试试“报告 tomorrow 14:30 45m !”或“拉伸 daily”', 'tasks.qaAt': '{time}', 'tasks.qaEst': '计划 {time}', 'tasks.qaPri': '优先', 'tasks.estOf': '{spent} / {est}', 'tasks.estOnly': '约 {est}', 'tasks.tookVs': '用时 {actual}——计划 {est}',
+  'tasks.qaHint': '提示：试试“报告 明天 14:30 45m !”或“拉伸 每天”', 'tasks.qaAt': '{time}', 'tasks.qaEst': '计划 {time}', 'tasks.qaPri': '优先', 'tasks.estOf': '{spent} / {est}', 'tasks.estOnly': '约 {est}', 'tasks.tookVs': '用时 {actual}——计划 {est}',
   'prod.estimate': '预估准确度', 'prod.estimateSub': '已完成任务的计划与实际专注时间对比', 'prod.estimateNeed': '创建任务时加上时长（“报告 45m”），并完成三个这样的任务——EyeTime 就能判断你的预估准不准。',
   'prod.estimateUnder': '你的任务大约比计划多花 {x} 倍的时间。请留出缓冲，或把大任务拆成小步骤。', 'prod.estimateOver': '你通常只用计划时间的约 {pct}% 就能完成。可以把计划排得更紧一些。', 'prod.estimateGood': '你的预估很准。继续这样规划。', 'prod.estPlanned': '计划', 'prod.estActual': '实际',
   'palette.title': '命令面板', 'palette.placeholder': '输入命令、任务或设置…', 'palette.navigate': '选择', 'palette.run': '运行', 'palette.close': '关闭', 'palette.none': '没有找到结果。按回车键将其添加为任务。', 'palette.mode': '专注模式', 'palette.focusOn': '专注于任务', 'palette.eyeBreak': '立即做一次护眼休息', 'palette.look': '风格', 'palette.addTask': '添加任务：“{text}”', 'palette.taskAdded': '任务已添加', 'palette.search': '搜索',

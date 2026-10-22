@@ -85,7 +85,7 @@ export const pl = {
   'insight.streak': { one: 'Seria skupienia: {n} dzień.', few: 'Seria skupienia: {n} dni. Tak trzymaj!', many: 'Seria skupienia: {n} dni. Tak trzymaj!', other: 'Seria skupienia: {n} dni. Tak trzymaj!' },
 
   /* home / new tab */
-  'home.customize': 'Dostosuj', 'home.background': 'Tło', 'home.accent': 'Kolor akcentu', 'home.modules': 'Karty', 'home.clock': 'Zegar', 'home.clockFormat': 'Format zegara',
+  'home.customize': 'Dostosuj', 'home.background': 'Tło', 'home.accent': 'Kolor akcentu', 'home.modules': 'Kafelki', 'home.clock': 'Zegar', 'home.clockFormat': 'Format zegara',
   'home.clockAuto': 'Auto', 'home.clock12': '12-godzinny', 'home.clock24': '24-godzinny', 'home.greeting': 'Pokaż powitanie', 'home.changePhoto': 'Zmień zdjęcie', 'home.photoSaved': 'Tło zaktualizowane',
   'bg.dawn': 'Świt', 'bg.ocean': 'Ocean', 'bg.forest': 'Las', 'bg.dusk': 'Zmierzch', 'bg.sand': 'Piasek', 'bg.slate': 'Łupek', 'bg.plain': 'Jednolite', 'bg.photo': 'Zdjęcie',
   'accent.ember': 'Żar', 'accent.blue': 'Niebieski', 'accent.violet': 'Fiolet', 'accent.teal': 'Morski', 'accent.green': 'Zielony',
@@ -107,7 +107,7 @@ export const pl = {
 
   'opt.language': 'Język', 'opt.auto': 'Automatycznie', 'opt.theme': 'Motyw', 'opt.themeSystem': 'Systemowy', 'opt.themeLight': 'Jasny', 'opt.themeDark': 'Ciemny', 'opt.accent': 'Kolor akcentu',
   'opt.groupHome': 'Strona startowa', 'opt.homeEnabled': 'Użyj strony startowej EyeTime', 'opt.homeEnabledDesc': 'Pokazuj EyeTime po otwarciu nowej karty. Wyłącz, by zostawić stronę przeglądarki.',
-  'opt.homeCustomize': 'Dostosuj stronę startową', 'opt.homeCustomizeDesc': 'Tło, karty, format zegara.',
+  'opt.homeCustomize': 'Dostosuj stronę startową', 'opt.homeCustomizeDesc': 'Tło, kafelki, format zegara.',
   'opt.groupNotify': 'Pasek narzędzi i raporty', 'opt.badge': 'Pokazuj czas na ikonie', 'opt.badgeDesc': 'Dzisiejszy czas przed ekranem lub minuty do końca sesji skupienia.',
   'opt.weekly': 'Podsumowanie tygodnia', 'opt.weeklyDesc': 'Powiadomienie w poniedziałek rano z wynikami z ostatniego tygodnia.',
 
@@ -192,7 +192,7 @@ export const pl = {
   'sec.appearance': 'Wygląd', 'sec.appearanceDesc': 'Ustaw EyeTime po swojemu: jedenaście stylów, dowolny kolor akcentu, własna czcionka, kształt i gęstość.',
   'look.calm': 'Spokojny', 'look.paper': 'Papier', 'look.midnight': 'Północ', 'look.terminal': 'Terminal', 'look.sakura': 'Sakura', 'look.forest': 'Las',
   'look.aurora': 'Zorza', 'look.mono': 'Mono', 'look.sunset': 'Zachód słońca', 'look.nord': 'Nord', 'look.ocean': 'Ocean',
-  'lookd.calm': 'Domyślny: ciepły, łagodny i przyjazny.', 'lookd.paper': 'Klimat czytelni: szeryfowe nagłówki na ciepłym papierze.', 'lookd.midnight': 'Głęboka granatowa czerń, szklane karty i świecący akcent.',
+  'lookd.calm': 'Domyślny: ciepły, łagodny i przyjazny.', 'lookd.paper': 'Klimat czytelni: szeryfowe nagłówki na ciepłym papierze.', 'lookd.midnight': 'Głęboka granatowa czerń, szklane kafelki i świecący akcent.',
   'lookd.terminal': 'Zielony fosfor, czcionka monospace, ostre rogi.', 'lookd.sakura': 'Delikatne róże i duże, zaokrąglone rogi.', 'lookd.forest': 'Mszaste zielenie, spokój i stabilność.',
   'lookd.aurora': 'Blask od fioletu do turkusu na ciemnym niebie.', 'lookd.mono': 'Czysta czerń i biel, kontury, bez kolorowego szumu.', 'lookd.sunset': 'Ciepły koral i bursztyn, światło złotej godziny.',
   'lookd.nord': 'Chłodne arktyczne błękity i powściągliwa paleta.', 'lookd.ocean': 'Świeży akwamaryn i błękity głębin.',
@@ -201,7 +201,7 @@ export const pl = {
   'ap.looks': 'Styl', 'ap.color': 'Kolor', 'ap.shape': 'Czcionka i kształt', 'ap.advanced': 'Zaawansowane',
   'ap.modeDesc': 'Systemowy podąża za urządzeniem.', 'ap.modeSchedule': 'Plan', 'ap.schedule': 'Godziny ciemnego motywu', 'ap.scheduleDesc': 'Przełączaj na ciemny wieczorem i z powrotem na jasny rano.', 'ap.darkFrom': 'Ciemny od', 'ap.lightFrom': 'Jasny od',
   'ap.accentDesc': 'Przyciski, wyróżnienia i wykresy. Kontrast tekstu dopasowuje się automatycznie.', 'ap.lookAccent': 'Własny kolor stylu', 'ap.customColor': 'Własny kolor', 'ap.customHex': 'Hex',
-  'ap.font': 'Czcionka', 'ap.fromLook': 'Ze stylu', 'ap.scale': 'Rozmiar interfejsu', 'ap.scaleDesc': 'Skaluje cały interfejs.', 'ap.radius': 'Rogi', 'ap.density': 'Gęstość', 'ap.cards': 'Styl kart', 'ap.cardsDesc': 'Jak rysowane są panele.',
+  'ap.font': 'Czcionka', 'ap.fromLook': 'Ze stylu', 'ap.scale': 'Rozmiar interfejsu', 'ap.scaleDesc': 'Skaluje cały interfejs.', 'ap.radius': 'Rogi', 'ap.density': 'Gęstość', 'ap.cards': 'Styl kafelków', 'ap.cardsDesc': 'Jak rysowane są panele.',
   'ap.motion': 'Ogranicz animacje', 'ap.motionDesc': 'Wyłącz animacje i przejścia.',
   'radius.sharp': 'Ostre', 'radius.soft': 'Miękkie', 'radius.round': 'Okrągłe', 'radius.pill': 'Pigułka',
   'density.compact': 'Zwarta', 'density.comfortable': 'Wygodna', 'density.spacious': 'Przestronna',
@@ -211,7 +211,7 @@ export const pl = {
   'ap.import': 'Importuj styl', 'ap.importTitle': 'Importuj styl', 'ap.importDesc': 'Wklej styl, który ktoś Ci udostępnił.', 'ap.importBad': 'To nie wygląda na poprawny styl EyeTime.',
   'ap.reset': 'Przywróć wygląd', 'ap.resetTitle': 'Przywrócić wygląd?', 'ap.resetBody': 'Styl, kolory, czcionka i własny CSS wrócą do ustawień domyślnych. Twoje dane pozostaną nietknięte.',
   'bg.look': 'Ze stylu', 'bg.mesh': 'Siatka', 'bg.aurora': 'Zorza', 'bg.stars': 'Nocne niebo', 'bg.waves': 'Fale', 'bg.grain': 'Ziarno', 'bg.dots': 'Kropki', 'bg.grid': 'Kratka', 'bg.living': 'Żywe', 'bg.color': 'Kolor',
-  'home.bgColor': 'Kolor tła', 'home.layout': 'Układ', 'home.clockStyle': 'Styl zegara', 'home.moveUp': 'Przesuń w górę', 'home.moveDown': 'Przesuń w dół', 'home.moreAppearance': 'Więcej opcji wyglądu', 'home.showCards': 'Karty',
+  'home.bgColor': 'Kolor tła', 'home.layout': 'Układ', 'home.clockStyle': 'Styl zegara', 'home.moveUp': 'Przesuń w górę', 'home.moveDown': 'Przesuń w dół', 'home.moreAppearance': 'Więcej opcji wyglądu', 'home.showCards': 'Kafelki',
   'layout.center': 'Wyśrodkowany', 'layout.split': 'Podzielony', 'layout.minimal': 'Minimalny',
   'clock.thin': 'Cienki', 'clock.bold': 'Gruby', 'clock.mono': 'Mono', 'clock.serif': 'Szeryfowy', 'clock.compact': 'Zwarty', 'clock.stacked': 'Piętrowy', 'clock.none': 'Ukryty',
   'block.why.q': 'Po co tu jesteś?', 'block.why.work': 'Do pracy', 'block.why.break': 'Robię przerwę', 'block.why.habit': 'Z rozpędu', 'block.why.bored': 'Nudzę się', 'block.why.nudge': 'Szczera odpowiedź. Powrót to też dobry wybór.',
@@ -268,7 +268,7 @@ export const pl = {
   'block.budget.title': 'Dzisiejszy budżet na rozpraszacze wyczerpany', 'block.budget.lead': 'Dziś na rozpraszające strony poszło {used} — Twój budżet wynosił {limit}.',
   'opt.addMinutes': 'Dodaj minuty ⏎', 'opt.presetBad': 'Wpisz liczbę całkowitą minut od 1 do 720.', 'opt.groupBackup': 'Kopia zapasowa i przywracanie', 'opt.openInsights': 'Otwórz Statystyki', 'opt.permName': 'Uprawnienie', 'opt.permWhy': 'Dlaczego EyeTime go potrzebuje', 'opt.backupFirst': 'Najpierw pobierz kopię zapasową',
   'about.scNone': 'Nie ustawiono', 'about.whatsNew': 'Co nowego',
-  'ap.radiusDesc': 'Jak okrągłe są przyciski, karty i pola.', 'ap.fontDesc': 'Krój pisma całego interfejsu.', 'ap.densityDesc': 'Odstępy i wysokość kontrolek.',
+  'ap.radiusDesc': 'Jak okrągłe są przyciski, kafelki i pola.', 'ap.fontDesc': 'Krój pisma całego interfejsu.', 'ap.densityDesc': 'Odstępy i wysokość kontrolek.',
   'ap.mode.system': 'Podąża za jasnym lub ciemnym ustawieniem urządzenia.', 'ap.mode.light': 'Zawsze jasny.', 'ap.mode.dark': 'Zawsze ciemny.', 'ap.mode.schedule': 'Ciemny wieczorem, jasny rano — ustaw godziny poniżej.',
   'ap.importOk': 'Poprawny styl: {look}, zmieni się ustawień: {n}.', 'ap.paste': 'Wklej ze schowka', 'ap.resetRow': 'Powrót do domyślnego stylu, kolorów, czcionki i własnego CSS. Twoje dane pozostaną nietknięte.',
   'opt.noResultsHint': 'Spróbuj „dźwięk”, „przerwa” lub „blokada”.', 'opt.clearSearch': 'Wyczyść wyszukiwanie', 'opt.results': { one: 'Znaleziono {n} ustawienie', few: 'Znaleziono {n} ustawienia', many: 'Znaleziono {n} ustawień', other: 'Znaleziono {n} ustawienia' },
