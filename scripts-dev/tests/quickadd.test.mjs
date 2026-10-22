@@ -100,7 +100,7 @@ test('dates in words: Russian, Spanish, German, French, Portuguese', () => {
 });
 
 test('words that only look like dates stay in the title', () => {
-  for (const s of ['Review the segunda parte', 'Read about Monday blues club', 'Sat on the sun', 'Pasado mañana tarde'.slice(0, 0) + 'Trabajo por la mañana', 'Check today’s PRs', 'Plan in 3 months']) {
+  for (const s of ['Review the segunda parte', 'Read about Monday blues club', 'Sat on the sun', 'Pasado mañana tarde'.slice(0, 0) + 'Trabajo por la mañana', 'Check today’s PRs', 'Plan in 3 months', 'Зробити за тиждень']) {
     const r = parseQuickAdd(s, WED); assert.equal(r.due, s.startsWith('Read about Monday') ? '2026-10-26' : null, s);
   }
 });
@@ -117,4 +117,16 @@ test('date words that are really ordinary words, repeats or past dates stay in t
   assert.deepEqual(on('Report 2025-01-01'), ['Report 2025-01-01', null]);
   assert.deepEqual(on('Ligar no sábado'), ['Ligar', '2026-10-24']);
   assert.deepEqual(on('Ligar no domingo'), ['Ligar', '2026-10-25']);
+});
+
+test('dates in words: Italian, Polish, Ukrainian', () => {
+  const cases = [['Relazione domani', '2026-10-22', 'Relazione'], ['Chiamare venerdì', '2026-10-23', 'Chiamare'], ['Pagare tra 3 giorni', '2026-10-24', 'Pagare'], ['Dentista dopodomani', '2026-10-23', 'Dentista'], ['Piano la settimana prossima', '2026-10-26', 'Piano'],
+    ['Raport jutro', '2026-10-22', 'Raport'], ['Zadzwonić w piątek', '2026-10-23', 'Zadzwonić'], ['Zapłacić za 3 dni', '2026-10-24', 'Zapłacić'], ['Lekarz pojutrze', '2026-10-23', 'Lekarz'], ['Plan w przyszłym tygodniu', '2026-10-26', 'Plan'],
+    ['Звіт завтра', '2026-10-22', 'Звіт'], ['Дзвінок у п’ятницю', '2026-10-23', 'Дзвінок'], ['Оплатити за 3 дні', '2026-10-24', 'Оплатити'], ['Лікар післязавтра', '2026-10-23', 'Лікар'], ['План наступного тижня', '2026-10-26', 'План']];
+  for (const [input, day, text] of cases) assert.deepEqual(due(input).slice(0, 2), [text, day], input);
+});
+
+test('repeat phrases in Italian, Polish, Ukrainian', () => {
+  const cases = [['Stretching ogni giorno', 'daily', 'Stretching'], ['Rozciąganie codziennie', 'daily', 'Rozciąganie'], ['Розтяжка щодня', 'daily', 'Розтяжка']];
+  for (const [input, repeat, text] of cases) { const r = parseQuickAdd(input); assert.deepEqual([r.repeat, r.text], [repeat, text], input); }
 });

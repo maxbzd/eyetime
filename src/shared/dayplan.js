@@ -20,7 +20,7 @@ export function blockMinutes(task, { calibration = null, defaultMinutes = 25 } =
  * busy: [{ start, end }] in minutes (calendar events, fixed tasks). workEnd: 'HH:MM'. today: 'YYYY-MM-DD' (for task.at/atDay).
  * Returns { blocks: [{ taskId, text, start:'HH:MM', minutes, fixed }], calibrated: boolean }.
  */
-export function planDay({ tasks, nowMin, bestStart = null, calibration = null, busy = [], defaultMinutes = 25, goalMinutes = 0, workEnd = '18:00', today }) {
+export function planDay({ tasks, nowMin, bestStart = null, calibration = null, busy = [], defaultMinutes = 25, goalMinutes = 0, workEnd = '18:00', today, maxBlocks = MAX_BLOCKS }) {
   let end = toMin(workEnd);
   if (end < 6 * 60) end = 24 * 60; // an overnight end such as 02:00 means "until midnight" for a day plan
   const fixed = tasks.filter((x) => x.at && x.atDay === today).map((x) => ({ taskId: x.id, text: x.text, start: x.at, minutes: blockMinutes(x, { calibration, defaultMinutes }), fixed: true }));
@@ -32,7 +32,7 @@ export function planDay({ tasks, nowMin, bestStart = null, calibration = null, b
   if (bestStart !== null && bestStart * 60 > cursor && bestStart * 60 + 30 <= end) cursor = bestStart * 60; // prefer the best window when it is still ahead
   let planned = fixed.reduce((a, f) => a + f.minutes, 0);
   for (const task of flexible) {
-    if (blocks.length >= MAX_BLOCKS || (goalMinutes > 0 && planned >= goalMinutes && blocks.length >= 1)) break;
+    if (blocks.length >= maxBlocks || (goalMinutes > 0 && planned >= goalMinutes && blocks.length >= 1)) break;
     const minutes = blockMinutes(task, { calibration, defaultMinutes });
     let start = cursor;
     for (let guard = 0; guard < 20; guard++) { // slide past anything already booked

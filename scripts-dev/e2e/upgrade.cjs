@@ -152,7 +152,7 @@ async function narrow(label, lang) {
 (async () => {
   if (!process.env.ONLY || new RegExp(process.env.ONLY).test('narrow + 125% + long names (ru)')) await narrow('narrow + 125% + long names (ru)', 'ru');
   if (!process.env.ONLY || new RegExp(process.env.ONLY).test('narrow + 125% + long names (en)')) await narrow('narrow + 125% + long names (en)', 'en');
-  for (const l of ['de', 'fr', 'es', 'pt']) if (!process.env.ONLY || new RegExp(process.env.ONLY).test('narrow + 125% + long names (' + l + ')')) await narrow(`narrow + 125% + long names (${l})`, l);
+  for (const l of ['de', 'fr', 'es', 'pt', 'it', 'pl', 'uk', 'zh', 'ja']) if (!process.env.ONLY || new RegExp(process.env.ONLY).test('narrow + 125% + long names (' + l + ')')) await narrow(`narrow + 125% + long names (${l})`, l);
   if (!process.env.ONLY || new RegExp(process.env.ONLY).test('upgrade from v2.1.0 (en)')) await crawl('upgrade from v2.1.0 (en)', { seed: true, lang: 'en', from: fx('2.1.0') });
   if (!process.env.ONLY || new RegExp(process.env.ONLY).test('upgrade from v2.5.3 (en)')) await crawl('upgrade from v2.5.3 (en)', { seed: true, lang: 'en', from: fx('2.5.3') });
   if (!process.env.ONLY || new RegExp(process.env.ONLY).test('upgrade from v2.2.0 (en)')) await crawl('upgrade from v2.2.0 (en)', { seed: true, lang: 'en' });

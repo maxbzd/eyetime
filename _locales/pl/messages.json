@@ -1,0 +1,26 @@
+{
+  "extName": {
+    "message": "EyeTime — skupienie, czas przed ekranem i oczy"
+  },
+  "extDescription": {
+    "message": "Skupienie jednym kliknięciem, łagodna blokada rozpraszaczy, statystyki i odpoczynek dla oczu. Za darmo, open source, 100% lokalnie."
+  },
+  "actionTitle": {
+    "message": "EyeTime"
+  },
+  "cmdToggleFocus": {
+    "message": "Rozpocznij lub zatrzymaj sesję skupienia"
+  },
+  "feedTitle": {
+    "message": "Czas przestać scrollować"
+  },
+  "feedBody": {
+    "message": "Krótkie wideo oglądasz już od {n} min. Strona jest wstrzymana i czarno-biała — czas wybrać, co dalej."
+  },
+  "feedLeave": {
+    "message": "Zamknij tę kartę"
+  },
+  "feedMore": {
+    "message": "Jeszcze 5 minut"
+  }
+}

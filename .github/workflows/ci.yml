@@ -38,9 +38,8 @@ jobs:
       - run: node scripts-dev/e2e/blocking.cjs
       - run: node scripts-dev/e2e/calendar.cjs
       - run: node scripts-dev/e2e/perf.cjs
-      # screenshots of the main screens (en/ru/de, light/dark) against scripts-dev/e2e/visual-baseline; informational until it has proven stable on CI fonts
+      # screenshots of the main screens against scripts-dev/e2e/visual-baseline (proved stable on CI fonts); after an intended UI change run `node scripts-dev/e2e/visual.cjs --update`
       - run: node scripts-dev/e2e/visual.cjs
-        continue-on-error: true
       - uses: actions/upload-artifact@v4
         if: always()
         with: { name: visual-diff, path: /tmp/eyetime-visual-diff, if-no-files-found: ignore }

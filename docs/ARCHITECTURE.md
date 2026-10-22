@@ -69,7 +69,7 @@ Candidates: built-in productive list, enabled presets, custom/always lists, user
 
 ## i18n (`src/shared/i18n.js`, `locales/`)
 
-Flat key → string maps; plural forms via `Intl.PluralRules`; `{param}` interpolation. English is the reference; six languages ship (en, ru, es, de, fr, pt — see [TRANSLATING.md](TRANSLATING.md)). The store texts live in `_locales/<lang>/messages.json`. `scripts-dev/check.mjs` fails the build when a used key is missing, a language lacks a key, or placeholders differ.
+Flat key → string maps; plural forms via `Intl.PluralRules`; `{param}` interpolation. English is the reference; eleven languages ship (en, ru, es, de, fr, pt, it, pl, uk, zh, ja — see [TRANSLATING.md](TRANSLATING.md)). The store texts live in `_locales/<lang>/messages.json`. `scripts-dev/check.mjs` fails the build when a used key is missing, a language lacks a key, or placeholders differ.
 
 ## Migration (`migrate.js`)
 

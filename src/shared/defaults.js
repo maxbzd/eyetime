@@ -90,6 +90,7 @@ export const DEFAULT_SETTINGS = {
   },
 
   weeklyReport: true,
+  calendar: { warn: true, warnMin: 2, quiet: false }, // meeting warning during a focus session; silence eye-break notices and chimes while a meeting is on
   companion: { enabled: false, token: '' },
   onboarded: false,
 };

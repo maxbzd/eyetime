@@ -1,6 +1,8 @@
 // Plays 'start' / 'end' sounds and the ambient focus sound. Chrome: through an offscreen document (service workers have no
 // Web Audio). Firefox: its background is an event page with Web Audio, so the same synthesis code is called directly.
 
+import { meetingQuiet } from './meetings.js';
+
 const DOC_URL = 'src/background/offscreen.html';
 
 async function ensureOffscreen() {
@@ -23,6 +25,7 @@ async function direct(msg) {
 
 export async function playChime(kind) {
   try {
+    if (await meetingQuiet()) return; // quiet while a meeting is on (opt-in)
     if (await direct({ target: 'offscreen', kind })) return;
     if (!(await ensureOffscreen())) return;
     await chrome.runtime.sendMessage({ target: 'offscreen', kind });

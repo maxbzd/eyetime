@@ -13,8 +13,13 @@ One file per language, same structure — paste the sections into the store form
 | Deutsch | `store/listing/de.md` | `store/screenshots/de/*.jpg` |
 | Français | `store/listing/fr.md` | `store/screenshots/fr/*.jpg` |
 | Português | `store/listing/pt.md` | `store/screenshots/pt/*.jpg` |
+| Italiano | `store/listing/it.md` | `store/screenshots/it/*.jpg` |
+| Polski | `store/listing/pl.md` | `store/screenshots/pl/*.jpg` |
+| Українська | `store/listing/uk.md` | `store/screenshots/uk/*.jpg` |
+| 简体中文 | `store/listing/zh.md` | `store/screenshots/zh/*.jpg` |
+| 日本語 | `store/listing/ja.md` | `store/screenshots/ja/*.jpg` |
 
-The summary of every language is ≤ 132 characters (a Chrome Web Store limit). Spanish, German, French and Portuguese texts are machine-translated and reviewed; native-speaker corrections are welcome (issues #1–#4 on GitHub). Regenerate the localized screenshots with `node scripts-dev/e2e/screenshots-lang.cjs`.
+The summary of every language is ≤ 132 characters (a Chrome Web Store limit). All non-English texts are machine-translated and reviewed; native-speaker corrections are welcome (the `translation` issues on GitHub). Regenerate the localized screenshots with `node scripts-dev/e2e/screenshots-lang.cjs`.
 
 ## Single purpose (Chrome Web Store field)
 Help users focus and manage screen time: track time per site, pause distracting sites during focus sessions, and remind users to rest their eyes.

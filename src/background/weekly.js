@@ -34,7 +34,9 @@ export async function maybeSendWeeklyReport(now = new Date()) {
   lines.push(t('weekly.total', { time: fmtDuration(cur.total) }) + (d === null ? '' : ` (${d > 0 ? '+' : ''}${d}%)`));
   if (cur.distracting >= 600) lines.push(t('weekly.distracting', { time: fmtDuration(cur.distracting) }));
   if (cur.focusSessions) lines.push(t('weekly.focus', { n: cur.focusSessions, time: fmtDuration(cur.focusSec) }));
-  const wp = weekProgress(await getCollection('weekPlan', null), mondayKey(last));
+  const lastKey = mondayKey(last);
+  const plans = [await getCollection('weekPlan', null), await getCollection('weekPlanPrev', null)];
+  const wp = weekProgress(plans.find((x) => x && x.week === lastKey) || null, lastKey);
   if (wp.total) lines.push(t('weekly.goals', { done: wp.done, total: wp.total }));
   const top = projectTotals(lastEntries).find((r) => r.tag && r.sec >= 600);
   if (top) lines.push(t('weekly.project', { tag: top.tag, time: fmtDuration(top.sec) }));

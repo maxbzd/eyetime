@@ -10,14 +10,15 @@ import { accuracyInput } from '../shared/tasks.js';
 import { dayKey, rangeKeys } from '../shared/time.js';
 
 export async function openDayPlan() {
-  const [settings, tasks, estLog, days, events] = await Promise.all([getSettings(), getCollection('tasks', []), getCollection('estLog', []), getDays(rangeKeys(112)), getCollection('calendar', [])]);
+  const [settings, tasks, estLog, days, events, allDayEvents] = await Promise.all([getSettings(), getCollection('tasks', []), getCollection('estLog', []), getDays(rangeKeys(112)), getCollection('calendar', []), getCollection('calendarDays', [])]);
   const today = dayKey();
   const now = new Date();
   const open = tasks.filter((x) => !x.done);
   const best = bestHours(days);
   const acc = estimateAccuracy(accuracyInput(tasks, estLog));
   const busy = events.filter((e) => e.day === today).map((e) => ({ start: toMin(e.start), end: toMin(e.end) }));
-  const plan = planDay({ tasks: open, nowMin: now.getHours() * 60 + now.getMinutes(), bestStart: best ? best.start : null, calibration: acc ? acc.median : null, busy, defaultMinutes: settings.focus.minutes, goalMinutes: settings.focus.dailyGoal, workEnd: (settings.blocking.schedule && settings.blocking.schedule.enabled && settings.blocking.schedule.end) || '18:00', today });
+  const busyDay = (allDayEvents || []).some((e) => e.day === today); // an all-day event (trip, conference): plan lighter
+  const plan = planDay({ maxBlocks: busyDay ? 2 : undefined, tasks: open, nowMin: now.getHours() * 60 + now.getMinutes(), bestStart: best ? best.start : null, calibration: acc ? acc.median : null, busy, defaultMinutes: settings.focus.minutes, goalMinutes: settings.focus.dailyGoal, workEnd: (settings.blocking.schedule && settings.blocking.schedule.enabled && settings.blocking.schedule.end) || '18:00', today });
 
   const rows = plan.blocks.map((b) => {
     const on = h('input', { type: 'checkbox', checked: true, 'aria-label': b.text, disabled: b.fixed });
@@ -25,7 +26,7 @@ export async function openDayPlan() {
     return { b, on, time, el: h('div', { class: 'plan-block' + (b.fixed ? ' fixed' : '') }, h('label', { class: 'check' }, on, h('span', { class: 'box' }, icon('check'))), h('div', { class: 'plan-text' }, h('b', { class: 'truncate', text: b.text }), h('span', { class: 'muted', text: fmtDuration(b.minutes * 60) + (b.fixed ? ' · ' + t('plan.fixed') : '') })), time) };
   });
   const flex = rows.some((r) => !r.b.fixed);
-  const notes = flex ? [best ? t('plan.bestNote', { time: `${String(best.start).padStart(2, '0')}:00` }) : null, plan.calibrated ? t('plan.calibNote', { x: (Math.round(acc.median * 10) / 10).toString() }) : null, busy.length ? t('plan.calNote') : null].filter(Boolean) : [];
+  const notes = flex ? [best ? t('plan.bestNote', { time: `${String(best.start).padStart(2, '0')}:00` }) : null, plan.calibrated ? t('plan.calibNote', { x: (Math.round(acc.median * 10) / 10).toString() }) : null, busy.length ? t('plan.calNote') : null, busyDay ? t('plan.allDayNote') : null].filter(Boolean) : [];
 
   const dlg = h('dialog', { class: 'dialog dialog-wide' }, h('form', { method: 'dialog' },
     h('div', { class: 'dialog-body stack gap-3' }, h('h3', { text: t('plan.title') }), h('p', { class: 'muted-2', text: flex ? t('plan.lead') : rows.length ? t('plan.booked') : (open.length ? t('plan.late') : t('plan.none')) }),

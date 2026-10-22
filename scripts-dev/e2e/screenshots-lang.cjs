@@ -1,10 +1,10 @@
-// Localized store screenshots (JPEG, 1280×800) for every non-English language:  node scripts-dev/e2e/screenshots-lang.cjs [ru es de fr pt]
+// Localized store screenshots (JPEG, 1280×800) for every non-English language:  node scripts-dev/e2e/screenshots-lang.cjs [ru es de fr pt it pl uk zh ja]
 // Output: store/screenshots/<lang>/{1-home,2-focus,3-insights,4-home-dark,11-palette,12-timeline}.jpg — the same scenes as the English set, with sample data in that language.
 const { launch } = require('./lib.cjs');
 const { seed, SAMPLES } = require('./seed.cjs');
 const path = require('path');
 const fs = require('fs');
-const LANGS = process.argv.slice(2).length ? process.argv.slice(2) : ['ru', 'es', 'de', 'fr', 'pt'];
+const LANGS = process.argv.slice(2).length ? process.argv.slice(2) : ['ru', 'es', 'de', 'fr', 'pt', 'it', 'pl', 'uk', 'zh', 'ja'];
 
 (async () => {
   const app = await launch({ viewport: { width: 1280, height: 800 } });

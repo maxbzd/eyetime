@@ -1,6 +1,7 @@
 // Eye care: 20-20-20 reminders counted in *active* screen time (not wall-clock), plus a bedtime nudge.
 // State lives in storage.session: eye = { since: activeSecondsSinceBreak, due: bool, notifiedAt }
 
+import { meetingQuiet } from './meetings.js';
 import { getSettings, updateDay } from '../shared/storage.js';
 import { dayKey, toMinutes } from '../shared/time.js';
 import { resolveLocale, setLocale, t } from '../shared/i18n.js';
@@ -26,7 +27,7 @@ export function onActiveTime(sec, now = Date.now()) {
     const eye = await getEyeState();
     eye.since += sec;
     const limit = settings.eye.intervalMin * 60;
-    if (eye.since >= limit && !eye.due) {
+    if (eye.since >= limit && !eye.due && !(await meetingQuiet(settings))) {
       eye.due = true; eye.notifiedAt = now;
       if (settings.eye.notify) await notifyBreak(settings);
     }

@@ -1,0 +1,26 @@
+{
+  "extName": {
+    "message": "EyeTime — 集中・スクリーンタイム・目のケア"
+  },
+  "extDescription": {
+    "message": "ワンクリックで集中を開始。気が散るサイトをやさしくブロックし、時間の使い道を可視化して目も休ませます。無料・オープンソース・完全ローカル。"
+  },
+  "actionTitle": {
+    "message": "EyeTime"
+  },
+  "cmdToggleFocus": {
+    "message": "集中セッションを開始・停止"
+  },
+  "feedTitle": {
+    "message": "スクロールをやめる時間です"
+  },
+  "feedBody": {
+    "message": "ショート動画を{n}分間見続けています。次にすることを選べるよう、ページを一時停止してグレースケールにしました。"
+  },
+  "feedLeave": {
+    "message": "このタブを閉じる"
+  },
+  "feedMore": {
+    "message": "あと5分"
+  }
+}

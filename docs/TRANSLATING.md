@@ -4,7 +4,7 @@ EyeTime speaks English and Russian (written by the author) and Spanish, German, 
 
 ## Fix a translation
 
-1. Open `src/shared/locales/<lang>.js` (`es`, `de`, `fr`, `pt`, `ru`). Every line is `'area.key': 'text'`.
+1. Open `src/shared/locales/<lang>.js` (`es`, `de`, `fr`, `pt`, `ru`, `it`, `pl`, `uk`, `zh`, `ja`). Every line is `'area.key': 'text'`.
 2. Change the text. Do not touch the key (left of the colon).
 3. Keep `{placeholders}` exactly as they are — `{n}`, `{time}`, `{host}` … are filled in by the code.
 4. Run `npm run check`. It fails if a key is missing, a placeholder differs, or a key is unknown.
@@ -12,8 +12,8 @@ EyeTime speaks English and Russian (written by the author) and Spanish, German, 
 
 ## Rules that keep the UI intact
 
-- **Plural forms.** Values written as `{ one: …, other: … }` are chosen by the language's CLDR plural rules (`Intl.PluralRules`). Provide every category your language uses (Russian: one, few, many, other; Spanish, French, Portuguese: one, many, other; German: one, other).
-- **Quick-add syntax stays as is.** The task field understands English and Russian words (`daily`, `weekdays`, `tomorrow`, `завтра`, `!`, `~45m`, `14:30`). Examples inside hints keep those tokens; translate only the words around them.
+- **Plural forms.** Values written as `{ one: …, other: … }` are chosen by the language's CLDR plural rules (`Intl.PluralRules`). Provide every category your language uses (Russian: one, few, many, other; Spanish, French, Portuguese: one, many, other; German, Italian: one, other; Polish and Ukrainian: one, few, many, other; Chinese and Japanese: other only).
+- **Quick-add syntax stays as is.** The task field understands words of nine languages (`daily`, `weekdays`, `tomorrow`, `завтра`, `domani`, `!`, `~45m`, `14:30`); Chinese and Japanese use the symbols and numbers only. Words live in `src/shared/datewords.js` and `src/shared/quickadd.js`. Examples inside hints keep those tokens; translate only the words around them.
 - **Length matters.** Chips, tabs and buttons are narrow. Prefer short words; the end-to-end test `scripts-dev/e2e/upgrade.cjs` opens every page at 400 px width, 125 % zoom and with very long names in every language and fails on horizontal scrolling.
 - **Units.** `unit.h`, `unit.m`, `unit.s` are glued to numbers (`1h 5min`). Keep them short, no trailing dot.
 - **Quotes and punctuation** follow the language (German „…“, French « … » with no-break spaces).
