@@ -66,6 +66,10 @@ const STILL = '*, *::before, *::after { animation: none !important; transition: 
         const p = await app.ctx.newPage(); await p.setViewportSize(vp); await p.goto(ext(url));
         await p.addStyleTag({ content: STILL }); await p.evaluate(() => document.fonts.ready); await p.waitForTimeout(1800);
         await p.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+        // wait until the layout has stopped moving (a late font or icon can shift a card by a pixel): the same layout twice, 300 ms apart
+        const sig = () => p.evaluate(() => [...document.querySelectorAll('body *')].slice(0, 400).map((e) => Math.round(e.getBoundingClientRect().top)).join(','));
+        let last = await sig();
+        for (let i = 0; i < 12; i++) { await p.waitForTimeout(300); const now = await sig(); if (now === last) break; last = now; }
         const buf = await p.screenshot({ animations: 'disabled' }); await p.close(); return buf;
       };
       let buf = await shoot();
