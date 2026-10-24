@@ -1,6 +1,7 @@
 // The focus-session control, shared by the popup (compact) and the new tab (large).
 // It owns its own state: it reads settings + the running session from storage and re-renders on change.
 
+import { dropdown } from './dropdown.js';
 import { h, svg, icon, clear, toast, confirmDialog, $ } from './dom.js';
 import { send } from './api.js';
 import { t, fmtDuration, fmtTime } from '../shared/i18n.js';
@@ -77,7 +78,7 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     const modeRow = modes.length ? (large
       ? h('div', { class: 'mode-row', role: 'group', 'aria-label': t('focus.mode') }, modes.map((m) => h('button', { class: 'mode-chip', type: 'button', 'aria-pressed': String(d.mode === m.id), onclick: () => applyMode(m.id) }, icon(m.icon || 'zap'), h('span', { class: 'mn', text: modeName(m) }), h('span', { class: 'mm num', text: fmtDuration(m.minutes * 60) }))))
       : null) : null;
-    const modeSelectEl = () => h('select', { class: 'select select-sm mode-select', 'aria-label': t('focus.mode'), onchange: (e) => applyMode(e.target.value) }, modes.map((m) => h('option', { value: m.id, selected: d.mode === m.id, text: modeName(m) + ' · ' + fmtDuration(m.minutes * 60) })));
+    const modeSelectEl = () => dropdown(modes.map((m) => [m.id, modeName(m) + ' · ' + fmtDuration(m.minutes * 60)]), d.mode, applyMode, { label: t('focus.mode'), cls: 'select-sm mode-select' });
     const opt = (ico, key, hint, checked, onchange) => h('label', { class: 'strict-row' },
       h('span', { class: 'lbl', 'data-tip': t(hint) }, icon(ico), t(key)),
       h('span', { class: 'switch' }, h('input', { type: 'checkbox', checked, 'aria-label': t(key), onchange: (e) => onchange(e.target.checked) }), h('span', { class: 'track' }), h('span', { class: 'thumb' })));

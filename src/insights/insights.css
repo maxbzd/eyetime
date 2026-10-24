@@ -29,7 +29,7 @@
 .sites .share .progress i { background: var(--neutral); }
 .sites .share .progress i.productive { background: var(--productive); } .sites .share .progress i.distracting { background: var(--distracting); }
 .sites .time { white-space: nowrap; color: var(--text-2); font-variant-numeric: tabular-nums; }
-select.tag { appearance: none; padding-right: 9px; font-family: inherit; }
+button.tag { appearance: none; padding-right: 9px; font-family: inherit; border: 0; cursor: pointer; }
 .more { display: flex; justify-content: center; padding: var(--s-3) 0 0; }
 
 /* insights list */
@@ -111,8 +111,8 @@ select.tag { appearance: none; padding-right: 9px; font-family: inherit; }
 .tag-wrap { position: relative; display: inline-flex; align-items: center; border-radius: var(--r-full); }
 .tag-wrap > .ico { position: absolute; right: 7px; font-size: 12px; pointer-events: none; color: inherit; opacity: .75; }
 .tag-wrap.tag-productive { background: var(--productive-soft); color: var(--productive-text); } .tag-wrap.tag-neutral { background: var(--neutral-soft); color: var(--neutral-text); } .tag-wrap.tag-distracting { background: var(--distracting-soft); color: var(--distracting-text); }
-.tag-wrap select.tag { padding-right: 24px; background: transparent; color: inherit; }
-.tag-wrap:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; } .tag-wrap select.tag:focus-visible { outline: 0; }
+.tag-wrap button.tag { padding-right: 24px; background: transparent; color: inherit; }
+.tag-wrap:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; } .tag-wrap button.tag:focus-visible { outline: 0; }
 .sites { table-layout: auto; }
 .sites td.name { width: 100%; max-width: 0; } .sites td.cls { white-space: nowrap; }
 .sites td.pct { color: var(--text-3); width: 48px; }
@@ -163,7 +163,7 @@ select.tag { appearance: none; padding-right: 9px; font-family: inherit; }
 .sites .share .progress i { background: var(--neutral); }
 .sites .share .progress i.productive { background: var(--productive); } .sites .share .progress i.distracting { background: var(--distracting); }
 .sites .time { white-space: nowrap; color: var(--text-2); font-variant-numeric: tabular-nums; }
-select.tag { appearance: none; padding-right: 9px; font-family: inherit; }
+button.tag { appearance: none; padding-right: 9px; font-family: inherit; border: 0; cursor: pointer; }
 .more { display: flex; justify-content: center; padding: var(--s-3) 0 0; }
 
 /* insights list */
@@ -245,8 +245,8 @@ select.tag { appearance: none; padding-right: 9px; font-family: inherit; }
 .tag-wrap { position: relative; display: inline-flex; align-items: center; border-radius: var(--r-full); }
 .tag-wrap > .ico { position: absolute; right: 7px; font-size: 12px; pointer-events: none; color: inherit; opacity: .75; }
 .tag-wrap.tag-productive { background: var(--productive-soft); color: var(--productive-text); } .tag-wrap.tag-neutral { background: var(--neutral-soft); color: var(--neutral-text); } .tag-wrap.tag-distracting { background: var(--distracting-soft); color: var(--distracting-text); }
-.tag-wrap select.tag { padding-right: 24px; background: transparent; color: inherit; }
-.tag-wrap:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; } .tag-wrap select.tag:focus-visible { outline: 0; }
+.tag-wrap button.tag { padding-right: 24px; background: transparent; color: inherit; }
+.tag-wrap:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; } .tag-wrap button.tag:focus-visible { outline: 0; }
 .sites { table-layout: auto; }
 .sites td.name { width: 100%; max-width: 0; } .sites td.cls { white-space: nowrap; }
 .sites td.pct { color: var(--text-3); width: 48px; }
@@ -318,3 +318,4 @@ select.tag { appearance: none; padding-right: 9px; font-family: inherit; }
 .trig { display: flex; flex-direction: column; gap: 6px; padding-bottom: var(--s-4); border-bottom: 1px solid var(--border); } .trig:last-child { border-bottom: 0; padding-bottom: 0; }
 .trig-head { display: flex; align-items: center; gap: var(--s-3); min-width: 0; } .trig-head b { font-weight: 600; } .trig-head .muted { margin-left: auto; font-size: var(--fs-xs); white-space: nowrap; }
 .trig-line { margin: 0; font-weight: 560; } .trig .muted-2 { margin: 0; font-size: var(--fs-sm); max-width: 70ch; }
+.tag-wrap .dd[aria-expanded="true"] { box-shadow: none; border-color: transparent; }

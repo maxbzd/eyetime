@@ -1,3 +1,4 @@
+import { dropdown } from '../ui/dropdown.js';
 import { bootPage } from '../ui/page.js';
 import { $, h, icon, clear } from '../ui/dom.js';
 import { send } from '../ui/api.js';
@@ -105,8 +106,7 @@ function back() { step = Math.max(0, step - 1); render(); }
 function render() { dots(); $('#card').classList.toggle('wide', STEPS[step] === 'look'); clear($('#card'), views[STEPS[step]]()); $('#card').scrollIntoView({ block: 'nearest' }); $('#skip').hidden = step === STEPS.length - 1; }
 
 function drawLang() {
-  const sel = h('select', { class: 'select select-auto', 'aria-label': t('opt.language'), onchange: async (e) => { await updateSettings((x) => { x.language = e.target.value; }); } },
-    Object.entries(LANGUAGES).map(([code, name]) => h('option', { value: code, text: name, selected: document.documentElement.lang === code })));
+  const sel = dropdown(Object.entries(LANGUAGES), document.documentElement.lang, async (v) => { await updateSettings((x) => { x.language = v; }); }, { label: t('opt.language'), cls: 'select-auto' });
   clear($('#lang'), sel);
 }
 

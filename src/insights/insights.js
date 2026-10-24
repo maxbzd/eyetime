@@ -1,3 +1,4 @@
+import { dropdown } from '../ui/dropdown.js';
 import { bootPage } from '../ui/page.js';
 import { mountHeader } from '../ui/header.js';
 import { $, h, icon, favicon, clear, toast } from '../ui/dom.js';
@@ -96,12 +97,12 @@ function sitesCard(sum) {
   const total = sum.total || 1;
   const max = all[0]?.sec || 1;
   const rows = all.slice(0, shown).map((s) => {
-    const sel = h('select', { class: 'tag tag-' + s.cls, 'aria-label': t('insights.classifyAria', { host: s.host }), onchange: async (e) => {
-      const v = e.target.value, was = s.cls;
+    const sel = dropdown(CLASS_ORDER.map((c) => [c, t('class.' + c)]), s.cls, async (v) => {
+      const was = s.cls;
       await updateSettings((st) => { st.sites[s.host] = v; });
       send('settings:changed');
       toast(t('insights.marked', { host: s.host, cls: t('class.' + v).toLowerCase() }), { action: t('common.undo'), onAction: async () => { await updateSettings((st) => { st.sites[s.host] = was; }); send('settings:changed'); } });
-    } }, CLASS_ORDER.map((c) => h('option', { value: c, selected: c === s.cls, text: t('class.' + c) })));
+    }, { label: t('insights.classifyAria', { host: s.host }), cls: 'tag tag-' + s.cls, bare: true, chevron: false });
     return h('tr', {},
       h('td', { class: 'name' }, h('div', { class: 'site' }, favicon(s.host), h('span', { text: s.host, title: s.host }))),
       h('td', { class: 'cls' }, h('span', { class: 'tag-wrap tag-' + s.cls }, sel, icon('chevron-down'))),

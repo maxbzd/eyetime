@@ -67,4 +67,13 @@ select.field { appearance: none; background-image: linear-gradient(45deg, transp
 @media (forced-colors: active) { .seg button[aria-selected="true"], .inset, .field, .pill { border: 1px solid CanvasText; } }
 .pagebar > * + * { border-top: 0; }
 select.field { padding-top: 0; padding-bottom: 0; line-height: 34px; }
+.dd.field { padding-top: 0; padding-bottom: 0; line-height: 1.2; }
+.dd.field { display: flex; flex-direction: row; gap: 8px; align-items: center; text-align: left; cursor: pointer; }
+.dd.field { background-image: none; padding-right: 9px; } .dd.field .dd-text { flex: 1 1 auto; }
+.dd.field[aria-expanded="true"] { box-shadow: 0 0 0 1px rgba(255, 255, 255, .3); }
+.dd-pop { background: #121214; border-color: rgba(255, 255, 255, .12); box-shadow: 0 18px 50px rgba(0, 0, 0, .75); border-radius: 14px; padding: 5px; }
+.dd-opt { min-height: 36px; font-size: 13.5px; }
+.dd-opt[data-active] { background: rgba(255, 255, 255, .09); }
+.dd-opt[aria-selected="true"] { color: var(--text); }
+.dd-opt .ico { color: var(--accent); }
 .pagebar .pick { align-items: stretch; }

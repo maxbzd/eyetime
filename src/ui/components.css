@@ -48,6 +48,27 @@
 .select { appearance: none; padding-right: 32px; cursor: pointer;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23938d86' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 10px center; }
+/* the dropdown that replaces the browser's own <select> list (ui/dropdown.js) */
+button.dd { display: flex; align-items: center; justify-content: flex-start; text-align: left; gap: 8px; line-height: 1.2; }
+.dd .dd-text { flex: 0 1 auto; text-align: left; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dd[aria-expanded="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+.dd.select { background-image: none; padding-right: 10px; }
+.dd .dd-chev { flex: none; margin-left: auto; font-size: 16px; color: var(--text-3); transition: transform var(--t-fast); }
+.dd[aria-expanded="true"] .dd-chev { transform: rotate(180deg); }
+.dd-pop { position: fixed; inset: auto; margin: 0; padding: 6px; min-width: 150px; overflow-y: auto; overscroll-behavior: contain; outline: none;
+  background: var(--surface); color: var(--text); border: var(--border-w) solid var(--border-strong); border-radius: var(--r-lg); box-shadow: var(--shadow-3);
+  font-size: var(--fs-md); scrollbar-width: thin; transform-origin: top left; }
+.dd-pop[data-side="up"] { transform-origin: bottom left; }
+.dd-pop:popover-open { animation: dd-in var(--t-fast) ease-out; }
+@keyframes dd-in { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
+.dd-pop[data-side="up"]:popover-open { animation-name: dd-in-up; }
+@keyframes dd-in-up { from { opacity: 0; transform: translateY(4px) scale(.98); } }
+.dd-opt { display: flex; align-items: center; gap: 10px; min-height: 34px; padding: 6px 10px; border-radius: var(--r-sm); cursor: pointer; line-height: 1.25; user-select: none; }
+.dd-opt .dd-label { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.dd-opt .ico { flex: none; font-size: 16px; color: var(--accent-text); }
+.dd-opt[data-active] { background: var(--surface-2); }
+.dd-opt[aria-selected="true"] { color: var(--accent-text); font-weight: 600; }
+@media (forced-colors: active) { .dd-pop { border-color: CanvasText; } .dd-opt[data-active] { outline: 2px solid Highlight; outline-offset: -2px; } }
 .input-sm, .select-sm { height: calc(var(--ctl-h) - 6px); font-size: var(--fs-sm); border-radius: var(--r-sm); }
 .select-auto { width: auto; min-width: 136px; }
 .input[type="time"] { width: auto; font-variant-numeric: tabular-nums; }

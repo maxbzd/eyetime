@@ -1,6 +1,7 @@
 // Building blocks for the settings page.
 import { h, icon, clear } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
+import { dropdown } from '../ui/dropdown.js';
 import { parseUserDomain } from '../shared/domains.js';
 
 /**
@@ -24,8 +25,7 @@ export function toggle(checked, onChange, label) {
 
 /** @param {any[]} options @param {any} value @param {(v: string) => void} onChange @param {{ label?: string, cls?: string }} [o] */
 export function select(options, value, onChange, { label, cls = '' } = {}) {
-  return h('select', { class: ('select select-auto ' + cls).trim(), 'aria-label': label, onchange: (e) => onChange(e.target.value) },
-    options.map(([v, text]) => h('option', { value: String(v), selected: String(v) === String(value), text })));
+  return dropdown(options, value, onChange, { label, cls: ('select-auto ' + cls).trim() });
 }
 
 export function segmented(options, value, onChange, label) {

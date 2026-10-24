@@ -5,6 +5,7 @@ import { send } from '../ui/api.js';
 import { mountFocusCard } from '../ui/focus-card.js';
 import { t, fmtDuration } from '../shared/i18n.js';
 import { updateSettings, getCollection, setCollection, updateCollection, getDays, onChange } from '../shared/storage.js';
+import { dropdown } from '../ui/dropdown.js';
 import { dockDesign } from '../shared/dock.js';
 import { rangeKeys } from '../shared/time.js';
 import { hostFromUrl } from '../shared/domains.js';
@@ -75,7 +76,7 @@ async function renderNow() {
 function pageBar() {
   if (!page || !cleanUrl(page.url)) return page ? h('div', { class: 'hint', text: t('dock.cannotSave') }) : null;
   const last = store.get('dock-topic', INBOX_ID);
-  const sel = h('select', { class: 'field', 'aria-label': t('dock.saveTo') }, topics.map((x) => h('option', { value: x.id, selected: x.id === last, text: x.id === INBOX_ID ? t('topic.inbox') : x.title })));
+  const sel = dropdown(topics.map((x) => [x.id, x.id === INBOX_ID ? t('topic.inbox') : x.title]), last, () => {}, { label: t('dock.saveTo'), cls: 'field', bare: true });
   const btn = h('button', { class: 'pill', type: 'button', text: t('dock.save'), onclick: async () => {
     const id = sel.value; store.set('dock-topic', id); let res = null;
     const now = await fetchPage(); // the page may have changed since the panel opened (single-page sites)

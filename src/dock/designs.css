@@ -42,7 +42,7 @@ html[data-design="1"] .field:focus-visible { box-shadow: none; border-bottom-col
 html[data-design="1"] textarea.field { border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 10px 12px; }
 html[data-design="1"] .pill { background: #fff; color: #000; height: 34px; padding: 0 18px; font-weight: 600; }
 html[data-design="1"] .pagebar { padding: 0; gap: 14px; }
-html[data-design="1"] .pagebar .pick { gap: 10px; } html[data-design="1"] select.field { border: 0; border-bottom: 1px solid rgba(255,255,255,.14); }
+html[data-design="1"] .pagebar .pick { gap: 10px; } html[data-design="1"] select.field, html[data-design="1"] .dd.field { border: 0; border-bottom: 1px solid rgba(255,255,255,.14); }
 html[data-design="1"] .topic-head { padding: 14px 0; } html[data-design="1"] .topic-head:hover { background: none; }
 html[data-design="1"] .topic-head .name { font-weight: 560; font-size: 14.5px; }
 html[data-design="1"] .chip-s { background: none; padding: 0; color: rgba(255,255,255,.6); }
@@ -141,7 +141,7 @@ html[data-design="3"] .pagebar { padding: 0; gap: 16px; }
 html[data-design="3"] .pagebar .title { font-family: var(--serif); font-size: 17px; font-weight: 400; line-height: 1.3; }
 html[data-design="3"] .pagebar .sub, html[data-design="3"] .link-row .sub { color: var(--ivory-3); }
 html[data-design="3"] .pagebar .pick { gap: 14px; }
-html[data-design="3"] select.field { border: 0; border-bottom: 1px solid var(--hair-i); font-style: normal; font-family: "Inter", system-ui, sans-serif; font-size: 13px; }
+html[data-design="3"] select.field, html[data-design="3"] .dd.field { border: 0; border-bottom: 1px solid var(--hair-i); font-style: normal; font-family: "Inter", system-ui, sans-serif; font-size: 13px; }
 html[data-design="3"] .topic-head { padding: 16px 0; } html[data-design="3"] .topic-head:hover { background: none; }
 html[data-design="3"] .topic-head .name { font-family: var(--serif); font-size: 18px; font-weight: 400; letter-spacing: -.01em; }
 html[data-design="3"] .chip-s { background: none; padding: 0; color: var(--ivory-3); font-size: 11px; letter-spacing: .04em; }
@@ -156,3 +156,12 @@ html[data-design="3"] .fav { filter: grayscale(1) brightness(1.15); opacity: .9;
 html[data-design="2"] body { background: radial-gradient(120% 52% at 50% -6%, rgba(255, 106, 61, .22), transparent 64%), #000; }
 html[data-design="1"] .dock-view > .field { margin-top: 2px; }
 html[data-design="3"] .row .grow { font-family: var(--serif); font-size: 16px; line-height: 1.35; }
+
+/* the topic dropdown's list, per look */
+html[data-design="2"] .dd-pop { background: linear-gradient(180deg, rgba(40, 32, 30, .98), rgba(16, 16, 18, .98)); border-color: rgba(255, 255, 255, .14); }
+html[data-design="3"] .dd-pop { background: #0a0a0a; border-color: var(--hair-i); border-radius: 4px; }
+html[data-design="3"] .dd-opt { font-family: var(--serif); font-size: 15px; border-radius: 2px; }
+html[data-design="3"] .dd-opt[data-active] { background: rgba(242, 237, 227, .08); }
+html[data-design="3"] .dd-opt[aria-selected="true"] { color: var(--champ); } html[data-design="3"] .dd-opt .ico { color: var(--champ); }
+html[data-design="1"] .dd.field[aria-expanded="true"], html[data-design="3"] .dd.field[aria-expanded="true"] { box-shadow: none; border-bottom-color: #fff; }
+html[data-design="3"] .dd.field[aria-expanded="true"] { border-bottom-color: var(--champ); }
