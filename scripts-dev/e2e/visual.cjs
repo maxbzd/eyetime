@@ -74,7 +74,7 @@ const STILL = '*, *::before, *::after { animation: none !important; transition: 
         const buf = await p.screenshot({ animations: 'disabled' }); await p.close(); return buf;
       };
       let buf = await shoot();
-      if (UPDATE || !fs.existsSync(file)) { fs.writeFileSync(file, buf); if (!UPDATE) fs.writeFileSync(path.join(DIFF, label + '-now.png'), buf); // a new screen: the CI artifact carries it, to become the baseline results.push({ label, status: UPDATE ? 'updated' : 'new' }); continue; }
+      if (UPDATE || !fs.existsSync(file)) { fs.writeFileSync(file, buf); if (!UPDATE) fs.writeFileSync(path.join(DIFF, label + '-now.png'), buf); /* a new screen: the CI artifact carries it, to become the baseline */ results.push({ label, status: UPDATE ? 'updated' : 'new' }); continue; }
       // a few screens settle into one of two layouts depending on which image or font arrives first: a screen passes if any of 5 loads matches
       const base = 'data:image/png;base64,' + fs.readFileSync(file).toString('base64');
       const limit = LOOSE[name] || THRESHOLD;
