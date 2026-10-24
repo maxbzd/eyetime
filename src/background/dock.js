@@ -39,7 +39,7 @@ export async function buildTopicMenu() {
   setLocale(resolveLocale(s.language));
   const topics = ensureInbox(await getCollection('topics', []), t('topic.inbox')).slice(0, 12);
   const ctx = ['page', 'link'];
-  chrome.contextMenus.create({ id: 'dock:root', title: t('menu.saveTo'), contexts: ctx });
+  chrome.contextMenus.create({ id: 'dock:root', parentId: 'root', title: t('menu.saveTo'), contexts: ctx });
   for (const tp of topics) chrome.contextMenus.create({ id: 'dock:save:' + tp.id, parentId: 'dock:root', title: (tp.id === 'inbox' ? t('topic.inbox') : tp.title).slice(0, 40), contexts: ctx });
 }
 

@@ -52,13 +52,19 @@ const handlers = {
   'break:state': () => getEyeState(),
   'tracking:pause': async (m) => { await setRaw({ pausedUntil: m.minutes ? Date.now() + m.minutes * 60_000 : 0 }); await sync('pause'); return { ok: true }; },
   'tab:close': async (m, sender) => { if (sender.tab) await chrome.tabs.remove(sender.tab.id); return { ok: true }; },
-  'dock:pos': async (m) => { const y = Number(m.y); if (!(y >= 0.05 && y <= 0.95)) return { ok: false }; await updateSettings((s) => { s.dock.y = Math.round(y * 1000) / 1000; }); return { ok: true }; },
+  'dock:pos': async (m) => { const y = Number(m.y); if (!(y >= 0.05 && y <= 0.95)) return { ok: false }; await updateSettings((s) => { s.dock.y = Math.round(y * 1000) / 1000; }, { touch: false }); return { ok: true }; }, // a place on the screen is not a settings edit: it must not win a settings sync
+  'dock:page': async (m, sender) => (sender.tab ? { url: sender.tab.url || '', title: sender.tab.title || '' } : { url: '', title: '' }),
   'settings:changed': async () => { await applySettings(); return { ok: true }; },
 };
+
+// Web pages run EyeTime's content scripts (the social-site guard, the dock). A compromised page could make those speak: they may only ask for what they need.
+const FROM_PAGES = new Set(['tab:close', 'dock:pos']);
+const fromExtensionPage = (sender) => !sender.url || sender.url.startsWith(chrome.runtime.getURL(''));
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   const fn = msg && !msg.target && handlers[msg.type];
   if (!fn) return false;
+  if (!fromExtensionPage(sender) && !FROM_PAGES.has(msg.type)) return false;
   Promise.resolve(fn(msg, sender)).then(sendResponse, (e) => { logError('msg:' + msg.type, e); sendResponse({ ok: false, error: String(e && e.message || e) }); });
   return true; // async response
 });
