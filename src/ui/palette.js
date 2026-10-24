@@ -47,7 +47,7 @@ async function commands(extra) {
   for (const s of SECTIONS) add('go', { icon: 'settings' }, `${t('nav.settings')} · ${t('sec.' + s)}`, () => { location.href = url('src/options/options.html#' + s); }, { keys: ['settings', 'options', 'preferences'] });
 
   // look
-  for (const id of LOOK_IDS) add('look', { icon: 'palette' }, `${t('palette.look')}: ${t('look.' + id)}`, () => updateSettings((s) => { s.appearance.look = id; }), { keys: ['theme', 'appearance', 'style'] });
+  for (const id of LOOK_IDS) add('look', { icon: 'palette' }, `${t('palette.look')}: ${t('look.' + id)}`, () => updateSettings((s) => { s.appearance.look = id; if (s.newtab.background === 'dawn') s.newtab.background = 'look'; }), { keys: ['theme', 'appearance', 'style'] });
   for (const [mode, key] of [['light', 'opt.themeLight'], ['dark', 'opt.themeDark'], ['system', 'opt.themeSystem']]) add('look', { icon: 'sun-moon' }, `${t('opt.theme')}: ${t(key)}`, () => updateSettings((s) => { s.appearance.mode = mode; }), { keys: ['dark mode', 'light mode', 'theme'] });
 
   for (const c of (typeof extra === 'function' ? await extra() : [])) list.push({ keys: [c.label], hint: '', ...c });

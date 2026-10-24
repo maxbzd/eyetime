@@ -16,7 +16,10 @@ const SCENES = [
 
 (async () => {
   const found = new Map(); let serious = 0;
-  for (const [look, mode, lang] of [['calm', 'light', 'en'], ['midnight', 'dark', 'ru'], ['paper', 'light', 'pl'], ['calm', 'dark', 'ja']]) {
+  const NEW = ['home', 'popup', 'home-running', 'insights-overview', 'settings', 'onboarding', 'blocked-friction']; // the newer looks: the screens that carry their character
+  for (const [look, mode, lang, only] of [['calm', 'light', 'en'], ['midnight', 'dark', 'ru'], ['paper', 'light', 'pl'], ['calm', 'dark', 'ja'],
+    ['obsidian', 'dark', 'ru', NEW], ['obsidian', 'light', 'en', NEW], ['void', 'dark', 'en', NEW], ['void', 'light', 'de', NEW], ['noir', 'dark', 'en', NEW], ['noir', 'light', 'pl', NEW],
+    ['pearl', 'light', 'ru', NEW], ['pearl', 'dark', 'en', NEW], ['bento', 'light', 'en', NEW], ['bento', 'dark', 'uk', NEW]]) {
     const app = await launch({ viewport: { width: 1280, height: 900 }, colorScheme: mode });
     const ext = (p) => `chrome-extension://${app.id}/${p}`;
     const sp = await app.ctx.newPage(); await sp.goto(ext('src/options/options.html')); await sp.waitForTimeout(500);
@@ -29,6 +32,7 @@ const SCENES = [
     }, [look, mode, lang]);
     await sp.close();
     for (const [name, url, tab, pre] of SCENES) {
+      if (only && !only.includes(name)) continue;
       await app.sw.evaluate(async (pre) => {
         const now = Date.now();
         await chrome.storage.local.set({ focus: pre === 'running' ? { id: 'x', startedAt: now - 9 * 60000, endsAt: now + 16 * 60000, minutes: 25, goal: 'Write the report', strict: false, scope: 'distractions' } : null, rest: pre === 'rest' ? { startedAt: now, endsAt: now + 240000, minutes: 4, long: true } : null, review: pre === 'review' ? { id: 'r', day: new Date().toISOString().slice(0, 10), goal: 'Write the report', taskId: 'a', minutes: 25, completed: true } : null });

@@ -14,7 +14,7 @@ export function lookPreview(lookId, scheme, ap = {}) {
   const vars = resolveVars({ look: lookId, accent: ap.accent && ap.accent !== 'look' && ap.preview === 'accent' ? ap.accent : 'look', mode: scheme }, scheme);
   Object.assign(vars, { '--ctl-h': '24px', '--d': '0.6', '--fs-xs': '8px', '--fs-sm': '9px', '--fs-md': '10px', '--fs-lg': '11px', '--fs-xl': '14px', '--ui-scale': '1' });
   const bars = [[5, 2, 1], [6, 1, 2], [4, 2, 3], [7, 2, 1], [3, 1, 4], [5, 3, 2], [6, 1, 1]];
-  const root = h('div', { class: 'lp', 'aria-hidden': 'true' },
+  const root = h('div', { class: 'lp', 'aria-hidden': 'true', 'data-look': lookId, 'data-scheme': scheme },
     h('div', { class: 'lp-head' }, h('h4', { text: t('lp.title') }), h('span', { class: 'badge badge-accent', text: fmtDuration(1500) })),
     h('div', { class: 'card lp-card' },
       h('div', { class: 'lp-time num', text: '24:59' }),

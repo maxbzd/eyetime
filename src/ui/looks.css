@@ -1,0 +1,175 @@
+/* Character of the looks that are more than a palette: html[data-look="…"] (set by theme-init.js). Colours, radii, fonts and shadows
+   come from the theme engine (shared/looks.js); this file adds what tokens cannot: surfaces, controls and type details.
+   Everything here reads tokens, so a custom accent, radius or font chosen in Settings still applies. */
+
+/* ═══════════════════════════ OBSIDIAN — black glass, ember glow ═══════════════════════════ */
+:is(html, .lp)[data-look="obsidian"] .card { background-image: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, 0) 55%); border-color: color-mix(in srgb, var(--text) 10%, transparent); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), var(--card-shadow); }
+:is(html, .lp)[data-look="obsidian"][data-scheme="light"] .card { background-image: linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(255, 255, 255, 0) 70%); border-color: rgba(20, 19, 24, .07); box-shadow: 0 1px 0 #fff inset, var(--card-shadow); }
+:is(html, .lp)[data-look="obsidian"] .btn-primary { background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent) 82%, #fff), var(--accent)); box-shadow: 0 8px 22px -8px color-mix(in srgb, var(--accent) 70%, transparent), inset 0 1px 0 rgba(255, 255, 255, .3); }
+:is(html, .lp)[data-look="obsidian"] .btn-primary:hover { filter: brightness(1.06); }
+:is(html, .lp)[data-look="obsidian"] .btn:not(.btn-primary):not(.btn-ghost):not(.btn-danger-solid) { background-image: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, 0)); }
+:is(html, .lp)[data-look="obsidian"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="obsidian"] .mode-chip[aria-pressed="true"] { box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent), 0 6px 18px -8px color-mix(in srgb, var(--accent) 60%, transparent); }
+:is(html, .lp)[data-look="obsidian"] .clock { font-weight: 200; letter-spacing: -.05em; text-shadow: 0 0 70px color-mix(in srgb, var(--accent) 26%, transparent); }
+:is(html, .lp)[data-look="obsidian"][data-scheme="light"] .clock { text-shadow: none; }
+:is(html, .lp)[data-look="obsidian"] .input, :is(html, .lp)[data-look="obsidian"] .select { background: color-mix(in srgb, var(--text) 5%, transparent); border-color: color-mix(in srgb, var(--text) 12%, transparent); }
+:is(html, .lp)[data-look="obsidian"] .input:focus { background: color-mix(in srgb, var(--text) 7%, transparent); }
+:is(html, .lp)[data-look="obsidian"] .tab[aria-selected="true"]::after { box-shadow: 0 0 12px var(--accent); }
+:is(html, .lp)[data-look="obsidian"] .progress i, :is(html, .lp)[data-look="obsidian"] .goal-bar i { box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 55%, transparent); }
+:is(html, .lp)[data-look="obsidian"] .ring .bar { filter: drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 60%, transparent)); }
+:is(html, .lp)[data-look="obsidian"] .ring, :is(html, .lp)[data-look="obsidian"] .ring svg { overflow: visible; }
+
+/* ═══════════════════════════ VOID — type and hairlines ═══════════════════════════ */
+:is(html, .lp)[data-look="void"] body { letter-spacing: -.006em; }
+:is(html, .lp)[data-look="void"] .card { background: transparent; box-shadow: none; border-color: var(--border); border-radius: var(--r-md); -webkit-backdrop-filter: none; backdrop-filter: none; }
+:is(html, .lp)[data-look="void"] .clock { font-weight: 200; letter-spacing: -.055em; }
+:is(html, .lp)[data-look="void"] .hero h1 { font-weight: 400; letter-spacing: -.02em; }
+:is(html, .lp)[data-look="void"] .hero p, :is(html, .lp)[data-look="void"] #date { color: var(--text-3); }
+:is(html, .lp)[data-look="void"] .btn { background: transparent; border-color: var(--border-strong); box-shadow: none; font-weight: 500; border-radius: var(--r-full); }
+:is(html, .lp)[data-look="void"] .btn:hover { background: color-mix(in srgb, var(--text) 6%, transparent); border-color: var(--text-3); }
+:is(html, .lp)[data-look="void"] .btn-primary { background: var(--accent); color: var(--accent-fg); border-color: transparent; font-weight: 600; box-shadow: none; }
+:is(html, .lp)[data-look="void"] .btn-primary:hover { background: var(--accent); filter: brightness(.9); }
+:is(html, .lp)[data-look="void"] .btn-ghost { border-color: transparent; }
+:is(html, .lp)[data-look="void"] .btn-soft { background: transparent; border-color: var(--border-strong); color: var(--text); }
+:is(html, .lp)[data-look="void"] .input, :is(html, .lp)[data-look="void"] .select, :is(html, .lp)[data-look="void"] .textarea { background: transparent; border-color: var(--border); border-radius: var(--r-md); }
+:is(html, .lp)[data-look="void"] .input:hover, :is(html, .lp)[data-look="void"] .select:hover { border-color: var(--text-3); }
+:is(html, .lp)[data-look="void"] .chip { background: transparent; border-color: var(--border); color: var(--text-2); font-weight: 500; }
+:is(html, .lp)[data-look="void"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="void"] .chip.is-on, :is(html, .lp)[data-look="void"] .mode-chip[aria-pressed="true"] { background: transparent; border-color: var(--text); color: var(--text); box-shadow: none; }
+:is(html, .lp)[data-look="void"] .mode-chip { background: transparent; border-color: var(--border); }
+:is(html, .lp)[data-look="void"] .mode-chip[aria-pressed="true"] .ico, :is(html, .lp)[data-look="void"] .mode-chip[aria-pressed="true"] .mm { color: var(--text); }
+:is(html, .lp)[data-look="void"] .segmented { background: transparent; border-color: var(--border); }
+:is(html, .lp)[data-look="void"] .segmented [aria-pressed="true"], :is(html, .lp)[data-look="void"] .segmented [aria-selected="true"] { background: var(--text); color: var(--bg); box-shadow: none; }
+:is(html, .lp)[data-look="void"] .tab[aria-selected="true"]::after { height: 1px; }
+:is(html, .lp)[data-look="void"] .badge, :is(html, .lp)[data-look="void"] .badge-accent { background: transparent; border: 1px solid var(--border-strong); color: var(--text-2); }
+:is(html, .lp)[data-look="void"] .progress, :is(html, .lp)[data-look="void"] .goal-bar { height: 2px; background: var(--border); }
+:is(html, .lp)[data-look="void"] .progress i, :is(html, .lp)[data-look="void"] .goal-bar i { background: var(--text); }
+:is(html, .lp)[data-look="void"] .eyebrow, :is(html, .lp)[data-look="void"] .group-title, :is(html, .lp)[data-look="void"] .card-title { letter-spacing: .14em; font-size: 10.5px; text-transform: uppercase; font-weight: 500; }
+:is(html, .lp)[data-look="void"] .ring .bar { stroke: var(--text); stroke-width: 1.5px; } :is(html, .lp)[data-look="void"] .ring .track { stroke: var(--border); stroke-width: 1.5px; }
+:is(html, .lp)[data-look="void"] .switch .track { background: transparent; border-color: var(--border-strong); } :is(html, .lp)[data-look="void"] .switch input:checked ~ .track { background: var(--text); }
+:is(html, .lp)[data-look="void"] .switch input:checked ~ .thumb { background: var(--bg); } :is(html, .lp)[data-look="void"] .switch .thumb { background: var(--text-3); box-shadow: none; }
+
+/* ═══════════════════════════ NOIR — ivory serif, a watch-dial timer ═══════════════════════════ */
+:is(html, .lp)[data-look="noir"] .card { background: transparent; box-shadow: none; border-color: color-mix(in srgb, var(--accent) 24%, var(--border)); -webkit-backdrop-filter: none; backdrop-filter: none; }
+:is(html, .lp)[data-look="noir"] .clock { font-family: var(--font-display); font-weight: 300; letter-spacing: -.03em; font-variant-numeric: lining-nums tabular-nums; }
+:is(html, .lp)[data-look="noir"] .hero h1, :is(html, .lp)[data-look="noir"] h1, :is(html, .lp)[data-look="noir"] h2, :is(html, .lp)[data-look="noir"] .kpi .value, :is(html, .lp)[data-look="noir"] .today-total, :is(html, .lp)[data-look="noir"] .tl-total b { font-family: var(--font-display); font-weight: 400; letter-spacing: -.01em; }
+:is(html, .lp)[data-look="noir"] .hero p, :is(html, .lp)[data-look="noir"] #date { font-family: var(--font-display); font-style: italic; color: var(--text-3); }
+:is(html, .lp)[data-look="noir"] .btn { background: transparent; border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: var(--text); box-shadow: none; text-transform: uppercase; letter-spacing: .14em; font-size: 11px; font-weight: 600; border-radius: var(--r-full); }
+:is(html, .lp)[data-look="noir"] .btn:hover { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+:is(html, .lp)[data-look="noir"] .btn-primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+:is(html, .lp)[data-look="noir"] .btn-primary:hover { filter: brightness(1.08); }
+:is(html, .lp)[data-look="noir"] .btn-ghost { border-color: transparent; text-transform: none; letter-spacing: 0; font-size: var(--fs-md); font-weight: 500; }
+:is(html, .lp)[data-look="noir"] .btn-ghost:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--text); border-color: transparent; }
+:is(html, .lp)[data-look="noir"] .btn-icon { text-transform: none; }
+:is(html, .lp)[data-look="noir"] .btn-sm { font-size: 10.5px; }
+:is(html, .lp)[data-look="noir"] .btn-lg { font-size: 12px; letter-spacing: .18em; }
+:is(html, .lp)[data-look="noir"] .chip, :is(html, .lp)[data-look="noir"] .mode-chip { background: transparent; border-color: var(--border); color: var(--text-2); font-weight: 500; text-transform: uppercase; letter-spacing: .1em; font-size: 10.5px; border-radius: var(--r-full); }
+:is(html, .lp)[data-look="noir"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="noir"] .chip.is-on, :is(html, .lp)[data-look="noir"] .mode-chip[aria-pressed="true"] { background: transparent; border-color: var(--accent); color: var(--accent-text); box-shadow: none; }
+:is(html, .lp)[data-look="noir"] .chip-task { text-transform: none; letter-spacing: 0; font-family: var(--font-display); font-size: var(--fs-sm); }
+:is(html, .lp)[data-look="noir"] .mode-chip .ico, :is(html, .lp)[data-look="noir"] .mode-chip .mm { color: var(--text-3); }
+:is(html, .lp)[data-look="noir"] .input, :is(html, .lp)[data-look="noir"] .select, :is(html, .lp)[data-look="noir"] .textarea { background: transparent; border-color: var(--border); border-radius: var(--r-sm); }
+:is(html, .lp)[data-look="noir"] .input::placeholder { font-family: var(--font-display); font-style: italic; }
+:is(html, .lp)[data-look="noir"] .input:focus, :is(html, .lp)[data-look="noir"] .select:focus { border-color: var(--accent); box-shadow: none; }
+:is(html, .lp)[data-look="noir"] .segmented { background: transparent; border-color: var(--border); }
+:is(html, .lp)[data-look="noir"] .segmented [aria-pressed="true"], :is(html, .lp)[data-look="noir"] .segmented [aria-selected="true"] { background: transparent; color: var(--accent-text); box-shadow: inset 0 -1px 0 var(--accent); border-radius: 0; }
+:is(html, .lp)[data-look="noir"] .tab { text-transform: uppercase; letter-spacing: .14em; font-size: 11px; font-weight: 600; } :is(html, .lp)[data-look="noir"] .tab[aria-selected="true"]::after { height: 1px; background: var(--accent); }
+:is(html, .lp)[data-look="noir"] .eyebrow, :is(html, .lp)[data-look="noir"] .group-title, :is(html, .lp)[data-look="noir"] .card-title { color: var(--accent-text); letter-spacing: .2em; font-size: 10px; text-transform: uppercase; font-weight: 600; }
+:is(html, .lp)[data-look="noir"] .badge, :is(html, .lp)[data-look="noir"] .badge-accent { background: transparent; border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); color: var(--accent-text); text-transform: uppercase; letter-spacing: .14em; font-size: 10px; font-weight: 600; }
+:is(html, .lp)[data-look="noir"] .progress, :is(html, .lp)[data-look="noir"] .goal-bar { height: 2px; background: var(--border); }
+:is(html, .lp)[data-look="noir"] .progress i, :is(html, .lp)[data-look="noir"] .goal-bar i { background: var(--accent); }
+:is(html, .lp)[data-look="noir"] .split { height: 3px; gap: 3px; } :is(html, .lp)[data-look="noir"] .split i { border-radius: 0; }
+:is(html, .lp)[data-look="noir"] .focus-run.large .ring { overflow: visible; }
+:is(html, .lp)[data-look="noir"] .focus-run.large .ring::before, :is(html, .lp)[data-look="noir"] .focus-run.compact .ring::before { content: ""; position: absolute; inset: -12px; border-radius: 50%; background: repeating-conic-gradient(from -.4deg, color-mix(in srgb, var(--text) 34%, transparent) 0 .8deg, transparent .8deg 6deg); -webkit-mask: radial-gradient(circle, transparent calc(50% - 5px), #000 calc(50% - 4px)); mask: radial-gradient(circle, transparent calc(50% - 5px), #000 calc(50% - 4px)); }
+:is(html, .lp)[data-look="noir"] .ring .track { stroke: var(--border); stroke-width: 1px; } :is(html, .lp)[data-look="noir"] .ring .bar { stroke: var(--accent); stroke-width: 2px; }
+:is(html, .lp)[data-look="noir"] .ring .time { font-family: var(--font-display); font-weight: 300; font-variant-numeric: lining-nums tabular-nums; letter-spacing: -.02em; }
+:is(html, .lp)[data-look="noir"] .task-row input[type=checkbox], :is(html, .lp)[data-look="noir"] input[type=checkbox].task-check { appearance: none; width: 11px; height: 11px; border: 1px solid var(--text-3); border-radius: 0; background: none; transform: rotate(45deg); margin: 0 5px; }
+:is(html, .lp)[data-look="noir"] .task-row input[type=checkbox]:checked { background: var(--accent); border-color: var(--accent); }
+:is(html, .lp)[data-look="noir"] .switch .track { background: transparent; border-color: var(--border-strong); } :is(html, .lp)[data-look="noir"] .switch input:checked ~ .track { background: var(--accent); }
+
+/* ═══════════════════════════ PEARL — frosted glass over pastel light ═══════════════════════════ */
+:is(html, .lp)[data-look="pearl"] { --card-blur: 26px; }
+:is(html, .lp)[data-look="pearl"] .card { background: color-mix(in srgb, var(--surface) 62%, transparent); border-color: color-mix(in srgb, #fff 70%, transparent); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8), var(--card-shadow); border-radius: var(--r-xl); }
+:is(html, .lp)[data-look="pearl"][data-scheme="dark"] .card { background: color-mix(in srgb, var(--surface) 55%, transparent); border-color: rgba(255, 255, 255, .1); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), var(--card-shadow); }
+:is(html, .lp)[data-look="pearl"] .btn:not(.btn-primary) { border-radius: var(--r-full); background: color-mix(in srgb, var(--surface) 70%, transparent); border-color: color-mix(in srgb, var(--text) 10%, transparent); font-weight: 600; }
+:is(html, .lp)[data-look="pearl"] .btn-ghost { background: transparent; border-color: transparent; }
+:is(html, .lp)[data-look="pearl"] .btn-primary { background-image: linear-gradient(135deg, color-mix(in srgb, var(--accent) 80%, #fff), var(--accent) 55%, color-mix(in srgb, var(--accent) 70%, #b04bff)); border-color: transparent; box-shadow: 0 10px 26px -8px color-mix(in srgb, var(--accent) 65%, transparent), inset 0 1px 0 rgba(255, 255, 255, .4); }
+:is(html, .lp)[data-look="pearl"] .btn-primary:hover { filter: brightness(1.06); }
+:is(html, .lp)[data-look="pearl"] .btn-lg { border-radius: var(--r-full); }
+:is(html, .lp)[data-look="pearl"] .clock { font-weight: 300; letter-spacing: -.045em; }
+:is(html, .lp)[data-look="pearl"] .input, :is(html, .lp)[data-look="pearl"] .select, :is(html, .lp)[data-look="pearl"] .textarea { background: color-mix(in srgb, var(--surface) 70%, transparent); border-color: color-mix(in srgb, var(--text) 9%, transparent); border-radius: var(--r-lg); }
+:is(html, .lp)[data-look="pearl"] .input:focus, :is(html, .lp)[data-look="pearl"] .select:focus { background: var(--surface); }
+:is(html, .lp)[data-look="pearl"] .chip, :is(html, .lp)[data-look="pearl"] .mode-chip { background: color-mix(in srgb, var(--surface) 60%, transparent); border-color: color-mix(in srgb, var(--text) 9%, transparent); border-radius: var(--r-full); font-weight: 600; }
+:is(html, .lp)[data-look="pearl"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="pearl"] .mode-chip[aria-pressed="true"] { background: var(--surface); border-color: color-mix(in srgb, var(--accent) 50%, transparent); box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--accent) 55%, transparent); }
+:is(html, .lp)[data-look="pearl"] .segmented { background: color-mix(in srgb, var(--text) 6%, transparent); border-color: transparent; border-radius: var(--r-full); }
+:is(html, .lp)[data-look="pearl"] .segmented button { border-radius: var(--r-full); }
+:is(html, .lp)[data-look="pearl"] .segmented [aria-pressed="true"], :is(html, .lp)[data-look="pearl"] .segmented [aria-selected="true"] { background: var(--surface); box-shadow: 0 2px 8px rgba(50, 50, 120, .14); }
+:is(html, .lp)[data-look="pearl"] .progress, :is(html, .lp)[data-look="pearl"] .goal-bar { height: 7px; background: color-mix(in srgb, var(--text) 8%, transparent); }
+:is(html, .lp)[data-look="pearl"] .progress i, :is(html, .lp)[data-look="pearl"] .goal-bar i { background: linear-gradient(90deg, #ff9d7a, var(--accent)); }
+:is(html, .lp)[data-look="pearl"] .split i { border-radius: 99px; }
+:is(html, .lp)[data-look="pearl"] .ring .bar { filter: drop-shadow(0 0 7px color-mix(in srgb, var(--accent) 45%, transparent)); } :is(html, .lp)[data-look="pearl"] .ring, :is(html, .lp)[data-look="pearl"] .ring svg { overflow: visible; }
+:is(html, .lp)[data-look="pearl"] .badge { border-radius: var(--r-full); }
+:is(html, .lp)[data-look="pearl"] .kpi, :is(html, .lp)[data-look="pearl"] .kpi .value { font-weight: 700; }
+:is(html, .lp)[data-look="pearl"] .tab[aria-selected="true"]::after { height: 3px; border-radius: 3px; }
+
+/* ═══════════════════════════ BENTO — soft colour tiles ═══════════════════════════ */
+:is(html, .lp)[data-look="bento"] { --tile-1: #ffeee4; --tile-2: #e7f7ee; --tile-3: #f3effd; --tile-4: #e7f2fc; --tile-5: #fcf4d9; }
+:is(html, .lp)[data-look="bento"][data-scheme="dark"] { --tile-1: #2a1f19; --tile-2: #16271e; --tile-3: #221d33; --tile-4: #15222f; --tile-5: #29250f; }
+:is(html, .lp)[data-look="bento"] .card { border: 0; box-shadow: none; border-radius: var(--r-xl); background: var(--tile-0, var(--surface)); }
+:is(html, .lp)[data-look="bento"] .focus-card, :is(html, .lp)[data-look="bento"] #focus.card { --tile-0: var(--tile-1); }
+:is(html, .lp)[data-look="bento"] .modules > .card:nth-child(5n+1), :is(html, .lp)[data-look="bento"] .kpis > .card:nth-child(4n+1) { --tile-0: var(--tile-2); }
+:is(html, .lp)[data-look="bento"] .modules > .card:nth-child(5n+2), :is(html, .lp)[data-look="bento"] .kpis > .card:nth-child(4n+2) { --tile-0: var(--tile-3); }
+:is(html, .lp)[data-look="bento"] .modules > .card:nth-child(5n+3), :is(html, .lp)[data-look="bento"] .kpis > .card:nth-child(4n+3) { --tile-0: var(--tile-4); }
+:is(html, .lp)[data-look="bento"] .modules > .card:nth-child(5n+4), :is(html, .lp)[data-look="bento"] .kpis > .card:nth-child(4n+4) { --tile-0: var(--tile-5); }
+:is(html, .lp)[data-look="bento"] .modules > .card:nth-child(5n+5) { --tile-0: var(--tile-1); }
+:is(html, .lp)[data-look="bento"] .clock { font-weight: 800; letter-spacing: -.05em; }
+:is(html, .lp)[data-look="bento"] .btn { border-radius: var(--r-full); font-weight: 700; background: color-mix(in srgb, var(--surface) 80%, transparent); border-color: transparent; }
+:is(html, .lp)[data-look="bento"] .btn-ghost { background: transparent; }
+:is(html, .lp)[data-look="bento"] .btn-primary { background: var(--accent); color: var(--accent-fg); box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--accent) 70%, transparent); }
+:is(html, .lp)[data-look="bento"] .btn-lg { border-radius: var(--r-full); }
+:is(html, .lp)[data-look="bento"] .chip, :is(html, .lp)[data-look="bento"] .mode-chip { background: color-mix(in srgb, var(--surface) 78%, transparent); border-color: transparent; font-weight: 700; border-radius: var(--r-full); }
+:is(html, .lp)[data-look="bento"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="bento"] .mode-chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: transparent; }
+:is(html, .lp)[data-look="bento"] .mode-chip[aria-pressed="true"] .ico, :is(html, .lp)[data-look="bento"] .mode-chip[aria-pressed="true"] .mm { color: var(--accent-fg); }
+:is(html, .lp)[data-look="bento"] .input, :is(html, .lp)[data-look="bento"] .select, :is(html, .lp)[data-look="bento"] .textarea { background: color-mix(in srgb, var(--surface) 78%, transparent); border-color: transparent; border-radius: var(--r-lg); }
+:is(html, .lp)[data-look="bento"] .input:focus, :is(html, .lp)[data-look="bento"] .select:focus { background: var(--surface); }
+:is(html, .lp)[data-look="bento"] .segmented { background: color-mix(in srgb, var(--surface) 70%, transparent); border-color: transparent; border-radius: var(--r-full); }
+:is(html, .lp)[data-look="bento"] .segmented button { border-radius: var(--r-full); font-weight: 700; }
+:is(html, .lp)[data-look="bento"] .segmented [aria-pressed="true"], :is(html, .lp)[data-look="bento"] .segmented [aria-selected="true"] { background: var(--accent); color: var(--accent-fg); box-shadow: none; }
+:is(html, .lp)[data-look="bento"] .progress, :is(html, .lp)[data-look="bento"] .goal-bar { height: 10px; background: color-mix(in srgb, var(--surface) 70%, transparent); }
+:is(html, .lp)[data-look="bento"] .progress i, :is(html, .lp)[data-look="bento"] .goal-bar i { background: var(--accent); border-radius: 99px; }
+:is(html, .lp)[data-look="bento"] .split { height: 12px; } :is(html, .lp)[data-look="bento"] .split i { border-radius: 99px; }
+:is(html, .lp)[data-look="bento"] .badge { border-radius: var(--r-full); font-weight: 700; }
+:is(html, .lp)[data-look="bento"] .ring .track { stroke: color-mix(in srgb, var(--surface) 75%, transparent); } :is(html, .lp)[data-look="bento"] .ring .bar { stroke-width: 14px; } :is(html, .lp)[data-look="bento"] .ring .track { stroke-width: 14px; }
+:is(html, .lp)[data-look="bento"] .eyebrow, :is(html, .lp)[data-look="bento"] .group-title { font-weight: 800; }
+:is(html, .lp)[data-look="bento"] .tab[aria-selected="true"]::after { height: 4px; border-radius: 4px; }
+:is(html, .lp)[data-look="bento"] .kpi .value { font-weight: 800; }
+
+/* ═══════════════════════════ the toolbar popup follows each look (popup.css sets a generic hero; ids need ids) ═══════════════════════════ */
+:is(html, .lp)[data-look="void"] #focus.card, :is(html, .lp)[data-look="void"] #site.card, :is(html, .lp)[data-look="void"] #today.card { background: transparent; box-shadow: none; border-color: var(--border); }
+:is(html, .lp)[data-look="void"] body { background: var(--bg); }
+:is(html, .lp)[data-look="void"] .focus-idle:not(.large) .input, :is(html, .lp)[data-look="void"] .capture .input { background: transparent; border-color: var(--border); }
+:is(html, .lp)[data-look="void"] .focus-idle:not(.large) .durations, :is(html, .lp)[data-look="void"] .site-class, :is(html, .lp)[data-look="void"] .focus-run.compact .segmented-sm { background: transparent; box-shadow: inset 0 0 0 1px var(--border); }
+:is(html, .lp)[data-look="void"] .focus-idle:not(.large) .durations .chip[aria-pressed="true"], :is(html, .lp)[data-look="void"] .site-class button[aria-pressed="true"] { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--text); }
+:is(html, .lp)[data-look="void"] .focus-idle:not(.large) .btn-lg { background: var(--accent); background-image: none; box-shadow: none; border-radius: var(--r-full); }
+:is(html, .lp)[data-look="void"] .focus-idle:not(.large) .mode-select, :is(html, .lp)[data-look="void"] .foot-row .btn-icon, :is(html, .lp)[data-look="void"] .eye-chip, :is(html, .lp)[data-look="void"] .focus-run.compact .run-actions .btn { background: transparent; box-shadow: inset 0 0 0 1px var(--border); }
+:is(html, .lp)[data-look="void"] .brand img { box-shadow: none; }
+:is(html, .lp)[data-look="noir"] #focus.card, :is(html, .lp)[data-look="noir"] #site.card, :is(html, .lp)[data-look="noir"] #today.card { background: transparent; box-shadow: none; border-radius: var(--r-md); }
+:is(html, .lp)[data-look="noir"] body { background: var(--bg); }
+:is(html, .lp)[data-look="noir"] .focus-idle:not(.large) .input, :is(html, .lp)[data-look="noir"] .capture .input { background: transparent; border: 1px solid var(--border); border-radius: var(--r-sm); }
+:is(html, .lp)[data-look="noir"] .focus-idle:not(.large) .durations, :is(html, .lp)[data-look="noir"] .site-class, :is(html, .lp)[data-look="noir"] .focus-run.compact .segmented-sm { background: transparent; box-shadow: inset 0 0 0 1px var(--border); border-radius: var(--r-sm); }
+:is(html, .lp)[data-look="noir"] .focus-idle:not(.large) .durations .chip[aria-pressed="true"], :is(html, .lp)[data-look="noir"] .site-class button[aria-pressed="true"] { background: transparent; color: var(--accent-text); box-shadow: inset 0 0 0 1px var(--accent); border-radius: var(--r-sm); }
+:is(html, .lp)[data-look="noir"] .focus-idle:not(.large) .btn-lg { background: var(--accent); background-image: none; border-radius: var(--r-full); box-shadow: none; }
+:is(html, .lp)[data-look="noir"] .focus-idle:not(.large) .mode-select, :is(html, .lp)[data-look="noir"] .foot-row .btn-icon, :is(html, .lp)[data-look="noir"] .eye-chip, :is(html, .lp)[data-look="noir"] .focus-run.compact .run-actions .btn { background: transparent; box-shadow: inset 0 0 0 1px var(--border); border-radius: var(--r-full); }
+:is(html, .lp)[data-look="noir"] .brand img { box-shadow: none; }
+:is(html, .lp)[data-look="bento"] #focus.card { background: var(--tile-1); border: 0; box-shadow: none; }
+:is(html, .lp)[data-look="bento"] #site.card { background: var(--tile-2); border: 0; } :is(html, .lp)[data-look="bento"] #today.card { background: var(--tile-3); border: 0; }
+:is(html, .lp)[data-look="bento"] .focus-idle:not(.large) .input, :is(html, .lp)[data-look="bento"] .capture .input, :is(html, .lp)[data-look="bento"] .focus-idle:not(.large) .durations, :is(html, .lp)[data-look="bento"] .site-class, :is(html, .lp)[data-look="bento"] .focus-idle:not(.large) .mode-select, :is(html, .lp)[data-look="bento"] .focus-run.compact .segmented-sm { background: color-mix(in srgb, var(--surface) 78%, transparent); }
+:is(html, .lp)[data-look="bento"] .focus-idle:not(.large) .durations .chip[aria-pressed="true"], :is(html, .lp)[data-look="bento"] .site-class button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); box-shadow: none; }
+:is(html, .lp)[data-look="bento"] .site-class button[aria-pressed="true"][data-cls] { color: var(--accent-fg); }
+:is(html, .lp)[data-look="bento"] .focus-idle:not(.large) .btn-lg { background-image: none; border-radius: var(--r-full); }
+:is(html, .lp)[data-look="bento"] body { background: var(--bg); }
+:is(html, .lp)[data-look="bento"] .brand img { box-shadow: none; }
+:is(html, .lp)[data-look="pearl"] #focus.card { background: color-mix(in srgb, var(--surface) 70%, transparent); border-color: color-mix(in srgb, #fff 70%, transparent); }
+:is(html, .lp)[data-look="pearl"][data-scheme="dark"] #focus.card { background: color-mix(in srgb, var(--surface) 62%, transparent); border-color: rgba(255, 255, 255, .1); }
+:is(html, .lp)[data-look="pearl"] #site.card, :is(html, .lp)[data-look="pearl"] #today.card { background: color-mix(in srgb, var(--surface) 62%, transparent); border-color: color-mix(in srgb, #fff 60%, transparent); }
+:is(html, .lp)[data-look="pearl"] body { background: var(--page-bg), var(--bg); }
+:is(html, .lp)[data-look="pearl"] .focus-idle:not(.large) .btn-lg { background-image: linear-gradient(135deg, color-mix(in srgb, var(--accent) 80%, #fff), var(--accent) 55%, color-mix(in srgb, var(--accent) 70%, #b04bff)); border-radius: var(--r-full); }
+:is(html, .lp)[data-look="pearl"] .focus-idle:not(.large) .input, :is(html, .lp)[data-look="pearl"] .capture .input { border-radius: var(--r-full); padding: 0 18px; }
+:is(html, .lp)[data-look="obsidian"] #focus.card { background-color: color-mix(in srgb, var(--surface) 70%, transparent); }

@@ -59,12 +59,16 @@ const STILL = '*, *::before, *::after { animation: none !important; transition: 
     }, [a, b]);
   }
 
-  for (const lang of LANGS) for (const [mode, look, bg] of MODES) {
+  // the usual matrix (languages × light/dark) plus the newer looks once each (English): the screens that carry a look's character
+  const NEW_LOOKS = ['obsidian', 'void', 'noir', 'pearl', 'bento'], NEW_PAGES = ['home', 'popup', 'insights'];
+  const RUNS = [...LANGS.flatMap((lang) => MODES.map(([mode, look, bg]) => ({ lang, mode, look, bg, tag: lang, pages: PAGES }))),
+    ...NEW_LOOKS.flatMap((look) => ['light', 'dark'].map((mode) => ({ lang: LANGS[0], mode, look, bg: 'look', tag: look, pages: PAGES.filter((pg) => NEW_PAGES.includes(pg[0]) && !pg[3]) })))];
+  for (const { lang, mode, look, bg, tag, pages } of RUNS) {
     await seed(seedPage, { look, mode, background: bg, clockStyle: 'thin', lang });
     await seedPage.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.setRaw({ gsDismissed: true }); await st.updateSettings((s) => { s.newtab.clock24 = false; }); });
-    for (const [name, url, vp, design] of PAGES) {
+    for (const [name, url, vp, design] of pages) {
       if (design && (mode !== 'dark' || lang !== LANGS[0])) continue;
-      const label = `${name}-${lang}-${mode}`;
+      const label = `${name}-${tag}-${mode}`;
       const file = path.join(BASE, label + '.png');
       const shoot = async () => {
         const p = await app.ctx.newPage(); await p.setViewportSize(vp); await p.goto(ext(url));

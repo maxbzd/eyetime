@@ -75,7 +75,7 @@ body { background: radial-gradient(130% 55% at 100% -8%, var(--accent-soft), tra
 .focus-idle:not(.large) .durations .chip[aria-pressed="true"] { background: var(--surface); color: var(--accent-text); box-shadow: 0 1px 2px rgba(0, 0, 0, .18), 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent); }
 .focus-idle:not(.large) .durations .chip .ico { margin-right: 3px; }
 .focus-idle:not(.large) .btn-lg { height: 48px; border-radius: var(--r-md); font-size: var(--fs-md); font-weight: 650; letter-spacing: -.005em; border: 0;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 86%, #fff) 0%, var(--accent) 100%);
+  background-color: var(--accent); background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent) 86%, #fff) 0%, var(--accent) 100%);
   box-shadow: 0 8px 20px -6px color-mix(in srgb, var(--accent) 60%, transparent), inset 0 1px 0 rgba(255, 255, 255, .28); transition: transform var(--t-fast), box-shadow var(--t-fast), filter var(--t-fast); }
 .focus-idle:not(.large) .btn-lg:hover { filter: brightness(1.05); box-shadow: 0 10px 24px -6px color-mix(in srgb, var(--accent) 70%, transparent), inset 0 1px 0 rgba(255, 255, 255, .3); }
 .focus-idle:not(.large) .btn-lg:active { transform: translateY(1px); box-shadow: 0 3px 10px -4px color-mix(in srgb, var(--accent) 60%, transparent), inset 0 1px 0 rgba(255, 255, 255, .2); }

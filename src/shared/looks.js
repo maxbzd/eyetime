@@ -31,7 +31,7 @@ const blobs = (a = 22, b = 14) => `radial-gradient(900px 560px at 8% -10%, color
 
 export const LOOKS = {
   calm: {
-    name: 'Calm', blurb: 'Warm, quiet, neutral. The default.', font: 'inter', display: 'inter', radii: 'soft', cards: 'solid', shadow: 'soft', borderW: 1, headingW: 650, headingLs: '-.015em', homeBg: 'dawn',
+    name: 'Calm', blurb: 'Warm, quiet, neutral. The default.', font: 'inter', display: 'inter', radii: 'soft', cards: 'solid', shadow: 'soft', borderW: 1, headingW: 650, headingLs: '-.015em', homeBg: 'dawn', homeScene: 'dawn',
     light: { bg: '#faf9f7', surface: '#ffffff', text: '#1c1917', accent: '#cf450a' },
     dark: { bg: '#0f0e0d', surface: '#181716', text: '#f5f3f0', accent: '#ff7a3d' },
   },
@@ -72,6 +72,33 @@ export const LOOKS = {
     light: { bg: '#ffffff', surface: '#ffffff', text: '#000000', accent: '#000000', border: '#000000', borderStrong: '#000000' },
     dark: { bg: '#000000', surface: '#000000', text: '#ffffff', accent: '#ffffff', border: '#ffffff', borderStrong: '#ffffff' },
   },
+  obsidian: {
+    name: 'Obsidian', blurb: 'True black glass with a warm ember glow.', font: 'inter', display: 'inter', radii: [10, 14, 20, 28], cards: 'glass', shadow: 'deep', borderW: 1, headingW: 650, headingLs: '-.03em',
+    light: { bg: '#f3f1ee', surface: '#ffffff', text: '#141318', accent: '#e2491a' },
+    dark: { bg: '#000000', surface: '#0e0e11', text: '#f5f5f7', accent: '#ff6a3d' },
+    pageBg: { dark: 'radial-gradient(900px 520px at 88% -8%, rgba(255, 106, 61, .16), transparent 62%), radial-gradient(700px 480px at -6% 4%, rgba(255, 255, 255, .05), transparent 60%)', light: 'radial-gradient(900px 520px at 88% -8%, rgba(226, 73, 26, .13), transparent 62%), radial-gradient(700px 480px at -6% 4%, rgba(255, 255, 255, .9), transparent 60%)' },
+  },
+  void: {
+    name: 'Void', blurb: 'Type and hairlines only. Nothing to look at but your work.', font: 'inter', display: 'inter', radii: [6, 10, 14, 20], cards: 'outline', shadow: 'none', borderW: 1, headingW: 500, headingLs: '-.025em',
+    light: { bg: '#fcfcfb', surface: '#fcfcfb', text: '#0b0b0c', accent: '#18181b', border: '#e4e4e1', borderStrong: '#bdbdb8' },
+    dark: { bg: '#050505', surface: '#050505', text: '#fafafa', accent: '#fafafa', border: '#222224', borderStrong: '#4a4a4e' },
+  },
+  noir: {
+    name: 'Noir', blurb: 'Ivory serif on black, a watch-dial timer, champagne details.', font: 'inter', display: 'serif', radii: [2, 4, 6, 10], cards: 'outline', shadow: 'none', borderW: 1, headingW: 400, headingLs: '-.01em',
+    light: { bg: '#f4efe4', surface: '#fbf8f0', text: '#1b1712', accent: '#8f6b2c', border: '#ddd4c1', borderStrong: '#b9ab8e' },
+    dark: { bg: '#030302', surface: '#0c0b09', text: '#f2ede3', accent: '#d8c196', border: '#262219', borderStrong: '#4d4535' },
+  },
+  pearl: {
+    name: 'Pearl', blurb: 'Airy frosted glass over soft pastel light.', font: 'manrope', display: 'manrope', radii: [14, 20, 28, 36], cards: 'glass', shadow: 'airy', borderW: 1, headingW: 700, headingLs: '-.02em',
+    light: { bg: '#eceefb', surface: '#ffffff', text: '#1c1b3a', accent: '#5a54f0' },
+    dark: { bg: '#0a0a18', surface: '#14142a', text: '#f1f0ff', accent: '#9d93ff' },
+    pageBg: { light: 'radial-gradient(900px 620px at 6% -8%, rgba(255, 190, 170, .55), transparent 64%), radial-gradient(900px 640px at 100% 4%, rgba(174, 160, 255, .55), transparent 66%), radial-gradient(800px 560px at 50% 112%, rgba(150, 230, 215, .45), transparent 66%)', dark: 'radial-gradient(900px 620px at 6% -8%, rgba(255, 140, 120, .16), transparent 64%), radial-gradient(900px 640px at 100% 4%, rgba(130, 110, 255, .26), transparent 66%), radial-gradient(800px 560px at 50% 112%, rgba(70, 200, 190, .14), transparent 66%)' },
+  },
+  bento: {
+    name: 'Bento', blurb: 'Soft colour tiles, rounded and friendly.', font: 'nunito', display: 'nunito', radii: [14, 20, 28, 36], cards: 'flat', shadow: 'soft', borderW: 1, headingW: 800, headingLs: '-.02em',
+    light: { bg: '#f5f0e8', surface: '#ffffff', text: '#201a15', accent: '#0f8a63' },
+    dark: { bg: '#0f120f', surface: '#181d18', text: '#eef3ec', accent: '#5fd6a2' },
+  },
   sunset: {
     name: 'Sunset', blurb: 'Peach, coral and a warm evening light.', font: 'manrope', display: 'manrope', radii: [10, 14, 20, 28], cards: 'solid', shadow: 'soft', borderW: 1, headingW: 750, headingLs: '-.02em', homeBg: 'mesh',
     light: { bg: '#fff1e6', surface: '#fffaf5', text: '#3a1710', accent: '#e0481f' },
@@ -89,7 +116,8 @@ export const LOOKS = {
     dark: { bg: '#041217', surface: '#09202a', text: '#dff4f8', accent: '#38bdf8' },
   },
 };
-export const LOOK_IDS = Object.keys(LOOKS);
+const FIRST = ['calm', 'obsidian', 'void', 'noir', 'pearl', 'bento']; // the gallery order: the default, then the newest
+export const LOOK_IDS = [...FIRST, ...Object.keys(LOOKS).filter((id) => !FIRST.includes(id))];
 
 /* ---------- derivation ---------- */
 
@@ -103,6 +131,12 @@ function shadows(style, scheme, t) {
   if (style === 'none') return ['none', 'none', '0 10px 40px rgba(0, 0, 0, .28)'];
   if (style === 'hard') return ['0 0 0 0 transparent', `3px 3px 0 ${t.borderStrong}`, `6px 6px 0 ${t.borderStrong}`];
   if (style === 'glow') return [`0 0 0 1px ${rgba(t.accent, 0.1)}`, `0 10px 40px ${rgba(t.accent, 0.18)}`, `0 20px 70px ${rgba(t.accent, 0.28)}`];
+  if (style === 'deep') return scheme === 'dark'
+    ? ['0 0 0 1px rgba(255, 255, 255, .04)', '0 10px 30px rgba(0, 0, 0, .65)', '0 24px 70px rgba(0, 0, 0, .8)']
+    : ['0 1px 2px rgba(20, 19, 24, .06)', '0 1px 2px rgba(20, 19, 24, .05), 0 10px 30px rgba(20, 19, 24, .09)', '0 2px 4px rgba(20, 19, 24, .06), 0 24px 60px rgba(20, 19, 24, .18)'];
+  if (style === 'airy') return scheme === 'dark'
+    ? ['0 0 0 1px rgba(255, 255, 255, .05)', '0 12px 40px rgba(2, 2, 20, .5)', '0 28px 80px rgba(2, 2, 20, .65)']
+    : ['0 1px 2px rgba(70, 70, 150, .06)', '0 12px 38px rgba(70, 70, 150, .13)', '0 28px 80px rgba(70, 70, 150, .22)'];
   return scheme === 'dark'
     ? ['0 0 0 1px rgba(255, 255, 255, .02)', '0 8px 24px rgba(0, 0, 0, .4)', '0 16px 48px rgba(0, 0, 0, .55)']
     : ['0 1px 2px rgba(28, 25, 23, .05)', '0 1px 2px rgba(28, 25, 23, .04), 0 8px 24px rgba(28, 25, 23, .08)', '0 2px 4px rgba(28, 25, 23, .06), 0 16px 48px rgba(28, 25, 23, .14)'];
