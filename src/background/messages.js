@@ -52,6 +52,7 @@ const handlers = {
   'break:state': () => getEyeState(),
   'tracking:pause': async (m) => { await setRaw({ pausedUntil: m.minutes ? Date.now() + m.minutes * 60_000 : 0 }); await sync('pause'); return { ok: true }; },
   'tab:close': async (m, sender) => { if (sender.tab) await chrome.tabs.remove(sender.tab.id); return { ok: true }; },
+  'dock:pos': async (m) => { const y = Number(m.y); if (!(y >= 0.05 && y <= 0.95)) return { ok: false }; await updateSettings((s) => { s.dock.y = Math.round(y * 1000) / 1000; }); return { ok: true }; },
   'settings:changed': async () => { await applySettings(); return { ok: true }; },
 };
 

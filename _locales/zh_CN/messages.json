@@ -11,6 +11,9 @@
   "cmdToggleFocus": {
     "message": "开始或停止专注时段"
   },
+  "cmdToggleDock": {
+    "message": "在此页面显示或隐藏 EyeTime 侧边栏"
+  },
   "feedTitle": {
     "message": "该停止刷屏了"
   },
@@ -22,5 +25,17 @@
   },
   "feedMore": {
     "message": "再看 5 分钟"
+  },
+  "dockFocus": {
+    "message": "专注"
+  },
+  "dockTasks": {
+    "message": "任务"
+  },
+  "dockLearn": {
+    "message": "学习"
+  },
+  "dockTab": {
+    "message": "打开 EyeTime 侧边栏"
   }
 }

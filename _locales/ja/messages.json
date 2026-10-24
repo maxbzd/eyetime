@@ -11,6 +11,9 @@
   "cmdToggleFocus": {
     "message": "集中セッションを開始・停止"
   },
+  "cmdToggleDock": {
+    "message": "このページでEyeTimeのドックを表示/非表示"
+  },
   "feedTitle": {
     "message": "スクロールをやめる時間です"
   },
@@ -22,5 +25,17 @@
   },
   "feedMore": {
     "message": "あと5分"
+  },
+  "dockFocus": {
+    "message": "集中"
+  },
+  "dockTasks": {
+    "message": "タスク"
+  },
+  "dockLearn": {
+    "message": "学ぶ"
+  },
+  "dockTab": {
+    "message": "EyeTimeのドックを開く"
   }
 }

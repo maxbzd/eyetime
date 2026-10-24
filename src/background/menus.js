@@ -7,6 +7,7 @@ import { resolveLocale, setLocale, t } from '../shared/i18n.js';
 import { startFocus, stopFocus } from './focus.js';
 import { sweepTabs } from './blocker.js';
 import { updateBadge } from './badge.js';
+import { buildTopicMenu } from './dock.js';
 
 const ICON = 'icons/icon128.png';
 
@@ -20,6 +21,7 @@ export async function buildMenus() {
   for (const c of ['productive', 'neutral', 'distracting']) mk({ id: 'cls:' + c, parentId: 'root', title: t('menu.markAs', { cls: t('class.' + c) }), contexts: ['page'] });
   mk({ id: 'block:always', parentId: 'root', title: t('menu.alwaysBlock'), contexts: ['page'] });
   mk({ id: 'focus:toggle', parentId: 'root', title: t('menu.toggleFocus'), contexts: ['page', 'action'] });
+  await buildTopicMenu();
 }
 
 chrome.contextMenus?.onClicked.addListener(async (info, tab) => {

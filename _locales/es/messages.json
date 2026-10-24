@@ -11,6 +11,9 @@
   "cmdToggleFocus": {
     "message": "Iniciar o detener una sesión de enfoque"
   },
+  "cmdToggleDock": {
+    "message": "Mostrar u ocultar el dock de EyeTime en esta página"
+  },
   "feedTitle": {
     "message": "Hora de dejar de hacer scroll"
   },
@@ -22,5 +25,17 @@
   },
   "feedMore": {
     "message": "5 minutos más"
+  },
+  "dockFocus": {
+    "message": "Enfoque"
+  },
+  "dockTasks": {
+    "message": "Tareas"
+  },
+  "dockLearn": {
+    "message": "Aprender"
+  },
+  "dockTab": {
+    "message": "Abrir el dock de EyeTime"
   }
 }

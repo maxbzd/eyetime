@@ -7,7 +7,7 @@ const fs = require('fs');
 
 const PAGES = [
   ['home', 'src/newtab/newtab.html'], ['popup', 'src/popup/popup.html?site=github.com'], ['insights', 'src/insights/insights.html'], ['settings', 'src/options/options.html#focus'],
-  ['settings-data', 'src/options/options.html#data'], ['onboarding', 'src/onboarding/onboarding.html'], ['pause', 'src/blocked/blocked.html?u=http%3A%2F%2Freddit.com%2F&r=friction&a=pause'], ['break', 'src/break/break.html'],
+  ['settings-data', 'src/options/options.html#data'], ['onboarding', 'src/onboarding/onboarding.html'], ['dock', 'src/dock/dock.html#right/learn'], ['pause', 'src/blocked/blocked.html?u=http%3A%2F%2Freddit.com%2F&r=friction&a=pause'], ['break', 'src/break/break.html'],
 ];
 const SHOTS = process.argv.includes('--shots');
 

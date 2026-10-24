@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EyeTime</title>
+  <script src="../ui/theme-init.js"></script>
+  <link rel="stylesheet" href="../ui/tokens.css">
+  <link rel="stylesheet" href="../ui/base.css">
+  <link rel="stylesheet" href="../ui/components.css">
+  <link rel="stylesheet" href="../ui/focus-card.css">
+  <link rel="stylesheet" href="dock.css">
+</head>
+<body>
+  <header class="dock-top">
+    <div class="seg" role="tablist" id="tabs" data-i18n-attr="aria-label:dock.tabs"></div>
+    <div class="dock-actions">
+      <button class="icon-btn" id="hideHere" type="button" hidden data-i18n-attr="aria-label:dock.hideHere;data-tip:dock.hideHere"><i data-icon="eye-off"></i></button>
+      <button class="icon-btn" id="closeDock" type="button" data-i18n-attr="aria-label:dock.close;data-tip:dock.close"><i data-icon="x"></i></button>
+    </div>
+  </header>
+  <main id="view" class="dock-view" tabindex="-1"></main>
+  <script type="module" src="dock.js"></script>
+</body>
+</html>

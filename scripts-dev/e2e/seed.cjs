@@ -41,6 +41,11 @@ async function seed(page, { look, mode, background, clockStyle, lang = 'en' }) {
       { id: 'b', text: sample.tasks[2], done: false, starred: true, createdAt: 2, focusSec: 1500 },
       { id: 'c', text: sample.tasks[3], done: false, starred: false, createdAt: 3 },
       { id: 'd', text: sample.tasks[4], done: true, starred: false, createdAt: 4, focusSec: 900 }]);
+    const L = (id, url, title, status) => ({ id, url, title, status, addedAt: 1 });
+    await st.setCollection('topics', [
+      { id: 'inbox', title: 'Inbox', note: '', createdAt: 0, links: [L('i1', 'https://react.dev/learn', 'Quick Start – React', 'doing'), L('i2', 'https://news.ycombinator.com/', 'Hacker News', 'todo')] },
+      { id: 't1', title: 'Python', note: '', createdAt: 1, links: [L('p1', 'https://docs.python.org/3/tutorial', 'The Python Tutorial', 'done'), L('p2', 'https://github.com/python/cpython', 'CPython on GitHub', 'doing'), L('p3', 'https://docs.google.com/document/d/1', 'My notes', 'todo')] },
+      { id: 't2', title: 'Design systems', note: '', createdAt: 2, links: [L('d1', 'https://www.youtube.com/watch?v=abc', 'Building a design system', 'todo')] }]);
     await st.setCollection('habits', { items: [{ id: 'h1', name: sample.habits[0] }, { id: 'h2', name: sample.habits[1] }], log: Object.fromEntries(keys.slice(-5).map((k, i) => [k, i === 4 ? ['h1'] : ['h1', 'h2']])) });
   }, [look, mode, background, clockStyle, lang, SAMPLES[lang] || SAMPLES.en]);
 }

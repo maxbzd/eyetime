@@ -11,7 +11,7 @@ const SCENES = [
   ['home', 'src/newtab/newtab.html'], ['popup', 'src/popup/popup.html?site=github.com'], ['insights-overview', 'src/insights/insights.html', 'overview'], ['insights-focus', 'src/insights/insights.html', 'focus'],
   ['insights-sites', 'src/insights/insights.html', 'sites'], ['insights-patterns', 'src/insights/insights.html', 'patterns'], ['settings', 'src/options/options.html'], ['break', 'src/break/break.html'],
   ['home-running', 'src/newtab/newtab.html', null, 'running'], ['popup-running', 'src/popup/popup.html?site=github.com', null, 'running'], ['home-review', 'src/newtab/newtab.html', null, 'review'], ['popup-review', 'src/popup/popup.html', null, 'review'], ['home-rest', 'src/newtab/newtab.html', null, 'rest'],
-  ['blocked-friction', 'src/blocked/blocked.html?u=http%3A%2F%2Freddit.com%2F&r=friction&a=pause'], ['blocked-always', 'src/blocked/blocked.html?u=http%3A%2F%2Freddit.com%2F&r=always&a=block'], ['onboarding', 'src/onboarding/onboarding.html'],
+  ['blocked-friction', 'src/blocked/blocked.html?u=http%3A%2F%2Freddit.com%2F&r=friction&a=pause'], ['blocked-always', 'src/blocked/blocked.html?u=http%3A%2F%2Freddit.com%2F&r=always&a=block'], ['onboarding', 'src/onboarding/onboarding.html'], ['dock-now', 'src/dock/dock.html#right/now'], ['dock-learn', 'src/dock/dock.html#right/learn'], ['dock-thoughts', 'src/dock/dock.html#right/thoughts'],
 ];
 
 (async () => {

@@ -11,6 +11,9 @@
   "cmdToggleFocus": {
     "message": "Запустить или остановить фокус-сессию"
   },
+  "cmdToggleDock": {
+    "message": "Показать или скрыть док EyeTime на этой странице"
+  },
   "feedTitle": {
     "message": "Пора остановить скролл"
   },
@@ -22,5 +25,17 @@
   },
   "feedMore": {
     "message": "Ещё 5 минут"
+  },
+  "dockFocus": {
+    "message": "Фокус"
+  },
+  "dockTasks": {
+    "message": "Задачи"
+  },
+  "dockLearn": {
+    "message": "Учёба"
+  },
+  "dockTab": {
+    "message": "Открыть док EyeTime"
   }
 }

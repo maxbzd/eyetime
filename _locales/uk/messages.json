@@ -11,6 +11,9 @@
   "cmdToggleFocus": {
     "message": "Почати або зупинити сесію фокусу"
   },
+  "cmdToggleDock": {
+    "message": "Показати або сховати док EyeTime на цій сторінці"
+  },
   "feedTitle": {
     "message": "Час зупинити прокручування"
   },
@@ -22,5 +25,17 @@
   },
   "feedMore": {
     "message": "Ще 5 хвилин"
+  },
+  "dockFocus": {
+    "message": "Фокус"
+  },
+  "dockTasks": {
+    "message": "Завдання"
+  },
+  "dockLearn": {
+    "message": "Навчання"
+  },
+  "dockTab": {
+    "message": "Відкрити док EyeTime"
   }
 }

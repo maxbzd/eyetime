@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.3.0 — unreleased
+
+The dock: EyeTime next to every page.
+
+### New
+- **The dock** (opt-in: Settings → General → Dock). A small black tab grows out of the window edge on web pages, with soft curves like a phone's notch; hover and it widens into three live rings — today's focus (or the running session), tasks done today, and learning progress. A click opens a side panel in a macOS-like style: **Now** (the focus timer, today's tasks and a quick add), **Learn** and **Thoughts**. Drag the tab along the edge, put it on either side, hide it on chosen sites, or toggle it with `Alt+Shift+D`. It asks the browser for access to websites only when you turn it on; the page script reads nothing from pages.
+- **Learning topics**: make a topic for what you want to learn, save the current page into it with one press (or *Save to EyeTime topic* in the right-click menu, also for links), mark each link *to do / in progress / done*, add notes, and see how much time you really spent on the topic's sites in the last 30 days. Export as Markdown (Settings → Data & privacy). Topics are in the backup file.
+
 ## 3.2.0 — 2026-10-23
 
 Tasks that follow you, room to breathe, and the Chinese and Japanese you can type dates in.
