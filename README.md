@@ -44,7 +44,7 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 | ⏱ **Break timer** | After a session a rest countdown starts on its own (Pomodoro-style, configurable). Distracting sites stay open during the break. |
 | 👁 **Eye care** | 20-20-20 reminders based on *active* screen time, a guided 20-second break page, break counter, bedtime nudge. |
 | 🏠 **Home (new tab)** | Clock (7 styles), focus card with daily goal, today's summary, tasks with priorities, habits with streaks, notes, quick links; 17 backdrops or your own photo, 3 layouts, reorderable cards. Can be switched off. |
-| 🎨 **Make it yours** | Eleven looks (Calm, Paper, Midnight, Terminal, Sakura, Forest, Aurora, Mono, Sunset, Nord, Ocean), any accent colour, fonts, corners, density, card style, light/dark/schedule, custom CSS and shareable looks. Contrast stays accessible. [Details](docs/THEMES.md). |
+| 🎨 **Make it yours** | Sixteen looks (Calm, Obsidian, Void, Noir, Pearl, Bento, Paper, Midnight, Terminal, Sakura, Forest, Aurora, Mono, Sunset, Nord, Ocean), any accent colour, fonts, corners, density, card style, light/dark/schedule, custom CSS and shareable looks. Contrast stays accessible. [Details](docs/THEMES.md). |
 | 🧠 **Research-driven** | If-then plans on the pause page, ready-to-resume notes, a two-minute *Close the day* ritual, break ideas, your own best session length — each tied to published research (and honest about how strong it is): [docs/RESEARCH.md](docs/RESEARCH.md). |
 | 🚀 **Productivity loop** | Plan (≤ 3 priorities) → focus on a task → rate the session → see your goal streak and **best focus hours**. "Only my sites" sessions, long breaks, focus reminders, intent-based pause page. |
 | ⌨️ **Fast by keyboard** | `Ctrl/Cmd + K` command palette (start a mode, focus on a task, switch look, jump anywhere, add a task), quick-add tasks (`Report 14:30 45m !`), single-key shortcuts on Home. |
@@ -60,7 +60,7 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 
 <img src="store/screenshots/2-focus.png" width="860" alt="Popup with a running focus session and the paused-site page">
 <img src="store/screenshots/3-insights.png" width="860" alt="Insights page">
-<img src="store/screenshots/7-looks.png" width="860" alt="Eleven looks, each in light and dark">
+<img src="store/screenshots/7-looks.png" width="860" alt="Looks, each in light and dark">
 <img src="store/screenshots/8-variant-1-terminal.png" width="420" alt="Terminal"><img src="store/screenshots/8-variant-2-sakura.png" width="420" alt="Sakura">
 <img src="store/screenshots/8-variant-3-paper.png" width="420" alt="Paper"><img src="store/screenshots/8-variant-4-aurora.png" width="420" alt="Aurora">
 <img src="store/screenshots/9-pause-plan.png" width="420" alt="Pause page with your own if-then plan"><img src="store/screenshots/10-close-the-day.png" width="420" alt="Close the day">

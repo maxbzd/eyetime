@@ -1,5 +1,20 @@
 # Changelog
 
+## 3.5.0 — 2026-10-24
+
+Five new looks, each designed as a whole (Settings → Appearance, first in the gallery).
+
+### New
+- **Obsidian** — true black glass with a warm ember glow, a hairline of light on every card, a thin clock that glows.
+- **Void** — type and hairlines only: no filled cards, a white pill for the one main action, one-pixel rules.
+- **Noir** — ivory serif on black (or ink on ivory by day), tracked small caps, champagne details and a watch-dial timer with 60 ticks.
+- **Pearl** — airy frosted glass over soft pastel light, pill controls, a gradient main button.
+- **Bento** — soft colour tiles (peach, mint, lilac, sky, butter), rounded type, chunky progress bars.
+- Every look comes in light and dark, covers Home, the popup, Insights, Settings, onboarding, the pause and break pages, and is contrast-checked like the others. The look gallery previews now show each look's own character.
+
+### Changed
+- Choosing a look also takes its own Home background (Calm still paints Dawn; the others use their page colour). Your explicit background choices are kept.
+
 ## 3.4.0 — 2026-10-24
 
 ### New
