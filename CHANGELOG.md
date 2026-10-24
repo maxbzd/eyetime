@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.3.0 — unreleased
+## 3.3.0 — 2026-10-24
 
 The dock: EyeTime next to every page.
 
