@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.3.1 — 2026-10-24
+
+The dock gets its final look.
+
+### New
+- **Three looks for the open panel** — pick in Settings → General → Dock → *Panel style*: **Glass** (default: pure black with a warm glow, soft cards, a bold orange ring), **Void** (quiet typography on black, hairlines, no boxes) and **Noir** (ivory serif on black, a watch-dial timer with 60 ticks). The change reaches an open panel at once.
+
+### Changed
+- The panel and the edge tab are now true OLED black, in the same style as each other (the panel used to be dark navy). The idle tab is smaller and calmer: a slim bar that lights up orange while a focus session runs.
+- New store screenshots of the dock.
+
 ## 3.3.0 — 2026-10-24
 
 The dock: EyeTime next to every page.

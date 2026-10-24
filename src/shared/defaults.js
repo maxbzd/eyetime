@@ -90,7 +90,7 @@ export const DEFAULT_SETTINGS = {
   },
 
   weeklyReport: true,
-  dock: { enabled: false, side: 'right', y: 0.4, hidden: [], design: 1 }, // the edge tab on web pages (needs the optional access to websites)
+  dock: { enabled: false, side: 'right', y: 0.4, hidden: [], design: 2 }, // the edge tab on web pages (needs the optional access to websites)
   calendar: { warn: true, warnMin: 2, quiet: false }, // meeting warning during a focus session; silence eye-break notices and chimes while a meeting is on
   companion: { enabled: false, token: '' },
   onboarded: false,

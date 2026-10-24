@@ -3,7 +3,9 @@
 import { h, toast } from '../ui/dom.js';
 import { row, group, toggle, select, domainEditor } from './ui.js';
 import { t } from '../shared/i18n.js';
-import { DOCK_ORIGINS } from '../shared/dock.js';
+import { DOCK_ORIGINS, DOCK_DESIGNS, dockDesign } from '../shared/dock.js';
+
+const DESIGN_NAMES = { 1: 'Void', 2: 'Glass', 3: 'Noir' }; // names of looks, like the app's own style names
 
 export function dockGroup(s, save) {
   const d = s.dock || { enabled: false, side: 'right', hidden: [] };
@@ -35,6 +37,7 @@ export function dockGroup(s, save) {
   if (d.enabled) {
     rows.push(
       row({ title: t('opt.dockSide'), control: select([['right', t('opt.dockRight')], ['left', t('opt.dockLeft')]], d.side, (v) => save((x) => { x.dock.side = v; }), { label: t('opt.dockSide') }) }),
+      row({ title: t('opt.dockDesign'), desc: t('opt.dockDesignDesc'), control: select(DOCK_DESIGNS.map((n) => [n, DESIGN_NAMES[n]]), dockDesign(d), (v) => save((x) => { x.dock.design = Number(v); }), { label: t('opt.dockDesign') }) }),
       row({ title: t('opt.dockHidden'), desc: t('opt.dockHiddenDesc'), stack: true, control: domainEditor({ items: d.hidden || [], placeholder: 'example.com',
         onAdd: (host) => save((x) => { x.dock.hidden = [...new Set([...(x.dock.hidden || []), host])].slice(0, 100); }, true),
         onRemove: (host) => save((x) => { x.dock.hidden = (x.dock.hidden || []).filter((h2) => h2 !== host); }, true) }) }),

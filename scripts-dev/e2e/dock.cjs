@@ -49,6 +49,15 @@ const { launch } = require('./lib.cjs');
   await frame.waitForSelector('#tabs button', { timeout: 8000 });
   if ((await frame.locator('#tab-learn').getAttribute('aria-selected')) !== 'true') bad.push('the Learn ring did not open the Learn tab');
 
+  // the look of the panel: Glass by default, and a change in Settings reaches the open panel at once (an unknown value falls back to Glass)
+  const look = () => frame.evaluate(() => document.documentElement.dataset.design);
+  if ((await look()) !== '2') bad.push('the panel does not default to the Glass look: ' + (await look()));
+  for (const [v, want] of [[3, '3'], [1, '1'], [99, '2']]) {
+    await opts.evaluate(async (v) => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.dock.design = v; }); }, v); await page.waitForTimeout(500);
+    if ((await look()) !== want) bad.push(`dock.design ${v} gave look ${await look()}, expected ${want}`);
+  }
+  await opts.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.dock.design = 2; }); }); await page.waitForTimeout(400);
+
   // a page cannot talk the panel into another address: a forged message is ignored, the address comes from the browser's own record of the tab
   await page.evaluate(() => { const f = document.querySelector('#eyetime-dock').shadowRoot.querySelector('iframe'); f.contentWindow.postMessage({ type: 'eyetime:page', url: 'https://evil.example/phish', title: 'Evil' }, '*'); });
   await page.waitForTimeout(500);

@@ -36,10 +36,11 @@ const SCENES = [
       const p = await app.ctx.newPage();
       await p.goto(ext(url)); if (tab) { await p.evaluate((t) => localStorage.setItem('et-itab', t), tab); await p.reload(); }
       await p.waitForTimeout(1100);
-      const extra = name === 'home' ? ['palette', 'shortcuts'] : [];
+      const extra = name === 'home' ? ['palette', 'shortcuts'] : name.startsWith('dock') ? ['void', 'noir'] : []; // the panel has three looks: the default (Glass) and these two
       for (const state of ['', ...extra]) {
         if (state === 'palette') { await p.keyboard.press('Control+k'); await p.waitForSelector('dialog.palette[open]'); await p.waitForTimeout(300); }
         if (state === 'shortcuts') { await p.keyboard.press('Escape'); await p.keyboard.press('?'); await p.waitForTimeout(300); }
+        if (state === 'void' || state === 'noir') { await p.evaluate((d) => { document.documentElement.dataset.design = d; }, state === 'void' ? '1' : '3'); await p.waitForTimeout(250); }
         await p.evaluate(AXE);
         const res = await p.evaluate(async () => (await window.axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'] } })).violations.map((v) => ({ id: v.id, impact: v.impact, help: v.help, nodes: v.nodes.slice(0, 3).map((n) => n.target.join(' ') + ' :: ' + (n.failureSummary || '').split('\n').slice(1, 2).join('').trim().slice(0, 110)), count: v.nodes.length })));
         for (const v of res) { const key = v.id; const e = found.get(key) || { ...v, where: new Set(), count: 0, sample: v.nodes[0] }; e.where.add(`${name}${state ? ':' + state : ''}[${look}/${lang}]`); e.count += v.count; found.set(key, e); if (v.impact === 'serious' || v.impact === 'critical') serious++; }

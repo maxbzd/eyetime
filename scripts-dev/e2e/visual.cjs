@@ -29,6 +29,8 @@ const PAGES = [
   ['data', 'src/options/options.html#data', { width: 1000, height: 1000 }],
   ['onboarding', 'src/onboarding/onboarding.html', { width: 900, height: 700 }],
   ['dock', 'src/dock/dock.html#right/learn', { width: 392, height: 760 }],
+  ['dock-void', 'src/dock/dock.html#right/learn', { width: 392, height: 760 }, 1], // the other two looks of the panel (the fourth item): once each, as the panel is always dark
+  ['dock-noir', 'src/dock/dock.html#right/learn', { width: 392, height: 760 }, 3],
 ];
 const STILL = '*, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; } [data-tip]::after { display: none !important; }';
 
@@ -60,11 +62,13 @@ const STILL = '*, *::before, *::after { animation: none !important; transition: 
   for (const lang of LANGS) for (const [mode, look, bg] of MODES) {
     await seed(seedPage, { look, mode, background: bg, clockStyle: 'thin', lang });
     await seedPage.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.setRaw({ gsDismissed: true }); await st.updateSettings((s) => { s.newtab.clock24 = false; }); });
-    for (const [name, url, vp] of PAGES) {
+    for (const [name, url, vp, design] of PAGES) {
+      if (design && (mode !== 'dark' || lang !== LANGS[0])) continue;
       const label = `${name}-${lang}-${mode}`;
       const file = path.join(BASE, label + '.png');
       const shoot = async () => {
         const p = await app.ctx.newPage(); await p.setViewportSize(vp); await p.goto(ext(url));
+        if (design) await p.evaluate((d) => { document.documentElement.dataset.design = String(d); }, design);
         await p.addStyleTag({ content: STILL }); await p.evaluate(() => document.fonts.ready); await p.waitForTimeout(1800);
         await p.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
         // wait until the layout has stopped moving (a late font or icon can shift a card by a pixel): the same layout twice, 300 ms apart
