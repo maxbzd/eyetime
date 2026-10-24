@@ -28,6 +28,7 @@ const PAGES = [
   ['pause', 'src/blocked/blocked.html?u=http%3A%2F%2Freddit.com%2F&r=friction&a=pause', { width: 900, height: 600 }],
   ['data', 'src/options/options.html#data', { width: 1000, height: 1000 }],
   ['onboarding', 'src/onboarding/onboarding.html', { width: 900, height: 700 }],
+  ['dock', 'src/dock/dock.html#right/learn', { width: 392, height: 760 }],
 ];
 const STILL = '*, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; } [data-tip]::after { display: none !important; }';
 
@@ -73,7 +74,7 @@ const STILL = '*, *::before, *::after { animation: none !important; transition: 
         const buf = await p.screenshot({ animations: 'disabled' }); await p.close(); return buf;
       };
       let buf = await shoot();
-      if (UPDATE || !fs.existsSync(file)) { fs.writeFileSync(file, buf); results.push({ label, status: UPDATE ? 'updated' : 'new' }); continue; }
+      if (UPDATE || !fs.existsSync(file)) { fs.writeFileSync(file, buf); if (!UPDATE) fs.writeFileSync(path.join(DIFF, label + '-now.png'), buf); // a new screen: the CI artifact carries it, to become the baseline results.push({ label, status: UPDATE ? 'updated' : 'new' }); continue; }
       // a few screens settle into one of two layouts depending on which image or font arrives first: a screen passes if any of 5 loads matches
       const base = 'data:image/png;base64,' + fs.readFileSync(file).toString('base64');
       const limit = LOOSE[name] || THRESHOLD;
