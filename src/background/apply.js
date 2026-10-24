@@ -8,8 +8,9 @@ import { sweepTabs } from './blocker.js';
 import { sync } from './tracker.js';
 import { updateBadge } from './badge.js';
 import { getSettings } from '../shared/storage.js';
+import { syncDock } from './dock.js';
 
 export async function applySettings() {
-  await buildMenus(); await scheduleBedtime(); await scheduleReminders(); await scheduleTaskSlot(); await sweepTabs(); await sync('settings');
+  await syncDock(); await buildMenus(); await scheduleBedtime(); await scheduleReminders(); await scheduleTaskSlot(); await sweepTabs(); await sync('settings');
   await updateBadge(await getSettings());
 }

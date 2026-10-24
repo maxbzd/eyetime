@@ -16,6 +16,7 @@ import './weekly.js';
 import './meetings.js';
 import { syncNow } from './sync.js';
 import { syncTasksNow } from './tasksync.js';
+import { syncDock } from './dock.js';
 import { checkStorage } from './storagewatch.js';
 import { rolloverTasks } from './rollover.js';
 import { armCalendar } from './calendar.js';
@@ -41,6 +42,7 @@ async function boot() {
   await updateBadge(await getSettings());
   syncNow();
   syncTasksNow();
+  syncDock();
   rolloverTasks();
   armCalendar({ refresh: true });
   return migrated;
