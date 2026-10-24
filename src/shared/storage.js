@@ -13,6 +13,8 @@ import { normalizeCalendarUrl } from './calsub.js';
 import { DEFAULT_SETTINGS, deepMerge, clone, SCHEMA_VERSION } from './defaults.js';
 import { migrate, needsMigration, upgradeSettingsV2 } from './migrate.js';
 import { dayKey, rangeKeys, addDays } from './time.js';
+import { DOCK_ORIGINS } from './dock.js';
+import { sanitizeTopics } from './topics.js';
 import { emptyDay, slimDay } from './stats.js';
 
 export const DAY_PREFIX = 'd:';
@@ -196,6 +198,7 @@ export async function ensureSchema() {
 
 /** A calendar subscription's browser permission goes away with its data (reset / restoring a backup), not only with the Unsubscribe button. */
 async function dropCalendarPermission() {
+  try { await chrome.permissions.remove({ origins: DOCK_ORIGINS }); } catch { /* none granted */ }
   try {
     const raw = await area().get(['calendarSubs', 'calendarSub']);
     const subs = Array.isArray(raw.calendarSubs) ? raw.calendarSubs : raw.calendarSub ? [raw.calendarSub] : [];
@@ -220,6 +223,7 @@ export async function importAll(payload) {
   const KNOWN = new Set(['settings', 'meta', 'tasks', 'habits', 'captures', 'topics', 'weekPlan', 'weekPlanPrev', 'estLog']);
   const clean = {};
   for (const [k, v] of Object.entries(data)) if (KNOWN.has(k) || /^d:\d{4}-\d{2}-\d{2}$/.test(k)) clean[k] = v;
+  if (clean.topics) clean.topics = sanitizeTopics(clean.topics); // a file is never trusted: known shape, clean addresses
   await dropCalendarPermission();
   await area().clear();
   if (m) {

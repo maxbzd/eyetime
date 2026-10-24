@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cleanUrl, newTopic, ensureInbox, addLink, updateLink, removeLink, removeTopic, moveLink, progress, topicSeconds, topicsToMarkdown, INBOX_ID, MAX_LINKS } from '../../src/shared/topics.js';
+import { sanitizeTopics, cleanUrl, newTopic, ensureInbox, addLink, updateLink, removeLink, removeTopic, moveLink, progress, topicSeconds, topicsToMarkdown, INBOX_ID, MAX_LINKS } from '../../src/shared/topics.js';
 
 test('cleanUrl keeps only http(s) pages and drops tracking noise', () => {
-  assert.equal(cleanUrl('https://Example.com/a/?utm_source=x&id=3#top'), 'https://example.com/a/?id=3'.replace('/a/?', '/a/?'));
+  assert.equal(cleanUrl('https://Example.com/a/?utm_source=x&id=3#top'), 'https://example.com/a?id=3');
+  assert.equal(cleanUrl('https://user:pw@a.com/x'), 'https://a.com/x'); assert.equal(cleanUrl('https://a.com/?next=/'), 'https://a.com/?next=/');
   assert.equal(cleanUrl('https://example.com/'), 'https://example.com');
   assert.equal(cleanUrl('javascript:alert(1)'), null); assert.equal(cleanUrl('data:text/html,hi'), null); assert.equal(cleanUrl('chrome://settings'), null); assert.equal(cleanUrl('nonsense'), null); assert.equal(cleanUrl(''), null);
   assert.equal(cleanUrl('https://youtu.be/abc?si=zzz&t=30'), 'https://youtu.be/abc?t=30');
@@ -49,4 +50,11 @@ test('markdown export lists non-empty topics with status boxes', () => {
   t = updateLink(t, t[1].id, t[1].links[0].id, { status: 'done' });
   const md = topicsToMarkdown(t);
   assert.match(md, /## Rust/); assert.match(md, /- \[x\] \[The Book\]\(https:\/\/doc\.rust-lang\.org\/book\)/); assert.doesNotMatch(md, /Inbox/);
+});
+
+test('topics from a backup file are made safe: shape, addresses, limits', () => {
+  const dirty = [{ id: 'a', title: 'T', links: [{ id: 'l1', url: 'javascript:alert(1)', title: 'x' }, { id: 'l2', url: 'https://u:p@good.com/x/?utm_source=1', title: 'Good', status: 'weird' }, { id: 'l3', url: 'https://good.com/x' }] }, { id: 'b' }, null, 'junk', { title: 'no id' }];
+  const out = sanitizeTopics(dirty);
+  assert.equal(out.length, 2); assert.deepEqual(out[0].links.map((l) => l.url), ['https://good.com/x']); assert.equal(out[0].links[0].status, 'todo');
+  assert.deepEqual(out[1].links, []); assert.deepEqual(sanitizeTopics('nope'), []);
 });

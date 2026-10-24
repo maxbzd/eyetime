@@ -4,7 +4,6 @@ import { h, toast } from '../ui/dom.js';
 import { row, group, toggle, select, domainEditor } from './ui.js';
 import { t } from '../shared/i18n.js';
 import { DOCK_ORIGINS } from '../shared/dock.js';
-import { loadSubs } from '../shared/calstore.js';
 
 export function dockGroup(s, save) {
   const d = s.dock || { enabled: false, side: 'right', hidden: [] };
@@ -26,7 +25,8 @@ export function dockGroup(s, save) {
       return save((x) => { x.dock.enabled = true; }, true);
     }
     await save((x) => { x.dock.enabled = false; }, true);
-    try { if (!(await loadSubs()).length) await chrome.permissions.remove({ origins: DOCK_ORIGINS }); } catch { /* nothing to withdraw */ } // a calendar link may still need the access
+    try { await chrome.permissions.remove({ origins: DOCK_ORIGINS }); } catch { /* nothing to withdraw */ }
+    // a calendar link that relied on this broad access shows its "needs access" state: unsubscribing and subscribing again asks for that one site
   }
 
   const mainRow = row({ title: t('opt.dock'), desc: t('opt.dockDesc'), control: toggle(d.enabled, turn, t('opt.dock')) });
