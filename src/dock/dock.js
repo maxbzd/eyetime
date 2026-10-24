@@ -38,7 +38,7 @@ function renderTabs() {
   clear(el, ...TABS.map((id) => h('button', { type: 'button', role: 'tab', id: 'tab-' + id, 'aria-selected': String(tab === id), tabindex: tab === id ? 0 : -1, text: t('dock.tab.' + id),
     onclick: () => select(id),
     onkeydown: (e) => { const i = TABS.indexOf(id), n = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : null; if (n === null) return; e.preventDefault(); select(TABS[(n + TABS.length) % TABS.length]); $('#tab-' + tab).focus(); } })));
-  view().setAttribute('role', 'tabpanel'); view().setAttribute('aria-labelledby', 'tab-' + tab);
+  view().setAttribute('aria-labelledby', 'tab-' + tab);
 }
 function select(id) { tab = id; store.set('dock-tab', id); renderTabs(); render(); try { window.parent.postMessage({ type: 'eyetime:tab-is', tab: id }, '*'); } catch { /* standalone */ } }
 

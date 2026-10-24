@@ -62,8 +62,9 @@ async function crawl(label, { seed, lang, from = OLD }) {
     await opt.locator('input[type=file][accept*=".md"]').setInputFiles({ name: 'tasks.md', mimeType: 'text/markdown', buffer: Buffer.from('# list\n- [ ] Imported alpha tomorrow 30m\n- [x] Imported beta\n') });
     await opt.waitForTimeout(700); const dlgTxt = await opt.locator('dialog[open]').allInnerTexts();
     await opt.waitForSelector('dialog[open] button[value=yes]', { timeout: 5000 }).catch(() => logic.push('Tasks import: no confirmation dialog'));
-    await opt.locator('dialog[open] button[value=yes]').click({ timeout: 5000 }).catch((e) => logic.push('Tasks import: confirm click failed: ' + String(e.message).split('\n')[0])); await opt.waitForTimeout(2500);
-    const imp = await opt.evaluate(async () => ((await chrome.storage.local.get('tasks')).tasks || []).filter((x) => /^Imported /.test(x.text)));
+    await opt.locator('dialog[open] button[value=yes]').click({ timeout: 5000 }).catch((e) => logic.push('Tasks import: confirm click failed: ' + String(e.message).split('\n')[0])); await opt.waitForTimeout(300);
+    const readImp = () => opt.evaluate(async () => ((await chrome.storage.local.get('tasks')).tasks || []).filter((x) => /^Imported /.test(x.text)));
+    let imp = await readImp(); for (let i = 0; i < 25 && imp.length < 2; i++) { await opt.waitForTimeout(300); imp = await readImp(); } // the write lands a moment after the click on a big profile
     if (imp.length !== 2 || !imp.find((x) => x.text === 'Imported alpha' && x.est === 30 && x.due) || !imp.find((x) => x.text === 'Imported beta' && x.done)) logic.push('Tasks import wrong: ' + JSON.stringify(imp).slice(0, 200) + ' dialogs=' + JSON.stringify(dlgTxt).slice(0, 200) + ' all=' + JSON.stringify(await opt.evaluate(async () => ((await chrome.storage.local.get('tasks')).tasks || []).map((x) => x.text))).slice(0, 300));
     // projects: sessions with a tag show up as #tag rows on the Focus tab
     await opt.evaluate(async () => { const st = await import('/src/shared/storage.js'); const { dayKey } = await import('/src/shared/time.js'); await st.updateDay(dayKey(), (d) => { d.ss = [...(d.ss || []), { id: 'proj1', t: Date.now() - 3600000, m: 40, p: 40, g: 'Draft', k: '', tg: 'zzproject', c: 1, r: 0 }]; d.fs = (d.fs || 0) + 2400; }); });
@@ -97,8 +98,9 @@ async function crawl(label, { seed, lang, from = OLD }) {
     const endAt = new Date(soon.getTime() + 30 * 60000), sameDay = soon.getDate() === new Date().getDate();
     const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'BEGIN:VEVENT', 'UID:t1', `DTSTART:${stamp(soon)}`, `DTEND:${stamp(endAt)}`, 'SUMMARY:Team sync', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
     await opt.goto(ext('src/options/options.html#data')); await opt.waitForTimeout(500);
-    await opt.setInputFiles('input[type=file][accept*=ics]', { name: 'cal.ics', mimeType: 'text/calendar', buffer: Buffer.from(ics) }); await opt.waitForTimeout(700);
-    if (!/1 event|1 событие/.test(await opt.locator('.sync-status').first().innerText())) logic.push('Calendar status did not update');
+    await opt.setInputFiles('input[type=file][accept*=ics]', { name: 'cal.ics', mimeType: 'text/calendar', buffer: Buffer.from(ics) }); await opt.waitForTimeout(2500);
+    const calTxt = await opt.locator('#data .sync-status').first().innerText();
+    if (!/1 event|1 событие/.test(calTxt)) logic.push('Calendar status did not update: ' + calTxt.slice(0, 120));
     if (sameDay) { await nt.goto(ext('src/newtab/newtab.html')); await nt.waitForTimeout(1200); if (!(await nt.locator('.cal-line').count()) || !/Team sync/.test(await nt.locator('.cal-line').first().innerText())) logic.push('Home does not show the next meeting'); }
     await opt.goto(ext('src/options/options.html#about')); await opt.waitForTimeout(500);
     await opt.locator('button', { hasText: /Prepare report|Подготовить отчёт/ }).click(); await opt.waitForSelector('dialog[open] textarea');
