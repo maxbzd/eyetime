@@ -6,6 +6,8 @@
 - **Turn on the dock from Home**: the *What's new* card now has a *Turn on the dock* button, so the edge tab is one click away (it is still opt-in and asks the browser for access to websites first).
 
 ### Changed
+- **Styled dropdowns everywhere**: the browser's grey system lists are gone. Every choice list (settings, the focus mode in the popup, the topic in the dock, language at first run, site types in Insights) is now one dropdown that follows the look and dark mode, opens above or below as there is room, and works from the keyboard (arrows, Home/End, type to jump, Enter, Esc).
+- **A calmer popup**: the focus card is a hero with a soft wash of the accent, the options sit in quiet tray controls, the start button has depth, and the timer ring glows without being clipped. Same colours and shapes as your look.
 - **Dawn is the default Home background** for new installs (soft peach-to-lilac gradient). Existing choices are kept.
 
 ## 3.3.1 — 2026-10-24
