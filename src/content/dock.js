@@ -13,9 +13,9 @@
   const msg = (k, fb) => chrome.i18n.getMessage(k) || fb;
   const LABEL = msg('dockTab', 'EyeTime');
   const ITEMS = [
-    { k: 'focus', tab: 'now', color: '#ff6a3d', name: msg('dockFocus', 'Focus'), paths: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>' },
-    { k: 'tasks', tab: 'now', color: '#32d74b', name: msg('dockTasks', 'Tasks'), paths: '<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>' },
-    { k: 'learn', tab: 'learn', color: '#0a84ff', name: msg('dockLearn', 'Learn'), paths: '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>' },
+    { k: 'focus', tab: 'now', color: '#ff6a3d', name: msg('dockFocus', 'Focus'), shapes: [['circle', { cx: 12, cy: 12, r: 10 }], ['circle', { cx: 12, cy: 12, r: 6 }], ['circle', { cx: 12, cy: 12, r: 2 }]] },
+    { k: 'tasks', tab: 'now', color: '#32d74b', name: msg('dockTasks', 'Tasks'), shapes: [['path', { d: 'm3 17 2 2 4-4' }], ['path', { d: 'm3 7 2 2 4-4' }], ['path', { d: 'M13 6h8' }], ['path', { d: 'M13 12h8' }], ['path', { d: 'M13 18h8' }]] },
+    { k: 'learn', tab: 'learn', color: '#0a84ff', name: msg('dockLearn', 'Learn'), shapes: [['path', { d: 'M12 7v14' }], ['path', { d: 'M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z' }]] },
   ];
   const CIRC = 2 * Math.PI * 15.5;
   let dock = { enabled: true, side: 'right', y: 0.4, hidden: [] };
@@ -152,7 +152,7 @@
       r.append(svgEl('circle', { class: 'track', cx: 18, cy: 18, 'r': 15.5, fill: 'none', 'stroke-width': 3 }));
       const arc = svgEl('circle', { class: 'arc', cx: 18, cy: 18, 'r': 15.5, fill: 'none', 'stroke-width': 3, 'stroke-linecap': 'round', stroke: it.color, 'stroke-dasharray': String(CIRC), 'stroke-dashoffset': String(CIRC) });
       r.append(arc);
-      const ic = svgEl('svg', { class: 'i', viewBox: '0 0 24 24' }); ic.innerHTML = it.paths; // fixed strings above, never page content
+      const ic = svgEl('svg', { class: 'i', viewBox: '0 0 24 24' }); for (const [tag, attrs] of it.shapes) ic.append(svgEl(tag, attrs));
       ring.append(r, ic);
       const pct = document.createElement('span'); pct.className = 'pct';
       btn.append(ring, pct); notch.append(btn);
