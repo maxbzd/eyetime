@@ -25,42 +25,44 @@
   const css = `
     :host { all: initial; }
     * { box-sizing: border-box; }
-    .wrap { position: fixed; inset: 0; pointer-events: none; --w: 12px; --r: 10px; font: 600 10px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; }
-    .wrap.expanded { --w: 54px; --r: 20px; }
-    /* the notch: a black capsule fixed to the edge; two concave flares melt it into the window frame */
+    .wrap { position: fixed; inset: 0; pointer-events: none; --w: 16px; --r: 8px; --cr: 8px; font: 600 10px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; }
+    .wrap.expanded { --w: 56px; --r: 22px; --cr: 24px; }
+    /* the notch: OLED black, fixed to the edge; two concave flares melt it into the window frame */
     .notch { position: fixed; top: var(--cy); transform: translateY(-50%); width: var(--w); background: #000; color: #fff; pointer-events: auto; touch-action: none;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; padding: 12px 0; min-height: 88px;
-      filter: drop-shadow(0 3px 10px rgba(0, 0, 0, .28)); transition: width .34s cubic-bezier(.3, 1.35, .5, 1), min-height .3s cubic-bezier(.3, 1.2, .5, 1); cursor: grab; }
-    .right .notch { right: 0; border-radius: 22px 0 0 22px; } .left .notch { left: 0; border-radius: 0 22px 22px 0; }
-    .notch::before, .notch::after { content: ''; position: absolute; width: var(--r); height: var(--r); pointer-events: none; transition: width .34s cubic-bezier(.3, 1.35, .5, 1), height .34s cubic-bezier(.3, 1.35, .5, 1); }
-    .right .notch::before { right: 0; top: calc(var(--r) * -1); background: radial-gradient(circle at 0 0, transparent calc(var(--r) - .6px), #000 var(--r)); }
-    .right .notch::after { right: 0; bottom: calc(var(--r) * -1); background: radial-gradient(circle at 0 100%, transparent calc(var(--r) - .6px), #000 var(--r)); }
-    .left .notch::before { left: 0; top: calc(var(--r) * -1); background: radial-gradient(circle at 100% 0, transparent calc(var(--r) - .6px), #000 var(--r)); }
-    .left .notch::after { left: 0; bottom: calc(var(--r) * -1); background: radial-gradient(circle at 100% 100%, transparent calc(var(--r) - .6px), #000 var(--r)); }
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; padding: 14px 0; min-height: 92px;
+      filter: drop-shadow(0 0 .6px rgba(255, 255, 255, .35)) drop-shadow(0 4px 12px rgba(0, 0, 0, .32));
+      transition: width .38s cubic-bezier(.3, 1.3, .5, 1), min-height .32s cubic-bezier(.3, 1.2, .5, 1), border-radius .38s cubic-bezier(.3, 1.3, .5, 1); cursor: grab; }
+    .right .notch { right: 0; border-radius: var(--cr) 0 0 var(--cr); } .left .notch { left: 0; border-radius: 0 var(--cr) var(--cr) 0; }
+    .notch::before, .notch::after { content: ''; position: absolute; width: var(--r); height: var(--r); pointer-events: none; transition: width .38s cubic-bezier(.3, 1.3, .5, 1), height .38s cubic-bezier(.3, 1.3, .5, 1); }
+    .right .notch::before { right: 0; top: calc(var(--r) * -1 + .5px); background: radial-gradient(circle at 0 0, transparent calc(var(--r) - .6px), #000 var(--r)); }
+    .right .notch::after { right: 0; bottom: calc(var(--r) * -1 + .5px); background: radial-gradient(circle at 0 100%, transparent calc(var(--r) - .6px), #000 var(--r)); }
+    .left .notch::before { left: 0; top: calc(var(--r) * -1 + .5px); background: radial-gradient(circle at 100% 0, transparent calc(var(--r) - .6px), #000 var(--r)); }
+    .left .notch::after { left: 0; bottom: calc(var(--r) * -1 + .5px); background: radial-gradient(circle at 100% 100%, transparent calc(var(--r) - .6px), #000 var(--r)); }
     .hit { position: absolute; top: 0; bottom: 0; width: 10px; } .right .hit { left: -8px; } .left .hit { right: -8px; }
-    .wrap.expanded .notch { min-height: 190px; }
-    .item { position: relative; width: 40px; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; border-radius: 12px;
-      opacity: 0; transform: scale(.6); transition: opacity .22s, transform .34s cubic-bezier(.3, 1.35, .5, 1); pointer-events: none; font: inherit; }
+    .wrap.expanded .notch { min-height: 200px; }
+    .item { position: relative; width: 42px; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; border-radius: 14px;
+      opacity: 0; transform: scale(.55); transition: opacity .22s, transform .38s cubic-bezier(.3, 1.35, .5, 1); pointer-events: none; font: inherit; }
     .wrap:not(.expanded) .item { position: absolute; }
     .wrap.expanded .item { opacity: 1; transform: none; pointer-events: auto; } .wrap.expanded .item:nth-child(2) { transition-delay: .03s; } .wrap.expanded .item:nth-child(3) { transition-delay: .06s; }
-    .item:focus-visible { outline: 2px solid #0a84ff; outline-offset: 2px; }
+    .item:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
     .item:hover .ring { transform: scale(1.08); }
-    .ring { position: relative; width: 34px; height: 34px; transition: transform .2s; }
+    .ring { position: relative; width: 36px; height: 36px; transition: transform .2s; }
     .ring svg.r { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
-    .ring svg.i { position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .track { stroke: rgba(255, 255, 255, .2); } .arc { transition: stroke-dashoffset .6s cubic-bezier(.3, 1, .4, 1); }
-    .pct { font-size: 10px; letter-spacing: .01em; color: rgba(255, 255, 255, .92); font-variant-numeric: tabular-nums; min-height: 10px; }
-    .dots { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; pointer-events: none; transition: opacity .2s; }
-    .dots i { width: 4px; height: 4px; border-radius: 50%; display: block; } .wrap.expanded .dots { opacity: 0; }
-    .panel { position: fixed; top: 12px; bottom: 12px; width: 392px; max-width: calc(100vw - 96px); border-radius: 20px; overflow: hidden; z-index: 1; pointer-events: none; opacity: 0; visibility: hidden; background: #1c1c1e;
-      box-shadow: 0 0 0 .5px rgba(0, 0, 0, .3), 0 24px 64px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .14); transition: transform .3s cubic-bezier(.2, .9, .25, 1.02), opacity .2s, visibility 0s .3s; }
-    .right .panel { right: 66px; transform: translateX(34px) scale(.98); transform-origin: right center; } .left .panel { left: 66px; transform: translateX(-34px) scale(.98); transform-origin: left center; }
+    .ring svg.i { position: absolute; left: 50%; top: 50%; width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .track { stroke: rgba(255, 255, 255, .16); } .arc { transition: stroke-dashoffset .6s cubic-bezier(.3, 1, .4, 1); }
+    .pct { font-size: 10px; letter-spacing: .01em; color: rgba(255, 255, 255, .9); font-variant-numeric: tabular-nums; min-height: 10px; }
+    .grip { position: absolute; left: 50%; top: 50%; width: 3px; height: 26px; margin: -13px 0 0 -1.5px; border-radius: 2px; background: rgba(255, 255, 255, .55); pointer-events: none; transition: opacity .2s, background .3s; }
+    .wrap.live .grip { background: #ff6a3d; } .wrap.expanded .grip { opacity: 0; }
+    .panel { position: fixed; top: 12px; bottom: 12px; width: 392px; max-width: calc(100vw - 96px); border-radius: 24px; overflow: hidden; z-index: 1; pointer-events: none; opacity: 0; visibility: hidden; background: #000;
+      box-shadow: 0 0 0 .5px rgba(255, 255, 255, .16), 0 28px 70px rgba(0, 0, 0, .5), 0 6px 18px rgba(0, 0, 0, .3); transition: transform .32s cubic-bezier(.2, .9, .25, 1.02), opacity .2s, visibility 0s .32s; }
+    .right .panel { right: 70px; transform: translateX(34px) scale(.98); transform-origin: right center; } .left .panel { left: 70px; transform: translateX(-34px) scale(.98); transform-origin: left center; }
     .wrap.open .panel { opacity: 1; visibility: visible; pointer-events: auto; transform: none; transition-delay: 0s; }
-    iframe { width: 100%; height: 100%; border: 0; display: block; color-scheme: normal; }
-    @media (prefers-reduced-motion: reduce) { .notch, .notch::before, .notch::after, .item, .panel, .arc { transition: none; } }
+    iframe { width: 100%; height: 100%; border: 0; display: block; color-scheme: dark; background: #000; }
+    @media (prefers-reduced-motion: reduce) { .notch, .notch::before, .notch::after, .item, .panel, .arc, .grip { transition: none; } }
     @media (forced-colors: active) { .notch, .item { forced-color-adjust: none; } }
     @media print { :host { display: none !important; } }
   `;
+
 
   const NS = 'http://www.w3.org/2000/svg';
   const svgEl = (tag, attrs = {}) => { const e = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); return e; };
@@ -89,6 +91,7 @@
       for (const it of ITEMS) {
         const r = refs[it.k], [p, label] = vals[it.k];
         r.arc.style.strokeDashoffset = String(CIRC * (1 - p)); r.pct.textContent = label;
+        if (it.k === 'focus') wrap.classList.toggle('live', !!running);
         r.btn.setAttribute('aria-label', `${it.name}: ${label}`);
       }
     } catch { /* storage unavailable (extension reloaded): the notch stays as it is */ }
@@ -144,7 +147,7 @@
     wrap = document.createElement('div'); wrap.className = 'wrap ' + (dock.side === 'left' ? 'left' : 'right');
     notch = document.createElement('div'); notch.className = 'notch'; notch.setAttribute('role', 'group'); notch.setAttribute('aria-label', LABEL); notch.title = LABEL; notch.setAttribute('aria-expanded', 'false');
     const hit = document.createElement('div'); hit.className = 'hit'; notch.append(hit);
-    const dots = document.createElement('div'); dots.className = 'dots'; for (const it of ITEMS) { const i = document.createElement('i'); i.style.background = it.color; dots.append(i); } notch.append(dots);
+    const grip = document.createElement('i'); grip.className = 'grip'; notch.append(grip);
     for (const it of ITEMS) {
       const btn = document.createElement('button'); btn.className = 'item'; btn.type = 'button'; btn.setAttribute('aria-label', it.name);
       const ring = document.createElement('span'); ring.className = 'ring';
@@ -198,6 +201,6 @@
       dock = { ...dock, ...d };
       if (!host) { globalThis.__eyetimeDock = true; build(); } else if (sideChanged) { const was = open; destroy(); globalThis.__eyetimeDock = true; build(); if (was) setOpen(true); } else place();
     }
-    if (host && wrap.classList.contains('expanded') && (changes.focus || changes.tasks || changes.topics || Object.keys(changes).some((k) => k.startsWith('d:')))) refresh();
+    if (host && (changes.focus || (wrap.classList.contains('expanded') && (changes.tasks || changes.topics || Object.keys(changes).some((k) => k.startsWith('d:')))))) refresh();
   });
 })();
