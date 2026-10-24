@@ -14,11 +14,13 @@ export function cleanUrl(input) {
   let u;
   try { u = new URL(String(input || '').trim()); } catch { return null; }
   if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
-  u.hash = '';
+  u.hash = ''; u.username = ''; u.password = ''; // addresses with credentials never end up in a backup or an export
   for (const k of [...u.searchParams.keys()]) if (TRACKING.test(k)) u.searchParams.delete(k);
   u.hostname = u.hostname.toLowerCase();
-  const s = u.toString();
-  return s.length > 2000 ? null : s.replace(/\/$/, '');
+  if (u.pathname.length > 1) u.pathname = u.pathname.replace(/\/+$/, ''); // /tutorial/ and /tutorial are one page (only the path is touched, never a query value)
+  let s = u.toString();
+  if (u.pathname === '/' && !u.search) s = s.replace(/\/$/, '');
+  return s.length > 2000 ? null : s;
 }
 
 const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -83,4 +85,20 @@ export function topicSeconds(topic, days) {
 export function topicsToMarkdown(topics) {
   const mark = { todo: '[ ]', doing: '[~]', done: '[x]' };
   return (topics || []).filter((x) => x.links.length || x.note).map((x) => [`## ${x.title}`, x.note ? `\n${x.note}\n` : '', ...x.links.map((l) => `- ${mark[l.status] || '[ ]'} [${l.title.replace(/[[\]]/g, '')}](${l.url})`)].join('\n')).join('\n\n') + '\n';
+}
+
+/** Topics from an untrusted source (a backup file): a known shape, clean http(s) addresses, the usual limits. */
+export function sanitizeTopics(input) {
+  const list = Array.isArray(input) ? input : [];
+  const out = [];
+  for (const x of list.slice(0, MAX_TOPICS + 1)) {
+    if (!x || typeof x !== 'object' || typeof x.id !== 'string') continue;
+    const links = [];
+    for (const l of Array.isArray(x.links) ? x.links : []) {
+      const url = l && cleanUrl(l.url);
+      if (url && !links.some((y) => y.url === url) && links.length < MAX_LINKS) links.push({ id: String(l.id || newId()).slice(0, 40), url, title: String(l.title || hostFromUrl(url) || url).slice(0, LINK_TITLE_MAX), status: STATUSES.includes(l.status) ? l.status : 'todo', addedAt: Number(l.addedAt) || 0 });
+    }
+    out.push({ id: x.id.slice(0, 40), title: String(x.title || '').slice(0, TITLE_MAX), note: String(x.note || '').slice(0, NOTE_MAX), createdAt: Number(x.createdAt) || 0, links });
+  }
+  return out;
 }
