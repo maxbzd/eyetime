@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.4.0 — 2026-10-24
+
+### New
+- **Turn on the dock from Home**: the *What's new* card now has a *Turn on the dock* button, so the edge tab is one click away (it is still opt-in and asks the browser for access to websites first).
+
+### Changed
+- **Dawn is the default Home background** for new installs (soft peach-to-lilac gradient). Existing choices are kept.
+
 ## 3.3.1 — 2026-10-24
 
 The dock gets its final look.
