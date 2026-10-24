@@ -11,6 +11,9 @@
   "cmdToggleFocus": {
     "message": "Fokus-Sitzung starten oder beenden"
   },
+  "cmdToggleDock": {
+    "message": "EyeTime-Dock auf dieser Seite ein- oder ausblenden"
+  },
   "feedTitle": {
     "message": "Zeit, mit dem Scrollen aufzuhören"
   },
@@ -22,5 +25,17 @@
   },
   "feedMore": {
     "message": "5 weitere Minuten"
+  },
+  "dockFocus": {
+    "message": "Fokus"
+  },
+  "dockTasks": {
+    "message": "Aufgaben"
+  },
+  "dockLearn": {
+    "message": "Lernen"
+  },
+  "dockTab": {
+    "message": "EyeTime-Dock öffnen"
   }
 }

@@ -16,8 +16,9 @@
   "chrome_url_overrides": { "newtab": "src/newtab/newtab.html" },
   "options_page": "src/options/options.html",
 
-  "permissions": ["storage", "alarms", "notifications", "idle", "tabs", "webNavigation", "contextMenus", "offscreen", "favicon"],
-  "optional_host_permissions": ["http://127.0.0.1:8765/*", "https://*/*"],
+  "permissions": ["storage", "alarms", "notifications", "idle", "tabs", "webNavigation", "contextMenus", "offscreen", "favicon", "scripting"],
+  "optional_host_permissions": ["http://127.0.0.1:8765/*", "http://*/*", "https://*/*"],
+  "web_accessible_resources": [{ "resources": ["src/dock/dock.html"], "matches": ["http://*/*", "https://*/*"], "use_dynamic_url": true }],
 
   "content_scripts": [
     {
@@ -29,6 +30,7 @@
 
   "commands": {
     "toggle-focus": { "suggested_key": { "default": "Alt+Shift+F" }, "description": "__MSG_cmdToggleFocus__" },
+    "toggle-dock": { "suggested_key": { "default": "Alt+Shift+D" }, "description": "__MSG_cmdToggleDock__" },
     "_execute_action": { "suggested_key": { "default": "Alt+Shift+E" } }
   }
 }

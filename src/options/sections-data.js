@@ -7,6 +7,7 @@ import { row, group, sectionHead } from './ui.js';
 import { t } from '../shared/i18n.js';
 import { importAll, resetAll, getRaw, setRaw, getRange, getCollection, updateCollection, storageUsage, slimNow } from '../shared/storage.js';
 import { tasksToMarkdown, tasksToCsv, parseTasksText } from '../shared/taskio.js';
+import { topicsToMarkdown, ensureInbox } from '../shared/topics.js';
 import { buildJournal } from '../shared/journal.js';
 import { downloadBackup } from '../ui/backup.js';
 import { makeClassifier } from '../shared/classify.js';
@@ -17,7 +18,7 @@ const sec = (id, ...kids) => h('section', { class: 'sec', id }, kids);
 
 /* ============================== Data & privacy ============================== */
 export function data({ s, save, refresh }) {
-  const PERMS = [['storage', 'perm.storage'], ['tabs', 'perm.tabs'], ['webNavigation', 'perm.webNavigation'], ['idle', 'perm.idle'], ['alarms', 'perm.alarms'], ['contextMenus', 'perm.contextMenus'], ['notifications', 'perm.notifications'], ['offscreen', 'perm.offscreen'], ['favicon', 'perm.favicon'], ['youtube/instagram/tiktok/vk', 'perm.hosts']];
+  const PERMS = [['storage', 'perm.storage'], ['tabs', 'perm.tabs'], ['webNavigation', 'perm.webNavigation'], ['idle', 'perm.idle'], ['alarms', 'perm.alarms'], ['contextMenus', 'perm.contextMenus'], ['notifications', 'perm.notifications'], ['offscreen', 'perm.offscreen'], ['favicon', 'perm.favicon'], ['youtube/instagram/tiktok/vk', 'perm.hosts'], ['scripting + websites (optional)', 'perm.dock']];
   const doExport = downloadBackup;
   async function doImport(file) {
     try {
@@ -50,6 +51,7 @@ export function data({ s, save, refresh }) {
     row({ title: t('opt.tasksExport'), desc: t('opt.tasksExportDesc'), control: h('div', { class: 'row gap-2 wrap' },
       h('button', { class: 'btn', type: 'button', onclick: async () => download(`eyetime-tasks-${dayKey()}.md`, tasksToMarkdown(await getCollection('tasks', [])), 'text/markdown') }, icon('file-text'), 'Markdown'),
       h('button', { class: 'btn', type: 'button', onclick: async () => download(`eyetime-tasks-${dayKey()}.csv`, tasksToCsv(await getCollection('tasks', [])), 'text/csv') }, icon('download'), 'CSV')) }),
+    row({ title: t('opt.topicsExport'), desc: t('opt.topicsExportDesc'), control: h('button', { class: 'btn', type: 'button', onclick: async () => download(`eyetime-topics-${dayKey()}.md`, topicsToMarkdown(ensureInbox(await getCollection('topics', []), t('topic.inbox'))), 'text/markdown') }, icon('file-text'), t('opt.topicsExportBtn')) }),
     row({ title: t('opt.tasksImport'), desc: t('opt.tasksImportDesc'), control: h('div', {}, h('button', { class: 'btn', type: 'button', onclick: () => taskFile.click() }, icon('upload'), t('opt.tasksImportBtn')), taskFile) }));
 
   /* how much room the history takes, and a way to free some */
