@@ -5,6 +5,7 @@ import { send } from '../ui/api.js';
 import { mountFocusCard } from '../ui/focus-card.js';
 import { t, fmtDuration } from '../shared/i18n.js';
 import { updateSettings, getCollection, setCollection, updateCollection, getDays, onChange } from '../shared/storage.js';
+import { dockDesign } from '../shared/dock.js';
 import { rangeKeys } from '../shared/time.js';
 import { hostFromUrl } from '../shared/domains.js';
 import { taskFromInput } from '../shared/tasks.js';
@@ -196,8 +197,8 @@ window.addEventListener('message', (e) => {
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !document.querySelector('dialog[open]')) window.parent.postMessage({ type: 'eyetime:close' }, '*'); });
 
 (async function main() {
-  const boot = await bootPage({ onSettings: (s) => { document.documentElement.dataset.design = String((s.dock || {}).design || 1); renderTabs(); if (!isTyping()) render(); } });
-  document.documentElement.dataset.design = String((boot.dock || {}).design || 1);
+  const boot = await bootPage({ onSettings: (s) => { document.documentElement.dataset.design = String(dockDesign(s.dock)); renderTabs(); if (!isTyping()) render(); } });
+  document.documentElement.dataset.design = String(dockDesign(boot.dock));
   renderTabs();
   $('#closeDock').onclick = () => window.parent.postMessage({ type: 'eyetime:close' }, '*');
   $('#hideHere').onclick = async () => {
@@ -211,11 +212,3 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !documen
   try { window.parent.postMessage({ type: 'eyetime:tab-is', tab }, '*'); } catch { /* standalone */ }
   onChange(['topics', 'tasks', 'captures'], () => { if (!isTyping()) redraw(); });
 })();
-
-// (design 3 draws the progress as a bar: keep its --p in step with the ring that the focus card updates)
-setInterval(() => {
-  const bar = document.querySelector('.ring .bar'), ring = bar && bar.closest('.ring');
-  if (!ring) return;
-  const C = parseFloat(bar.getAttribute('stroke-dasharray')) || 1, off = parseFloat(bar.getAttribute('stroke-dashoffset')) || 0;
-  ring.style.setProperty('--p', (100 * (1 - off / C)).toFixed(1) + '%');
-}, 500);
