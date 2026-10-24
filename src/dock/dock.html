@@ -19,7 +19,10 @@
       <button class="icon-btn" id="closeDock" type="button" data-i18n-attr="aria-label:dock.close;data-tip:dock.close"><i data-icon="x"></i></button>
     </div>
   </header>
-  <main id="view" class="dock-view" tabindex="-1"></main>
+  <main class="dock-main">
+    <h1 class="sr-only">EyeTime</h1>
+    <div id="view" class="dock-view" role="tabpanel" tabindex="-1"></div>
+  </main>
   <script type="module" src="dock.js"></script>
 </body>
 </html>
