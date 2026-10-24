@@ -165,3 +165,4 @@ html[data-design="3"] .dd-opt[data-active] { background: rgba(242, 237, 227, .08
 html[data-design="3"] .dd-opt[aria-selected="true"] { color: var(--champ); } html[data-design="3"] .dd-opt .ico { color: var(--champ); }
 html[data-design="1"] .dd.field[aria-expanded="true"], html[data-design="3"] .dd.field[aria-expanded="true"] { box-shadow: none; border-bottom-color: #fff; }
 html[data-design="3"] .dd.field[aria-expanded="true"] { border-bottom-color: var(--champ); }
+html[data-design="2"] .ring, html[data-design="2"] .ring svg { overflow: visible; }
