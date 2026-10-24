@@ -89,6 +89,7 @@ body { background: radial-gradient(130% 55% at 100% -8%, var(--accent-soft), tra
 .focus-run.compact { gap: 14px; }
 .focus-run.compact .run-top { gap: 16px; }
 .focus-run.compact .ring .track { stroke: var(--surface-3); }
+.focus-run.compact .ring, .focus-run.compact .ring svg { overflow: visible; }
 .focus-run.compact .ring .bar { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 55%, transparent)); }
 .focus-run.compact .ring .time { font-size: 22px; font-weight: 650; }
 .focus-run.compact .goal-line { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
