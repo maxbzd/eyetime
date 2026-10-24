@@ -16,7 +16,7 @@ const STATUS_ICON = { todo: { icon: 'circle' }, doing: { icon: 'circle-dot' }, d
 const store = { get: (k, d) => { try { return localStorage.getItem(k) ?? d; } catch { return d; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* private mode */ } } };
 const hashTab = (location.hash.split('/')[1] || '').trim();
 let tab = TABS.includes(hashTab) ? hashTab : TABS.includes(store.get('dock-tab')) ? store.get('dock-tab') : 'now';
-let page = null;              // { url, title, host } of the page the dock sits on (sent by the page script)
+let page = null;              // { url, title, host } of the page the dock sits on — asked from the worker (the browser's own record of the tab), never taken from the page
 let topics = [], open = store.get('dock-open', INBOX_ID), days = [];
 let focusMounted = false, renaming = '';
 
@@ -77,7 +77,9 @@ function pageBar() {
   const sel = h('select', { class: 'field', 'aria-label': t('dock.saveTo') }, topics.map((x) => h('option', { value: x.id, selected: x.id === last, text: x.id === INBOX_ID ? t('topic.inbox') : x.title })));
   const btn = h('button', { class: 'pill', type: 'button', text: t('dock.save'), onclick: async () => {
     const id = sel.value; store.set('dock-topic', id); let res = null;
-    await saveTopics((cur) => { res = addLink(cur, id, { url: page.url, title: page.title }); return res.added ? res.topics : cur; });
+    const now = await fetchPage(); // the page may have changed since the panel opened (single-page sites)
+    if (!now) { toast(t('dock.cannotSave')); return; }
+    await saveTopics((cur) => { res = addLink(cur, id, { url: now.url, title: now.title }); return res.added ? res.topics : cur; });
     const name = (topics.find((x) => x.id === id) || {}).title || '';
     if (res.added) { open = id; store.set('dock-open', id); toast(t('dock.savedIn', { topic: id === INBOX_ID ? t('topic.inbox') : name }), { action: t('common.undo'), onAction: () => saveTopics((cur) => removeLink(cur, id, res.link.id)) }); }
     else toast(res.reason === 'duplicate' ? t('dock.dup', { topic: id === INBOX_ID ? t('topic.inbox') : name }) : res.reason === 'full' ? t('dock.full') : t('dock.cannotSave'));
@@ -178,26 +180,33 @@ function updatePageUi() {
   if (tab === 'learn' && !isTyping()) loadLearn().then(renderLearn);
 }
 
+/** The address and title of the tab this panel sits in, from the browser itself (a page cannot make this say anything else). */
+async function fetchPage() {
+  const r = await send('dock:page');
+  const url = r && typeof r.url === 'string' ? r.url.slice(0, 2000) : '';
+  page = url ? { url, title: String(r.title || '').slice(0, 300), host: hostFromUrl(url) || '' } : null;
+  updatePageUi();
+  return page;
+}
+
 window.addEventListener('message', (e) => {
   if (e.source !== window.parent || !e.data) return;
-  if (e.data.type === 'eyetime:tab' && TABS.includes(e.data.tab)) { if (e.data.tab !== tab) select(e.data.tab); return; }
-  if (e.data.type !== 'eyetime:page') return;
-  const url = typeof e.data.url === 'string' ? e.data.url.slice(0, 2000) : '', host = hostFromUrl(url) || '';
-  page = { url, title: String(e.data.title || '').slice(0, 300), host };
-  updatePageUi();
+  if (e.data.type === 'eyetime:tab' && TABS.includes(e.data.tab) && e.data.tab !== tab) select(e.data.tab); // only a tab name: harmless whoever sends it
 });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !document.querySelector('dialog[open]')) window.parent.postMessage({ type: 'eyetime:close' }, '*'); });
 
 (async function main() {
-  await bootPage({ onSettings: () => { renderTabs(); render(); } });
+  await bootPage({ onSettings: () => { renderTabs(); if (!isTyping()) render(); } });
   renderTabs();
   $('#closeDock').onclick = () => window.parent.postMessage({ type: 'eyetime:close' }, '*');
   $('#hideHere').onclick = async () => {
-    if (!page || !page.host) return;
-    await updateSettings((s) => { s.dock.hidden = [...new Set([...(s.dock.hidden || []), page.host])].slice(0, 100); });
-    await send('settings:changed'); toast(t('dock.hidden', { host: page.host }));
+    const now = await fetchPage(); if (!now || !now.host) return;
+    const host = now.host;
+    await updateSettings((s) => { s.dock.hidden = [...new Set([...(s.dock.hidden || []), host])].slice(0, 100); });
+    await send('settings:changed'); toast(t('dock.hidden', { host }));
   };
+  await fetchPage();
   await render();
-  window.parent.postMessage({ type: 'eyetime:need-page' }, '*');
+  try { window.parent.postMessage({ type: 'eyetime:tab-is', tab }, '*'); } catch { /* standalone */ }
   onChange(['topics', 'tasks', 'captures'], () => { if (!isTyping()) redraw(); });
 })();
