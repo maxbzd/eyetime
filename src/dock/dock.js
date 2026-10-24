@@ -196,7 +196,8 @@ window.addEventListener('message', (e) => {
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !document.querySelector('dialog[open]')) window.parent.postMessage({ type: 'eyetime:close' }, '*'); });
 
 (async function main() {
-  await bootPage({ onSettings: () => { renderTabs(); if (!isTyping()) render(); } });
+  const boot = await bootPage({ onSettings: (s) => { document.documentElement.dataset.design = String((s.dock || {}).design || 1); renderTabs(); if (!isTyping()) render(); } });
+  document.documentElement.dataset.design = String((boot.dock || {}).design || 1);
   renderTabs();
   $('#closeDock').onclick = () => window.parent.postMessage({ type: 'eyetime:close' }, '*');
   $('#hideHere').onclick = async () => {
@@ -210,3 +211,11 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !documen
   try { window.parent.postMessage({ type: 'eyetime:tab-is', tab }, '*'); } catch { /* standalone */ }
   onChange(['topics', 'tasks', 'captures'], () => { if (!isTyping()) redraw(); });
 })();
+
+// (design 3 draws the progress as a bar: keep its --p in step with the ring that the focus card updates)
+setInterval(() => {
+  const bar = document.querySelector('.ring .bar'), ring = bar && bar.closest('.ring');
+  if (!ring) return;
+  const C = parseFloat(bar.getAttribute('stroke-dasharray')) || 1, off = parseFloat(bar.getAttribute('stroke-dashoffset')) || 0;
+  ring.style.setProperty('--p', (100 * (1 - off / C)).toFixed(1) + '%');
+}, 500);
