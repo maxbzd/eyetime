@@ -49,10 +49,17 @@ const { launch } = require('./lib.cjs');
   await frame.waitForSelector('#tabs button', { timeout: 8000 });
   if ((await frame.locator('#tab-learn').getAttribute('aria-selected')) !== 'true') bad.push('the Learn ring did not open the Learn tab');
 
+  // a page cannot talk the panel into another address: a forged message is ignored, the address comes from the browser's own record of the tab
+  await page.evaluate(() => { const f = document.querySelector('#eyetime-dock').shadowRoot.querySelector('iframe'); f.contentWindow.postMessage({ type: 'eyetime:page', url: 'https://evil.example/phish', title: 'Evil' }, '*'); });
+  await page.waitForTimeout(500);
+  // a page cannot click the dock for the person: a scripted click does nothing
+  await page.evaluate(() => { document.querySelector('#eyetime-dock').shadowRoot.querySelector('.notch').setAttribute('data-probe', '1'); });
+
   // Learn: the page bar shows this page; Save puts it into the Inbox (without tracking parameters)
   await frame.waitForSelector('.pagebar', { timeout: 8000 }).catch(() => bad.push('the page bar did not appear (the page address never reached the panel)'));
   const barText = await frame.locator('.pagebar').innerText().catch(() => '');
   if (!/127\.0\.0\.1/.test(barText)) bad.push('the page bar does not show the host: ' + barText.replace(/\s+/g, ' '));
+  if (/evil/i.test(barText)) bad.push('the panel believed an address forged by the page: ' + barText.replace(/\s+/g, ' '));
   await frame.locator('.pagebar .pill').click(); await page.waitForTimeout(600);
   let topics = await get('topics');
   const inbox = (topics || []).find((x) => x.id === 'inbox');
@@ -88,6 +95,12 @@ const { launch } = require('./lib.cjs');
   // keyboard: Escape closes the panel
   await frame.locator('#tab-now').focus(); await page.keyboard.press('Escape'); await page.waitForTimeout(500);
   if ((await tab.getAttribute('aria-expanded')) !== 'false') bad.push('Escape did not close the panel');
+  const after = await page.evaluate(() => { const sr = document.querySelector('#eyetime-dock').shadowRoot; const a = sr.activeElement; return { inert: sr.querySelector('.panel').inert, focus: a ? a.className : '' }; });
+  if (!after.inert) bad.push('a closed panel is still reachable (not inert)');
+  if (!/item|notch/.test(after.focus)) bad.push('focus did not return to the notch after closing: ' + after.focus);
+  // scripted clicks from the page are ignored
+  await page.evaluate(() => document.querySelector('#eyetime-dock').shadowRoot.querySelector('.item').click()); await page.waitForTimeout(400);
+  if ((await tab.getAttribute('aria-expanded')) !== 'false') bad.push('a click made by the page opened the panel');
 
   // drag the tab along the edge: its place is remembered
   const b = await tab.boundingBox();

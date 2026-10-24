@@ -17,7 +17,7 @@ export async function buildMenus() {
   setLocale(resolveLocale(s.language));
   await chrome.contextMenus.removeAll();
   const mk = (o) => chrome.contextMenus.create({ contexts: ['page'], ...o });
-  mk({ id: 'root', title: 'EyeTime', contexts: ['page', 'action'] });
+  mk({ id: 'root', title: 'EyeTime', contexts: ['page', 'action', 'link'] }); // 'link': only "Save to topic" shows there
   for (const c of ['productive', 'neutral', 'distracting']) mk({ id: 'cls:' + c, parentId: 'root', title: t('menu.markAs', { cls: t('class.' + c) }), contexts: ['page'] });
   mk({ id: 'block:always', parentId: 'root', title: t('menu.alwaysBlock'), contexts: ['page'] });
   mk({ id: 'focus:toggle', parentId: 'root', title: t('menu.toggleFocus'), contexts: ['page', 'action'] });
@@ -42,4 +42,11 @@ chrome.contextMenus?.onClicked.addListener(async (info, tab) => {
   await updateBadge(s);
   setLocale(resolveLocale(s.language));
   chrome.notifications.create('menu-' + Date.now(), { type: 'basic', iconUrl: ICON, title: 'EyeTime', message: t(result.key, { host, cls: result.cls ? t('class.' + result.cls).toLowerCase() : '' }), priority: 0 });
+});
+
+// the topic list changed (a new topic, a rename, a deletion in the dock or in Settings): the "Save to topic" entries follow
+let menuTimer = 0;
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== 'local' || !changes.topics) return;
+  clearTimeout(menuTimer); menuTimer = setTimeout(() => { buildMenus().catch(() => {}); }, 800);
 });

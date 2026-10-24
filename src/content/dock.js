@@ -3,8 +3,11 @@
 // a click opens an extension iframe (src/dock/dock.html) with the panel. From the page it reads nothing but its address and title, and only hands
 // them to the panel. Numbers on the rings come from EyeTime's own storage. A classic script (no imports), kept small: it runs on every page.
 (() => {
-  if (window.top !== window || !/^https?:$/.test(location.protocol) || document.documentElement.dataset.eyetimeDock) return;
-  document.documentElement.dataset.eyetimeDock = '1';
+  // the guard lives in this script's own (isolated) world: the page cannot see it, and nothing in the page's DOM says EyeTime is installed
+  if (window.top !== window || !/^https?:$/.test(location.protocol) || globalThis.__eyetimeDock) return;
+  globalThis.__eyetimeDock = true;
+  // Test builds (they declare host permissions up front; a store build never does) keep the shadow root open and the element id fixed, so the end-to-end test can reach it.
+  const TEST = (() => { try { return (chrome.runtime.getManifest().host_permissions || []).length > 0; } catch { return false; } })();
 
   const EXT_ORIGIN = chrome.runtime.getURL('').slice(0, -1);
   const msg = (k, fb) => chrome.i18n.getMessage(k) || fb;
@@ -16,7 +19,7 @@
   ];
   const CIRC = 2 * Math.PI * 15.5;
   let dock = { enabled: true, side: 'right', y: 0.4, hidden: [] };
-  let host, wrap, notch, panel, frame, open = false, timer = 0;
+  let host, shadow, wrap, notch, panel, frame, observer, open = false, ticking = 0;
   const refs = {};
 
   const css = `
@@ -34,7 +37,7 @@
     .right .notch::after { right: 0; bottom: calc(var(--r) * -1); background: radial-gradient(circle at 0 100%, transparent calc(var(--r) - .6px), #000 var(--r)); }
     .left .notch::before { left: 0; top: calc(var(--r) * -1); background: radial-gradient(circle at 100% 0, transparent calc(var(--r) - .6px), #000 var(--r)); }
     .left .notch::after { left: 0; bottom: calc(var(--r) * -1); background: radial-gradient(circle at 100% 100%, transparent calc(var(--r) - .6px), #000 var(--r)); }
-    .hit { position: absolute; top: -24px; bottom: -24px; width: 34px; } .right .hit { left: -20px; } .left .hit { right: -20px; }
+    .hit { position: absolute; top: 0; bottom: 0; width: 10px; } .right .hit { left: -8px; } .left .hit { right: -8px; }
     .wrap.expanded .notch { min-height: 190px; }
     .item { position: relative; width: 40px; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; border-radius: 12px;
       opacity: 0; transform: scale(.6); transition: opacity .22s, transform .34s cubic-bezier(.3, 1.35, .5, 1); pointer-events: none; font: inherit; }
@@ -49,10 +52,10 @@
     .pct { font-size: 10px; letter-spacing: .01em; color: rgba(255, 255, 255, .92); font-variant-numeric: tabular-nums; min-height: 10px; }
     .dots { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; pointer-events: none; transition: opacity .2s; }
     .dots i { width: 4px; height: 4px; border-radius: 50%; display: block; } .wrap.expanded .dots { opacity: 0; }
-    .panel { position: fixed; top: 12px; bottom: 12px; width: 392px; max-width: calc(100vw - 96px); border-radius: 20px; overflow: hidden; z-index: 1; pointer-events: none; opacity: 0; background: #1c1c1e;
-      box-shadow: 0 0 0 .5px rgba(0, 0, 0, .3), 0 24px 64px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .14); transition: transform .3s cubic-bezier(.2, .9, .25, 1.02), opacity .2s; }
+    .panel { position: fixed; top: 12px; bottom: 12px; width: 392px; max-width: calc(100vw - 96px); border-radius: 20px; overflow: hidden; z-index: 1; pointer-events: none; opacity: 0; visibility: hidden; background: #1c1c1e;
+      box-shadow: 0 0 0 .5px rgba(0, 0, 0, .3), 0 24px 64px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .14); transition: transform .3s cubic-bezier(.2, .9, .25, 1.02), opacity .2s, visibility 0s .3s; }
     .right .panel { right: 66px; transform: translateX(34px) scale(.98); transform-origin: right center; } .left .panel { left: 66px; transform: translateX(-34px) scale(.98); transform-origin: left center; }
-    .wrap.open .panel { opacity: 1; pointer-events: auto; transform: none; }
+    .wrap.open .panel { opacity: 1; visibility: visible; pointer-events: auto; transform: none; transition-delay: 0s; }
     iframe { width: 100%; height: 100%; border: 0; display: block; color-scheme: normal; }
     @media (prefers-reduced-motion: reduce) { .notch, .notch::before, .notch::after, .item, .panel, .arc { transition: none; } }
     @media (forced-colors: active) { .notch, .item { forced-color-adjust: none; } }
@@ -62,13 +65,13 @@
   const NS = 'http://www.w3.org/2000/svg';
   const svgEl = (tag, attrs = {}) => { const e = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); return e; };
   const post = (m) => { try { frame && frame.contentWindow && frame.contentWindow.postMessage(m, EXT_ORIGIN); } catch { /* the panel is not ready */ } };
-  const pageInfo = () => ({ type: 'eyetime:page', url: location.href, title: document.title || '', host: location.hostname });
   const dayKey = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
   const clamp = (n) => Math.min(1, Math.max(0, Number.isFinite(n) ? n : 0));
 
   /* ---------- the numbers on the rings ---------- */
   async function refresh() {
     if (!host) return;
+    if (!chrome.runtime || !chrome.runtime.id) return destroy(); // the extension was updated or removed: this page keeps a dead copy
     try {
       const key = 'd:' + dayKey();
       const s = await chrome.storage.local.get(['settings', 'focus', 'tasks', 'topics', key]);
@@ -97,22 +100,24 @@
     frame = document.createElement('iframe');
     frame.title = 'EyeTime';
     frame.src = chrome.runtime.getURL('src/dock/dock.html') + '#' + dock.side + '/' + (tabName || 'now');
-    frame.addEventListener('load', () => post(pageInfo()));
     panel.append(frame);
   }
   function setOpen(v, tabName) {
     open = v;
     wrap.classList.toggle('open', v); wrap.classList.toggle('expanded', v || wrap.matches(':hover'));
     notch.setAttribute('aria-expanded', String(v));
-    if (v) { ensureFrame(tabName); post(pageInfo()); if (tabName) post({ type: 'eyetime:tab', tab: tabName }); setTimeout(() => { try { frame.focus(); } catch { /* ignore */ } }, 260); }
-    else if (notch.contains(root().activeElement)) { try { refs.focus.btn.focus({ preventScroll: true }); } catch { /* ignore */ } }
+    panel.inert = !v; // a closed panel is out of the tab order and the accessibility tree
+    if (v) refresh();
+    if (tabName) currentTab = tabName === 'learn' ? 'learn' : 'now';
+    if (v) { ensureFrame(tabName); if (tabName) post({ type: 'eyetime:tab', tab: tabName }); setTimeout(() => { try { frame.focus(); } catch { /* ignore */ } }, 260); }
+    else if (shadow.activeElement === frame || panel.contains(shadow.activeElement)) { try { (refs[opener] || refs.focus).btn.focus({ preventScroll: true }); } catch { /* ignore */ } }
   }
-  const root = () => host.shadowRoot;
+  let opener = 'focus';
 
   /* ---------- the notch is expanded while hovered / focused / open ---------- */
   let leaveTimer = 0;
-  const expand = () => { clearTimeout(leaveTimer); wrap.classList.add('expanded'); refresh(); };
-  const collapse = () => { clearTimeout(leaveTimer); leaveTimer = setTimeout(() => { if (!open && !notch.matches(':hover') && !notch.matches(':focus-within')) wrap.classList.remove('expanded'); }, 450); };
+  const expand = () => { clearTimeout(leaveTimer); wrap.classList.add('expanded'); refresh(); clearInterval(ticking); ticking = setInterval(refresh, 30000); };
+  const collapse = () => { clearTimeout(leaveTimer); leaveTimer = setTimeout(() => { if (!open && !notch.matches(':hover') && !notch.matches(':focus-within')) { wrap.classList.remove('expanded'); clearInterval(ticking); } }, 450); };
 
   function place() { // keep the notch (with its flares) inside the window whatever its height
     const h = notch.offsetHeight || 76, m = h / 2 + 30, vh = window.innerHeight;
@@ -120,9 +125,9 @@
   }
 
   function drag(e) {
-    if (e.button !== 0 || e.target.closest('.item')) return;
+    if (!e.isTrusted || e.button !== 0 || e.target.closest && e.target.closest('.item')) return;
     const startY = e.clientY, startPos = dock.y; let moved = false;
-    const move = (ev) => { if (Math.abs(ev.clientY - startY) > 4) moved = true; if (moved) { dock.y = clamp(startPos + (ev.clientY - startY) / window.innerHeight); place(); } };
+    const move = (ev) => { if (Math.abs(ev.clientY - startY) > 4) moved = true; if (moved) { dock.y = Math.min(0.95, Math.max(0.05, startPos + (ev.clientY - startY) / window.innerHeight)); place(); } };
     const up = () => {
       window.removeEventListener('pointermove', move, true); window.removeEventListener('pointerup', up, true);
       if (moved) { try { chrome.runtime.sendMessage({ type: 'dock:pos', y: Math.round(dock.y * 1000) / 1000 }); } catch { /* the worker wakes with the next message */ } }
@@ -132,9 +137,9 @@
 
   function build() {
     host = document.createElement('div');
-    host.id = 'eyetime-dock';
+    if (TEST) host.id = 'eyetime-dock';
     host.style.cssText = 'all: initial; position: fixed; inset: 0; z-index: 2147483647; pointer-events: none;';
-    const rootEl = host.attachShadow({ mode: 'open' });
+    const rootEl = shadow = host.attachShadow({ mode: TEST ? 'open' : 'closed' });
     const style = document.createElement('style'); style.textContent = css;
     wrap = document.createElement('div'); wrap.className = 'wrap ' + (dock.side === 'left' ? 'left' : 'right');
     notch = document.createElement('div'); notch.className = 'notch'; notch.setAttribute('role', 'group'); notch.setAttribute('aria-label', LABEL); notch.title = LABEL; notch.setAttribute('aria-expanded', 'false');
@@ -151,30 +156,32 @@
       ring.append(r, ic);
       const pct = document.createElement('span'); pct.className = 'pct';
       btn.append(ring, pct); notch.append(btn);
-      btn.addEventListener('click', () => setOpen(open && it.tab === currentTab ? false : true, it.tab));
+      btn.addEventListener('click', (e) => { if (!e.isTrusted) return; if (!chrome.runtime || !chrome.runtime.id) return destroy(); opener = it.k; setOpen(open && it.tab === currentTab ? false : true, it.tab); });
       refs[it.k] = { btn, arc, pct };
     }
     panel = document.createElement('div'); panel.className = 'panel'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'EyeTime');
+    panel.inert = true;
     wrap.append(notch, panel); rootEl.append(style, wrap);
     notch.addEventListener('pointerenter', expand); notch.addEventListener('pointerleave', collapse);
     notch.addEventListener('focusin', expand); notch.addEventListener('focusout', collapse);
     notch.addEventListener('pointerdown', drag);
-    (document.body || document.documentElement).append(host);
-    place(); refresh(); timer = setInterval(refresh, 30000);
+    document.documentElement.append(host); // not <body>: sites that swap or transform the body must not take the notch with them
+    observer = new MutationObserver(() => { if (host && !host.isConnected) document.documentElement.append(host); }); // a site that rewrites the document (Turbo, pjax) gets the notch back
+    observer.observe(document.documentElement, { childList: true });
+    place(); refresh();
     window.addEventListener('resize', place);
   }
   let currentTab = 'now';
 
-  function destroy() { clearInterval(timer); window.removeEventListener('resize', place); if (host) host.remove(); host = frame = panel = notch = wrap = null; open = false; delete document.documentElement.dataset.eyetimeDock; }
+  function destroy() { clearInterval(ticking); window.removeEventListener('resize', place); if (observer) observer.disconnect(); if (host) host.remove(); host = shadow = frame = panel = notch = wrap = observer = null; open = false; globalThis.__eyetimeDock = false; }
 
   window.addEventListener('message', (e) => {
     if (!frame || e.source !== frame.contentWindow || e.origin !== EXT_ORIGIN || !e.data) return;
     if (e.data.type === 'eyetime:close') setOpen(false);
-    else if (e.data.type === 'eyetime:need-page') post(pageInfo());
     else if (e.data.type === 'eyetime:tab-is') currentTab = e.data.tab === 'learn' ? 'learn' : 'now';
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && open) setOpen(false); }, true);
-  chrome.runtime.onMessage.addListener((m) => { if (m && m.type === 'dock:toggle' && host) setOpen(!open); });
+  chrome.runtime.onMessage.addListener((m) => { if (m && m.type === 'dock:toggle' && host) { opener = 'focus'; setOpen(!open); } });
 
   const hiddenHere = (list) => (list || []).some((h) => location.hostname === h || location.hostname.endsWith('.' + h));
   chrome.storage.local.get('settings').then(({ settings }) => {
@@ -189,8 +196,8 @@
       if (!d.enabled || hiddenHere(d.hidden)) { if (host) destroy(); return; }
       const sideChanged = host && (d.side || 'right') !== dock.side;
       dock = { ...dock, ...d };
-      if (!host) { document.documentElement.dataset.eyetimeDock = '1'; build(); } else if (sideChanged) { const was = open; destroy(); document.documentElement.dataset.eyetimeDock = '1'; build(); if (was) setOpen(true); } else place();
+      if (!host) { globalThis.__eyetimeDock = true; build(); } else if (sideChanged) { const was = open; destroy(); globalThis.__eyetimeDock = true; build(); if (was) setOpen(true); } else place();
     }
-    if (host && (changes.focus || changes.tasks || changes.topics || changes.settings || Object.keys(changes).some((k) => k.startsWith('d:')))) refresh();
+    if (host && wrap.classList.contains('expanded') && (changes.focus || changes.tasks || changes.topics || Object.keys(changes).some((k) => k.startsWith('d:')))) refresh();
   });
 })();
