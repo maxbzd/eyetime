@@ -79,7 +79,7 @@ export const DEFAULT_SETTINGS = {
   newtab: {
     enabled: true,
     modules: { focus: true, today: true, tasks: true, habits: true, notes: true, links: true },
-    background: 'dawn',        // 'look' (match the look) | gradient / pattern id | 'color' | 'photo'; Dawn out of the box
+    background: 'look',        // 'look' (the look's own scene: Calm = Dawn, others = their page colour) | gradient / pattern id | 'color' | 'photo'
     bgColor: '#e9e4ff',        // used by background 'color'
     clockStyle: 'thin',        // thin | bold | mono | serif | compact | stacked | none
     layout: 'center',          // center | split | minimal

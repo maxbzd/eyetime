@@ -16,6 +16,7 @@ import { downloadBackup, needsBackup } from '../ui/backup.js';
 import { send } from '../ui/api.js';
 import { setCollection } from '../shared/storage.js';
 import { dayKey } from '../shared/time.js';
+import { LOOKS } from '../shared/looks.js';
 import { fmtDuration } from '../shared/i18n.js';
 import { clock, remainingMs } from '../shared/focus.js';
 import { isFocusActive } from '../shared/blocking.js';
@@ -98,6 +99,7 @@ async function paintNudge() {
 async function applyBackground() {
   const n = settings.newtab;
   let bg = BACKGROUNDS.includes(n.background) || n.background === 'photo' ? n.background : 'look';
+  if (bg === 'look') bg = LOOKS[settings.appearance.look]?.homeScene || 'look'; // "as in the look": Calm paints Dawn, the others their own page colour
   if (bg === 'photo') {
     const { newtabBg } = await getRaw('newtabBg');
     if (newtabBg) document.documentElement.style.setProperty('--photo', `url(${newtabBg})`); else bg = 'look';
@@ -187,7 +189,7 @@ function drawDrawer() {
 
   const section = (title, ...kids) => h('div', {}, h('h4', { text: title }), ...kids);
   clear(body,
-    section(t('ap.looks'), looksGallery(settings.appearance, { compact: true, onPick: (id) => set((s) => { s.appearance.look = id; }) })),
+    section(t('ap.looks'), looksGallery(settings.appearance, { compact: true, onPick: (id) => set((s) => { s.appearance.look = id; if (s.newtab.background === 'dawn') s.newtab.background = 'look'; }) })),
     section(t('home.accent'), accentPicker(settings.appearance, (v) => set((s) => { s.appearance.accent = v; }))),
     section(t('home.background'), h('div', { class: 'bg-grid' }, tiles), fileIn,
       n.background === 'color' ? null : colorIn,
