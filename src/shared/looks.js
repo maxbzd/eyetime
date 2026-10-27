@@ -99,6 +99,35 @@ export const LOOKS = {
     light: { bg: '#f5f0e8', surface: '#ffffff', text: '#201a15', accent: '#0f8a63' },
     dark: { bg: '#0f120f', surface: '#181d18', text: '#eef3ec', accent: '#5fd6a2' },
   },
+  spectrum: {
+    name: 'Spectrum', blurb: 'Deep ink with a prism flare, hairline cards and one white pill.', font: 'inter', display: 'inter', radii: [10, 14, 20, 28], cards: 'flat', shadow: 'none', borderW: 1, headingW: 650, headingLs: '-.03em',
+    light: { bg: '#f2f3f9', surface: '#ffffff', text: '#12132a', accent: '#0a7f99', border: '#dfe1ee' },
+    dark: { bg: '#05060d', surface: '#0e1020', text: '#f4f5ff', accent: '#3ad6ee', border: '#1e2138' },
+    pageBg: { dark: 'radial-gradient(60% 50% at 0% 100%, rgba(255, 70, 160, .20), transparent 70%), radial-gradient(55% 45% at 100% 95%, rgba(255, 150, 50, .22), transparent 70%), radial-gradient(70% 40% at 80% -10%, rgba(58, 214, 238, .16), transparent 70%)', light: 'radial-gradient(60% 50% at 0% 100%, rgba(255, 120, 190, .30), transparent 70%), radial-gradient(55% 45% at 100% 95%, rgba(255, 190, 110, .35), transparent 70%), radial-gradient(70% 40% at 80% -10%, rgba(90, 210, 235, .30), transparent 70%)' },
+  },
+  tide: {
+    name: 'Tide', blurb: 'A dusk horizon behind frosted glass and a floating pill.', font: 'inter', display: 'inter', radii: [12, 16, 24, 32], cards: 'glass', shadow: 'airy', borderW: 1, headingW: 600, headingLs: '-.025em',
+    light: { bg: '#e8edf4', surface: '#ffffff', text: '#16202e', accent: '#bd4f35' },
+    dark: { bg: '#0b1220', surface: '#141d2e', text: '#eef2fa', accent: '#f2a68b' },
+    pageBg: { dark: 'linear-gradient(180deg, #1a2540 0%, #2f2d4e 34%, #7d5663 50%, #e0a08a 53%, #1d2a44 56%, #0b1220 100%)', light: 'linear-gradient(180deg, #b9c6dd 0%, #d9cfe0 34%, #f3cdbd 50%, #f8dccb 53%, #cdd9e8 56%, #e8edf4 100%)' },
+  },
+  ledger: {
+    name: 'Ledger', blurb: 'Calm navy, big numerals and smooth area charts.', font: 'inter', display: 'inter', radii: [10, 14, 18, 24], cards: 'solid', shadow: 'none', borderW: 1, headingW: 600, headingLs: '-.025em',
+    light: { bg: '#eff3f8', surface: '#ffffff', text: '#0f1726', accent: '#0b7f62', border: '#dbe3ee' },
+    dark: { bg: '#0a0e1a', surface: '#121829', text: '#e9edf7', accent: '#4cc2a0', border: '#1f2740' },
+  },
+  vital: {
+    name: 'Vital', blurb: 'Charcoal and olive, thick rings, serif headlines.', font: 'inter', display: 'serif', radii: [12, 16, 22, 30], cards: 'solid', shadow: 'soft', borderW: 1, headingW: 400, headingLs: '-.015em',
+    light: { bg: '#f3f2ea', surface: '#fbfaf4', text: '#1a1d14', accent: '#4b7a12', border: '#e1e0d2' },
+    dark: { bg: '#0c0d0b', surface: '#171a15', text: '#eef0e8', accent: '#a3d45a', border: '#272b22' },
+    pageBg: { dark: 'radial-gradient(70% 45% at 50% -10%, rgba(120, 140, 60, .20), transparent 70%)', light: 'radial-gradient(70% 45% at 50% -10%, rgba(150, 170, 80, .22), transparent 70%)' },
+  },
+  aura: {
+    name: 'Aura', blurb: 'A soft rose-to-peach glow with serif numerals and glass pills.', font: 'manrope', display: 'serif', radii: [14, 20, 28, 40], cards: 'glass', shadow: 'airy', borderW: 1, headingW: 400, headingLs: '-.015em',
+    light: { bg: '#fbeef1', surface: '#ffffff', text: '#2a1b2e', accent: '#c7336f' },
+    dark: { bg: '#150d1c', surface: '#21152b', text: '#fbeff6', accent: '#ff8ab8' },
+    pageBg: { light: 'radial-gradient(60% 55% at 15% 8%, rgba(255, 170, 190, .65), transparent 70%), radial-gradient(60% 55% at 90% 12%, rgba(190, 170, 255, .55), transparent 70%), radial-gradient(70% 50% at 55% 100%, rgba(255, 205, 160, .55), transparent 70%)', dark: 'radial-gradient(60% 55% at 15% 8%, rgba(255, 110, 160, .22), transparent 70%), radial-gradient(60% 55% at 90% 12%, rgba(140, 110, 255, .22), transparent 70%), radial-gradient(70% 50% at 55% 100%, rgba(255, 150, 110, .16), transparent 70%)' },
+  },
   sunset: {
     name: 'Sunset', blurb: 'Peach, coral and a warm evening light.', font: 'manrope', display: 'manrope', radii: [10, 14, 20, 28], cards: 'solid', shadow: 'soft', borderW: 1, headingW: 750, headingLs: '-.02em', homeBg: 'mesh',
     light: { bg: '#fff1e6', surface: '#fffaf5', text: '#3a1710', accent: '#e0481f' },
@@ -116,7 +145,7 @@ export const LOOKS = {
     dark: { bg: '#041217', surface: '#09202a', text: '#dff4f8', accent: '#38bdf8' },
   },
 };
-const FIRST = ['calm', 'obsidian', 'void', 'noir', 'pearl', 'bento']; // the gallery order: the default, then the newest
+const FIRST = ['calm', 'obsidian', 'void', 'noir', 'pearl', 'bento', 'spectrum', 'tide', 'ledger', 'vital', 'aura']; // the gallery order: the default, then the newest
 export const LOOK_IDS = [...FIRST, ...Object.keys(LOOKS).filter((id) => !FIRST.includes(id))];
 
 /* ---------- derivation ---------- */

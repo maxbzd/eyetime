@@ -189,7 +189,7 @@ export const en = {
   'review.focus': { one: 'Focus time {time} in {n} session', other: 'Focus time {time} in {n} sessions' }, 'review.share': '{pct}% of screen time went to distractions', 'review.breaks': { one: '{n} eye break taken', other: '{n} eye breaks taken' },
   'review.suggestTitle': 'An idea for next week', 'review.suggestBody': 'You spent about {avg} min a day on {host}. A limit of {limit} min a day would give you time back without a hard block.',
   'review.setLimit': 'Set {n} min limit', 'review.limitSet': 'Limit set: {host}, {n} min a day', 'review.balanced': 'Nicely balanced week — nothing to fix. Keep it up.',
-  'sec.appearance': 'Appearance', 'sec.appearanceDesc': 'Make EyeTime yours: sixteen looks, any accent color, your own type, shape and density.',
+  'sec.appearance': 'Appearance', 'sec.appearanceDesc': 'Make EyeTime yours: twenty-one looks, any accent color, your own type, shape and density.',
   'look.calm': 'Calm', 'look.paper': 'Paper', 'look.midnight': 'Midnight', 'look.terminal': 'Terminal', 'look.sakura': 'Sakura', 'look.forest': 'Forest',
   'look.aurora': 'Aurora', 'look.mono': 'Mono', 'look.sunset': 'Sunset', 'look.nord': 'Nord', 'look.ocean': 'Ocean',
   'lookd.calm': 'The default: warm, soft and friendly.', 'lookd.paper': 'A reading-room feel: serif headings on warm paper.', 'lookd.midnight': 'Deep blue-black with glass cards and a glowing accent.',
@@ -330,4 +330,5 @@ export const en = {
   'opt.dockDesign': 'Panel style', 'opt.dockDesignDesc': 'How the open panel looks: Void is quiet typography, Glass has soft cards and a warm glow, Noir is ivory serif on black.',
   'wn.dockOn': 'Turn on the dock', 'wn.dockOnDone': 'The dock is on. Open any web page to see it.',
   'look.obsidian': 'Obsidian', 'lookd.obsidian': 'True black glass with a warm ember glow.', 'look.void': 'Void', 'lookd.void': 'Type and hairlines only. Nothing to look at but your work.', 'look.noir': 'Noir', 'lookd.noir': 'Ivory serif on black, a watch-dial timer, champagne details.', 'look.pearl': 'Pearl', 'lookd.pearl': 'Airy frosted glass over soft pastel light.', 'look.bento': 'Bento', 'lookd.bento': 'Soft colour tiles, rounded and friendly.',
+  'look.spectrum': 'Spectrum', 'lookd.spectrum': 'Deep ink with a prism flare, hairline cards and one white pill.', 'look.tide': 'Tide', 'lookd.tide': 'A dusk horizon behind frosted glass and a floating pill.', 'look.ledger': 'Ledger', 'lookd.ledger': 'Calm navy, big numerals and smooth area charts.', 'look.vital': 'Vital', 'lookd.vital': 'Charcoal and olive, thick rings, serif headlines.', 'look.aura': 'Aura', 'lookd.aura': 'A soft rose-to-peach glow with serif numerals and glass pills.',
 };
