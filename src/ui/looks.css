@@ -324,14 +324,12 @@ html[data-look="spectrum"] body[data-layout="center"] #focus::before { content: 
   html[data-look="spectrum"] body[data-layout="center"] .focus-idle.large .focus-row .btn-lg { width: 100%; justify-content: center; }
 }
 
-/* ---------- Tide · Horizon: a low sun behind a thin clock, one long glass bar, navigation as a floating pill at the bottom ---------- */
-html[data-look="tide"] body[data-layout="center"] .nt { padding-top: 13vh; padding-bottom: 140px; gap: var(--s-8); }
-html[data-look="tide"] body[data-layout="center"] .hero { position: relative; isolation: isolate; padding: var(--s-8) 0 var(--s-2); }
-html[data-look="tide"] body[data-layout="center"] .hero::before { content: ""; position: absolute; z-index: -1; left: 50%; top: 44%; width: min(78vw, 760px); aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle, rgba(255, 196, 150, .7) 0%, rgba(255, 138, 110, .34) 30%, rgba(255, 96, 130, .1) 50%, transparent 66%); mix-blend-mode: screen; }
-html[data-look="tide"][data-scheme="light"] body[data-layout="center"] .hero::before { background: radial-gradient(circle, rgba(255, 190, 150, .8) 0%, rgba(255, 200, 170, .4) 36%, transparent 66%); mix-blend-mode: normal; }
-html[data-look="tide"] body[data-layout="center"] .clock { font-size: clamp(96px, 17vw, 208px); font-weight: 200; letter-spacing: -.06em; }
-html[data-look="tide"] body[data-layout="center"] .hero h1 { font-size: clamp(20px, 2.3vw, 28px); font-weight: 500; letter-spacing: .01em; margin-top: var(--s-2); }
+/* ---------- Tide · Horizon: a sea scene fills the screen, greeting top-left, a big thin clock, one frosted tray, a floating pill for navigation ---------- */
+html[data-look="tide"] body[data-layout="center"] .nt { max-width: 1180px; padding-top: 76px; padding-bottom: 150px; gap: var(--s-6); }
+html[data-look="tide"] body[data-layout="center"] .hero { display: grid; justify-items: center; padding: 0 0 var(--s-2); }
+html[data-look="tide"] body[data-layout="center"] .hero h1 { order: 1; justify-self: start; margin: 0; font-size: clamp(26px, 2.6vw, 34px); font-weight: 600; letter-spacing: -.02em; }
+html[data-look="tide"] body[data-layout="center"] .hero p { order: 2; justify-self: start; margin: 2px 0 0; font-size: var(--fs-md); letter-spacing: .02em; }
+html[data-look="tide"] body[data-layout="center"] .clock { order: 3; margin: clamp(16px, 5vh, 56px) 0 clamp(8px, 2vh, 24px); font-size: clamp(96px, min(18vw, 23vh), 232px); font-weight: 200; letter-spacing: -.055em; line-height: .95; }
 html[data-look="tide"] body[data-layout="center"] #focus { max-width: 860px; padding: var(--s-3) var(--s-3) var(--s-4); border-radius: 36px; }
 html[data-look="tide"] body[data-layout="center"] .focus-idle.large { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: var(--s-3); row-gap: var(--s-3); }
 html[data-look="tide"] body[data-layout="center"] .focus-idle.large > * { grid-column: 1 / -1; }
