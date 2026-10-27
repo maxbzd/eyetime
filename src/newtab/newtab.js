@@ -25,7 +25,7 @@ import { looksGallery, accentPicker } from '../ui/appearance.js';
 import { luminance, normalizeHex } from '../shared/color.js';
 
 const BACKGROUNDS = ['look', 'dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'grid', 'living', 'plain', 'color'];
-const DARK_SCENES = ['aurora', 'stars', 'photo'];
+const DARK_SCENES = ['aurora', 'stars', 'photo', 'sea'];
 const MODULES = ['today', 'tasks', 'habits', 'notes', 'links'];
 const CLOCKS = ['thin', 'bold', 'mono', 'serif', 'compact', 'stacked', 'none'];
 const LAYOUTS = ['center', 'split', 'minimal'];
@@ -100,7 +100,10 @@ async function paintNudge() {
 async function applyBackground() {
   const n = settings.newtab;
   let bg = BACKGROUNDS.includes(n.background) || n.background === 'photo' ? n.background : 'look';
-  if (bg === 'look') bg = LOOKS[settings.appearance.look]?.homeScene || 'look'; // "as in the look": Calm paints Dawn, the others their own page colour
+  if (bg === 'look') { // "as in the look": Calm paints Dawn, Tide a sea (one per scheme), the others their own page colour
+    const scene = LOOKS[settings.appearance.look]?.homeScene;
+    bg = (scene && typeof scene === 'object' ? scene[document.documentElement.dataset.scheme] : scene) || 'look';
+  }
   if (bg === 'photo') {
     const { newtabBg } = await getRaw('newtabBg');
     if (newtabBg) document.documentElement.style.setProperty('--photo', `url(${newtabBg})`); else bg = 'look';
@@ -281,5 +284,6 @@ function openShortcutHelp() {
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
   onChange('newtabBg', applyBackground);
+  window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', () => setTimeout(applyBackground, 0));
   watchFocus();
 })();
