@@ -45,6 +45,26 @@ body { min-height: calc(100vh / var(--ui-scale, 1)); position: relative; }
 .bgx-waves::after { height: 34%; opacity: .12; background: var(--productive); transform: scaleX(-1); }
 .bgx-waves { --wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 400' preserveAspectRatio='none'%3E%3Cpath d='M0 180 C200 80 380 280 600 170 S1000 60 1200 160 V400 H0Z'/%3E%3C/svg%3E"); }
 
+/* the sea (Tide): a slate sky, a low sun, a horizon and water with a soft reflection; "sea" is the dusk, "seaday" the pale morning version */
+.bgx-sea, .bgx-seaday { --hz: 46%; background-color: var(--sea-deep);
+  background-image:
+    radial-gradient(ellipse 34% 20% at 50% var(--hz), var(--sun-core), var(--sun-halo) 46%, transparent 74%),
+    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 26%, var(--sky-low) 38%, var(--sky-hz) var(--hz), var(--sea-hz) calc(var(--hz) + .15%), var(--sea-mid) 66%, var(--sea-deep) 100%); }
+.bgx-sea::before, .bgx-seaday::before { inset: var(--hz) 0 0; background:
+    radial-gradient(ellipse 13% 100% at 50% 0, var(--sun-ref), transparent 76%),
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, var(--streak)) 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, calc(var(--streak) * .9)) 0 2px, transparent 2px 15px);
+  -webkit-mask: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, .55) 45%, transparent 92%); mask: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, .55) 45%, transparent 92%);
+  background-size: 100% 100%, 100% 100%, 100% 100%; filter: blur(1.6px); animation: sea-drift 34s ease-in-out infinite alternate; }
+.bgx-sea::after, .bgx-seaday::after { opacity: .5; mix-blend-mode: soft-light; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+@keyframes sea-drift { from { background-position: 0 0, 0 0, 0 0; transform: scaleX(1); } to { background-position: 0 0, 0 14px, 0 -22px; transform: scaleX(1.03); } }
+:root[data-motion="reduced"] .bgx-sea::before, :root[data-motion="reduced"] .bgx-seaday::before { animation: none; }
+@media (prefers-reduced-motion: reduce) { .bgx-sea::before, .bgx-seaday::before { animation: none; } }
+.bgx-sea { --sky-top: #3b4358; --sky-mid: #5d5f7a; --sky-low: #8e7a8c; --sky-hz: #d9a690; --sea-hz: #a58593; --sea-mid: #4a4f66; --sea-deep: #1f2434;
+  --sun-core: rgba(255, 200, 160, .6); --sun-halo: rgba(255, 150, 130, .2); --sun-ref: rgba(255, 190, 150, .62); --streak: .045; }
+.bgx-seaday { --sky-top: #aebbd0; --sky-mid: #cbc9d9; --sky-low: #e5d0d4; --sky-hz: #f7dac8; --sea-hz: #dcc5c8; --sea-mid: #b3c0d2; --sea-deep: #8ea0b8;
+  --sun-core: rgba(255, 224, 190, .85); --sun-halo: rgba(255, 196, 170, .35); --sun-ref: rgba(255, 226, 200, .75); --streak: .035; }
+
 /* always-dark scenes: hero text switches to light (body[data-tone="dark"]) */
 .bgx-aurora { background-color: #070b1c; background-image:
     radial-gradient(70% 55% at 20% 18%, rgba(124, 92, 255, .55), transparent 70%), radial-gradient(60% 50% at 78% 12%, rgba(44, 196, 189, .5), transparent 70%),
