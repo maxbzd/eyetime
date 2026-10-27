@@ -184,7 +184,7 @@
 :is(html, .lp)[data-look="spectrum"] .btn-primary:hover { background: var(--text); filter: brightness(.92); }
 :is(html, .lp)[data-look="spectrum"] .btn-lg { border-radius: var(--r-full); }
 :is(html, .lp)[data-look="spectrum"] .chip, :is(html, .lp)[data-look="spectrum"] .mode-chip { background: transparent; border-color: color-mix(in srgb, var(--text) 16%, transparent); border-radius: var(--r-full); font-weight: 550; }
-:is(html, .lp)[data-look="spectrum"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="spectrum"] .mode-chip[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 16%, transparent); border-color: var(--accent); color: var(--text); box-shadow: 0 0 18px -6px var(--accent); }
+.lp[data-look="spectrum"] .chip[aria-pressed="true"], .lp[data-look="spectrum"] .mode-chip[aria-pressed="true"], html[data-look="spectrum"] .chip[aria-pressed="true"]:not(.lp *), html[data-look="spectrum"] .mode-chip[aria-pressed="true"]:not(.lp *) { background: color-mix(in srgb, var(--accent) 16%, transparent); border-color: var(--accent); color: var(--text); box-shadow: 0 0 18px -6px var(--accent); }
 :is(html, .lp)[data-look="spectrum"] .input, :is(html, .lp)[data-look="spectrum"] .select, :is(html, .lp)[data-look="spectrum"] .textarea { background: color-mix(in srgb, var(--text) 4%, transparent); border-color: color-mix(in srgb, var(--text) 12%, transparent); border-radius: var(--r-md); }
 :is(html, .lp)[data-look="spectrum"] .segmented { background: color-mix(in srgb, var(--text) 5%, transparent); border-color: transparent; border-radius: var(--r-full); }
 :is(html, .lp)[data-look="spectrum"] .segmented button { border-radius: var(--r-full); }
@@ -207,7 +207,7 @@
 :is(html, .lp)[data-look="tide"] .btn-primary { border-radius: var(--r-full); background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent) 82%, #fff), var(--accent)); box-shadow: 0 10px 26px -10px color-mix(in srgb, var(--accent) 70%, transparent), inset 0 1px 0 rgba(255, 255, 255, .35); }
 :is(html, .lp)[data-look="tide"] .btn-lg { border-radius: var(--r-full); }
 :is(html, .lp)[data-look="tide"] .chip, :is(html, .lp)[data-look="tide"] .mode-chip { background: color-mix(in srgb, var(--surface) 50%, transparent); border-color: color-mix(in srgb, #fff 20%, transparent); border-radius: var(--r-full); font-weight: 600; }
-:is(html, .lp)[data-look="tide"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="tide"] .mode-chip[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 24%, var(--surface)); border-color: var(--accent); }
+.lp[data-look="tide"] .chip[aria-pressed="true"], .lp[data-look="tide"] .mode-chip[aria-pressed="true"], html[data-look="tide"] .chip[aria-pressed="true"]:not(.lp *), html[data-look="tide"] .mode-chip[aria-pressed="true"]:not(.lp *) { background: color-mix(in srgb, var(--accent) 24%, var(--surface)); border-color: var(--accent); }
 :is(html, .lp)[data-look="tide"] .input, :is(html, .lp)[data-look="tide"] .select, :is(html, .lp)[data-look="tide"] .textarea { background: color-mix(in srgb, var(--surface) 55%, transparent); border-color: color-mix(in srgb, #fff 20%, transparent); border-radius: var(--r-lg); }
 :is(html, .lp)[data-look="tide"] .segmented { background: color-mix(in srgb, var(--surface) 45%, transparent); border-color: transparent; border-radius: var(--r-full); }
 :is(html, .lp)[data-look="tide"] .segmented button { border-radius: var(--r-full); }
@@ -223,7 +223,7 @@
 :is(html, .lp)[data-look="ledger"] .btn { border-radius: var(--r-md); font-weight: 600; box-shadow: none; }
 :is(html, .lp)[data-look="ledger"] .btn-primary { background: var(--accent); color: var(--accent-fg); font-weight: 650; }
 :is(html, .lp)[data-look="ledger"] .chip, :is(html, .lp)[data-look="ledger"] .mode-chip { border-radius: var(--r-md); font-weight: 600; background: color-mix(in srgb, var(--text) 4%, transparent); border-color: transparent; }
-:is(html, .lp)[data-look="ledger"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="ledger"] .mode-chip[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent-text); border-color: transparent; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); }
+.lp[data-look="ledger"] .chip[aria-pressed="true"], .lp[data-look="ledger"] .mode-chip[aria-pressed="true"], html[data-look="ledger"] .chip[aria-pressed="true"]:not(.lp *), html[data-look="ledger"] .mode-chip[aria-pressed="true"]:not(.lp *) { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent-text); border-color: transparent; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); }
 :is(html, .lp)[data-look="ledger"] .segmented { background: color-mix(in srgb, var(--text) 5%, transparent); border-color: transparent; border-radius: var(--r-md); }
 :is(html, .lp)[data-look="ledger"] .segmented [aria-pressed="true"], :is(html, .lp)[data-look="ledger"] .segmented [aria-selected="true"] { background: var(--surface-3); box-shadow: none; color: var(--text); }
 :is(html, .lp)[data-look="ledger"] .kpi .value, :is(html, .lp)[data-look="ledger"] .today-total, :is(html, .lp)[data-look="ledger"] .tl-total b { font-weight: 500; letter-spacing: -.045em; font-variant-numeric: tabular-nums; font-size: 34px; }
@@ -241,8 +241,8 @@
 :is(html, .lp)[data-look="vital"] .btn-primary { background: var(--accent); color: var(--accent-fg); border-color: transparent; font-weight: 700; }
 :is(html, .lp)[data-look="vital"] .btn-lg { border-radius: var(--r-full); }
 :is(html, .lp)[data-look="vital"] .chip, :is(html, .lp)[data-look="vital"] .mode-chip { border-radius: var(--r-full); background: color-mix(in srgb, var(--text) 5%, transparent); border-color: transparent; font-weight: 600; }
-:is(html, .lp)[data-look="vital"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="vital"] .mode-chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
-:is(html, .lp)[data-look="vital"] .mode-chip[aria-pressed="true"] .ico, :is(html, .lp)[data-look="vital"] .mode-chip[aria-pressed="true"] .mm { color: var(--accent-fg); }
+.lp[data-look="vital"] .chip[aria-pressed="true"], .lp[data-look="vital"] .mode-chip[aria-pressed="true"], html[data-look="vital"] .chip[aria-pressed="true"]:not(.lp *), html[data-look="vital"] .mode-chip[aria-pressed="true"]:not(.lp *) { background: var(--accent); color: var(--accent-fg); }
+.lp[data-look="vital"] .mode-chip[aria-pressed="true"] .ico, .lp[data-look="vital"] .mode-chip[aria-pressed="true"] .mm, html[data-look="vital"] .mode-chip[aria-pressed="true"] .ico:not(.lp *), html[data-look="vital"] .mode-chip[aria-pressed="true"] .mm:not(.lp *) { color: var(--accent-fg); }
 :is(html, .lp)[data-look="vital"] .input, :is(html, .lp)[data-look="vital"] .select, :is(html, .lp)[data-look="vital"] .textarea { background: color-mix(in srgb, var(--text) 4%, transparent); border-color: color-mix(in srgb, var(--text) 10%, transparent); border-radius: var(--r-md); }
 :is(html, .lp)[data-look="vital"] .segmented { background: color-mix(in srgb, var(--text) 6%, transparent); border-color: transparent; border-radius: var(--r-full); }
 :is(html, .lp)[data-look="vital"] .segmented button { border-radius: var(--r-full); }
@@ -431,10 +431,32 @@ html[data-look="aura"] body[data-layout="center"] .focus-idle.large > .focus-row
   html[data-look="vital"] body[data-layout="center"] .rg-lbl { font-size: 9.5px; letter-spacing: .08em; text-align: center; }
 }
 
-/* selected chips keep the plain text colour: an accent-coloured label on its own tint is below 4.5:1 in the light schemes */
-:is(html, .lp)[data-look="spectrum"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="spectrum"] .mode-chip[aria-pressed="true"], :is(html, .lp)[data-look="spectrum"] .mode-chip[aria-pressed="true"] .mm, :is(html, .lp)[data-look="spectrum"] .mode-chip[aria-pressed="true"] .ico,
-:is(html, .lp)[data-look="tide"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="tide"] .mode-chip[aria-pressed="true"], :is(html, .lp)[data-look="tide"] .mode-chip[aria-pressed="true"] .mm, :is(html, .lp)[data-look="tide"] .mode-chip[aria-pressed="true"] .ico,
-:is(html, .lp)[data-look="ledger"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="ledger"] .mode-chip[aria-pressed="true"], :is(html, .lp)[data-look="ledger"] .mode-chip[aria-pressed="true"] .mm, :is(html, .lp)[data-look="ledger"] .mode-chip[aria-pressed="true"] .ico { color: var(--text); }
+/* selected chips keep the plain text colour: an accent-coloured label on its own tint is below 4.5:1 in the light schemes.
+   (":not(.lp *)": a look preview inside a page of another look keeps its own rules) */
+.lp[data-look="spectrum"] .chip[aria-pressed="true"],
+html[data-look="spectrum"] .chip[aria-pressed="true"]:not(.lp *),
+.lp[data-look="spectrum"] .mode-chip[aria-pressed="true"],
+html[data-look="spectrum"] .mode-chip[aria-pressed="true"]:not(.lp *),
+.lp[data-look="spectrum"] .mode-chip[aria-pressed="true"] .mm,
+html[data-look="spectrum"] .mode-chip[aria-pressed="true"] .mm:not(.lp *),
+.lp[data-look="spectrum"] .mode-chip[aria-pressed="true"] .ico,
+html[data-look="spectrum"] .mode-chip[aria-pressed="true"] .ico:not(.lp *),
+.lp[data-look="tide"] .chip[aria-pressed="true"],
+html[data-look="tide"] .chip[aria-pressed="true"]:not(.lp *),
+.lp[data-look="tide"] .mode-chip[aria-pressed="true"],
+html[data-look="tide"] .mode-chip[aria-pressed="true"]:not(.lp *),
+.lp[data-look="tide"] .mode-chip[aria-pressed="true"] .mm,
+html[data-look="tide"] .mode-chip[aria-pressed="true"] .mm:not(.lp *),
+.lp[data-look="tide"] .mode-chip[aria-pressed="true"] .ico,
+html[data-look="tide"] .mode-chip[aria-pressed="true"] .ico:not(.lp *),
+.lp[data-look="ledger"] .chip[aria-pressed="true"],
+html[data-look="ledger"] .chip[aria-pressed="true"]:not(.lp *),
+.lp[data-look="ledger"] .mode-chip[aria-pressed="true"],
+html[data-look="ledger"] .mode-chip[aria-pressed="true"]:not(.lp *),
+.lp[data-look="ledger"] .mode-chip[aria-pressed="true"] .mm,
+html[data-look="ledger"] .mode-chip[aria-pressed="true"] .mm:not(.lp *),
+.lp[data-look="ledger"] .mode-chip[aria-pressed="true"] .ico,
+html[data-look="ledger"] .mode-chip[aria-pressed="true"] .ico:not(.lp *) { color: var(--text); }
 html[data-look="spectrum"] .focus-idle:not(.large) .durations .chip[aria-pressed="true"] { color: var(--bg); }
 html[data-look="ledger"] .focus-idle:not(.large) .durations .chip[aria-pressed="true"], html[data-look="ledger"] .site-class button[aria-pressed="true"] { color: var(--text); }
-:is(html, .lp)[data-look="spectrum"] .btn-ghost { color: var(--text-2); }
+.lp[data-look="spectrum"] .btn-ghost, html[data-look="spectrum"] .btn-ghost:not(.lp *) { color: var(--text-2); }
