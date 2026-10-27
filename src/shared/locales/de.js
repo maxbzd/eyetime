@@ -189,7 +189,7 @@ export const de = {
   'review.focus': { one: 'Fokuszeit {time} in {n} Sitzung', other: 'Fokuszeit {time} in {n} Sitzungen' }, 'review.share': '{pct} % der Bildschirmzeit gingen an Ablenkungen', 'review.breaks': { one: '{n} Augenpause gemacht', other: '{n} Augenpausen gemacht' },
   'review.suggestTitle': 'Eine Idee für nächste Woche', 'review.suggestBody': 'Du warst im Schnitt etwa {avg} Min. pro Tag auf {host}. Ein Limit von {limit} Min. pro Tag verschafft dir Zeit zurück, ohne harte Sperre.',
   'review.setLimit': 'Limit auf {n} Min. setzen', 'review.limitSet': 'Limit gesetzt: {host}, {n} Min. pro Tag', 'review.balanced': 'Eine schön ausgewogene Woche — nichts zu verbessern. Weiter so.',
-  'sec.appearance': 'Darstellung', 'sec.appearanceDesc': 'Mach EyeTime zu deinem: sechzehn Looks, jede Akzentfarbe, eigene Schrift, Form und Dichte.',
+  'sec.appearance': 'Darstellung', 'sec.appearanceDesc': 'Mach EyeTime zu deinem: einundzwanzig Looks, jede Akzentfarbe, eigene Schrift, Form und Dichte.',
   'look.calm': 'Ruhig', 'look.paper': 'Papier', 'look.midnight': 'Mitternacht', 'look.terminal': 'Terminal', 'look.sakura': 'Sakura', 'look.forest': 'Wald',
   'look.aurora': 'Aurora', 'look.mono': 'Mono', 'look.sunset': 'Abendrot', 'look.nord': 'Nord', 'look.ocean': 'Ozean',
   'lookd.calm': 'Der Standard: warm, weich und freundlich.', 'lookd.paper': 'Lesesaal-Gefühl: Serifen-Überschriften auf warmem Papier.', 'lookd.midnight': 'Tiefes Blauschwarz mit Glaskarten und leuchtendem Akzent.',
@@ -330,4 +330,5 @@ export const de = {
   'opt.dockDesign': 'Panel-Stil', 'opt.dockDesignDesc': 'Wie das geöffnete Panel aussieht: Void ist ruhige Typografie, Glass hat weiche Karten und warmes Leuchten, Noir ist Elfenbein mit Serifen auf Schwarz.',
   'wn.dockOn': 'Dock einschalten', 'wn.dockOnDone': 'Das Dock ist an. Öffne eine beliebige Webseite, um es zu sehen.',
   'look.obsidian': 'Obsidian', 'lookd.obsidian': 'Tiefschwarzes Glas mit warmem Glutschimmer.', 'look.void': 'Void', 'lookd.void': 'Nur Schrift und feine Linien. Nichts außer deiner Arbeit.', 'look.noir': 'Noir', 'lookd.noir': 'Elfenbeinfarbene Serifen auf Schwarz, ein Zifferblatt-Timer, Details in Champagner.', 'look.pearl': 'Pearl', 'lookd.pearl': 'Luftiges Milchglas auf sanftem Pastelllicht.', 'look.bento': 'Bento', 'lookd.bento': 'Weiche Farbkacheln, rund und freundlich.',
+  'look.spectrum': 'Spectrum', 'lookd.spectrum': 'Tiefe Tinte mit Prismen-Schimmer, feine Karten und eine weiße Pille.', 'look.tide': 'Tide', 'lookd.tide': 'Ein Horizont im Abendlicht hinter Milchglas und eine schwebende Pille.', 'look.ledger': 'Ledger', 'lookd.ledger': 'Ruhiges Marineblau, große Ziffern und weiche Flächendiagramme.', 'look.vital': 'Vital', 'lookd.vital': 'Anthrazit und Olive, dicke Ringe, Überschriften mit Serifen.', 'look.aura': 'Aura', 'lookd.aura': 'Sanftes Rosé-Pfirsich-Leuchten, Ziffern mit Serifen und Glas-Pillen.',
 };
