@@ -19,7 +19,9 @@ const SCENES = [
   const NEW = ['home', 'popup', 'home-running', 'insights-overview', 'settings', 'onboarding', 'blocked-friction']; // the newer looks: the screens that carry their character
   for (const [look, mode, lang, only] of [['calm', 'light', 'en'], ['midnight', 'dark', 'ru'], ['paper', 'light', 'pl'], ['calm', 'dark', 'ja'],
     ['obsidian', 'dark', 'ru', NEW], ['obsidian', 'light', 'en', NEW], ['void', 'dark', 'en', NEW], ['void', 'light', 'de', NEW], ['noir', 'dark', 'en', NEW], ['noir', 'light', 'pl', NEW],
-    ['pearl', 'light', 'ru', NEW], ['pearl', 'dark', 'en', NEW], ['bento', 'light', 'en', NEW], ['bento', 'dark', 'uk', NEW]]) {
+    ['pearl', 'light', 'ru', NEW], ['pearl', 'dark', 'en', NEW], ['bento', 'light', 'en', NEW], ['bento', 'dark', 'uk', NEW],
+    ['spectrum', 'dark', 'en', NEW], ['spectrum', 'light', 'ru', NEW], ['tide', 'dark', 'ru', NEW], ['tide', 'light', 'en', NEW], ['ledger', 'dark', 'en', NEW], ['ledger', 'light', 'de', NEW],
+    ['vital', 'dark', 'en', NEW], ['vital', 'light', 'ru', NEW], ['aura', 'dark', 'ru', NEW], ['aura', 'light', 'en', NEW]]) {
     const app = await launch({ viewport: { width: 1280, height: 900 }, colorScheme: mode });
     const ext = (p) => `chrome-extension://${app.id}/${p}`;
     const sp = await app.ctx.newPage(); await sp.goto(ext('src/options/options.html')); await sp.waitForTimeout(500);

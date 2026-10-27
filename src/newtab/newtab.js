@@ -12,6 +12,7 @@ import { installPalette } from '../ui/palette.js';
 import { mountGettingStarted } from './getting-started.js';
 import { mountWhatsNew } from './whatsnew.js';
 import { openDayPlan } from './dayplan.js';
+import { mountRings } from './rings.js';
 import { downloadBackup, needsBackup } from '../ui/backup.js';
 import { send } from '../ui/api.js';
 import { setCollection } from '../shared/storage.js';
@@ -258,6 +259,7 @@ function openShortcutHelp() {
   paintClock(); await applyBackground();
   setInterval(paintClock, 10_000);
   mountFocusCard($('#focus'), { variant: 'large' });
+  mountRings($('#rings'));
   mountWhatsNew($('#wn'));
   mountGettingStarted($('#gs'), { startShortSession: async () => { const s = await getSettings(); await send('focus:start', { minutes: 5, strict: false, scope: s.focus.scope }); } });
   paintNudge(); setInterval(paintNudge, 60_000); paintBackupNudge();
