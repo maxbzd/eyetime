@@ -106,7 +106,7 @@ export const LOOKS = {
     pageBg: { dark: 'radial-gradient(60% 50% at 0% 100%, rgba(255, 70, 160, .20), transparent 70%), radial-gradient(55% 45% at 100% 95%, rgba(255, 150, 50, .22), transparent 70%), radial-gradient(70% 40% at 80% -10%, rgba(58, 214, 238, .16), transparent 70%)', light: 'radial-gradient(60% 50% at 0% 100%, rgba(255, 120, 190, .30), transparent 70%), radial-gradient(55% 45% at 100% 95%, rgba(255, 190, 110, .35), transparent 70%), radial-gradient(70% 40% at 80% -10%, rgba(90, 210, 235, .30), transparent 70%)' },
   },
   tide: {
-    name: 'Tide', blurb: 'A dusk horizon behind frosted glass and a floating pill.', font: 'inter', display: 'inter', radii: [12, 16, 24, 32], cards: 'glass', shadow: 'airy', borderW: 1, headingW: 600, headingLs: '-.025em',
+    name: 'Tide', blurb: 'A quiet sea at dusk behind frosted glass and a floating pill.', homeScene: { dark: 'sea', light: 'seaday' }, font: 'inter', display: 'inter', radii: [12, 16, 24, 32], cards: 'glass', shadow: 'airy', borderW: 1, headingW: 600, headingLs: '-.025em',
     light: { bg: '#e8edf4', surface: '#ffffff', text: '#16202e', accent: '#bd4f35' },
     dark: { bg: '#0b1220', surface: '#141d2e', text: '#eef2fa', accent: '#f2a68b' },
     pageBg: { dark: 'linear-gradient(180deg, #1a2540 0%, #2f2d4e 34%, #7d5663 50%, #e0a08a 53%, #1d2a44 56%, #0b1220 100%)', light: 'linear-gradient(180deg, #b9c6dd 0%, #d9cfe0 34%, #f3cdbd 50%, #f8dccb 53%, #cdd9e8 56%, #e8edf4 100%)' },
