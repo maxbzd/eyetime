@@ -189,7 +189,7 @@ export const zh = {
   'review.focus': { other: '专注 {time}，共 {n} 个时段' }, 'review.share': '屏幕时间中有 {pct}% 花在了分心上', 'review.breaks': { other: '已做 {n} 次护眼休息' },
   'review.suggestTitle': '下周的建议', 'review.suggestBody': '你平均每天在 {host} 上花约 {avg} 分钟。设置每天 {limit} 分钟的上限，无需强硬屏蔽也能帮你找回时间。',
   'review.setLimit': '设置 {n} 分钟上限', 'review.limitSet': '已设置上限：{host}，每天 {n} 分钟', 'review.balanced': '这一周很均衡——无需调整。继续保持。',
-  'sec.appearance': '外观', 'sec.appearanceDesc': '让 EyeTime 成为你的专属：十六种风格、任意强调色，以及你自己的字体、形状和密度。',
+  'sec.appearance': '外观', 'sec.appearanceDesc': '让 EyeTime 成为你的专属：二十一种风格、任意强调色，以及你自己的字体、形状和密度。',
   'look.calm': '宁静', 'look.paper': '纸张', 'look.midnight': '午夜', 'look.terminal': '终端', 'look.sakura': '樱花', 'look.forest': '森林',
   'look.aurora': '极光', 'look.mono': '黑白', 'look.sunset': '日落', 'look.nord': '北欧', 'look.ocean': '海洋',
   'lookd.calm': '默认风格：温暖、柔和、友好。', 'lookd.paper': '阅览室的感觉：暖色纸张上的衬线标题。', 'lookd.midnight': '深蓝近黑，搭配玻璃质感的卡片和发光的强调色。',
@@ -330,4 +330,5 @@ export const zh = {
   'opt.dockDesign': '面板样式', 'opt.dockDesignDesc': '展开面板的外观：Void 是安静的排版，Glass 有柔和的卡片和暖色光晕，Noir 是黑底象牙色衬线字体。',
   'wn.dockOn': '开启侧边栏', 'wn.dockOnDone': '侧边栏已开启。打开任意网页即可看到。',
   'look.obsidian': 'Obsidian', 'lookd.obsidian': '纯黑玻璃，带着温暖的炭火光晕。', 'look.void': 'Void', 'lookd.void': '只有字体和细线，除了你的工作，别无他物。', 'look.noir': 'Noir', 'lookd.noir': '黑底象牙色衬线、表盘式计时器、香槟色点缀。', 'look.pearl': 'Pearl', 'lookd.pearl': '柔和粉彩光线上的通透磨砂玻璃。', 'look.bento': 'Bento', 'lookd.bento': '柔和的彩色方块，圆润而友好。',
+  'look.spectrum': 'Spectrum', 'lookd.spectrum': '深邃墨色加棱镜光斑，细线卡片与一颗白色胶囊。', 'look.tide': 'Tide', 'lookd.tide': '磨砂玻璃后的黄昏地平线，悬浮的胶囊。', 'look.ledger': 'Ledger', 'lookd.ledger': '沉静的海军蓝、大号数字和平滑的面积图。', 'look.vital': 'Vital', 'lookd.vital': '炭灰与橄榄色，粗圆环，衬线标题。', 'look.aura': 'Aura', 'lookd.aura': '柔和的玫瑰到蜜桃光晕，衬线数字与玻璃胶囊。',
 };

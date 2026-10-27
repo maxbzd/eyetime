@@ -189,7 +189,7 @@ export const ja = {
   'review.focus': { other: '集中時間 {time}（{n}セッション）' }, 'review.share': '画面時間の{pct}%が気が散るものに使われました', 'review.breaks': { other: '目の休憩を{n}回とりました' },
   'review.suggestTitle': '来週へのヒント', 'review.suggestBody': '{host}に1日平均約{avg}分使っています。1日{limit}分の上限を設ければ、完全にブロックしなくても時間を取り戻せます。',
   'review.setLimit': '{n}分の上限を設定', 'review.limitSet': '上限を設定しました：{host}、1日{n}分', 'review.balanced': 'バランスの良い1週間でした。直すところはありません。この調子です。',
-  'sec.appearance': '外観', 'sec.appearanceDesc': 'EyeTimeを自分好みに。16種類のテーマ、好きなアクセントカラー、書体・形・密度を選べます。',
+  'sec.appearance': '外観', 'sec.appearanceDesc': 'EyeTimeを自分好みに。21種類のテーマ、好きなアクセントカラー、書体・形・密度を選べます。',
   'look.calm': 'カーム', 'look.paper': 'ペーパー', 'look.midnight': 'ミッドナイト', 'look.terminal': 'ターミナル', 'look.sakura': 'さくら', 'look.forest': 'フォレスト',
   'look.aurora': 'オーロラ', 'look.mono': 'モノ', 'look.sunset': 'サンセット', 'look.nord': 'ノルド', 'look.ocean': 'オーシャン',
   'lookd.calm': '標準。あたたかく、やわらかで親しみやすい。', 'lookd.paper': '読書室の雰囲気。あたたかい紙に明朝調の見出し。', 'lookd.midnight': '深い青黒に、ガラス調のカードと輝くアクセント。',
@@ -330,4 +330,5 @@ export const ja = {
   'opt.dockDesign': 'パネルのスタイル', 'opt.dockDesignDesc': '開いたパネルの見た目：Void は静かなタイポグラフィ、Glass はやわらかなカードと温かな光、Noir は黒地にアイボリーの明朝系フォントです。',
   'wn.dockOn': 'ドックをオンにする', 'wn.dockOnDone': 'ドックをオンにしました。任意のウェブページを開くと表示されます。',
   'look.obsidian': 'Obsidian', 'lookd.obsidian': '漆黒のガラスと、温かな燠火の光。', 'look.void': 'Void', 'lookd.void': '文字と細い線だけ。あなたの作業以外に見るものはありません。', 'look.noir': 'Noir', 'lookd.noir': '黒地にアイボリーの明朝系フォント、文字盤のようなタイマー、シャンパン色の差し色。', 'look.pearl': 'Pearl', 'lookd.pearl': 'やわらかなパステルの光に重なる、軽やかなすりガラス。', 'look.bento': 'Bento', 'lookd.bento': 'やわらかな色のタイル。丸みがあって親しみやすい。',
+  'look.spectrum': 'Spectrum', 'lookd.spectrum': '深いインク色にプリズムの光、細線のカードと白いピル一つ。', 'look.tide': 'Tide', 'lookd.tide': 'すりガラスの向こうの夕暮れの水平線と、浮かぶピル。', 'look.ledger': 'Ledger', 'lookd.ledger': '落ち着いたネイビー、大きな数字、なめらかなエリアチャート。', 'look.vital': 'Vital', 'lookd.vital': 'チャコールとオリーブ、太いリング、明朝系の見出し。', 'look.aura': 'Aura', 'lookd.aura': 'ローズからピーチへのやわらかな光、明朝系の数字、ガラスのピル。',
 };
