@@ -5,7 +5,7 @@ body[data-layout="canvas"] .nt { max-width: none; display: block; padding: 64px 
 body[data-layout="canvas"] .hero, body[data-layout="canvas"] .modules { display: contents; }
 body[data-layout="canvas"] .nudge, body[data-layout="canvas"] .wn, body[data-layout="canvas"] .gs, body[data-layout="canvas"] .backup-nudge { position: relative; z-index: 6; margin: 0 auto var(--s-3); }
 body[data-layout="canvas"] .more-mods { display: none; }
-.cv-item { position: fixed !important; left: calc(var(--cx, 50) * 1%); top: calc(var(--cy, 50) * 1%); margin: 0; z-index: 2; }
+.cv-item { position: fixed !important; left: calc(var(--cx, 50) * 1%); top: calc(var(--cy, 50) * 1%); margin: 0; z-index: var(--cz, 2); }
 .cv-hidden { display: none !important; }
 .cv-text { transform: translate(-50%, -50%) scale(calc(var(--csx, var(--cs, 1)) * var(--k, 1)), calc(var(--cs, 1) * var(--k, 1))); transform-origin: center; white-space: nowrap; }
 .cv-text.hero h1, .cv-text h1 { margin-top: 0; }
@@ -43,9 +43,10 @@ body.cv-editing .nt-top, body.cv-editing .kbd-hint { display: none; }
 .cv-handle[data-h="e"] { right: -8px; left: auto; }
 .cv-guide { position: fixed; background: var(--accent); opacity: .85; pointer-events: none; z-index: 61; }
 .cv-guide.x { top: 0; bottom: 0; width: 1px; } .cv-guide.y { left: 0; right: 0; height: 1px; }
-.cv-bar { pointer-events: auto; position: fixed; z-index: 62; left: 50%; bottom: 20px; transform: translateX(-50%); display: flex; align-items: center; gap: var(--s-2); padding: 8px 10px; border-radius: var(--r-full); background: color-mix(in srgb, var(--surface) 88%, transparent); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid var(--border-strong); box-shadow: var(--shadow-3); width: max-content; max-width: calc(100vw - 24px); flex-wrap: wrap; justify-content: center; }
+.cv-dock { position: fixed; z-index: 62; left: 12px; right: 12px; bottom: 20px; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
+.cv-bar { pointer-events: auto; display: flex; align-items: center; gap: var(--s-2); padding: 8px 10px; border-radius: var(--r-full); background: color-mix(in srgb, var(--surface) 88%, transparent); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid var(--border-strong); box-shadow: var(--shadow-3); width: max-content; max-width: calc(100vw - 24px); flex-wrap: wrap; justify-content: center; }
 .cv-bar .sep { width: 1px; height: 22px; background: var(--border-strong); }
-.cv-bar .select { min-width: 150px; }
+.cv-bar > .select { width: auto; flex: none; } .cv-bar .select { min-width: 0; } .cv-bar .select-sm { min-width: 96px; }
 .cv-hint { pointer-events: auto; position: fixed; z-index: 62; left: 50%; top: 16px; transform: translateX(-50%); max-width: min(680px, calc(100vw - 32px)); padding: 8px 16px; border-radius: var(--r-full); background: color-mix(in srgb, var(--surface) 88%, transparent); border: 1px solid var(--border); color: var(--text-2); font-size: var(--fs-sm); text-align: center; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
 .cv-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
@@ -73,3 +74,24 @@ body.cv-editing .nt-top, body.cv-editing .kbd-hint { display: none; }
 .ly-body .row { flex-wrap: wrap; }
 .cv-frame.is-sel { z-index: 1; } /* the selected block's handles stay reachable when frames overlap */
 body.cv-editing .nt-corners { visibility: hidden; }
+
+/* ---------- the block inspector (above the toolbar) ---------- */
+.cv-insp { pointer-events: auto; display: flex; align-items: center; gap: var(--s-2); padding: 6px 10px; border-radius: var(--r-full); background: color-mix(in srgb, var(--surface) 88%, transparent); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid var(--border-strong); box-shadow: var(--shadow-3); width: max-content; max-width: calc(100vw - 24px); flex-wrap: wrap; justify-content: center; animation: cv-pop var(--t-fast) var(--ease); }
+@keyframes cv-pop { from { opacity: 0; transform: translateY(6px); } }
+.cv-insp .sep { width: 1px; height: 22px; background: var(--border-strong); }
+.cv-iname { font-size: var(--fs-sm); font-weight: 650; color: var(--accent-text); padding: 0 4px; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cv-fields, .cv-btns { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.cv-field { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-xs); color: var(--text-2); }
+.cv-fl { font-weight: 650; } .cv-fu { color: var(--text-3); }
+.cv-num { width: 62px; padding: 0 6px; text-align: right; -moz-appearance: textfield; } .cv-num::-webkit-outer-spin-button, .cv-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.cv-backdrop { position: fixed; inset: 0; pointer-events: auto; background: transparent; }
+@media (prefers-reduced-motion: reduce) { .cv-insp { animation: none; } }
+
+.cv-layer.has-insp .cv-panel { bottom: 148px; }
+.cv-keys { display: flex; flex-direction: column; gap: var(--s-2); }
+.cv-krow { display: grid; grid-template-columns: minmax(96px, auto) minmax(0, 1fr); gap: var(--s-3); align-items: center; font-size: var(--fs-sm); color: var(--text-2); }
+.cv-kcap { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+.cv-coach { pointer-events: auto; position: fixed; z-index: 62; left: 16px; top: 16px; width: min(380px, calc(100vw - 32px)); padding: var(--s-4) var(--s-5); border-radius: var(--r-xl); background: color-mix(in srgb, var(--surface) 94%, transparent); -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px); border: 1px solid var(--border-strong); box-shadow: var(--shadow-3); color: var(--text); display: flex; flex-direction: column; gap: var(--s-3); }
+.cv-coach h3 { font-size: var(--fs-lg); } .cv-coach ol { list-style: none; display: flex; flex-direction: column; gap: var(--s-2); padding: 0; margin: 0; font-size: var(--fs-sm); color: var(--text-2); }
+.cv-coach li { display: flex; gap: var(--s-3); align-items: flex-start; } .cv-coach .btn { align-self: flex-end; }
+.cv-cico { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-text); } .cv-cico .ico { font-size: 15px; }
