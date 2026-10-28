@@ -32,7 +32,26 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   let c = await canvas();
   ok(c.on && Object.keys(c.items).length === 5, 'the seed layout is saved');
 
-  // the editor itself passes axe (frames, toolbar, hint)
+  // the type designer opens for the clock; a face, a fill and seconds are applied at once and saved
+  await p.waitForSelector('.cv-panel .ty-tile', { timeout: 3000 });
+  const typeOf = () => p.evaluate(async () => (await (await import('/src/shared/storage.js')).getSettings()).newtab.type);
+  ok(await p.locator('.cv-panel .ty-tile').count() >= 16, 'the clock panel lists the faces');
+  await p.locator('.cv-panel .ty-tile', { hasText: 'Unbounded' }).click(); await p.waitForTimeout(400);
+  ok(/Unbounded/.test(await p.evaluate(() => getComputedStyle(document.getElementById('clock')).fontFamily)), 'the chosen face is on the clock');
+  await p.locator('.cv-panel .segmented button', { hasText: 'Gradient' }).click(); await p.waitForTimeout(200);
+  ok(await p.evaluate(() => getComputedStyle(document.getElementById('clock')).backgroundImage.includes('linear-gradient')), 'a gradient fill is applied');
+  await p.locator('.cv-panel label.ty-row', { hasText: 'Show seconds' }).locator('.switch').click(); await p.waitForTimeout(1500);
+  ok((await p.evaluate(() => document.getElementById('clock').textContent)).split(':').length === 3, 'seconds are shown');
+  await p.waitForTimeout(500);
+  const ty = await typeOf();
+  ok(ty.clock && ty.clock.font === 'unbounded' && ty.clock.fill === 'gradient' && ty.clock.seconds === true, 'the type design is saved: ' + JSON.stringify(ty));
+  await p.focus('.cv-frame[data-block="greeting"]'); await p.waitForTimeout(600);
+  ok(await p.locator('.cv-panel .ty-tile').count() >= 5 && await p.locator('.cv-panel .segmented').count() === 0, 'the greeting has its own, shorter panel');
+  await p.focus('.cv-frame[data-block="clock"]'); await p.waitForTimeout(600);
+  await p.click('.cv-panel .ty-head button:has-text("Reset")'); await p.waitForTimeout(500);
+  ok(!/Unbounded/.test(await p.evaluate(() => getComputedStyle(document.getElementById('clock')).fontFamily)), 'reset gives the look its typography back');
+
+  // the editor itself passes axe (frames, toolbar, hint, panel)
   await p.evaluate(AXE);
   const axe = await p.evaluate(async () => (await window.axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'] } })).violations.map((v) => v.id + ': ' + v.nodes.slice(0, 2).map((n) => n.target.join(' ')).join(' | ')));
   ok(!axe.length, 'axe in the editor: ' + axe.join(' ; '));
