@@ -30,6 +30,7 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   await p.click('#drawerBody .btn-primary'); await p.waitForTimeout(900);
   await p.click('.cv-bar button:has-text("Default")'); await p.waitForTimeout(500);
   ok(await p.locator('.cv-panel .ly-row').count() === 1, 'the layouts panel starts with the default only');
+  ok(!/\bnull\b/.test(await p.locator('.cv-panel').textContent()), 'no stray "null" text in the panel');
   await p.evaluate(AXE);
   const axe = await p.evaluate(async () => (await window.axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'] } })).violations.map((v) => v.id + ': ' + v.nodes.slice(0, 2).map((n) => n.target.join(' ')).join(' | ')));
   ok(!axe.length, 'axe with the layouts panel open: ' + axe.join(' ; '));

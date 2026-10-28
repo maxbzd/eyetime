@@ -58,3 +58,4 @@ body.cv-editing .nt-top, body.cv-editing .kbd-hint { display: none; }
 .ly-top { display: flex; align-items: center; gap: var(--s-2); } .ly-top .input { flex: 1; min-width: 0; } .ly-top .ico { font-size: 14px; color: var(--accent-text); }
 .ly-body { display: flex; flex-direction: column; gap: var(--s-2); }
 .ly-time { display: flex; align-items: center; gap: 6px; font-size: var(--fs-xs); }
+.ly-body .row { flex-wrap: wrap; }
