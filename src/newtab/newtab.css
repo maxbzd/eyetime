@@ -342,3 +342,5 @@ body[data-layout="split"] .gs { grid-column: 1 / -1; grid-row: 2; } body[data-la
 .quote .q-text { margin: 0; font-size: var(--fs-lg); line-height: 1.45; font-weight: 450; letter-spacing: -.005em; text-wrap: balance; }
 .quote .q-by { margin-top: 6px; font-size: var(--fs-sm); letter-spacing: .02em; }
 .quote.cv-text { white-space: normal; width: 560px; }
+
+body[data-tone="light"] { --glass-tint: #1b1713; } /* on a light photo the glass clock is tinted dark */
