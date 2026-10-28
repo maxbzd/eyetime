@@ -27,6 +27,13 @@ export function general({ s, save, refresh }) {
         ...['home', 'pause', 'rest', 'start'].map((k) => row({ title: t('qt.' + k), control: toggle(s.quotes[k], (v) => save((x) => { x.quotes[k] = v; }), t('qt.' + k)) })),
         row({ title: t('qt.every'), control: segmented([['day', t('qt.everyDay')], ['tab', t('qt.everyTab')]], s.quotes.every, (v) => save((x) => { x.quotes.every = v; }), t('qt.every')) }),
       ] : null),
+    group(t('sb.title'),
+      row({ title: t('sb.title'), desc: t('sb.desc'), control: toggle(s.standby.on, (v) => save((x) => { x.standby.on = v; }, true), t('sb.title')) }),
+      s.standby.on ? [
+        row({ title: t('sb.after'), control: select([5, 10, 15, 30, 60].map((m) => [m, t('opt.minutes', { n: m })]), s.standby.after, (v) => save((x) => { x.standby.after = Number(v); }), { label: t('sb.after') }) }),
+        row({ title: t('sb.style'), control: segmented(['red', 'amber', 'white'].map((v) => [v, t('sb.' + v)]), s.standby.style, (v) => save((x) => { x.standby.style = v; }), t('sb.style')) }),
+        row({ title: t('sb.seconds'), control: toggle(s.standby.seconds, (v) => save((x) => { x.standby.seconds = v; }), t('sb.seconds')) }),
+      ] : null),
     group(t('opt.groupNotify'),
       row({ title: t('opt.badge'), desc: t('opt.badgeDesc'), control: toggle(s.tracking.badge, (v) => save((x) => { x.tracking.badge = v; }), t('opt.badge')) }),
       row({ title: t('opt.weekly'), desc: t('opt.weeklyDesc'), control: toggle(s.weeklyReport, (v) => save((x) => { x.weeklyReport = v; }), t('opt.weekly')) })));

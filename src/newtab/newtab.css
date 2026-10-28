@@ -344,3 +344,16 @@ body[data-layout="split"] .gs { grid-column: 1 / -1; grid-row: 2; } body[data-la
 .quote.cv-text { white-space: normal; width: 560px; }
 
 body[data-tone="light"] { --glass-tint: #1b1713; } /* on a light photo the glass clock is tinted dark */
+
+/* the night clock */
+.sb { position: fixed; inset: 0; z-index: 90; background: #000; color: var(--sb-color, #ff453a); display: grid; place-items: center; overflow: hidden; cursor: none; }
+.sb[hidden] { display: none; }
+.sb-box { text-align: center; transition: transform 40s ease-in-out; opacity: .88; }
+.sb-time { line-height: .9; font-weight: 200; letter-spacing: -.03em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sb-date { margin-top: 2.2vh; font-size: min(3.2vw, 5vh); letter-spacing: .12em; text-transform: uppercase; opacity: .7; }
+.sb-focus { margin-top: 1.4vh; font-size: min(2.6vw, 4vh); opacity: .6; letter-spacing: .06em; } .sb-focus:empty { display: none; }
+.sb-hint { position: absolute; left: 0; right: 0; bottom: 3vh; text-align: center; font-size: 13px; opacity: .0; animation: sb-hint 14s ease 1s both; }
+@keyframes sb-hint { 0% { opacity: 0; } 12% { opacity: .5; } 70% { opacity: .5; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .sb-box { transition: none; } .sb-hint { animation: none; opacity: .4; } }
+
+.sb-ap { font-size: .22em; letter-spacing: .02em; margin-left: .18em; font-weight: 300; vertical-align: .55em; }
