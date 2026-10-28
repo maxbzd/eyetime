@@ -15,6 +15,7 @@ import { openDayPlan } from './dayplan.js';
 import { mountRings } from './rings.js';
 import { installSpotlight } from '../ui/spotlight.js';
 import { applyCanvas, canvasActive } from './canvas.js';
+import { applyType, clockSeconds } from './type-apply.js';
 import { downloadBackup, needsBackup } from '../ui/backup.js';
 import { send } from '../ui/api.js';
 import { setCollection } from '../shared/storage.js';
@@ -39,7 +40,7 @@ let settings, linksMod;
 
 function paintClock() {
   const now = new Date();
-  const time = fmtTime(now, settings.newtab.clock24 ?? undefined);
+  const time = fmtTime(now, settings.newtab.clock24 ?? undefined, clockSeconds(settings));
   const clockEl = $('#clock');
   if (settings.newtab.clockStyle === 'stacked') {
     const [hh, ...rest] = time.split(':');
@@ -51,6 +52,14 @@ function paintClock() {
   $('#date').textContent = fmtDate(now);
   const hr = now.getHours();
   $('#greeting').textContent = settings.newtab.greeting ? t(hr < 5 ? 'greet.night' : hr < 12 ? 'greet.morning' : hr < 18 ? 'greet.afternoon' : 'greet.evening') : '';
+}
+
+/** The clock ticks every 10 s, every second when seconds are shown. */
+let clockTimer = 0, clockEvery = 0;
+function scheduleClock() {
+  const every = clockSeconds(settings) ? 1000 : 10_000;
+  if (every === clockEvery) return;
+  clearInterval(clockTimer); clockEvery = every; clockTimer = setInterval(paintClock, every);
 }
 
 /** A gentle, snoozable reminder to save a backup file (history lives only on this device). */
@@ -222,7 +231,7 @@ async function applySettings(s, first = false) {
   const prevMods = settings ? JSON.stringify([settings.newtab.modules, settings.newtab.order]) : null;
   const prevLinks = settings ? JSON.stringify(settings.newtab.links) : null;
   settings = s;
-  paintClock(); await applyBackground(); applyCanvas(s);
+  paintClock(); scheduleClock(); applyType(s); await applyBackground(); applyCanvas(s);
   if (!first) {
     if (JSON.stringify([s.newtab.modules, s.newtab.order]) !== prevMods) renderModules();
     else if (linksMod && JSON.stringify(s.newtab.links) !== prevLinks) linksMod.update(s);
@@ -270,8 +279,7 @@ function openShortcutHelp() {
   }
   await morningPlan();
   installPalette({ extra: () => [{ group: 'focus', icon: 'calendar-clock', label: t('plan.title'), run: openDayPlan, keys: ['plan', 'schedule', 'day', 'blocks'] }, { group: 'go', icon: 'moon', label: t('sc.closeDay'), run: openShutdown, keys: ['shutdown', 'review', 'plan tomorrow'] }, { group: 'go', icon: 'move', label: t('cv.edit'), run: openEditor, keys: ['arrange', 'move', 'drag', 'layout', 'widgets'] }, { group: 'go', icon: 'sliders-horizontal', label: t('sc.customize'), run: openDrawer, keys: ['customize', 'layout', 'background', 'clock'] }] });
-  paintClock(); await applyBackground();
-  setInterval(paintClock, 10_000);
+  paintClock(); scheduleClock(); applyType(settings); await applyBackground();
   let rz = 0; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { paintClock(); applyCanvas(settings); }, 120); });
   mountFocusCard($('#focus'), { variant: 'large' });
   mountRings($('#rings'));

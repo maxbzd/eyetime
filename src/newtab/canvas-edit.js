@@ -50,8 +50,22 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
   const raf = () => window.requestAnimationFrame(syncFrames);
   const say = (msg) => { live.textContent = ''; live.textContent = msg; };
 
+  /* ----- the type designer panel: shown for the clock and the greeting ----- */
+  let panel = null, panelFor = null, panelOff = false;
+  async function showPanel(id) {
+    const kind = id === 'clock' ? 'clock' : id === 'greeting' ? 'text' : null;
+    if (kind === panelFor && (panel || !kind)) return;
+    panel?.remove(); panel = null; panelFor = kind;
+    if (!kind || panelOff) return;
+    const { buildTypePanel } = await import('./type-panel.js');
+    const p = await buildTypePanel(kind, { onClose: () => { panelOff = true; panel?.remove(); panel = null; panelFor = null; } });
+    if (panelFor !== kind || !active) return; // the selection moved on while the panel was loading
+    panel = p; layer.append(p);
+  }
+
   function select(id) {
     for (const [k, f] of frames) { f.classList.toggle('is-sel', k === id); const el = blockEl(k); if (el) el.style.zIndex = k === id ? '3' : ''; }
+    showPanel(id);
   }
 
   function setItem(id, next, before) {
@@ -147,6 +161,7 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
   const addHolder = h('span', {});
   const bar = h('div', { class: 'cv-bar', role: 'toolbar', 'aria-label': t('cv.edit') },
     btnUndo, btnRedo, h('span', { class: 'sep' }), addHolder, h('span', { class: 'sep' }),
+    h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: () => { panelOff = false; panelFor = null; const sel = frames.get('clock')?.classList.contains('is-sel') ? 'clock' : frames.get('greeting')?.classList.contains('is-sel') ? 'greeting' : 'clock'; select(sel); frames.get(sel)?.focus({ preventScroll: true }); } }, icon('type'), t('ty.title')),
     h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: reset }, icon('rotate-ccw'), t('cv.reset')),
     h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: useLook }, icon('layout-grid'), t('cv.off')),
     h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => stop() }, icon('check'), t('cv.done')));

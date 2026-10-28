@@ -31,8 +31,23 @@ body.cv-editing .nt-top, body.cv-editing .kbd-hint { display: none; }
 .cv-handle { position: absolute; right: -9px; bottom: -9px; width: 18px; height: 18px; border-radius: 50%; background: var(--surface); border: 2px solid var(--accent); cursor: nwse-resize; box-shadow: var(--shadow-2); touch-action: none; }
 .cv-guide { position: fixed; background: var(--accent); opacity: .85; pointer-events: none; z-index: 61; }
 .cv-guide.x { top: 0; bottom: 0; width: 1px; } .cv-guide.y { left: 0; right: 0; height: 1px; }
-.cv-bar { pointer-events: auto; position: fixed; z-index: 62; left: 50%; bottom: 20px; transform: translateX(-50%); display: flex; align-items: center; gap: var(--s-2); padding: 8px 10px; border-radius: var(--r-full); background: color-mix(in srgb, var(--surface) 88%, transparent); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid var(--border-strong); box-shadow: var(--shadow-3); max-width: calc(100vw - 24px); flex-wrap: wrap; justify-content: center; }
+.cv-bar { pointer-events: auto; position: fixed; z-index: 62; left: 50%; bottom: 20px; transform: translateX(-50%); display: flex; align-items: center; gap: var(--s-2); padding: 8px 10px; border-radius: var(--r-full); background: color-mix(in srgb, var(--surface) 88%, transparent); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid var(--border-strong); box-shadow: var(--shadow-3); width: max-content; max-width: calc(100vw - 24px); flex-wrap: wrap; justify-content: center; }
 .cv-bar .sep { width: 1px; height: 22px; background: var(--border-strong); }
 .cv-bar .select { min-width: 150px; }
 .cv-hint { pointer-events: auto; position: fixed; z-index: 62; left: 50%; top: 16px; transform: translateX(-50%); max-width: min(680px, calc(100vw - 32px)); padding: 8px 16px; border-radius: var(--r-full); background: color-mix(in srgb, var(--surface) 88%, transparent); border: 1px solid var(--border); color: var(--text-2); font-size: var(--fs-sm); text-align: center; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
 .cv-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* ---------- the type designer panel ---------- */
+.cv-panel { pointer-events: auto; position: fixed; z-index: 63; top: 16px; right: 16px; bottom: 84px; width: 312px; overflow-y: auto; padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-3); border-radius: var(--r-xl); background: color-mix(in srgb, var(--surface) 92%, transparent); -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px); border: 1px solid var(--border-strong); box-shadow: var(--shadow-3); color: var(--text); text-shadow: none; scrollbar-width: thin; }
+.ty-head { display: flex; align-items: center; gap: var(--s-2); } .ty-head h3 { flex: 1; font-size: var(--fs-lg); }
+.ty-sec { display: flex; flex-direction: column; gap: var(--s-2); }
+.ty-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 2px; }
+.ty-tile { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface-2); color: var(--text); text-align: left; cursor: pointer; min-width: 0; }
+.ty-tile:hover { border-color: var(--border-strong); } .ty-tile[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-ring); background: var(--accent-soft); }
+.ty-sample { font-size: 24px; line-height: 1.15; white-space: nowrap; } .ty-name { font-size: 11px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.ty-row { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); }
+.ty-lbl { color: var(--text-2); } .ty-out { color: var(--text-3); font-size: var(--fs-xs); min-width: 38px; text-align: right; }
+.ty-row input[type="range"] { width: 100%; accent-color: var(--accent); }
+.ty-color { grid-column: 2 / -1; display: flex; align-items: center; gap: var(--s-2); } .ty-color input[type="color"] { width: 44px; height: 30px; padding: 0; border: 1px solid var(--border-strong); border-radius: var(--r-sm); background: none; cursor: pointer; } .ty-auto { font-size: var(--fs-xs); }
+.ty-row .switch { justify-self: end; grid-column: 3; }
+@media (max-width: 1300px) { .cv-panel { width: 280px; } }
