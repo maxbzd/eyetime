@@ -13,10 +13,10 @@ const CYR_LANGS = ['ru', 'uk'];
 
 /**
  * @param {'clock' | 'text'} kind which style is edited
- * @param {{ onClose?: () => void }} [opts]
+ * @param {{ onClose?: () => void, onUnstretch?: () => void }} [opts]
  * @returns {Promise<HTMLElement>} the panel (the caller appends it)
  */
-export async function buildTypePanel(kind, { onClose } = {}) {
+export async function buildTypePanel(kind, { onClose, onUnstretch } = {}) {
   let st = normalizeType((await effectiveNow()).newtab.type);
   const isClock = kind === 'clock';
   const base = isClock ? CLOCK_DEFAULT : TEXT_DEFAULT;
@@ -61,6 +61,7 @@ export async function buildTypePanel(kind, { onClose } = {}) {
       h('div', { class: 'ty-sec' }, h('div', { class: 'eyebrow', text: t('ty.font') }), h('div', { class: 'ty-tiles', role: 'group', 'aria-label': t('ty.font') }, tiles)),
       wlo === whi ? null : slider(t('ty.weight'), wlo, whi, 1, c.weight ?? (face ? face.def : 300), (v) => set({ weight: v }), (v) => String(Math.round(v))),
       slider(t('ty.tracking'), isClock ? -0.12 : -0.05, 0.3, 0.005, c.tracking ?? 0, (v) => set({ tracking: v }), (v) => (v > 0 ? '+' : '') + v.toFixed(2)),
+      onUnstretch ? h('button', { class: 'btn btn-sm', type: 'button', onclick: onUnstretch }, icon('rotate-ccw'), t('cv.unstretch')) : null,
     ];
     if (isClock) {
       ctl.push(
