@@ -13,6 +13,8 @@ import { summarize, focusStreak } from '../shared/stats.js';
 import { loadRings } from './rings.js';
 import { home } from './home-config.js';
 import { WIDGET_KINDS, normalizeCfg, normalizeWidgets, countdownLeft, periodProgress, zoneCity, zoneClock, MANTRA_COUNT, stackIndex } from '../shared/widgets.js';
+import { loadWeather } from './weather.js';
+import { describeCode } from '../shared/weather.js';
 import { openDayPlan } from './dayplan.js';
 import { openShutdown } from './shutdown.js';
 
@@ -260,6 +262,31 @@ const DEFS = {
       draw();
       const off = onChange(['d:*', 'tasks'], draw);
       return { update: draw, destroy: () => { alive = false; off(); } };
+    },
+  },
+
+  weather: {
+    build(root) {
+      let alive = true;
+      const settingsLink = (text) => h('a', { class: 'btn btn-sm', href: chrome.runtime.getURL('src/options/options.html#general') }, icon('settings'), text);
+      async function draw() {
+        const r = /** @type {any} */ (await loadWeather());
+        if (!alive) return;
+        const label = el('div', 'wg-label', t('wg.k.weather'));
+        if (!r.ok) {
+          clear(root, label, el('div', 'wg-sub', r.why === 'net' ? t('wx.err') : r.why === 'access' ? t('wx.denied') : t('wx.widgetOff')), r.why === 'net' ? null : settingsLink(t('wx.turnOn')));
+          return;
+        }
+        const d = r.data, k = describeCode(d.code, d.day), deg = (n) => fmtNumber(n) + '°';
+        clear(root, el('div', 'wg-label', r.place.name),
+          el('div', 'wx-main', el('span', 'wx-ico', icon(k.ico)), el('span', 'wb-num num', deg(d.temp))),
+          el('div', 'wg-sub', t('wx.kind.' + k.kind) + (d.feels !== null && d.feels !== d.temp ? ' · ' + t('wx.feels', { t: deg(d.feels) }) : '')),
+          d.hi !== null && d.lo !== null ? el('div', 'wg-sub', t('wx.range', { hi: deg(d.hi), lo: deg(d.lo) }) + (d.rain ? ' · ' + t('wx.rain', { n: d.rain }) : '')) : null);
+      }
+      clear(root, el('div', 'wg-label', t('wg.k.weather')), el('div', 'wg-sub', t('wx.loading')));
+      draw();
+      const off = onChange(['settings', 'weatherCache'], draw), id = setInterval(draw, 10 * 60_000);
+      return { update: draw, destroy: () => { alive = false; off(); clearInterval(id); } };
     },
   },
 
