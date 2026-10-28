@@ -331,4 +331,5 @@ export const zh = {
   'wn.dockOn': '开启侧边栏', 'wn.dockOnDone': '侧边栏已开启。打开任意网页即可看到。',
   'look.obsidian': 'Obsidian', 'lookd.obsidian': '纯黑玻璃，带着温暖的炭火光晕。', 'look.void': 'Void', 'lookd.void': '只有字体和细线，除了你的工作，别无他物。', 'look.noir': 'Noir', 'lookd.noir': '黑底象牙色衬线、表盘式计时器、香槟色点缀。', 'look.pearl': 'Pearl', 'lookd.pearl': '柔和粉彩光线上的通透磨砂玻璃。', 'look.bento': 'Bento', 'lookd.bento': '柔和的彩色方块，圆润而友好。',
   'look.spectrum': 'Spectrum', 'lookd.spectrum': '深邃墨色加棱镜光斑，细线卡片与一颗白色胶囊。', 'look.tide': 'Tide', 'lookd.tide': '磨砂玻璃后的黄昏地平线，悬浮的胶囊。', 'look.ledger': 'Ledger', 'lookd.ledger': '沉静的海军蓝、大号数字和平滑的面积图。', 'look.vital': 'Vital', 'lookd.vital': '炭灰与橄榄色，粗圆环，衬线标题。', 'look.aura': 'Aura', 'lookd.aura': '柔和的玫瑰到蜜桃光晕，衬线数字与玻璃胶囊。',
+  'cv.edit': '排列主页', 'cv.drawerHint': '把时钟和卡片拖到任意位置，调整大小，隐藏不需要的内容。', 'cv.done': '完成', 'cv.undo': '撤销', 'cv.redo': '重做', 'cv.reset': '重置', 'cv.add': '添加模块', 'cv.trayEmpty': '所有模块都已显示', 'cv.off': '使用风格的布局', 'cv.hint': '拖动模块来移动，拖动角落来调整大小。方向键移动选中的模块（Shift：移得更远），+ 和 − 调整大小，Delete 移除，Esc 结束。', 'cv.movable': '可移动的模块', 'cv.remove': '从屏幕上移除', 'cv.resize': '调整大小', 'cv.clock': '时钟', 'cv.greeting': '问候与日期', 'cv.focus': '专注', 'cv.tooNarrow': '请把窗口调宽以排列主页。',
 };
