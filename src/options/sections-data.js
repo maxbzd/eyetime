@@ -18,7 +18,7 @@ const sec = (id, ...kids) => h('section', { class: 'sec', id }, kids);
 
 /* ============================== Data & privacy ============================== */
 export function data({ s, save, refresh }) {
-  const PERMS = [['storage', 'perm.storage'], ['tabs', 'perm.tabs'], ['webNavigation', 'perm.webNavigation'], ['idle', 'perm.idle'], ['alarms', 'perm.alarms'], ['contextMenus', 'perm.contextMenus'], ['notifications', 'perm.notifications'], ['offscreen', 'perm.offscreen'], ['favicon', 'perm.favicon'], ['youtube/instagram/tiktok/vk', 'perm.hosts'], ['scripting + websites (optional)', 'perm.dock']];
+  const PERMS = [['storage', 'perm.storage'], ['tabs', 'perm.tabs'], ['webNavigation', 'perm.webNavigation'], ['idle', 'perm.idle'], ['alarms', 'perm.alarms'], ['contextMenus', 'perm.contextMenus'], ['notifications', 'perm.notifications'], ['offscreen', 'perm.offscreen'], ['favicon', 'perm.favicon'], ['youtube/instagram/tiktok/vk', 'perm.hosts'], ['scripting', 'perm.scripting'], ['websites (optional)', 'perm.dock']];
   const doExport = downloadBackup;
   async function doImport(file) {
     try {

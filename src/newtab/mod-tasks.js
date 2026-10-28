@@ -50,7 +50,7 @@ export function tasksModule() {
     const preview = h('div', { class: 'qa-preview', 'aria-live': 'polite' });
     const drawPreview = (value) => {
       const p = parseQuickAdd(value);
-      const chips = [p.due ? [{ icon: 'calendar-days' }, dueLabel(p.due)] : null, p.at ? [{ icon: 'alarm-clock' }, t('tasks.qaAt', { time: p.at })] : null, p.est ? [{ icon: 'timer' }, t('tasks.qaEst', { time: fmtDuration(p.est * 60) })] : null, p.priority ? [{ icon: 'star' }, t('tasks.qaPri')] : null, p.repeat ? [{ icon: 'repeat' }, t('tasks.rep.' + p.repeat)] : null, ...p.tags.map((g) => [{ icon: 'tag' }, '#' + g])].filter(Boolean);
+      const chips = [p.due ? [{ icon: 'calendar-days' }, dueLabel(p.due)] : null, p.at ? [{ icon: 'alarm-clock' }, t('tasks.qaAt', { time: p.at }) + (p.atDay && p.atDay !== dayKey() ? ' · ' + dueLabel(p.atDay) : '')] : null, p.est ? [{ icon: 'timer' }, t('tasks.qaEst', { time: fmtDuration(p.est * 60) })] : null, p.priority ? [{ icon: 'star' }, t('tasks.qaPri')] : null, p.repeat ? [{ icon: 'repeat' }, t('tasks.rep.' + p.repeat)] : null, ...p.tags.map((g) => [{ icon: 'tag' }, '#' + g])].filter(Boolean);
       clear(preview, chips.length ? chips.map(([ico, text]) => h('span', { class: 'tagm' }, icon(ico.icon), text)) : (value.trim() ? null : h('span', { class: 'hint', text: t('tasks.qaHint') })));
     };
     const input = h('input', { class: 'input', placeholder: t('tasks.add'), 'aria-label': t('tasks.add'), maxlength: 300, oninput: (e) => drawPreview(e.target.value), onkeydown: (e) => {

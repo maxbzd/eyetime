@@ -104,7 +104,7 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 | Your settings, tasks, notes, habits | Anything about you — there is no account |
 | (optional) per-app seconds from the desktop companion | Analytics, crash reports, ads — none |
 
-Permissions are minimal and each one is explained in **Settings → Data & privacy**. The only network request EyeTime ever makes is to `127.0.0.1` if *you* enable the desktop companion. See [PRIVACY.md](PRIVACY.md).
+Permissions are minimal and each one is explained in **Settings → Data & privacy**. EyeTime makes no network requests of its own. Two things you can turn on reach out, and only to the address you give: the desktop companion (`127.0.0.1`) and a calendar subscription (your calendar's link, fetched about once an hour). See [PRIVACY.md](PRIVACY.md).
 
 ## Desktop companion (optional)
 

@@ -324,3 +324,9 @@ body[data-layout="split"] .gs { grid-column: 1 / -1; grid-row: 2; } body[data-la
 .drawer .row { flex-wrap: wrap; } .drawer .btn { max-width: 100%; }
 
 .nt-off { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s-3); text-align: center; padding: var(--s-6); } .nt-off h1 { font-size: var(--fs-xl); } .nt-off p { max-width: 46ch; }
+
+/* getting started, after the first step: one slim row of what is left */
+.gs-compact { padding: var(--s-3) var(--s-4); gap: var(--s-2); }
+.gs-compact .gs-list { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.gs-compact .gs-step.done { display: none; }
+.gs-compact .gs-step { padding: 6px 10px; } .gs-compact .gs-text span { display: none; } .gs-compact .gs-mark { width: 24px; height: 24px; }

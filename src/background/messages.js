@@ -50,6 +50,7 @@ const handlers = {
   'break:snooze': async () => { await snoozeBreak(); return { ok: true }; },
   'break:open': async () => { await openBreakPage(); return { ok: true }; },
   'break:state': () => getEyeState(),
+  'tracker:sync': async () => { await sync('open'); return { ok: true }; },
   'tracking:pause': async (m) => { await setRaw({ pausedUntil: m.minutes ? Date.now() + m.minutes * 60_000 : 0 }); await sync('pause'); return { ok: true }; },
   'tab:close': async (m, sender) => { if (sender.tab) await chrome.tabs.remove(sender.tab.id); return { ok: true }; },
   'dock:pos': async (m) => { const y = Number(m.y); if (!(y >= 0.05 && y <= 0.95)) return { ok: false }; await updateSettings((s) => { s.dock.y = Math.round(y * 1000) / 1000; }, { touch: false }); return { ok: true }; }, // a place on the screen is not a settings edit: it must not win a settings sync

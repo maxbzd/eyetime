@@ -82,12 +82,12 @@ async function renderFooter() {
   const paused = pausedUntil > Date.now();
   const pause = paused
     ? null
-    : h('button', { class: 'btn btn-ghost btn-icon', type: 'button', 'aria-label': t('track.pause'), 'data-tip': t('track.pause'), onclick: async () => { await send('tracking:pause', { minutes: 60 }); renderFooter(); } }, icon('pause'));
+    : h('button', { class: 'btn btn-ghost btn-sm pause-track', type: 'button', onclick: async () => { await send('tracking:pause', { minutes: 60 }); renderFooter(); } }, icon('pause'), t('track.pause'));
   const banner = paused
     ? h('div', { class: 'paused-banner' }, icon('pause'), h('span', { class: 'grow', text: t('track.pausedBanner', { time: fmtTime(new Date(pausedUntil), settings.newtab.clock24 ?? undefined) }) }),
         h('button', { class: 'btn btn-sm', type: 'button', onclick: async () => { await send('tracking:pause', { minutes: 0 }); renderFooter(); } }, icon('play'), t('track.resumeShort')))
     : null;
-  clear(el, banner, h('div', { class: 'foot-row' }, h('div', { class: 'capture grow' }, input), pause));
+  clear(el, banner, h('div', { class: 'foot-row' }, h('div', { class: 'capture grow' }, input)), pause ? h('div', { class: 'foot-row' }, pause) : null);
 }
 
 (async function main() {
@@ -96,6 +96,7 @@ async function renderFooter() {
   tab = active ? { id: active.id, host: hostFromUrl(active.url) } : null;
   const preview = new URLSearchParams(location.search).get('site'); // ?site=github.com renders the site card without a real tab (docs, screenshots)
   if (preview) tab = { id: -1, host: preview };
+  send('tracker:sync').catch(() => {}); // the time of the site you are on is counted up to this moment
   mountFocusCard($('#focus'), { variant: 'compact' });
   mountToday($('#today'), { closeOnBreak: true, compact: true });
   renderSite(); renderFooter(); renderEye(); setInterval(renderEye, 30_000);
