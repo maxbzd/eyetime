@@ -80,6 +80,7 @@ export const DEFAULT_SETTINGS = {
     enabled: true,
     modules: { focus: true, today: true, tasks: true, habits: true, notes: true, links: true },
     background: 'look',        // 'look' (the look's own scene: Calm = Dawn, others = their page colour) | gradient / pattern id | 'color' | 'photo'
+    photoText: 'auto',         // text colour on a photo background: auto (white or black, whichever reads better) | light | dark
     bgColor: '#e9e4ff',        // used by background 'color'
     clockStyle: 'thin',        // thin | bold | mono | serif | compact | stacked | none
     layout: 'center',          // center | split | minimal
