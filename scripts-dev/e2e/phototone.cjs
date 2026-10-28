@@ -40,6 +40,18 @@ const { launch } = require('./lib.cjs');
   ok(await sp.evaluate(async () => (await (await import('/src/shared/storage.js')).getSettings()).newtab.photoText) === 'dark', 'the choice is saved');
   ok(await p.evaluate(() => document.body.dataset.tone) === 'light', 'and applied at once');
 
+  // the clock can be filled with the photo: Glass (a soft copy through the digits) and Photo (cut out of the photo itself), placed where the page's photo is
+  await photo('dark');
+  for (const fill of ['glass', 'photo']) {
+    await sp.evaluate(async (fill) => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.newtab.type = { clock: { fill } }; }); }, fill);
+    await p.waitForTimeout(900);
+    const c = await p.evaluate(() => { const e = document.getElementById('clock'), cs = getComputedStyle(e); return { clip: cs.webkitBackgroundClip || cs.backgroundClip, img: cs.backgroundImage.slice(0, 60), bgs: e.style.getPropertyValue('--clk-bgs'), bgp: e.style.getPropertyValue('--clk-bgp') }; });
+    ok(/text/.test(c.clip) && /url\(|gradient/.test(c.img), fill + ' fill uses the photo through the digits: ' + JSON.stringify(c));
+    ok(/px/.test(c.bgs) && /px/.test(c.bgp), fill + ' fill is placed with the page photo: ' + JSON.stringify(c));
+  }
+  await sp.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.newtab.background = 'dawn'; }); }); await p.waitForTimeout(900);
+  ok(await p.evaluate(() => { const e = document.getElementById('clock'); return !e.style.getPropertyValue('--clk-bgs') && getComputedStyle(e).webkitTextFillColor !== ''; }), 'without a photo the clock falls back to a plain fill');
+
   console.log(bad.length ? 'FAIL\n' + bad.join('\n') : 'phototone: all checks passed');
   await app.close();
   process.exit(bad.length ? 1 : 0);

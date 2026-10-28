@@ -14,7 +14,7 @@ import { mountWhatsNew } from './whatsnew.js';
 import { openDayPlan } from './dayplan.js';
 import { mountRings } from './rings.js';
 import { applyCanvas, canvasActive } from './canvas.js';
-import { applyType, clockSeconds } from './type-apply.js';
+import { applyType, clockSeconds, alignClockFill } from './type-apply.js';
 import { createWidgetHost } from './widgets.js';
 import { applyDepth } from './depth.js';
 import { BACKGROUNDS, CLOCKS, LAYOUTS, backgroundControls, depthControls, lookControls, accentControls, clockFormatControls } from './home-controls.js';
@@ -29,7 +29,8 @@ import { fmtDuration } from '../shared/i18n.js';
 import { clock, remainingMs, isPaused } from '../shared/focus.js';
 import { isFocusActive, isFocusLive } from '../shared/blocking.js';
 import { luminance, normalizeHex } from '../shared/color.js';
-import { relLuminance, pickTextTone, resolveTextTone } from '../shared/phototone.js';
+import { resolveTextTone } from '../shared/phototone.js';
+import { getPhotoInfo, clearPhotoInfo } from './photo-info.js';
 import { showQuote } from '../ui/quote.js';
 
 const DARK_SCENES = ['aurora', 'stars', 'photo', 'sea', 'onyx', 'peaks'];
@@ -53,6 +54,7 @@ function paintClock() {
   document.body.dataset.layout = canvasActive(settings) ? 'canvas' : LAYOUTS.includes(settings.newtab.layout) ? settings.newtab.layout : 'center';
   $('#date').textContent = fmtDate(now);
   showQuote($('#quote'), 'day', settings);
+  alignClockFill();
   const hr = now.getHours();
   $('#greeting').textContent = settings.newtab.greeting ? t(hr < 5 ? 'greet.night' : hr < 12 ? 'greet.morning' : hr < 18 ? 'greet.afternoon' : 'greet.evening') : '';
 }
@@ -117,24 +119,6 @@ async function paintNudge() {
 
 /* ---------- background ---------- */
 
-let toneCache = { key: '', tone: 'light' };
-/** Look at the photo (a small copy of it) and say which text colour reads on it: 'light' or 'dark'. */
-async function autoPhotoTone(src) {
-  const key = src.length + ':' + src.slice(-48);
-  if (toneCache.key === key) return toneCache.tone;
-  let tone = 'light';
-  try {
-    const img = await new Promise((resolve, reject) => { const i = new Image(); i.onload = () => resolve(i); i.onerror = reject; i.src = src; });
-    const W = 48, H = 27, c = document.createElement('canvas'); c.width = W; c.height = H;
-    const ctx = c.getContext('2d', { willReadFrequently: true }); ctx.drawImage(img, 0, 0, W, H);
-    const px = ctx.getImageData(0, 0, W, H).data, lums = [];
-    for (let y = 2; y < H - 2; y++) for (let x = 3; x < W - 3; x++) { const o = (y * W + x) * 4; lums.push(relLuminance(px[o], px[o + 1], px[o + 2])); } // the middle of the picture, where the clock and cards sit
-    tone = pickTextTone(lums);
-  } catch { /* an unreadable photo: white text, as before */ }
-  toneCache = { key, tone };
-  return tone;
-}
-
 async function applyBackground() {
   const n = settings.newtab;
   let bg = BACKGROUNDS.includes(n.background) || n.background === 'photo' ? n.background : 'look';
@@ -145,10 +129,16 @@ async function applyBackground() {
   let scene = bg, photoTone = null;
   if (bg === 'photo') {
     const { newtabBg } = await getRaw('newtabBg');
-    if (newtabBg) { document.documentElement.style.setProperty('--photo', `url(${newtabBg})`); photoTone = n.photoText === 'light' || n.photoText === 'dark' ? n.photoText : await autoPhotoTone(newtabBg); } else bg = 'look';
+    if (newtabBg) {
+      const info = await getPhotoInfo(newtabBg);
+      document.documentElement.style.setProperty('--photo', `url(${newtabBg})`);
+      if (info.soft) document.documentElement.style.setProperty('--photo-soft', `url(${info.soft})`);
+      photoTone = n.photoText === 'light' || n.photoText === 'dark' ? n.photoText : info.tone;
+    } else bg = 'look';
     const { newtabFg } = bg === 'photo' ? await getRaw('newtabFg') : {};
     if (newtabFg) { document.documentElement.style.setProperty('--photo-mask', `url(${newtabFg})`); scene = 'photo-cut'; } // the cut-out subject: a masked copy of the photo goes in front of the clock
   }
+  if (bg !== 'photo') { clearPhotoInfo(); document.documentElement.style.removeProperty('--photo'); document.documentElement.style.removeProperty('--photo-soft'); } // the glass / photo clock falls back to a plain fill
   const color = normalizeHex(n.bgColor) || '#e9e4ff';
   if (bg === 'color') document.documentElement.style.setProperty('--bg-color', color);
   document.body.dataset.bg = bg;
@@ -156,6 +146,7 @@ async function applyBackground() {
   applyDepth(settings, scene);
   // light hero text on scenes that are dark in every theme, and on dark custom colours; a photo follows the person's choice or its own brightness
   document.body.dataset.tone = photoTone && bg === 'photo' ? (resolveTextTone(n.photoText, photoTone) === 'dark' ? 'light' : 'dark') : DARK_SCENES.includes(bg) || (bg === 'color' && luminance(color) < 0.28) ? 'dark' : '';
+  alignClockFill();
 }
 
 /* ---------- modules ---------- */
