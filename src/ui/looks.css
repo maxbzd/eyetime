@@ -458,3 +458,51 @@ html[data-look="ledger"] .mode-chip[aria-pressed="true"] .ico:not(.lp *) { color
 html[data-look="spectrum"] .focus-idle:not(.large) .durations .chip[aria-pressed="true"] { color: var(--bg); }
 html[data-look="ledger"] .focus-idle:not(.large) .durations .chip[aria-pressed="true"], html[data-look="ledger"] .site-class button[aria-pressed="true"] { color: var(--text); }
 .lp[data-look="spectrum"] .btn-ghost, html[data-look="spectrum"] .btn-ghost:not(.lp *) { color: var(--text-2); }
+
+/* ======================================================================
+   Obsidian, dark — a landing-page treatment: true black, one light from above, hairline cards with a travelling highlight, a white pill
+   ====================================================================== */
+html[data-look="obsidian"][data-scheme="dark"] { --ob-1: #ffb48a; --ob-2: #ff6a3d; --ob-3: #b794ff; --hair: rgba(255, 255, 255, .11); --hair-hi: rgba(255, 255, 255, .34); }
+html[data-look="obsidian"][data-scheme="dark"] .card { position: relative; background: #050506; background-image: none; border-color: var(--hair); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 30px 80px -40px rgba(0, 0, 0, .9); -webkit-backdrop-filter: none; backdrop-filter: none; }
+/* the pointer's light: a faint wash inside the card and a brighter rim near the cursor */
+html[data-look="obsidian"][data-scheme="dark"] .card::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .35s var(--ease);
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 255, 255, .07), transparent 62%); }
+html[data-look="obsidian"][data-scheme="dark"] .card::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none; opacity: 0; transition: opacity .35s var(--ease);
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 190, 150, .75), rgba(183, 148, 255, .35) 45%, transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+html[data-look="obsidian"][data-scheme="dark"] .card:hover::before, html[data-look="obsidian"][data-scheme="dark"] .card:hover::after { opacity: 1; }
+/* a beam runs round the focus card while a session is on */
+@property --beam { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+html[data-look="obsidian"][data-scheme="dark"] .focus-card.is-running::after { opacity: 1; background: conic-gradient(from var(--beam), transparent 0deg, transparent 250deg, rgba(255, 106, 61, .0) 262deg, var(--ob-2) 318deg, #fff 352deg, transparent 360deg); animation: ob-beam 6s linear infinite; }
+@keyframes ob-beam { to { --beam: 360deg; } }
+:root[data-motion="reduced"] .focus-card.is-running::after { animation: none; }
+@media (prefers-reduced-motion: reduce) { html[data-look="obsidian"] .focus-card.is-running::after { animation: none; } }
+
+html[data-look="obsidian"][data-scheme="dark"] .btn-primary { background: #fff; background-image: none; color: #000; border-color: transparent; font-weight: 650; box-shadow: 0 0 0 1px rgba(255, 255, 255, .5), 0 0 34px -6px rgba(255, 170, 120, .55), 0 12px 30px -12px rgba(255, 255, 255, .35); border-radius: var(--r-full); }
+html[data-look="obsidian"][data-scheme="dark"] .btn-primary:hover { background: #fff; filter: none; box-shadow: 0 0 0 1px #fff, 0 0 44px -4px rgba(255, 170, 120, .75), 0 12px 30px -12px rgba(255, 255, 255, .5); }
+html[data-look="obsidian"][data-scheme="dark"] .btn:not(.btn-primary):not(.btn-ghost):not(.btn-danger-solid) { background: transparent; background-image: none; border-color: var(--hair); border-radius: var(--r-full); }
+html[data-look="obsidian"][data-scheme="dark"] .btn:not(.btn-primary):not(.btn-ghost):not(.btn-danger-solid):hover { background: rgba(255, 255, 255, .06); border-color: var(--hair-hi); }
+html[data-look="obsidian"][data-scheme="dark"] .btn-lg { border-radius: var(--r-full); }
+html[data-look="obsidian"][data-scheme="dark"] .chip, html[data-look="obsidian"][data-scheme="dark"] .mode-chip { background: transparent; border-color: var(--hair); }
+html[data-look="obsidian"][data-scheme="dark"] .chip[aria-pressed="true"], html[data-look="obsidian"][data-scheme="dark"] .mode-chip[aria-pressed="true"] { background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .5); color: #fff; box-shadow: 0 0 22px -8px rgba(255, 170, 120, .6); }
+html[data-look="obsidian"][data-scheme="dark"] .mode-chip[aria-pressed="true"] .ico, html[data-look="obsidian"][data-scheme="dark"] .mode-chip[aria-pressed="true"] .mm { color: #fff; }
+html[data-look="obsidian"][data-scheme="dark"] .input, html[data-look="obsidian"][data-scheme="dark"] .select { background: rgba(255, 255, 255, .03); border-color: var(--hair); }
+html[data-look="obsidian"][data-scheme="dark"] .input:focus { border-color: rgba(255, 190, 150, .7); box-shadow: 0 0 0 4px rgba(255, 150, 100, .14); }
+html[data-look="obsidian"][data-scheme="dark"] .progress i, html[data-look="obsidian"][data-scheme="dark"] .goal-bar i { background: linear-gradient(90deg, var(--ob-1), var(--ob-2) 55%, var(--ob-3)); box-shadow: 0 0 14px -2px rgba(255, 130, 90, .7); }
+html[data-look="obsidian"][data-scheme="dark"] .eyebrow, html[data-look="obsidian"][data-scheme="dark"] .group-title { font-family: ui-monospace, "JetBrains Mono", "SFMono-Regular", Menlo, monospace; font-size: 10.5px; letter-spacing: .14em; font-weight: 500; }
+
+/* Home: eyebrow, a faded giant clock, a white pill for navigation */
+html[data-look="obsidian"][data-scheme="dark"] body[data-layout="center"] .nt { padding-top: 92px; gap: var(--s-6); }
+html[data-look="obsidian"][data-scheme="dark"] body[data-layout="center"] .hero { display: flex; flex-direction: column; align-items: center; padding: var(--s-4) 0 var(--s-2); }
+html[data-look="obsidian"][data-scheme="dark"] body[data-layout="center"] .hero p { order: 0; margin: 0 0 var(--s-3); font-family: ui-monospace, "JetBrains Mono", "SFMono-Regular", Menlo, monospace; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: rgba(255, 255, 255, .62); text-shadow: none; }
+html[data-look="obsidian"][data-scheme="dark"] body[data-layout="center"] .hero p::before { content: "[ "; opacity: .5; } html[data-look="obsidian"][data-scheme="dark"] body[data-layout="center"] .hero p::after { content: " ]"; opacity: .5; }
+html[data-look="obsidian"][data-scheme="dark"] body[data-layout="center"] .clock { order: 1; font-size: clamp(96px, min(15vw, 22vh), 200px); font-weight: 200; letter-spacing: -.06em; line-height: .96; text-shadow: none;
+  background: linear-gradient(180deg, #fff 18%, rgba(255, 255, 255, .5) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-look="obsidian"][data-scheme="dark"] body[data-layout="center"] .hero h1 { order: 2; margin-top: var(--s-3); font-size: clamp(18px, 1.8vw, 22px); font-weight: 500; letter-spacing: 0; color: rgba(255, 255, 255, .72); text-shadow: none; }
+html[data-look="obsidian"][data-scheme="dark"] .nt-top { top: 14px; left: 50%; right: auto; transform: translateX(-50%); width: max-content; padding: 6px 8px; gap: var(--s-2); border-radius: var(--r-full); background: rgba(10, 10, 12, .7); border: 1px solid var(--hair); -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4); box-shadow: 0 10px 40px -12px rgba(0, 0, 0, .8), inset 0 1px 0 rgba(255, 255, 255, .06); }
+html[data-look="obsidian"][data-scheme="dark"] .nt-top .nt-brand { padding: 0 var(--s-2) 0 var(--s-1); margin-right: var(--s-1); border-right: 1px solid var(--hair); border-radius: 0; }
+html[data-look="obsidian"][data-scheme="dark"] .nt-top .nt-brand img { display: block; width: 24px; height: 24px; }
+html[data-look="obsidian"][data-scheme="dark"] .nt-top .btn.on-bg { color: rgba(255, 255, 255, .7); }
+html[data-look="obsidian"][data-scheme="dark"] .nt-top .btn.on-bg:hover { color: #fff; background: rgba(255, 255, 255, .1); }
+html[data-look="obsidian"][data-scheme="dark"] .nt-top .btn:last-child[data-tip]:hover::after, html[data-look="obsidian"][data-scheme="dark"] .nt-top .btn:last-child[data-tip]:focus-visible::after { left: 50%; right: auto; transform: translateX(-50%); }
+html[data-look="obsidian"][data-scheme="dark"] body[data-layout="center"] #focus { max-width: 780px; border-radius: 28px; padding: var(--s-6); }
