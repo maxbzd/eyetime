@@ -14,6 +14,7 @@ import { mountWhatsNew } from './whatsnew.js';
 import { openDayPlan } from './dayplan.js';
 import { mountRings } from './rings.js';
 import { installSpotlight } from '../ui/spotlight.js';
+import { applyCanvas, canvasActive } from './canvas.js';
 import { downloadBackup, needsBackup } from '../ui/backup.js';
 import { send } from '../ui/api.js';
 import { setCollection } from '../shared/storage.js';
@@ -46,7 +47,7 @@ function paintClock() {
     clear(clockEl, h('span', { class: 'h', text: hh }), h('span', { class: 'm' }, tail.replace(/\s?[AP]M$/i, ''), ap ? h('span', { class: 'ap', text: ap[1].toUpperCase() }) : null));
   } else clockEl.textContent = time;
   document.body.dataset.clock = CLOCKS.includes(settings.newtab.clockStyle) ? settings.newtab.clockStyle : 'thin';
-  document.body.dataset.layout = LAYOUTS.includes(settings.newtab.layout) ? settings.newtab.layout : 'center';
+  document.body.dataset.layout = canvasActive(settings) ? 'canvas' : LAYOUTS.includes(settings.newtab.layout) ? settings.newtab.layout : 'center';
   $('#date').textContent = fmtDate(now);
   const hr = now.getHours();
   $('#greeting').textContent = settings.newtab.greeting ? t(hr < 5 ? 'greet.night' : hr < 12 ? 'greet.morning' : hr < 18 ? 'greet.afternoon' : 'greet.evening') : '';
@@ -150,6 +151,7 @@ function renderModules() {
     modEls.push(el);
   }
   layoutModules();
+  applyCanvas(settings);
 }
 
 /** A flat bento grid (see newtab.css): the saved order is the reading order, rows share one height. */
@@ -159,6 +161,13 @@ function layoutModules() { clear($('#modules'), modEls); }
 
 function openDrawer() {
   $('#drawer').hidden = false; $('#scrim').hidden = false; drawDrawer(); $('#drawerClose').focus();
+}
+/** The arrangement editor (loaded on demand): drag, resize and hide the blocks of Home. */
+async function openEditor() {
+  if (window.innerWidth < 1100) { toast(t('cv.tooNarrow')); return; }
+  $('#drawer').hidden = true; $('#scrim').hidden = true;
+  const { startEditing } = await import('./canvas-edit.js');
+  await startEditing(settings, { onExit: () => { $('#customize').focus(); } });
 }
 function closeDrawer() { $('#drawer').hidden = true; $('#scrim').hidden = true; $('#customize').focus(); }
 
@@ -194,6 +203,7 @@ function drawDrawer() {
 
   const section = (title, ...kids) => h('div', {}, h('h4', { text: title }), ...kids);
   clear(body,
+    section(t('cv.edit'), h('p', { class: 'muted', style: { marginBottom: 'var(--s-3)' }, text: t('cv.drawerHint') }), h('button', { class: 'btn btn-primary', type: 'button', onclick: openEditor }, icon('move'), t('cv.edit'))),
     section(t('ap.looks'), looksGallery(settings.appearance, { compact: true, onPick: (id) => set((s) => { s.appearance.look = id; if (s.newtab.background === 'dawn') s.newtab.background = 'look'; }) })),
     section(t('home.accent'), accentPicker(settings.appearance, (v) => set((s) => { s.appearance.accent = v; }))),
     section(t('home.background'), h('div', { class: 'bg-grid' }, tiles), fileIn,
@@ -212,7 +222,7 @@ async function applySettings(s, first = false) {
   const prevMods = settings ? JSON.stringify([settings.newtab.modules, settings.newtab.order]) : null;
   const prevLinks = settings ? JSON.stringify(settings.newtab.links) : null;
   settings = s;
-  paintClock(); await applyBackground();
+  paintClock(); await applyBackground(); applyCanvas(s);
   if (!first) {
     if (JSON.stringify([s.newtab.modules, s.newtab.order]) !== prevMods) renderModules();
     else if (linksMod && JSON.stringify(s.newtab.links) !== prevLinks) linksMod.update(s);
@@ -259,9 +269,10 @@ function openShortcutHelp() {
     try { const tab = await chrome.tabs.getCurrent(); await chrome.tabs.update(tab.id, { url: 'chrome://new-tab-page/' }); return; } catch { /* stay */ }
   }
   await morningPlan();
-  installPalette({ extra: () => [{ group: 'focus', icon: 'calendar-clock', label: t('plan.title'), run: openDayPlan, keys: ['plan', 'schedule', 'day', 'blocks'] }, { group: 'go', icon: 'moon', label: t('sc.closeDay'), run: openShutdown, keys: ['shutdown', 'review', 'plan tomorrow'] }, { group: 'go', icon: 'sliders-horizontal', label: t('sc.customize'), run: openDrawer, keys: ['customize', 'layout', 'background', 'clock'] }] });
+  installPalette({ extra: () => [{ group: 'focus', icon: 'calendar-clock', label: t('plan.title'), run: openDayPlan, keys: ['plan', 'schedule', 'day', 'blocks'] }, { group: 'go', icon: 'moon', label: t('sc.closeDay'), run: openShutdown, keys: ['shutdown', 'review', 'plan tomorrow'] }, { group: 'go', icon: 'move', label: t('cv.edit'), run: openEditor, keys: ['arrange', 'move', 'drag', 'layout', 'widgets'] }, { group: 'go', icon: 'sliders-horizontal', label: t('sc.customize'), run: openDrawer, keys: ['customize', 'layout', 'background', 'clock'] }] });
   paintClock(); await applyBackground();
   setInterval(paintClock, 10_000);
+  let rz = 0; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { paintClock(); applyCanvas(settings); }, 120); });
   mountFocusCard($('#focus'), { variant: 'large' });
   mountRings($('#rings'));
   installSpotlight();

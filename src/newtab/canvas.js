@@ -1,0 +1,62 @@
+// Applies the user's free-form arrangement to the Home page (the editor itself is in canvas-edit.js and loads only when it is used).
+// Each movable block gets its position and size as CSS variables; newtab.css / canvas.css do the rest.
+
+import { $ } from '../ui/dom.js';
+import { normalizeCanvas, clampCenter, CANVAS_BLOCKS, CANVAS_IDS, CANVAS_MIN_WIDTH, canvasScale } from '../shared/canvas.js';
+
+/** The element of a movable block (null if it is not on the page, e.g. a card switched off in settings). */
+export function blockEl(id) {
+  if (id === 'clock') return $('#clock');
+  if (id === 'greeting') return $('#greetBlock');
+  if (id === 'focus') return $('#focus');
+  return document.getElementById('mod-' + id);
+}
+export const presentBlocks = () => CANVAS_IDS.filter((id) => blockEl(id));
+
+/** Is the free-form arrangement showing? (Off on narrow windows, where the stacked layout is used.) */
+export function canvasActive(settings) {
+  return normalizeCanvas(settings.newtab.canvas).on && window.innerWidth >= CANVAS_MIN_WIDTH;
+}
+
+const watched = new WeakSet();
+let ro = null;
+
+/** Place one block from its saved item and keep it on screen. */
+export function placeBlock(id, item, k = canvasScale(window.innerWidth)) {
+  const el = blockEl(id);
+  if (!el) return;
+  const b = CANVAS_BLOCKS[id];
+  el.classList.add('cv-item', b.kind === 'text' ? 'cv-text' : 'cv-card');
+  el.classList.remove('cv-hidden');
+  el.style.setProperty('--cx', String(item.x)); el.style.setProperty('--cy', String(item.y));
+  if (b.kind === 'text') el.style.setProperty('--cs', String(item.s ?? b.def)); else el.style.setProperty('--cw', String(item.w ?? b.def));
+  document.body.style.setProperty('--k', String(k));
+  if (!watched.has(el) && window.ResizeObserver) { ro = ro || new window.ResizeObserver((es) => es.forEach((e) => keepOnScreen(/** @type {HTMLElement} */ (e.target)))); ro.observe(el); watched.add(el); }
+}
+
+/** A block whose content grew (a long task list) or a window that shrank must not leave the screen. */
+function keepOnScreen(el) {
+  if (!el.classList.contains('cv-item')) return;
+  const view = { w: window.innerWidth, h: window.innerHeight };
+  const r = el.getBoundingClientRect();
+  if (!r.width || !r.height) return;
+  const cx = Number(el.style.getPropertyValue('--cx')), cy = Number(el.style.getPropertyValue('--cy'));
+  const c = clampCenter({ x: cx, y: cy }, { w: r.width, h: r.height }, view);
+  if (Math.abs(c.x - cx) > 0.05) el.style.setProperty('--cx', String(c.x));
+  if (Math.abs(c.y - cy) > 0.05) el.style.setProperty('--cy', String(c.y));
+}
+
+export function applyCanvas(settings) {
+  const active = canvasActive(settings), c = normalizeCanvas(settings.newtab.canvas);
+  document.body.classList.toggle('cv-on', active);
+  for (const id of CANVAS_IDS) {
+    const el = blockEl(id);
+    if (!el) continue;
+    if (!active) { el.classList.remove('cv-item', 'cv-text', 'cv-card', 'cv-hidden'); for (const v of ['--cx', '--cy', '--cs', '--cw']) el.style.removeProperty(v); continue; }
+    if (c.items[id]) placeBlock(id, c.items[id]);
+    else el.classList.add('cv-hidden', 'cv-item');
+  }
+  if (active) window.requestAnimationFrame(() => CANVAS_IDS.forEach((id) => { const el = blockEl(id); if (el && c.items[id]) keepOnScreen(el); }));
+}
+
+export { CANVAS_MIN_WIDTH };
