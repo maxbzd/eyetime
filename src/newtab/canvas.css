@@ -1,0 +1,38 @@
+/* Free-form Home: every block is fixed to the window, placed by its centre (percent) and scaled with the window width (--k). */
+.greet-block { display: contents; }
+body[data-layout="canvas"] { overflow: hidden; height: 100vh; }
+body[data-layout="canvas"] .nt { max-width: none; display: block; padding: 64px 16px 0; }
+body[data-layout="canvas"] .hero, body[data-layout="canvas"] .modules { display: contents; }
+body[data-layout="canvas"] .nudge, body[data-layout="canvas"] .wn, body[data-layout="canvas"] .gs, body[data-layout="canvas"] .backup-nudge { position: relative; z-index: 6; margin: 0 auto var(--s-3); }
+body[data-layout="canvas"] .more-mods { display: none; }
+.cv-item { position: fixed !important; left: calc(var(--cx, 50) * 1%); top: calc(var(--cy, 50) * 1%); margin: 0; z-index: 2; }
+.cv-hidden { display: none !important; }
+.cv-text { transform: translate(-50%, -50%) scale(calc(var(--cs, 1) * var(--k, 1))); transform-origin: center; white-space: nowrap; }
+.cv-text.hero h1, .cv-text h1 { margin-top: 0; }
+.cv-card { transform: translate(-50%, -50%); width: calc(var(--cw, 340) * var(--k, 1) * 1px); max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow-y: auto; min-height: 0; scrollbar-width: thin; }
+.cv-card.mod { min-height: 0; }
+.greet-block.cv-text { display: block; text-align: center; color: var(--hero-fg); }
+.greet-block.cv-text h1 { font-size: clamp(22px, 3vw, 30px); font-weight: 560; letter-spacing: -.025em; }
+.greet-block.cv-text p { color: var(--hero-fg-2); margin-top: 4px; font-size: var(--fs-lg); }
+.clock.cv-text { color: var(--hero-fg); line-height: 1; }
+body[data-layout="canvas"] #focus.cv-card { max-width: calc(100vw - 24px); padding: var(--s-5); }
+
+/* ---------- the editor ---------- */
+body.cv-editing { overflow: hidden; }
+body.cv-editing .nt-top, body.cv-editing .kbd-hint { display: none; }
+.cv-layer { position: fixed; inset: 0; z-index: 60; pointer-events: none; }
+.cv-frame { position: fixed; pointer-events: auto; border: 1.5px dashed color-mix(in srgb, var(--accent) 75%, transparent); border-radius: 14px; background: color-mix(in srgb, var(--accent) 5%, transparent); cursor: grab; touch-action: none; outline: none; transition: background var(--t-fast), border-color var(--t-fast); }
+.cv-frame:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.cv-frame.is-drag { cursor: grabbing; background: color-mix(in srgb, var(--accent) 14%, transparent); border-style: solid; }
+.cv-frame:focus-visible, .cv-frame.is-sel { border-style: solid; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+.cv-tag { position: absolute; left: 8px; top: -13px; display: inline-flex; align-items: center; gap: 4px; max-width: calc(100% - 16px); height: 26px; padding: 0 4px 0 10px; border-radius: var(--r-full); background: var(--accent); color: var(--accent-fg); font-size: var(--fs-xs); font-weight: 650; box-shadow: var(--shadow-2); white-space: nowrap; }
+.cv-tag span { overflow: hidden; text-overflow: ellipsis; }
+.cv-x { border: 0; background: transparent; color: inherit; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; flex: none; } .cv-x:hover { background: color-mix(in srgb, var(--accent-fg) 22%, transparent); } .cv-x .ico { font-size: 12px; }
+.cv-handle { position: absolute; right: -9px; bottom: -9px; width: 18px; height: 18px; border-radius: 50%; background: var(--surface); border: 2px solid var(--accent); cursor: nwse-resize; box-shadow: var(--shadow-2); touch-action: none; }
+.cv-guide { position: fixed; background: var(--accent); opacity: .85; pointer-events: none; z-index: 61; }
+.cv-guide.x { top: 0; bottom: 0; width: 1px; } .cv-guide.y { left: 0; right: 0; height: 1px; }
+.cv-bar { pointer-events: auto; position: fixed; z-index: 62; left: 50%; bottom: 20px; transform: translateX(-50%); display: flex; align-items: center; gap: var(--s-2); padding: 8px 10px; border-radius: var(--r-full); background: color-mix(in srgb, var(--surface) 88%, transparent); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid var(--border-strong); box-shadow: var(--shadow-3); max-width: calc(100vw - 24px); flex-wrap: wrap; justify-content: center; }
+.cv-bar .sep { width: 1px; height: 22px; background: var(--border-strong); }
+.cv-bar .select { min-width: 150px; }
+.cv-hint { pointer-events: auto; position: fixed; z-index: 62; left: 50%; top: 16px; transform: translateX(-50%); max-width: min(680px, calc(100vw - 32px)); padding: 8px 16px; border-radius: var(--r-full); background: color-mix(in srgb, var(--surface) 88%, transparent); border: 1px solid var(--border); color: var(--text-2); font-size: var(--fs-sm); text-align: center; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.cv-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
