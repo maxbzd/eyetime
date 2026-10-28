@@ -14,6 +14,7 @@ import { loadRings } from './rings.js';
 import { home } from './home-config.js';
 import { WIDGET_KINDS, normalizeCfg, normalizeWidgets, countdownLeft, periodProgress, zoneCity, zoneClock, MANTRA_COUNT, stackIndex } from '../shared/widgets.js';
 import { loadWeather } from './weather.js';
+import { loadGuess } from '../shared/guessstore.js';
 import { describeCode } from '../shared/weather.js';
 import { openDayPlan } from './dayplan.js';
 import { openShutdown } from './shutdown.js';
@@ -189,7 +190,7 @@ const DEFS = {
         else if (metric === 'sessionsToday') val = fmtNumber(today?.fc || 0);
         else if (metric === 'streak') { const n = focusStreak(days); const u = new Intl.NumberFormat(getLocale(), { style: 'unit', unit: 'day', unitDisplay: 'long' }).format(n); val = fmtNumber(n); sub = u.replace(/[\d\s., ]+/, ''); }
         else if (metric === 'tasksLeft') val = fmtNumber((await getCollection('tasks', [])).filter((x) => !x.done).length);
-        else { const { classify } = makeClassifier(s); val = fmtDuration(summarize([[dayKey(), today]], classify).total); }
+        else { const { classify } = makeClassifier(s, await loadGuess()); val = fmtDuration(summarize([[dayKey(), today]], classify).total); }
         if (!alive) return;
         clear(root, el('div', 'wg-label', t('wg.m.' + metric)), el('div', 'wb-num num', val), sub ? el('div', 'wg-sub', sub) : null);
       }
@@ -268,7 +269,7 @@ const DEFS = {
   weather: {
     build(root) {
       let alive = true;
-      const settingsLink = (text) => h('a', { class: 'btn btn-sm', href: chrome.runtime.getURL('src/options/options.html#general') }, icon('settings'), text);
+      const settingsLink = (text) => h('a', { class: 'btn btn-sm', href: chrome.runtime.getURL('src/options/options.html#home') }, icon('settings'), text);
       async function draw() {
         const r = /** @type {any} */ (await loadWeather());
         if (!alive) return;
