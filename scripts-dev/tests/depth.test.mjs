@@ -14,6 +14,8 @@ test('frontLayers: only for scenes that have them, and only while the effect is 
   assert.deepEqual(frontLayers('peaks', undefined).map((l) => l.cls), ['dl-near']);
   assert.deepEqual(frontLayers('peaks', { on: false }), []);
   assert.deepEqual(frontLayers('dawn', undefined), []);
+  assert.deepEqual(frontLayers('photo-cut', undefined).map((l) => l.cls), ['dl-photo']);
+  assert.deepEqual(frontLayers('photo', undefined), []);
   for (const [id, s] of Object.entries(DEPTH_SCENES)) for (const l of s.front) assert.ok(/^dl-[a-z]+$/.test(l.cls) && l.k > 0, id);
 });
 
