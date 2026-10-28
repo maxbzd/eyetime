@@ -12,7 +12,9 @@ import { makeClassifier } from '../shared/classify.js';
 import { summarize, focusStreak } from '../shared/stats.js';
 import { loadRings } from './rings.js';
 import { home } from './home-config.js';
-import { WIDGET_KINDS, normalizeCfg, normalizeWidgets, countdownLeft, periodProgress, zoneCity, zoneClock, MANTRA_COUNT } from '../shared/widgets.js';
+import { WIDGET_KINDS, normalizeCfg, normalizeWidgets, countdownLeft, periodProgress, zoneCity, zoneClock, MANTRA_COUNT, stackIndex } from '../shared/widgets.js';
+import { openDayPlan } from './dayplan.js';
+import { openShutdown } from './shutdown.js';
 
 const R = 40, C = 2 * Math.PI * R;
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -221,6 +223,75 @@ const DEFS = {
       ta.value = api.cfg().text;
       clear(root, el('div', 'wg-label', t('wg.k.sticky')), ta);
       return { update: (c) => { if (document.activeElement !== ta) ta.value = c.text; }, destroy: () => clearTimeout(timer) };
+    },
+  },
+  plan: {
+    build(root) {
+      let alive = true;
+      async function draw() {
+        const tasks = await getCollection('tasks', []);
+        if (!alive) return;
+        const today = dayKey(), open = tasks.filter((x) => !x.done);
+        const picks = open.filter((x) => x.starred || x.planFor === today).slice(0, 3);
+        clear(root, el('div', 'wg-label', t('wg.k.plan')),
+          picks.length
+            ? el('div', 'wp-list', picks.map((x) => el('div', 'wp-item', el('span', 'wp-dot'), el('span', 'wp-text', x.text))))
+            : el('div', 'wg-sub', t('wg.plan.empty')),
+          h('button', { class: 'btn btn-sm', type: 'button', onclick: () => openDayPlan() }, icon('list-checks'), t('wg.plan.open')));
+      }
+      draw();
+      const off = onChange(['tasks'], draw);
+      return { update: draw, destroy: () => { alive = false; off(); } };
+    },
+  },
+
+  recap: {
+    build(root) {
+      let alive = true;
+      async function draw() {
+        const [[, day], tasks] = await Promise.all([getDays([dayKey()]), getCollection('tasks', [])]);
+        if (!alive) return;
+        const today = dayKey(), done = tasks.filter((x) => x.done && x.doneAt && dayKey(new Date(x.doneAt)) === today).length;
+        const stat = (num, label) => el('div', 'wr-stat', el('div', 'wb-num num', num), el('div', 'wg-sub', label));
+        clear(root, el('div', 'wg-label', t('wg.k.recap')),
+          el('div', 'wr-stats', stat(fmtDuration(day?.fs || 0), t('wg.recap.focus')), stat(fmtNumber(day?.fc || 0), t('wg.recap.sessions')), stat(fmtNumber(done), t('wg.recap.tasks'))),
+          h('button', { class: 'btn btn-sm', type: 'button', onclick: () => openShutdown() }, icon('moon'), t('wg.recap.close')));
+      }
+      draw();
+      const off = onChange(['d:*', 'tasks'], draw);
+      return { update: draw, destroy: () => { alive = false; off(); } };
+    },
+  },
+
+  stack: {
+    build(root, api) {
+      const body = el('div', 'ws-body'), dots = el('div', 'ws-dots');
+      let shown = -1, shownKind = '', inst = null, timer = 0;
+      const items = () => api.cfg().items;
+      function show(i) {
+        const it = items()[i];
+        if (!it) return;
+        if (i !== shown || it.kind !== shownKind) {
+          inst?.destroy?.(); inst = null; shown = i; shownKind = it.kind;
+          const pane = el('div', 'wgt-in wgt-' + it.kind);
+          body.replaceChildren(pane);
+          inst = DEFS[it.kind].build(pane, {
+            id: api.id + '-' + i,
+            cfg: () => items()[i]?.cfg || {},
+            save: (patch) => api.save({ items: items().map((x, j) => (j === i ? { ...x, cfg: { ...x.cfg, ...patch } } : x)) }),
+          }) || null;
+        }
+        dots.replaceChildren(...items().map((_, j) => h('button', { class: 'ws-dot' + (j === i ? ' on' : ''), type: 'button', 'aria-label': t('wg.stack.dot', { n: j + 1 }) + ' · ' + widgetName(items()[j].kind), 'aria-pressed': String(j === i), onclick: () => api.save({ pick: 'manual', i: j }) })));
+        dots.hidden = items().length < 2;
+      }
+      function top() { show(stackIndex(api.cfg(), new Date().getHours())); }
+      clear(root, body, dots);
+      top();
+      timer = window.setInterval(top, 60_000);
+      return {
+        update: () => { const i = stackIndex(api.cfg(), new Date().getHours()); const it = items()[i]; if (i === shown && it && it.kind === shownKind) { inst?.update?.(it.cfg); show(i); } else top(); },
+        destroy: () => { clearInterval(timer); inst?.destroy?.(); },
+      };
     },
   },
 };

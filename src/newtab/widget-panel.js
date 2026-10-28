@@ -4,7 +4,7 @@ import { h, icon } from '../ui/dom.js';
 import { dropdown } from '../ui/dropdown.js';
 import { t } from '../shared/i18n.js';
 import { updateSettings } from '../shared/storage.js';
-import { WIDGET_KIND_IDS, WIDGET_KINDS, WORLD_ZONES, BIG_METRICS, PERIODS, normalizeCfg, zoneCity } from '../shared/widgets.js';
+import { WIDGET_KIND_IDS, WIDGET_KINDS, WORLD_ZONES, BIG_METRICS, PERIODS, STACK_WHEN, STACKABLE, MAX_STACK, normalizeCfg, zoneCity } from '../shared/widgets.js';
 import { widgetName, previewWidget } from './widgets.js';
 import { home, effectiveNow } from './home-config.js';
 
@@ -51,6 +51,18 @@ export async function buildWidgetPanel(id, kind, { onClose, onDelete }) {
       fields.push(row(t('wg.f.text'), h('textarea', { class: 'textarea', rows: 4, maxlength: 200, placeholder: t('wg.mantra.ph'), oninput: (e) => save({ text: e.target.value }) }, cfg.text)));
     } else if (kind === 'bignumber') {
       fields.push(row(t('wg.f.metric'), dropdown(/** @type {Array<[string, string]>} */ (BIG_METRICS.map((m) => [m, t('wg.m.' + m)])), cfg.metric, (v) => save({ metric: v }), { label: t('wg.f.metric') })));
+    } else if (kind === 'stack') {
+      const items = cfg.items, set = (next) => save({ items: next }).then(draw);
+      fields.push(row(t('wg.stack.mode'), dropdown([['auto', t('wg.stack.auto')], ['manual', t('wg.stack.manual')]], cfg.pick, (v) => save({ pick: v }).then(draw), { label: t('wg.stack.mode') })));
+      items.forEach((it, i) => fields.push(h('div', { class: 'ws-member' },
+        h('div', { class: 'ws-mhead' }, icon(WIDGET_KINDS[it.kind].icon), h('b', { text: widgetName(it.kind) }), h('span', { class: 'grow' }),
+          h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', disabled: i === 0, 'aria-label': t('common.up') + ': ' + widgetName(it.kind), onclick: () => { const n = [...items]; [n[i - 1], n[i]] = [n[i], n[i - 1]]; set(n); } }, icon('chevron-up')),
+          h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', disabled: i === items.length - 1, 'aria-label': t('common.down') + ': ' + widgetName(it.kind), onclick: () => { const n = [...items]; [n[i + 1], n[i]] = [n[i], n[i + 1]]; set(n); } }, icon('chevron-down')),
+          items.length > 1 ? h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.remove') + ': ' + widgetName(it.kind), onclick: () => set(items.filter((_, j) => j !== i)) }, icon('x')) : null),
+        cfg.pick === 'auto' ? row(t('wg.stack.when'), dropdown(/** @type {Array<[string, string]>} */ (STACK_WHEN.map((w) => [w, t('wg.stack.' + w)])), it.when, (v) => set(items.map((x, j) => (j === i ? { ...x, when: v } : x))), { label: t('wg.stack.when') + ': ' + widgetName(it.kind) })) : null)));
+      fields.push(items.length < MAX_STACK
+        ? row(t('wg.stack.add'), dropdown(/** @type {Array<[string, string]>} */ ([['', '+']].concat(STACKABLE.map((k) => [k, widgetName(k)]))), '', (v) => { if (v) set([...items, { kind: v, when: 'any', cfg: normalizeCfg(v, {}) }]); }, { label: t('wg.stack.add') }))
+        : h('p', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, text: t('wg.stack.full') }));
     } else fields.push(h('p', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, text: t('wg.noConfig') }));
     root.replaceChildren(head(widgetName(kind), onClose), ...fields,
       h('button', { class: 'btn btn-sm wg-del', type: 'button', onclick: onDelete }, icon('trash-2'), t('wg.delete')));
