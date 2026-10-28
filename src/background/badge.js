@@ -3,7 +3,7 @@
 import { getRaw, dayStorageKey } from '../shared/storage.js';
 import { dayKey } from '../shared/time.js';
 import { isFocusActive } from '../shared/blocking.js';
-import { remainingMs } from '../shared/focus.js';
+import { remainingMs, isPaused } from '../shared/focus.js';
 import { fmtDuration, resolveLocale, setLocale, t } from '../shared/i18n.js';
 
 const sum = (o) => Object.values(o || {}).reduce((a, b) => a + b, 0);
@@ -20,6 +20,13 @@ export async function updateBadge(settings) {
   const raw = await getRaw(['focus', 'rest', dk]);
   setLocale(resolveLocale(settings.language));
 
+  if (raw.focus && isPaused(raw.focus)) {
+    await chrome.action.setBadgeText({ text: 'II' });
+    await chrome.action.setBadgeBackgroundColor({ color: '#78716c' });
+    await chrome.action.setBadgeTextColor?.({ color: '#ffffff' });
+    await chrome.action.setTitle({ title: t('badge.pausedTitle') + (raw.focus.goal ? ` — ${raw.focus.goal}` : '') });
+    return;
+  }
   if (isFocusActive(raw.focus)) {
     const min = Math.ceil(remainingMs(raw.focus) / 60000);
     await chrome.action.setBadgeText({ text: String(min) });
