@@ -2,10 +2,19 @@
 // (no content script on every page, no all-sites host permission).
 
 import { evaluate, loadContext, blockedPageUrl } from '../shared/policy.js';
-import { decide, REDIRECT_GRACE, REDIRECT_GRACE_MS } from '../shared/blocking.js';
+import { decide, redirectGraceKey, REDIRECT_GRACE_MS } from '../shared/blocking.js';
 import { hostFromUrl } from '../shared/domains.js';
+import { DEFAULT_SETTINGS, clone } from '../shared/defaults.js';
+import { makeClassifier } from '../shared/classify.js';
+import { logError } from '../shared/errorlog.js';
 import { getRaw, setRaw, updateDay } from '../shared/storage.js';
 import { dayKey } from '../shared/time.js';
+
+/** If the stored policy cannot be read at all, the factory rules apply (a pause page on distracting sites) rather than letting everything through. */
+function failClosed(url) {
+  const host = hostFromUrl(url), settings = clone(DEFAULT_SETTINGS);
+  try { return host ? { ...decide(host, { settings, classifier: makeClassifier(settings), focus: null, passes: {} }), host } : { action: 'allow' }; } catch { return { action: 'allow' }; }
+}
 
 const isWeb = (url) => /^https?:\/\//i.test(url || '');
 
@@ -24,7 +33,8 @@ async function logAttempt(tabId, url, d) {
 
 export async function checkTab(tabId, url) {
   if (!isWeb(url)) return;
-  const d = await evaluate(url);
+  let d;
+  try { d = await evaluate(url, Date.now(), tabId); } catch (e) { logError('blocker:evaluate', e); d = failClosed(url); } // damaged settings must not open the gates
   if (d.action === 'allow') return;
   logAttempt(tabId, url, d).catch(() => {});
   try { await chrome.tabs.update(tabId, { url: blockedPageUrl(url, d) }); } catch { /* tab closed */ }
@@ -36,19 +46,20 @@ export async function sweepTabs() {
   for (const tab of tabs) {
     const host = hostFromUrl(tab.url);
     if (!host) continue;
-    const d = decide(host, ctx);
+    let d;
+    try { d = decide(host, { ...ctx, tabId: tab.id }); } catch { continue; }
     // pause-style friction should not hit tabs that were already open; only hard blocks do
     if (d.action === 'block') { try { await chrome.tabs.update(tab.id, { url: blockedPageUrl(tab.url, d) }); } catch { /* tab closed */ } }
   }
 }
 
 /** Temporary "continue" permission for a rule domain. */
-export async function grantPass(rule, minutes) {
+export async function grantPass(rule, minutes, tabId = null) {
   const { passes = {} } = await getRaw('passes');
   const now = Date.now();
   for (const k of Object.keys(passes)) if (passes[k] <= now) delete passes[k];
   passes[rule] = now + Math.max(1, minutes) * 60_000;
-  passes[REDIRECT_GRACE] = now + REDIRECT_GRACE_MS;
+  if (tabId != null) passes[redirectGraceKey(tabId)] = now + REDIRECT_GRACE_MS;
   await setRaw({ passes });
 }
 

@@ -53,11 +53,12 @@ function remindersEditor(s, save) {
   const list = s.focus.reminders;
   const upd = (id, fn) => save((x) => { const r = x.focus.reminders.find((y) => y.id === id); if (r) fn(r); });
   const days = [1, 2, 3, 4, 5, 6, 0];
-  const rows = list.map((r) => h('div', { class: 'reminder' },
+  const rows = list.map((r) => h('div', { class: 'stack gap-2' }, h('div', { class: 'reminder' },
     h('input', { class: 'input input-sm', type: 'time', value: r.time, 'aria-label': t('opt.remindTime'), onchange: (e) => e.target.value && upd(r.id, (x) => { x.time = e.target.value; }) }),
     h('div', { class: 'row gap-1 wrap' }, days.map((d) => h('button', { class: 'chip chip-day', type: 'button', 'aria-pressed': String(r.days.includes(d)), text: weekdayName(d), onclick: () => upd(r.id, (x) => { x.days = x.days.includes(d) ? x.days.filter((n) => n !== d) : [...x.days, d]; }) }))),
     select([...new Set([...s.focus.presets, r.minutes])].sort((a, b) => a - b).map((m) => [m, t('opt.minutes', { n: m })]), r.minutes, (v) => upd(r.id, (x) => { x.minutes = Number(v); }), { label: t('opt.remindLen') }),
-    h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.remove'), onclick: () => save((x) => { x.focus.reminders = x.focus.reminders.filter((y) => y.id !== r.id); }, true) }, icon('x'))));
+    h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.remove'), onclick: () => save((x) => { x.focus.reminders = x.focus.reminders.filter((y) => y.id !== r.id); }, true) }, icon('x'))),
+    r.days.length ? null : h('div', { class: 'hint', role: 'alert', style: { color: 'var(--distracting-text)' }, text: t('opt.remindNoDays') })));
   return h('div', { class: 'stack gap-3', style: { alignItems: 'stretch' } }, rows,
     list.length < 5 ? h('button', { class: 'btn btn-sm', type: 'button', style: { alignSelf: 'flex-start' }, onclick: () => save((x) => { x.focus.reminders.push({ id: Date.now().toString(36), time: '09:00', days: [1, 2, 3, 4, 5], minutes: 50 }); }, true) }, icon('plus'), t('opt.addReminder')) : null);
 }
@@ -173,8 +174,8 @@ export function blocking({ s, save, refresh }) {
     group(t('opt.groupSchedule'),
       row({ title: t('opt.schedule'), desc: t('opt.scheduleDesc'), control: toggle(sch.enabled, (v) => save((x) => { x.blocking.schedule.enabled = v; }, true), t('opt.schedule')) }),
       sch.enabled ? [
-        row({ title: t('opt.schedDays'), stack: true, control: days }),
-        row({ title: t('opt.schedHours'), control: h('div', { class: 'row gap-2' }, time('start'), h('span', { class: 'muted', text: '–' }), time('end')) }),
+        row({ title: t('opt.schedDays'), desc: sch.days.length ? undefined : t('opt.schedNoDays'), warn: !sch.days.length, stack: true, control: days }),
+        row({ title: t('opt.schedHours'), desc: sch.start === sch.end ? t('opt.schedSameTime') : undefined, warn: sch.start === sch.end, control: h('div', { class: 'row gap-2' }, time('start'), h('span', { class: 'muted', text: '–' }), time('end')) }),
         row({ title: t('opt.schedStrict'), desc: t('opt.schedStrictDesc'), control: toggle(sch.strict, (v) => save((x) => { x.blocking.schedule.strict = v; }), t('opt.schedStrict')) }),
       ] : null),
 

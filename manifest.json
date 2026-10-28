@@ -23,7 +23,7 @@
 
   "content_scripts": [
     {
-      "matches": ["*://*.youtube.com/*", "*://*.instagram.com/*", "*://*.tiktok.com/*", "*://*.vk.com/*", "*://vkvideo.ru/*"],
+      "matches": ["*://*.youtube.com/*", "*://*.instagram.com/*", "*://*.tiktok.com/*", "*://*.vk.com/*", "*://vkvideo.ru/*", "*://*.vkvideo.ru/*"],
       "js": ["src/content/feed.js"],
       "run_at": "document_idle"
     }
