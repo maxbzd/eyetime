@@ -84,3 +84,20 @@ textarea.is-invalid, .input.is-invalid { border-color: var(--distracting); box-s
 @media (max-width: 640px) { .perm, .privacy-head { grid-template-columns: minmax(0, 1fr); gap: 2px; } .privacy-head span:nth-child(2) { display: none; } }
 .chip-x > button { flex: none; }
 .row.wrap > a.btn, .row.wrap > button.btn { max-width: 100%; white-space: normal; height: auto; min-height: var(--ctl-h); padding-block: 6px; text-align: left; }
+
+/* one section at a time: the page is short, the side list shows the groups of the section being read */
+#content:not(.searching) section.sec + section.sec { padding-top: 0; border-top: 0; }
+#content:not(.searching) section.sec { padding-bottom: var(--s-6); }
+.side-wrap { max-height: calc(100vh - 100px); overflow-y: auto; scrollbar-width: thin; }
+.side-sub { display: flex; flex-direction: column; gap: 1px; margin: 2px 0 8px 22px; padding-left: 10px; border-left: 1px solid var(--border); }
+.side-sub a { padding: 5px 10px; font-size: var(--fs-sm); font-weight: 500; color: var(--text-3); border-radius: 8px; }
+.side-sub a:hover { color: var(--text); background: var(--surface-2); text-decoration: none; }
+.side-sub a[aria-current="true"] { color: var(--text); background: color-mix(in srgb, var(--accent-soft) 70%, transparent); }
+section.sec > div[id] { scroll-margin-top: 92px; }
+@media (max-width: 860px) { .side-sub { display: none; } .side-wrap { max-height: none; overflow: visible; } }
+
+/* the looks: a dense grid, the chosen one explained underneath */
+.looks-pick .looks.compact { grid-template-columns: repeat(auto-fill, minmax(138px, 1fr)); gap: var(--s-3); }
+.looks-pick .look-card.compact .look-name { font-size: var(--fs-sm); }
+.look-now { display: flex; gap: var(--s-2); align-items: baseline; color: var(--text-2); font-size: var(--fs-sm); }
+.look-now b { color: var(--text); }

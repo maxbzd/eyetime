@@ -321,3 +321,4 @@ body[data-layout="split"] .gs { grid-column: 1 / -1; grid-row: 2; } body[data-la
 /* the clock, the greeting and the scenery are decoration: dragging the mouse over them must not select (and paint over) anything */
 #clock, #greetBlock, .bg, #bgFront, .dl, .dock { -webkit-user-select: none; user-select: none; }
 .bg *, #bgFront * { -webkit-user-drag: none; }
+.drawer .row { flex-wrap: wrap; } .drawer .btn { max-width: 100%; }

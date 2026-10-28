@@ -60,7 +60,7 @@ export function appearance({ s, save }) {
 
   return h('section', { class: 'sec', id: 'appearance' },
     sectionHead(t('sec.appearance'), t('sec.appearanceDesc')),
-    h('div', { class: 'stack gap-3' }, h('h3', { class: 'group-title', text: t('ap.looks') }), looksGallery(ap, { onPick: (id) => save((x) => { x.appearance.look = id; if (x.newtab.background === 'dawn') x.newtab.background = 'look'; }, true) })),
+    h('div', { class: 'stack gap-3 looks-pick' }, h('h3', { class: 'group-title', text: t('ap.looks') }), h('p', { class: 'look-now' }, h('b', { text: t('look.' + ap.look) }), h('span', { text: '— ' + t('lookd.' + ap.look) })), looksGallery(ap, { compact: true, onPick: (id) => save((x) => { x.appearance.look = id; if (x.newtab.background === 'dawn') x.newtab.background = 'look'; }, true) })),
     group(t('ap.color'),
       row({ title: t('opt.theme'), desc: t('ap.mode.' + ap.mode), control: segmented(mode, ap.mode, set('mode'), t('opt.theme')) }),
       ap.mode === 'schedule' ? row({ title: t('ap.schedule'), desc: t('ap.scheduleDesc'), control: h('div', { class: 'row gap-2' },
