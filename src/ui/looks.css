@@ -506,3 +506,11 @@ html[data-look="obsidian"][data-scheme="dark"] .nt-top .btn.on-bg { color: rgba(
 html[data-look="obsidian"][data-scheme="dark"] .nt-top .btn.on-bg:hover { color: #fff; background: rgba(255, 255, 255, .1); }
 html[data-look="obsidian"][data-scheme="dark"] .nt-top .btn:last-child[data-tip]:hover::after, html[data-look="obsidian"][data-scheme="dark"] .nt-top .btn:last-child[data-tip]:focus-visible::after { left: 50%; right: auto; transform: translateX(-50%); }
 html[data-look="obsidian"][data-scheme="dark"] body[data-layout="center"] #focus { max-width: 780px; border-radius: 28px; padding: var(--s-6); }
+
+/* the free-form Home (body[data-layout="canvas"]) keeps the look's own typography for the clock and the greeting */
+html[data-look="obsidian"][data-scheme="dark"] body[data-layout="canvas"] .clock { font-size: clamp(96px, 15vw, 200px); font-weight: 200; letter-spacing: -.06em; text-shadow: none; background: linear-gradient(180deg, #fff 18%, rgba(255, 255, 255, .5) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-look="obsidian"][data-scheme="dark"] body[data-layout="canvas"] .greet-block p { order: -1; font-family: ui-monospace, "JetBrains Mono", "SFMono-Regular", Menlo, monospace; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: rgba(255, 255, 255, .62); margin: 0 0 var(--s-2); }
+html[data-look="obsidian"][data-scheme="dark"] body[data-layout="canvas"] .greet-block { display: flex; flex-direction: column; align-items: center; }
+html[data-look="obsidian"][data-scheme="dark"] body[data-layout="canvas"] .greet-block h1 { font-size: clamp(18px, 1.8vw, 22px); font-weight: 500; letter-spacing: 0; color: rgba(255, 255, 255, .72); margin: 0; text-shadow: none; }
+html[data-look="tide"] body[data-layout="canvas"] .clock { font-size: clamp(96px, 16vw, 220px); font-weight: 200; letter-spacing: -.055em; line-height: .95; }
+html[data-look="tide"] body[data-layout="canvas"] .greet-block h1 { font-weight: 600; letter-spacing: -.02em; }
