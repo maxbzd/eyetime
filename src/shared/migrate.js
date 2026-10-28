@@ -78,7 +78,7 @@ export function migrate(raw, now = Date.now()) {
   let habits = null;
   const h = inter.habits;
   if (h && Array.isArray(h.items) && h.items.length) {
-    habits = { items: h.items.filter((x) => x && x.name != null).map((x, i) => ({ id: String(x.id ?? `h${i}`), name: String(x.name).slice(0, 80) })), log: {} };
+    habits = { items: h.items.filter((x) => x && x.name != null && String(x.name).trim()).map((x, i) => ({ id: String(x.id ?? `h${i}`), name: String(x.name).slice(0, 80) })), log: {} };
     for (const [k, ids] of Object.entries(h.log || {})) if (Array.isArray(ids) && ids.length) habits.log[k] = ids.map(String);
   }
 

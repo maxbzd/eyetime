@@ -71,7 +71,7 @@ export async function pauseFocus() {
 }
 
 /** Resume a paused session (by the user, or by the alarm when the pause ran out): its end moves by the pause. */
-export async function resumeFocus({ auto = false } = {}) {
+export async function resumeFocus({ auto = false, silent = false } = {}) {
   const { focus } = await getRaw('focus');
   if (!focus || !isPaused(focus)) return { ok: false };
   const next = resumeSession(focus);
@@ -80,7 +80,7 @@ export async function resumeFocus({ auto = false } = {}) {
   await chrome.alarms.create('focus-end', { when: next.endsAt });
   const settings = await getSettings();
   playAmbientFor(settings, (settings.focus.modes || []).find((m) => m.id === next.mode));
-  if (auto && settings.focus.sound) playChime('start');
+  if (auto && !silent && settings.focus.sound) playChime('start');
   await sweepTabs();
   await updateBadge(settings);
   return { ok: true };
