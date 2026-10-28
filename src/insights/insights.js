@@ -76,7 +76,7 @@ function mainChart(sum) {
   } else {
     items = sum.days.map((d) => {
       const date = parseKey(d.key);
-      return { key: d.key, label: fmtDate(date, { weekday: 'short', day: 'numeric', month: 'short' }), sub: fmtDate(date, { weekday: 'long', day: 'numeric', month: 'long' }), axis: range === '7' ? weekdayName(date.getDay()) : String(date.getDate()), values: d };
+      return { key: d.key, label: fmtDate(date, { weekday: 'short', day: 'numeric', month: 'short' }), sub: fmtDate(date, { weekday: 'long', day: 'numeric', month: 'long' }), axis: range === '7' ? weekdayName(date.getDay()) + ' ' + date.getDate() : String(date.getDate()), values: d };
     });
     axisEvery = range === '7' ? 1 : 3; title = t('insights.byDay'); subtitle = t('insights.byDaySub');
   }
@@ -289,8 +289,8 @@ function render() {
     },
   };
   const tabIcons = { overview: { icon: 'layout-dashboard' }, focus: { icon: 'target' }, sites: { icon: 'globe' }, patterns: { icon: 'calendar-days' } };
-  const tabs = h('div', { class: 'tabs', role: 'tablist', 'aria-label': t('insights.tabs') }, TABS.map((id) => h('button', { class: 'tab', type: 'button', role: 'tab', 'aria-selected': String(id === tab), onclick: () => { tab = id; try { localStorage.setItem('et-itab', id); } catch { /* ignore */ } render(); } }, icon(tabIcons[id].icon), t('itab.' + id))));
-  clear(root, tabs, h('div', { class: 'stack gap-4', role: 'tabpanel', style: { marginTop: 'var(--s-5)' } }, views[tab]()));
+  const tabs = h('div', { class: 'tabs', role: 'tablist', 'aria-label': t('insights.tabs') }, TABS.map((id) => h('button', { class: 'tab', type: 'button', role: 'tab', id: 'tab-' + id, 'aria-controls': 'tabpanel', 'aria-selected': String(id === tab), onclick: () => { tab = id; try { localStorage.setItem('et-itab', id); } catch { /* ignore */ } render(); } }, icon(tabIcons[id].icon), t('itab.' + id))));
+  clear(root, tabs, h('div', { class: 'stack gap-4', role: 'tabpanel', id: 'tabpanel', 'aria-labelledby': 'tab-' + tab, style: { marginTop: 'var(--s-5)' } }, views[tab]()));
   root.querySelectorAll('.card-head h3').forEach((el) => el.setAttribute('aria-level', '2')); // page h1 → card titles are level 2
   tabs.querySelector('[aria-selected="true"]')?.scrollIntoView({ inline: 'center', block: 'nearest' });
 }
@@ -315,6 +315,7 @@ function exportCsv() {
 }
 
 (async function main() {
+  send('tracker:sync').catch(() => {});
   await bootPage({ onSettings: async () => { data = await load(); drawRange(); render(); } });
   mountHeader($('#header'), 'insights');
   $('#export').addEventListener('click', exportCsv);

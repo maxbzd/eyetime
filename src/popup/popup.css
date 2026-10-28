@@ -122,3 +122,5 @@ body { background: radial-gradient(130% 55% at 100% -8%, var(--accent-soft), tra
 .foot-row .btn-icon { width: 44px; height: 44px; border-radius: var(--r-md); background: var(--surface-2); color: var(--text-2); }
 .foot-row .btn-icon:hover { background: var(--surface-3); color: var(--text); }
 .paused-banner { border-radius: var(--r-md); background: var(--surface-2); border: 0; }
+
+.pause-track { align-self: flex-start; color: var(--text-3); }
