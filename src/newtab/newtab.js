@@ -18,6 +18,7 @@ import { applyCanvas, canvasActive } from './canvas.js';
 import { applyType, clockSeconds } from './type-apply.js';
 import { createWidgetHost } from './widgets.js';
 import { applyDepth } from './depth.js';
+import { cutOut } from './cutout.js';
 import { normalizeDepth } from '../shared/depth.js';
 import { downloadBackup, needsBackup } from '../ui/backup.js';
 import { send } from '../ui/api.js';
@@ -118,15 +119,18 @@ async function applyBackground() {
     const scene = LOOKS[settings.appearance.look]?.homeScene;
     bg = (scene && typeof scene === 'object' ? scene[document.documentElement.dataset.scheme] : scene) || 'look';
   }
+  let scene = bg;
   if (bg === 'photo') {
     const { newtabBg } = await getRaw('newtabBg');
     if (newtabBg) document.documentElement.style.setProperty('--photo', `url(${newtabBg})`); else bg = 'look';
+    const { newtabFg } = bg === 'photo' ? await getRaw('newtabFg') : {};
+    if (newtabFg) { document.documentElement.style.setProperty('--photo-mask', `url(${newtabFg})`); scene = 'photo-cut'; } // the cut-out subject: a masked copy of the photo goes in front of the clock
   }
   const color = normalizeHex(n.bgColor) || '#e9e4ff';
   if (bg === 'color') document.documentElement.style.setProperty('--bg-color', color);
   document.body.dataset.bg = bg;
   $('.bg').className = 'bg bgx-' + bg;
-  applyDepth(settings, bg);
+  applyDepth(settings, scene);
   // light hero text on scenes that are dark in every theme, and on dark custom colours
   document.body.dataset.tone = DARK_SCENES.includes(bg) || (bg === 'color' && luminance(color) < 0.28) ? 'dark' : '';
 }
@@ -186,13 +190,34 @@ async function openEditor() {
 }
 function closeDrawer() { $('#drawer').hidden = true; $('#scrim').hidden = true; $('#customize').focus(); }
 
+/** "Depth for your photo": cut the subject out on this device so the clock can sit behind it. */
+function cutoutBlock() {
+  const status = h('div', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, role: 'status', 'aria-live': 'polite' });
+  const make = h('button', { class: 'btn btn-sm', type: 'button' }, icon('scissors'), t('ct.make'));
+  const remove = h('button', { class: 'btn btn-sm btn-ghost', type: 'button', hidden: true }, icon('x'), t('ct.remove'));
+  const sync = (has) => { make.hidden = has; remove.hidden = !has; };
+  getRaw('newtabFg').then(({ newtabFg }) => sync(!!newtabFg));
+  make.addEventListener('click', async () => {
+    const { newtabBg } = await getRaw('newtabBg');
+    if (!newtabBg) { status.textContent = t('ct.noPhoto'); return; }
+    make.disabled = true;
+    try {
+      const r = await cutOut(newtabBg, (stage) => { status.textContent = t('ct.' + stage); });
+      if (!r.usable) { status.textContent = t('ct.unusable'); return; }
+      await setRaw({ newtabFg: r.dataUrl }); sync(true); status.textContent = t('ct.done');
+    } catch { status.textContent = t('ct.error'); } finally { make.disabled = false; }
+  });
+  remove.addEventListener('click', async () => { await chrome.storage.local.remove('newtabFg'); sync(false); status.textContent = ''; });
+  return h('div', { class: 'stack gap-2', style: { marginTop: 'var(--s-4)' } }, h('div', { class: 'eyebrow', text: t('ct.title') }), h('p', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, text: t('ct.hint') }), h('div', { class: 'row gap-2' }, make, remove), status);
+}
+
 function drawDrawer() {
   const body = $('#drawerBody'), n = settings.newtab;
   const set = (fn) => updateSettings((s) => { fn(s); });
 
   const fileIn = h('input', { type: 'file', accept: 'image/*', hidden: true, onchange: async (e) => {
     const f = e.target.files[0]; if (!f) return;
-    try { await setRaw({ newtabBg: await fileToDataUrl(f) }); await set((s) => { s.newtab.background = 'photo'; }); await applyBackground(); toast(t('home.photoSaved')); } catch { toast(t('common.error')); }
+    try { await setRaw({ newtabBg: await fileToDataUrl(f) }); await chrome.storage.local.remove('newtabFg'); await set((s) => { s.newtab.background = 'photo'; }); await applyBackground(); toast(t('home.photoSaved')); } catch { toast(t('common.error')); }
   } });
 
   const tiles = [...BACKGROUNDS, 'photo'].map((id) => h('button', { class: 'bg-tile', type: 'button', 'aria-pressed': String(n.background === id), onclick: async () => {
@@ -225,7 +250,8 @@ function drawDrawer() {
     section(t('home.accent'), accentPicker(settings.appearance, (v) => set((s) => { s.appearance.accent = v; }))),
     section(t('home.background'), h('div', { class: 'bg-grid' }, tiles), fileIn,
       n.background === 'color' ? null : colorIn,
-      n.background === 'photo' ? h('button', { class: 'btn btn-sm', style: { marginTop: 'var(--s-3)' }, type: 'button', onclick: () => fileIn.click() }, icon('image'), t('home.changePhoto')) : null),
+      n.background === 'photo' ? h('button', { class: 'btn btn-sm', style: { marginTop: 'var(--s-3)' }, type: 'button', onclick: () => fileIn.click() }, icon('image'), t('home.changePhoto')) : null,
+      n.background === 'photo' ? cutoutBlock() : null),
     section(t('dp.title'), h('p', { class: 'muted', style: { fontSize: 'var(--fs-sm)', marginBottom: 'var(--s-2)' }, text: t('dp.hint') }),
       depthToggle(t('dp.on'), depth.on, (v) => ({ on: v })), depthToggle(t('dp.parallax'), depth.parallax, (v) => ({ parallax: v })),
       h('label', { class: 'toggle-row' }, h('span', { text: t('dp.strength') }), h('input', { type: 'range', min: 0, max: 100, step: 5, value: depth.strength, 'aria-label': t('dp.strength'), disabled: !depth.on || !depth.parallax, style: { width: '140px', accentColor: 'var(--accent)' }, onchange: (e) => set((s) => { s.newtab.depth = { ...normalizeDepth(s.newtab.depth), strength: Number(e.target.value) }; }) }))),
@@ -318,7 +344,7 @@ function openShortcutHelp() {
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
-  onChange('newtabBg', applyBackground);
+  onChange(['newtabBg', 'newtabFg'], applyBackground);
   window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', () => setTimeout(applyBackground, 0));
   watchFocus();
 })();
