@@ -5,7 +5,7 @@ import { h, icon, $ } from '../ui/dom.js';
 import { dropdown } from '../ui/dropdown.js';
 import { t } from '../shared/i18n.js';
 import { updateSettings } from '../shared/storage.js';
-import { blockMeta, normalizeCanvas, clampCenter, snapRect, nudge, resizeStep, seedItems, canvasScale } from '../shared/canvas.js';
+import { blockMeta, normalizeCanvas, clampCenter, CANVAS_MIN_WIDTH, snapRect, nudge, resizeStep, stretchStep, stretchDrag, seedItems, canvasScale } from '../shared/canvas.js';
 import { WIDGET_ID_RE, WIDGET_KINDS, defaultCfg, newWidgetId } from '../shared/widgets.js';
 import { blockEl, presentBlocks, placeBlock, applyCanvas } from './canvas.js';
 import { widgetName } from './widgets.js';
@@ -17,6 +17,30 @@ const blockName = (id) => (id === 'clock' ? t('cv.clock') : id === 'greeting' ? 
 const clone = (o) => JSON.parse(JSON.stringify(o));
 const view = () => ({ w: window.innerWidth, h: window.innerHeight });
 
+/** An element's box; a wrapper without a box of its own (display: contents) is the union of its children. */
+function boxOf(el) {
+  const r = el.getBoundingClientRect();
+  if (r.width || r.height || !el.children.length) return r;
+  const rs = [...el.children].map((c) => c.getBoundingClientRect()).filter((x) => x.width && x.height);
+  if (!rs.length) return r;
+  const l = Math.min(...rs.map((x) => x.left)), tp = Math.min(...rs.map((x) => x.top)), rt = Math.max(...rs.map((x) => x.right)), b = Math.max(...rs.map((x) => x.bottom));
+  return { left: l, top: tp, right: rt, bottom: b, width: rt - l, height: b - tp };
+}
+
+/** Where every visible block is on the page right now, as editor items (text blocks start at scale 1 and are refined once placed). */
+function measureLook(present) {
+  const v = view(), k = canvasScale(v.w), items = {}, rects = {}, seed = seedItems(present);
+  for (const id of present) {
+    const el = blockEl(id), b = blockMeta(id), r = el && boxOf(el);
+    if (!r || !r.width || !r.height) continue; // not shown (switched off)
+    if (r.bottom > v.h + 40) { if (seed[id]) items[id] = seed[id]; continue; } // below the fold, where a free layout cannot keep it: it gets its usual place
+    const item = { x: (r.left + r.width / 2) / v.w * 100, y: (r.top + r.height / 2) / v.h * 100 };
+    if (b.kind === 'text') { item.s = 1; rects[id] = r; } else item.w = r.width / k;
+    items[id] = item;
+  }
+  return { items: normalizeCanvas({ on: true, items }).items, rects };
+}
+
 let active = null;
 
 /** Open the editor. `settings` is the current settings object; `onExit` runs after it closes. */
@@ -26,8 +50,12 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
   if (editingLayoutId() == null) setEditId(activeLayoutId()); // edits go to the layout that is on, and the page stays on it while editing
   const layoutName = (() => { const l = normalizeLayouts(settings.newtab.layouts).find((x) => x.id === homeId()); return l ? l.name : t('ly.default'); })();
   let present = presentBlocks();
-  let items = normalizeCanvas(settings.newtab.canvas).items;
-  if (!Object.keys(items).length) items = seedItems(present);
+  const cfg = normalizeCanvas(settings.newtab.canvas);
+  let items = cfg.items;
+  // the editor opens on what is on the screen: with the look's own layout showing, every block starts where it is now
+  const lookRects = !cfg.on && window.innerWidth >= CANVAS_MIN_WIDTH ? measureLook(present) : null;
+  if (lookRects) items = lookRects.items;
+  else if (!Object.keys(items).length) items = seedItems(present);
   const undo = [], redo = [];
 
   const layer = h('div', { class: 'cv-layer', role: 'region', 'aria-label': t('cv.edit') });
@@ -70,10 +98,11 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
     panel = made; layer.append(made.el);
   }
   const forSelection = (id) => {
+    if (panelKey && panelKey.startsWith('scene:') && !isWidget(id)) return; // the background / look panel stays while blocks are moved around
     if (id === 'clock' || id === 'greeting') {
       if (panelOff) return showPanel(null);
       const kind = id === 'clock' ? 'clock' : 'text';
-      return showPanel('type:' + kind, async () => { const { buildTypePanel } = await import('./type-panel.js'); return { el: await buildTypePanel(kind, { onClose: () => { panelOff = true; closePanel(); } }) }; });
+      return showPanel('type:' + kind, async () => { const { buildTypePanel } = await import('./type-panel.js'); return { el: await buildTypePanel(kind, { onClose: () => { panelOff = true; closePanel(); }, onUnstretch: () => unstretch(id) }) }; });
     }
     if (isWidget(id) && blockEl(id)) {
       const kind = blockEl(id).dataset.kind;
@@ -82,6 +111,7 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
     return showPanel(null);
   };
   const openLayouts = () => showPanel('layouts', async () => { const { buildLayoutPanel } = await import('./layout-panel.js'); return { el: await buildLayoutPanel({ onEdit: (id) => switchTo(id), onClose: () => closePanel() }) }; });
+  const openScene = (kind) => showPanel('scene:' + kind, async () => { const { buildScenePanel } = await import('./scene-panel.js'); return { el: await buildScenePanel(kind, { onClose: () => closePanel() }) }; });
   const openGallery = () => showPanel('gallery', async () => { const { buildGallery } = await import('./widget-panel.js'); const g = buildGallery({ onAdd: addWidget, onClose: () => closePanel() }); return g; });
 
   function select(id) {
@@ -109,7 +139,9 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
     const f = h('div', { class: 'cv-frame', tabindex: 0, role: 'group', 'aria-roledescription': t('cv.movable'), 'aria-label': blockName(id), 'data-block': id },
       h('div', { class: 'cv-tag' }, h('span', { text: blockName(id) }),
         h('button', { class: 'cv-x', type: 'button', 'aria-label': t('cv.remove') + ': ' + blockName(id), onclick: (e) => { e.stopPropagation(); removeBlock(id); } }, icon('x'))),
-      h('div', { class: 'cv-handle', role: 'presentation', 'data-tip': t('cv.resize') }));
+      ...(b.kind === 'text'
+        ? ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'].map((d) => h('div', { class: 'cv-handle', role: 'presentation', 'data-h': d }))
+        : [h('div', { class: 'cv-handle', role: 'presentation', 'data-tip': t('cv.resize') })]));
     f.addEventListener('focus', () => select(id));
 
     /* drag */
@@ -134,17 +166,20 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
       f.addEventListener('pointermove', move); f.addEventListener('pointerup', up); f.addEventListener('pointercancel', up);
     });
 
-    /* resize: the distance (text) or the half-width (card) from the block's centre sets the new size */
-    const handle = f.querySelector('.cv-handle');
-    handle.addEventListener('pointerdown', (e) => {
+    /* resize: a card's half-width from its centre sets the width; a text block is pulled from any corner or side (the opposite one stays put; Shift on a corner keeps the proportions) */
+    for (const handle of f.querySelectorAll('.cv-handle')) handle.addEventListener('pointerdown', (e) => {
       e.preventDefault(); e.stopPropagation(); handle.setPointerCapture(e.pointerId); select(id);
-      const r0 = rectOf(id), cx = r0.left + r0.width / 2, cy = r0.top + r0.height / 2, base = clone(items[id]), before = clone(items);
-      const d0 = Math.max(10, Math.hypot(e.clientX - cx, e.clientY - cy)), dx0 = Math.max(10, Math.abs(e.clientX - cx));
+      const r0 = rectOf(id), cx = r0.left + r0.width / 2, base = clone(items[id]), before = clone(items);
+      const dx0 = Math.max(10, Math.abs(e.clientX - cx));
+      const hd = handle.dataset.h || '', side = { dx: hd.includes('e') ? 1 : hd.includes('w') ? -1 : 0, dy: hd.includes('s') ? 1 : hd.includes('n') ? -1 : 0 };
+      const grab = { x: side.dx ? e.clientX - (side.dx > 0 ? r0.right : r0.left) : 0, y: side.dy ? e.clientY - (side.dy > 0 ? r0.bottom : r0.top) : 0 }; // where on the handle it was taken
       const move = (ev) => {
-        const next = { ...base };
-        if (b.kind === 'text') next.s = Math.min(b.max, Math.max(b.min, Math.round((base.s ?? b.def) * Math.hypot(ev.clientX - cx, ev.clientY - cy) / d0 * 100) / 100));
-        else next.w = Math.round(Math.min(b.max, Math.max(b.min, (base.w ?? b.def) * Math.max(10, Math.abs(ev.clientX - cx)) / dx0)));
-        items[id] = next; placeBlock(id, next); clampItem(id); placeBlock(id, items[id]); syncFrames();
+        let next = { ...base };
+        if (b.kind === 'text') {
+          const rect = { x: r0.left, y: r0.top, w: r0.width, h: r0.height };
+          next = stretchDrag(id, base, side, rect, canvasScale(window.innerWidth), { x: ev.clientX - grab.x, y: ev.clientY - grab.y }, view(), ev.shiftKey);
+        } else next.w = Math.round(Math.min(b.max, Math.max(b.min, (base.w ?? b.def) * Math.max(10, Math.abs(ev.clientX - cx)) / dx0)));
+        items[id] = next; placeBlock(id, next); if (b.kind !== 'text') clampItem(id); placeBlock(id, items[id]); syncFrames();
       };
       const up = () => {
         handle.removeEventListener('pointermove', move); handle.removeEventListener('pointerup', up); handle.removeEventListener('pointercancel', up);
@@ -157,11 +192,18 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
     f.addEventListener('keydown', (e) => {
       const k = e.key, before = clone(items), big = e.shiftKey;
       const dirs = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' };
-      if (dirs[k]) { e.preventDefault(); items[id] = nudge(items[id], dirs[k], big); clampItem(id); setItem(id, items[id], before); say(blockName(id) + ': ' + Math.round(items[id].x) + '%, ' + Math.round(items[id].y) + '%'); }
+      if (dirs[k] && e.altKey && b.kind === 'text') { e.preventDefault(); const horiz = k === 'ArrowLeft' || k === 'ArrowRight'; setItem(id, stretchStep(id, items[id], horiz ? 'x' : 'y', k === 'ArrowRight' || k === 'ArrowUp' ? 1 : -1, big), before); clampItem(id); placeBlock(id, items[id]); persist(); }
+      else if (dirs[k]) { e.preventDefault(); items[id] = nudge(items[id], dirs[k], big); clampItem(id); setItem(id, items[id], before); say(blockName(id) + ': ' + Math.round(items[id].x) + '%, ' + Math.round(items[id].y) + '%'); }
       else if (k === '+' || k === '=' || k === '-' || k === '_') { e.preventDefault(); setItem(id, resizeStep(id, items[id], k === '+' || k === '=' ? 1 : -1, big), before); clampItem(id); placeBlock(id, items[id]); persist(); }
       else if (k === 'Delete' || k === 'Backspace') { e.preventDefault(); removeBlock(id); }
     });
     return f;
+  }
+
+  function unstretch(id) {
+    if (!items[id] || items[id].sx === undefined) return;
+    const before = clone(items), next = { ...items[id] }; delete next.sx;
+    items[id] = next; placeBlock(id, next); clampItem(id); placeBlock(id, items[id]); commit(before); syncFrames();
   }
 
   function removeBlock(id) {
@@ -204,6 +246,8 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
     h('button', { class: 'btn btn-ghost btn-sm', type: 'button', 'data-tip': t('ly.title'), onclick: openLayouts }, icon('layers'), h('span', { class: 'cv-layername', text: layoutName })), h('span', { class: 'sep' }),
     btnUndo, btnRedo, h('span', { class: 'sep' }), addHolder,
     h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: openGallery }, icon('shapes'), t('wg.title')), h('span', { class: 'sep' }),
+    h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: () => openScene('scene') }, icon('image'), t('home.background')),
+    h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: () => openScene('look') }, icon('palette'), t('ap.looks')), h('span', { class: 'sep' }),
     h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: () => { panelOff = false; closePanel(); const sel = frames.get('clock')?.classList.contains('is-sel') ? 'clock' : frames.get('greeting')?.classList.contains('is-sel') ? 'greeting' : 'clock'; select(sel); frames.get(sel)?.focus({ preventScroll: true }); } }, icon('type'), t('ty.title')),
     h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: reset }, icon('rotate-ccw'), t('cv.reset')),
     h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: useLook }, icon('layout-grid'), t('cv.off')),
@@ -260,6 +304,13 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
   $('main.nt')?.setAttribute('inert', '');
   await persist(); // turns the arrangement on (page code re-applies it) and keeps the first seed
   apply();
+  if (lookRects) { // a text block's size follows from how big it is at scale 1 compared with how big it was
+    for (const [id, r0] of Object.entries(lookRects.rects)) {
+      const r1 = blockEl(id) && boxOf(blockEl(id));
+      if (r1 && r1.width && items[id]) items[id] = normalizeCanvas({ on: true, items: { [id]: { ...items[id], s: r0.width / r1.width } } }).items[id];
+    }
+    apply(); await persist();
+  }
   for (const id of present) { const f = buildFrame(id); frames.set(id, f); layer.append(f); }
   layer.append(hint, bar, live);
   document.body.append(layer);

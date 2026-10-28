@@ -2,9 +2,9 @@
 // Pure functions only (no DOM), so the geometry can be unit-tested: validation, keeping a block on screen, snapping to guides, nudging.
 //
 // A block is placed by its centre in percent of the window (x, y) and sized either by a scale (text blocks: the clock, the greeting)
-// or by a width in px (cards: they reflow inside it). Percent positions keep the arrangement sensible at any window size.
+// or by a width in px (cards: they reflow inside it). A text block can also be stretched: `s` is its height scale, `sx` its width scale (absent = the same as `s`). Percent positions keep the arrangement sensible at any window size.
 
-/** @typedef {{ x: number, y: number, s?: number, w?: number }} CanvasItem */
+/** @typedef {{ x: number, y: number, s?: number, sx?: number, w?: number }} CanvasItem */
 /** @typedef {{ on: boolean, items: Record<string, CanvasItem> }} Canvas */
 /** @typedef {{ x: number, y: number, w: number, h: number }} Rect */
 
@@ -29,6 +29,8 @@ export const CANVAS_MIN_WIDTH = 1100;
 
 const num = (v, lo, hi, fallback) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : fallback);
 const r2 = (n) => Math.round(n * 100) / 100;
+/** The range of the horizontal scale of a text block: wider than its height range, so a time can be pulled long or squeezed narrow. */
+export const stretchRange = (b) => [r2(b.min * 0.4), r2(b.max * 2.5)];
 
 /** Validate a saved canvas: unknown blocks are dropped, numbers are clamped, nothing can break the page. */
 export function normalizeCanvas(c) {
@@ -42,8 +44,11 @@ export function normalizeCanvas(c) {
     const x = num(it.x, 0, 100, null), y = num(it.y, 0, 100, null);
     if (x === null || y === null) continue;
     const item = { x: r2(x), y: r2(y) };
-    if (b.kind === 'text') item.s = r2(num(it.s, b.min, b.max, b.def));
-    else item.w = Math.round(num(it.w, b.min, b.max, b.def));
+    if (b.kind === 'text') {
+      item.s = r2(num(it.s, b.min, b.max, b.def));
+      const [lo, hi] = stretchRange(b), sx = r2(num(it.sx, lo, hi, item.s));
+      if (Math.abs(sx - item.s) > 0.005) item.sx = sx;
+    } else item.w = Math.round(num(it.w, b.min, b.max, b.def));
     out.items[id] = item;
   }
   return out;
@@ -94,8 +99,47 @@ export function nudge(item, dir, big = false) {
 export function resizeStep(id, item, dir, big = false) {
   const b = blockMeta(id);
   if (!b) return item;
-  if (b.kind === 'text') return { ...item, s: r2(num((item.s ?? b.def) + dir * (big ? 0.2 : 0.05), b.min, b.max, b.def)) };
+  if (b.kind === 'text') {
+    const s0 = item.s ?? b.def, s = r2(num(s0 + dir * (big ? 0.2 : 0.05), b.min, b.max, b.def));
+    const out = { ...item, s };
+    if (item.sx) out.sx = r2(num(item.sx * s / s0, ...stretchRange(b), s)); // a stretched block keeps its proportions
+    return out;
+  }
   return { ...item, w: Math.round(num((item.w ?? b.def) + dir * (big ? 80 : 20), b.min, b.max, b.def)) };
+}
+
+/** Stretch a text block along one axis with the arrow keys (`axis` 'x' = width, 'y' = height). */
+export function stretchStep(id, item, axis, dir, big = false) {
+  const b = blockMeta(id);
+  if (!b || b.kind !== 'text') return item;
+  const d = dir * (big ? 0.2 : 0.05), [lo, hi] = stretchRange(b);
+  if (axis === 'x') { const sx = r2(num((item.sx ?? item.s ?? b.def) + d, lo, hi, b.def)); const out = { ...item, sx }; if (Math.abs(sx - (item.s ?? b.def)) <= 0.005) delete out.sx; return out; }
+  const s = r2(num((item.s ?? b.def) + d, b.min, b.max, b.def)), out = { ...item, s };
+  if (!item.sx) out.sx = item.s ?? b.def; // keep the width where it was
+  if (Math.abs(out.sx - s) <= 0.005) delete out.sx;
+  return out;
+}
+
+/**
+ * Pull one handle of a text block (like resizing a picture): the opposite edge or corner stays put, the pointer decides the new size.
+ * `h` = { dx, dy } says which side the handle is on (-1 left/top, 0 middle, 1 right/bottom); `rect` is the block as drawn now (px), `item` its saved values,
+ * `k` the window factor, `p` the pointer (px). A corner stretches both ways unless `keep` holds the proportions.
+ * Returns the new item (x/y as percent of `view`).
+ */
+export function stretchDrag(id, item, h, rect, k, p, view, keep = false) {
+  const b = blockMeta(id), [lo, hi] = stretchRange(b);
+  const sx0 = item.sx ?? item.s ?? b.def, sy0 = item.s ?? b.def;
+  const nat = { w: rect.w / (sx0 * k), h: rect.h / (sy0 * k) };
+  const ax = h.dx > 0 ? rect.x : h.dx < 0 ? rect.x + rect.w : rect.x + rect.w / 2;
+  const ay = h.dy > 0 ? rect.y : h.dy < 0 ? rect.y + rect.h : rect.y + rect.h / 2;
+  let w = h.dx ? Math.max(8, (p.x - ax) * h.dx) : rect.w, hh = h.dy ? Math.max(8, (p.y - ay) * h.dy) : rect.h;
+  if (keep && h.dx && h.dy) { const f = Math.max(w / rect.w, hh / rect.h); w = rect.w * f; hh = rect.h * f; }
+  const sx = num(w / (nat.w * k), lo, hi, sx0), s = num(hh / (nat.h * k), b.min, b.max, sy0);
+  const W = nat.w * sx * k, H = nat.h * s * k;
+  const cx = h.dx ? ax + h.dx * W / 2 : ax, cy = h.dy ? ay + h.dy * H / 2 : ay;
+  const out = { x: r2(cx / view.w * 100), y: r2(cy / view.h * 100), s: r2(s) };
+  if (Math.abs(sx - s) > 0.005) out.sx = r2(sx);
+  return out;
 }
 
 /** Convert a measured rect (px) of a block into a saved item, given the window size. */
