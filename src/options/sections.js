@@ -8,6 +8,7 @@ import { PRESETS, PRESET_IDS } from '../shared/catalog.js';
 import { parseUserDomain } from '../shared/domains.js';
 import { dockGroup } from './dock-group.js';
 import { weatherGroup } from './weather-group.js';
+import { siteAiGroup } from './siteai-group.js';
 
 export { appearance } from './appearance-section.js';
 const sec = (id, ...kids) => h('section', { class: 'sec', id }, kids);
@@ -18,10 +19,19 @@ export function general({ s, save, refresh }) {
   return sec('general', sectionHead(t('sec.general'), t('sec.generalDesc')),
     group(null,
       row({ title: t('opt.language'), control: select([['auto', t('opt.auto')], ...Object.entries(LANGUAGES)], s.language, (v) => save((x) => { x.language = v; }, true), { label: t('opt.language') }) })),
+    dockGroup(s, save, refresh),
+    siteAiGroup(s, save, refresh),
+    group(t('opt.groupNotify'),
+      row({ title: t('opt.badge'), desc: t('opt.badgeDesc'), control: toggle(s.tracking.badge, (v) => save((x) => { x.tracking.badge = v; }), t('opt.badge')) }),
+      row({ title: t('opt.weekly'), desc: t('opt.weeklyDesc'), control: toggle(s.weeklyReport, (v) => save((x) => { x.weeklyReport = v; }), t('opt.weekly')) })));
+}
+
+/* ============================== Home page ============================== */
+export function home({ s, save, refresh }) {
+  return sec('home', sectionHead(t('sec.home'), t('sec.homeDesc')),
     group(t('opt.groupHome'),
       row({ title: t('opt.homeEnabled'), desc: t('opt.homeEnabledDesc'), control: toggle(s.newtab.enabled, (v) => save((x) => { x.newtab.enabled = v; }), t('opt.homeEnabled')) }),
       row({ title: t('opt.homeCustomize'), desc: t('opt.homeCustomizeDesc'), control: h('a', { class: 'btn', href: chrome.runtime.getURL('src/newtab/newtab.html') }, icon('sliders-horizontal'), t('home.customize')) })),
-    dockGroup(s, save, refresh),
     weatherGroup(s, save, refresh),
     group(t('qt.title'),
       row({ title: t('qt.on'), desc: t('qt.onDesc'), control: toggle(s.quotes.on, (v) => save((x) => { x.quotes.on = v; }, true), t('qt.on')) }),
@@ -35,10 +45,7 @@ export function general({ s, save, refresh }) {
         row({ title: t('sb.after'), control: select([5, 10, 15, 30, 60].map((m) => [m, t('opt.minutes', { n: m })]), s.standby.after, (v) => save((x) => { x.standby.after = Number(v); }), { label: t('sb.after') }) }),
         row({ title: t('sb.style'), control: segmented(['red', 'amber', 'white'].map((v) => [v, t('sb.' + v)]), s.standby.style, (v) => save((x) => { x.standby.style = v; }), t('sb.style')) }),
         row({ title: t('sb.seconds'), control: toggle(s.standby.seconds, (v) => save((x) => { x.standby.seconds = v; }), t('sb.seconds')) }),
-      ] : null),
-    group(t('opt.groupNotify'),
-      row({ title: t('opt.badge'), desc: t('opt.badgeDesc'), control: toggle(s.tracking.badge, (v) => save((x) => { x.tracking.badge = v; }), t('opt.badge')) }),
-      row({ title: t('opt.weekly'), desc: t('opt.weeklyDesc'), control: toggle(s.weeklyReport, (v) => save((x) => { x.weeklyReport = v; }), t('opt.weekly')) })));
+      ] : null));
 }
 
 /* ============================== Focus ============================== */
