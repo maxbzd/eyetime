@@ -3,9 +3,10 @@
 import { h, icon } from '../ui/dom.js';
 import { dropdown } from '../ui/dropdown.js';
 import { t } from '../shared/i18n.js';
-import { getSettings, updateSettings } from '../shared/storage.js';
+import { updateSettings } from '../shared/storage.js';
 import { WIDGET_KIND_IDS, WIDGET_KINDS, WORLD_ZONES, BIG_METRICS, PERIODS, normalizeCfg, zoneCity } from '../shared/widgets.js';
 import { widgetName, previewWidget } from './widgets.js';
+import { home, effectiveNow } from './home-config.js';
 
 const head = (title, onClose) => h('div', { class: 'ty-head' }, h('h3', { text: title }),
   onClose ? h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.close'), onclick: onClose }, icon('x')) : null);
@@ -25,9 +26,9 @@ export function buildGallery({ onAdd, onClose }) {
 
 /** The settings of one widget (for kinds that have any), plus a delete button. */
 export async function buildWidgetPanel(id, kind, { onClose, onDelete }) {
-  const w0 = (await getSettings()).newtab.widgets.find((x) => x.id === id);
+  const w0 = (await effectiveNow()).newtab.widgets.find((x) => x.id === id);
   let cfg = normalizeCfg(kind, w0 && w0.cfg);
-  const save = (patch) => { cfg = normalizeCfg(kind, { ...cfg, ...patch }); return updateSettings((s) => { const w = s.newtab.widgets.find((x) => x.id === id); if (w) w.cfg = cfg; }); };
+  const save = (patch) => { cfg = normalizeCfg(kind, { ...cfg, ...patch }); return updateSettings((s) => { const w = home(s).widgets.find((x) => x.id === id); if (w) w.cfg = cfg; }); };
   const root = h('section', { class: 'cv-panel', 'aria-label': widgetName(kind) });
   const row = (label, control) => h('label', { class: 'wg-field' }, h('span', { class: 'ty-lbl', text: label }), control);
   const zones = () => /** @type {Array<[string, string]>} */ (WORLD_ZONES.map((z) => [z, zoneCity(z)]));

@@ -3,9 +3,10 @@
 
 import { h, icon } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
-import { getSettings, updateSettings } from '../shared/storage.js';
+import { updateSettings } from '../shared/storage.js';
 import { TYPEFACES, TYPEFACE_IDS, CLOCK_DEFAULT, TEXT_DEFAULT, normalizeType } from '../shared/typeface.js';
 import { applyType } from './type-apply.js';
+import { home, effectiveNow } from './home-config.js';
 
 const clone = (o) => JSON.parse(JSON.stringify(o));
 const CYR_LANGS = ['ru', 'uk'];
@@ -16,14 +17,14 @@ const CYR_LANGS = ['ru', 'uk'];
  * @returns {Promise<HTMLElement>} the panel (the caller appends it)
  */
 export async function buildTypePanel(kind, { onClose } = {}) {
-  let st = normalizeType((await getSettings()).newtab.type);
+  let st = normalizeType((await effectiveNow()).newtab.type);
   const isClock = kind === 'clock';
   const base = isClock ? CLOCK_DEFAULT : TEXT_DEFAULT;
   let timer = 0;
   const lang = document.documentElement.lang || 'en';
   const faces = TYPEFACE_IDS.filter((id) => isClock || TYPEFACES[id].cyr || !CYR_LANGS.includes(lang));
 
-  const persist = () => { clearTimeout(timer); timer = setTimeout(() => updateSettings((s) => { s.newtab.type = clone(st); }), 250); };
+  const persist = () => { clearTimeout(timer); timer = setTimeout(() => updateSettings((s) => { home(s).type = clone(st); }), 250); };
   const set = (patch, redraw = false) => {
     st = normalizeType({ ...st, [kind]: { ...st[kind], ...patch } });
     applyType(null, st); persist();
