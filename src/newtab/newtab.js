@@ -19,6 +19,8 @@ import { applyType, clockSeconds } from './type-apply.js';
 import { createWidgetHost } from './widgets.js';
 import { applyDepth } from './depth.js';
 import { cutOut } from './cutout.js';
+import { themeBlock } from './theme-io.js';
+import { resolveSettings, wantedLayout, activeLayoutId, editingLayoutId, setFocusing, home } from './home-config.js';
 import { normalizeDepth } from '../shared/depth.js';
 import { downloadBackup, needsBackup } from '../ui/backup.js';
 import { send } from '../ui/api.js';
@@ -38,7 +40,7 @@ const CLOCKS = ['thin', 'bold', 'mono', 'serif', 'compact', 'stacked', 'none'];
 const LAYOUTS = ['center', 'split', 'minimal'];
 /** Saved order, completed with any module it does not mention (new modules, hand-edited backups). */
 const moduleOrder = (n) => [...new Set([...(n.order || []).filter((m) => MODULES.includes(m)), ...MODULES])];
-let settings, linksMod;
+let settings, rawSettings, linksMod;
 
 /* ---------- hero ---------- */
 
@@ -63,7 +65,12 @@ let clockTimer = 0, clockEvery = 0;
 function scheduleClock() {
   const every = clockSeconds(settings) ? 1000 : 10_000;
   if (every === clockEvery) return;
-  clearInterval(clockTimer); clockEvery = every; clockTimer = setInterval(paintClock, every);
+  clearInterval(clockTimer); clockEvery = every; clockTimer = setInterval(() => { paintClock(); checkLayout(); }, every);
+}
+
+/** A layout that switches on by itself (during focus, or at certain hours) takes over when its moment comes. */
+function checkLayout() {
+  if (rawSettings && !editingLayoutId() && wantedLayout(rawSettings) !== activeLayoutId()) applySettings(rawSettings);
 }
 
 /** A gentle, snoozable reminder to save a backup file (history lives only on this device). */
@@ -85,9 +92,10 @@ function paintTitle() {
   document.title = runningFocus && isFocusActive(runningFocus) ? `${clock(remainingMs(runningFocus))} · EyeTime` : 'EyeTime';
 }
 async function watchFocus() {
-  runningFocus = (await getRaw('focus')).focus; paintTitle();
-  onChange('focus', async () => { runningFocus = (await getRaw('focus')).focus; paintTitle(); });
-  setInterval(paintTitle, 1000);
+  const sync = async () => { runningFocus = (await getRaw('focus')).focus; paintTitle(); setFocusing(!!runningFocus && isFocusActive(runningFocus)); checkLayout(); };
+  await sync();
+  onChange('focus', sync);
+  setInterval(() => { paintTitle(); const on = !!runningFocus && isFocusActive(runningFocus); setFocusing(on); checkLayout(); }, 1000);
 }
 
 /* ---------- day-loop nudge: one gentle prompt (plan · review · goal) ---------- */
@@ -186,7 +194,7 @@ async function openEditor() {
   if (window.innerWidth < 1100) { toast(t('cv.tooNarrow')); return; }
   $('#drawer').hidden = true; $('#scrim').hidden = true;
   const { startEditing } = await import('./canvas-edit.js');
-  await startEditing(settings, { onExit: () => { $('#customize').focus(); } });
+  await startEditing(settings, { onExit: () => { checkLayout(); $('#customize').focus(); } });
 }
 function closeDrawer() { $('#drawer').hidden = true; $('#scrim').hidden = true; $('#customize').focus(); }
 
@@ -213,7 +221,7 @@ function cutoutBlock() {
 
 function drawDrawer() {
   const body = $('#drawerBody'), n = settings.newtab;
-  const set = (fn) => updateSettings((s) => { fn(s); });
+  const set = (fn) => updateSettings((s) => { fn({ ...s, newtab: home(s) }); }); // edits go to the layout in use
 
   const fileIn = h('input', { type: 'file', accept: 'image/*', hidden: true, onchange: async (e) => {
     const f = e.target.files[0]; if (!f) return;
@@ -246,6 +254,7 @@ function drawDrawer() {
   const section = (title, ...kids) => h('div', {}, h('h4', { text: title }), ...kids);
   clear(body,
     section(t('cv.edit'), h('p', { class: 'muted', style: { marginBottom: 'var(--s-3)' }, text: t('cv.drawerHint') }), h('button', { class: 'btn btn-primary', type: 'button', onclick: openEditor }, icon('move'), t('cv.edit'))),
+    section(t('th.title'), themeBlock()),
     section(t('ap.looks'), looksGallery(settings.appearance, { compact: true, onPick: (id) => set((s) => { s.appearance.look = id; if (s.newtab.background === 'dawn') s.newtab.background = 'look'; }) })),
     section(t('home.accent'), accentPicker(settings.appearance, (v) => set((s) => { s.appearance.accent = v; }))),
     section(t('home.background'), h('div', { class: 'bg-grid' }, tiles), fileIn,
@@ -264,7 +273,9 @@ function drawDrawer() {
 
 /* ---------- boot ---------- */
 
-async function applySettings(s, first = false) {
+async function applySettings(rawIn, first = false) {
+  rawSettings = rawIn;
+  const s = resolveSettings(rawIn); // the layout that is on now, over the default
   const prevMods = settings ? JSON.stringify([settings.newtab.modules, settings.newtab.order]) : null;
   const prevLinks = settings ? JSON.stringify(settings.newtab.links) : null;
   settings = s;
@@ -312,7 +323,7 @@ function openShortcutHelp() {
 
 (async function main() {
   const s0 = await bootPage({ onSettings: (s) => applySettings(s) });
-  settings = s0;
+  rawSettings = s0; settings = resolveSettings(s0);
   if (s0.newtab.enabled === false) {
     // user switched the EyeTime new tab off: hand the tab back to the browser's own page
     try { const tab = await chrome.tabs.getCurrent(); await chrome.tabs.update(tab.id, { url: 'chrome://new-tab-page/' }); return; } catch { /* stay */ }
