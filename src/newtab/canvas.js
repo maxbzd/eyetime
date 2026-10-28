@@ -34,6 +34,7 @@ export function placeBlock(id, item, k = canvasScale(window.innerWidth)) {
   el.classList.remove('cv-hidden');
   el.style.setProperty('--cx', String(item.x)); el.style.setProperty('--cy', String(item.y));
   if (b.kind === 'text') { el.style.setProperty('--cs', String(item.s ?? b.def)); el.style.setProperty('--csx', String(item.sx ?? item.s ?? b.def)); } else el.style.setProperty('--cw', String(item.w ?? b.def));
+  if (item.z === undefined) el.style.removeProperty('--cz'); else el.style.setProperty('--cz', String(item.z));
   document.body.style.setProperty('--k', String(k));
   if (id === 'clock') alignClockFill(); // the glass / photo clock follows the clock when it is moved or scaled
   if (!watched.has(el) && window.ResizeObserver) { ro = ro || new window.ResizeObserver((es) => es.forEach((e) => keepOnScreen(/** @type {HTMLElement} */ (e.target)))); ro.observe(el); watched.add(el); }
@@ -57,7 +58,7 @@ export function applyCanvas(settings) {
   for (const id of presentBlocks()) {
     const el = blockEl(id);
     if (!el) continue;
-    if (!active) { el.classList.remove('cv-item', 'cv-text', 'cv-card', 'cv-hidden'); for (const v of ['--cx', '--cy', '--cs', '--csx', '--cw']) el.style.removeProperty(v); continue; }
+    if (!active) { el.classList.remove('cv-item', 'cv-text', 'cv-card', 'cv-hidden'); for (const v of ['--cx', '--cy', '--cs', '--csx', '--cw', '--cz']) el.style.removeProperty(v); continue; }
     if (c.items[id]) placeBlock(id, c.items[id]);
     else el.classList.add('cv-hidden', 'cv-item');
   }

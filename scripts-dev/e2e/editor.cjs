@@ -10,6 +10,7 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   const app = await launch({ viewport: { width: 1440, height: 900 } });
   const ext = (p) => `chrome-extension://${app.id}/${p}`;
   const bad = [];
+  process.on('unhandledRejection', (e) => { console.log('FAIL (crashed)\n' + bad.join('\n') + '\n' + e); process.exit(1); });
   const ok = (cond, msg) => { if (!cond) bad.push(msg); };
   const sp = await app.ctx.newPage(); await sp.goto(ext('src/options/options.html')); await sp.waitForTimeout(600);
   await sp.evaluate(async () => {
@@ -20,6 +21,7 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   const p = await app.ctx.newPage();
   p.on('pageerror', (e) => bad.push('pageerror: ' + e)); p.on('console', (m) => { if (m.type() === 'error') bad.push('console: ' + m.text()); });
   const canvas = () => p.evaluate(async () => (await (await import('/src/shared/storage.js')).getSettings()).newtab.canvas);
+  const more = async (name) => { await p.click('.cv-bar .dd:has-text("More")'); await p.waitForTimeout(150); await p.locator('.dd-opt', { hasText: name }).click(); };
   const box = async (sel) => (await p.locator(sel).boundingBox());
   await p.goto(ext('src/newtab/newtab.html')); await p.waitForTimeout(1200);
   ok(await p.evaluate(() => document.body.dataset.layout) === 'center', 'starts in the look layout');
@@ -30,11 +32,11 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   await p.mouse.click(5, 5);
 
   // open from the drawer
-  const look0 = await p.evaluate(() => Object.fromEntries(['clock', 'focus'].map((id) => { const r = document.getElementById(id).getBoundingClientRect(); return [id, [r.left + r.width / 2, r.top + r.height / 2, r.width]]; })));
+  const look0 = await p.evaluate(() => Object.fromEntries(['clock', 'greetBlock', 'focus'].map((id) => { const el = document.getElementById(id); let r = el.getBoundingClientRect(); if (id !== 'focus') { const rs = []; const w = document.createTreeWalker(el, 4); for (let n = w.nextNode(); n; n = w.nextNode()) if (n.nodeValue.trim()) { const g = document.createRange(); g.selectNodeContents(n); rs.push(...g.getClientRects()); } const l = Math.min(...rs.map((x) => x.left)), rt = Math.max(...rs.map((x) => x.right)); const tp = Math.min(...rs.map((x) => x.top)), bt = Math.max(...rs.map((x) => x.bottom)); r = { left: l, width: rt - l, top: tp, height: bt - tp }; } return [id, [r.left + r.width / 2, r.top + r.height / 2, r.width]]; })));
   await p.click('#customize'); await p.waitForTimeout(200);
   await p.click('#drawerBody .btn-primary'); await p.waitForTimeout(900);
-  const look1 = await p.evaluate(() => Object.fromEntries(['clock', 'focus'].map((id) => { const r = document.getElementById(id).getBoundingClientRect(); return [id, [r.left + r.width / 2, r.top + r.height / 2, r.width]]; })));
-  ok(Object.keys(look0).every((id) => Math.abs(look0[id][0] - look1[id][0]) < 14 && Math.abs(look0[id][1] - look1[id][1]) < 14 && Math.abs(look0[id][2] - look1[id][2]) < look0[id][2] * 0.08), 'the editor opens on the positions the page already had: ' + JSON.stringify([look0, look1]));
+  const look1 = await p.evaluate(() => Object.fromEntries(['clock', 'greetBlock', 'focus'].map((id) => { const el = document.getElementById(id); let r = el.getBoundingClientRect(); if (id !== 'focus') { const rs = []; const w = document.createTreeWalker(el, 4); for (let n = w.nextNode(); n; n = w.nextNode()) if (n.nodeValue.trim()) { const g = document.createRange(); g.selectNodeContents(n); rs.push(...g.getClientRects()); } const l = Math.min(...rs.map((x) => x.left)), rt = Math.max(...rs.map((x) => x.right)); const tp = Math.min(...rs.map((x) => x.top)), bt = Math.max(...rs.map((x) => x.bottom)); r = { left: l, width: rt - l, top: tp, height: bt - tp }; } return [id, [r.left + r.width / 2, r.top + r.height / 2, r.width]]; })));
+  ok(Object.keys(look0).every((id) => Math.abs(look0[id][0] - look1[id][0]) < 14 && Math.abs(look0[id][1] - look1[id][1]) < 14 && Math.abs(look0[id][2] - look1[id][2]) < look0[id][2] * 0.08), 'the editor opens on the positions and sizes the page already had (the words, not their container): ' + JSON.stringify([look0, look1]));
   ok(await p.locator('.cv-frame:not([hidden])').count() === 6, 'six blocks on the screen (clock, greeting, quote, focus, today, tasks): ' + await p.locator('.cv-frame:not([hidden])').count());
   ok(await p.evaluate(() => document.body.dataset.layout) === 'canvas', 'free layout on while editing');
   let c = await canvas();
@@ -127,7 +129,7 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
 
   // the widget gallery: add a countdown, set it up, move it, then delete it
   const widgets = () => p.evaluate(async () => (await (await import('/src/shared/storage.js')).getSettings()).newtab.widgets);
-  await p.click('.cv-bar button:has-text("Widgets")'); await p.waitForTimeout(500);
+  await p.click('.cv-bar button:has-text("Add widget")'); await p.waitForTimeout(500);
   ok(await p.locator('.cv-panel .wg-tile').count() === 14, 'the gallery lists 14 widgets: ' + await p.locator('.cv-panel .wg-tile').count());
   await p.locator('.cv-panel .wg-tile', { hasText: 'Countdown' }).click(); await p.waitForTimeout(900);
   let ws = await widgets();
@@ -146,7 +148,7 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   await p.click('.cv-panel .wg-del'); await p.waitForTimeout(600);
   ok((await widgets()).length === 0 && !(await canvas()).items[wid] && await p.locator('.wgt').count() === 0, 'a widget can be deleted for good');
   // one more stays for the reload check below
-  await p.click('.cv-bar button:has-text("Widgets")'); await p.waitForTimeout(400);
+  await p.click('.cv-bar button:has-text("Add widget")'); await p.waitForTimeout(400);
   await p.locator('.cv-panel .wg-tile', { hasText: 'Sticky note' }).click(); await p.waitForTimeout(900);
 
   // Escape finishes; the arrangement survives a reload
@@ -168,7 +170,7 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
 
   // reset, then back to the look's own layout
   await p.click('#customize'); await p.waitForTimeout(200); await p.click('#drawerBody .btn-primary'); await p.waitForTimeout(700);
-  await p.click('.cv-bar button:has-text("Reset")'); await p.waitForTimeout(300);
+  await more('Reset the arrangement'); await p.waitForTimeout(300);
   const seeded = (await canvas()).items;
   ok(seeded.clock.x === 50 && seeded.focus.w === 640, 'reset restores the seed layout');
   // the background and the look are set right in the editor, and the panel stays while blocks are moved
@@ -180,7 +182,7 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   ok(await p.locator('.cv-panel .bg-tile').count() >= 18, 'the Background panel stays while a block is selected');
   await p.click('.cv-bar button:has-text("Look")'); await p.waitForTimeout(600);
   ok(await p.locator('.cv-panel .look-card, .cv-panel [data-look]').count() >= 3, 'the Look panel lists the looks');
-  await p.click('.cv-bar button:has-text("Use the look")'); await p.waitForTimeout(500);
+  await more('Use the look'); await p.waitForTimeout(500);
   ok(!(await canvas()).on && await p.evaluate(() => document.body.dataset.layout) === 'center', 'the look layout can be switched back on');
   ok(await p.evaluate(() => document.querySelectorAll('.nt-c').length === 3 && !document.querySelector('.nt-brand')), 'three corner buttons, no logo');
 
