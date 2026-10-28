@@ -61,3 +61,17 @@
 .wg-field { display: flex; flex-direction: column; gap: 4px; font-size: var(--fs-sm); }
 .wg-zone { display: flex; align-items: center; gap: var(--s-2); } .wg-zone .dd { flex: 1; min-width: 0; }
 .wg-del { align-self: flex-start; margin-top: auto; }
+
+/* day plan, recap and stack */
+.wp-list { display: flex; flex-direction: column; gap: 6px; }
+.wp-item { display: flex; align-items: baseline; gap: 8px; font-size: var(--fs-md); line-height: 1.3; } .wp-text { min-width: 0; overflow-wrap: anywhere; }
+.wp-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); transform: translateY(-1px); }
+.wr-stats { display: flex; gap: var(--s-4); flex-wrap: wrap; } .wr-stat .wb-num { font-size: var(--fs-xl); }
+.wgt-stack { gap: var(--s-3); padding: 0; }
+.ws-body { display: flex; flex-direction: column; min-width: 0; } .ws-body > .wgt-in { padding: var(--s-4) var(--s-4) 0; display: flex; flex-direction: column; gap: var(--s-2); min-width: 0; }
+.ws-body > .wgt-in.wgt-rings { flex-direction: row; }
+.ws-dots { display: flex; justify-content: center; gap: 6px; padding: 0 var(--s-4) var(--s-3); }
+.ws-dot { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 50%; background: var(--text-3); opacity: .45; cursor: pointer; transition: opacity .2s, width .2s; }
+.ws-dot.on { opacity: 1; width: 18px; border-radius: 4px; background: var(--accent); } .ws-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ws-member { border: 1px solid var(--border); border-radius: var(--r-md); padding: 8px; display: flex; flex-direction: column; gap: 6px; background: var(--surface-2); }
+.ws-mhead { display: flex; align-items: center; gap: 6px; font-size: var(--fs-sm); } .ws-mhead .ico { color: var(--text-3); } .ws-mhead .grow { flex: 1; }
