@@ -40,7 +40,7 @@ export async function buildLayoutPanel({ onEdit, onClose }) {
           h('button', { class: 'btn btn-sm btn-ghost', type: 'button', 'aria-label': t('ly.delete') + ': ' + l.name, 'data-tip': t('ly.delete'), onclick: async () => { const wasEditing = editing === l.id; await updateSettings((s) => { s.newtab.layouts = normalizeLayouts(s.newtab.layouts).filter((y) => y.id !== l.id); if (s.newtab.layoutPin === l.id) s.newtab.layoutPin = null; }); if (wasEditing) onEdit(DEFAULT_ID); else draw(); } }, icon('trash-2')))))); 
     }
     const full = layouts.length >= MAX_LAYOUTS;
-    root.replaceChildren(
+    root.replaceChildren(...[
       h('div', { class: 'ty-head' }, h('h3', { text: t('ly.title') }), h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.close'), onclick: onClose }, icon('x'))),
       h('p', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, text: t('ly.hint') }),
       ...rows,
@@ -50,7 +50,7 @@ export async function buildLayoutPanel({ onEdit, onClose }) {
         await updateSettings((s) => { const list = normalizeLayouts(s.newtab.layouts); id = newLayoutId(list); list.push({ id, name: t('ly.newName', { n: list.length + 1 }), when: { kind: 'manual', from: '20:00', to: '06:00' }, data: copyHome(eff) }); s.newtab.layouts = list; });
         onEdit(id);
       } }, icon('plus'), t('ly.add')),
-      full ? h('p', { class: 'muted', style: { fontSize: 'var(--fs-xs)' }, text: t('ly.full', { n: MAX_LAYOUTS }) }) : null);
+      full ? h('p', { class: 'muted', style: { fontSize: 'var(--fs-xs)' }, text: t('ly.full', { n: MAX_LAYOUTS }) }) : null].filter(Boolean));
   }
   await draw();
   return root;
