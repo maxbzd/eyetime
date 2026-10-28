@@ -2,7 +2,7 @@
 
 import { h, icon, toast } from '../ui/dom.js';
 import { send } from '../ui/api.js';
-import { row, group, toggle, select, domainEditor, sectionHead } from './ui.js';
+import { row, group, toggle, select, segmented, domainEditor, sectionHead } from './ui.js';
 import { t, LANGUAGES, weekdayName, fmtDuration } from '../shared/i18n.js';
 import { PRESETS, PRESET_IDS } from '../shared/catalog.js';
 import { parseUserDomain } from '../shared/domains.js';
@@ -21,6 +21,12 @@ export function general({ s, save, refresh }) {
       row({ title: t('opt.homeEnabled'), desc: t('opt.homeEnabledDesc'), control: toggle(s.newtab.enabled, (v) => save((x) => { x.newtab.enabled = v; }), t('opt.homeEnabled')) }),
       row({ title: t('opt.homeCustomize'), desc: t('opt.homeCustomizeDesc'), control: h('a', { class: 'btn', href: chrome.runtime.getURL('src/newtab/newtab.html') }, icon('sliders-horizontal'), t('home.customize')) })),
     dockGroup(s, save, refresh),
+    group(t('qt.title'),
+      row({ title: t('qt.on'), desc: t('qt.onDesc'), control: toggle(s.quotes.on, (v) => save((x) => { x.quotes.on = v; }, true), t('qt.on')) }),
+      s.quotes.on ? [
+        ...['home', 'pause', 'rest', 'start'].map((k) => row({ title: t('qt.' + k), control: toggle(s.quotes[k], (v) => save((x) => { x.quotes[k] = v; }), t('qt.' + k)) })),
+        row({ title: t('qt.every'), control: segmented([['day', t('qt.everyDay')], ['tab', t('qt.everyTab')]], s.quotes.every, (v) => save((x) => { x.quotes.every = v; }), t('qt.every')) }),
+      ] : null),
     group(t('opt.groupNotify'),
       row({ title: t('opt.badge'), desc: t('opt.badgeDesc'), control: toggle(s.tracking.badge, (v) => save((x) => { x.tracking.badge = v; }), t('opt.badge')) }),
       row({ title: t('opt.weekly'), desc: t('opt.weeklyDesc'), control: toggle(s.weeklyReport, (v) => save((x) => { x.weeklyReport = v; }), t('opt.weekly')) })));

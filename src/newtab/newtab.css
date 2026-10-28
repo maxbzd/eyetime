@@ -336,3 +336,9 @@ body[data-layout="split"] .gs { grid-column: 1 / -1; grid-row: 2; } body[data-la
 
 /* the way into customizing says what it is */
 .nt-bl { width: auto; padding: 0 16px 0 13px; border-radius: var(--r-full); gap: 8px; } .nt-lbl { font-size: var(--fs-sm); font-weight: 560; }
+
+/* the quote under the greeting */
+.quote { order: 10; margin: var(--s-4) auto 0; max-width: 54ch; text-align: center; color: var(--hero-fg-2); }
+.quote .q-text { margin: 0; font-size: var(--fs-lg); line-height: 1.45; font-weight: 450; letter-spacing: -.005em; text-wrap: balance; }
+.quote .q-by { margin-top: 6px; font-size: var(--fs-sm); letter-spacing: .02em; }
+.quote.cv-text { white-space: normal; width: 560px; }

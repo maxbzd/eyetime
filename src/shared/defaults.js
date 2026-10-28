@@ -57,6 +57,7 @@ export const DEFAULT_SETTINGS = {
     feed: { shortLimit: true, shortMinutes: 3, hideShorts: false, hideRecs: false, hideComments: false, hideHome: false },
   },
 
+  quotes: { on: true, home: true, pause: true, rest: true, start: false, every: 'day' }, // short quotes: where they show, and whether Home keeps one per day or a new one each time the page opens
   eye: {
     enabled: true,
     intervalMin: 20,           // of active screen time

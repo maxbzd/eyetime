@@ -35,10 +35,10 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   await p.click('#drawerBody .btn-primary'); await p.waitForTimeout(900);
   const look1 = await p.evaluate(() => Object.fromEntries(['clock', 'focus'].map((id) => { const r = document.getElementById(id).getBoundingClientRect(); return [id, [r.left + r.width / 2, r.top + r.height / 2, r.width]]; })));
   ok(Object.keys(look0).every((id) => Math.abs(look0[id][0] - look1[id][0]) < 14 && Math.abs(look0[id][1] - look1[id][1]) < 14 && Math.abs(look0[id][2] - look1[id][2]) < look0[id][2] * 0.08), 'the editor opens on the positions the page already had: ' + JSON.stringify([look0, look1]));
-  ok(await p.locator('.cv-frame:not([hidden])').count() === 5, 'five blocks on the screen: ' + await p.locator('.cv-frame:not([hidden])').count());
+  ok(await p.locator('.cv-frame:not([hidden])').count() === 6, 'six blocks on the screen (clock, greeting, quote, focus, today, tasks): ' + await p.locator('.cv-frame:not([hidden])').count());
   ok(await p.evaluate(() => document.body.dataset.layout) === 'canvas', 'free layout on while editing');
   let c = await canvas();
-  ok(c.on && Object.keys(c.items).length === 5, 'the seed layout is saved');
+  ok(c.on && Object.keys(c.items).length === 6, 'the layout is saved: ' + Object.keys(c.items));
 
   // the type designer opens for the clock; a face, a fill and seconds are applied at once and saved
   await p.waitForSelector('.cv-panel .ty-tile', { timeout: 3000 });
