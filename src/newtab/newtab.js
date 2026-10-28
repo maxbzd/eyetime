@@ -26,8 +26,8 @@ import { setCollection } from '../shared/storage.js';
 import { dayKey } from '../shared/time.js';
 import { LOOKS } from '../shared/looks.js';
 import { fmtDuration } from '../shared/i18n.js';
-import { clock, remainingMs } from '../shared/focus.js';
-import { isFocusActive } from '../shared/blocking.js';
+import { clock, remainingMs, isPaused } from '../shared/focus.js';
+import { isFocusActive, isFocusLive } from '../shared/blocking.js';
 import { luminance, normalizeHex } from '../shared/color.js';
 import { relLuminance, pickTextTone, resolveTextTone } from '../shared/phototone.js';
 import { showQuote } from '../ui/quote.js';
@@ -86,13 +86,13 @@ async function paintBackupNudge() {
 /** While a session runs the tab title shows the countdown, so it is visible from other tabs. */
 let runningFocus = null;
 function paintTitle() {
-  document.title = runningFocus && isFocusActive(runningFocus) ? `${clock(remainingMs(runningFocus))} · EyeTime` : 'EyeTime';
+  document.title = runningFocus && isFocusActive(runningFocus) ? `${clock(remainingMs(runningFocus))} · EyeTime` : runningFocus && isPaused(runningFocus) ? `⏸ ${clock(remainingMs(runningFocus))} · EyeTime` : 'EyeTime';
 }
 async function watchFocus() {
-  const sync = async () => { runningFocus = (await getRaw('focus')).focus; paintTitle(); setFocusing(!!runningFocus && isFocusActive(runningFocus)); checkLayout(); };
+  const sync = async () => { runningFocus = (await getRaw('focus')).focus; paintTitle(); setFocusing(!!runningFocus && isFocusLive(runningFocus)); checkLayout(); }; // a paused session keeps the focus layout
   await sync();
   onChange('focus', sync);
-  setInterval(() => { paintTitle(); const on = !!runningFocus && isFocusActive(runningFocus); setFocusing(on); checkLayout(); }, 1000);
+  setInterval(() => { paintTitle(); const on = !!runningFocus && isFocusLive(runningFocus); setFocusing(on); checkLayout(); }, 1000);
 }
 
 /* ---------- day-loop nudge: one gentle prompt (plan · review · goal) ---------- */
@@ -231,7 +231,9 @@ function drawDrawer() {
 
 /* ---------- boot ---------- */
 
+let homeOff; // whether this page was opened with the home page switched off
 async function applySettings(rawIn, first = false) {
+  if (homeOff !== undefined && homeOff !== (rawIn.newtab.enabled === false)) { location.reload(); return; } // switched on or off in another tab: show the other page
   rawSettings = rawIn;
   const s = resolveSettings(rawIn); // the layout that is on now, over the default
   const prevMods = settings ? JSON.stringify([settings.newtab.modules, settings.newtab.order]) : null;
@@ -289,6 +291,7 @@ function renderOff() {
 (async function main() {
   const s0 = await bootPage({ onSettings: (s) => applySettings(s) });
   rawSettings = s0; settings = resolveSettings(s0);
+  homeOff = s0.newtab.enabled === false;
   if (s0.newtab.enabled === false) { renderOff(); return; } // a browser never lets an extension hand the tab back: it stays empty and quiet
   await morningPlan();
   installPalette({ extra: () => [{ group: 'focus', icon: 'calendar-clock', label: t('plan.title'), run: openDayPlan, keys: ['plan', 'schedule', 'day', 'blocks'] }, { group: 'go', icon: 'moon', label: t('sc.closeDay'), run: openShutdown, keys: ['shutdown', 'review', 'plan tomorrow'] }, { group: 'go', icon: 'move', label: t('cv.edit'), run: openEditor, keys: ['arrange', 'move', 'drag', 'layout', 'widgets'] }, { group: 'go', icon: 'sliders-horizontal', label: t('sc.customize'), run: openDrawer, keys: ['customize', 'layout', 'background', 'clock'] }] });

@@ -87,6 +87,29 @@ const ok = (c, m, d) => { console.log(`  ${c ? 'PASS' : 'FAIL'} ${m}${c || !d ? 
   ok(sp && sp.ok === false, 'a strict session cannot be paused', JSON.stringify(sp));
   await setup.evaluate(() => chrome.storage.local.set({ focus: null }));
 
+  console.log('9. a pause that was forgotten: soon after, the browser start resumes it quietly; left for hours, the session ends and counts what was done');
+  const startPaused = (agoMin) => setup.evaluate(async (agoMin) => {
+    const now = Date.now(); await chrome.alarms.clear('focus-end'); await chrome.alarms.clear('focus-resume');
+    await chrome.storage.local.set({ rest: null, review: null, focus: { id: 'fp' + agoMin, startedAt: now - (agoMin + 30) * 60000, endsAt: now - agoMin * 60000 + 20 * 60000, minutes: 50, goal: 'Forgotten pause', strict: false, taskId: '', scope: 'distractions', mode: '', allow: [], pausedAt: now - agoMin * 60000 } });
+  }, agoMin);
+  await startPaused(30); await stopWorker(w2); await wake(); await sleep(2500);
+  const soon = await get('focus');
+  ok(soon && !soon.pausedAt && soon.pausedMs > 0, 'a pause that ran out half an hour ago is resumed on start', JSON.stringify(soon));
+  await setup.evaluate(() => chrome.storage.local.set({ focus: null }));
+  await startPaused(240); await stopWorker(w2); await wake(); await sleep(2500);
+  const longAgo = await get('focus'), rev = await get('review');
+  ok(!longAgo, 'a pause left for hours ends the session on start', JSON.stringify(longAgo));
+  ok(rev && rev.goal === 'Forgotten pause' && rev.completed === false, 'and what was worked is offered for review', JSON.stringify(rev));
+  await setup.evaluate(() => chrome.storage.local.set({ review: null }));
+
+  console.log('10. the command palette on a paused session offers Resume (not +5 min); the menu and the shortcut agree');
+  await startPaused(2);
+  const pal = await ctx.newPage(); await pal.goto(ext('src/newtab/newtab.html')); await sleep(1200);
+  await pal.keyboard.press('Control+k'); await sleep(500);
+  const items = await pal.locator('.pal-item, [role=option]').allInnerTexts();
+  ok(items.some((x) => /Resume/i.test(x)) && !items.some((x) => /\+5|5 more|Extend/i.test(x)), 'the palette lists Resume and no +5 min while paused', items.slice(0, 6).join(' | '));
+  await setup.evaluate(() => chrome.storage.local.set({ focus: null }));
+
   console.log(`\n${pass} passed, ${fail} failed`);
   await app.close();
   process.exit(fail ? 1 : 0);

@@ -47,6 +47,16 @@ const { launch } = require('./lib.cjs');
   ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'no horizontal scroll on a narrow window');
   ok(await p.locator('#side .side-sub').evaluateAll((els) => els.every((e) => getComputedStyle(e).display === 'none')), 'sub-items are hidden on a narrow window');
 
+  // the home page switched off in one tab: an open Home tab shows the "off" page, and the full one again when it is switched back on
+  await p.setViewportSize({ width: 1440, height: 900 });
+  const home = await app.ctx.newPage(); await home.goto(ext('src/newtab/newtab.html')); await home.waitForTimeout(1200);
+  ok(await home.locator('.nt-off').count() === 0 && await home.locator('#clock').count() === 1, 'Home is the full page to begin with');
+  const setEnabled = (v) => p.evaluate(async (v) => { const st = await import('/src/shared/storage.js'); await st.updateSettings((x) => { x.newtab.enabled = v; }); }, v);
+  await setEnabled(false); await home.waitForTimeout(1500);
+  ok(await home.locator('.nt-off button').count() === 1 && await home.locator('main.nt').isHidden(), 'an open Home tab switches to the "off" page');
+  await home.locator('.nt-off button').click(); await home.waitForTimeout(1500);
+  ok(await home.locator('.nt-off').count() === 0 && await home.locator('#clock').isVisible(), 'the button brings the full Home back');
+
   console.log(bad.length ? 'FAIL\n' + bad.join('\n') : 'settings: all checks passed');
   await app.close();
   process.exit(bad.length ? 1 : 0);

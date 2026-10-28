@@ -181,6 +181,14 @@ export function updateCollection(name, fallback, fn) {
 
 /* ---------- first run & migration ---------- */
 
+/** When EyeTime was installed, as far as the data says: the old stamp if it kept the date, else the oldest recorded day, else now. */
+function guessInstalledAt(meta, raw) {
+  if (meta && typeof meta === 'object' && Number.isFinite(meta.installedAt) && meta.installedAt > 0) return meta.installedAt;
+  const first = Object.keys(raw).filter((k) => /^d:\d{4}-\d{2}-\d{2}$/.test(k)).sort()[0];
+  const t = first ? new Date(first.slice(2) + 'T00:00:00').getTime() : NaN;
+  return Number.isFinite(t) ? t : Date.now();
+}
+
 /** Ensure the storage layout is current. Safe to call on every service-worker start. */
 export async function ensureSchema() {
   const { meta } = await area().get('meta');
@@ -193,8 +201,9 @@ export async function ensureSchema() {
   const raw = await area().get(null);
   if (!needsMigration(raw)) return { migrated: false };
   // the schema stamp is gone but the settings are current (a lost or damaged `meta`): repair the stamp, never run the 1.x path over live settings
-  if (!meta && raw.settings && typeof raw.settings === 'object' && !Array.isArray(raw.settings) && !looksLikeV1(raw)) {
-    await area().set({ settings: deepMerge(DEFAULT_SETTINGS, raw.settings), meta: { ...DEFAULT_META, installedAt: Date.now() } });
+  const validMeta = !!meta && typeof meta === 'object' && Number.isFinite(meta.schemaVersion) && meta.schemaVersion >= 2;
+  if (!validMeta && raw.settings && typeof raw.settings === 'object' && !Array.isArray(raw.settings) && !looksLikeV1(raw)) {
+    await area().set({ settings: deepMerge(DEFAULT_SETTINGS, raw.settings), meta: { ...DEFAULT_META, installedAt: guessInstalledAt(meta, raw) } });
     return { migrated: false, repaired: true };
   }
   const m = migrate(raw);
@@ -242,7 +251,8 @@ function sanitizeEvents(list, timed) {
 export async function importAll(payload) {
   if (!payload || payload.app !== 'eyetime' || typeof payload.data !== 'object') throw new Error('Not an EyeTime backup');
   const data = payload.data;
-  const ver = data.meta?.schemaVersion || 0;
+  // a file without a schema stamp is 1.x data only when it looks like 1.x; current settings without a stamp are taken as they are
+  const ver = data.meta?.schemaVersion || (data.settings && typeof data.settings === 'object' && !looksLikeV1(data) ? SCHEMA_VERSION : 0);
   const m = ver >= 2 ? null : migrate(data);
   // never trust a file blindly: keep only the keys EyeTime itself writes
   const KNOWN = new Set(['settings', 'meta', 'tasks', 'habits', 'captures', 'topics', 'weekPlan', 'weekPlanPrev', 'estLog']);
@@ -258,6 +268,7 @@ export async function importAll(payload) {
     const out = { settings: m.settings, meta: m.meta, tasks: m.tasks, captures: m.captures };
     if (m.habits) out.habits = m.habits;
     for (const [k, rec] of Object.entries(m.days)) out[dayStorageKey(k)] = rec;
+    if (events.length || allDay.length) Object.assign(out, { calendar: events, calendarDays: allDay, calendarSrc: { file: { events, allDay } } });
     await area().set(out);
   } else {
     if (ver === 2 && clean.settings) clean.settings = upgradeSettingsV2(clean.settings);

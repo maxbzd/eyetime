@@ -7,7 +7,7 @@ import { isMinorUpdate } from '../shared/whatsnew.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { initTracker } from './tracker.js';
 import { startFocus, stopFocus, finishFocus, endRest, resumeFocus } from './focus.js';
-import { isPaused, MAX_PAUSE_MS } from '../shared/focus.js';
+import { isPaused, MAX_PAUSE_MS, PAUSE_FORGOTTEN_MS } from '../shared/focus.js';
 import { scheduleBedtime } from './breaks.js';
 import { scheduleReminders, scheduleTaskSlot } from './reminders.js';
 import { updateBadge } from './badge.js';
@@ -31,7 +31,9 @@ async function boot() {
   const { migrated } = await ensureSchema();
   const { focus } = await getRaw('focus');
   if (focus && isPaused(focus)) { // a paused session waits for its resume (or its alarm)
-    if (Date.now() >= focus.pausedAt + MAX_PAUSE_MS) await resumeFocus({ auto: true }); else await chrome.alarms.create('focus-resume', { when: focus.pausedAt + MAX_PAUSE_MS });
+    const overdue = Date.now() - (focus.pausedAt + MAX_PAUSE_MS);
+    // a pause that ran out while the browser was closed: soon after, it picks up quietly; left for hours (overnight), the session ends and what was worked is counted
+    if (overdue > PAUSE_FORGOTTEN_MS) await stopFocus(); else if (overdue >= 0) await resumeFocus({ auto: true, silent: true }); else await chrome.alarms.create('focus-resume', { when: focus.pausedAt + MAX_PAUSE_MS });
   } else if (focus && !isFocusActive(focus)) await finishFocus(); // the end alarm may have been missed while the browser was closed
   else if (focus) { await chrome.alarms.create('focus-end', { when: focus.endsAt }); const { focus: f } = await getSettings(); const mode = (f.modes || []).find((m) => m.id === focus.mode); const amb = mode && mode.ambient && mode.ambient !== 'off' ? mode.ambient : f.ambient; if (amb !== 'off') setAmbient(amb); }
   const { rest } = await getRaw('rest');

@@ -8,6 +8,7 @@ import { getSettings, updateSettings, getRaw, getCollection, setCollection } fro
 import { LOOK_IDS } from '../shared/looks.js';
 import { rank } from '../shared/fuzzy.js';
 import { isFocusLive } from '../shared/blocking.js';
+import { isPaused } from '../shared/focus.js';
 import { taskFromInput } from '../shared/tasks.js';
 import { modeName } from '../shared/modes.js';
 
@@ -26,7 +27,11 @@ async function commands(extra) {
 
   // focus
   if (running) {
-    add('focus', { icon: 'plus' }, t('focus.extend', { n: 5 }), () => send('focus:extend', { minutes: 5 }), { keys: ['extend', 'more time'] });
+    if (isPaused(focus)) add('focus', { icon: 'play' }, t('focus.resume'), () => send('focus:resume'), { keys: ['resume', 'continue', 'unpause'] });
+    else {
+      if (!focus.strict) add('focus', { icon: 'pause' }, t('focus.pause'), () => send('focus:pause'), { keys: ['pause', 'break'] });
+      add('focus', { icon: 'plus' }, t('focus.extend', { n: 5 }), async () => { const r = await send('focus:extend', { minutes: 5 }); if (r && r.ok === false) toast(t(r.error === 'max' ? 'focus.maxLength' : 'common.error')); }, { keys: ['extend', 'more time'] });
+    }
     if (!focus.strict) add('focus', { icon: 'square' }, t('focus.end'), async () => { await send('focus:stop'); }, { keys: ['stop', 'end'] });
   } else {
     add('focus', { icon: 'play' }, t('focus.start', { time: fmtDuration(settings.focus.minutes * 60) }), async () => { const r = await send('focus:start', { minutes: settings.focus.minutes, strict: settings.focus.strict, scope: settings.focus.scope, mode: settings.focus.mode }); if (r && r.ok === false) toast(t(r.error === 'active' ? 'focus.alreadyRunning' : 'common.error')); }, { keys: ['start', 'focus', 'session'] });

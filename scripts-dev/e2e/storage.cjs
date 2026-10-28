@@ -37,6 +37,30 @@ const { launch } = require('./lib.cjs');
   });
   if (kept.minutes !== 37 || kept.always[0] !== 'keep.example') bad.push('a lost meta key reset the settings: ' + JSON.stringify(kept));
   if (!kept.meta || kept.meta.schemaVersion < 3) bad.push('the schema stamp was not restored: ' + JSON.stringify(kept.r));
+  // a damaged (not missing) stamp is repaired too, and the install date survives or is estimated from the oldest day
+  const dm = await page.evaluate(async () => {
+    const st = await import('/src/shared/storage.js'); const out = [];
+    for (const bad of ['oops', { schemaVersion: 0 }, {}, { schemaVersion: 1, installedAt: 1700000000000 }, [1, 2]]) {
+      await st.updateSettings((s) => { s.focus.minutes = 41; });
+      await chrome.storage.local.set({ meta: bad });
+      const r = await st.ensureSchema(); const s = await st.getSettings(); const { meta } = await chrome.storage.local.get('meta');
+      out.push({ bad: JSON.stringify(bad), repaired: !!r.repaired, minutes: s.focus.minutes, v: meta && meta.schemaVersion, at: meta && meta.installedAt });
+    }
+    return out;
+  });
+  for (const r of dm) if (!r.repaired || r.minutes !== 41 || r.v < 3 || !(r.at > 0)) bad.push('a damaged meta was not repaired cleanly: ' + JSON.stringify(r));
+  if (dm[3] && dm[3].at !== 1700000000000) bad.push('the install date was lost: ' + JSON.stringify(dm[3]));
+  // a backup file with current settings but no stamp keeps the settings
+  const noMeta = await page.evaluate(async () => {
+    const st = await import('/src/shared/storage.js');
+    await st.updateSettings((s) => { s.focus.minutes = 43; });
+    const backup = await st.exportAll(); delete backup.data.meta;
+    backup.data.calendar = [{ id: 'c1:a', title: 'Standup', day: '2026-10-28', start: '09:30', end: '10:00' }];
+    await st.importAll(JSON.parse(JSON.stringify(backup)));
+    return { minutes: (await st.getSettings()).focus.minutes, cal: (await chrome.storage.local.get('calendar')).calendar };
+  });
+  if (noMeta.minutes !== 43) bad.push('a backup without a stamp reset the settings: ' + JSON.stringify(noMeta));
+  if (!noMeta.cal || noMeta.cal.length !== 1) bad.push('a backup without a stamp lost its calendar: ' + JSON.stringify(noMeta.cal));
   // damaged settings (not an object) fall back to the defaults instead of breaking readers
   const dmg = await page.evaluate(async () => { const st = await import('/src/shared/storage.js'); await chrome.storage.local.set({ settings: 'oops' }); const s = await st.getSettings(); return !!(s && s.focus && s.blocking && Array.isArray(s.blocking.always)); });
   if (!dmg) bad.push('damaged settings broke getSettings');
