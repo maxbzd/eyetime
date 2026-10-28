@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased — Home becomes yours
+
+### New: arrange Home
+- **Free-form Home editor** (Customize → Arrange Home): drag every block, pull any corner or side to resize, stretch the clock any way you like, snapping guides, undo/redo (Ctrl/⌘ Z), keyboard moves. It opens on exactly what the page already shows.
+- **A strip for the selected block**: exact position and size, align to the screen, bring to front / send to back, duplicate, remove. A short guide the first time, a shortcut list on `?`, a tidier toolbar with a *More* menu.
+- **Type designer** for the clock and greeting: fonts, weight, spacing, solid / gradient / outline / **glass** (a soft copy of your photo through the digits) / **photo** fills, glow, shadow.
+- **Widgets** (15): main focus, day plan, day recap, rings, countdown, world clocks, progress of the day/week/month/year, mantra, next meeting, week in focus time, one big number, eye-break timer, sticky note, weather, and the **smart stack** that shows the plan in the morning and the recap in the evening (or the card you pick with the dots).
+- **Layouts** that switch by focus session or hour, pinning, and **theme files** (save / load a whole look; hostile files are refused).
+- **Backgrounds in the editor**, text colour on photos (Auto / white / black), layers in front of the clock, and **subject cut-out** (a local model).
+- **3D photo**: a depth map is made on your device from one photo (Depth Anything V2 Small, Apache-2.0, 27 MB, bundled) and the photo is drawn with WebGL so near things slide more than far ones with the mouse. Optional: the clock goes behind the nearest part. Falls back to the flat photo without WebGL.
+
+### New: calm extras
+- **Night clock** (StandBy): after quiet minutes Home turns into a huge dim clock on black that drifts so the screen is never marked.
+- **Optional weather** (off until you turn it on): Open-Meteo forecast for a city you pick (only rounded coordinates are sent), a weather widget, and **rain on glass / snow** over your photo. Still with reduced motion.
+- **Quotes**: 33 short quotes, each language written natively (not translated), on Home, the pause page, the break screen and before a session.
+- **Pause a focus session** for up to 15 minutes from the popup, the menu or the palette.
+- **Unknown sites** (experimental, off by default): Chrome's own on-device model sorts busy sites that are in no list, from address and title only. Reports only; it never blocks, and your choice wins.
+- A **Home** section in Settings (Home page, weather, quotes, night clock).
+
+### Fixed
+- Two independent test reports: honest pause hint, a forgotten pause resumes quietly or ends the session, a damaged schema stamp is repaired, backups without a stamp keep settings and the calendar, notes obey their cap, the Home page follows the on/off switch in other tabs, and more.
+- The editor used to open with the clock and greeting far bigger than on the page; it now opens at the size of their words.
+
 ## 3.5.0 — 2026-10-24
 
 Five new looks, each designed as a whole (Settings → Appearance, first in the gallery).
