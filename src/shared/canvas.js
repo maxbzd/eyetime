@@ -12,6 +12,7 @@
 export const CANVAS_BLOCKS = {
   clock:    { kind: 'text', min: 0.4, max: 3, def: 1 },
   greeting: { kind: 'text', min: 0.5, max: 2.5, def: 1 },
+  quote:    { kind: 'text', min: 0.5, max: 2, def: 1 },
   focus:    { kind: 'card', min: 320, max: 1000, def: 760 },
   today:    { kind: 'card', min: 260, max: 640, def: 340 },
   tasks:    { kind: 'card', min: 300, max: 900, def: 480 },
