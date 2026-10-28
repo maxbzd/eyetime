@@ -5,7 +5,7 @@ export const SCHEMA_VERSION = 3;
 const presets = Object.fromEntries(PRESET_IDS.map((id) => [id, DEFAULT_PRESETS_ON.includes(id)]));
 
 export const DEFAULT_SETTINGS = {
-  language: 'auto',            // auto | en | ru
+  language: 'auto',            // auto | en | ru | es | de | fr | pt | it | pl | uk | zh | ja
   appearance: {
     look: 'calm',              // see src/shared/looks.js
     mode: 'system',            // system | light | dark | schedule

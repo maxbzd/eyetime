@@ -53,8 +53,8 @@
     const root = host_.attachShadow({ mode: 'open' });
     const style = document.createElement('style');
     style.textContent = ':host{all:initial}.card{font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#fff;color:#1c1917;border-radius:22px;padding:28px;max-width:380px;box-shadow:0 24px 80px rgba(0,0,0,.4);text-align:center}h2{margin:0 0 8px;font-size:22px;letter-spacing:-.02em}p{margin:0 0 20px;color:#57534e}.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}button{font:inherit;font-weight:600;border-radius:12px;padding:10px 16px;border:1px solid #d3cec7;background:#fff;color:#1c1917;cursor:pointer}button.p{background:#cf450a;border-color:#cf450a;color:#fff}@media(prefers-color-scheme:dark){.card{background:#181716;color:#f5f3f0}p{color:#bdb7b0}button{background:#211f1d;border-color:#433f3b;color:#f5f3f0}button.p{background:#ff7a3d;border-color:#ff7a3d;color:#1a0e07}}';
-    const card = document.createElement('div'); card.className = 'card'; card.setAttribute('role', 'dialog'); card.setAttribute('aria-modal', 'true');
-    const h2 = document.createElement('h2'); h2.textContent = msg('feedTitle');
+    const card = document.createElement('div'); card.className = 'card'; card.setAttribute('role', 'dialog'); card.setAttribute('aria-modal', 'true'); card.setAttribute('aria-labelledby', 'et-feed-title');
+    const h2 = document.createElement('h2'); h2.id = 'et-feed-title'; h2.textContent = msg('feedTitle');
     const p = document.createElement('p'); p.textContent = msg('feedBody').replace('{n}', String(feed.shortMinutes));
     const row = document.createElement('div'); row.className = 'row';
     const leave = document.createElement('button'); leave.className = 'p'; leave.textContent = msg('feedLeave');
@@ -62,6 +62,13 @@
     const more = document.createElement('button'); more.textContent = msg('feedMore');
     more.addEventListener('click', () => { extraSec += 300; unlock(); });
     row.append(leave, more); card.append(h2, p, row); root.append(style, card);
+    // keyboard focus stays inside the dialog (Tab cycles between its two buttons); Escape never skips the limit
+    root.addEventListener('keydown', (e) => {
+      const ev = /** @type {KeyboardEvent} */ (e);
+      if (ev.key !== 'Tab') return;
+      const first = leave, last = more, cur = root.activeElement;
+      if (ev.shiftKey && cur === first) { ev.preventDefault(); last.focus(); } else if (!ev.shiftKey && cur === last) { ev.preventDefault(); first.focus(); }
+    });
     document.documentElement.append(host_); lockEl = host_;
     leave.focus();
   }
