@@ -13,7 +13,6 @@ import { mountGettingStarted } from './getting-started.js';
 import { mountWhatsNew } from './whatsnew.js';
 import { openDayPlan } from './dayplan.js';
 import { mountRings } from './rings.js';
-import { installSpotlight } from '../ui/spotlight.js';
 import { applyCanvas, canvasActive } from './canvas.js';
 import { applyType, clockSeconds } from './type-apply.js';
 import { createWidgetHost } from './widgets.js';
@@ -272,7 +271,6 @@ function openShortcutHelp() {
   let rz = 0; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { paintClock(); applyCanvas(settings); }, 120); });
   mountFocusCard($('#focus'), { variant: 'large' });
   mountRings($('#rings'));
-  installSpotlight();
   mountWhatsNew($('#wn'));
   mountGettingStarted($('#gs'), { startShortSession: async () => { const s = await getSettings(); await send('focus:start', { minutes: 5, strict: false, scope: s.focus.scope }); } });
   paintNudge(); setInterval(paintNudge, 60_000); paintBackupNudge();
