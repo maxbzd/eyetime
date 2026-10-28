@@ -5,10 +5,13 @@ import { h, icon, $ } from '../ui/dom.js';
 import { dropdown } from '../ui/dropdown.js';
 import { t } from '../shared/i18n.js';
 import { updateSettings } from '../shared/storage.js';
-import { CANVAS_BLOCKS, CANVAS_IDS, normalizeCanvas, clampCenter, snapRect, nudge, resizeStep, seedItems, canvasScale } from '../shared/canvas.js';
+import { blockMeta, normalizeCanvas, clampCenter, snapRect, nudge, resizeStep, seedItems, canvasScale } from '../shared/canvas.js';
+import { WIDGET_ID_RE, WIDGET_KINDS, defaultCfg, newWidgetId } from '../shared/widgets.js';
 import { blockEl, presentBlocks, placeBlock, applyCanvas } from './canvas.js';
+import { widgetName } from './widgets.js';
 
-const blockName = (id) => (id === 'clock' ? t('cv.clock') : id === 'greeting' ? t('cv.greeting') : id === 'focus' ? t('cv.focus') : t('mod.' + id));
+const isWidget = (id) => WIDGET_ID_RE.test(id) && id !== 'clock';
+const blockName = (id) => (id === 'clock' ? t('cv.clock') : id === 'greeting' ? t('cv.greeting') : id === 'focus' ? t('cv.focus') : isWidget(id) ? widgetName(blockEl(id)?.dataset.kind || 'sticky') : t('mod.' + id));
 const clone = (o) => JSON.parse(JSON.stringify(o));
 const view = () => ({ w: window.innerWidth, h: window.innerHeight });
 
@@ -18,7 +21,7 @@ let active = null;
 /** @param {any} settings @param {{ onExit?: () => void }} [opts] */
 export async function startEditing(settings, { onExit } = /** @type {{ onExit?: () => void }} */ ({})) {
   if (active) return;
-  const present = presentBlocks();
+  let present = presentBlocks();
   let items = normalizeCanvas(settings.newtab.canvas).items;
   if (!Object.keys(items).length) items = seedItems(present);
   const undo = [], redo = [];
@@ -50,22 +53,35 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
   const raf = () => window.requestAnimationFrame(syncFrames);
   const say = (msg) => { live.textContent = ''; live.textContent = msg; };
 
-  /* ----- the type designer panel: shown for the clock and the greeting ----- */
-  let panel = null, panelFor = null, panelOff = false;
-  async function showPanel(id) {
-    const kind = id === 'clock' ? 'clock' : id === 'greeting' ? 'text' : null;
-    if (kind === panelFor && (panel || !kind)) return;
-    panel?.remove(); panel = null; panelFor = kind;
-    if (!kind || panelOff) return;
-    const { buildTypePanel } = await import('./type-panel.js');
-    const p = await buildTypePanel(kind, { onClose: () => { panelOff = true; panel?.remove(); panel = null; panelFor = null; } });
-    if (panelFor !== kind || !active) return; // the selection moved on while the panel was loading
-    panel = p; layer.append(p);
+  /* ----- the side panel: the type designer (clock, greeting), a widget's settings, or the widget gallery ----- */
+  let panel = null, panelKey = null, panelOff = false, panelSeq = 0;
+  const closePanel = () => { panel?.destroy?.(); panel?.el.remove(); panel = null; panelKey = null; };
+  async function showPanel(key, build) {
+    if (key === panelKey && panel) return;
+    const seq = ++panelSeq;
+    closePanel(); panelKey = key;
+    if (!key) return;
+    const made = await build();
+    if (seq !== panelSeq || !active) { made.destroy?.(); return; } // the selection moved on while the panel was loading
+    panel = made; layer.append(made.el);
   }
+  const forSelection = (id) => {
+    if (id === 'clock' || id === 'greeting') {
+      if (panelOff) return showPanel(null);
+      const kind = id === 'clock' ? 'clock' : 'text';
+      return showPanel('type:' + kind, async () => { const { buildTypePanel } = await import('./type-panel.js'); return { el: await buildTypePanel(kind, { onClose: () => { panelOff = true; closePanel(); } }) }; });
+    }
+    if (isWidget(id) && blockEl(id)) {
+      const kind = blockEl(id).dataset.kind;
+      return showPanel('wgt:' + id, async () => { const { buildWidgetPanel } = await import('./widget-panel.js'); return { el: await buildWidgetPanel(id, kind, { onClose: () => closePanel(), onDelete: () => removeBlock(id) }) }; });
+    }
+    return showPanel(null);
+  };
+  const openGallery = () => showPanel('gallery', async () => { const { buildGallery } = await import('./widget-panel.js'); const g = buildGallery({ onAdd: addWidget, onClose: () => closePanel() }); return g; });
 
   function select(id) {
     for (const [k, f] of frames) { f.classList.toggle('is-sel', k === id); const el = blockEl(k); if (el) el.style.zIndex = k === id ? '3' : ''; }
-    showPanel(id);
+    forSelection(id);
   }
 
   function setItem(id, next, before) {
@@ -84,7 +100,7 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
   }
 
   function buildFrame(id) {
-    const b = CANVAS_BLOCKS[id];
+    const b = blockMeta(id);
     const f = h('div', { class: 'cv-frame', tabindex: 0, role: 'group', 'aria-roledescription': t('cv.movable'), 'aria-label': blockName(id), 'data-block': id },
       h('div', { class: 'cv-tag' }, h('span', { text: blockName(id) }),
         h('button', { class: 'cv-x', type: 'button', 'aria-label': t('cv.remove') + ': ' + blockName(id), onclick: (e) => { e.stopPropagation(); removeBlock(id); } }, icon('x'))),
@@ -144,12 +160,32 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
   }
 
   function removeBlock(id) {
+    if (isWidget(id)) { removeWidget(id); return; }
     const before = clone(items); delete items[id]; apply(); syncFrames(); commit(before); syncTray(); say(blockName(id) + ': ' + t('cv.remove'));
     $('.cv-bar select, .cv-bar .dd', layer)?.focus();
   }
+  /** A widget is deleted for good (its settings go with it); the other blocks only leave the screen. */
+  async function removeWidget(id) {
+    const name = blockName(id);
+    delete items[id]; frames.get(id)?.remove(); frames.delete(id); present = present.filter((x) => x !== id);
+    if (panelKey === 'wgt:' + id) closePanel();
+    await updateSettings((s) => { s.newtab.widgets = (s.newtab.widgets || []).filter((w) => w.id !== id); s.newtab.canvas = { on: true, items: clone(items) }; });
+    syncTray(); say(name + ': ' + t('wg.delete')); $('.cv-bar .dd', layer)?.focus();
+  }
+  async function addWidget(kind) {
+    const b = WIDGET_KINDS[kind];
+    const id = newWidgetId((await import('../shared/storage.js').then((m) => m.getSettings())).newtab.widgets);
+    items[id] = normalizeCanvas({ on: true, items: { [id]: { x: 50, y: 50, w: b.w[2] } } }).items[id];
+    await updateSettings((s) => { s.newtab.widgets = [...(s.newtab.widgets || []), { id, kind, cfg: defaultCfg(kind) }]; s.newtab.canvas = { on: true, items: clone(items) }; });
+    for (let i = 0; i < 40 && !blockEl(id); i++) await new Promise((r) => setTimeout(r, 50)); // the page builds the card when the settings arrive
+    if (!blockEl(id) || !active) return;
+    present = presentBlocks(); placeBlock(id, items[id]); clampItem(id); placeBlock(id, items[id]);
+    const f = buildFrame(id); frames.set(id, f); layer.append(f); syncFrames(); raf();
+    closePanel(); f.focus({ preventScroll: true }); persist();
+  }
   function addBlock(id) {
     if (items[id]) return;
-    const before = clone(items), b = CANVAS_BLOCKS[id];
+    const before = clone(items), b = blockMeta(id);
     items[id] = normalizeCanvas({ on: true, items: { [id]: { x: 50, y: 50, [b.kind === 'text' ? 's' : 'w']: b.def } } }).items[id];
     apply(); clampItem(id); placeBlock(id, items[id]); raf(); commit(before); syncTray();
     frames.get(id)?.focus({ preventScroll: true });
@@ -160,8 +196,9 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
   const btnRedo = h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('cv.redo'), 'data-tip': t('cv.redo'), onclick: () => step(redo, undo) }, icon('redo-2'));
   const addHolder = h('span', {});
   const bar = h('div', { class: 'cv-bar', role: 'toolbar', 'aria-label': t('cv.edit') },
-    btnUndo, btnRedo, h('span', { class: 'sep' }), addHolder, h('span', { class: 'sep' }),
-    h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: () => { panelOff = false; panelFor = null; const sel = frames.get('clock')?.classList.contains('is-sel') ? 'clock' : frames.get('greeting')?.classList.contains('is-sel') ? 'greeting' : 'clock'; select(sel); frames.get(sel)?.focus({ preventScroll: true }); } }, icon('type'), t('ty.title')),
+    btnUndo, btnRedo, h('span', { class: 'sep' }), addHolder,
+    h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: openGallery }, icon('shapes'), t('wg.title')), h('span', { class: 'sep' }),
+    h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: () => { panelOff = false; closePanel(); const sel = frames.get('clock')?.classList.contains('is-sel') ? 'clock' : frames.get('greeting')?.classList.contains('is-sel') ? 'greeting' : 'clock'; select(sel); frames.get(sel)?.focus({ preventScroll: true }); } }, icon('type'), t('ty.title')),
     h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: reset }, icon('rotate-ccw'), t('cv.reset')),
     h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: useLook }, icon('layout-grid'), t('cv.off')),
     h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => stop() }, icon('check'), t('cv.done')));
@@ -179,7 +216,7 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
     to.push(clone(items)); items = prev; apply(); raf(); persist(); syncBar(); syncTray();
   }
   function reset() {
-    const before = clone(items); items = seedItems(present); apply(); raf(); commit(before); syncTray();
+    const before = clone(items); const keep = Object.fromEntries(Object.entries(items).filter(([id]) => isWidget(id))); items = { ...seedItems(present), ...keep }; apply(); raf(); commit(before); syncTray();
   }
   async function useLook() {
     await updateSettings((s) => { s.newtab.canvas = { on: false, items: clone(items) }; });
@@ -195,7 +232,7 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
   async function stop(skipSave) {
     if (!active) return;
     window.removeEventListener('resize', onResize); document.removeEventListener('keydown', onKey, true);
-    layer.remove();
+    closePanel(); layer.remove();
     document.body.classList.remove('cv-editing'); $('main.nt')?.removeAttribute('inert');
     for (const id of present) { const el = blockEl(id); if (el) el.style.zIndex = ''; }
     active = null;
@@ -209,7 +246,7 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
   $('main.nt')?.setAttribute('inert', '');
   await persist(); // turns the arrangement on (page code re-applies it) and keeps the first seed
   apply();
-  for (const id of CANVAS_IDS) if (blockEl(id)) { const f = buildFrame(id); frames.set(id, f); layer.append(f); }
+  for (const id of present) { const f = buildFrame(id); frames.set(id, f); layer.append(f); }
   layer.append(hint, bar, live);
   document.body.append(layer);
   syncBar(); syncTray(); syncFrames();
