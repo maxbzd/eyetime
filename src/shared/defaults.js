@@ -87,6 +87,7 @@ export const DEFAULT_SETTINGS = {
     links: [],
     clock24: null,             // null = follow locale
     greeting: true,
+    canvas: { on: false, items: {} }, // the free-form arrangement (see shared/canvas.js); off = the look's own layout
   },
 
   weeklyReport: true,
