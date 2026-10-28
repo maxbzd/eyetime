@@ -2,9 +2,11 @@ import { bootPage } from '../ui/page.js';
 import { $ } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { t } from '../shared/i18n.js';
+import { showQuote } from '../ui/quote.js';
 
 (async function main() {
   const s = await bootPage();
+  showQuote($('#quote'), 'rest', s);
   const total = s.eye.breakSeconds || 20;
   const C = 565.5;
   let left = total, finished = false;

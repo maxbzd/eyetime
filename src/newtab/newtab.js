@@ -30,6 +30,7 @@ import { clock, remainingMs } from '../shared/focus.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { luminance, normalizeHex } from '../shared/color.js';
 import { relLuminance, pickTextTone, resolveTextTone } from '../shared/phototone.js';
+import { showQuote } from '../ui/quote.js';
 
 const DARK_SCENES = ['aurora', 'stars', 'photo', 'sea', 'onyx', 'peaks'];
 const MODULES = ['today', 'tasks', 'habits', 'notes', 'links'];
@@ -51,6 +52,7 @@ function paintClock() {
   document.body.dataset.clock = CLOCKS.includes(settings.newtab.clockStyle) ? settings.newtab.clockStyle : 'thin';
   document.body.dataset.layout = canvasActive(settings) ? 'canvas' : LAYOUTS.includes(settings.newtab.layout) ? settings.newtab.layout : 'center';
   $('#date').textContent = fmtDate(now);
+  showQuote($('#quote'), 'day', settings);
   const hr = now.getHours();
   $('#greeting').textContent = settings.newtab.greeting ? t(hr < 5 ? 'greet.night' : hr < 12 ? 'greet.morning' : hr < 18 ? 'greet.afternoon' : 'greet.evening') : '';
 }

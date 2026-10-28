@@ -13,7 +13,7 @@ import { home, effectiveNow, setEditId, editingLayoutId, activeLayoutId, homeId 
 import { normalizeLayouts } from '../shared/layouts.js';
 
 const isWidget = (id) => WIDGET_ID_RE.test(id) && id !== 'clock';
-const blockName = (id) => (id === 'clock' ? t('cv.clock') : id === 'greeting' ? t('cv.greeting') : id === 'focus' ? t('cv.focus') : isWidget(id) ? widgetName(blockEl(id)?.dataset.kind || 'sticky') : t('mod.' + id));
+const blockName = (id) => (id === 'clock' ? t('cv.clock') : id === 'greeting' ? t('cv.greeting') : id === 'focus' ? t('cv.focus') : id === 'quote' ? t('qt.title') : isWidget(id) ? widgetName(blockEl(id)?.dataset.kind || 'sticky') : t('mod.' + id));
 const clone = (o) => JSON.parse(JSON.stringify(o));
 const view = () => ({ w: window.innerWidth, h: window.innerHeight });
 

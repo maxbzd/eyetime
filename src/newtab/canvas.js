@@ -10,6 +10,7 @@ export function blockEl(id) {
   if (WIDGET_ID_RE.test(id) && id !== 'clock') return document.getElementById('wgt-' + id);
   if (id === 'clock') return $('#clock');
   if (id === 'greeting') return $('#greetBlock');
+  if (id === 'quote') { const q = $('#quote'); return q && !q.hidden ? q : null; } // only while quotes are on for Home
   if (id === 'focus') return $('#focus');
   return document.getElementById('mod-' + id);
 }
