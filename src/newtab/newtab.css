@@ -3,6 +3,9 @@
 :root[data-scheme="dark"] { --g-strength: 30%; }
 body[data-tone="dark"] { --hero-fg: #fff; --hero-fg-2: rgba(255,255,255,.82); }
 body[data-tone="dark"] .hero, body[data-tone="dark"] .nt-corners { text-shadow: 0 1px 14px rgba(0,0,0,.35); }
+body[data-tone="light"] { --hero-fg: #14110e; --hero-fg-2: rgba(20,17,14,.76); }
+body[data-tone="light"] .hero, body[data-tone="light"] .nt-corners { text-shadow: 0 1px 14px rgba(255,255,255,.35); }
+body[data-tone="light"] .btn.on-bg { color: #14110e; } body[data-tone="light"] .btn.on-bg:hover { background: rgba(0,0,0,.1); color: #14110e; }
 body[data-tone="dark"] .btn.on-bg { color: #fff; } body[data-tone="dark"] .btn.on-bg:hover { background: rgba(255,255,255,.18); color: #fff; }
 
 body { min-height: calc(100vh / var(--ui-scale, 1)); position: relative; }

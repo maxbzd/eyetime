@@ -64,6 +64,9 @@ export function backgroundControls(n, set) {
   return [h('div', { class: 'bg-grid' }, tiles), fileIn,
     n.background === 'color' ? null : colorIn,
     n.background === 'photo' ? h('button', { class: 'btn btn-sm', style: { marginTop: 'var(--s-3)' }, type: 'button', onclick: () => fileIn.click() }, icon('image'), t('home.changePhoto')) : null,
+    n.background === 'photo' ? h('div', { class: 'stack gap-2', style: { marginTop: 'var(--s-4)' } }, h('div', { class: 'eyebrow', text: t('bg.textTone') }),
+      h('div', { class: 'segmented', role: 'group', 'aria-label': t('bg.textTone') }, [['auto', 'bg.toneAuto'], ['light', 'bg.toneLight'], ['dark', 'bg.toneDark']].map(([v, k]) => h('button', { type: 'button', 'aria-pressed': String((n.photoText || 'auto') === v), text: t(k), onclick: () => set((s) => { s.newtab.photoText = v; }) }))),
+      h('p', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, text: t('bg.toneHint') })) : null,
     n.background === 'photo' ? cutoutBlock() : null];
 }
 
