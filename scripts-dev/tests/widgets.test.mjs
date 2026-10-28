@@ -63,3 +63,19 @@ test('zoneClock formats a time and the day shift', () => {
   const u = zoneClock('UTC', new Date('2026-10-28T20:00:00Z'), 'en', false);
   assert.match(u.time, /8:00\s?PM/);
 });
+
+test('a stack keeps only real members, caps them, and puts the right one on top for the hour', async () => {
+  const { normalizeCfg, defaultStack, stackIndex, partOfDay, STACKABLE, MAX_STACK, WIDGET_KINDS } = await import('../../src/shared/widgets.js');
+  assert.ok(WIDGET_KINDS.stack && WIDGET_KINDS.plan && WIDGET_KINDS.recap);
+  assert.ok(!STACKABLE.includes('stack'), 'a stack does not hold a stack');
+  const n = normalizeCfg('stack', { items: [{ kind: 'stack' }, { kind: 'plan', when: 'weird' }, null, { kind: 'countdown', when: 'evening', cfg: { title: 'x'.repeat(200) } }, ...Array(10).fill({ kind: 'sticky' })], pick: 'manual', i: 99 });
+  assert.equal(n.items.length, MAX_STACK); assert.deepEqual(n.items.slice(0, 2).map((x) => [x.kind, x.when]), [['plan', 'any'], ['countdown', 'evening']]);
+  assert.equal(n.items[1].cfg.title.length, 60); assert.equal(n.pick, 'manual'); assert.equal(n.i, MAX_STACK - 1);
+  assert.deepEqual(normalizeCfg('stack', { items: [] }), defaultStack()); assert.deepEqual(normalizeCfg('stack', 'x').items.map((x) => x.kind), ['plan', 'mainfocus', 'recap']);
+  assert.deepEqual([4, 5, 11, 12, 17, 18, 22, 23, 0].map(partOfDay), ['night', 'morning', 'morning', 'day', 'day', 'evening', 'evening', 'night', 'night']);
+  const st = defaultStack();
+  assert.deepEqual([8, 14, 20, 2].map((h) => stackIndex(st, h)), [0, 1, 2, 0]); // at night nothing matches and nothing is "any": the first
+  const any = { items: [{ when: 'any' }, { when: 'evening' }], pick: 'auto', i: 0 };
+  assert.deepEqual([9, 19].map((h) => stackIndex(any, h)), [0, 1]); // "any" is the fallback
+  assert.equal(stackIndex({ ...st, pick: 'manual', i: 1 }, 8), 1); // the person's choice wins
+});
