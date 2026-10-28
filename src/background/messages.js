@@ -2,7 +2,7 @@
 // (alarms, tab redirects, notifications). Plain preference changes are written to storage directly.
 
 import { getRaw, setRaw } from '../shared/storage.js';
-import { startFocus, stopFocus, extendFocus, endRest, reviewSession } from './focus.js';
+import { startFocus, stopFocus, extendFocus, endRest, reviewSession, pauseFocus, resumeFocus } from './focus.js';
 import { updateDay } from '../shared/storage.js';
 import { dayKey } from '../shared/time.js';
 import { PAUSE_REASONS } from '../shared/productivity.js';
@@ -29,6 +29,8 @@ const handlers = {
     return { ok: true };
   },
   'sync:now': async () => { const [settings] = await Promise.all([syncNow(), syncTasksNow()]); return settings; },
+  'focus:pause': () => pauseFocus(),
+  'focus:resume': () => resumeFocus(),
   'focus:extend': (m) => extendFocus(m.minutes),
   'session:review': (m) => reviewSession(m),
   'pause:reason': async (m) => {

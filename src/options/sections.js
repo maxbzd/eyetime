@@ -20,7 +20,7 @@ export function general({ s, save, refresh }) {
     group(t('opt.groupHome'),
       row({ title: t('opt.homeEnabled'), desc: t('opt.homeEnabledDesc'), control: toggle(s.newtab.enabled, (v) => save((x) => { x.newtab.enabled = v; }), t('opt.homeEnabled')) }),
       row({ title: t('opt.homeCustomize'), desc: t('opt.homeCustomizeDesc'), control: h('a', { class: 'btn', href: chrome.runtime.getURL('src/newtab/newtab.html') }, icon('sliders-horizontal'), t('home.customize')) })),
-    dockGroup(s, save),
+    dockGroup(s, save, refresh),
     group(t('opt.groupNotify'),
       row({ title: t('opt.badge'), desc: t('opt.badgeDesc'), control: toggle(s.tracking.badge, (v) => save((x) => { x.tracking.badge = v; }), t('opt.badge')) }),
       row({ title: t('opt.weekly'), desc: t('opt.weeklyDesc'), control: toggle(s.weeklyReport, (v) => save((x) => { x.weeklyReport = v; }), t('opt.weekly')) })));

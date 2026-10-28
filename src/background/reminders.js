@@ -2,7 +2,7 @@
 
 import { getSettings, getRaw, getCollection } from '../shared/storage.js';
 import { nextReminder, nextTaskSlot } from '../shared/productivity.js';
-import { isFocusActive } from '../shared/blocking.js';
+import { isFocusLive } from '../shared/blocking.js';
 import { resolveLocale, setLocale, t, fmtDuration } from '../shared/i18n.js';
 import { startFocus } from './focus.js';
 
@@ -22,7 +22,7 @@ async function fire() {
   await scheduleReminders();
   if (!due || due.at > Date.now() + 90_000) return;
   const { focus } = await getRaw('focus');
-  if (isFocusActive(focus)) return;
+  if (isFocusLive(focus)) return;
   setLocale(resolveLocale(settings.language));
   const r = due.reminder;
   const opts = { type: 'basic', iconUrl: ICON, priority: 1, title: t('remind.title'), message: t('remind.body', { time: fmtDuration(r.minutes * 60) }), buttons: [{ title: t('focus.start', { time: fmtDuration(r.minutes * 60) }) }] };
@@ -58,7 +58,7 @@ async function fireSlot() {
   const settings = await getSettings();
   setLocale(resolveLocale(settings.language));
   const x = due.task;
-  if (isFocusActive(focus)) return;
+  if (isFocusLive(focus)) return;
   const opts = { type: 'basic', iconUrl: ICON, priority: 1, title: t('remind.taskTitle'), message: x.resume ? t('remind.taskResume', { task: x.text, resume: x.resume }) : x.text, buttons: [{ title: t('focus.start', { time: fmtDuration(settings.focus.minutes * 60) }) }] };
   try { await chrome.notifications.create('task-slot:' + x.id, opts); } catch { delete opts.buttons; await chrome.notifications.create('task-slot:' + x.id, opts); }
 }

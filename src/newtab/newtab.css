@@ -330,3 +330,6 @@ body[data-layout="split"] .gs { grid-column: 1 / -1; grid-row: 2; } body[data-la
 .gs-compact .gs-list { display: flex; flex-wrap: wrap; gap: var(--s-2); }
 .gs-compact .gs-step.done { display: none; }
 .gs-compact .gs-step { padding: 6px 10px; } .gs-compact .gs-text span { display: none; } .gs-compact .gs-mark { width: 24px; height: 24px; }
+
+/* the way into customizing says what it is */
+.nt-bl { width: auto; padding: 0 16px 0 13px; border-radius: var(--r-full); gap: 8px; } .nt-lbl { font-size: var(--fs-sm); font-weight: 560; }

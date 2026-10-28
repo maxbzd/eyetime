@@ -6,7 +6,8 @@ import { ensureSchema, getSettings, getRaw, setRaw, pruneOldDays } from '../shar
 import { isMinorUpdate } from '../shared/whatsnew.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { initTracker } from './tracker.js';
-import { startFocus, stopFocus, finishFocus, endRest } from './focus.js';
+import { startFocus, stopFocus, finishFocus, endRest, resumeFocus } from './focus.js';
+import { isPaused, MAX_PAUSE_MS } from '../shared/focus.js';
 import { scheduleBedtime } from './breaks.js';
 import { scheduleReminders, scheduleTaskSlot } from './reminders.js';
 import { updateBadge } from './badge.js';
@@ -29,7 +30,9 @@ captureErrors('worker');
 async function boot() {
   const { migrated } = await ensureSchema();
   const { focus } = await getRaw('focus');
-  if (focus && !isFocusActive(focus)) await finishFocus(); // the end alarm may have been missed while the browser was closed
+  if (focus && isPaused(focus)) { // a paused session waits for its resume (or its alarm)
+    if (Date.now() >= focus.pausedAt + MAX_PAUSE_MS) await resumeFocus({ auto: true }); else await chrome.alarms.create('focus-resume', { when: focus.pausedAt + MAX_PAUSE_MS });
+  } else if (focus && !isFocusActive(focus)) await finishFocus(); // the end alarm may have been missed while the browser was closed
   else if (focus) { await chrome.alarms.create('focus-end', { when: focus.endsAt }); const { focus: f } = await getSettings(); const mode = (f.modes || []).find((m) => m.id === focus.mode); const amb = mode && mode.ambient && mode.ambient !== 'off' ? mode.ambient : f.ambient; if (amb !== 'off') setAmbient(amb); }
   const { rest } = await getRaw('rest');
   if (rest && Date.now() >= rest.endsAt) await endRest({ notify: false });
@@ -62,6 +65,7 @@ chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'prune') pruneOldDays(
 chrome.commands.onCommand.addListener(async (cmd) => {
   if (cmd !== 'toggle-focus') return;
   const { focus } = await getRaw('focus');
+  if (isPaused(focus)) { await resumeFocus(); return; }
   if (isFocusActive(focus)) { if (!focus.strict) await stopFocus(); return; }
   const s = await getSettings();
   await startFocus({ minutes: s.focus.minutes, strict: s.focus.strict });
