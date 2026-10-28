@@ -26,7 +26,7 @@ export const TYPEFACES = {
   system:      { label: 'System',           stack: SANS,                                w: [100, 900], def: 300, cyr: true },
 };
 export const TYPEFACE_IDS = Object.keys(TYPEFACES);
-export const FILLS = ['solid', 'gradient', 'outline'];
+export const FILLS = ['solid', 'gradient', 'outline', 'glass', 'photo'];
 
 /** What a style looks like when the user has not touched it. */
 export const CLOCK_DEFAULT = { font: 'look', weight: null, tracking: null, fill: 'solid', color: null, color2: null, angle: 100, stroke: 2, glow: 0, shadow: 0, seconds: false, tabular: true };
@@ -74,6 +74,23 @@ export function clockDecls(s) {
   if (s.fill === 'gradient') {
     const a = s.color || GRAD_A, b = s.color2 || GRAD_B;
     Object.assign(d, { 'background-image': `linear-gradient(${s.angle}deg, ${a}, ${b})`, '-webkit-background-clip': 'text', 'background-clip': 'text', '-webkit-text-fill-color': 'transparent', color: a, '-webkit-text-stroke': '0' });
+  } else if (s.fill === 'glass') {
+    // frosted glass: a soft copy of the photo shows through the digits under a light tint (the person's colour, else white — dark on a light photo), with a bright edge and a soft shadow;
+    // the picture's size and place are set by the page (--clk-bgs / --clk-bgp)
+    const tint = s.color || 'var(--glass-tint, #fff)';
+    Object.assign(d, {
+      'background-image': `linear-gradient(180deg, color-mix(in srgb, ${tint} 52%, transparent), color-mix(in srgb, ${tint} 16%, transparent) 62%, color-mix(in srgb, ${tint} 34%, transparent)), var(--photo-soft, none)`,
+      'background-size': 'auto, var(--clk-bgs, cover)', 'background-position': '0 0, var(--clk-bgp, center)', 'background-repeat': 'no-repeat',
+      '-webkit-background-clip': 'text', 'background-clip': 'text', '-webkit-text-fill-color': 'transparent', color: 'transparent',
+      '-webkit-text-stroke': '0',
+    });
+  } else if (s.fill === 'photo') {
+    // the digits are windows into the photo itself
+    Object.assign(d, {
+      'background-image': 'var(--photo, linear-gradient(#fff, #fff))',
+      'background-size': 'var(--clk-bgs, cover)', 'background-position': 'var(--clk-bgp, center)', 'background-repeat': 'no-repeat',
+      '-webkit-background-clip': 'text', 'background-clip': 'text', '-webkit-text-fill-color': 'transparent', color: 'transparent', '-webkit-text-stroke': '0',
+    });
   } else if (s.fill === 'outline') {
     Object.assign(d, { 'background-image': 'none', '-webkit-text-fill-color': 'transparent', '-webkit-text-stroke': `${s.stroke}px ${base || 'currentColor'}` });
     if (base) d.color = base;
@@ -82,6 +99,8 @@ export function clockDecls(s) {
   }
   const glowColor = s.fill === 'gradient' ? (s.color || GRAD_A) : base || 'currentColor';
   const parts = [];
+  if (s.fill === 'glass') parts.push(`drop-shadow(0 0 1px color-mix(in srgb, ${s.color || 'var(--glass-tint, #fff)'} 80%, transparent))`, 'drop-shadow(0 14px 34px rgba(0, 0, 0, 0.28))'); // a fine bright rim (a stroke would show the overlapping contours of some fonts)
+  if (s.fill === 'photo') parts.push('drop-shadow(0 10px 28px rgba(0, 0, 0, 0.3))');
   if (s.glow > 0) parts.push(`drop-shadow(0 0 ${Math.round(8 + s.glow * 48)}px color-mix(in srgb, ${glowColor} ${Math.round(40 + s.glow * 40)}%, transparent))`);
   if (s.shadow > 0) parts.push(`drop-shadow(0 ${Math.round(2 + s.shadow * 18)}px ${Math.round(6 + s.shadow * 34)}px rgba(0, 0, 0, ${r3(0.15 + s.shadow * 0.4)}))`);
   if (parts.length) d.filter = parts.join(' ');

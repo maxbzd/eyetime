@@ -4,6 +4,7 @@
 import { $ } from '../ui/dom.js';
 import { normalizeCanvas, clampCenter, blockMeta, CANVAS_IDS, CANVAS_MIN_WIDTH, canvasScale } from '../shared/canvas.js';
 import { WIDGET_ID_RE } from '../shared/widgets.js';
+import { alignClockFill } from './type-apply.js';
 
 /** The element of a movable block (null if it is not on the page, e.g. a card switched off in settings). */
 export function blockEl(id) {
@@ -34,6 +35,7 @@ export function placeBlock(id, item, k = canvasScale(window.innerWidth)) {
   el.style.setProperty('--cx', String(item.x)); el.style.setProperty('--cy', String(item.y));
   if (b.kind === 'text') { el.style.setProperty('--cs', String(item.s ?? b.def)); el.style.setProperty('--csx', String(item.sx ?? item.s ?? b.def)); } else el.style.setProperty('--cw', String(item.w ?? b.def));
   document.body.style.setProperty('--k', String(k));
+  if (id === 'clock') alignClockFill(); // the glass / photo clock follows the clock when it is moved or scaled
   if (!watched.has(el) && window.ResizeObserver) { ro = ro || new window.ResizeObserver((es) => es.forEach((e) => keepOnScreen(/** @type {HTMLElement} */ (e.target)))); ro.observe(el); watched.add(el); }
 }
 
