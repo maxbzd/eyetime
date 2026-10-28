@@ -1,5 +1,6 @@
 // Common page bootstrap: load settings, set language + theme, hydrate static markup.
 
+import { installSpotlight } from './spotlight.js';
 import { getSettings, onChange } from '../shared/storage.js';
 import { resolveLocale, setLocale, applyI18n } from '../shared/i18n.js';
 import { hydrateIcons } from './dom.js';
@@ -29,6 +30,7 @@ export async function bootPage({ onSettings } = {}) {
   applyTheme(settings);
   applyI18n();
   hydrateIcons();
+  installSpotlight(); // the Obsidian look's light that follows the pointer round a card (no effect in other looks)
   if (onSettings) {
     onChange('settings', async () => {
       const s = await getSettings();

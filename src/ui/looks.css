@@ -461,8 +461,8 @@ html[data-look="obsidian"][data-scheme="dark"] .card { position: relative; backg
 /* the pointer's light: a faint wash inside the card and a brighter rim near the cursor */
 html[data-look="obsidian"][data-scheme="dark"] .card::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .35s var(--ease);
   background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 255, 255, .07), transparent 62%); }
-html[data-look="obsidian"][data-scheme="dark"] .card::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none; opacity: 0; transition: opacity .35s var(--ease);
-  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 190, 150, .75), rgba(183, 148, 255, .35) 45%, transparent 70%);
+html[data-look="obsidian"][data-scheme="dark"] .card::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1.5px; pointer-events: none; opacity: 0; transition: opacity .35s var(--ease);
+  background: radial-gradient(440px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 196, 160, .95), rgba(183, 148, 255, .5) 38%, transparent 72%);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
 html[data-look="obsidian"][data-scheme="dark"] .card:hover::before, html[data-look="obsidian"][data-scheme="dark"] .card:hover::after { opacity: 1; }
 /* a beam runs round the focus card while a session is on */
