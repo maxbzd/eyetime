@@ -43,7 +43,7 @@ const { launch } = require('./lib.cjs');
   await open();
   ok(hits.length === 0, 'nothing is requested while the weather is off: ' + hits.length);
   ok(await p.locator('.wx-fx').count() === 0, 'no effect canvas while it is off');
-  ok(/Weather is off/.test(await p.locator('#wgt-wwx01').textContent()) && await p.locator('#wgt-wwx01 a[href*="options.html#general"]').count() === 1, 'the widget says it is off and links to Settings');
+  ok(/Weather is off/.test(await p.locator('#wgt-wwx01').textContent()) && await p.locator('#wgt-wwx01 a[href*="options.html#home"]').count() === 1, 'the widget says it is off and links to Settings');
 
   // on with a city: temperature, words, range, rain chance; one request that carries only the coordinates
   await cfg({ on: true, place: { name: 'Kyiv', lat: 50.4501, lon: 30.5234 }, unit: 'c', effect: true });
@@ -95,7 +95,7 @@ const { launch } = require('./lib.cjs');
 
   // Settings: turn on, find a city, pick it, unit, effect
   await cfg({ on: false, place: null });
-  await sp.goto(ext('src/options/options.html#general')); await sp.waitForTimeout(900);
+  await sp.goto(ext('src/options/options.html#home')); await sp.waitForTimeout(900);
   await sp.locator('.setting', { hasText: 'Show the weather' }).locator('input[type="checkbox"]').check({ force: true }); await sp.waitForTimeout(900);
   const st1 = await sp.evaluate(async () => (await (await import('/src/shared/storage.js')).getSettings()).weather);
   ok(st1.on === true, 'the switch turns the weather on');

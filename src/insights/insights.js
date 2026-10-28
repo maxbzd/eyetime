@@ -14,6 +14,7 @@ import { accuracyInput } from '../shared/tasks.js';
 import { mondayKey, weekProgress } from '../shared/week.js';
 import { triggerInsights } from '../shared/triggers.js';
 import { makeClassifier } from '../shared/classify.js';
+import { loadGuess } from '../shared/guessstore.js';
 import { summarize, delta, insights as computeInsights, focusStreak, suggestLimit } from '../shared/stats.js';
 import { rangeKeys, addDays, dayKey, parseKey } from '../shared/time.js';
 
@@ -23,10 +24,12 @@ if (!(range in RANGES)) range = '7';
 const TABS = ['overview', 'focus', 'sites', 'patterns'];
 let tab = (() => { try { return localStorage.getItem('et-itab'); } catch { return null; } })();
 if (!TABS.includes(tab)) tab = 'overview';
+let guess = {}, cls = null; // the on-device model's guesses about unknown sites (shared/siteguess.js), and the classifier of the last render
 let settings, shown = 10, tableView = false, tlBack = 0; // tlBack: days before today shown in the day timeline
 
 async function load() {
   settings = await getSettings();
+  guess = await loadGuess();
   const n = RANGES[range];
   const today = new Date();
   const [cur, prev, heat] = await Promise.all([
@@ -104,7 +107,7 @@ function sitesCard(sum) {
       toast(t('insights.marked', { host: s.host, cls: t('class.' + v).toLowerCase() }), { action: t('common.undo'), onAction: async () => { await updateSettings((st) => { st.sites[s.host] = was; }); send('settings:changed'); } });
     }, { label: t('insights.classifyAria', { host: s.host }), cls: 'tag tag-' + s.cls, bare: true, chevron: false });
     return h('tr', {},
-      h('td', { class: 'name' }, h('div', { class: 'site' }, favicon(s.host), h('span', { text: s.host, title: s.host }))),
+      h('td', { class: 'name' }, h('div', { class: 'site' }, favicon(s.host), h('span', { text: s.host, title: s.host }), cls && cls.guessed(s.host) ? h('span', { class: 'guess-mark', role: 'img', title: t('sg.mark'), 'aria-label': t('sg.mark') }, icon('sparkles')) : null)),
       h('td', { class: 'cls' }, h('span', { class: 'tag-wrap tag-' + s.cls }, sel, icon('chevron-down'))),
       h('td', { class: 'share' }, h('div', { class: 'progress' }, h('i', { class: s.cls, style: { width: Math.max(2, (s.sec / max) * 100) + '%' } }))),
       h('td', { class: 'time', text: fmtDuration(s.sec) }),
@@ -265,7 +268,8 @@ function emptyState() {
 
 let data;
 function render() {
-  const { classify } = makeClassifier(settings);
+  cls = makeClassifier(settings, guess);
+  const { classify } = cls;
   const sum = summarize(data.cur, classify);
   const prev = summarize(data.prev, classify);
   const streak = focusStreak(data.heat);
@@ -304,7 +308,7 @@ function drawRange() {
 }
 
 function exportCsv() {
-  const { classify } = makeClassifier(settings);
+  const { classify } = makeClassifier(settings, guess);
   const lines = ['date,domain,seconds,class'];
   for (const [key, d] of data.heat.concat(data.cur).filter((e, i, a) => e[1] && a.findIndex((x) => x[0] === e[0]) === i)) {
     for (const [host, sec] of Object.entries(d.d || {})) lines.push(`${key},${host},${sec},${classify(host)}`);
@@ -323,5 +327,5 @@ function exportCsv() {
   drawRange();
   data = await load();
   render();
-  onChange(['d:*'], async () => { data = await load(); render(); });
+  onChange(['d:*', 'siteGuess'], async () => { data = await load(); render(); });
 })();

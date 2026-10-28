@@ -12,7 +12,7 @@ import { isPaused } from '../shared/focus.js';
 import { taskFromInput } from '../shared/tasks.js';
 import { modeName } from '../shared/modes.js';
 
-const SECTIONS = ['general', 'appearance', 'focus', 'blocking', 'eye', 'tracking', 'data', 'about'];
+const SECTIONS = ['general', 'home', 'appearance', 'focus', 'blocking', 'eye', 'tracking', 'data', 'about'];
 const ITABS = ['overview', 'focus', 'sites', 'patterns'];
 const url = (p) => chrome.runtime.getURL(p);
 

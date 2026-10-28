@@ -36,6 +36,7 @@ import { normalizeDepth } from '../shared/depth.js';
 import { showQuote } from '../ui/quote.js';
 import { mountStandby } from './standby.js';
 import { mountWeatherFx } from './weather-fx.js';
+import { autoGuess } from '../ui/siteai.js';
 import { loadWeather } from './weather.js';
 import { describeCode } from '../shared/weather.js';
 
@@ -324,6 +325,7 @@ function renderOff() {
   paintClock(); scheduleClock(); applyType(settings); await applyBackground();
   let rz = 0; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { paintClock(); applyCanvas(settings); }, 120); });
   mountFocusCard($('#focus'), { variant: 'large' });
+  setTimeout(() => autoGuess().catch(() => {}), 5000); // experimental, off by default: the on-device model learns about the few most used unknown sites
   setInterval(() => applyWeatherFx(), 10 * 60_000); onChange(['weatherCache'], () => applyWeatherFx());
   standby = mountStandby({ getSettings: () => settings, getFocus: () => runningFocus });
   if (new URLSearchParams(location.search).has('standby')) standby.show();

@@ -7,6 +7,7 @@ import { mountToday } from '../ui/today-card.js';
 import { t, fmtDuration, fmtTime } from '../shared/i18n.js';
 import { getSettings, updateSettings, getRaw, getDays, onChange, updateCollection } from '../shared/storage.js';
 import { makeClassifier } from '../shared/classify.js';
+import { loadGuess } from '../shared/guessstore.js';
 import { dayKey } from '../shared/time.js';
 import { hostFromUrl, matches } from '../shared/domains.js';
 
@@ -22,7 +23,7 @@ async function renderSite() {
   el.hidden = false;
   const settings = await getSettings();
   const [[, day]] = await getDays([dayKey()]);
-  const { classify } = makeClassifier(settings);
+  const { classify } = makeClassifier(settings, await loadGuess());
   const cls = classify(host);
   const b = settings.blocking;
   const sec = Object.entries(day?.d || {}).reduce((a, [hh, s]) => (matches(hh, host) ? a + s : a), 0);

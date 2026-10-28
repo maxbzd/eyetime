@@ -5,6 +5,7 @@ import { h, svg, clear } from '../ui/dom.js';
 import { t, fmtDuration } from '../shared/i18n.js';
 import { getSettings, getDays, getCollection, onChange } from '../shared/storage.js';
 import { makeClassifier } from '../shared/classify.js';
+import { loadGuess } from '../shared/guessstore.js';
 import { summarize } from '../shared/stats.js';
 import { dayKey, rangeKeys } from '../shared/time.js';
 
@@ -27,7 +28,7 @@ export async function loadRings(settings) {
   const days = await getDays(rangeKeys(1));
   const today = days[0][1];
   const tasks = await getCollection('tasks', []);
-  const { classify } = makeClassifier(settings);
+  const { classify } = makeClassifier(settings, await loadGuess());
   const sum = summarize([[dayKey(), today]], classify);
   const goalMin = settings.focus.dailyGoal, focusSec = today?.fs || 0;
   const start = new Date(); start.setHours(0, 0, 0, 0);
