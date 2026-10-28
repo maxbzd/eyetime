@@ -87,6 +87,8 @@ export const DEFAULT_SETTINGS = {
     links: [],
     clock24: null,             // null = follow locale
     greeting: true,
+    layouts: [],               // other layouts of Home that switch on by themselves (see shared/layouts.js)
+    layoutPin: null,           // a layout shown until unpinned, whatever the time or focus say
     depth: { on: true, parallax: true, strength: 60 }, // layers in front of the clock and the slide against the pointer (see shared/depth.js)
     widgets: [],               // widgets added on Home: [{ id, kind, cfg }] (see shared/widgets.js)
     type: {},                  // the clock / greeting type designer (see shared/typeface.js); empty = the look's own typography

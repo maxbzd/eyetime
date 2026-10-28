@@ -51,3 +51,10 @@ body.cv-editing .nt-top, body.cv-editing .kbd-hint { display: none; }
 .ty-color { grid-column: 2 / -1; display: flex; align-items: center; gap: var(--s-2); } .ty-color input[type="color"] { width: 44px; height: 30px; padding: 0; border: 1px solid var(--border-strong); border-radius: var(--r-sm); background: none; cursor: pointer; } .ty-auto { font-size: var(--fs-xs); }
 .ty-row .switch { justify-self: end; grid-column: 3; }
 @media (max-width: 1300px) { .cv-panel { width: 280px; } }
+
+/* ---------- layouts panel ---------- */
+.ly-row { display: flex; flex-direction: column; gap: var(--s-2); padding: var(--s-3); border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface-2); }
+.ly-row.is-edit { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-ring); }
+.ly-top { display: flex; align-items: center; gap: var(--s-2); } .ly-top .input { flex: 1; min-width: 0; } .ly-top .ico { font-size: 14px; color: var(--accent-text); }
+.ly-body { display: flex; flex-direction: column; gap: var(--s-2); }
+.ly-time { display: flex; align-items: center; gap: 6px; font-size: var(--fs-xs); }
