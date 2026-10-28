@@ -10,9 +10,12 @@ export const currentPhotoInfo = () => cache.info;
 /** Forget the photo (the background is no longer one). */
 export const clearPhotoInfo = () => { cache = { key: '', info: null }; };
 
+/** A short name for a photo (enough to tell one from another), so what was made from it can be matched with it. */
+export const photoKey = (src) => src.length + ':' + src.slice(-48);
+
 /** Look at the photo once (a small copy of it) and keep what was learned. */
 export async function getPhotoInfo(src) {
-  const key = src.length + ':' + src.slice(-48);
+  const key = photoKey(src);
   if (cache.key === key && cache.info) return cache.info;
   let info = { tone: /** @type {'light' | 'dark'} */ ('light'), w: 0, h: 0, soft: '' };
   try {

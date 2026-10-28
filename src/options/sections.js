@@ -7,6 +7,7 @@ import { t, LANGUAGES, weekdayName, fmtDuration } from '../shared/i18n.js';
 import { PRESETS, PRESET_IDS } from '../shared/catalog.js';
 import { parseUserDomain } from '../shared/domains.js';
 import { dockGroup } from './dock-group.js';
+import { weatherGroup } from './weather-group.js';
 
 export { appearance } from './appearance-section.js';
 const sec = (id, ...kids) => h('section', { class: 'sec', id }, kids);
@@ -21,6 +22,7 @@ export function general({ s, save, refresh }) {
       row({ title: t('opt.homeEnabled'), desc: t('opt.homeEnabledDesc'), control: toggle(s.newtab.enabled, (v) => save((x) => { x.newtab.enabled = v; }), t('opt.homeEnabled')) }),
       row({ title: t('opt.homeCustomize'), desc: t('opt.homeCustomizeDesc'), control: h('a', { class: 'btn', href: chrome.runtime.getURL('src/newtab/newtab.html') }, icon('sliders-horizontal'), t('home.customize')) })),
     dockGroup(s, save, refresh),
+    weatherGroup(s, save, refresh),
     group(t('qt.title'),
       row({ title: t('qt.on'), desc: t('qt.onDesc'), control: toggle(s.quotes.on, (v) => save((x) => { x.quotes.on = v; }, true), t('qt.on')) }),
       s.quotes.on ? [
