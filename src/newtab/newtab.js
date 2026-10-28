@@ -18,10 +18,9 @@ import { applyCanvas, canvasActive } from './canvas.js';
 import { applyType, clockSeconds } from './type-apply.js';
 import { createWidgetHost } from './widgets.js';
 import { applyDepth } from './depth.js';
-import { cutOut } from './cutout.js';
+import { BACKGROUNDS, CLOCKS, LAYOUTS, backgroundControls, depthControls, lookControls, accentControls, clockFormatControls } from './home-controls.js';
 import { themeBlock } from './theme-io.js';
 import { resolveSettings, wantedLayout, activeLayoutId, editingLayoutId, setFocusing, home } from './home-config.js';
-import { normalizeDepth } from '../shared/depth.js';
 import { downloadBackup, needsBackup } from '../ui/backup.js';
 import { send } from '../ui/api.js';
 import { setCollection } from '../shared/storage.js';
@@ -30,14 +29,10 @@ import { LOOKS } from '../shared/looks.js';
 import { fmtDuration } from '../shared/i18n.js';
 import { clock, remainingMs } from '../shared/focus.js';
 import { isFocusActive } from '../shared/blocking.js';
-import { looksGallery, accentPicker } from '../ui/appearance.js';
 import { luminance, normalizeHex } from '../shared/color.js';
 
-const BACKGROUNDS = ['look', 'peaks', 'dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'grid', 'living', 'plain', 'color'];
 const DARK_SCENES = ['aurora', 'stars', 'photo', 'sea', 'onyx', 'peaks'];
 const MODULES = ['today', 'tasks', 'habits', 'notes', 'links'];
-const CLOCKS = ['thin', 'bold', 'mono', 'serif', 'compact', 'stacked', 'none'];
-const LAYOUTS = ['center', 'split', 'minimal'];
 /** Saved order, completed with any module it does not mention (new modules, hand-edited backups). */
 const moduleOrder = (n) => [...new Set([...(n.order || []).filter((m) => MODULES.includes(m)), ...MODULES])];
 let settings, rawSettings, linksMod;
@@ -143,20 +138,6 @@ async function applyBackground() {
   document.body.dataset.tone = DARK_SCENES.includes(bg) || (bg === 'color' && luminance(color) < 0.28) ? 'dark' : '';
 }
 
-/** Downscale a user photo so storage stays small. */
-function fileToDataUrl(file, maxW = 1920) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      const k = Math.min(1, maxW / img.width);
-      const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
-      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-      resolve(c.toDataURL('image/jpeg', 0.82)); URL.revokeObjectURL(img.src);
-    };
-    img.onerror = reject; img.src = URL.createObjectURL(file);
-  });
-}
-
 /* ---------- modules ---------- */
 
 let modEls = [], widgetEls = [];
@@ -198,49 +179,13 @@ async function openEditor() {
 }
 function closeDrawer() { $('#drawer').hidden = true; $('#scrim').hidden = true; $('#customize').focus(); }
 
-/** "Depth for your photo": cut the subject out on this device so the clock can sit behind it. */
-function cutoutBlock() {
-  const status = h('div', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, role: 'status', 'aria-live': 'polite' });
-  const make = h('button', { class: 'btn btn-sm', type: 'button' }, icon('scissors'), t('ct.make'));
-  const remove = h('button', { class: 'btn btn-sm btn-ghost', type: 'button', hidden: true }, icon('x'), t('ct.remove'));
-  const sync = (has) => { make.hidden = has; remove.hidden = !has; };
-  getRaw('newtabFg').then(({ newtabFg }) => sync(!!newtabFg));
-  make.addEventListener('click', async () => {
-    const { newtabBg } = await getRaw('newtabBg');
-    if (!newtabBg) { status.textContent = t('ct.noPhoto'); return; }
-    make.disabled = true;
-    try {
-      const r = await cutOut(newtabBg, (stage) => { status.textContent = t('ct.' + stage); });
-      if (!r.usable) { status.textContent = t('ct.unusable'); return; }
-      await setRaw({ newtabFg: r.dataUrl }); sync(true); status.textContent = t('ct.done');
-    } catch { status.textContent = t('ct.error'); } finally { make.disabled = false; }
-  });
-  remove.addEventListener('click', async () => { await chrome.storage.local.remove('newtabFg'); sync(false); status.textContent = ''; });
-  return h('div', { class: 'stack gap-2', style: { marginTop: 'var(--s-4)' } }, h('div', { class: 'eyebrow', text: t('ct.title') }), h('p', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, text: t('ct.hint') }), h('div', { class: 'row gap-2' }, make, remove), status);
-}
-
 function drawDrawer() {
   const body = $('#drawerBody'), n = settings.newtab;
   const set = (fn) => updateSettings((s) => { fn({ ...s, newtab: home(s) }); }); // edits go to the layout in use
 
-  const fileIn = h('input', { type: 'file', accept: 'image/*', hidden: true, onchange: async (e) => {
-    const f = e.target.files[0]; if (!f) return;
-    try { await setRaw({ newtabBg: await fileToDataUrl(f) }); await chrome.storage.local.remove('newtabFg'); await set((s) => { s.newtab.background = 'photo'; }); await applyBackground(); toast(t('home.photoSaved')); } catch { toast(t('common.error')); }
-  } });
-
-  const tiles = [...BACKGROUNDS, 'photo'].map((id) => h('button', { class: 'bg-tile', type: 'button', 'aria-pressed': String(n.background === id), onclick: async () => {
-    if (id === 'photo') { const { newtabBg } = await getRaw('newtabBg'); if (!newtabBg) { fileIn.click(); return; } }
-    await set((s) => { s.newtab.background = id; });
-  } }, h('i', { class: 'bgx-' + (id === 'photo' ? 'plain' : id), style: id === 'photo' ? { background: 'repeating-linear-gradient(45deg, var(--surface-2), var(--surface-2) 6px, var(--surface-3) 6px, var(--surface-3) 12px)' } : id === 'color' ? { '--bg-color': normalizeHex(n.bgColor) || '#e9e4ff' } : {} }), h('span', { text: t('bg.' + id) })));
-
-  const colorIn = h('label', { class: 'row gap-2', style: { marginTop: 'var(--s-3)' } }, h('span', { class: 'muted-2', text: t('home.bgColor') }),
-    h('input', { type: 'color', value: normalizeHex(n.bgColor) || '#e9e4ff', 'aria-label': t('home.bgColor'), onchange: (e) => set((s) => { s.newtab.bgColor = e.target.value; s.newtab.background = 'color'; }) }));
-
   const seg = (label, list, value, key, keyPrefix) => h('div', { class: 'segmented wrap-seg', role: 'group', 'aria-label': label },
     list.map((v) => h('button', { type: 'button', 'aria-pressed': String(v === value), text: t(keyPrefix + v), onclick: () => set((s) => { s.newtab[key] = v; }) })));
 
-  const depth = normalizeDepth(n.depth);
-  const depthToggle = (label, on, patch) => h('label', { class: 'toggle-row' }, h('span', { text: label }), h('span', { class: 'switch' }, h('input', { type: 'checkbox', checked: on, 'aria-label': label, onchange: (e) => set((s) => { s.newtab.depth = { ...normalizeDepth(s.newtab.depth), ...patch(e.target.checked) }; }) }), h('span', { class: 'track' }), h('span', { class: 'thumb' })));
   const order = moduleOrder(n);
   const move = (m, d) => set((s) => { const o = moduleOrder(s.newtab); const i = o.indexOf(m), j = i + d; if (j < 0 || j >= o.length) return; [o[i], o[j]] = [o[j], o[i]]; s.newtab.order = o; });
   const modRows = order.map((m, i) => h('div', { class: 'toggle-row mod-row' },
@@ -249,25 +194,18 @@ function drawDrawer() {
     h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', disabled: i === order.length - 1, 'aria-label': t('home.moveDown') + ': ' + t('mod.' + m), onclick: () => move(m, 1) }, icon('arrow-down')),
     h('span', { class: 'switch' }, h('input', { type: 'checkbox', checked: !!n.modules[m], 'aria-label': t('mod.' + m), onchange: (e) => set((s) => { s.newtab.modules[m] = e.target.checked; }) }), h('span', { class: 'track' }), h('span', { class: 'thumb' }))));
 
-  const clockSeg = h('div', { class: 'segmented', role: 'group', 'aria-label': t('home.clockFormat') }, [[null, 'home.clockAuto'], [false, 'home.clock12'], [true, 'home.clock24']].map(([v, k]) => h('button', { type: 'button', 'aria-pressed': String(n.clock24 === v), text: t(k), onclick: () => set((s) => { s.newtab.clock24 = v; }) })));
-
   const section = (title, ...kids) => h('div', {}, h('h4', { text: title }), ...kids);
+  const [clockSeg, greeting] = clockFormatControls(n, set);
   clear(body,
     section(t('cv.edit'), h('p', { class: 'muted', style: { marginBottom: 'var(--s-3)' }, text: t('cv.drawerHint') }), h('button', { class: 'btn btn-primary', type: 'button', onclick: openEditor }, icon('move'), t('cv.edit'))),
     section(t('th.title'), themeBlock()),
-    section(t('ap.looks'), looksGallery(settings.appearance, { compact: true, onPick: (id) => set((s) => { s.appearance.look = id; if (s.newtab.background === 'dawn') s.newtab.background = 'look'; }) })),
-    section(t('home.accent'), accentPicker(settings.appearance, (v) => set((s) => { s.appearance.accent = v; }))),
-    section(t('home.background'), h('div', { class: 'bg-grid' }, tiles), fileIn,
-      n.background === 'color' ? null : colorIn,
-      n.background === 'photo' ? h('button', { class: 'btn btn-sm', style: { marginTop: 'var(--s-3)' }, type: 'button', onclick: () => fileIn.click() }, icon('image'), t('home.changePhoto')) : null,
-      n.background === 'photo' ? cutoutBlock() : null),
-    section(t('dp.title'), h('p', { class: 'muted', style: { fontSize: 'var(--fs-sm)', marginBottom: 'var(--s-2)' }, text: t('dp.hint') }),
-      depthToggle(t('dp.on'), depth.on, (v) => ({ on: v })), depthToggle(t('dp.parallax'), depth.parallax, (v) => ({ parallax: v })),
-      h('label', { class: 'toggle-row' }, h('span', { text: t('dp.strength') }), h('input', { type: 'range', min: 0, max: 100, step: 5, value: depth.strength, 'aria-label': t('dp.strength'), disabled: !depth.on || !depth.parallax, style: { width: '140px', accentColor: 'var(--accent)' }, onchange: (e) => set((s) => { s.newtab.depth = { ...normalizeDepth(s.newtab.depth), strength: Number(e.target.value) }; }) }))),
+    section(t('ap.looks'), ...lookControls(settings, set)),
+    section(t('home.accent'), ...accentControls(settings, set)),
+    section(t('home.background'), ...backgroundControls(n, set)),
+    section(t('dp.title'), ...depthControls(n, set)),
     section(t('home.layout'), seg(t('home.layout'), LAYOUTS, n.layout, 'layout', 'layout.')),
     section(t('home.modules'), modRows),
-    section(t('home.clock'), seg(t('home.clockStyle'), CLOCKS, n.clockStyle, 'clockStyle', 'clock.'), h('div', { style: { height: 'var(--s-3)' } }), clockSeg,
-      h('label', { class: 'toggle-row', style: { marginTop: 'var(--s-3)' } }, h('span', { text: t('home.greeting') }), h('span', { class: 'switch' }, h('input', { type: 'checkbox', checked: n.greeting, onchange: (e) => set((s) => { s.newtab.greeting = e.target.checked; }) }), h('span', { class: 'track' }), h('span', { class: 'thumb' })))),
+    section(t('home.clock'), seg(t('home.clockStyle'), CLOCKS, n.clockStyle, 'clockStyle', 'clock.'), h('div', { style: { height: 'var(--s-3)' } }), clockSeg, greeting),
     h('a', { class: 'btn', href: chrome.runtime.getURL('src/options/options.html#appearance') }, icon('palette'), t('home.moreAppearance')));
 }
 
