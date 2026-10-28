@@ -2,9 +2,9 @@
 // Pure functions only (no DOM), so the geometry can be unit-tested: validation, keeping a block on screen, snapping to guides, nudging.
 //
 // A block is placed by its centre in percent of the window (x, y) and sized either by a scale (text blocks: the clock, the greeting)
-// or by a width in px (cards: they reflow inside it). A text block can also be stretched: `s` is its height scale, `sx` its width scale (absent = the same as `s`). Percent positions keep the arrangement sensible at any window size.
+// or by a width in px (cards: they reflow inside it); `z` is its place in the stack when blocks overlap (higher is in front). A text block can also be stretched: `s` is its height scale, `sx` its width scale (absent = the same as `s`). Percent positions keep the arrangement sensible at any window size.
 
-/** @typedef {{ x: number, y: number, s?: number, sx?: number, w?: number }} CanvasItem */
+/** @typedef {{ x: number, y: number, s?: number, sx?: number, w?: number, z?: number }} CanvasItem */
 /** @typedef {{ on: boolean, items: Record<string, CanvasItem> }} Canvas */
 /** @typedef {{ x: number, y: number, w: number, h: number }} Rect */
 
@@ -28,6 +28,7 @@ export const blockMeta = (id) => CANVAS_BLOCKS[id] || (WIDGET_ID.test(id) ? WIDG
 /** Below this window width the arrangement is not applied (the normal stacked layout is used). */
 export const CANVAS_MIN_WIDTH = 1100;
 
+export const Z_DEFAULT = 2, Z_MAX = 99;
 const num = (v, lo, hi, fallback) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : fallback);
 const r2 = (n) => Math.round(n * 100) / 100;
 /** The range of the horizontal scale of a text block: wider than its height range, so a time can be pulled long or squeezed narrow. */
@@ -50,6 +51,7 @@ export function normalizeCanvas(c) {
       const [lo, hi] = stretchRange(b), sx = r2(num(it.sx, lo, hi, item.s));
       if (Math.abs(sx - item.s) > 0.005) item.sx = sx;
     } else item.w = Math.round(num(it.w, b.min, b.max, b.def));
+    if (typeof it.z === 'number' && Number.isFinite(it.z)) item.z = Math.round(Math.min(Z_MAX, Math.max(0, it.z)));
     out.items[id] = item;
   }
   return out;
@@ -165,4 +167,46 @@ export function seedItems(present) {
   const items = {};
   for (const id of Object.keys(all)) if (!present || present.includes(id)) items[id] = all[id];
   return normalizeCanvas({ on: true, items }).items;
+}
+
+/** Put one block in front of or behind all the others. Every block gets an explicit place, in the order it had (ties follow `tie`). */
+export function reorder(items, id, where, tie = []) {
+  const pos = (k) => { const i = tie.indexOf(k); return i < 0 ? tie.length : i; }; // blocks without an explicit place stack as they do on the page (`tie` lists them back to front)
+  const ids = Object.keys(items).sort((a, b) => (items[a].z ?? Z_DEFAULT) - (items[b].z ?? Z_DEFAULT) || pos(a) - pos(b));
+  const rest = ids.filter((k) => k !== id);
+  const order = where === 'front' ? [...rest, id] : [id, ...rest];
+  const out = {};
+  for (const k of Object.keys(items)) out[k] = { ...items[k], z: Math.min(Z_MAX, Z_DEFAULT + order.indexOf(k)) };
+  return out;
+}
+
+/** Flush a block with an edge of the window or centre it. `size` is the block as drawn (px), `how` is left | hcenter | right | top | vcenter | bottom. */
+export function alignItem(item, how, size, view, margin = 16) {
+  const lo = (s, v) => r2((s / 2 + margin) / v * 100);
+  switch (how) {
+    case 'left': return { ...item, x: lo(size.w, view.w) };
+    case 'right': return { ...item, x: r2(100 - lo(size.w, view.w)) };
+    case 'hcenter': return { ...item, x: 50 };
+    case 'top': return { ...item, y: lo(size.h, view.h) };
+    case 'bottom': return { ...item, y: r2(100 - lo(size.h, view.h)) };
+    case 'vcenter': return { ...item, y: 50 };
+    default: return item;
+  }
+}
+
+/** The size a person types: a text block's scale in percent (100 = normal), a card's width in px. */
+export function sizeValue(id, item) {
+  const b = blockMeta(id);
+  return b.kind === 'text' ? Math.round((item.s ?? b.def) * 100) : Math.round(item.w ?? b.def);
+}
+/** Set that size (the same units) keeping a stretched block's proportions; out-of-range values are clamped. */
+export function withSize(id, item, value) {
+  const b = blockMeta(id);
+  if (!Number.isFinite(value)) return item;
+  if (b.kind === 'text') {
+    const s0 = item.s ?? b.def, s = r2(num(value / 100, b.min, b.max, b.def)), out = { ...item, s };
+    if (item.sx) out.sx = r2(num(item.sx * s / s0, ...stretchRange(b), s));
+    return out;
+  }
+  return { ...item, w: Math.round(num(value, b.min, b.max, b.def)) };
 }
