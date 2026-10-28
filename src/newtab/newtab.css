@@ -65,17 +65,46 @@ body { min-height: calc(100vh / var(--ui-scale, 1)); position: relative; }
 .bgx-seaday { --sky-top: #aebbd0; --sky-mid: #cbc9d9; --sky-low: #e5d0d4; --sky-hz: #f7dac8; --sea-hz: #dcc5c8; --sea-mid: #b3c0d2; --sea-deep: #8ea0b8;
   --sun-core: rgba(255, 224, 190, .85); --sun-halo: rgba(255, 196, 170, .35); --sun-ref: rgba(255, 226, 200, .75); --streak: .035; }
 
-/* onyx (Obsidian, dark): true black with one light from above — a coloured glow, the rim of a huge disc, a faint grid and grain */
+/* onyx (Obsidian, dark): true black with one light from above — a coloured glow, a faint grid; the rim of a huge disc is a layer in front of the clock (.dl-limb) */
 .bgx-onyx { background-color: #000; background-image:
     radial-gradient(ellipse 62% 40% at 50% -6%, rgba(255, 150, 100, .27), rgba(176, 110, 255, .17) 46%, transparent 74%),
     radial-gradient(ellipse 40% 22% at 50% -2%, rgba(255, 226, 200, .22), transparent 70%); }
-.bgx-onyx::before { inset: auto; left: 50%; top: -2500px; width: 2600px; height: 2600px; margin-left: -1300px; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(closest-side, transparent 97.4%, rgba(255, 190, 150, .07) 99.3%, rgba(255, 240, 226, .72) 99.86%, transparent 100%);
-  box-shadow: inset 0 -70px 120px -70px rgba(255, 140, 90, .16); filter: blur(.4px); }
 .bgx-onyx::after { background-image:
     linear-gradient(rgba(255, 255, 255, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px);
   background-size: 64px 64px; background-position: center top;
   -webkit-mask: radial-gradient(ellipse 70% 60% at 50% 0%, #000 0%, transparent 72%); mask: radial-gradient(ellipse 70% 60% at 50% 0%, #000 0%, transparent 72%); }
+
+/* peaks: an alpine dusk. Two ridges are drawn here (behind the clock); the nearest ridge is a layer in front of it (.dl-near) */
+.bgx-peaks { background-color: #1a1b3a; background-image:
+    radial-gradient(1.3px 1.3px at 12% 12%, rgba(255,255,255,.9), transparent), radial-gradient(1px 1px at 27% 22%, rgba(255,255,255,.7), transparent), radial-gradient(1.5px 1.5px at 41% 9%, rgba(255,255,255,.85), transparent),
+    radial-gradient(1px 1px at 58% 17%, rgba(255,255,255,.7), transparent), radial-gradient(1.4px 1.4px at 74% 8%, rgba(255,255,255,.9), transparent), radial-gradient(1px 1px at 88% 21%, rgba(255,255,255,.7), transparent), radial-gradient(1px 1px at 19% 33%, rgba(255,255,255,.55), transparent), radial-gradient(1.2px 1.2px at 93% 38%, rgba(255,255,255,.6), transparent),
+    radial-gradient(ellipse 42% 28% at 62% 68%, rgba(255, 170, 120, .85), rgba(255, 120, 120, .25) 42%, transparent 72%),
+    linear-gradient(180deg, #171a38 0%, #2d2a5c 28%, #6a4a7c 50%, #d98a82 66%, #f5b08a 74%, #2b2752 100%); }
+.bgx-peaks::before, .bgx-peaks::after, .bg-tile i.bgx-peaks::before, .bg-tile i.bgx-peaks::after { content: ""; position: absolute; inset: auto -3% -24px -3%; background-repeat: no-repeat; background-position: bottom; background-size: 100% 100%; will-change: transform; }
+.bgx-peaks::before { height: 58%; background-image: url("scenes/peaks-far.svg"); transform: translate3d(calc(var(--px, 0) * var(--str, 1) * -7px), calc(var(--py, 0) * var(--str, 1) * -3px), 0); }
+.bgx-peaks::after { height: 64%; background-image: url("scenes/peaks-mid.svg"); transform: translate3d(calc(var(--px, 0) * var(--str, 1) * -15px), calc(var(--py, 0) * var(--str, 1) * -6px), 0); }
+
+/* ---------- depth: layers in front of the clock, slid against the pointer (see depth.js) ---------- */
+.bg-front { position: fixed; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
+.dl { position: absolute; left: -4%; right: -4%; bottom: -40px; pointer-events: none; background-repeat: no-repeat; background-position: bottom; background-size: 100% 100%; will-change: transform;
+  transform: translate3d(calc(var(--px, 0) * var(--str, 1) * var(--k, 20) * -1px), calc(var(--py, 0) * var(--str, 1) * var(--k, 20) * -.5px), 0); }
+.dl-near { height: max(46vw, 62vh); background-image: url("scenes/peaks-near.svg"); }
+.dl-rocks { height: max(19vw, 26vh); background-image: url("scenes/sea-rocks.svg"); }
+.dl-mist { bottom: 38%; height: 26vh; filter: blur(12px); --mist: 255, 232, 222; background-image:
+    radial-gradient(ellipse 46% 62% at 16% 58%, rgba(var(--mist), .2), transparent 72%), radial-gradient(ellipse 40% 52% at 72% 40%, rgba(var(--mist), .16), transparent 72%), radial-gradient(ellipse 60% 38% at 46% 82%, rgba(var(--mist), .14), transparent 72%);
+  background-size: 140% 100%; animation: mist-drift 70s ease-in-out infinite alternate; }
+.bgx-seaday ~ .bg-front .dl-mist { --mist: 255, 255, 255; }
+@keyframes mist-drift { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+:root[data-motion="reduced"] .dl-mist { animation: none; } @media (prefers-reduced-motion: reduce) { .dl-mist { animation: none; } }
+.dl-limb { left: 50%; right: auto; top: -2390px; bottom: auto; width: 2600px; height: 2600px; margin-left: -1300px; border-radius: 50%; filter: blur(.4px);
+  background: radial-gradient(closest-side, transparent 97.4%, rgba(255, 190, 150, .07) 99.3%, rgba(255, 240, 226, .72) 99.86%, transparent 100%); }
+/* the clock sits between the layers: behind .bg-front (z 2), in front of the scene; cards and notices stay above everything */
+body.has-depth .clock { position: relative; z-index: 1; translate: calc(var(--px, 0) * var(--str, 1) * 9px) calc(var(--py, 0) * var(--str, 1) * 5px); }
+body.has-depth .card:not(.cv-item), body.has-depth .nudge { position: relative; z-index: 3; }
+body.has-depth .cv-item { z-index: 3; }
+body.has-depth #clock.cv-item { z-index: 1; } /* only the time goes behind the layers (like the iPhone); the greeting and cards stay readable */
+body.cv-editing { --str: 0 !important; }
+.bg-tile i.bgx-peaks::before { height: 58%; } .bg-tile i.bgx-peaks::after { height: 64%; }
 
 /* always-dark scenes: hero text switches to light (body[data-tone="dark"]) */
 .bgx-aurora { background-color: #070b1c; background-image:

@@ -87,6 +87,7 @@ export const DEFAULT_SETTINGS = {
     links: [],
     clock24: null,             // null = follow locale
     greeting: true,
+    depth: { on: true, parallax: true, strength: 60 }, // layers in front of the clock and the slide against the pointer (see shared/depth.js)
     widgets: [],               // widgets added on Home: [{ id, kind, cfg }] (see shared/widgets.js)
     type: {},                  // the clock / greeting type designer (see shared/typeface.js); empty = the look's own typography
     canvas: { on: false, items: {} }, // the free-form arrangement (see shared/canvas.js); off = the look's own layout
