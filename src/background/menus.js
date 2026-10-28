@@ -4,7 +4,8 @@ import { applyMenuAction } from '../shared/menu.js';
 import { hostFromUrl } from '../shared/domains.js';
 import { isFocusLive } from '../shared/blocking.js';
 import { resolveLocale, setLocale, t } from '../shared/i18n.js';
-import { startFocus, stopFocus } from './focus.js';
+import { startFocus, stopFocus, resumeFocus } from './focus.js';
+import { isPaused } from '../shared/focus.js';
 import { sweepTabs } from './blocker.js';
 import { updateBadge } from './badge.js';
 import { buildTopicMenu } from './dock.js';
@@ -28,6 +29,7 @@ chrome.contextMenus?.onClicked.addListener(async (info, tab) => {
   const id = info.menuItemId;
   if (id === 'focus:toggle') {
     const { focus } = await getRaw('focus');
+    if (focus && isPaused(focus)) { await resumeFocus(); return; } // the same as the keyboard shortcut: on a pause, resume
     if (isFocusLive(focus)) { if (!focus.strict) await stopFocus(); return; }
     const s = await getSettings();
     await startFocus({ minutes: s.focus.minutes, strict: s.focus.strict });

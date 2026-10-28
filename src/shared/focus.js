@@ -18,6 +18,7 @@ export const plannedMs = (s) => (s ? s.endsAt - s.startedAt - (s.pausedMs || 0) 
 export const progress = (s, now = Date.now()) => (s ? Math.min(1, Math.max(0, elapsedMs(s, now) / Math.max(1, plannedMs(s)))) : 0);
 
 export const MAX_PAUSE_MS = 15 * 60_000; // a pause that is forgotten ends by itself
+export const PAUSE_FORGOTTEN_MS = 60 * 60_000; // a pause found over by more than this when the browser starts is a forgotten one: the session ends instead of resuming
 /** The session, paused at `now`. A session already paused, ended, or strict is returned as it is. */
 export const pauseSession = (s, now = Date.now()) => (!s || s.pausedAt || s.strict || now >= s.endsAt ? s : { ...s, pausedAt: now });
 /** The session, resumed at `now`: the time it stood still is added to its end. */
