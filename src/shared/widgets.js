@@ -14,6 +14,9 @@ export const WIDGET_KINDS = {
   bignumber: { icon: 'hash', w: [160, 480, 240] },
   eyebreak: { icon: 'eye', w: [220, 520, 300] },
   sticky: { icon: 'sticky-note', w: [200, 560, 280] },
+  plan: { icon: 'list-checks', w: [260, 560, 340] },
+  recap: { icon: 'moon', w: [260, 560, 340] },
+  stack: { icon: 'layers', w: [280, 640, 400] },
 };
 export const WIDGET_KIND_IDS = Object.keys(WIDGET_KINDS);
 export const WIDGET_ID_RE = /^w[0-9a-z]{4,10}$/;
@@ -26,6 +29,30 @@ export const WORLD_ZONES = ['UTC', 'Europe/London', 'Europe/Lisbon', 'Europe/Par
 export const BIG_METRICS = ['focusToday', 'sessionsToday', 'streak', 'tasksLeft', 'screenToday'];
 export const PERIODS = ['day', 'week', 'month', 'year'];
 export const MANTRA_COUNT = 6;
+
+/* ---------- stacks: several widgets in one place, the right one on top for the hour ---------- */
+
+export const STACK_WHEN = ['any', 'morning', 'day', 'evening', 'night'];
+export const MAX_STACK = 5;
+/** The part of the day: morning 5–11, day 12–17, evening 18–22, night 23–4. */
+export const partOfDay = (hour) => (hour >= 5 && hour < 12 ? 'morning' : hour >= 12 && hour < 18 ? 'day' : hour >= 18 && hour < 23 ? 'evening' : 'night');
+/** The widget kinds a stack can hold (everything but a stack). */
+export const STACKABLE = Object.keys(WIDGET_KINDS).filter((k) => k !== 'stack');
+/** What a new stack holds: the day's plan in the morning, the main focus by day, the recap in the evening. */
+export const defaultStack = () => ({ items: [{ kind: 'plan', when: 'morning', cfg: {} }, { kind: 'mainfocus', when: 'day', cfg: { text: '', day: '', done: false } }, { kind: 'recap', when: 'evening', cfg: {} }], pick: 'auto', i: 0 });
+/**
+ * Which member of a stack is on top: in `auto` the first whose part of the day matches (else the first "any"), in `manual` the one the person chose.
+ * @param {{ items: Array<{ when: string }>, pick: string, i: number }} cfg
+ */
+export function stackIndex(cfg, hour) {
+  const n = cfg.items.length;
+  if (!n) return 0;
+  if (cfg.pick === 'manual') return Math.min(n - 1, Math.max(0, cfg.i | 0));
+  const part = partOfDay(hour);
+  let i = cfg.items.findIndex((x) => x.when === part);
+  if (i < 0) i = cfg.items.findIndex((x) => x.when === 'any');
+  return i < 0 ? Math.min(n - 1, Math.max(0, cfg.i | 0)) : i;
+}
 
 const str = (v, max, fallback = '') => (typeof v === 'string' ? v.slice(0, max) : fallback);
 const dateStr = (v) => (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v + 'T00:00:00')) ? v : '');
@@ -44,6 +71,7 @@ export function defaultCfg(kind, now = new Date()) {
     case 'mantra': return { text: '' };
     case 'bignumber': return { metric: 'focusToday' };
     case 'sticky': return { text: '' };
+    case 'stack': return defaultStack();
     default: return {};
   }
 }
@@ -60,6 +88,11 @@ export function normalizeCfg(kind, cfg, now = new Date()) {
     case 'mantra': return { text: str(c.text, 200) };
     case 'bignumber': return { metric: BIG_METRICS.includes(c.metric) ? c.metric : d.metric };
     case 'sticky': return { text: str(c.text, 2000) };
+    case 'stack': {
+      const items = (Array.isArray(c.items) ? c.items : []).filter((x) => x && typeof x === 'object' && STACKABLE.includes(x.kind)).slice(0, MAX_STACK)
+        .map((x) => ({ kind: x.kind, when: STACK_WHEN.includes(x.when) ? x.when : 'any', cfg: normalizeCfg(x.kind, x.cfg, now) }));
+      return items.length ? { items, pick: c.pick === 'manual' ? 'manual' : 'auto', i: Math.min(items.length - 1, Math.max(0, Number.isInteger(c.i) ? c.i : 0)) } : d;
+    }
     default: return {};
   }
 }
