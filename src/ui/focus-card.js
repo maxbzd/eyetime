@@ -10,6 +10,7 @@ import { goalStrip, reviewCard } from './day-loop.js';
 import { goalStreak, suggestMinutes, addCapture } from '../shared/productivity.js';
 import { rangeKeys } from '../shared/time.js';
 import { isFocusLive } from '../shared/blocking.js';
+import { showQuote } from './quote.js';
 import { remainingMs, progress, isRestActive, isPaused } from '../shared/focus.js';
 import { modeName } from '../shared/modes.js';
 import { nextEvent } from '../shared/ics.js';
@@ -115,6 +116,8 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     }
     const todayAll = large ? (st.allDay || []).filter((e) => e.day === dayKey(nowD)) : [];
     const allDayLine = todayAll.length ? h('div', { class: 'cal-line' }, icon('calendar-days'), h('span', { text: t('cal.allDay', { title: todayAll.slice(0, 2).map((e) => e.title || t('meet.untitled')).join(', ') }) })) : null;
+    const qfig = h('figure', { class: 'quote focus-quote', hidden: true }, h('blockquote', { class: 'q-text' }), h('figcaption', { class: 'q-by' }));
+    const startQuote = showQuote(qfig, 'start', st.settings) ? qfig : null;
     const strip = goalStrip({ fsSec: st.today?.fs || 0, goalMin: st.settings.focus.dailyGoal, streak: st.streak });
 
     // in the popup a pending review takes the place of the whole start form: one decision at a time, and it fits
@@ -124,6 +127,7 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     }
     clear(root, h('div', { class: 'focus-idle' + (large ? ' large' : '') },
       st.review ? reviewCard(st.review, { onDone: refresh }) : null,
+      startQuote,
       strip, calLine, allDayLine,
       goal, taskRow, resumeLine, modeRow,
       large
