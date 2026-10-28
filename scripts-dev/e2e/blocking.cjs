@@ -61,6 +61,32 @@ const ok = (c, m, d) => { console.log(`  ${c ? 'PASS' : 'FAIL'} ${m}${c || !d ? 
   ok(stored && stored.goal === 'first' && stored.minutes === 25, 'the first session is the one running', JSON.stringify(stored).slice(0, 120));
   await setup.evaluate(() => chrome.runtime.sendMessage({ type: 'focus:stop' })); await sleep(300);
 
+  console.log('8. pausing a session lifts the blocks and stops the clock; resuming brings them back');
+  await setup.evaluate(() => chrome.storage.local.set({ passes: {}, focus: null, rest: null }));
+  await setup.evaluate(() => chrome.runtime.sendMessage({ type: 'focus:start', minutes: 30, goal: 'Pause test', strict: false }));
+  await sleep(500);
+  const pr = await setup.evaluate(() => chrome.runtime.sendMessage({ type: 'focus:pause' }));
+  const pausedSession = await get('focus');
+  ok(pr && pr.ok === true && pausedSession && pausedSession.pausedAt > 0, 'the session is paused', JSON.stringify(pr));
+  const pg = await ctx.newPage(); await pg.goto('http://reddit.com/while-paused').catch(() => {}); await sleep(1500);
+  ok(!pg.url().includes('r=focus'), 'the focus block is lifted while the session is paused (only the ordinary pause page may show)', pg.url().slice(0, 110));
+  const rem1 = await setup.evaluate(async () => { const m = await import('/src/shared/focus.js'); const { focus } = await chrome.storage.local.get('focus'); return m.remainingMs(focus); });
+  await sleep(1500);
+  const rem2 = await setup.evaluate(async () => { const m = await import('/src/shared/focus.js'); const { focus } = await chrome.storage.local.get('focus'); return m.remainingMs(focus); });
+  ok(rem1 === rem2 && rem1 > 29 * 60000, 'the remaining time stands still while paused', rem1 + ' vs ' + rem2);
+  const again = await setup.evaluate(() => chrome.runtime.sendMessage({ type: 'focus:start', minutes: 5, goal: 'x', strict: false }));
+  ok(again && again.ok === false && again.error === 'active', 'a paused session still counts as running: no second start');
+  const rr = await setup.evaluate(() => chrome.runtime.sendMessage({ type: 'focus:resume' }));
+  const resumed = await get('focus');
+  ok(rr && rr.ok === true && !resumed.pausedAt && resumed.pausedMs > 0 && resumed.endsAt > pausedSession.endsAt, 'resuming moves the end by the pause', JSON.stringify(resumed).slice(0, 160));
+  const pg2 = await ctx.newPage(); await pg2.goto('http://reddit.com/after-resume').catch(() => {}); await sleep(1500);
+  ok(pg2.url().includes('r=focus'), 'the focus block is back after resume', pg2.url().slice(0, 90));
+  await setup.evaluate(() => chrome.runtime.sendMessage({ type: 'focus:stop' })); await sleep(300);
+  await setup.evaluate(() => chrome.runtime.sendMessage({ type: 'focus:start', minutes: 30, goal: 'Strict', strict: true })); await sleep(400);
+  const sp = await setup.evaluate(() => chrome.runtime.sendMessage({ type: 'focus:pause' }));
+  ok(sp && sp.ok === false, 'a strict session cannot be paused', JSON.stringify(sp));
+  await setup.evaluate(() => chrome.storage.local.set({ focus: null }));
+
   console.log(`\n${pass} passed, ${fail} failed`);
   await app.close();
   process.exit(fail ? 1 : 0);

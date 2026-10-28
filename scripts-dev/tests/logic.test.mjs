@@ -357,3 +357,24 @@ test('a parked thought list never grows past its limit', async () => {
   assert.equal(list.length, MAX_CAPTURES); assert.equal(list[0].text, 'n' + (MAX_CAPTURES + 29));
   assert.equal(addCapture(null, 'x')[0].text, 'x');
 });
+
+test('pausing a focus session freezes its clock, lifts the blocks, and resuming moves the end by the pause', async () => {
+  const { createSession, pauseSession, resumeSession, remainingMs, elapsedMs, progress, plannedMs, isPaused } = await import('../../src/shared/focus.js');
+  const { isFocusActive, isFocusLive } = await import('../../src/shared/blocking.js');
+  const t0 = 1_000_000_000;
+  const s = createSession({ minutes: 25, now: t0 });
+  assert.equal(isFocusActive(s, t0 + 600_000), true);
+  const p = pauseSession(s, t0 + 10 * 60_000);
+  assert.equal(isPaused(p), true);
+  assert.equal(isFocusActive(p, t0 + 11 * 60_000), false); assert.equal(isFocusLive(p, t0 + 11 * 60_000), true);
+  assert.equal(remainingMs(p, t0 + 14 * 60_000), 15 * 60_000); // frozen while paused
+  assert.equal(elapsedMs(p, t0 + 14 * 60_000), 10 * 60_000);
+  const r = resumeSession(p, t0 + 14 * 60_000);
+  assert.equal(isPaused(r), false); assert.equal(r.pausedMs, 4 * 60_000); assert.equal(r.endsAt, t0 + 29 * 60_000);
+  assert.equal(remainingMs(r, t0 + 14 * 60_000), 15 * 60_000); assert.equal(elapsedMs(r, t0 + 14 * 60_000), 10 * 60_000);
+  assert.equal(plannedMs(r), 25 * 60_000); assert.equal(Math.round(progress(r, t0 + 14 * 60_000) * 100), 40);
+  assert.equal(elapsedMs(r, t0 + 99 * 60_000), 25 * 60_000); // the whole session counts, the pause does not
+  assert.equal(isFocusLive(r, t0 + 99 * 60_000), false);
+  assert.equal(pauseSession(createSession({ minutes: 25, strict: true, now: t0 }), t0 + 1000).pausedAt, undefined); // a strict session cannot be paused
+  assert.equal(pauseSession(s, t0 + 26 * 60_000).pausedAt, undefined); // nor one that is over
+});

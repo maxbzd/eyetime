@@ -9,8 +9,8 @@ import { getSettings, getRaw, getDays, getCollection, updateCollection, onChange
 import { goalStrip, reviewCard } from './day-loop.js';
 import { goalStreak, suggestMinutes, addCapture } from '../shared/productivity.js';
 import { rangeKeys } from '../shared/time.js';
-import { isFocusActive } from '../shared/blocking.js';
-import { remainingMs, progress, isRestActive } from '../shared/focus.js';
+import { isFocusLive } from '../shared/blocking.js';
+import { remainingMs, progress, isRestActive, isPaused } from '../shared/focus.js';
 import { modeName } from '../shared/modes.js';
 import { nextEvent } from '../shared/ics.js';
 import { dayKey } from '../shared/time.js';
@@ -32,7 +32,7 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     st.tasks = (await getCollection('tasks', [])).filter((x) => !x.done);
     st.events = (await getRaw('calendar')).calendar || [];
     st.allDay = (await getRaw('calendarDays')).calendarDays || [];
-    st.focus = isFocusActive(focus) ? focus : null;
+    st.focus = isFocusLive(focus) ? focus : null; // running, or paused
     st.rest = !st.focus && isRestActive(rest) ? rest : null;
     const d = st.draft, s = st.settings.focus;
     if (d.minutes === null) d.minutes = s.minutes;
@@ -157,24 +157,30 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     const f = restMode ? st.rest : st.focus;
     const size = large ? 220 : 104, sw = large ? 8 : 7, R = size / 2 - sw, C = 2 * Math.PI * R, mid = size / 2;
     const time = h('div', { class: 'time num' });
-    const ends = t('focus.endsAt', { time: fmtTime(new Date(f.endsAt), st.settings.newtab.clock24 ?? undefined) });
+    const paused = !restMode && isPaused(f);
+    const ends = paused ? '' : t('focus.endsAt', { time: fmtTime(new Date(f.endsAt), st.settings.newtab.clock24 ?? undefined) });
     const track = svg('circle', { cx: mid, cy: mid, r: R, fill: 'none', 'stroke-width': sw, class: 'track' });
     const bar = svg('circle', { cx: mid, cy: mid, r: R, fill: 'none', 'stroke-width': sw, 'stroke-linecap': 'round', class: 'bar', 'stroke-dasharray': C });
     const ring = svg('svg', { viewBox: `0 0 ${size} ${size}` }, track, bar);
-    const label = restMode ? t(f.long ? 'rest.long' : 'rest.title') : t('focus.running');
+    const label = restMode ? t(f.long ? 'rest.long' : 'rest.title') : paused ? t('focus.paused') : t('focus.running');
     const actions = restMode
       ? [h('button', { class: 'btn btn-sm', type: 'button', onclick: () => send('rest:skip') }, t('rest.skip')),
          h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: async () => { await send('rest:skip'); await start(); } }, icon('play'), startLabel())]
       : f.strict
         ? h('span', { class: 'locked' }, icon('lock'), t('focus.strictLocked'))
-        : [h('button', { class: 'btn btn-sm', type: 'button', 'data-tip': t('focus.extendTip', { n: 5 }), onclick: async () => { const r = await send('focus:extend', { minutes: 5 }); if (r && r.ok === false) toast(t(r.error === 'max' ? 'focus.maxLength' : 'common.error')); } }, icon('plus'), t('focus.extend', { n: 5 })),
-           h('button', { class: 'btn btn-sm', type: 'button', onclick: endEarly }, t('focus.end'))];
+        : paused
+          ? [h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => send('focus:resume') }, icon('play'), t('focus.resume')),
+             h('button', { class: 'btn btn-sm', type: 'button', onclick: endEarly }, t('focus.end'))]
+          : [h('button', { class: 'btn btn-sm', type: 'button', 'data-tip': t('focus.pauseTip'), onclick: () => send('focus:pause') }, icon('pause'), t('focus.pause')),
+             h('button', { class: 'btn btn-sm', type: 'button', 'data-tip': t('focus.extendTip', { n: 5 }), onclick: async () => { const r = await send('focus:extend', { minutes: 5 }); if (r && r.ok === false) toast(t(r.error === 'max' ? 'focus.maxLength' : 'common.error')); } }, icon('plus'), t('focus.extend', { n: 5 })),
+             h('button', { class: 'btn btn-sm', type: 'button', onclick: endEarly }, t('focus.end'))];
     const extras = restMode ? restIdeas() : runningExtras();
     const ringEl = h('div', { class: 'ring', role: 'timer', 'aria-label': label, style: { width: size + 'px', height: size + 'px' } }, ring, h('div', { class: 'center' }, time, large ? h('div', { class: 'sub', text: ends }) : null));
-    const badge = h('span', { class: 'badge ' + (restMode ? 'badge-success' : 'badge-accent') + ' badge-dot', text: label });
+    const badge = h('span', { class: 'badge ' + (restMode ? 'badge-success' : paused ? 'badge-warn' : 'badge-accent') + ' badge-dot', text: label });
     const goalEl = restMode ? (large ? h('div', { class: 'goal-line', text: t('rest.hint') }) : null) : (f.goal ? h('div', { class: 'goal-line', text: f.goal }) : null);
+    const pausedNote = paused && large ? h('div', { class: 'muted', style: { fontSize: 'var(--fs-sm)', maxWidth: '44ch', textAlign: 'center' }, text: t('focus.pausedHint') }) : null;
     clear(root, large
-      ? h('div', { class: 'focus-run large' + (restMode ? ' rest' : '') }, badge, ringEl, goalEl, h('div', { class: 'run-actions' }, actions), extras)
+      ? h('div', { class: 'focus-run large' + (restMode ? ' rest' : '') }, badge, ringEl, goalEl, pausedNote, h('div', { class: 'run-actions' }, actions), extras)
       // popup: ring and details side by side — a running session must leave room for the rest of the popup
       : h('div', { class: 'focus-run compact' + (restMode ? ' rest' : '') },
           h('div', { class: 'run-top' }, ringEl, h('div', { class: 'run-info' }, badge, goalEl, h('div', { class: 'muted run-ends', text: ends }), h('div', { class: 'run-actions' }, actions))),
@@ -199,9 +205,10 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
 
   refresh();
   onChange(['focus', 'rest', 'settings', 'review', 'tasks', 'calendar', 'calendarDays', 'd:*'], async () => {
-    const was = !!st.focus + ':' + !!st.rest;
+    const state = () => !!st.focus + ':' + !!st.rest + ':' + isPaused(st.focus); // running, paused and idle each get their own view
+    const was = state();
     await load();
-    if (was !== !!st.focus + ':' + !!st.rest || (!st.focus && !st.rest && !root.contains(document.activeElement))) render();
+    if (was !== state() || (!st.focus && !st.rest && !root.contains(document.activeElement))) render();
   });
   return { refresh };
 }
