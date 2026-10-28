@@ -11,6 +11,7 @@ import { nextEvent } from '../shared/ics.js';
 import { makeClassifier } from '../shared/classify.js';
 import { summarize, focusStreak } from '../shared/stats.js';
 import { loadRings } from './rings.js';
+import { home } from './home-config.js';
 import { WIDGET_KINDS, normalizeCfg, normalizeWidgets, countdownLeft, periodProgress, zoneCity, zoneClock, MANTRA_COUNT } from '../shared/widgets.js';
 
 const R = 40, C = 2 * Math.PI * R;
@@ -238,7 +239,7 @@ export function createWidgetHost() {
       inst.current = normalizeCfg(kind, { ...inst.current, ...patch }); inst.cfg = JSON.stringify(inst.current);
       inst.inst?.update?.(inst.current);
       clearTimeout(pending.get(id));
-      pending.set(id, setTimeout(() => updateSettings((s) => { const w = (s.newtab.widgets || []).find((x) => x.id === id); if (w) w.cfg = inst.current; }), 150));
+      pending.set(id, setTimeout(() => updateSettings((s) => { const w = (home(s).widgets || []).find((x) => x.id === id); if (w) w.cfg = inst.current; }), 150));
     };
   }
 

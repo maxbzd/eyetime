@@ -55,7 +55,7 @@ const { launch } = require('./lib.cjs');
   await p.evaluate(async () => { await chrome.storage.local.set({ newtabFg: 'data:image/png;base64,iVBORw0KGgo=' }); });
   await p.waitForTimeout(300);
   ok(!!(await fg()), 'precondition: a mask exists');
-  await p.setInputFiles('#drawerBody input[type="file"]', { name: 'p.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64') });
+  await p.setInputFiles('#drawerBody input[accept="image/*"]', { name: 'p.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64') });
   await p.waitForTimeout(1200);
   ok(!(await fg()), 'choosing a new photo drops the old mask');
 
