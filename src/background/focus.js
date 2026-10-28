@@ -2,8 +2,8 @@
 
 import { getSettings, getRaw, setRaw, updateDay, updateSettings, getCollection, updateCollection } from '../shared/storage.js';
 import { restFor, makeSessionEntry, addSession, rateSession } from '../shared/productivity.js';
-import { createSession, createRest, elapsedMs } from '../shared/focus.js';
-import { isFocusActive } from '../shared/blocking.js';
+import { createSession, createRest, elapsedMs, plannedMs, pauseSession, resumeSession, isPaused, MAX_PAUSE_MS } from '../shared/focus.js';
+import { isFocusActive, isFocusLive } from '../shared/blocking.js';
 import { dayKey } from '../shared/time.js';
 import { resolveLocale, setLocale, t, fmtDuration } from '../shared/i18n.js';
 import { updateEstLog } from '../shared/tasks.js';
@@ -31,7 +31,7 @@ export function startFocus(p) {
 /** @param {{ minutes: number, goal?: string, strict?: boolean, taskId?: string, scope?: string, mode?: string }} p */
 async function startFocusNow({ minutes, goal = '', strict = false, taskId = '', scope = undefined, mode = '' }) {
   const { focus: running } = await getRaw('focus');
-  if (running && isFocusActive(running)) return { ok: false, error: 'active' };
+  if (running && isFocusLive(running)) return { ok: false, error: 'active' }; // running, or paused
   const settings = await getSettings();
   let text = goal, tag = '';
   if (taskId) { const task = (await getCollection('tasks', [])).find((x) => x.id === taskId) || {}; if (!text) text = task.text || ''; tag = (task.tags || [])[0] || ''; }
@@ -45,11 +45,45 @@ async function startFocusNow({ minutes, goal = '', strict = false, taskId = '', 
 
   if (/^https?:\/\//.test(settings.focus.openUrl || '')) chrome.tabs.create({ url: settings.focus.openUrl, active: false }).catch(() => {});
   if (settings.focus.sound) playChime('start');
-  const ambient = modeCfg && modeCfg.ambient && modeCfg.ambient !== 'off' ? modeCfg.ambient : settings.focus.ambient;
-  if (ambient && ambient !== 'off') setAmbient(ambient);
+  playAmbientFor(settings, modeCfg);
   await sweepTabs();
   await updateBadge(settings);
   return session;
+}
+
+/** The background sound of a session: its mode's own, else the general one. */
+function playAmbientFor(settings, modeCfg) {
+  const ambient = modeCfg && modeCfg.ambient && modeCfg.ambient !== 'off' ? modeCfg.ambient : settings.focus.ambient;
+  if (ambient && ambient !== 'off') setAmbient(ambient);
+}
+
+/** Pause a (not strict) session: the clock stops, blocking and sound are lifted, and an alarm resumes it by itself after MAX_PAUSE_MS. */
+export async function pauseFocus() {
+  const { focus } = await getRaw('focus');
+  if (!focus || !isFocusActive(focus) || focus.strict) return { ok: false, error: focus && focus.strict ? 'strict' : 'none' };
+  const next = pauseSession(focus);
+  await setRaw({ focus: next });
+  await chrome.alarms.clear('focus-end');
+  await chrome.alarms.create('focus-resume', { when: next.pausedAt + MAX_PAUSE_MS });
+  setAmbient('off');
+  await updateBadge(await getSettings());
+  return { ok: true };
+}
+
+/** Resume a paused session (by the user, or by the alarm when the pause ran out): its end moves by the pause. */
+export async function resumeFocus({ auto = false } = {}) {
+  const { focus } = await getRaw('focus');
+  if (!focus || !isPaused(focus)) return { ok: false };
+  const next = resumeSession(focus);
+  await setRaw({ focus: next });
+  await chrome.alarms.clear('focus-resume');
+  await chrome.alarms.create('focus-end', { when: next.endsAt });
+  const settings = await getSettings();
+  playAmbientFor(settings, (settings.focus.modes || []).find((m) => m.id === next.mode));
+  if (auto && settings.focus.sound) playChime('start');
+  await sweepTabs();
+  await updateBadge(settings);
+  return { ok: true };
 }
 
 /** +N minutes on the running session: finishing what you are in the middle of beats starting over. */
@@ -57,7 +91,7 @@ export async function extendFocus(minutes = 5) {
   const { focus } = await getRaw('focus');
   if (!focus || !isFocusActive(focus)) return { ok: false };
   const add = Math.min(60, Math.max(1, Math.round(minutes)));
-  if ((focus.endsAt - focus.startedAt) / 60_000 + add > 12 * 60) return { ok: false, error: 'max' };
+  if (plannedMs(focus) / 60_000 + add > 12 * 60) return { ok: false, error: 'max' };
   const next = { ...focus, endsAt: focus.endsAt + add * 60_000, minutes: focus.minutes + add };
   await setRaw({ focus: next });
   await chrome.alarms.create('focus-end', { when: next.endsAt });
@@ -69,7 +103,7 @@ export async function extendFocus(minutes = 5) {
 export async function stopFocus() {
   const { focus } = await getRaw('focus');
   if (!focus) return;
-  await chrome.alarms.clear('focus-end');
+  await chrome.alarms.clear('focus-end'); await chrome.alarms.clear('focus-resume');
   await setRaw({ focus: null });
   setAmbient('off');
   const sec = Math.round(elapsedMs(focus) / 1000);
@@ -116,7 +150,7 @@ export async function reviewSession({ id, rating, done, resume = '' }) {
 /** Alarm fired (or the worker woke up after the end time). */
 export async function finishFocus() {
   const { focus } = await getRaw('focus');
-  if (!focus || isFocusActive(focus)) return;
+  if (!focus || isFocusLive(focus)) return; // still running, or paused (a paused session waits for its resume)
   await setRaw({ focus: null });
   setAmbient('off');
   let sessionsToday = 0;
@@ -157,7 +191,7 @@ export async function endRest({ notify = true } = {}) {
   try { await chrome.notifications.create('rest-over', opts); } catch { delete opts.buttons; await chrome.notifications.create('rest-over', opts); }
 }
 
-chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'focus-end') finishFocus(); if (a.name === 'rest-end') endRest(); });
+chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'focus-end') finishFocus(); if (a.name === 'focus-resume') resumeFocus({ auto: true }); if (a.name === 'rest-end') endRest(); });
 chrome.notifications.onButtonClicked?.addListener(async (id) => {
   if (id !== 'rest-over') return;
   chrome.notifications.clear(id);

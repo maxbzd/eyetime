@@ -80,8 +80,9 @@
       const now = Date.now(), f = s.focus, goalMin = ((s.settings || {}).focus || {}).dailyGoal || 120, day = s[key] || {};
       const running = f && f.endsAt > now && f.startedAt <= now;
       const todayFocus = Math.min(1, (day.fs || 0) / 60 / goalMin);
-      const focusP = running ? clamp((now - f.startedAt) / (f.endsAt - f.startedAt)) : todayFocus;
-      const focusLabel = running ? Math.max(1, Math.round((f.endsAt - now) / 60000)) + 'm' : Math.round(todayFocus * 100) + '%';
+      const stopAt = f && f.pausedAt ? f.pausedAt : now; // a paused session stands still
+      const focusP = running ? clamp((stopAt - f.startedAt - (f.pausedMs || 0)) / (f.endsAt - f.startedAt - (f.pausedMs || 0))) : todayFocus;
+      const focusLabel = running ? Math.max(1, Math.round((f.endsAt - stopAt) / 60000)) + 'm' : Math.round(todayFocus * 100) + '%';
       const tasks = s.tasks || [], d0 = new Date(); d0.setHours(0, 0, 0, 0);
       const doneToday = tasks.filter((x) => x.done && x.doneAt >= d0.getTime()).length, open_ = tasks.filter((x) => !x.done).length;
       const tasksP = doneToday + open_ ? doneToday / (doneToday + open_) : 0;

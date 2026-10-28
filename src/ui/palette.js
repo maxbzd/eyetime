@@ -7,7 +7,7 @@ import { t, fmtDuration } from '../shared/i18n.js';
 import { getSettings, updateSettings, getRaw, getCollection, setCollection } from '../shared/storage.js';
 import { LOOK_IDS } from '../shared/looks.js';
 import { rank } from '../shared/fuzzy.js';
-import { isFocusActive } from '../shared/blocking.js';
+import { isFocusLive } from '../shared/blocking.js';
 import { taskFromInput } from '../shared/tasks.js';
 import { modeName } from '../shared/modes.js';
 
@@ -20,7 +20,7 @@ let open = false;
 /** Build the command list for the current state. `extra` lets a page add its own (e.g. "Close the day" on Home). */
 async function commands(extra) {
   const [settings, { focus, pausedUntil = 0 }, tasks] = await Promise.all([getSettings(), getRaw(['focus', 'pausedUntil']), getCollection('tasks', [])]);
-  const running = isFocusActive(focus);
+  const running = isFocusLive(focus);
   const list = [];
   const add = (group, ico, label, run, { hint = '', keys = [] } = {}) => list.push({ group, icon: ico.icon, label, run, hint, keys: [label, ...keys] });
 

@@ -93,8 +93,9 @@ body { background: radial-gradient(130% 55% at 100% -8%, var(--accent-soft), tra
 .focus-run.compact .ring .bar { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 55%, transparent)); }
 .focus-run.compact .ring .time { font-size: 22px; font-weight: 650; }
 .focus-run.compact .goal-line { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
-.focus-run.compact .run-actions .btn { border: 0; background: var(--surface-2); border-radius: var(--r-full); height: 30px; padding: 0 12px; font-size: var(--fs-xs); font-weight: 600; box-shadow: none; }
-.focus-run.compact .run-actions .btn:hover { background: var(--surface-3); }
+.focus-run.compact .run-actions .btn { border-radius: var(--r-full); height: 30px; padding: 0 12px; font-size: var(--fs-xs); font-weight: 600; }
+.focus-run.compact .run-actions .btn:not(.btn-primary) { border: 0; background: var(--surface-2); box-shadow: none; }
+.focus-run.compact .run-actions .btn:not(.btn-primary):hover { background: var(--surface-3); }
 .focus-run.compact .segmented-sm { background: var(--surface-2); border: 0; border-radius: var(--r-md); padding: 3px; }
 .focus-run.compact .segmented-sm button { border-radius: calc(var(--r-md) - 3px); height: 26px; }
 

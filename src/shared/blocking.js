@@ -1,8 +1,10 @@
 import { matchesAny, bestMatch } from './domains.js';
 import { toMinutes } from './time.js';
 
-/** true when `session` is a running focus session at `now`. */
-export const isFocusActive = (session, now = Date.now()) => !!session && now < session.endsAt;
+/** true when `session` is a running (not paused) focus session at `now`. */
+export const isFocusActive = (session, now = Date.now()) => !!session && !session.pausedAt && now < session.endsAt;
+/** A session that exists: running, or paused (blocking and meeting warnings are off while it is paused, but it is still "the session"). */
+export const isFocusLive = (session, now = Date.now()) => !!session && (!!session.pausedAt || now < session.endsAt);
 
 /**
  * Is "now" inside the configured work hours? Supports overnight ranges (22:00–06:00):

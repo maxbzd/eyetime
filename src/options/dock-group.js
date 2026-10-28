@@ -7,7 +7,7 @@ import { DOCK_ORIGINS, DOCK_DESIGNS, dockDesign } from '../shared/dock.js';
 
 const DESIGN_NAMES = { 1: 'Void', 2: 'Glass', 3: 'Noir' }; // names of looks, like the app's own style names
 
-export function dockGroup(s, save) {
+export function dockGroup(s, save, refresh = () => {}) {
   const d = s.dock || { enabled: false, side: 'right', hidden: [] };
   const status = h('div', { class: 'setting-desc sync-status', 'aria-live': 'polite' });
   async function paint() {
@@ -23,7 +23,7 @@ export function dockGroup(s, save) {
     if (on) {
       let ok = false;
       try { ok = await chrome.permissions.request({ origins: DOCK_ORIGINS }); } catch { /* the browser refused to ask */ } // must be the first await: it needs the click
-      if (!ok) { toast(t('opt.dockDenied')); return save(() => {}, true); }
+      if (!ok) { toast(t('opt.dockDenied')); return refresh(); } // nothing was saved: no "Saved" flash, the switch just goes back
       return save((x) => { x.dock.enabled = true; }, true);
     }
     await save((x) => { x.dock.enabled = false; }, true);

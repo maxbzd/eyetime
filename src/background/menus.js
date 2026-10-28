@@ -2,7 +2,7 @@
 import { getSettings, updateSettings, getRaw } from '../shared/storage.js';
 import { applyMenuAction } from '../shared/menu.js';
 import { hostFromUrl } from '../shared/domains.js';
-import { isFocusActive } from '../shared/blocking.js';
+import { isFocusLive } from '../shared/blocking.js';
 import { resolveLocale, setLocale, t } from '../shared/i18n.js';
 import { startFocus, stopFocus } from './focus.js';
 import { sweepTabs } from './blocker.js';
@@ -28,7 +28,7 @@ chrome.contextMenus?.onClicked.addListener(async (info, tab) => {
   const id = info.menuItemId;
   if (id === 'focus:toggle') {
     const { focus } = await getRaw('focus');
-    if (isFocusActive(focus)) { if (!focus.strict) await stopFocus(); return; }
+    if (isFocusLive(focus)) { if (!focus.strict) await stopFocus(); return; }
     const s = await getSettings();
     await startFocus({ minutes: s.focus.minutes, strict: s.focus.strict });
     return;
