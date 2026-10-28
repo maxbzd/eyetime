@@ -93,6 +93,30 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   await p.click('.cv-bar button[aria-label="Undo"]'); await p.waitForTimeout(150);
   ok(!!(await canvas()).items.tasks, 'undo of the delete brings the block back');
 
+  // the widget gallery: add a countdown, set it up, move it, then delete it
+  const widgets = () => p.evaluate(async () => (await (await import('/src/shared/storage.js')).getSettings()).newtab.widgets);
+  await p.click('.cv-bar button:has-text("Widgets")'); await p.waitForTimeout(500);
+  ok(await p.locator('.cv-panel .wg-tile').count() === 11, 'the gallery lists 11 widgets: ' + await p.locator('.cv-panel .wg-tile').count());
+  await p.locator('.cv-panel .wg-tile', { hasText: 'Countdown' }).click(); await p.waitForTimeout(900);
+  let ws = await widgets();
+  ok(ws.length === 1 && ws[0].kind === 'countdown', 'adding a widget saves it: ' + JSON.stringify(ws));
+  const wid = ws[0] && ws[0].id;
+  ok(!!(await canvas()).items[wid], 'the new widget has a place on Home');
+  ok(await p.locator(`.cv-frame[data-block="${wid}"]`).count() === 1, 'the new widget has a frame');
+  await p.waitForSelector('.cv-panel input[type="date"]', { timeout: 3000 }).catch(() => {});
+  ok(await p.locator('.cv-panel input[type="date"]').count() === 1, 'the widget settings panel opens for the new widget');
+  await p.fill('.cv-panel input[maxlength="60"]', 'Launch'); await p.waitForTimeout(700);
+  ok(/Launch/i.test(await p.evaluate((id) => document.getElementById('wgt-' + id).textContent, wid)), 'the title is shown on the widget at once');
+  ok((await widgets())[0].cfg.title === 'Launch', 'the widget setting is saved');
+  const wb = await box(`.cv-frame[data-block="${wid}"]`);
+  await p.mouse.move(wb.x + wb.width / 2, wb.y + wb.height / 2); await p.mouse.down(); await p.mouse.move(wb.x + wb.width / 2 + 120, wb.y + wb.height / 2 - 150, { steps: 8 }); await p.mouse.up(); await p.waitForTimeout(300);
+  ok((await canvas()).items[wid].x > 52, 'a widget can be dragged like any block');
+  await p.click('.cv-panel .wg-del'); await p.waitForTimeout(600);
+  ok((await widgets()).length === 0 && !(await canvas()).items[wid] && await p.locator('.wgt').count() === 0, 'a widget can be deleted for good');
+  // one more stays for the reload check below
+  await p.click('.cv-bar button:has-text("Widgets")'); await p.waitForTimeout(400);
+  await p.locator('.cv-panel .wg-tile', { hasText: 'Sticky note' }).click(); await p.waitForTimeout(900);
+
   // Escape finishes; the arrangement survives a reload
   const saved = JSON.stringify((await canvas()).items);
   await p.keyboard.press('Escape'); await p.waitForTimeout(500);
@@ -100,6 +124,7 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   await p.reload(); await p.waitForTimeout(1200);
   ok(await p.evaluate(() => document.body.dataset.layout) === 'canvas', 'free layout after a reload');
   ok(JSON.stringify((await canvas()).items) === saved, 'the arrangement is kept');
+  ok(await p.locator('.wgt-sticky').count() === 1 && await p.evaluate(() => { const r = document.querySelector('.wgt-sticky').getBoundingClientRect(); return r.left >= -1 && r.right <= innerWidth + 1 && r.top >= -1 && r.bottom <= innerHeight + 1; }), 'the widget is back, on screen, after a reload');
   const onScreen = await p.evaluate(() => ['clock', 'greetBlock', 'focus', 'mod-today', 'mod-tasks'].every((id) => { const r = document.getElementById(id).getBoundingClientRect(); return r.left >= -1 && r.top >= -1 && r.right <= innerWidth + 1 && r.bottom <= innerHeight + 1; }));
   ok(onScreen, 'every block is inside the window');
 
@@ -116,7 +141,7 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   ok(seeded.clock.x === 50 && seeded.focus.w === 640, 'reset restores the seed layout');
   await p.click('.cv-bar button:has-text("look")'); await p.waitForTimeout(500);
   ok(!(await canvas()).on && await p.evaluate(() => document.body.dataset.layout) === 'center', 'the look layout can be switched back on');
-  ok(Object.keys((await canvas()).items).length === 5, 'the arrangement is remembered for next time');
+  ok(Object.keys((await canvas()).items).length === 6, 'the arrangement (blocks and the widget) is remembered for next time');
 
   console.log(bad.length ? 'FAIL\n' + bad.join('\n') : 'editor: all checks passed');
   await app.close();

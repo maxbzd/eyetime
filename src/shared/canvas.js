@@ -20,6 +20,10 @@ export const CANVAS_BLOCKS = {
   links:    { kind: 'card', min: 260, max: 760, def: 340 },
 };
 export const CANVAS_IDS = Object.keys(CANVAS_BLOCKS);
+/** Widgets (shared/widgets.js) are cards with ids like `w3k9x0a`; their limits are generic here, the widget catalogue gives each its own default width. */
+const WIDGET_ID = /^w[0-9a-z]{4,10}$/;
+const WIDGET_BLOCK = { kind: 'card', min: 160, max: 900, def: 300 };
+export const blockMeta = (id) => CANVAS_BLOCKS[id] || (WIDGET_ID.test(id) ? WIDGET_BLOCK : null);
 /** Below this window width the arrangement is not applied (the normal stacked layout is used). */
 export const CANVAS_MIN_WIDTH = 1100;
 
@@ -32,10 +36,9 @@ export function normalizeCanvas(c) {
   if (!c || typeof c !== 'object') return out;
   out.on = c.on === true;
   const items = c.items && typeof c.items === 'object' ? c.items : {};
-  for (const id of CANVAS_IDS) {
-    const it = items[id];
-    if (!it || typeof it !== 'object') continue;
-    const b = CANVAS_BLOCKS[id];
+  for (const id of Object.keys(items)) {
+    const it = items[id], b = blockMeta(id);
+    if (!b || !it || typeof it !== 'object') continue;
     const x = num(it.x, 0, 100, null), y = num(it.y, 0, 100, null);
     if (x === null || y === null) continue;
     const item = { x: r2(x), y: r2(y) };
@@ -89,7 +92,7 @@ export function nudge(item, dir, big = false) {
 
 /** Change the size by one step: a scale (text blocks) or a width (cards). `dir` is +1 or -1. */
 export function resizeStep(id, item, dir, big = false) {
-  const b = CANVAS_BLOCKS[id];
+  const b = blockMeta(id);
   if (!b) return item;
   if (b.kind === 'text') return { ...item, s: r2(num((item.s ?? b.def) + dir * (big ? 0.2 : 0.05), b.min, b.max, b.def)) };
   return { ...item, w: Math.round(num((item.w ?? b.def) + dir * (big ? 80 : 20), b.min, b.max, b.def)) };
@@ -97,7 +100,7 @@ export function resizeStep(id, item, dir, big = false) {
 
 /** Convert a measured rect (px) of a block into a saved item, given the window size. */
 export function itemFromRect(id, rect, view, scale = 1) {
-  const b = CANVAS_BLOCKS[id];
+  const b = blockMeta(id);
   const item = { x: r2((rect.x + rect.w / 2) / view.w * 100), y: r2((rect.y + rect.h / 2) / view.h * 100) };
   if (b.kind === 'text') item.s = r2(num(scale, b.min, b.max, b.def));
   else item.w = Math.round(num(rect.w, b.min, b.max, b.def));

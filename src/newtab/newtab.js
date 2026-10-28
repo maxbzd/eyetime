@@ -16,6 +16,7 @@ import { mountRings } from './rings.js';
 import { installSpotlight } from '../ui/spotlight.js';
 import { applyCanvas, canvasActive } from './canvas.js';
 import { applyType, clockSeconds } from './type-apply.js';
+import { createWidgetHost } from './widgets.js';
 import { downloadBackup, needsBackup } from '../ui/backup.js';
 import { send } from '../ui/api.js';
 import { setCollection } from '../shared/storage.js';
@@ -143,7 +144,8 @@ function fileToDataUrl(file, maxW = 1920) {
 
 /* ---------- modules ---------- */
 
-let modEls = [];
+let modEls = [], widgetEls = [];
+const widgetHost = createWidgetHost();
 
 function renderModules() {
   const on = settings.newtab.modules;
@@ -159,12 +161,13 @@ function renderModules() {
     else { linksMod = linksModule(settings); el = linksMod.el; }
     modEls.push(el);
   }
+  widgetEls = widgetHost.sync(settings);
   layoutModules();
   applyCanvas(settings);
 }
 
 /** A flat bento grid (see newtab.css): the saved order is the reading order, rows share one height. */
-function layoutModules() { clear($('#modules'), modEls); }
+function layoutModules() { clear($('#modules'), [...modEls, ...widgetEls]); }
 
 /* ---------- customize drawer ---------- */
 
@@ -231,7 +234,10 @@ async function applySettings(s, first = false) {
   const prevMods = settings ? JSON.stringify([settings.newtab.modules, settings.newtab.order]) : null;
   const prevLinks = settings ? JSON.stringify(settings.newtab.links) : null;
   settings = s;
-  paintClock(); scheduleClock(); applyType(s); await applyBackground(); applyCanvas(s);
+  paintClock(); scheduleClock(); applyType(s); await applyBackground();
+  const wEls = widgetHost.sync(s); // widgets: new / removed cards re-lay the grid, a changed setting only updates its card
+  if (!first && (wEls.length !== widgetEls.length || wEls.some((e, i) => e !== widgetEls[i]))) { widgetEls = wEls; layoutModules(); }
+  applyCanvas(s);
   if (!first) {
     if (JSON.stringify([s.newtab.modules, s.newtab.order]) !== prevMods) renderModules();
     else if (linksMod && JSON.stringify(s.newtab.links) !== prevLinks) linksMod.update(s);

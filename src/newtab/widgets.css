@@ -1,0 +1,63 @@
+/* Home widgets: small cards that adapt to their own width (container queries), in the grid and on the free-form Home. */
+.wgt { container-type: inline-size; padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-2); border-radius: var(--r-lg); min-width: 0; }
+.wgt .wg-label { font-size: var(--fs-xs); font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+.wgt > .btn { align-self: flex-start; }
+.wgt .wg-sub { font-size: var(--fs-sm); color: var(--text-2); }
+.wgt-preview { pointer-events: none; margin: 0; max-width: none; }
+
+/* main focus */
+.wf-row { display: flex; align-items: center; gap: var(--s-3); }
+.wf-text { flex: 1; min-width: 0; border: 0; background: none; color: var(--text); text-align: left; cursor: text; font: inherit; font-size: clamp(18px, 6.4cqi, 34px); font-weight: 560; letter-spacing: -.02em; line-height: 1.2; padding: 0; overflow-wrap: anywhere; }
+.wf-row.done .wf-text { color: var(--text-3); text-decoration: line-through; }
+.wf-input { font-size: clamp(16px, 4.6cqi, 24px); height: auto; padding: 10px 14px; }
+
+/* rings */
+.wgt-rings { flex-direction: row; justify-content: space-around; align-items: flex-start; gap: var(--s-3); }
+.wr-i { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; flex: 1 1 0; min-width: 0; --wr: var(--accent); }
+.wr-i.rg-tasks { --wr: var(--warning); } .wr-i.rg-screen { --wr: var(--productive); }
+.wr-fig { position: relative; width: min(100%, 96px); aspect-ratio: 1; }
+.wr-fig svg { width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
+.wr-fig .track { stroke: var(--surface-3); stroke-width: 9px; } .wr-fig .bar { stroke: var(--wr); stroke-width: 9px; filter: drop-shadow(0 0 5px color-mix(in srgb, var(--wr) 40%, transparent)); }
+.wr-val { position: absolute; inset: 0; display: grid; place-content: center; font-size: clamp(12px, 4.2cqi, 17px); font-weight: 650; letter-spacing: -.02em; }
+.wr-lbl { margin-top: var(--s-2); font-size: var(--fs-xs); font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--text-2); }
+.wr-sub { font-size: var(--fs-xs); color: var(--text-3); }
+
+/* countdown, big number */
+.wc-big { display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+.wc-num, .wb-num { font-size: clamp(34px, 18cqi, 84px); font-weight: 300; letter-spacing: -.05em; line-height: 1; }
+.wc-unit { font-size: var(--fs-lg); color: var(--text-2); }
+
+/* world clocks */
+.ww-row { display: flex; align-items: baseline; gap: var(--s-2); padding: 6px 0; } .ww-row + .ww-row { border-top: 1px solid var(--border); }
+.ww-city { flex: 1; min-width: 0; font-weight: 560; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ww-shift { font-size: var(--fs-xs); color: var(--text-3); }
+.ww-time { font-size: clamp(18px, 7cqi, 28px); font-weight: 400; letter-spacing: -.03em; }
+
+/* percent */
+.wp-row { display: flex; flex-direction: column; gap: 4px; padding: 3px 0; } .wp-top { display: flex; justify-content: space-between; font-size: var(--fs-sm); color: var(--text-2); } .wp-top .num { color: var(--text); font-weight: 600; }
+.wp-bar { height: 6px; border-radius: 99px; background: var(--surface-3); overflow: hidden; } .wp-bar i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+
+/* mantra */
+.wm-text { margin: 0; font-family: var(--font-display); font-size: clamp(18px, 6.2cqi, 34px); font-weight: 400; line-height: 1.25; letter-spacing: -.015em; text-wrap: balance; }
+
+/* next meeting */
+.we-title { font-size: clamp(16px, 5.4cqi, 24px); font-weight: 600; letter-spacing: -.015em; overflow-wrap: anywhere; }
+
+/* week */
+.wk-bars { display: flex; align-items: flex-end; gap: 6px; height: 84px; }
+.wk-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%; min-width: 0; }
+.wk-col i { display: block; width: 100%; max-width: 28px; border-radius: 6px 6px 3px 3px; background: color-mix(in srgb, var(--accent) 40%, var(--surface-3)); min-height: 3px; }
+.wk-col.now i { background: var(--accent); } .wk-col span { font-size: var(--fs-xs); color: var(--text-3); } .wk-col.now span { color: var(--text); font-weight: 650; }
+
+/* sticky note */
+.wgt-sticky .textarea { background: transparent; border-color: transparent; resize: none; padding: 0; min-height: 96px; } .wgt-sticky .textarea:focus { border-color: var(--border); padding: 6px; }
+
+/* editor: gallery and settings */
+.wg-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-2); }
+.wg-tile { display: flex; flex-direction: column; gap: 6px; padding: 8px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface-2); color: var(--text); cursor: pointer; text-align: left; min-width: 0; }
+.wg-tile:hover { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-ring); }
+.wg-prev { display: block; height: 92px; overflow: hidden; border-radius: var(--r-sm); position: relative; }
+.wg-prev-in { display: block; transform: scale(.46); transform-origin: top left; }
+.wg-tname { display: flex; align-items: center; gap: 6px; font-size: var(--fs-sm); font-weight: 560; } .wg-tname .ico { font-size: 14px; color: var(--text-3); flex: none; }
+.wg-field { display: flex; flex-direction: column; gap: 4px; font-size: var(--fs-sm); }
+.wg-zone { display: flex; align-items: center; gap: var(--s-2); } .wg-zone .dd { flex: 1; min-width: 0; }
+.wg-del { align-self: flex-start; margin-top: auto; }

@@ -22,6 +22,24 @@ function ring(cls, frac, big, label, sub) {
     h('div', { class: 'rg-sub', text: sub || ' ' }));
 }
 
+/** The three figures as plain data: [{ cls, frac, big, label, sub }]. `settings` is the current settings object. */
+export async function loadRings(settings) {
+  const days = await getDays(rangeKeys(1));
+  const today = days[0][1];
+  const tasks = await getCollection('tasks', []);
+  const { classify } = makeClassifier(settings);
+  const sum = summarize([[dayKey(), today]], classify);
+  const goalMin = settings.focus.dailyGoal, focusSec = today?.fs || 0;
+  const start = new Date(); start.setHours(0, 0, 0, 0);
+  const doneToday = tasks.filter((x) => x.done && (x.doneAt || 0) >= start.getTime()).length;
+  const total = doneToday + tasks.filter((x) => !x.done).length;
+  return [
+    { cls: 'rg-focus', frac: goalMin ? focusSec / (goalMin * 60) : (focusSec ? 1 : 0), big: fmtDuration(focusSec), label: t('insights.focusTime'), sub: goalMin ? '/ ' + fmtDuration(goalMin * 60) : '' },
+    { cls: 'rg-tasks', frac: total ? doneToday / total : 0, big: `${doneToday}/${total}`, label: t('mod.tasks'), sub: '' },
+    { cls: 'rg-screen', frac: sum.total ? sum.productive / sum.total : 0, big: fmtDuration(sum.total), label: t('insights.screenTime'), sub: '' },
+  ];
+}
+
 export function mountRings(root) {
   let busy = false, again = false;
 
@@ -33,20 +51,8 @@ export function mountRings(root) {
       const on = LOOKS_WITH_RINGS.includes(settings.appearance.look);
       root.hidden = !on;
       if (!on) { clear(root); return; }
-      const days = await getDays(rangeKeys(1));
-      const today = days[0][1];
-      const tasks = await getCollection('tasks', []);
-      const { classify } = makeClassifier(settings);
-      const sum = summarize([[dayKey(), today]], classify);
-      const goalMin = settings.focus.dailyGoal, focusSec = today?.fs || 0;
-      const start = new Date(); start.setHours(0, 0, 0, 0);
-      const doneToday = tasks.filter((x) => x.done && (x.doneAt || 0) >= start.getTime()).length;
-      const open = tasks.filter((x) => !x.done).length;
-      const total = doneToday + open;
-      clear(root,
-        ring('rg-focus', goalMin ? focusSec / (goalMin * 60) : (focusSec ? 1 : 0), fmtDuration(focusSec), t('insights.focusTime'), goalMin ? '/ ' + fmtDuration(goalMin * 60) : ''),
-        ring('rg-tasks', total ? doneToday / total : 0, `${doneToday}/${total}`, t('mod.tasks'), ''),
-        ring('rg-screen', sum.total ? sum.productive / sum.total : 0, fmtDuration(sum.total), t('insights.screenTime'), ''));
+      const data = await loadRings(settings);
+      clear(root, ...data.map((d) => ring(d.cls, d.frac, d.big, d.label, d.sub)));
     } finally {
       busy = false;
       if (again) { again = false; render(); }
