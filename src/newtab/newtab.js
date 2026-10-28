@@ -17,6 +17,8 @@ import { installSpotlight } from '../ui/spotlight.js';
 import { applyCanvas, canvasActive } from './canvas.js';
 import { applyType, clockSeconds } from './type-apply.js';
 import { createWidgetHost } from './widgets.js';
+import { applyDepth } from './depth.js';
+import { normalizeDepth } from '../shared/depth.js';
 import { downloadBackup, needsBackup } from '../ui/backup.js';
 import { send } from '../ui/api.js';
 import { setCollection } from '../shared/storage.js';
@@ -28,8 +30,8 @@ import { isFocusActive } from '../shared/blocking.js';
 import { looksGallery, accentPicker } from '../ui/appearance.js';
 import { luminance, normalizeHex } from '../shared/color.js';
 
-const BACKGROUNDS = ['look', 'dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'grid', 'living', 'plain', 'color'];
-const DARK_SCENES = ['aurora', 'stars', 'photo', 'sea', 'onyx'];
+const BACKGROUNDS = ['look', 'peaks', 'dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'grid', 'living', 'plain', 'color'];
+const DARK_SCENES = ['aurora', 'stars', 'photo', 'sea', 'onyx', 'peaks'];
 const MODULES = ['today', 'tasks', 'habits', 'notes', 'links'];
 const CLOCKS = ['thin', 'bold', 'mono', 'serif', 'compact', 'stacked', 'none'];
 const LAYOUTS = ['center', 'split', 'minimal'];
@@ -124,6 +126,7 @@ async function applyBackground() {
   if (bg === 'color') document.documentElement.style.setProperty('--bg-color', color);
   document.body.dataset.bg = bg;
   $('.bg').className = 'bg bgx-' + bg;
+  applyDepth(settings, bg);
   // light hero text on scenes that are dark in every theme, and on dark custom colours
   document.body.dataset.tone = DARK_SCENES.includes(bg) || (bg === 'color' && luminance(color) < 0.28) ? 'dark' : '';
 }
@@ -203,6 +206,8 @@ function drawDrawer() {
   const seg = (label, list, value, key, keyPrefix) => h('div', { class: 'segmented wrap-seg', role: 'group', 'aria-label': label },
     list.map((v) => h('button', { type: 'button', 'aria-pressed': String(v === value), text: t(keyPrefix + v), onclick: () => set((s) => { s.newtab[key] = v; }) })));
 
+  const depth = normalizeDepth(n.depth);
+  const depthToggle = (label, on, patch) => h('label', { class: 'toggle-row' }, h('span', { text: label }), h('span', { class: 'switch' }, h('input', { type: 'checkbox', checked: on, 'aria-label': label, onchange: (e) => set((s) => { s.newtab.depth = { ...normalizeDepth(s.newtab.depth), ...patch(e.target.checked) }; }) }), h('span', { class: 'track' }), h('span', { class: 'thumb' })));
   const order = moduleOrder(n);
   const move = (m, d) => set((s) => { const o = moduleOrder(s.newtab); const i = o.indexOf(m), j = i + d; if (j < 0 || j >= o.length) return; [o[i], o[j]] = [o[j], o[i]]; s.newtab.order = o; });
   const modRows = order.map((m, i) => h('div', { class: 'toggle-row mod-row' },
@@ -221,6 +226,9 @@ function drawDrawer() {
     section(t('home.background'), h('div', { class: 'bg-grid' }, tiles), fileIn,
       n.background === 'color' ? null : colorIn,
       n.background === 'photo' ? h('button', { class: 'btn btn-sm', style: { marginTop: 'var(--s-3)' }, type: 'button', onclick: () => fileIn.click() }, icon('image'), t('home.changePhoto')) : null),
+    section(t('dp.title'), h('p', { class: 'muted', style: { fontSize: 'var(--fs-sm)', marginBottom: 'var(--s-2)' }, text: t('dp.hint') }),
+      depthToggle(t('dp.on'), depth.on, (v) => ({ on: v })), depthToggle(t('dp.parallax'), depth.parallax, (v) => ({ parallax: v })),
+      h('label', { class: 'toggle-row' }, h('span', { text: t('dp.strength') }), h('input', { type: 'range', min: 0, max: 100, step: 5, value: depth.strength, 'aria-label': t('dp.strength'), disabled: !depth.on || !depth.parallax, style: { width: '140px', accentColor: 'var(--accent)' }, onchange: (e) => set((s) => { s.newtab.depth = { ...normalizeDepth(s.newtab.depth), strength: Number(e.target.value) }; }) }))),
     section(t('home.layout'), seg(t('home.layout'), LAYOUTS, n.layout, 'layout', 'layout.')),
     section(t('home.modules'), modRows),
     section(t('home.clock'), seg(t('home.clockStyle'), CLOCKS, n.clockStyle, 'clockStyle', 'clock.'), h('div', { style: { height: 'var(--s-3)' } }), clockSeg,
