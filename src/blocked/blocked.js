@@ -6,6 +6,7 @@ import { evaluate } from '../shared/policy.js';
 import { getSettings, getRaw, dayStorageKey, updateSettings, updateCollection } from '../shared/storage.js';
 import { matches } from '../shared/domains.js';
 import { addCapture } from '../shared/productivity.js';
+import { showQuote } from '../ui/quote.js';
 import { clock } from '../shared/focus.js';
 import { dayKey } from '../shared/time.js';
 import { usageOf } from '../shared/policy.js';
@@ -75,6 +76,8 @@ async function render() {
     note.textContent = t('block.passNote', { n: minutes });
   };
 
+  showQuote($('#quote'), 'pause', settings); // (hidden again below for the other kinds of block)
+  if (reason !== 'friction') $('#quote').hidden = true;
   if (reason === 'friction') {
     document.title = t('block.pause.title') + ' — EyeTime';
     title.textContent = t('block.pause.title');
