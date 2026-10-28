@@ -51,3 +51,17 @@ test('textDecls', () => {
   assert.deepEqual(textDecls(normalizeType({ text: { font: 'rubik', weight: 500, color: '#123456', upper: true, tracking: 0.1 } }).text),
     { 'font-family': TYPEFACES.rubik.stack, 'font-weight': '500', 'letter-spacing': '0.1em', color: '#123456', 'text-transform': 'uppercase' });
 });
+
+test('glass and photo fills clip the picture to the digits and never leave them invisible', async () => {
+  const { clockDecls, normalizeType, FILLS, CLOCK_DEFAULT } = await import('../../src/shared/typeface.js');
+  assert.ok(FILLS.includes('glass') && FILLS.includes('photo'));
+  for (const fill of ['glass', 'photo']) {
+    const d = clockDecls({ ...CLOCK_DEFAULT, fill });
+    assert.equal(d['background-clip'], 'text'); assert.equal(d['-webkit-text-fill-color'], 'transparent');
+    assert.ok(/var\(--photo/.test(d['background-image']), fill + ' needs the photo variable');
+    assert.ok(/--clk-bgs/.test(d['background-size']) && /--clk-bgp/.test(d['background-position']), fill + ' is placed by the page');
+  }
+  assert.ok(/linear-gradient\(#fff/.test(clockDecls({ ...CLOCK_DEFAULT, fill: 'photo' })['background-image']), 'photo falls back to white without a photo');
+  assert.ok(/#ff0000/.test(clockDecls({ ...CLOCK_DEFAULT, fill: 'glass', color: '#ff0000' })['background-image']), 'the glass tint follows the chosen colour');
+  assert.equal(normalizeType({ clock: { fill: 'glass' } }).clock.fill, 'glass'); assert.equal(normalizeType({ clock: { fill: 'neon' } }).clock.fill, 'solid');
+});
