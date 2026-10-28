@@ -9,6 +9,7 @@
 //   d:YYYY-MM-DD        one record per day (see stats.js) – small, independent writes
 //   newtabBg            custom background photo (data URL)
 //   newtabFg            the subject mask of that photo (a PNG whose alpha is the subject), for the depth effect
+//   newtabDepth         { key, png }: the depth map of that photo (8-bit PNG, bright = near) for the 3D photo; key names the photo it was made from
 
 import { normalizeCalendarUrl } from './calsub.js';
 import { DEFAULT_SETTINGS, deepMerge, clone, SCHEMA_VERSION, DEFAULT_META } from './defaults.js';
@@ -229,7 +230,7 @@ async function dropCalendarPermission() {
 
 export async function exportAll() {
   const all = await area().get(null);
-  delete all.newtabBg; delete all.newtabFg;
+  delete all.newtabBg; delete all.newtabFg; delete all.newtabDepth;
   delete all.tasksBase; delete all.tasksTomb; delete all.tasksSyncStatus; // device-level sync bookkeeping
   delete all.calendarSub; delete all.calendarSubs; delete all.calendarSrc; // calendar addresses are secrets: they never leave this device, not even in a backup file
   return { app: 'eyetime', version: 2, exportedAt: new Date().toISOString(), data: all };

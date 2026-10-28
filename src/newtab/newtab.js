@@ -30,7 +30,9 @@ import { clock, remainingMs, isPaused } from '../shared/focus.js';
 import { isFocusActive, isFocusLive } from '../shared/blocking.js';
 import { luminance, normalizeHex } from '../shared/color.js';
 import { resolveTextTone } from '../shared/phototone.js';
-import { getPhotoInfo, clearPhotoInfo } from './photo-info.js';
+import { getPhotoInfo, clearPhotoInfo, photoKey } from './photo-info.js';
+import { mount3d, unmount3d } from './gl3d.js';
+import { normalizeDepth } from '../shared/depth.js';
 import { showQuote } from '../ui/quote.js';
 import { mountStandby } from './standby.js';
 import { mountWeatherFx } from './weather-fx.js';
@@ -130,7 +132,7 @@ async function applyBackground() {
     const scene = LOOKS[settings.appearance.look]?.homeScene;
     bg = (scene && typeof scene === 'object' ? scene[document.documentElement.dataset.scheme] : scene) || 'look';
   }
-  let scene = bg, photoTone = null, wxSrc = '';
+  let scene = bg, photoTone = null, wxSrc = '', flatScene = bg, depthMap = '';
   if (bg === 'photo') {
     const { newtabBg } = await getRaw('newtabBg');
     if (newtabBg) {
@@ -142,6 +144,12 @@ async function applyBackground() {
     } else bg = 'look';
     const { newtabFg } = bg === 'photo' ? await getRaw('newtabFg') : {};
     if (newtabFg) { document.documentElement.style.setProperty('--photo-mask', `url(${newtabFg})`); scene = 'photo-cut'; } // the cut-out subject: a masked copy of the photo goes in front of the clock
+    flatScene = scene;
+    const d3 = normalizeDepth(n.depth);
+    if (bg === 'photo' && wxSrc && d3.on && d3.volume) { // a 3D photo: its depth map was made for this very photo
+      const { newtabDepth } = await getRaw('newtabDepth');
+      if (newtabDepth && newtabDepth.key === photoKey(wxSrc)) { depthMap = newtabDepth.png; scene = 'photo-3d'; }
+    }
   }
   if (bg !== 'photo') { clearPhotoInfo(); document.documentElement.style.removeProperty('--photo'); document.documentElement.style.removeProperty('--photo-soft'); } // the glass / photo clock falls back to a plain fill
   const color = normalizeHex(n.bgColor) || '#e9e4ff';
@@ -149,6 +157,10 @@ async function applyBackground() {
   document.body.dataset.bg = bg;
   $('.bg').className = 'bg bgx-' + bg;
   applyDepth(settings, scene);
+  let gl = false;
+  if (depthMap) gl = await mount3d({ photo: wxSrc, depthMap, depth: n.depth }); else unmount3d();
+  document.body.classList.toggle('bg-gl', gl);
+  if (depthMap && !gl) applyDepth(settings, flatScene); // no WebGL or a broken map: the flat photo, as before
   // light hero text on scenes that are dark in every theme, and on dark custom colours; a photo follows the person's choice or its own brightness
   document.body.dataset.tone = photoTone && bg === 'photo' ? (resolveTextTone(n.photoText, photoTone) === 'dark' ? 'light' : 'dark') : DARK_SCENES.includes(bg) || (bg === 'color' && luminance(color) < 0.28) ? 'dark' : '';
   alignClockFill();
@@ -336,7 +348,7 @@ function renderOff() {
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
-  onChange(['newtabBg', 'newtabFg'], applyBackground);
+  onChange(['newtabBg', 'newtabFg', 'newtabDepth'], applyBackground);
   window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', () => setTimeout(applyBackground, 0));
   watchFocus();
 })();

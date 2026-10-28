@@ -24,7 +24,7 @@ export function themeBlock() {
     if (!r.ok) { toast(t('th.err.' + r.error)); return; }
     const ok = await confirmDialog({ title: t('th.confirmTitle'), body: t('th.confirmBody'), confirm: t('th.confirmYes'), danger: true });
     if (!ok) return;
-    if (r.theme.media.bg) { await setRaw({ newtabBg: r.theme.media.bg }); if (r.theme.media.fg) await setRaw({ newtabFg: r.theme.media.fg }); else await chrome.storage.local.remove('newtabFg'); }
+    if (r.theme.media.bg) { await chrome.storage.local.remove('newtabDepth'); await setRaw({ newtabBg: r.theme.media.bg }); if (r.theme.media.fg) await setRaw({ newtabFg: r.theme.media.fg }); else await chrome.storage.local.remove('newtabFg'); }
     await updateSettings((s) => { applyTheme(s, r.theme); });
     toast(t('th.done'));
   } });

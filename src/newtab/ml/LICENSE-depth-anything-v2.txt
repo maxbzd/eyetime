@@ -1,0 +1,10 @@
+depth-anything-v2-small-q8.onnx — Depth Anything V2 (Small), monocular depth estimation.
+Lihe Yang, Bingyi Kang, Zilong Huang, Zhen Zhao, Xiaogang Xu, Jiashi Feng and Hengshuang Zhao,
+"Depth Anything V2", NeurIPS 2024 (arXiv:2406.09414). https://github.com/DepthAnything/Depth-Anything-V2
+The Small model is licensed under the Apache License, Version 2.0 (https://huggingface.co/depth-anything/Depth-Anything-V2-Small).
+The ONNX export (8-bit quantised weights) used here is the one distributed by the onnx-community organisation
+(https://huggingface.co/onnx-community/depth-anything-v2-small, Apache-2.0).
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
+You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.

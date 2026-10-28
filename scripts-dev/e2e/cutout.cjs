@@ -35,7 +35,7 @@ const { launch } = require('./lib.cjs');
   await p.waitForSelector('#drawerBody button:has-text("Remove the cut-out"), #drawerBody [role=status]:has-text("No clear subject"), #drawerBody [role=status]:has-text("Could not")', { timeout: 60000 });
   const took = Date.now() - t0;
   const mask = await fg();
-  ok(mask && mask.startsWith('data:image/png'), 'the mask is stored as a PNG: ' + (mask ? mask.slice(0, 30) : 'none') + ' / ' + await p.locator('#drawerBody [role=status]').textContent());
+  ok(mask && mask.startsWith('data:image/png'), 'the mask is stored as a PNG: ' + (mask ? mask.slice(0, 30) : 'none') + ' / ' + await p.locator('#drawerBody [role=status]').first().textContent());
   ok(mask && mask.length < 400_000, 'the mask is small: ' + (mask ? Math.round(mask.length / 1024) : 0) + ' KB');
   ok(took < 30000, 'the model answers in a reasonable time: ' + took + ' ms');
   await p.waitForTimeout(500);
