@@ -73,7 +73,7 @@ export const LOOKS = {
     dark: { bg: '#000000', surface: '#000000', text: '#ffffff', accent: '#ffffff', border: '#ffffff', borderStrong: '#ffffff' },
   },
   obsidian: {
-    name: 'Obsidian', blurb: 'True black glass with a warm ember glow.', font: 'inter', display: 'inter', radii: [10, 14, 20, 28], cards: 'glass', shadow: 'deep', borderW: 1, headingW: 650, headingLs: '-.03em',
+    name: 'Obsidian', blurb: 'True black, like an OLED: one light from above, hairline glass and a white pill.', homeScene: { dark: 'onyx' }, font: 'inter', display: 'inter', radii: [10, 14, 20, 28], cards: 'glass', shadow: 'deep', borderW: 1, headingW: 650, headingLs: '-.03em',
     light: { bg: '#f3f1ee', surface: '#ffffff', text: '#141318', accent: '#e2491a' },
     dark: { bg: '#000000', surface: '#0e0e11', text: '#f5f5f7', accent: '#ff6a3d' },
     pageBg: { dark: 'radial-gradient(900px 520px at 88% -8%, rgba(255, 106, 61, .16), transparent 62%), radial-gradient(700px 480px at -6% 4%, rgba(255, 255, 255, .05), transparent 60%)', light: 'radial-gradient(900px 520px at 88% -8%, rgba(226, 73, 26, .13), transparent 62%), radial-gradient(700px 480px at -6% 4%, rgba(255, 255, 255, .9), transparent 60%)' },

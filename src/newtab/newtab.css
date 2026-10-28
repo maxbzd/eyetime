@@ -65,6 +65,18 @@ body { min-height: calc(100vh / var(--ui-scale, 1)); position: relative; }
 .bgx-seaday { --sky-top: #aebbd0; --sky-mid: #cbc9d9; --sky-low: #e5d0d4; --sky-hz: #f7dac8; --sea-hz: #dcc5c8; --sea-mid: #b3c0d2; --sea-deep: #8ea0b8;
   --sun-core: rgba(255, 224, 190, .85); --sun-halo: rgba(255, 196, 170, .35); --sun-ref: rgba(255, 226, 200, .75); --streak: .035; }
 
+/* onyx (Obsidian, dark): true black with one light from above — a coloured glow, the rim of a huge disc, a faint grid and grain */
+.bgx-onyx { background-color: #000; background-image:
+    radial-gradient(ellipse 62% 40% at 50% -6%, rgba(255, 150, 100, .27), rgba(176, 110, 255, .17) 46%, transparent 74%),
+    radial-gradient(ellipse 40% 22% at 50% -2%, rgba(255, 226, 200, .22), transparent 70%); }
+.bgx-onyx::before { inset: auto; left: 50%; top: -2500px; width: 2600px; height: 2600px; margin-left: -1300px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, transparent 97.4%, rgba(255, 190, 150, .07) 99.3%, rgba(255, 240, 226, .72) 99.86%, transparent 100%);
+  box-shadow: inset 0 -70px 120px -70px rgba(255, 140, 90, .16); filter: blur(.4px); }
+.bgx-onyx::after { background-image:
+    linear-gradient(rgba(255, 255, 255, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px);
+  background-size: 64px 64px; background-position: center top;
+  -webkit-mask: radial-gradient(ellipse 70% 60% at 50% 0%, #000 0%, transparent 72%); mask: radial-gradient(ellipse 70% 60% at 50% 0%, #000 0%, transparent 72%); }
+
 /* always-dark scenes: hero text switches to light (body[data-tone="dark"]) */
 .bgx-aurora { background-color: #070b1c; background-image:
     radial-gradient(70% 55% at 20% 18%, rgba(124, 92, 255, .55), transparent 70%), radial-gradient(60% 50% at 78% 12%, rgba(44, 196, 189, .5), transparent 70%),

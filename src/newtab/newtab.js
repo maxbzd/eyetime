@@ -13,6 +13,7 @@ import { mountGettingStarted } from './getting-started.js';
 import { mountWhatsNew } from './whatsnew.js';
 import { openDayPlan } from './dayplan.js';
 import { mountRings } from './rings.js';
+import { installSpotlight } from '../ui/spotlight.js';
 import { downloadBackup, needsBackup } from '../ui/backup.js';
 import { send } from '../ui/api.js';
 import { setCollection } from '../shared/storage.js';
@@ -25,7 +26,7 @@ import { looksGallery, accentPicker } from '../ui/appearance.js';
 import { luminance, normalizeHex } from '../shared/color.js';
 
 const BACKGROUNDS = ['look', 'dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'grid', 'living', 'plain', 'color'];
-const DARK_SCENES = ['aurora', 'stars', 'photo', 'sea'];
+const DARK_SCENES = ['aurora', 'stars', 'photo', 'sea', 'onyx'];
 const MODULES = ['today', 'tasks', 'habits', 'notes', 'links'];
 const CLOCKS = ['thin', 'bold', 'mono', 'serif', 'compact', 'stacked', 'none'];
 const LAYOUTS = ['center', 'split', 'minimal'];
@@ -263,6 +264,7 @@ function openShortcutHelp() {
   setInterval(paintClock, 10_000);
   mountFocusCard($('#focus'), { variant: 'large' });
   mountRings($('#rings'));
+  installSpotlight();
   mountWhatsNew($('#wn'));
   mountGettingStarted($('#gs'), { startShortSession: async () => { const s = await getSettings(); await send('focus:start', { minutes: 5, strict: false, scope: s.focus.scope }); } });
   paintNudge(); setInterval(paintNudge, 60_000); paintBackupNudge();
