@@ -319,3 +319,4 @@ button.tag { appearance: none; padding-right: 9px; font-family: inherit; border:
 .trig-head { display: flex; align-items: center; gap: var(--s-3); min-width: 0; } .trig-head b { font-weight: 600; } .trig-head .muted { margin-left: auto; font-size: var(--fs-xs); white-space: nowrap; }
 .trig-line { margin: 0; font-weight: 560; } .trig .muted-2 { margin: 0; font-size: var(--fs-sm); max-width: 70ch; }
 .tag-wrap .dd[aria-expanded="true"] { box-shadow: none; border-color: transparent; }
+.guess-mark { display: inline-grid; place-items: center; margin-left: 6px; color: var(--accent-text); vertical-align: middle; } .guess-mark .ico { font-size: 12px; }
