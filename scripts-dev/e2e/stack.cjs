@@ -46,7 +46,7 @@ const { launch } = require('./lib.cjs');
   await sp.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.newtab.widgets = []; }); });
   await p.reload(); await p.waitForTimeout(1200);
   await p.click('#customize'); await p.waitForTimeout(250); await p.click('#drawerBody .btn-primary'); await p.waitForTimeout(900);
-  await p.click('.cv-bar button:has-text("Widgets")'); await p.waitForTimeout(500);
+  await p.click('.cv-bar button:has-text("Add widget")'); await p.waitForTimeout(500);
   await p.locator('.cv-panel .wg-tile', { hasText: 'Smart stack' }).click(); await p.waitForTimeout(900);
   const sid = await sp.evaluate(async () => (await (await import('/src/shared/storage.js')).getSettings()).newtab.widgets[0].id);
   ok(await p.locator('.cv-panel .ws-member').count() === 3, 'a new stack starts with the plan, the main focus and the recap');

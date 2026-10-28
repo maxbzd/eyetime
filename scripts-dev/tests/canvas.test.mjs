@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeCanvas, clampCenter, snapRect, nudge, resizeStep, stretchStep, stretchDrag, itemFromRect, seedItems, canvasScale, CANVAS_BLOCKS } from '../../src/shared/canvas.js';
+import { normalizeCanvas, clampCenter, snapRect, nudge, resizeStep, stretchStep, stretchDrag, itemFromRect, seedItems, canvasScale, reorder, alignItem, sizeValue, withSize, CANVAS_BLOCKS } from '../../src/shared/canvas.js';
 
 test('normalizeCanvas: garbage in, a safe canvas out', () => {
   assert.deepEqual(normalizeCanvas(undefined), { on: false, items: {} });
@@ -101,4 +101,48 @@ test('stretchDrag pulls from a side or corner while the opposite one stays put',
   assert.equal(d.sx, 7.5);
   const e = stretchDrag('clock', item, { dx: -1, dy: 0 }, rect, 1, { x: 790, y: 0 }, view);
   assert.equal(e.sx, 0.16);
+});
+
+test('z keeps a block\'s place in the stack and is clamped; garbage is dropped', () => {
+  const c = normalizeCanvas({ on: true, items: { clock: { x: 50, y: 30, s: 1, z: 7.4 }, tasks: { x: 20, y: 20, w: 400, z: 'top' }, today: { x: 80, y: 20, w: 300, z: 500 } } }).items;
+  assert.equal(c.clock.z, 7); assert.equal('z' in c.tasks, false); assert.equal(c.today.z, 99);
+});
+
+test('reorder: front and back give every block an explicit place and keep the rest in order', () => {
+  const items = { clock: { x: 50, y: 20, s: 1 }, tasks: { x: 20, y: 60, w: 400 }, today: { x: 80, y: 60, w: 300 } };
+  const front = reorder(items, 'clock', 'front');
+  assert.ok(front.clock.z > front.tasks.z && front.clock.z > front.today.z);
+  assert.deepEqual(Object.keys(front).map((k) => front[k].z).sort(), [2, 3, 4]);
+  const back = reorder(front, 'clock', 'back');
+  assert.equal(back.clock.z, 2);
+  assert.ok(back.tasks.z > back.clock.z && back.today.z > back.clock.z);
+  assert.equal(back.tasks.x, 20); // nothing but z changes
+  assert.equal(items.clock.z, undefined); // the input is untouched
+  // blocks that have no place yet keep the order they have on the page
+  const tied = reorder(items, 'today', 'front', ['today', 'clock', 'tasks']);
+  assert.ok(tied.clock.z < tied.tasks.z && tied.tasks.z < tied.today.z);
+});
+
+test('alignItem: edges keep a margin, the centre is exact, a block never leaves the window', () => {
+  const view = { w: 1000, h: 800 }, size = { w: 200, h: 100 }, it = { x: 33, y: 44, w: 300 };
+  assert.equal(alignItem(it, 'left', size, view).x, 11.6); // (100 + 16) px of 1000
+  assert.equal(alignItem(it, 'right', size, view).x, 88.4);
+  assert.equal(alignItem(it, 'hcenter', size, view).x, 50);
+  assert.equal(alignItem(it, 'top', size, view).y, 8.25); // (50 + 16) px of 800
+  assert.equal(alignItem(it, 'bottom', size, view).y, 91.75);
+  assert.equal(alignItem(it, 'vcenter', size, view).y, 50);
+  assert.equal(alignItem(it, 'left', size, view).y, 44); // the other axis is untouched
+  assert.deepEqual(alignItem(it, 'nope', size, view), it);
+});
+
+test('sizeValue / withSize: percent for text, px for cards, clamped, stretch kept', () => {
+  assert.equal(sizeValue('clock', { x: 1, y: 1, s: 1.25 }), 125);
+  assert.equal(sizeValue('tasks', { x: 1, y: 1, w: 480 }), 480);
+  assert.equal(withSize('clock', { x: 1, y: 1, s: 1 }, 150).s, 1.5);
+  assert.equal(withSize('clock', { x: 1, y: 1, s: 1 }, 9999).s, 3);
+  assert.equal(withSize('clock', { x: 1, y: 1, s: 1 }, 1).s, 0.4);
+  assert.equal(withSize('clock', { x: 1, y: 1, s: 1, sx: 2 }, 200).sx, 4); // the stretch scales along
+  assert.equal(withSize('tasks', { x: 1, y: 1, w: 480 }, 100).w, 300);
+  assert.equal(withSize('tasks', { x: 1, y: 1, w: 480 }, 640).w, 640);
+  assert.deepEqual(withSize('tasks', { x: 1, y: 1, w: 480 }, NaN), { x: 1, y: 1, w: 480 });
 });
