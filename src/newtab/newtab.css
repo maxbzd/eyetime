@@ -2,7 +2,7 @@
 :root { --g-strength: 78%; --hero-fg: var(--text); --hero-fg-2: var(--text-2); }
 :root[data-scheme="dark"] { --g-strength: 30%; }
 body[data-tone="dark"] { --hero-fg: #fff; --hero-fg-2: rgba(255,255,255,.82); }
-body[data-tone="dark"] .hero, body[data-tone="dark"] .nt-top { text-shadow: 0 1px 14px rgba(0,0,0,.35); }
+body[data-tone="dark"] .hero, body[data-tone="dark"] .nt-corners { text-shadow: 0 1px 14px rgba(0,0,0,.35); }
 body[data-tone="dark"] .btn.on-bg { color: #fff; } body[data-tone="dark"] .btn.on-bg:hover { background: rgba(255,255,255,.18); color: #fff; }
 
 body { min-height: calc(100vh / var(--ui-scale, 1)); position: relative; }
@@ -128,8 +128,12 @@ body.cv-editing { --str: 0 !important; }
 .bgx-photo::after { background: linear-gradient(to bottom, rgba(0,0,0,.28), rgba(0,0,0,.5)); }
 
 /* ---------- top bar ---------- */
-.nt-top { position: fixed; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; z-index: 10; }
-.nt-brand { display: block; border-radius: 8px; opacity: .95; }
+/* three quiet glass buttons in the corners (statistics, settings, customize) instead of a bar */
+.nt-c { position: fixed; z-index: 10; width: 40px; height: 40px; border-radius: 50%; background: color-mix(in srgb, var(--surface) 38%, transparent); border: 1px solid color-mix(in srgb, var(--text) 10%, transparent); -webkit-backdrop-filter: blur(14px) saturate(1.3); backdrop-filter: blur(14px) saturate(1.3); }
+.nt-tl { top: 16px; left: 16px; } .nt-tr { top: 16px; right: 16px; } .nt-bl { bottom: 16px; left: 16px; }
+.nt-tl[data-tip]:hover::after, .nt-tl[data-tip]:focus-visible::after { top: calc(100% + 6px); bottom: auto; left: 0; right: auto; transform: none; }
+.nt-tr[data-tip]:hover::after, .nt-tr[data-tip]:focus-visible::after { top: calc(100% + 6px); bottom: auto; left: auto; right: 0; transform: none; }
+.nt-bl[data-tip]:hover::after, .nt-bl[data-tip]:focus-visible::after { bottom: calc(100% + 6px); top: auto; left: 0; right: auto; transform: none; }
 .btn.on-bg { color: var(--hero-fg-2); } .btn.on-bg:hover { background: color-mix(in srgb, var(--surface) 70%, transparent); color: var(--text); }
 
 /* ---------- layout ---------- */
@@ -313,3 +317,7 @@ body[data-layout="split"] .gs { grid-column: 1 / -1; grid-row: 2; } body[data-la
 .plan-text { display: flex; flex-direction: column; min-width: 0; } .plan-text b { font-weight: 600; } .plan-text .muted { font-size: var(--fs-xs); }
 .plan-notes { margin: 0; padding-left: 18px; color: var(--text-3); font-size: var(--fs-sm); } .plan-notes li { margin: 2px 0; }
 .mod-head .plan-btn { margin-left: auto; } .mod-head .count { margin-left: var(--s-2); }
+
+/* the clock, the greeting and the scenery are decoration: dragging the mouse over them must not select (and paint over) anything */
+#clock, #greetBlock, .bg, #bgFront, .dl, .dock { -webkit-user-select: none; user-select: none; }
+.bg *, #bgFront * { -webkit-user-drag: none; }

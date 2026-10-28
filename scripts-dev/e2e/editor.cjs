@@ -24,9 +24,17 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   await p.goto(ext('src/newtab/newtab.html')); await p.waitForTimeout(1200);
   ok(await p.evaluate(() => document.body.dataset.layout) === 'center', 'starts in the look layout');
 
+  // the time and the greeting are not selectable with the mouse
+  await p.locator('#clock').click({ clickCount: 3 }); await p.mouse.move(100, 100); await p.mouse.down(); await p.mouse.move(900, 400, { steps: 6 }); await p.mouse.up();
+  ok(await p.evaluate(() => !String(window.getSelection()).includes(document.getElementById('clock').textContent.trim())) && await p.evaluate(() => getComputedStyle(document.getElementById('clock')).userSelect) === 'none', 'dragging the mouse does not select the time');
+  await p.mouse.click(5, 5);
+
   // open from the drawer
+  const look0 = await p.evaluate(() => Object.fromEntries(['clock', 'focus'].map((id) => { const r = document.getElementById(id).getBoundingClientRect(); return [id, [r.left + r.width / 2, r.top + r.height / 2, r.width]]; })));
   await p.click('#customize'); await p.waitForTimeout(200);
   await p.click('#drawerBody .btn-primary'); await p.waitForTimeout(900);
+  const look1 = await p.evaluate(() => Object.fromEntries(['clock', 'focus'].map((id) => { const r = document.getElementById(id).getBoundingClientRect(); return [id, [r.left + r.width / 2, r.top + r.height / 2, r.width]]; })));
+  ok(Object.keys(look0).every((id) => Math.abs(look0[id][0] - look1[id][0]) < 14 && Math.abs(look0[id][1] - look1[id][1]) < 14 && Math.abs(look0[id][2] - look1[id][2]) < look0[id][2] * 0.08), 'the editor opens on the positions the page already had: ' + JSON.stringify([look0, look1]));
   ok(await p.locator('.cv-frame:not([hidden])').count() === 5, 'five blocks on the screen: ' + await p.locator('.cv-frame:not([hidden])').count());
   ok(await p.evaluate(() => document.body.dataset.layout) === 'canvas', 'free layout on while editing');
   let c = await canvas();
@@ -64,7 +72,31 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   c = await canvas();
   ok(c.items.clock.x < before.x - 10 && c.items.clock.y > before.y + 5, 'dragging moves the clock: ' + JSON.stringify([before, c.items.clock]));
 
+  // the time can be stretched from any side or corner: the opposite edge stays, the proportions are free
+  {
+    const r0 = await box('.cv-frame[data-block="clock"]'); const el0 = await box('#clock');
+    const hb = await box('.cv-frame[data-block="clock"] .cv-handle[data-h="e"]');
+    await p.mouse.move(hb.x + hb.width / 2, hb.y + hb.height / 2); await p.mouse.down();
+    await p.mouse.move(hb.x + hb.width / 2 + 120, hb.y + hb.height / 2, { steps: 8 }); await p.mouse.up(); await p.waitForTimeout(300);
+    const it = (await canvas()).items.clock, el1 = await box('#clock');
+    ok(it.sx && it.sx > it.s + 0.05 && Math.abs(el1.y - el0.y) < 3 && Math.abs(el1.height - el0.height) < 3, 'the right side stretches the time wider only: ' + JSON.stringify(it));
+    ok(Math.abs(el1.x - el0.x) < 3 && el1.width > el0.width + 60, 'the left edge stays where it was');
+    const hs = await box('.cv-frame[data-block="clock"] .cv-handle[data-h="s"]');
+    await p.mouse.move(hs.x + hs.width / 2, hs.y + hs.height / 2); await p.mouse.down();
+    await p.mouse.move(hs.x + hs.width / 2, hs.y + hs.height / 2 + 60, { steps: 8 }); await p.mouse.up(); await p.waitForTimeout(300);
+    const it2 = (await canvas()).items.clock;
+    ok(it2.s > it.s + 0.05 && Math.abs(it2.sx - it.sx) < 0.01, 'the bottom side stretches it taller only: ' + JSON.stringify(it2));
+    await p.keyboard.press('Alt+ArrowRight'); await p.waitForTimeout(250);
+    ok((await canvas()).items.clock.sx > it2.sx, 'Alt+arrow stretches from the keyboard');
+    await p.click('.cv-panel button:has-text("Reset stretch")'); await p.waitForTimeout(300);
+    ok((await canvas()).items.clock.sx === undefined, 'Reset stretch gives the proportions back');
+    await p.click('.cv-bar button[aria-label="Undo"]'); await p.waitForTimeout(200);
+    ok((await canvas()).items.clock.sx !== undefined, 'the reset can be undone');
+    await p.click('.cv-bar button[aria-label="Undo"]'); await p.click('.cv-bar button[aria-label="Undo"]'); await p.click('.cv-bar button[aria-label="Undo"]'); await p.waitForTimeout(200);
+  }
+
   // resize the focus card with its corner (nothing overlaps its corner in the seed layout)
+  await p.focus('.cv-frame[data-block="focus"]'); await p.waitForTimeout(200);
   const fw = (await canvas()).items.focus.w;
   const hb = await box('.cv-frame[data-block="focus"] .cv-handle');
   await p.mouse.move(hb.x + 9, hb.y + 9); await p.mouse.down(); await p.mouse.move(hb.x + 9 + 70, hb.y + 9 + 10, { steps: 8 }); await p.mouse.up(); await p.waitForTimeout(300);
@@ -139,9 +171,18 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   await p.click('.cv-bar button:has-text("Reset")'); await p.waitForTimeout(300);
   const seeded = (await canvas()).items;
   ok(seeded.clock.x === 50 && seeded.focus.w === 640, 'reset restores the seed layout');
-  await p.click('.cv-bar button:has-text("look")'); await p.waitForTimeout(500);
+  // the background and the look are set right in the editor, and the panel stays while blocks are moved
+  await p.click('.cv-bar button:has-text("Background")'); await p.waitForTimeout(500);
+  ok(await p.locator('.cv-panel .bg-tile').count() >= 18, 'the Background panel lists the scenes');
+  await p.locator('.cv-panel .bg-tile', { hasText: 'Aurora' }).click(); await p.waitForTimeout(700);
+  ok(await p.evaluate(async () => (await (await import('/src/shared/storage.js')).getSettings()).newtab.background) === 'aurora' && await p.evaluate(() => document.body.dataset.bg) === 'aurora', 'a scene is picked inside the editor');
+  await p.focus('.cv-frame[data-block="focus"]'); await p.waitForTimeout(300);
+  ok(await p.locator('.cv-panel .bg-tile').count() >= 18, 'the Background panel stays while a block is selected');
+  await p.click('.cv-bar button:has-text("Look")'); await p.waitForTimeout(600);
+  ok(await p.locator('.cv-panel .look-card, .cv-panel [data-look]').count() >= 3, 'the Look panel lists the looks');
+  await p.click('.cv-bar button:has-text("Use the look")'); await p.waitForTimeout(500);
   ok(!(await canvas()).on && await p.evaluate(() => document.body.dataset.layout) === 'center', 'the look layout can be switched back on');
-  ok(Object.keys((await canvas()).items).length === 6, 'the arrangement (blocks and the widget) is remembered for next time');
+  ok(await p.evaluate(() => document.querySelectorAll('.nt-c').length === 3 && !document.querySelector('.nt-brand')), 'three corner buttons, no logo');
 
   console.log(bad.length ? 'FAIL\n' + bad.join('\n') : 'editor: all checks passed');
   await app.close();

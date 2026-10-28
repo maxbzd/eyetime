@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeCanvas, clampCenter, snapRect, nudge, resizeStep, itemFromRect, seedItems, canvasScale, CANVAS_BLOCKS } from '../../src/shared/canvas.js';
+import { normalizeCanvas, clampCenter, snapRect, nudge, resizeStep, stretchStep, stretchDrag, itemFromRect, seedItems, canvasScale, CANVAS_BLOCKS } from '../../src/shared/canvas.js';
 
 test('normalizeCanvas: garbage in, a safe canvas out', () => {
   assert.deepEqual(normalizeCanvas(undefined), { on: false, items: {} });
@@ -66,4 +66,39 @@ test('widget blocks are accepted as cards, other ids are not', () => {
   assert.deepEqual(Object.keys(c.items), ['w3k9x0a']);
   assert.equal(c.items.w3k9x0a.w, 900);
   assert.equal(resizeStep('w3k9x0a', { x: 1, y: 1, w: 300 }, 1).w, 320);
+});
+
+test('a text block can be stretched: sx is kept only when it differs, and clamped', () => {
+  const n = normalizeCanvas({ on: true, items: { clock: { x: 50, y: 50, s: 1, sx: 2.4 }, greeting: { x: 50, y: 70, s: 1, sx: 1 } } }).items;
+  assert.equal(n.clock.sx, 2.4);
+  assert.equal(n.greeting.sx, undefined);
+  assert.equal(normalizeCanvas({ on: true, items: { clock: { x: 5, y: 5, s: 1, sx: 99 } } }).items.clock.sx, 7.5);
+  assert.equal(normalizeCanvas({ on: true, items: { clock: { x: 5, y: 5, s: 1, sx: 'wide' } } }).items.clock.sx, undefined);
+  assert.equal(normalizeCanvas({ on: true, items: { tasks: { x: 5, y: 5, w: 400, sx: 2 } } }).items.tasks.sx, undefined);
+});
+
+test('resizeStep keeps a stretched block in proportion; stretchStep changes one axis', () => {
+  const r = resizeStep('clock', { x: 1, y: 1, s: 1, sx: 2 }, 1, true);
+  assert.equal(r.s, 1.2); assert.equal(r.sx, 2.4);
+  assert.deepEqual(stretchStep('clock', { x: 1, y: 1, s: 1 }, 'x', 1, true), { x: 1, y: 1, s: 1, sx: 1.2 });
+  assert.deepEqual(stretchStep('clock', { x: 1, y: 1, s: 1 }, 'y', 1, true), { x: 1, y: 1, s: 1.2, sx: 1 });
+  assert.deepEqual(stretchStep('clock', { x: 1, y: 1, s: 1, sx: 1.05 }, 'x', -1), { x: 1, y: 1, s: 1 });
+});
+
+test('stretchDrag pulls from a side or corner while the opposite one stays put', () => {
+  const view = { w: 1440, h: 900 }, rect = { x: 400, y: 100, w: 400, h: 200 }, item = { x: 41.67, y: 22.22, s: 1 };
+  // the right edge dragged 200 px out: twice... 1.5x wider, same height, left edge unchanged
+  const a = stretchDrag('clock', item, { dx: 1, dy: 0 }, rect, 1, { x: 1000, y: 200 }, view);
+  assert.equal(a.s, 1); assert.equal(a.sx, 1.5);
+  assert.equal(Math.round(a.x / 100 * 1440 - 600 / 2), 400); // centre - half width = the fixed left edge
+  // bottom-right corner free: both change; Shift keeps the proportions
+  const b = stretchDrag('clock', item, { dx: 1, dy: 1 }, rect, 1, { x: 1200, y: 400 }, view);
+  assert.equal(b.sx, 2); assert.equal(b.s, 1.5);
+  const c = stretchDrag('clock', item, { dx: 1, dy: 1 }, rect, 1, { x: 1200, y: 400 }, view, true);
+  assert.equal(c.s, 2); assert.equal(c.sx, undefined);
+  // limits hold
+  const d = stretchDrag('clock', item, { dx: 1, dy: 0 }, rect, 1, { x: 100000, y: 0 }, view);
+  assert.equal(d.sx, 7.5);
+  const e = stretchDrag('clock', item, { dx: -1, dy: 0 }, rect, 1, { x: 790, y: 0 }, view);
+  assert.equal(e.sx, 0.16);
 });
