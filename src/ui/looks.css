@@ -214,7 +214,7 @@
 :is(html, .lp)[data-look="tide"] .segmented [aria-pressed="true"], :is(html, .lp)[data-look="tide"] .segmented [aria-selected="true"] { background: var(--surface); box-shadow: 0 2px 10px rgba(0, 0, 0, .18); }
 :is(html, .lp)[data-look="tide"] .progress, :is(html, .lp)[data-look="tide"] .goal-bar { height: 7px; background: color-mix(in srgb, var(--text) 12%, transparent); }
 :is(html, .lp)[data-look="tide"] .ring .bar { filter: drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 50%, transparent)); } :is(html, .lp)[data-look="tide"] .ring, :is(html, .lp)[data-look="tide"] .ring svg { overflow: visible; }
-:is(html, .lp)[data-look="tide"] .nt-top .btn, :is(html, .lp)[data-look="tide"] .top .btn-icon { background: color-mix(in srgb, var(--surface) 45%, transparent); }
+:is(html, .lp)[data-look="tide"] .nt-corners .btn, :is(html, .lp)[data-look="tide"] .top .btn-icon { background: color-mix(in srgb, var(--surface) 45%, transparent); }
 
 /* ═══════════════════════════ LEDGER — calm navy, big numerals, area charts ═══════════════════════════ */
 :is(html, .lp)[data-look="ledger"] .card { border-radius: var(--r-lg); box-shadow: none; background: var(--surface); }
@@ -340,14 +340,8 @@ html[data-look="tide"] body[data-layout="center"] .focus-idle.large > :not(.inpu
 html[data-look="tide"] body[data-layout="center"] .focus-idle.large > .focus-row > .durations { grid-column: 1 / -1; margin-inline: var(--s-4); }
 html[data-look="tide"] body[data-layout="center"] .focus-idle.large > .input-lg::placeholder { color: color-mix(in srgb, var(--text) 60%, transparent); }
 html[data-look="tide"] body[data-layout="center"] .focus-idle.large > .goal-strip { order: 10; padding-top: var(--s-1); }
-html[data-look="tide"] .nt-top { top: auto; bottom: 22px; left: 50%; right: auto; transform: translateX(-50%); width: max-content; padding: 7px 10px; gap: var(--s-2); border-radius: var(--r-full);
-  background: color-mix(in srgb, var(--surface) 62%, transparent); border: 1px solid color-mix(in srgb, #fff 24%, transparent); -webkit-backdrop-filter: blur(24px) saturate(1.4); backdrop-filter: blur(24px) saturate(1.4); box-shadow: var(--shadow-3), inset 0 1px 0 color-mix(in srgb, #fff 30%, transparent); }
-html[data-look="tide"][data-scheme="light"] .nt-top { background: color-mix(in srgb, #fff 66%, transparent); border-color: rgba(255, 255, 255, .85); }
-html[data-look="tide"] .nt-top .nt-brand { padding-right: var(--s-2); margin-right: var(--s-1); border-right: 1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius: 0; }
-html[data-look="tide"] .nt-top .nt-brand img { display: block; }
-html[data-look="tide"] .nt-top .btn.on-bg { color: var(--text-2); }
-html[data-look="tide"] .nt-top .btn.on-bg:hover { color: var(--text); background: color-mix(in srgb, var(--text) 10%, transparent); }
-html[data-look="tide"] .nt-top [data-tip]:hover::after, html[data-look="tide"] .nt-top [data-tip]:focus-visible::after { top: auto; bottom: calc(100% + 12px); left: 50%; right: auto; transform: translateX(-50%); }
+html[data-look="tide"] .nt-corners .btn.on-bg { color: var(--text-2); }
+html[data-look="tide"] .nt-corners .btn.on-bg:hover { color: var(--text); background: color-mix(in srgb, var(--text) 10%, transparent); }
 html[data-look="tide"] .kbd-hint { display: none; }
 
 /* ---------- Ledger · Cockpit: a header strip, stat tiles, then focus and today side by side on a 12-column grid ---------- */
@@ -499,12 +493,8 @@ html[data-look="obsidian"][data-scheme="dark"] body[data-layout="center"] .hero 
 html[data-look="obsidian"][data-scheme="dark"] body[data-layout="center"] .clock { order: 1; font-size: clamp(96px, min(15vw, 22vh), 200px); font-weight: 200; letter-spacing: -.06em; line-height: .96; text-shadow: none;
   background: linear-gradient(180deg, #fff 18%, rgba(255, 255, 255, .5) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 html[data-look="obsidian"][data-scheme="dark"] body[data-layout="center"] .hero h1 { order: 2; margin-top: var(--s-3); font-size: clamp(18px, 1.8vw, 22px); font-weight: 500; letter-spacing: 0; color: rgba(255, 255, 255, .72); text-shadow: none; }
-html[data-look="obsidian"][data-scheme="dark"] .nt-top { top: 14px; left: 50%; right: auto; transform: translateX(-50%); width: max-content; padding: 6px 8px; gap: var(--s-2); border-radius: var(--r-full); background: rgba(10, 10, 12, .7); border: 1px solid var(--hair); -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4); box-shadow: 0 10px 40px -12px rgba(0, 0, 0, .8), inset 0 1px 0 rgba(255, 255, 255, .06); }
-html[data-look="obsidian"][data-scheme="dark"] .nt-top .nt-brand { padding: 0 var(--s-2) 0 var(--s-1); margin-right: var(--s-1); border-right: 1px solid var(--hair); border-radius: 0; }
-html[data-look="obsidian"][data-scheme="dark"] .nt-top .nt-brand img { display: block; width: 24px; height: 24px; }
-html[data-look="obsidian"][data-scheme="dark"] .nt-top .btn.on-bg { color: rgba(255, 255, 255, .7); }
-html[data-look="obsidian"][data-scheme="dark"] .nt-top .btn.on-bg:hover { color: #fff; background: rgba(255, 255, 255, .1); }
-html[data-look="obsidian"][data-scheme="dark"] .nt-top .btn:last-child[data-tip]:hover::after, html[data-look="obsidian"][data-scheme="dark"] .nt-top .btn:last-child[data-tip]:focus-visible::after { left: 50%; right: auto; transform: translateX(-50%); }
+html[data-look="obsidian"][data-scheme="dark"] .nt-corners .btn.on-bg { color: rgba(255, 255, 255, .7); }
+html[data-look="obsidian"][data-scheme="dark"] .nt-corners .btn.on-bg:hover { color: #fff; background: rgba(255, 255, 255, .1); }
 html[data-look="obsidian"][data-scheme="dark"] body[data-layout="center"] #focus { max-width: 780px; border-radius: 28px; padding: var(--s-6); }
 
 /* the free-form Home (body[data-layout="canvas"]) keeps the look's own typography for the clock and the greeting */
