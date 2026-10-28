@@ -322,3 +322,5 @@ body[data-layout="split"] .gs { grid-column: 1 / -1; grid-row: 2; } body[data-la
 #clock, #greetBlock, .bg, #bgFront, .dl, .dock { -webkit-user-select: none; user-select: none; }
 .bg *, #bgFront * { -webkit-user-drag: none; }
 .drawer .row { flex-wrap: wrap; } .drawer .btn { max-width: 100%; }
+
+.nt-off { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s-3); text-align: center; padding: var(--s-6); } .nt-off h1 { font-size: var(--fs-xl); } .nt-off p { max-width: 46ch; }

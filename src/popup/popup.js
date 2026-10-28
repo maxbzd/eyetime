@@ -1,10 +1,11 @@
 import { bootPage } from '../ui/page.js';
+import { addCapture } from '../shared/productivity.js';
 import { $, h, icon, favicon, clear, toast } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { mountFocusCard } from '../ui/focus-card.js';
 import { mountToday } from '../ui/today-card.js';
 import { t, fmtDuration, fmtTime } from '../shared/i18n.js';
-import { getSettings, updateSettings, getRaw, getDays, onChange, getCollection, setCollection } from '../shared/storage.js';
+import { getSettings, updateSettings, getRaw, getDays, onChange, updateCollection } from '../shared/storage.js';
 import { makeClassifier } from '../shared/classify.js';
 import { dayKey } from '../shared/time.js';
 import { hostFromUrl, matches } from '../shared/domains.js';
@@ -73,9 +74,8 @@ async function renderFooter() {
   const settings = await getSettings();
   const input = h('input', { class: 'input', placeholder: t('capture.placeholder'), 'aria-label': t('capture.placeholder'), maxlength: 500, onkeydown: async (e) => {
     if (e.key !== 'Enter' || !e.target.value.trim()) return;
-    const list = await getCollection('captures', []);
-    list.unshift({ id: String(Date.now()), text: e.target.value.trim(), at: Date.now() });
-    await setCollection('captures', list.slice(0, 200));
+    const text = e.target.value.trim();
+    await updateCollection('captures', [], (list) => addCapture(list, text));
     e.target.value = '';
     toast(t('capture.saved'));
   } });

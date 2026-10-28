@@ -11,8 +11,8 @@
 //   newtabFg            the subject mask of that photo (a PNG whose alpha is the subject), for the depth effect
 
 import { normalizeCalendarUrl } from './calsub.js';
-import { DEFAULT_SETTINGS, deepMerge, clone, SCHEMA_VERSION } from './defaults.js';
-import { migrate, needsMigration, upgradeSettingsV2 } from './migrate.js';
+import { DEFAULT_SETTINGS, deepMerge, clone, SCHEMA_VERSION, DEFAULT_META } from './defaults.js';
+import { migrate, looksLikeV1, needsMigration, upgradeSettingsV2 } from './migrate.js';
 import { dayKey, rangeKeys, addDays } from './time.js';
 import { DOCK_ORIGINS } from './dock.js';
 import { sanitizeTopics } from './topics.js';
@@ -30,12 +30,15 @@ export async function setRaw(obj) { return area().set(obj); }
 
 export async function getSettings() {
   const { settings } = await area().get('settings');
-  const s = deepMerge(DEFAULT_SETTINGS, settings || {});
+  const s = deepMerge(DEFAULT_SETTINGS, settings); // a damaged value (not an object) leaves the defaults
   // the synthesised "café" ambience was replaced by real recordings in 2.5.3
   if (s.focus.ambient === 'cafe') s.focus.ambient = 'rain';
   for (const m of s.focus.modes || []) if (m && m.ambient === 'cafe') m.ambient = 'rain';
   return s;
 }
+
+/** One lock per name shared by every context of the extension (pages, popup, worker), so two of them never read-modify-write the same key at once. */
+const withLock = (name, fn) => (typeof navigator !== 'undefined' && navigator.locks ? navigator.locks.request('eyetime:' + name, fn) : fn());
 
 let settingsQueue = Promise.resolve();
 /**
@@ -52,7 +55,8 @@ export function updateSettings(fn, { touch = true } = {}) {
     await area().set(changed && touch ? { settings: next, settingsUpdatedAt: Date.now() } : { settings: next });
     return next;
   };
-  const p = settingsQueue.then(run, run);
+  const locked = () => withLock('settings', run);
+  const p = settingsQueue.then(locked, locked);
   settingsQueue = p.catch(() => {});
   return p;
 }
@@ -90,7 +94,8 @@ export function updateDay(key, fn) {
     await area().set({ [k]: cur });
     return cur;
   };
-  const p = dayQueue.then(run, run);
+  const locked = () => withLock('day:' + key, run);
+  const p = dayQueue.then(locked, locked);
   dayQueue = p.catch(() => {});
   return p;
 }
@@ -164,11 +169,12 @@ export async function getCollection(name, fallback) {
 export const setCollection = (name, value) => area().set({ [name]: value });
 
 const collectionQueues = new Map();
-/** Read-modify-write of one collection through a per-name queue, so the worker's own writers (credit time, review, rollover) never overwrite each other. `fn` mutates or returns the new value. */
+/** Read-modify-write of one collection through a per-name queue and a lock shared by all contexts, so the writers (credit time, review, rollover) never overwrite each other. `fn` mutates or returns the new value. */
 export const UNCHANGED = Symbol('unchanged');
 export function updateCollection(name, fallback, fn) {
   const run = async () => { const cur = await getCollection(name, fallback); const next = fn(cur); if (next === UNCHANGED) return cur; await setCollection(name, next === undefined ? cur : next); return next === undefined ? cur : next; };
-  const p = (collectionQueues.get(name) || Promise.resolve()).then(run, run);
+  const locked = () => withLock('c:' + name, run);
+  const p = (collectionQueues.get(name) || Promise.resolve()).then(locked, locked);
   collectionQueues.set(name, p.catch(() => {}));
   return p;
 }
@@ -186,6 +192,11 @@ export async function ensureSchema() {
   }
   const raw = await area().get(null);
   if (!needsMigration(raw)) return { migrated: false };
+  // the schema stamp is gone but the settings are current (a lost or damaged `meta`): repair the stamp, never run the 1.x path over live settings
+  if (!meta && raw.settings && typeof raw.settings === 'object' && !Array.isArray(raw.settings) && !looksLikeV1(raw)) {
+    await area().set({ settings: deepMerge(DEFAULT_SETTINGS, raw.settings), meta: { ...DEFAULT_META, installedAt: Date.now() } });
+    return { migrated: false, repaired: true };
+  }
   const m = migrate(raw);
   const out = { settings: m.settings, meta: m.meta, tasks: raw.tasks || m.tasks, captures: raw.captures || m.captures };
   if (m.habits) out.habits = m.habits;
@@ -215,6 +226,19 @@ export async function exportAll() {
   return { app: 'eyetime', version: 2, exportedAt: new Date().toISOString(), data: all };
 }
 
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/, HM_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+/** Calendar events from a file: only the known fields, bounded. */
+function sanitizeEvents(list, timed) {
+  const out = [];
+  for (const e of Array.isArray(list) ? list.slice(0, 500) : []) {
+    if (!e || typeof e !== 'object' || typeof e.day !== 'string' || !DAY_RE.test(e.day)) continue;
+    const ev = { id: String(e.id ?? out.length).slice(0, 120), title: typeof e.title === 'string' ? e.title.slice(0, 80) : '', day: e.day };
+    if (timed) { if (!HM_RE.test(e.start) || !HM_RE.test(e.end)) continue; ev.start = e.start; ev.end = e.end; }
+    out.push(ev);
+  }
+  return out;
+}
+
 export async function importAll(payload) {
   if (!payload || payload.app !== 'eyetime' || typeof payload.data !== 'object') throw new Error('Not an EyeTime backup');
   const data = payload.data;
@@ -225,6 +249,9 @@ export async function importAll(payload) {
   const clean = {};
   for (const [k, v] of Object.entries(data)) if (KNOWN.has(k) || /^d:\d{4}-\d{2}-\d{2}$/.test(k)) clean[k] = v;
   if (clean.topics) clean.topics = sanitizeTopics(clean.topics); // a file is never trusted: known shape, clean addresses
+  // meetings travel in a backup (the subscription links never do): they come back as the imported calendar, until a link is added again
+  const events = sanitizeEvents(data.calendar, true), allDay = sanitizeEvents(data.calendarDays, false);
+  if (events.length || allDay.length) Object.assign(clean, { calendar: events, calendarDays: allDay, calendarSrc: { file: { events, allDay } } });
   await dropCalendarPermission();
   await area().clear();
   if (m) {

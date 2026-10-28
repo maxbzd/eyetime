@@ -21,12 +21,14 @@ export function isScheduleActive(schedule, now = new Date()) {
 }
 
 export const REDIRECT_GRACE = '*redirect';
+/** The redirect window belongs to the tab that pressed "continue": another tab, or another site opened at once, gets no free pass. */
+export const redirectGraceKey = (tabId) => `${REDIRECT_GRACE}:${tabId}`;
 export const REDIRECT_GRACE_MS = 30_000;
 
 /**
  * Decide what to do when the user opens `host`.
  *
- * ctx: { settings, classifier, focus, passes, usageOf, now }
+ * ctx: { settings, classifier, focus, passes, usageOf, now, tabId }
  *   passes  – { [ruleDomain]: untilTimestamp } temporary "continue" permissions
  *   usageOf – (domain) => seconds already spent on that domain (and its subdomains) today
  *
@@ -40,9 +42,9 @@ export function decide(host, ctx) {
   if (!host || matchesAny(host, b.allow)) return { action: 'allow' };
 
   const rule = classifier.ruleDomain(host);
-  // A "continue" on the pause page also opens a 30 s window for the redirect chain that follows (youtu.be → youtube.com,
+  // A "continue" on the pause page also opens a 30 s window, in that tab only, for the redirect chain that follows (youtu.be → youtube.com,
   // consent hops, link shorteners): otherwise the destination, a different rule domain, would show the pause page a second time.
-  const grace = (passes[REDIRECT_GRACE] || 0) > now;
+  const grace = ctx.tabId != null && (passes[redirectGraceKey(ctx.tabId)] || 0) > now;
   const passed = (passes[rule] || 0) > now || grace;
 
   if (matchesAny(host, b.always)) return { action: 'block', reason: 'always', rule, canPass: false };
@@ -64,7 +66,8 @@ export function decide(host, ctx) {
       const strict = !!focus.strict;
       if (strict || !passed) return { action: 'block', reason: 'focus', rule, strict, canPass: !strict, passMinutes: b.friction.passMinutes };
     }
-    if (isScheduleActive(b.schedule, new Date(now))) {
+    // a site the running focus mode allows (Study → YouTube) is also exempt from the work-hours schedule while that session lasts; the daily limit below still caps it
+    if (!modeAllowed && isScheduleActive(b.schedule, new Date(now))) {
       const strict = !!b.schedule.strict;
       if (strict || !passed) return { action: 'block', reason: 'schedule', rule, strict, canPass: !strict, passMinutes: b.schedule.passMinutes };
     }

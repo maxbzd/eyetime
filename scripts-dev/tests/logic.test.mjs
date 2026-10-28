@@ -264,18 +264,22 @@ test('slimDay drops only the hourly breakdown', async () => {
   const empty = { d: {} }; assert.equal(slimDay(empty), empty); assert.equal(slimDay(null), null);
 });
 
-test('a pass grants a short redirect window: youtu.be → youtube.com shows the pause page once', async () => {
-  const { decide, REDIRECT_GRACE } = await import('../../src/shared/blocking.js');
+test('a pass grants a short redirect window in the tab that pressed continue: youtu.be → youtube.com shows the pause page once', async () => {
+  const { decide, redirectGraceKey } = await import('../../src/shared/blocking.js');
   const { makeClassifier } = await import('../../src/shared/classify.js');
   const { DEFAULT_SETTINGS, clone } = await import('../../src/shared/defaults.js');
-  const settings = clone(DEFAULT_SETTINGS); settings.blocking.presets.video = true;
-  const base = { settings, classifier: makeClassifier(settings), focus: null, now: 1_000_000 };
+  const settings = clone(DEFAULT_SETTINGS); settings.blocking.presets.video = true; settings.blocking.presets.social = true;
+  const base = { settings, classifier: makeClassifier(settings), focus: null, now: 1_000_000, tabId: 7 };
+  const grace = { [redirectGraceKey(7)]: base.now + 20_000 };
   assert.equal(decide('www.youtube.com', { ...base, passes: {} }).action, 'pause');
   assert.equal(decide('www.youtube.com', { ...base, passes: { 'youtu.be': base.now + 600_000 } }).action, 'pause'); // a pass for another rule does not cover it…
-  assert.equal(decide('www.youtube.com', { ...base, passes: { 'youtu.be': base.now + 600_000, [REDIRECT_GRACE]: base.now + 20_000 } }).action, 'allow'); // …but the redirect window does
-  assert.equal(decide('www.youtube.com', { ...base, passes: { [REDIRECT_GRACE]: base.now - 1 } }).action, 'pause'); // and it expires
+  assert.equal(decide('www.youtube.com', { ...base, passes: { 'youtu.be': base.now + 600_000, ...grace } }).action, 'allow'); // …but the redirect window of that tab does
+  assert.equal(decide('www.instagram.com', { ...base, passes: grace }).action, 'allow'); // (the same tab keeps following the chain)
+  assert.equal(decide('www.youtube.com', { ...base, tabId: 8, passes: grace }).action, 'pause'); // another tab gets no free pass
+  assert.equal(decide('www.youtube.com', { ...base, tabId: undefined, passes: grace }).action, 'pause'); // nor a lookup without a tab
+  assert.equal(decide('www.youtube.com', { ...base, passes: { [redirectGraceKey(7)]: base.now - 1 } }).action, 'pause'); // and it expires
   settings.blocking.always = ['youtube.com'];
-  assert.equal(decide('www.youtube.com', { ...base, settings, classifier: makeClassifier(settings), passes: { [REDIRECT_GRACE]: base.now + 20_000 } }).action, 'block'); // always-blocked stays blocked
+  assert.equal(decide('www.youtube.com', { ...base, settings, classifier: makeClassifier(settings), passes: grace }).action, 'block'); // always-blocked stays blocked
 });
 
 test('legacy "cafe" ambience maps to rain', async () => {
@@ -295,4 +299,61 @@ test('backup reminder only for real history, rarely, and snoozable', async () =>
   assert.equal(needsBackup({ now, installedAt: now - 90 * d, lastBackupAt: now - 5 * d, daysStored: 80 }), false);
   assert.equal(needsBackup({ now, installedAt: now - 90 * d, lastBackupAt: now - 45 * d, daysStored: 80 }), true);
   assert.equal(needsBackup({ now, installedAt: now - 90 * d, daysStored: 80, snoozedUntil: now + d }), false);
+});
+
+test('damaged settings never break the merge: a wrong type leaves the defaults', async () => {
+  const { DEFAULT_SETTINGS, deepMerge } = await import('../../src/shared/defaults.js');
+  for (const bad of ['x', 5, [], null, true]) assert.deepEqual(deepMerge(DEFAULT_SETTINGS, bad), DEFAULT_SETTINGS);
+  const m = deepMerge(DEFAULT_SETTINGS, { focus: 'oops', blocking: [1], eye: { enabled: false } });
+  assert.deepEqual(m.focus, DEFAULT_SETTINGS.focus); assert.deepEqual(m.blocking, DEFAULT_SETTINGS.blocking); assert.equal(m.eye.enabled, false);
+});
+
+test('a lost schema stamp over current settings is repaired, not migrated away; real 1.x data still migrates', async () => {
+  const { looksLikeV1, migrate } = await import('../../src/shared/migrate.js');
+  const { DEFAULT_SETTINGS, clone } = await import('../../src/shared/defaults.js');
+  const cur = clone(DEFAULT_SETTINGS); cur.focus.defaultMinutes = 40;
+  assert.equal(looksLikeV1({ settings: cur }), false);
+  assert.equal(looksLikeV1({ settings: { interceptor: {}, blocking: {} } }), true);
+  assert.equal(looksLikeV1({ settings: {}, stats: {} }), true);
+  const m = migrate({ settings: cur });
+  assert.equal(m.settings.focus.defaultMinutes, DEFAULT_SETTINGS.focus.defaultMinutes); // (migrate itself is the 1.x path; storage never sends current settings there)
+});
+
+test('migration of habits survives a null item', async () => {
+  const { migrate } = await import('../../src/shared/migrate.js');
+  const m = migrate({ settings: { interceptor: { habits: { items: [null, { id: 1, name: 'Read' }, { name: 'Walk' }, { id: 3 }], log: {} } } } });
+  assert.deepEqual(m.habits.items.map((x) => x.name), ['Read', 'Walk']);
+});
+
+test('splitAtMidnight cuts a span at local midnight, each part in its own day', async () => {
+  const { splitAtMidnight, dayKey } = await import('../../src/shared/time.js');
+  const a = new Date(2026, 9, 27, 23, 59, 0).getTime(), b = new Date(2026, 9, 28, 0, 1, 0).getTime();
+  const parts = splitAtMidnight(a, b);
+  assert.equal(parts.length, 2);
+  assert.equal(parts[0].to - parts[0].from, 60_000); assert.equal(parts[1].to - parts[1].from, 60_000);
+  assert.equal(dayKey(new Date(parts[0].to - 1)), '2026-10-27'); assert.equal(dayKey(new Date(parts[1].to - 1)), '2026-10-28');
+  assert.equal(splitAtMidnight(a, a + 30_000).length, 1);
+  assert.deepEqual(splitAtMidnight(b, a), []);
+});
+
+test('a site the focus mode allows is not closed by the work-hours schedule; the limit still applies', async () => {
+  const { decide } = await import('../../src/shared/blocking.js');
+  const { makeClassifier } = await import('../../src/shared/classify.js');
+  const { DEFAULT_SETTINGS, clone } = await import('../../src/shared/defaults.js');
+  const settings = clone(DEFAULT_SETTINGS); settings.blocking.presets.video = true; settings.blocking.limits = { 'youtube.com': 10 };
+  settings.blocking.schedule = { enabled: true, start: '00:00', end: '23:59', days: [0, 1, 2, 3, 4, 5, 6], strict: false, passMinutes: 5 };
+  const now = new Date(2026, 9, 28, 12, 0, 0).getTime();
+  const focus = { endsAt: now + 3_600_000, startedAt: now, allow: ['youtube.com'], strict: false, minutes: 60 };
+  const base = { settings, classifier: makeClassifier(settings), focus, passes: {}, now, usageOf: () => 0 };
+  assert.notEqual(decide('www.youtube.com', base).reason, 'schedule');
+  assert.equal(decide('www.youtube.com', { ...base, usageOf: () => 11 * 60 }).reason, 'limit');
+  assert.equal(decide('www.youtube.com', { ...base, focus: { ...focus, allow: [] } }).reason, 'focus'); // a session without the allowance still closes it
+});
+
+test('a parked thought list never grows past its limit', async () => {
+  const { addCapture, MAX_CAPTURES } = await import('../../src/shared/productivity.js');
+  let list = [];
+  for (let i = 0; i < MAX_CAPTURES + 30; i++) list = addCapture(list, 'n' + i, 1000 + i);
+  assert.equal(list.length, MAX_CAPTURES); assert.equal(list[0].text, 'n' + (MAX_CAPTURES + 29));
+  assert.equal(addCapture(null, 'x')[0].text, 'x');
 });

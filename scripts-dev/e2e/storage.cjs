@@ -27,6 +27,29 @@ const { launch } = require('./lib.cjs');
   if (!after.old.d || after.old.d['a.com'] !== 600) bad.push('an old day lost its daily totals');
   if (!after.recent.h || !after.recent.h[9]) bad.push('a recent day lost its hourly detail');
   if (!(after.usage.total < before.total)) bad.push('nothing was freed');
+  // a lost schema stamp over current settings is repaired, the settings stay
+  const kept = await page.evaluate(async () => {
+    const st = await import('/src/shared/storage.js');
+    await st.updateSettings((s) => { s.focus.minutes = 37; s.blocking.always = ['keep.example']; });
+    await chrome.storage.local.remove('meta');
+    const r = await st.ensureSchema(); const s = await st.getSettings(); const { meta } = await chrome.storage.local.get('meta');
+    return { r, minutes: s.focus.minutes, always: s.blocking.always, meta };
+  });
+  if (kept.minutes !== 37 || kept.always[0] !== 'keep.example') bad.push('a lost meta key reset the settings: ' + JSON.stringify(kept));
+  if (!kept.meta || kept.meta.schemaVersion < 3) bad.push('the schema stamp was not restored: ' + JSON.stringify(kept.r));
+  // damaged settings (not an object) fall back to the defaults instead of breaking readers
+  const dmg = await page.evaluate(async () => { const st = await import('/src/shared/storage.js'); await chrome.storage.local.set({ settings: 'oops' }); const s = await st.getSettings(); return !!(s && s.focus && s.blocking && Array.isArray(s.blocking.always)); });
+  if (!dmg) bad.push('damaged settings broke getSettings');
+  // a backup carries the meetings, and they come back
+  const cal = await page.evaluate(async () => {
+    const st = await import('/src/shared/storage.js');
+    await chrome.storage.local.set({ settings: (await st.getSettings()), calendar: [{ id: 'c1:a', title: 'Standup', day: '2026-10-28', start: '09:30', end: '10:00' }, { id: 'bad', title: 'x', day: 'nope', start: '1', end: '2' }], calendarDays: [{ id: 'c1:d', title: 'Holiday', day: '2026-10-29' }] });
+    const backup = await st.exportAll();
+    await st.importAll(JSON.parse(JSON.stringify(backup)));
+    const got = await chrome.storage.local.get(['calendar', 'calendarDays']);
+    return got;
+  });
+  if (!cal.calendar || cal.calendar.length !== 1 || cal.calendar[0].title !== 'Standup' || !cal.calendarDays || cal.calendarDays.length !== 1) bad.push('the calendar did not survive a backup restore: ' + JSON.stringify(cal));
   await page.reload(); await page.waitForTimeout(1200);
   const txt = await page.locator('#data').innerText();
   if (!/MB/.test(txt)) bad.push('Settings does not show the storage numbers');

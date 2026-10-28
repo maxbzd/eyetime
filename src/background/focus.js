@@ -14,8 +14,24 @@ import { playChime, setAmbient } from './audio.js';
 const ICON = 'icons/icon128.png';
 const MIN_CREDIT_SEC = 120; // an early stop counts as focus time only after 2 minutes
 
+/** @type {Promise<any>} */
+let startQueue = Promise.resolve();
+/**
+ * @param {{ minutes: number, goal?: string, strict?: boolean, taskId?: string, scope?: string, mode?: string }} p
+ * @returns {Promise<any>}
+ *
+ * Two starts that arrive together (a double click, the popup and the new tab) are handled one after the other: the first wins, the second is told a session is already running. */
+export function startFocus(p) {
+  const run = () => startFocusNow(p);
+  const next = startQueue.then(run, run);
+  startQueue = next.catch(() => {});
+  return next;
+}
+
 /** @param {{ minutes: number, goal?: string, strict?: boolean, taskId?: string, scope?: string, mode?: string }} p */
-export async function startFocus({ minutes, goal = '', strict = false, taskId = '', scope = undefined, mode = '' }) {
+async function startFocusNow({ minutes, goal = '', strict = false, taskId = '', scope = undefined, mode = '' }) {
+  const { focus: running } = await getRaw('focus');
+  if (running && isFocusActive(running)) return { ok: false, error: 'active' };
   const settings = await getSettings();
   let text = goal, tag = '';
   if (taskId) { const task = (await getCollection('tasks', [])).find((x) => x.id === taskId) || {}; if (!text) text = task.text || ''; tag = (task.tags || [])[0] || ''; }
@@ -41,7 +57,7 @@ export async function extendFocus(minutes = 5) {
   const { focus } = await getRaw('focus');
   if (!focus || !isFocusActive(focus)) return { ok: false };
   const add = Math.min(60, Math.max(1, Math.round(minutes)));
-  if ((focus.endsAt - focus.startedAt) / 60_000 + add > 12 * 60) return { ok: false };
+  if ((focus.endsAt - focus.startedAt) / 60_000 + add > 12 * 60) return { ok: false, error: 'max' };
   const next = { ...focus, endsAt: focus.endsAt + add * 60_000, minutes: focus.minutes + add };
   await setRaw({ focus: next });
   await chrome.alarms.create('focus-end', { when: next.endsAt });
@@ -59,15 +75,18 @@ export async function stopFocus() {
   const sec = Math.round(elapsedMs(focus) / 1000);
   const settings = await getSettings();
   if (sec >= MIN_CREDIT_SEC) {
-    await updateDay(dayKey(), (d) => { d.fs = (d.fs || 0) + sec; addSession(d, makeSessionEntry(focus, { sec, completed: false })); });
+    await updateDay(sessionDay(focus), (d) => { d.fs = (d.fs || 0) + sec; addSession(d, makeSessionEntry(focus, { sec, completed: false })); });
     await creditTask(focus, sec);
     if (settings.focus.review) await setRaw({ review: reviewOf(focus, sec, false) });
   }
   await updateBadge(settings);
 }
 
+/** A session belongs to the day it started on, also when it runs past midnight (the review card looks it up the same way). */
+const sessionDay = (focus) => dayKey(new Date(focus.startedAt));
+
 /** What the "how did it go?" card needs. Lives under `review` until the user answers or dismisses it. */
-const reviewOf = (focus, sec, completed) => ({ id: focus.id, day: dayKey(new Date(focus.startedAt)), goal: focus.goal, taskId: focus.taskId || '', minutes: Math.max(1, Math.round(sec / 60)), completed });
+const reviewOf = (focus, sec, completed) => ({ id: focus.id, day: sessionDay(focus), goal: focus.goal, taskId: focus.taskId || '', minutes: Math.max(1, Math.round(sec / 60)), completed });
 
 /** Time spent in a session is added to the task it was started for. */
 async function creditTask(focus, sec) {
@@ -101,7 +120,7 @@ export async function finishFocus() {
   await setRaw({ focus: null });
   setAmbient('off');
   let sessionsToday = 0;
-  await updateDay(dayKey(), (d) => { d.fs = (d.fs || 0) + focus.minutes * 60; d.fc = (d.fc || 0) + 1; sessionsToday = d.fc; addSession(d, makeSessionEntry(focus, { sec: focus.minutes * 60, completed: true })); });
+  await updateDay(sessionDay(focus), (d) => { d.fs = (d.fs || 0) + focus.minutes * 60; d.fc = (d.fc || 0) + 1; sessionsToday = d.fc; addSession(d, makeSessionEntry(focus, { sec: focus.minutes * 60, completed: true })); });
   await creditTask(focus, focus.minutes * 60);
   const settings = await getSettings();
   if (settings.focus.review) await setRaw({ review: reviewOf(focus, focus.minutes * 60, true) });

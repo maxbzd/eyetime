@@ -18,7 +18,7 @@ export function usageOf(day, domain) {
 export async function loadContext(now = Date.now()) {
   const dk = dayStorageKey(dayKey(new Date(now)));
   const raw = await getRaw(['settings', 'focus', 'passes', dk]);
-  const settings = deepMerge(DEFAULT_SETTINGS, raw.settings || {});
+  const settings = deepMerge(DEFAULT_SETTINGS, raw.settings);
   const day = raw[dk] || emptyDay();
   const classifier = makeClassifier(settings);
   const distractingSec = Object.entries(day.d || {}).reduce((a, [host, sec]) => (classifier.classify(host) === 'distracting' ? a + sec : a), 0);
@@ -34,11 +34,11 @@ export async function loadContext(now = Date.now()) {
 }
 
 /** Decision for a URL. Non-web URLs and empty hosts are always allowed. */
-export async function evaluate(url, now = Date.now()) {
+export async function evaluate(url, now = Date.now(), tabId = null) {
   const host = hostFromUrl(url);
   if (!host) return { action: 'allow', host: null };
   const ctx = await loadContext(now);
-  return { ...decide(host, ctx), host, focus: ctx.focus };
+  return { ...decide(host, { ...ctx, tabId }), host, focus: ctx.focus };
 }
 
 export function blockedPageUrl(url, decision) {

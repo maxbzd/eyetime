@@ -41,3 +41,12 @@ export const DAY = 86_400_000;
 
 /** Clamp a number into [lo, hi]. */
 export const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
+
+/** The span [from, to] (ms) cut at local midnight: one piece, or two when it crosses a day boundary — each piece belongs to its own day. */
+export function splitAtMidnight(from, to) {
+  if (!(to > from)) return [];
+  const end = new Date(to); end.setHours(0, 0, 0, 0);
+  const mid = end.getTime();
+  if (mid > from && mid < to && dayKey(new Date(from)) !== dayKey(new Date(to))) return [{ from, to: mid }, { from: mid, to }];
+  return [{ from, to }];
+}

@@ -11,12 +11,15 @@ export function needsMigration(raw) {
   return !raw.meta || (raw.meta.schemaVersion || 0) < SCHEMA_VERSION;
 }
 
+/** Only 1.x wrote these: a current settings object has a `blocking` key too, so that one proves nothing. */
+export const looksLikeV1 = (raw) => !!raw && !!raw.settings && typeof raw.settings === 'object' && !!(raw.settings.interceptor || raw.settings.nuclearLock || raw.stats);
+
 /**
  * @returns {{ settings, tasks, habits, captures, days: Record<string, object>, meta, removeKeys: string[] }}
  */
 export function migrate(raw, now = Date.now()) {
   const old = raw.settings || {};
-  const hadV1 = !!raw.settings && (old.interceptor || old.nuclearLock || old.blocking || raw.stats);
+  const hadV1 = !!raw.settings && (old.interceptor || old.nuclearLock || raw.stats);
   const oldBlocking = old.blocking || {};
   const inter = old.interceptor || {};
   const yt = old.youtubeCleaner || {};
@@ -75,7 +78,7 @@ export function migrate(raw, now = Date.now()) {
   let habits = null;
   const h = inter.habits;
   if (h && Array.isArray(h.items) && h.items.length) {
-    habits = { items: h.items.map((x) => ({ id: String(x.id), name: String(x.name).slice(0, 80) })), log: {} };
+    habits = { items: h.items.filter((x) => x && x.name != null).map((x, i) => ({ id: String(x.id ?? `h${i}`), name: String(x.name).slice(0, 80) })), log: {} };
     for (const [k, ids] of Object.entries(h.log || {})) if (Array.isArray(ids) && ids.length) habits.log[k] = ids.map(String);
   }
 

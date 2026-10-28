@@ -44,7 +44,7 @@ const handlers = {
     return { ok: true };
   },
   'rest:skip': async () => { await endRest({ notify: false }); return { ok: true }; },
-  'pass:grant': async (m) => { await grantPass(m.rule, m.minutes); return { ok: true }; },
+  'pass:grant': async (m, sender) => { await grantPass(m.rule, m.minutes, sender.tab ? sender.tab.id : null); return { ok: true }; },
   'break:complete': async () => { await completeBreak(); return { ok: true }; },
   'break:skip': async () => { await skipBreak(); return { ok: true }; },
   'break:snooze': async () => { await snoozeBreak(); return { ok: true }; },

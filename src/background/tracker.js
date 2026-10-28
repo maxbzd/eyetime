@@ -3,7 +3,7 @@
 // previous interval (credits the seconds) and opens the next one.
 
 import { getSettings, addTime, getRaw, updateDay } from '../shared/storage.js';
-import { dayKey } from '../shared/time.js';
+import { dayKey, splitAtMidnight } from '../shared/time.js';
 import { hostFromUrl, matchesAny } from '../shared/domains.js';
 import { updateBadge } from './badge.js';
 import { onActiveTime } from './breaks.js';
@@ -48,8 +48,11 @@ async function run(reason) {
   if (trk && trk.host) {
     const sec = Math.round((now - trk.since) / 1000);
     if (sec > 0 && sec <= MAX_GAP) {
-      const hour = new Date(trk.since + (now - trk.since) / 2).getHours();
-      await addTime({ host: trk.host, sec, hour, date: new Date(now) });
+      // an interval that crosses midnight is split: each part goes to its own day and hour
+      for (const part of splitAtMidnight(trk.since, now)) {
+        const psec = Math.round((part.to - part.from) / 1000);
+        if (psec > 0) await addTime({ host: trk.host, sec: psec, hour: new Date(part.from + (part.to - part.from) / 2).getHours(), date: new Date(part.to - 1) });
+      }
       await onActiveTime(sec, now);
     }
   }

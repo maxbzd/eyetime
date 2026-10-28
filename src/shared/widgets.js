@@ -95,13 +95,16 @@ export function countdownLeft(date, time, now = new Date()) {
 
 /** How far through a day / week (Monday first) / month / year we are, 0..1. */
 export function periodProgress(period, now = new Date()) {
+  // counted in calendar days and wall-clock time, not in elapsed milliseconds: a daylight-saving change makes a day 23 or 25 hours long
   const y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
-  let start, end;
-  if (period === 'day') { start = new Date(y, m, d); end = new Date(y, m, d + 1); }
-  else if (period === 'week') { const back = (now.getDay() + 6) % 7; start = new Date(y, m, d - back); end = new Date(y, m, d - back + 7); }
-  else if (period === 'month') { start = new Date(y, m, 1); end = new Date(y, m + 1, 1); }
-  else { start = new Date(y, 0, 1); end = new Date(y + 1, 0, 1); }
-  return Math.min(1, Math.max(0, (now.getTime() - start.getTime()) / (end.getTime() - start.getTime())));
+  const dayFrac = (now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds() + now.getMilliseconds() / 1000) / 86_400;
+  const utcDay = (yy, mm, dd) => Date.UTC(yy, mm, dd) / 86_400_000;
+  let done, total;
+  if (period === 'day') { done = dayFrac; total = 1; }
+  else if (period === 'week') { done = (now.getDay() + 6) % 7 + dayFrac; total = 7; }
+  else if (period === 'month') { done = d - 1 + dayFrac; total = utcDay(y, m + 1, 1) - utcDay(y, m, 1); }
+  else { done = utcDay(y, m, d) - utcDay(y, 0, 1) + dayFrac; total = utcDay(y + 1, 0, 1) - utcDay(y, 0, 1); }
+  return Math.min(1, Math.max(0, done / total));
 }
 
 /** "New_York" from "America/New_York". */

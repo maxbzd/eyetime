@@ -85,7 +85,7 @@ export function tasksModule() {
       });
       document.body.append(dlg); dlg.showModal();
     };
-    const startOn = async (x) => { const s = await getSettings(); const r = await send('focus:start', { minutes: x.est || s.focus.minutes, strict: s.focus.strict, scope: s.focus.scope, taskId: x.id }); if (r && r.ok === false) toast(t('common.error')); };
+    const startOn = async (x) => { const s = await getSettings(); const r = await send('focus:start', { minutes: x.est || s.focus.minutes, strict: s.focus.strict, scope: s.focus.scope, taskId: x.id }); if (r && r.ok === false) toast(t(r.error === 'active' ? 'focus.alreadyRunning' : 'common.error')); };
 
     const priStar = () => { const el = icon('star'); el.classList.add('pri'); return el; };
     const row = (x) => { // (finishing a repeating task logs a separate estimate data point each time)

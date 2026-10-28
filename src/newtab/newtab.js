@@ -99,7 +99,7 @@ async function paintNudge() {
   const el = $('#nudge');
   const [[, day]] = await getDays([dayKey()]);
   const tasks = (await getCollection('tasks', [])).filter((x) => !x.done);
-  const kind = pickNudge({ now: new Date(), fsSec: day?.fs || 0, goalMin: 0, openTasks: tasks.length, starred: tasks.filter((x) => x.starred).length, sessionsToday: (day?.ss || []).length });
+  const kind = pickNudge({ now: new Date(), fsSec: day?.fs || 0, goalMin: settings.focus.dailyGoal, openTasks: tasks.length, starred: tasks.filter((x) => x.starred).length, sessionsToday: (day?.ss || []).length });
   if (!kind || kind === 'start' || nudgeOff(kind)) { el.hidden = true; return; }
   const r = dayReview(day);
   const rated = r.avgRating ? t(r.avgRating >= 2.5 ? 'review.r3' : r.avgRating >= 1.75 ? 'review.r2' : 'review.r1').toLowerCase() : '';
@@ -258,13 +258,17 @@ function openShortcutHelp() {
   document.body.append(dlg); dlg.showModal();
 }
 
+/** The home page is switched off: an empty, quiet page with one way back. */
+function renderOff() {
+  $('main.nt').hidden = true; $('#customize').hidden = true;
+  document.body.append(h('div', { class: 'nt-off', role: 'main' }, h('h1', { text: t('home.offTitle') }), h('p', { class: 'muted', text: t('home.offBody') }),
+    h('button', { class: 'btn btn-primary', type: 'button', onclick: async () => { await updateSettings((x) => { x.newtab.enabled = true; }); location.reload(); } }, icon('check'), t('home.turnOn'))));
+}
+
 (async function main() {
   const s0 = await bootPage({ onSettings: (s) => applySettings(s) });
   rawSettings = s0; settings = resolveSettings(s0);
-  if (s0.newtab.enabled === false) {
-    // user switched the EyeTime new tab off: hand the tab back to the browser's own page
-    try { const tab = await chrome.tabs.getCurrent(); await chrome.tabs.update(tab.id, { url: 'chrome://new-tab-page/' }); return; } catch { /* stay */ }
-  }
+  if (s0.newtab.enabled === false) { renderOff(); return; } // a browser never lets an extension hand the tab back: it stays empty and quiet
   await morningPlan();
   installPalette({ extra: () => [{ group: 'focus', icon: 'calendar-clock', label: t('plan.title'), run: openDayPlan, keys: ['plan', 'schedule', 'day', 'blocks'] }, { group: 'go', icon: 'moon', label: t('sc.closeDay'), run: openShutdown, keys: ['shutdown', 'review', 'plan tomorrow'] }, { group: 'go', icon: 'move', label: t('cv.edit'), run: openEditor, keys: ['arrange', 'move', 'drag', 'layout', 'widgets'] }, { group: 'go', icon: 'sliders-horizontal', label: t('sc.customize'), run: openDrawer, keys: ['customize', 'layout', 'background', 'clock'] }] });
   paintClock(); scheduleClock(); applyType(settings); await applyBackground();

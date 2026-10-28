@@ -30,7 +30,7 @@ test('weekly recurrence with BYDAY, COUNT, UNTIL and EXDATE', () => {
   const days = parseIcs(ics, { from, days: 21 }).map((e) => e.day);
   // series: Mon19, Wed21, Mon26 (excluded), Wed28, Mon Nov 2 → count 5 includes the excluded one
   assert.deepEqual(days, ['2026-10-21', '2026-10-28', '2026-11-02']);
-  const until = wrap(['UID:u', 'DTSTART:20261021T100000', 'DTEND:20261021T104500', 'RRULE:FREQ=DAILY;UNTIL=20261023T235959Z', 'SUMMARY:Daily']);
+  const until = wrap(['UID:u', 'DTSTART:20261021T100000', 'DTEND:20261021T104500', 'RRULE:FREQ=DAILY;UNTIL=20261023T235959', 'SUMMARY:Daily']);
   assert.equal(parseIcs(until, { from, days: 14 }).length, 3);
   const biweekly = wrap(['UID:b2', 'DTSTART:20261021T100000', 'DTEND:20261021T110000', 'RRULE:FREQ=WEEKLY;INTERVAL=2', 'SUMMARY:Biweekly']);
   assert.deepEqual(parseIcs(biweekly, { from, days: 30 }).map((e) => e.day), ['2026-10-21', '2026-11-04', '2026-11-18']);
