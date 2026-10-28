@@ -109,7 +109,7 @@ body.has-depth .bg.bgx-photo { transform: translate3d(calc(var(--px, 0) * var(--
 /* the clock sits between the layers: behind .bg-front (z 2), in front of the scene; cards and notices stay above everything */
 body.has-depth .clock { position: relative; z-index: 1; translate: calc(var(--px, 0) * var(--str, 1) * 9px) calc(var(--py, 0) * var(--str, 1) * 5px); }
 body.has-depth .card:not(.cv-item), body.has-depth .nudge { position: relative; z-index: 3; }
-body.has-depth .cv-item { z-index: 3; }
+body.has-depth .cv-item { z-index: calc(var(--cz, 2) + 1); }
 body.has-depth #clock.cv-item { z-index: 1; } /* only the time goes behind the layers (like the iPhone); the greeting and cards stay readable */
 body.cv-editing { --str: 0 !important; }
 .bg-tile i.bgx-peaks::before { height: 58%; } .bg-tile i.bgx-peaks::after { height: 64%; }
