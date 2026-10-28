@@ -4,6 +4,7 @@ import { h, icon, toast, clear } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
 import { getCollection, setCollection, onChange } from '../shared/storage.js';
 import { taskFromInput } from '../shared/tasks.js';
+import { MAX_CAPTURES } from '../shared/productivity.js';
 import { uid, card } from './mod-common.js';
 
 /* ---------- notes ---------- */
@@ -12,7 +13,7 @@ export function notesModule() {
   const body = h('div', { class: 'stack gap-3' });
   root.append(body);
   let notes = [], showAll = false;
-  const save = () => setCollection('captures', notes);
+  const save = () => setCollection('captures', notes.slice(0, MAX_CAPTURES)); // the same cap as every other place that adds a note
   const LIMIT = 5;
 
   async function toTask(n) {
