@@ -60,3 +60,10 @@ test('seedItems gives only the blocks that exist, all valid; canvasScale stays i
   assert.deepEqual(normalizeCanvas({ on: true, items: all }).items, all);
   assert.equal(canvasScale(1440), 1); assert.equal(canvasScale(300), 0.8); assert.equal(canvasScale(5000), 1.35);
 });
+
+test('widget blocks are accepted as cards, other ids are not', () => {
+  const c = normalizeCanvas({ on: true, items: { w3k9x0a: { x: 10, y: 20, w: 5000 }, 'bad id': { x: 1, y: 1 }, wx: { x: 1, y: 1 } } });
+  assert.deepEqual(Object.keys(c.items), ['w3k9x0a']);
+  assert.equal(c.items.w3k9x0a.w, 900);
+  assert.equal(resizeStep('w3k9x0a', { x: 1, y: 1, w: 300 }, 1).w, 320);
+});
