@@ -5,9 +5,9 @@ import { dropdown } from './dropdown.js';
 import { h, svg, icon, clear, toast, confirmDialog, $ } from './dom.js';
 import { send } from './api.js';
 import { t, fmtDuration, fmtTime } from '../shared/i18n.js';
-import { getSettings, getRaw, getDays, getCollection, setCollection, onChange } from '../shared/storage.js';
+import { getSettings, getRaw, getDays, getCollection, updateCollection, onChange } from '../shared/storage.js';
 import { goalStrip, reviewCard } from './day-loop.js';
-import { goalStreak, suggestMinutes } from '../shared/productivity.js';
+import { goalStreak, suggestMinutes, addCapture } from '../shared/productivity.js';
 import { rangeKeys } from '../shared/time.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { remainingMs, progress, isRestActive } from '../shared/focus.js';
@@ -43,11 +43,16 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
 
   function startLabel() { return t('focus.start', { time: fmtDuration(st.draft.minutes * 60) }); }
 
+  let starting = false;
   async function start() {
-    const d = st.draft;
-    const res = await send('focus:start', { minutes: d.minutes, goal: d.goal, strict: d.strict, taskId: d.taskId, scope: d.scope, mode: d.mode });
-    if (res && res.ok === false) toast(t('common.error'));
-    d.goal = ''; d.taskId = '';
+    if (starting) return; // a second click while the first start is on its way
+    starting = true;
+    try {
+      const d = st.draft;
+      const res = await send('focus:start', { minutes: d.minutes, goal: d.goal, strict: d.strict, taskId: d.taskId, scope: d.scope, mode: d.mode });
+      if (res && res.ok === false) toast(t(res.error === 'active' ? 'focus.alreadyRunning' : 'common.error'));
+      d.goal = ''; d.taskId = '';
+    } finally { starting = false; }
   }
 
   async function endEarly() {
@@ -132,9 +137,8 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
     const held = st.today?.fa || 0;
     const park = h('input', { class: 'input input-sm', placeholder: t('focus.park'), 'aria-label': t('focus.park'), maxlength: 300, onkeydown: async (e) => {
       if (e.key !== 'Enter' || !e.target.value.trim()) return;
-      const notes = await getCollection('captures', []);
-      notes.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text: e.target.value.trim(), at: Date.now() });
-      await setCollection('captures', notes);
+      const text = e.target.value.trim();
+      await updateCollection('captures', [], (notes) => addCapture(notes, text));
       e.target.value = ''; toast(t('focus.parked'));
     } });
     const cur = st.settings.focus.ambient || 'off';
@@ -163,7 +167,7 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
          h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: async () => { await send('rest:skip'); await start(); } }, icon('play'), startLabel())]
       : f.strict
         ? h('span', { class: 'locked' }, icon('lock'), t('focus.strictLocked'))
-        : [h('button', { class: 'btn btn-sm', type: 'button', 'data-tip': t('focus.extendTip', { n: 5 }), onclick: () => send('focus:extend', { minutes: 5 }) }, icon('plus'), t('focus.extend', { n: 5 })),
+        : [h('button', { class: 'btn btn-sm', type: 'button', 'data-tip': t('focus.extendTip', { n: 5 }), onclick: async () => { const r = await send('focus:extend', { minutes: 5 }); if (r && r.ok === false) toast(t(r.error === 'max' ? 'focus.maxLength' : 'common.error')); } }, icon('plus'), t('focus.extend', { n: 5 })),
            h('button', { class: 'btn btn-sm', type: 'button', onclick: endEarly }, t('focus.end'))];
     const extras = restMode ? restIdeas() : runningExtras();
     const ringEl = h('div', { class: 'ring', role: 'timer', 'aria-label': label, style: { width: size + 'px', height: size + 'px' } }, ring, h('div', { class: 'center' }, time, large ? h('div', { class: 'sub', text: ends }) : null));

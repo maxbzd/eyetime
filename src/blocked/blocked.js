@@ -3,8 +3,9 @@ import { $, favicon, clear, h } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { t, fmtDuration, fmtTime } from '../shared/i18n.js';
 import { evaluate } from '../shared/policy.js';
-import { getSettings, getRaw, dayStorageKey, updateSettings, getCollection, setCollection } from '../shared/storage.js';
+import { getSettings, getRaw, dayStorageKey, updateSettings, updateCollection } from '../shared/storage.js';
 import { matches } from '../shared/domains.js';
+import { addCapture } from '../shared/productivity.js';
 import { clock } from '../shared/focus.js';
 import { dayKey } from '../shared/time.js';
 import { usageOf } from '../shared/policy.js';
@@ -37,6 +38,7 @@ async function check() {
 
 function waitThen(btn, seconds, label, onReady) {
   let left = seconds;
+  if (left <= 0) { btn.disabled = false; btn.textContent = label; onReady?.(); return; }
   btn.disabled = true;
   const paint = () => { btn.textContent = left > 0 ? t('block.continueIn', { n: left }) : label; };
   paint();
@@ -44,16 +46,22 @@ function waitThen(btn, seconds, label, onReady) {
   timers.push(id);
 }
 
+let shownKey = '';
 async function render() {
-  timers.forEach(clearInterval); timers = [];
-  if (!target) { clear($('#stage'), h('h1', { text: t('block.invalid') }), h('p', { class: 'lead', text: t('block.invalidBody') }), h('div', { class: 'actions' }, h('a', { class: 'btn btn-primary btn-lg', href: chrome.runtime.getURL('src/newtab/newtab.html'), text: t('block.newTab') }))); return; }
+  if (!target) {
+    timers.forEach(clearInterval); timers = []; clear($('#stage'), h('h1', { text: t('block.invalid') }), h('p', { class: 'lead', text: t('block.invalidBody') }), h('div', { class: 'actions' }, h('a', { class: 'btn btn-primary btn-lg', href: chrome.runtime.getURL('src/newtab/newtab.html'), text: t('block.newTab') }))); return; }
   settings = await getSettings();
   decision = await check();
   if (!decision) return;
+  // a change elsewhere (another tab, a list edited) that leaves this page's decision as it was must not restart its countdown
+  const key = JSON.stringify([decision.reason, decision.rule, decision.strict, decision.scope, decision.canPass, decision.passMinutes, decision.seconds, decision.limitMin, decision.budgetMin, decision.focus && decision.focus.endsAt, settings.language, settings.blocking.friction, settings.newtab.clock24]);
+  if (key === shownKey && timers.length) return;
+  shownKey = key;
+  timers.forEach(clearInterval); timers = [];
 
   const reason = decision.reason;
   const back = $('#back'), cont = $('#cont'), lead = $('#lead'), title = $('#title'), note = $('#note');
-  const wait = Math.max(5, settings.blocking.friction.seconds || 8);
+  const wait = settings.blocking.friction.enabled ? Math.max(5, settings.blocking.friction.seconds || 8) : 0; // with the friction off a hard block does not add a wait of its own
   $('#sitePill').replaceChildren(favicon(host), h('span', { class: 'host', text: host, title: host }));
   back.textContent = t('block.back'); back.onclick = goBack;
   $('#breath').hidden = true; $('#bigClock').hidden = true; $('#goal').hidden = true; $('#manage').hidden = true; $('#manage').textContent = t('block.manage'); $('#why').hidden = true; $('#allowSite').hidden = true; $('#plan').hidden = true; $('#park').hidden = true;
@@ -83,9 +91,7 @@ async function render() {
     if (pool.length) { const p = pool[Math.floor(Date.now() / 60000) % pool.length]; $('#plan').hidden = false; $('#planText').textContent = t('block.plan.text', { host, then: p.then }); }
     const park = $('#park'); park.hidden = false;
     park.onclick = async () => {
-      const notes = await getCollection('captures', []);
-      notes.unshift({ id: Date.now().toString(36), text: t('block.park.note', { host }), at: Date.now() });
-      await setCollection('captures', notes);
+      await updateCollection('captures', [], (notes) => addCapture(notes, t('block.park.note', { host })));
       goBack();
     };
     // intent: naming why you are here is the speed bump — and "autopilot" is a cue to turn around
@@ -107,7 +113,7 @@ async function render() {
     const f = decision.focus;
     const only = decision.scope === 'only-mine';
     title.textContent = t(only ? 'block.only.title' : 'block.focus.title');
-    lead.textContent = t(only ? 'block.only.lead' : 'block.focus.lead', { host });
+    lead.textContent = t(only ? 'block.only.lead' : decision.strict ? 'block.focus.lead' : 'block.focus.leadSoft', { host });
     if (only) {
       const a = $('#allowSite'); a.hidden = false; a.textContent = t('block.only.allowHost', { host });
       a.onclick = async () => { await updateSettings((s) => { if (!s.blocking.allow.includes(host)) s.blocking.allow.push(host); }); await send('settings:changed'); release(); };

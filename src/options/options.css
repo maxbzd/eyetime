@@ -101,3 +101,5 @@ section.sec > div[id] { scroll-margin-top: 92px; }
 .looks-pick .look-card.compact .look-name { font-size: var(--fs-sm); }
 .look-now { display: flex; gap: var(--s-2); align-items: baseline; color: var(--text-2); font-size: var(--fs-sm); }
 .look-now b { color: var(--text); }
+
+.setting-desc.warn { color: var(--distracting-text); }
