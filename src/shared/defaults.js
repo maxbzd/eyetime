@@ -106,10 +106,11 @@ export const DEFAULT_META = { schemaVersion: SCHEMA_VERSION, installedAt: 0 };
 
 /** Deep-merge `patch` into a clone of `base`. Arrays and non-plain values are replaced, never merged. */
 export function deepMerge(base, patch) {
+  if (isPlain(base) && !isPlain(patch)) return clone(base); // a damaged value (a string, a number, a list) where settings should be: the defaults stand
   if (!isPlain(base) || !isPlain(patch)) return patch === undefined ? clone(base) : clone(patch);
   const out = {};
   for (const k of new Set([...Object.keys(base), ...Object.keys(patch)])) {
-    out[k] = k in patch ? (isPlain(base[k]) && isPlain(patch[k]) ? deepMerge(base[k], patch[k]) : clone(patch[k])) : clone(base[k]);
+    out[k] = k in patch ? (isPlain(base[k]) ? deepMerge(base[k], patch[k]) : clone(patch[k])) : clone(base[k]);
   }
   return out;
 }

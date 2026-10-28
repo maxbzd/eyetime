@@ -6,11 +6,11 @@ import { parseUserDomain } from '../shared/domains.js';
 
 /**
  * A settings row: title + optional description on the left, control on the right.
- * @param {{ title: string, desc?: string, control?: Node | null, stack?: boolean, id?: string }} o
+ * @param {{ title: string, desc?: string, control?: Node | null, stack?: boolean, id?: string, warn?: boolean }} o
  */
-export function row({ title, desc, control, stack = false, id }) {
+export function row({ title, desc, control, stack = false, id, warn = false }) {
   return h('div', { class: 'setting' + (stack ? ' setting-stack' : ''), id },
-    h('div', { class: 'setting-text' }, h('div', { class: 'setting-title', text: title }), desc ? h('div', { class: 'setting-desc', text: desc }) : null),
+    h('div', { class: 'setting-text' }, h('div', { class: 'setting-title', text: title }), desc ? h('div', { class: 'setting-desc' + (warn ? ' warn' : ''), text: desc, role: warn ? 'alert' : undefined }) : null),
     control ? h('div', { class: 'setting-ctl' }, control) : null);
 }
 

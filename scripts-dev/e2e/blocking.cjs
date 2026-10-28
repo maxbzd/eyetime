@@ -49,6 +49,18 @@ const ok = (c, m, d) => { console.log(`  ${c ? 'PASS' : 'FAIL'} ${m}${c || !d ? 
   const b = await ctx.newPage(); await b.goto('http://reddit.com/two').catch(() => {}); await sleep(1500);
   ok(/reddit\.com\/two/.test(b.url()), 'second tab opens straight away while the pass is valid', b.url().slice(0, 90));
 
+  console.log('6. one "continue" does not open a window for every other site');
+  const c = await ctx.newPage(); await c.goto('http://www.instagram.com/x').catch(() => {}); await sleep(1500);
+  ok(c.url().includes('blocked.html'), 'another distracting site opened right after a "continue" is still paused', c.url().slice(0, 90));
+
+  console.log('7. two starts at once: the first session wins and is not overwritten');
+  await setup.evaluate(() => chrome.storage.local.set({ passes: {}, focus: null }));
+  const res = await setup.evaluate(() => Promise.all([chrome.runtime.sendMessage({ type: 'focus:start', minutes: 25, goal: 'first', strict: false }), chrome.runtime.sendMessage({ type: 'focus:start', minutes: 50, goal: 'second', strict: false })]));
+  const stored = await get('focus');
+  ok(res.filter((r) => r && r.ok === false && r.error === 'active').length === 1, 'exactly one of two simultaneous starts is refused', JSON.stringify(res).slice(0, 160));
+  ok(stored && stored.goal === 'first' && stored.minutes === 25, 'the first session is the one running', JSON.stringify(stored).slice(0, 120));
+  await setup.evaluate(() => chrome.runtime.sendMessage({ type: 'focus:stop' })); await sleep(300);
+
   console.log(`\n${pass} passed, ${fail} failed`);
   await app.close();
   process.exit(fail ? 1 : 0);
