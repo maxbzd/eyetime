@@ -37,9 +37,10 @@ Fonts and icons are bundled inside the extension; no content is loaded from the 
 | `notifications` | Eye-break and session-complete reminders |
 | `offscreen` | Play the soft session start/end sound |
 | `favicon` | Show site icons from the browser's own cache (nothing is downloaded) |
+| `scripting` | Lets the dock's page script be registered on demand, and only after you have granted access to websites (it does nothing on its own; the browser shows no warning for it) |
 | Sites: youtube.com, instagram.com, tiktok.com, vk.com, vkvideo.ru | Only to limit short-video scrolling and hide YouTube feeds |
 | Optional: `127.0.0.1:8765` | Only when you enable the desktop companion |
-| Optional: websites (`http://*/*`, `https://*/*`) and `scripting` | Asked only when you turn on the **dock** (Settings → General → Dock); withdrawn when you turn it off. See below. |
+| Optional: websites (`http://*/*`, `https://*/*`) | Asked only when you turn on the **dock** (Settings → General → Dock); withdrawn when you turn it off. See below. |
 | Optional: one `https://` site | Asked only when you subscribe to a calendar link, and only for the site that hosts your calendar (for example calendar.google.com); withdrawn when you unsubscribe, reset or restore a backup |
 
 ## Your control

@@ -30,6 +30,7 @@ export async function mountGettingStarted(el, { startShortSession }) {
     const sig = JSON.stringify(s);
     if (sig === shown && !el.hidden) return;
     shown = sig; el.hidden = false;
+    el.classList.toggle('gs-compact', done >= 1); // after the first step the card shrinks to what is left, so tasks and notes stay on screen
     const step = (key, ico, action) => h('li', { class: 'gs-step' + (s[key] ? ' done' : '') },
       h('span', { class: 'gs-mark', 'aria-hidden': 'true' }, s[key] ? icon('check') : icon(ico)),
       h('div', { class: 'gs-text' }, h('b', { text: t('gs.' + key) }), h('span', { text: t('gs.' + key + 'D') })),
