@@ -8,6 +8,7 @@ export const DEPTH_SCENES = {
   sea: { front: [{ cls: 'dl-mist', k: 16 }, { cls: 'dl-rocks', k: 30 }] },
   seaday: { front: [{ cls: 'dl-mist', k: 16 }, { cls: 'dl-rocks', k: 30 }] },
   onyx: { front: [{ cls: 'dl-limb', k: 20 }] },
+  'photo-cut': { front: [{ cls: 'dl-photo', k: 16 }] }, // the user's own photo with its subject cut out (see cutout.js)
 };
 export const DEPTH_DEFAULT = { on: true, parallax: true, strength: 60 };
 /** How far the clock itself slides (px at full strength). */
