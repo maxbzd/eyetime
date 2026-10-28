@@ -24,13 +24,16 @@
 <li>Optionally (if you enable the desktop companion): seconds per desktop application name.</li>
 </ul>
 <h2>What is sent anywhere</h2>
-<p><strong>Nothing.</strong> The extension makes no network requests of its own. Two exceptions, both entirely opt-in:</p>
+<p><strong>Nothing.</strong> The extension makes no network requests of its own. Three exceptions, all entirely opt-in:</p>
 <ul>
 <li><strong>Desktop companion</strong> — if you switch it on in Settings → Tracking, the extension reads <code>http://127.0.0.1:8765/v1/today</code> on <strong>your own computer</strong> using a pairing token. Nothing is sent to it.</li>
 </ul>
 <ul>
 <li><strong>Calendar subscription</strong> — if you paste your calendar's secret iCal address (up to three calendars) in Settings → Data &amp; privacy, the extension downloads each file from the address you gave, once an hour, directly from your browser (a plain request without cookies, no third party involved). Only the events of the next 14 days are kept, on your device. The optional meeting warning and quiet mode work from those stored events; nothing is sent anywhere. The address is secret, so it is stored locally only: never synced and never included in a backup. <em>Unsubscribe</em> deletes it and withdraws the browser permission.</li>
 <li><strong>Settings sync</strong> — off by default. If you switch it on in Settings → Data &amp; privacy, your <em>settings only</em> (look, focus modes, preferences) are stored in your browser's own sync storage (<code>chrome.storage.sync</code>) and travel through your browser account like bookmarks do. Tasks (unless you switch on task sync below), notes, habits, links and browsing statistics are never included.</li>
+<li><strong>Weather</strong> — off by default. If you switch it on (Settings → General → Weather) and pick a city, the browser asks you for access to <code>api.open-meteo.com</code> and <code>geocoding-api.open-meteo.com</code>. Searching for a city sends the text you typed to Open-Meteo's geocoding service; the forecast request carries only the city's coordinates rounded to about a kilometre (never your IP-based location, name or any identifier; no cookies, no referrer). Open-Meteo is a free service without accounts or keys. The answer is kept on your device for half an hour. Turning the weather off withdraws the permission.</li>
+</ul>
+<ul>
 <li><strong>Task sync</strong> — off by default and a separate switch (Settings → Data &amp; privacy → <em>Sync tasks too</em>), because task text is personal. If you switch it on, your open tasks and the ones finished in the last three days are stored in your browser's own sync storage (<code>chrome.storage.sync</code>) and travel to your other browsers signed in to the same account, governed by that browser's sync policy. Habits, notes, history and the calendar never sync. Nothing goes to EyeTime or any third party. To remove the cloud copy, turn the switch off on all your devices and clear sync data in the browser's sync settings.</li>
 <li><strong>The dock</strong> — off by default. If you turn it on in Settings → General → Dock, the browser asks you to allow EyeTime to access websites. EyeTime then draws a small black tab on the edge of web pages and, when you open it, a panel from EyeTime's own pages inside the page. It does <strong>not</strong> read, copy or send page content. The only things taken from a page are its address and title, and only when you press <em>Save</em> (or use <em>Save to EyeTime topic</em> in the right-click menu): they are stored on your device in your topics list, with tracking parameters removed. The numbers on the tab's rings come from EyeTime's own local data. Topics are included in the backup file and never synced or sent anywhere. You can hide the dock on chosen sites (for example your bank), and turning the dock off withdraws the access.</li>
 </ul>
@@ -50,6 +53,7 @@
 <tr><td>Sites: youtube.com, instagram.com, tiktok.com, vk.com, vkvideo.ru</td><td>Only to limit short-video scrolling and hide YouTube feeds</td></tr>
 <tr><td>Optional: <code>127.0.0.1:8765</code></td><td>Only when you enable the desktop companion</td></tr>
 <tr><td>Optional: websites (<code>http://<em>/</em></code>, <code>https://<em>/</em></code>)</td><td>Asked only when you turn on the <strong>dock</strong> (Settings → General → Dock); withdrawn when you turn it off. See below.</td></tr>
+<tr><td>Optional: <code>api.open-meteo.com</code>, <code>geocoding-api.open-meteo.com</code></td><td>Asked only when you turn on the weather; withdrawn when you turn it off</td></tr>
 <tr><td>Optional: one <code>https://</code> site</td><td>Asked only when you subscribe to a calendar link, and only for the site that hosts your calendar (for example calendar.google.com); withdrawn when you unsubscribe, reset or restore a backup</td></tr>
 </tbody></table>
 <h2>Your control</h2>

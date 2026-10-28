@@ -58,6 +58,7 @@ export const DEFAULT_SETTINGS = {
   },
 
   standby: { on: false, after: 10, style: 'red', seconds: false }, // the night clock: after `after` quiet minutes Home becomes a huge dim clock
+  weather: { on: false, place: null, unit: 'auto', effect: true }, // optional weather (Open-Meteo): needs the person's yes, then a city; `effect` draws rain / snow over the photo
   quotes: { on: true, home: true, pause: true, rest: true, start: false, every: 'day' }, // short quotes: where they show, and whether Home keeps one per day or a new one each time the page opens
   eye: {
     enabled: true,

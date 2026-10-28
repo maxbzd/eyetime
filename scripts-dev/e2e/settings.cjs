@@ -17,7 +17,7 @@ const { launch } = require('./lib.cjs');
   const h = () => p.evaluate(() => document.documentElement.scrollHeight);
 
   ok((await shown()).join() === 'general', 'starts on General alone: ' + await shown());
-  ok(await h() < 1600, 'the page is short: ' + await h());
+  ok(await h() < 1800, 'the page is short: ' + await h());
   await p.locator('#side > a', { hasText: 'Appearance' }).click(); await p.waitForTimeout(300);
   ok((await shown()).join() === 'appearance' && (await p.evaluate(() => location.hash)) === '#appearance', 'the side list opens a section');
   ok(await p.locator('#side .side-sub a').count() >= 3, 'the groups of the section are listed under it');

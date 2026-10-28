@@ -33,6 +33,9 @@ import { resolveTextTone } from '../shared/phototone.js';
 import { getPhotoInfo, clearPhotoInfo } from './photo-info.js';
 import { showQuote } from '../ui/quote.js';
 import { mountStandby } from './standby.js';
+import { mountWeatherFx } from './weather-fx.js';
+import { loadWeather } from './weather.js';
+import { describeCode } from '../shared/weather.js';
 
 const DARK_SCENES = ['aurora', 'stars', 'photo', 'sea', 'onyx', 'peaks'];
 const MODULES = ['today', 'tasks', 'habits', 'notes', 'links'];
@@ -127,7 +130,7 @@ async function applyBackground() {
     const scene = LOOKS[settings.appearance.look]?.homeScene;
     bg = (scene && typeof scene === 'object' ? scene[document.documentElement.dataset.scheme] : scene) || 'look';
   }
-  let scene = bg, photoTone = null;
+  let scene = bg, photoTone = null, wxSrc = '';
   if (bg === 'photo') {
     const { newtabBg } = await getRaw('newtabBg');
     if (newtabBg) {
@@ -135,6 +138,7 @@ async function applyBackground() {
       document.documentElement.style.setProperty('--photo', `url(${newtabBg})`);
       if (info.soft) document.documentElement.style.setProperty('--photo-soft', `url(${info.soft})`);
       photoTone = n.photoText === 'light' || n.photoText === 'dark' ? n.photoText : info.tone;
+      wxSrc = newtabBg;
     } else bg = 'look';
     const { newtabFg } = bg === 'photo' ? await getRaw('newtabFg') : {};
     if (newtabFg) { document.documentElement.style.setProperty('--photo-mask', `url(${newtabFg})`); scene = 'photo-cut'; } // the cut-out subject: a masked copy of the photo goes in front of the clock
@@ -148,6 +152,23 @@ async function applyBackground() {
   // light hero text on scenes that are dark in every theme, and on dark custom colours; a photo follows the person's choice or its own brightness
   document.body.dataset.tone = photoTone && bg === 'photo' ? (resolveTextTone(n.photoText, photoTone) === 'dark' ? 'light' : 'dark') : DARK_SCENES.includes(bg) || (bg === 'color' && luminance(color) < 0.28) ? 'dark' : '';
   alignClockFill();
+  applyWeatherFx(wxSrc);
+}
+
+/** Rain or snow over the background, if the person turned the weather and its effect on and it is raining or snowing where they are (or `#fx=rain|snow|thunder|drizzle` to look at one). */
+const weatherFx = mountWeatherFx();
+let wxPhoto = '';
+async function applyWeatherFx(photo = wxPhoto) {
+  wxPhoto = photo;
+  const forced = /[#&]fx=(rain|snow|thunder|drizzle)\b/.exec(location.hash);
+  let fx = null, power = 1;
+  const by = (kind) => ({ drizzle: 0.5, thunder: 1.4 }[kind] || 1);
+  if (forced) { fx = forced[1] === 'snow' ? 'snow' : 'rain'; power = by(forced[1]); }
+  else if (settings.weather && settings.weather.on && settings.weather.effect) {
+    const r = await loadWeather();
+    if (r.ok) { const k = describeCode(r.data.code, r.data.day); fx = k.fx; power = by(k.kind); }
+  }
+  await weatherFx.set(fx, power, photo);
 }
 
 /* ---------- modules ---------- */
@@ -291,6 +312,7 @@ function renderOff() {
   paintClock(); scheduleClock(); applyType(settings); await applyBackground();
   let rz = 0; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { paintClock(); applyCanvas(settings); }, 120); });
   mountFocusCard($('#focus'), { variant: 'large' });
+  setInterval(() => applyWeatherFx(), 10 * 60_000); onChange(['weatherCache'], () => applyWeatherFx());
   standby = mountStandby({ getSettings: () => settings, getFocus: () => runningFocus });
   if (new URLSearchParams(location.search).has('standby')) standby.show();
   mountRings($('#rings'));

@@ -14,6 +14,7 @@ export const WIDGET_KINDS = {
   bignumber: { icon: 'hash', w: [160, 480, 240] },
   eyebreak: { icon: 'eye', w: [220, 520, 300] },
   sticky: { icon: 'sticky-note', w: [200, 560, 280] },
+  weather: { icon: 'cloud-sun', w: [220, 480, 280] },
   plan: { icon: 'list-checks', w: [260, 560, 340] },
   recap: { icon: 'moon', w: [260, 560, 340] },
   stack: { icon: 'layers', w: [280, 640, 400] },
