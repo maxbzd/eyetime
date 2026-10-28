@@ -14,6 +14,7 @@ const SECTIONS = [
 ];
 
 let settings;
+let active = 'general'; // the section on the screen (one at a time; a search shows every match)
 let savedTimer;
 let lastSaved = '';
 const notifyWorker = debounce(() => send('settings:changed'), 400);
@@ -40,7 +41,8 @@ function draw() {
   const ctx = { s: settings, save, refresh: draw };
   const root = $('#content');
   clear(root, SECTIONS.map((x) => x.fn(ctx)));
-  nav(); applyFilter();
+  for (const sec of root.querySelectorAll('section.sec')) [...sec.children].filter((g) => g.querySelector(':scope > h3.group-title')).forEach((g, i) => { g.id = `${sec.id}-g${i}`; });
+  applyFilter(); nav();
   window.scrollTo(0, y);
   if (focusLabel) document.querySelector(`[aria-label="${CSS.escape(focusLabel)}"]`)?.focus({ preventScroll: true });
 }
@@ -53,7 +55,9 @@ function applyFilter() {
   root.querySelector('.no-results')?.remove();
   const rows = [...root.querySelectorAll('.setting')];
   rows.forEach((r) => { r.hidden = false; r.classList.remove('hit'); });
-  root.querySelectorAll('section.sec, section.sec > div').forEach((e) => { e.hidden = false; });
+  root.querySelectorAll('section.sec > div').forEach((e) => { e.hidden = false; });
+  root.classList.toggle('searching', !!q);
+  root.querySelectorAll('section.sec').forEach((e) => { e.hidden = !q && e.id !== active; });
   $('#qcount').textContent = '';
   if (!q) return;
   let any = false;
@@ -61,35 +65,63 @@ function applyFilter() {
   $('#qcount').textContent = t('opt.results', { n: rows.filter((r) => !r.hidden).length });
   for (const g of root.querySelectorAll('section.sec > div')) if (g.querySelector('.card') && !g.querySelector('.setting:not([hidden])')) g.hidden = true;
   for (const sec of root.querySelectorAll('section.sec')) { const vis = sec.querySelector('.setting:not([hidden])'); sec.hidden = !vis; }
-  document.querySelectorAll('#side a').forEach((a) => a.setAttribute('aria-current', 'false'));
   if (!any) root.append(h('div', { class: 'no-results' }, h('div', { class: 'em-ico' }, icon('search')), h('div', { class: 'em-title', text: t('opt.noResults', { q: query.trim() }) }), h('div', { class: 'em-body', text: t('opt.noResultsHint') }),
-    h('button', { class: 'btn btn-sm', type: 'button', onclick: () => { query = ''; $('#q').value = ''; applyFilter(); $('#q').focus(); } }, t('opt.clearSearch'))));
+    h('button', { class: 'btn btn-sm', type: 'button', onclick: () => { query = ''; $('#q').value = ''; applyFilter(); nav(); $('#q').focus(); } }, t('opt.clearSearch'))));
+}
+
+/** Show one section: the others are hidden, the page starts at its top. */
+function go(id, { scroll = true } = {}) {
+  if (!SECTIONS.some((x) => x.id === id)) id = 'general';
+  active = id; query = ''; $('#q').value = '';
+  history.replaceState(null, '', '#' + id);
+  applyFilter(); nav();
+  if (scroll) window.scrollTo(0, 0);
+  spy();
 }
 
 function nav() {
   const side = $('#side');
-  const active = location.hash.slice(1) || 'general';
-  clear(side, SECTIONS.map(({ id, icon: ico }) => h('a', { href: '#' + id, 'aria-current': String(id === active), onclick: (e) => { e.preventDefault(); history.replaceState(null, '', '#' + id); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); setActive(id); } }, icon(ico), t('sec.' + id))));
+  const groups = [...document.querySelectorAll(`#${active} > div[id]`)].map((g) => [g.id, g.querySelector('h3.group-title')?.textContent || '']).filter(([, n]) => n);
+  const list = [];
+  for (const { id, icon: ico } of SECTIONS) {
+    list.push(h('a', { href: '#' + id, 'aria-current': String(!query.trim() && id === active), onclick: (e) => { e.preventDefault(); go(id); } }, icon(ico), t('sec.' + id)));
+    if (id === active && !query.trim() && groups.length > 1) {
+      list.push(h('div', { class: 'side-sub', role: 'group', 'aria-label': t('sec.' + id) }, groups.map(([gid, name]) =>
+        h('a', { href: '#' + gid, 'data-g': gid, onclick: (e) => { e.preventDefault(); document.getElementById(gid)?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); } }, name))));
+    }
+  }
+  clear(side, list);
+  markSub();
 }
-function setActive(id) { document.querySelectorAll('#side a').forEach((a) => a.setAttribute('aria-current', String(a.getAttribute('href') === '#' + id))); }
 
+/** The group being read is marked in the side list. */
+function markSub() {
+  const subs = [...document.querySelectorAll('#side .side-sub a')];
+  if (!subs.length) return;
+  let cur = subs[0].dataset.g;
+  for (const a of subs) { const g = document.getElementById(a.dataset.g); if (g && g.getBoundingClientRect().top <= 140) cur = a.dataset.g; }
+  if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) cur = subs[subs.length - 1].dataset.g; // at the very end the last group is the one being read
+  subs.forEach((a) => a.setAttribute('aria-current', String(a.dataset.g === cur)));
+}
+
+let spyOn = false;
 function spy() {
-  const obs = new IntersectionObserver((entries) => {
-    const vis = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
-    if (vis) setActive(vis.target.id);
-  }, { rootMargin: '-80px 0px -65% 0px' });
-  document.querySelectorAll('section.sec').forEach((s) => obs.observe(s));
+  if (spyOn) return; spyOn = true;
+  let raf = 0;
+  window.addEventListener('scroll', () => { if (!raf) raf = window.requestAnimationFrame(() => { raf = 0; markSub(); }); }, { passive: true });
 }
 
 (async function main() {
-  await bootPage({ onSettings: async (s) => { if (JSON.stringify(s) === lastSaved) return; settings = s; draw(); spy(); } });
+  await bootPage({ onSettings: async (s) => { if (JSON.stringify(s) === lastSaved) return; settings = s; draw(); } });
   settings = await getSettings();
   mountHeader($('#header'), 'settings');
   installPalette();
-  $('#q').addEventListener('input', (e) => { query = e.target.value; applyFilter(); });
+  $('#q').addEventListener('input', (e) => { query = e.target.value; applyFilter(); nav(); });
+  $('#q').addEventListener('keydown', (e) => { if (e.key === 'Escape' && query) { e.preventDefault(); query = ''; $('#q').value = ''; applyFilter(); nav(); } });
   document.addEventListener('keydown', (e) => { if (e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName)) { e.preventDefault(); $('#q').focus(); } });
+  active = SECTIONS.some((x) => x.id === location.hash.slice(1)) ? location.hash.slice(1) : 'general';
   draw(); spy();
-  if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
+  window.addEventListener('hashchange', () => { const id = location.hash.slice(1); if (SECTIONS.some((x) => x.id === id) && id !== active) go(id); });
   if (settings.companion.enabled) checkCompanion();
 })();
 
