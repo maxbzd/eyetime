@@ -232,3 +232,9 @@ export function weekdayPattern(entries, goalMin) {
   }
   return acc.map((a) => ({ days: a.days, avgMin: a.days ? Math.round(a.sec / a.days / 60) : 0, hitRate: a.days ? a.hit / a.days : 0 }));
 }
+
+export const MAX_CAPTURES = 200;
+/** A parked thought added to the front of the inbox; the list never grows past MAX_CAPTURES. */
+export function addCapture(list, text, now = Date.now()) {
+  return [{ id: now.toString(36) + Math.random().toString(36).slice(2, 5), text: String(text).slice(0, 500), at: now }, ...(Array.isArray(list) ? list : [])].slice(0, MAX_CAPTURES);
+}

@@ -29,7 +29,7 @@ async function commands(extra) {
     add('focus', { icon: 'plus' }, t('focus.extend', { n: 5 }), () => send('focus:extend', { minutes: 5 }), { keys: ['extend', 'more time'] });
     if (!focus.strict) add('focus', { icon: 'square' }, t('focus.end'), async () => { await send('focus:stop'); }, { keys: ['stop', 'end'] });
   } else {
-    add('focus', { icon: 'play' }, t('focus.start', { time: fmtDuration(settings.focus.minutes * 60) }), async () => { const r = await send('focus:start', { minutes: settings.focus.minutes, strict: settings.focus.strict, scope: settings.focus.scope, mode: settings.focus.mode }); if (r && r.ok === false) toast(t('common.error')); }, { keys: ['start', 'focus', 'session'] });
+    add('focus', { icon: 'play' }, t('focus.start', { time: fmtDuration(settings.focus.minutes * 60) }), async () => { const r = await send('focus:start', { minutes: settings.focus.minutes, strict: settings.focus.strict, scope: settings.focus.scope, mode: settings.focus.mode }); if (r && r.ok === false) toast(t(r.error === 'active' ? 'focus.alreadyRunning' : 'common.error')); }, { keys: ['start', 'focus', 'session'] });
     for (const m of settings.focus.modes || []) {
       add('focus', { icon: m.icon || 'zap' }, `${modeName(m)} · ${fmtDuration(m.minutes * 60)}`, () => send('focus:start', { minutes: m.minutes, strict: !!m.strict, scope: m.scope, mode: m.id }), { hint: t('palette.mode'), keys: ['focus', 'start', 'mode'] });
     }
