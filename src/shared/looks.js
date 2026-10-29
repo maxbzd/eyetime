@@ -12,6 +12,10 @@ export const FONTS = {
   serif: { label: 'Source Serif', stack: '"Source Serif 4", "Iowan Old Style", Georgia, "Times New Roman", serif' },
   mono: { label: 'JetBrains Mono', stack: '"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace' },
   literata: { label: 'Literata', stack: '"Literata", "Source Serif 4", "Iowan Old Style", Georgia, "Times New Roman", serif' },
+  rubik: { label: 'Rubik', stack: '"Rubik", "Inter", ui-sans-serif, system-ui, sans-serif' },
+  montserrat: { label: 'Montserrat', stack: '"Montserrat", "Inter", ui-sans-serif, system-ui, sans-serif' },
+  playfair: { label: 'Playfair Display', stack: '"Playfair Display", "Source Serif 4", Georgia, "Times New Roman", serif' },
+  unbounded: { label: 'Unbounded', stack: '"Unbounded", "Inter", ui-sans-serif, system-ui, sans-serif' },
   onest: { label: 'Onest', stack: '"Onest", "Inter", ui-sans-serif, system-ui, sans-serif' },
   system: { label: 'System', stack: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' },
 };
@@ -33,6 +37,52 @@ const blobs = (a = 22, b = 14) => `radial-gradient(900px 560px at 8% -10%, color
 
 export const LOOKS = {
   /* ───────── the new collection (v3) ───────── */
+  nocturne: {
+    name: 'Nocturne', blurb: 'A moonlit night: deep navy, silver type, a sky of slow stars.', homeScene: { dark: 'plain', light: 'plain' }, font: 'manrope', display: 'playfair', radii: [8, 12, 18, 26], cards: 'glass', shadow: 'glow', borderW: 1, headingW: 500, headingLs: '-.01em',
+    light: { bg: '#e8ecf7', surface: '#ffffff', text: '#0d1330', accent: '#3a56d6', border: '#d3daee' },
+    dark: { bg: '#050814', surface: '#0d1328', text: '#e8ecff', accent: '#a3b8ff', border: '#1e2745' },
+    pageBg: { dark: 'radial-gradient(900px 600px at 80% -10%, rgba(120, 150, 255, .16), transparent 62%), radial-gradient(700px 500px at 0% 100%, rgba(120, 90, 255, .10), transparent 62%)', light: 'radial-gradient(900px 600px at 80% -10%, rgba(120, 150, 255, .22), transparent 62%)' },
+  },
+  brutal: {
+    name: 'Brutal', blurb: 'Thick black lines, hard shadows and one loud colour.', font: 'rubik', display: 'rubik', radii: [2, 4, 6, 10], cards: 'solid', shadow: 'hard', borderW: 3, headingW: 800, headingLs: '-.02em',
+    light: { bg: '#f4eedd', surface: '#fffdf4', text: '#111111', accent: '#ff3d81', border: '#111111', borderStrong: '#111111' },
+    dark: { bg: '#0f0f0f', surface: '#1b1b1b', text: '#fff6d6', accent: '#ffe600', border: '#fff6d6', borderStrong: '#fff6d6' },
+  },
+  zen: {
+    name: 'Zen', blurb: 'Sand, ink and one vermilion seal. Quiet space on purpose.', font: 'manrope', display: 'serif', radii: [2, 4, 8, 12], cards: 'outline', shadow: 'none', borderW: 1, headingW: 400, headingLs: '.01em',
+    light: { bg: '#ebe5d6', surface: '#f5f0e3', text: '#201e19', accent: '#bb3a2b', border: '#d6cdb8', borderStrong: '#b3a98f' },
+    dark: { bg: '#11100e', surface: '#191714', text: '#e9e3d5', accent: '#e8705a', border: '#2d2a24', borderStrong: '#4b463b' },
+  },
+  synthwave: {
+    name: 'Synthwave', blurb: 'A neon sun over a grid that never ends.', font: 'montserrat', display: 'unbounded', radii: [4, 8, 12, 18], cards: 'solid', shadow: 'glow', borderW: 1, headingW: 600, headingLs: '0',
+    light: { bg: '#fbe8ff', surface: '#fff5ff', text: '#2b0b4d', accent: '#c1008f', border: '#e9c4f5' },
+    dark: { bg: '#0a031f', surface: '#150834', text: '#ffe8ff', accent: '#ff45f2', border: '#43197a' },
+  },
+  moss: {
+    name: 'Moss', blurb: 'Deep greens, soft shapes and fireflies after dark.', font: 'nunito', display: 'playfair', radii: [10, 14, 20, 28], cards: 'solid', shadow: 'soft', borderW: 1, headingW: 600, headingLs: '-.01em',
+    light: { bg: '#e4ecdc', surface: '#f3f8ee', text: '#15251a', accent: '#3b7a37' },
+    dark: { bg: '#08110a', surface: '#101b13', text: '#e0eee0', accent: '#93d68c' },
+  },
+  swiss: {
+    name: 'Swiss', blurb: 'A strict grid, huge numerals, black, white and red.', font: 'inter', display: 'inter', radii: [0, 0, 0, 0], cards: 'outline', shadow: 'none', borderW: 2, headingW: 800, headingLs: '-.04em',
+    light: { bg: '#f3f3f0', surface: '#ffffff', text: '#0a0a0a', accent: '#d90012', border: '#0a0a0a', borderStrong: '#0a0a0a' },
+    dark: { bg: '#0a0a0a', surface: '#0a0a0a', text: '#f3f3f0', accent: '#ff4438', border: '#f3f3f0', borderStrong: '#f3f3f0' },
+  },
+  ink: {
+    name: 'Ink', blurb: 'Black, ivory and a thread of champagne. Slow smoke, hairlines.', font: 'inter', display: 'playfair', radii: [2, 4, 6, 8], cards: 'outline', shadow: 'none', borderW: 1, headingW: 400, headingLs: '-.01em',
+    light: { bg: '#f2efe8', surface: '#fbf9f4', text: '#0b0b0b', accent: '#7b5a1c', border: '#d9d3c4', borderStrong: '#b3ab97' },
+    dark: { bg: '#040404', surface: '#0c0c0c', text: '#f0ebe0', accent: '#dcc79d', border: '#242220', borderStrong: '#4a463e' },
+  },
+  candy: {
+    name: 'Candy', blurb: 'Bubblegum, mint and lemon. Round, bouncy and a bit silly.', font: 'nunito', display: 'unbounded', radii: [16, 22, 30, 42], cards: 'solid', shadow: 'airy', borderW: 2, headingW: 700, headingLs: '-.01em',
+    light: { bg: '#ffe6f2', surface: '#fffafd', text: '#3b1237', accent: '#e8338f', border: '#ffc2de' },
+    dark: { bg: '#190e24', surface: '#251538', text: '#ffeefa', accent: '#ff8fd0', border: '#4a2a6a' },
+  },
+  abyss: {
+    name: 'Abyss', blurb: 'Deep water, slow light from above, things that glow.', font: 'montserrat', display: 'montserrat', radii: [10, 14, 20, 28], cards: 'glass', shadow: 'glow', borderW: 1, headingW: 600, headingLs: '-.015em',
+    light: { bg: '#d9f1f0', surface: '#f1fbfa', text: '#052b31', accent: '#0a8580' },
+    dark: { bg: '#01131a', surface: '#05212b', text: '#d3f5f2', accent: '#35e2cb', border: '#0d3d49' },
+  },
   linen: {
     name: 'Linen', blurb: 'Warm paper, ink and a terracotta stamp. Calm like a good notebook.', homeScene: { dark: 'linen', light: 'linen' }, font: 'inter', display: 'literata', radii: [3, 6, 10, 16], cards: 'solid', shadow: 'soft', borderW: 1, headingW: 560, headingLs: '-.012em',
     light: { bg: '#f4eee2', surface: '#fbf8f1', text: '#231c15', accent: '#b0431d', border: '#e2d7c2', borderStrong: '#c9b998' },
@@ -165,8 +215,13 @@ export const LOOKS = {
     dark: { bg: '#041217', surface: '#09202a', text: '#dff4f8', accent: '#38bdf8' },
   },
 };
-const FIRST = ['linen', 'phosphor', 'liquid', 'calm', 'obsidian', 'void', 'noir', 'pearl', 'bento', 'spectrum', 'tide', 'ledger', 'vital', 'aura']; // the gallery order: the default, then the newest
+const FIRST = ['linen', 'phosphor', 'liquid', 'nocturne', 'brutal', 'zen', 'synthwave', 'moss', 'swiss', 'ink', 'candy', 'abyss', 'calm', 'obsidian', 'void', 'noir', 'pearl', 'bento', 'spectrum', 'tide', 'ledger', 'vital', 'aura']; // the gallery order: the default, then the newest
 export const LOOK_IDS = [...FIRST, ...Object.keys(LOOKS).filter((id) => !FIRST.includes(id))];
+/** The collection shown first in the gallery; the older looks sit under "Classic" (they keep working for anyone who chose them). */
+export const NEW_LOOK_IDS = FIRST.slice(0, 12);
+/** Looks that are kept but not offered (not released yet). */
+export const PARKED_LOOK_IDS = ['spectrum', 'tide', 'ledger', 'vital', 'aura'];
+export const CLASSIC_LOOK_IDS = LOOK_IDS.filter((id) => !NEW_LOOK_IDS.includes(id) && !PARKED_LOOK_IDS.includes(id));
 
 /* ---------- derivation ---------- */
 

@@ -4,7 +4,7 @@
 import { fmtDuration } from '../shared/i18n.js';
 import { h, icon } from './dom.js';
 import { t } from '../shared/i18n.js';
-import { LOOKS, LOOK_IDS, ACCENTS, resolveVars, pickScheme } from '../shared/looks.js';
+import { LOOKS, NEW_LOOK_IDS, CLASSIC_LOOK_IDS, ACCENTS, resolveVars, pickScheme } from '../shared/looks.js';
 import { normalizeHex } from '../shared/color.js';
 
 export const effectiveScheme = (ap) => pickScheme(ap, { prefersDark: window.matchMedia?.('(prefers-color-scheme: dark)').matches });
@@ -38,7 +38,11 @@ export function lookCard(id, { scheme, selected, onPick, compact = false, ap = {
 
 export function looksGallery(ap, { onPick, compact = false }) {
   const scheme = ap.mode === 'light' || ap.mode === 'dark' ? ap.mode : 'both';
-  return h('div', { class: 'looks' + (compact ? ' compact' : '') }, LOOK_IDS.map((id) => lookCard(id, { scheme, selected: ap.look === id, onPick, compact, ap })));
+  const grid = (ids) => h('div', { class: 'looks' + (compact ? ' compact' : '') }, ids.map((id) => lookCard(id, { scheme, selected: ap.look === id, onPick, compact, ap })));
+  const classic = !NEW_LOOK_IDS.includes(ap.look) && !CLASSIC_LOOK_IDS.includes(ap.look) && LOOKS[ap.look] ? [...CLASSIC_LOOK_IDS, ap.look] : CLASSIC_LOOK_IDS; // a look that is kept but not offered still shows while it is the one in use
+  const open = !NEW_LOOK_IDS.includes(ap.look);
+  return h('div', { class: 'looks-wrap' }, grid(NEW_LOOK_IDS),
+    h('details', { class: 'looks-classic', ...(open ? { open: '' } : {}) }, h('summary', { text: t('look.classic') }), grid(classic)));
 }
 
 /** Accent: the look's own colour, ten presets and any custom colour. */

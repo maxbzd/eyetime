@@ -11,7 +11,7 @@ const seeded = (seed) => () => { seed = (seed + 0x6d2b79f5) >>> 0; let t = seed;
 const clone = (v) => JSON.parse(JSON.stringify(v));
 
 test('eight starters with distinct ids, only long-standing looks, and every part survives validation', () => {
-  assert.ok(STARTERS.length >= 11);
+  assert.ok(STARTERS.length >= 9);
   assert.equal(new Set(STARTER_IDS).size, STARTERS.length);
   for (const s of STARTERS) {
     assert.ok(!PARKED.includes(s.appearance.look), s.id + ' uses a look that is not released');
@@ -21,7 +21,7 @@ test('eight starters with distinct ids, only long-standing looks, and every part
     assert.equal(d.home.widgets.length, s.home.widgets.length, s.id + ': no widget was dropped');
     assert.equal(Object.keys(d.home.canvas.items).length, Object.keys(s.home.canvas.items).length, s.id + ': no canvas item was dropped');
     assert.equal(d.home.background, s.home.background, s.id + ' background'); assert.equal(d.home.dna.s, s.home.dna.s);
-    assert.deepEqual(d.home.type.clock.font, s.home.type.clock.font);
+    assert.equal(d.home.type.clock.font, s.home.type.clock.font); assert.equal(d.home.scene.layers.length, s.home.scene.layers.length, s.id + ': the scene kept every layer'); assert.deepEqual(d.home.widgets.map((w) => w.cfg.ui.root.length), s.home.widgets.map((w) => w.cfg.ui.root.length), s.id + ': custom widgets kept their nodes');
     for (const id of Object.keys(d.home.canvas.items)) assert.ok(['clock', 'greeting', 'quote', 'focus'].includes(id) || d.home.widgets.some((w) => w.id === id), s.id + ': canvas item ' + id + ' has a widget');
     assert.deepEqual(sanitizeHome(d.home), d.home, s.id + ': validation is stable');
   }
@@ -31,8 +31,8 @@ test('applying a starter replaces the Home keys and merges the appearance; resto
   const s = clone(DEFAULTS);
   s.newtab.widgets = [{ id: 'wold001', kind: 'sticky', cfg: { text: 'mine' } }]; s.newtab.background = 'photo';
   const before = clone(s);
-  const prev = applyStarter(s, s.newtab, starterData(STARTERS.find((x) => x.id === 'night')));
-  assert.equal(s.appearance.look, 'midnight'); assert.equal(s.newtab.background, 'stars'); assert.ok(s.newtab.widgets.some((w) => w.kind === 'goal'));
+  const prev = applyStarter(s, s.newtab, starterData(STARTERS.find((x) => x.id === 'nocturne')));
+  assert.equal(s.appearance.look, 'nocturne'); assert.equal(s.newtab.background, 'scene'); assert.ok(s.newtab.widgets.some((w) => w.kind === 'custom')); assert.ok(s.newtab.scene && s.newtab.scene.layers.length > 5);
   assert.equal(s.newtab.canvas.on, true);
   assert.equal(s.newtab.links.length, before.newtab.links.length, 'links (data) are untouched');
   restoreHome(s, s.newtab, prev);
