@@ -95,3 +95,13 @@ body.cv-editing .nt-corners { visibility: hidden; }
 .cv-coach h3 { font-size: var(--fs-lg); } .cv-coach ol { list-style: none; display: flex; flex-direction: column; gap: var(--s-2); padding: 0; margin: 0; font-size: var(--fs-sm); color: var(--text-2); }
 .cv-coach li { display: flex; gap: var(--s-3); align-items: flex-start; } .cv-coach .btn { align-self: flex-end; }
 .cv-cico { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-text); } .cv-cico .ico { font-size: 15px; }
+
+/* ---------- skin controls ---------- */
+.sk-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.sk-tile { display: flex; flex-direction: column; gap: 4px; padding: 5px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface-2); color: var(--text); cursor: pointer; min-width: 0; text-align: center; }
+.sk-tile:hover { border-color: var(--border-strong); } .sk-tile[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-ring); }
+.sk-mock { display: grid; place-items: center; height: 46px; border-radius: 8px; background: linear-gradient(135deg, #3a5a7a, #c98a5a 60%, #6a4a7a); overflow: hidden; }
+.sk-prev { width: 64%; height: 28px; border-radius: var(--r-lg, 10px); padding: 5px 7px; display: flex; flex-direction: column; gap: 4px; justify-content: center; background: var(--card-bg, rgba(255,255,255,.14)); border: var(--border-w, 1px) solid var(--card-border, rgba(255,255,255,.4)); box-shadow: var(--card-shadow, none); -webkit-backdrop-filter: blur(var(--card-blur, 6px)); backdrop-filter: blur(var(--card-blur, 6px)); }
+.sk-prev i { display: block; height: 3px; border-radius: 2px; background: var(--text, #fff); opacity: .85; } .sk-prev i + i { width: 60%; opacity: .5; }
+.sk-name { font-size: 11px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sk-row { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); font-size: var(--fs-sm); } .sk-fine summary { cursor: pointer; font-size: var(--fs-sm); color: var(--text-2); padding: 4px 0; }

@@ -1,5 +1,7 @@
 // The widget catalogue (pure): which widgets exist, how a saved widget is validated, and the small calculations they share.
-// A widget instance is { id, kind, cfg }; where it sits on Home is kept with the other blocks in newtab.canvas.items under the same id.
+// A widget instance is { id, kind, cfg, skin? }; where it sits on Home is kept with the other blocks in newtab.canvas.items under the same id.
+
+import { normalizeSkin } from './skins.js';
 
 /** `w`: [min, max, default] width in px on the 1440 px reference window; `icon`: a Lucide name (literals, so the icon builder finds them). */
 export const WIDGET_KINDS = {
@@ -103,7 +105,10 @@ export function normalizeWidgets(list, now = new Date()) {
   const out = [], seen = new Set();
   for (const w of Array.isArray(list) ? list : []) {
     if (!w || typeof w !== 'object' || !WIDGET_KINDS[w.kind] || typeof w.id !== 'string' || !WIDGET_ID_RE.test(w.id) || seen.has(w.id)) continue;
-    seen.add(w.id); out.push({ id: w.id, kind: w.kind, cfg: normalizeCfg(w.kind, w.cfg, now) });
+    seen.add(w.id);
+    const skin = normalizeSkin(w.skin), item = { id: w.id, kind: w.kind, cfg: normalizeCfg(w.kind, w.cfg, now) };
+    if (skin) item.skin = skin; // its own skin; absent = the theme's
+    out.push(item);
     if (out.length >= MAX_WIDGETS) break;
   }
   return out;

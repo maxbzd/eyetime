@@ -96,6 +96,7 @@ export const DEFAULT_SETTINGS = {
     layoutPin: null,           // a layout shown until unpinned, whatever the time or focus say
     depth: { on: true, parallax: true, strength: 60 }, // layers in front of the clock and the slide against the pointer (see shared/depth.js)
     widgets: [],               // widgets added on Home: [{ id, kind, cfg }] (see shared/widgets.js)
+    dna: { s: 'look' },        // the skin of every card on Home (see shared/skins.js); 'look' = the look's own cards
     type: {},                  // the clock / greeting type designer (see shared/typeface.js); empty = the look's own typography
     canvas: { on: false, items: {} }, // the free-form arrangement (see shared/canvas.js); off = the look's own layout
   },
