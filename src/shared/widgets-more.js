@@ -1,6 +1,8 @@
 // The widgets beyond the first fifteen (pure): what exists, its categories and sizes, and how each one's settings are validated.
 // Every widget has three sizes (S, M, L). `w` = [min, max, default] width in px on the 1440 px window and `sizes` = [S, M, L]; the widget itself adapts with container queries.
 
+import { sanitizeUi, sanitizeParamValues } from './scene/schema.js';
+
 export const WIDGET_CATS = ['time', 'focus', 'stats', 'tasks', 'calendar', 'body', 'style'];
 
 /** `icon`: a Lucide name (literals, so the icon builder finds them). */
@@ -36,6 +38,7 @@ export const MORE_KINDS = {
   photo:       { cat: 'style',    icon: 'image',          w: [130, 560, 260], sizes: [150, 260, 440] },
   orb:         { cat: 'style',    icon: 'sparkles',       w: [100, 700, 260], sizes: [140, 260, 460] },
   links:       { cat: 'style',    icon: 'link',           w: [160, 640, 320], sizes: [180, 320, 520] },
+  custom:      { cat: 'style',    icon: 'blocks',         w: [160, 900, 360], sizes: [240, 360, 520], hidden: true }, // a widget drawn by a theme (scene language); not in the gallery
 };
 
 /** Categories of the first fifteen widgets. */
@@ -50,6 +53,11 @@ export const QUOTE_CTX = ['day', 'start', 'pause', 'rest'];
 export const BREATH_PATTERNS = ['box', 'calm', 'relax'];
 export const PHOTO_STYLES = ['polaroid', 'frame', 'round'];
 export const ORB_PALETTES = ['aurora', 'sunset', 'ocean', 'ember', 'mono', 'candy'];
+/** What a new custom widget shows until a theme gives it something else: the daily goal as a ring. */
+export const DEMO_UI = sanitizeUi({ size: [360, 260], root: [
+  { t: 'ring', x: 180, y: 112, r: 76, sw: 16, val: '=goal', fill: 'token:accent' },
+  { t: 'text', x: 180, y: 128, size: 52, weight: 300, align: 'middle', text: '{fmt(goal * 100, 0)}%' },
+  { t: 'text', x: 180, y: 236, size: 22, align: 'middle', fill: 'token:text-2', text: '{focusToday} min · {tasksOpen} open' }] }).ui;
 export const HEAT_WEEKS = [8, 12, 16, 26];
 
 const str = (v, max, fallback = '') => (typeof v === 'string' ? v.slice(0, max) : fallback);
@@ -80,6 +88,7 @@ export function moreDefaultCfg(kind) {
     case 'mood': return { log: {} };
     case 'photo': return { text: '', style: 'polaroid' };
     case 'orb': return { palette: 'aurora', speed: 'calm' };
+    case 'custom': return { ui: DEMO_UI, params: {} };
     default: return {};
   }
 }
@@ -114,6 +123,7 @@ export function moreNormalizeCfg(kind, cfg) {
     }
     case 'photo': return { text: str(c.text, 60), style: pick(c.style, PHOTO_STYLES, d.style) };
     case 'orb': return { palette: pick(c.palette, ORB_PALETTES, d.palette), speed: pick(c.speed, ['calm', 'lively'], d.speed) };
+    case 'custom': { const ui = sanitizeUi(c.ui).ui; return { ui: ui.root.length ? ui : DEMO_UI, params: sanitizeParamValues(c.params) }; }
     default: return {};
   }
 }

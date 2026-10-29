@@ -129,7 +129,7 @@ async function paintNudge() {
 
 async function applyBackground() {
   const n = settings.newtab;
-  let bg = BACKGROUNDS.includes(n.background) || n.background === 'photo' ? n.background : 'look';
+  let bg = BACKGROUNDS.includes(n.background) || n.background === 'photo' || (n.background === 'scene' && n.scene && n.scene.layers && n.scene.layers.length) ? n.background : 'look';
   if (bg === 'look') { // "as in the look": Calm paints Dawn, Tide a sea (one per scheme), the others their own page colour
     const scene = LOOKS[settings.appearance.look]?.homeScene;
     bg = (scene && typeof scene === 'object' ? scene[document.documentElement.dataset.scheme] : scene) || 'look';
@@ -158,15 +158,29 @@ async function applyBackground() {
   if (bg === 'color') document.documentElement.style.setProperty('--bg-color', color);
   document.body.dataset.bg = bg;
   $('.bg').className = 'bg bgx-' + bg;
+  await applyScene(bg === 'scene' ? n : null);
   applyDepth(settings, scene);
   let gl = false;
   if (depthMap) gl = await mount3d({ photo: wxSrc, depthMap, depth: n.depth }); else unmount3d();
   document.body.classList.toggle('bg-gl', gl);
   if (depthMap && !gl) applyDepth(settings, flatScene); // no WebGL or a broken map: the flat photo, as before
   // light hero text on scenes that are dark in every theme, and on dark custom colours; a photo follows the person's choice or its own brightness
-  document.body.dataset.tone = photoTone && bg === 'photo' ? (resolveTextTone(n.photoText, photoTone) === 'dark' ? 'light' : 'dark') : DARK_SCENES.includes(bg) || (bg === 'color' && luminance(color) < 0.28) ? 'dark' : '';
+  document.body.dataset.tone = photoTone && bg === 'photo' ? (resolveTextTone(n.photoText, photoTone) === 'dark' ? 'light' : 'dark') : bg === 'scene' && n.scene.tone ? n.scene.tone : DARK_SCENES.includes(bg) || (bg === 'color' && luminance(color) < 0.28) ? 'dark' : '';
   alignClockFill();
   applyWeatherFx(wxSrc);
+}
+
+/** A scene as the background: drawn by the scene engine (loaded when one is used). Same scene, new knobs → only the knobs change. */
+let sceneInst = null, sceneSig = '';
+async function applyScene(n) {
+  const sig = n ? JSON.stringify(n.scene) : '';
+  if (sig === sceneSig && (sceneInst || !n)) { if (sceneInst) sceneInst.setParams(n.sceneParams); return; }
+  sceneSig = sig;
+  if (sceneInst) { sceneInst.destroy(); sceneInst = null; }
+  if (!n) return;
+  const [{ mountScene }, { runAction }] = await Promise.all([import('./scene/engine.js'), import('./scene/actions.js')]);
+  if (sceneSig !== sig) return; // changed again while loading
+  sceneInst = mountScene($('.bg'), n.scene, { params: n.sceneParams, onAction: runAction });
 }
 
 /** Rain or snow over the background, if the person turned the weather and its effect on and it is raining or snowing where they are (or `#fx=rain|snow|thunder|drizzle` to look at one). */

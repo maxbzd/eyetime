@@ -85,7 +85,7 @@ export function backgroundControls(n, set) {
     const f = e.target.files[0]; if (!f) return;
     try { await setRaw({ newtabBg: await fileToDataUrl(f) }); await chrome.storage.local.remove(['newtabFg', 'newtabDepth']); await set((s) => { s.newtab.background = 'photo'; }); toast(t('home.photoSaved')); } catch { toast(t('common.error')); }
   } });
-  const tiles = [...BACKGROUNDS, 'photo'].map((id) => h('button', { class: 'bg-tile', type: 'button', 'aria-pressed': String(n.background === id), onclick: async () => {
+  const tiles = [...BACKGROUNDS, 'photo', ...(n.scene && n.scene.layers && n.scene.layers.length ? ['scene'] : [])].map((id) => h('button', { class: 'bg-tile', type: 'button', 'aria-pressed': String(n.background === id), onclick: async () => {
     if (id === 'photo') { const { newtabBg } = await getRaw('newtabBg'); if (!newtabBg) { fileIn.click(); return; } }
     await set((s) => { s.newtab.background = id; });
   } }, h('i', { class: 'bgx-' + (id === 'photo' ? 'plain' : id), style: id === 'photo' ? { background: 'repeating-linear-gradient(45deg, var(--surface-2), var(--surface-2) 6px, var(--surface-3) 6px, var(--surface-3) 12px)' } : id === 'color' ? { '--bg-color': normalizeHex(n.bgColor) || '#e9e4ff' } : {} }), h('span', { text: t('bg.' + id) })));
