@@ -13,6 +13,7 @@ import { normalizeSkin } from './skins.js';
 import { sanitizeScene, sanitizeParamValues } from './scene/schema.js';
 import { normalizeHex } from './color.js';
 import { PHOTO_TEXT } from './phototone.js';
+import { normalizeFrame } from './frames.js';
 
 export const THEME_FORMAT = 'eyetime-theme';
 export const THEME_VERSION = 1;
@@ -36,6 +37,8 @@ export function sanitizeHome(h) {
   if ('sceneParams' in o) out.sceneParams = sanitizeParamValues(o.sceneParams);
   if ('dna' in o) out.dna = normalizeSkin(o.dna) || { s: 'look' };
   if (typeof o.background === 'string' && /^[a-z]{3,12}$/.test(o.background)) out.background = o.background;
+  if ('frame' in o) out.frame = normalizeFrame(o.frame);
+  if ('clock24' in o) out.clock24 = o.clock24 === true || o.clock24 === false ? o.clock24 : null;
   if (PHOTO_TEXT.includes(o.photoText)) out.photoText = o.photoText;
   if ('bgColor' in o) { const c = normalizeHex(o.bgColor); if (c) out.bgColor = c; }
   if (LAYOUTS.includes(o.layout)) out.layout = o.layout;

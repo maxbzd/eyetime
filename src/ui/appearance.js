@@ -41,6 +41,7 @@ export function looksGallery(ap, { onPick, compact = false }) {
   const grid = (ids) => h('div', { class: 'looks' + (compact ? ' compact' : '') }, ids.map((id) => lookCard(id, { scheme, selected: ap.look === id, onPick, compact, ap })));
   const classic = !NEW_LOOK_IDS.includes(ap.look) && !CLASSIC_LOOK_IDS.includes(ap.look) && LOOKS[ap.look] ? [...CLASSIC_LOOK_IDS, ap.look] : CLASSIC_LOOK_IDS; // a look that is kept but not offered still shows while it is the one in use
   const open = !NEW_LOOK_IDS.includes(ap.look);
+  if (!NEW_LOOK_IDS.length) return grid(classic);
   return h('div', { class: 'looks-wrap' }, grid(NEW_LOOK_IDS),
     h('details', { class: 'looks-classic', ...(open ? { open: '' } : {}) }, h('summary', { text: t('look.classic') }), grid(classic)));
 }

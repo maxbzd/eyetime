@@ -42,7 +42,7 @@ test('nudge and resizeStep stay inside their limits', () => {
   assert.deepEqual(nudge({ x: 0.5, y: 99.5 }, 'left'), { x: 0, y: 99.5 });
   assert.deepEqual(nudge({ x: 50, y: 99.5 }, 'down', true), { x: 50, y: 100 });
   assert.deepEqual(nudge({ x: 50, y: 50 }, 'up', true), { x: 50, y: 45 });
-  assert.equal(resizeStep('clock', { x: 1, y: 1, s: 3 }, 1).s, 3);
+  assert.equal(resizeStep('clock', { x: 1, y: 1, s: CANVAS_BLOCKS.clock.max }, 1).s, CANVAS_BLOCKS.clock.max);
   assert.equal(resizeStep('clock', { x: 1, y: 1, s: 1 }, -1).s, 0.95);
   assert.equal(resizeStep('tasks', { x: 1, y: 1, w: 480 }, 1, true).w, 560);
   assert.equal(resizeStep('tasks', { x: 1, y: 1, w: 300 }, -1).w, 300);
@@ -72,7 +72,7 @@ test('a text block can be stretched: sx is kept only when it differs, and clampe
   const n = normalizeCanvas({ on: true, items: { clock: { x: 50, y: 50, s: 1, sx: 2.4 }, greeting: { x: 50, y: 70, s: 1, sx: 1 } } }).items;
   assert.equal(n.clock.sx, 2.4);
   assert.equal(n.greeting.sx, undefined);
-  assert.equal(normalizeCanvas({ on: true, items: { clock: { x: 5, y: 5, s: 1, sx: 99 } } }).items.clock.sx, 7.5);
+  assert.equal(normalizeCanvas({ on: true, items: { clock: { x: 5, y: 5, s: 1, sx: 99 } } }).items.clock.sx, CANVAS_BLOCKS.clock.max * 2.5);
   assert.equal(normalizeCanvas({ on: true, items: { clock: { x: 5, y: 5, s: 1, sx: 'wide' } } }).items.clock.sx, undefined);
   assert.equal(normalizeCanvas({ on: true, items: { tasks: { x: 5, y: 5, w: 400, sx: 2 } } }).items.tasks.sx, undefined);
 });
@@ -98,7 +98,7 @@ test('stretchDrag pulls from a side or corner while the opposite one stays put',
   assert.equal(c.s, 2); assert.equal(c.sx, undefined);
   // limits hold
   const d = stretchDrag('clock', item, { dx: 1, dy: 0 }, rect, 1, { x: 100000, y: 0 }, view);
-  assert.equal(d.sx, 7.5);
+  assert.equal(d.sx, CANVAS_BLOCKS.clock.max * 2.5);
   const e = stretchDrag('clock', item, { dx: -1, dy: 0 }, rect, 1, { x: 790, y: 0 }, view);
   assert.equal(e.sx, 0.16);
 });
@@ -139,7 +139,7 @@ test('sizeValue / withSize: percent for text, px for cards, clamped, stretch kep
   assert.equal(sizeValue('clock', { x: 1, y: 1, s: 1.25 }), 125);
   assert.equal(sizeValue('tasks', { x: 1, y: 1, w: 480 }), 480);
   assert.equal(withSize('clock', { x: 1, y: 1, s: 1 }, 150).s, 1.5);
-  assert.equal(withSize('clock', { x: 1, y: 1, s: 1 }, 9999).s, 3);
+  assert.equal(withSize('clock', { x: 1, y: 1, s: 1 }, 9999).s, CANVAS_BLOCKS.clock.max);
   assert.equal(withSize('clock', { x: 1, y: 1, s: 1 }, 1).s, 0.4);
   assert.equal(withSize('clock', { x: 1, y: 1, s: 1, sx: 2 }, 200).sx, 4); // the stretch scales along
   assert.equal(withSize('tasks', { x: 1, y: 1, w: 480 }, 100).w, 300);
