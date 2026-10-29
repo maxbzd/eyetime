@@ -74,6 +74,7 @@ export async function buildTypePanel(kind, { onClose, onUnstretch } = {}) {
         c.fill === 'outline' ? slider(t('ty.stroke'), 0.5, 6, 0.5, c.stroke, (v) => set({ stroke: v }), (v) => v.toFixed(1)) : null,
         slider(t('ty.glow'), 0, 1, 0.05, c.glow, (v) => set({ glow: v }), (v) => Math.round(v * 100) + '%'),
         slider(t('ty.shadow'), 0, 1, 0.05, c.shadow, (v) => set({ shadow: v }), (v) => Math.round(v * 100) + '%'),
+        slider(t('ty.opacity'), 0.15, 1, 0.05, c.opacity, (v) => set({ opacity: v }), (v) => Math.round(v * 100) + '%'),
         toggle(t('ty.seconds'), c.seconds, (v) => set({ seconds: v })),
         toggle(t('ty.tabular'), c.tabular, (v) => set({ tabular: v })));
     } else {
