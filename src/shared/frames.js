@@ -4,7 +4,7 @@
 /** `tone`: the text colour that reads on it (light text on a dark photo); `mask`: a foreground mask exists; `shade`: how much the photo is darkened under the text, 0..1. */
 export const FRAMES = {
   peak:   { tone: 'light', mask: true,  shade: 0.10, credit: 'Tyler Lastovich' },
-  pines:  { tone: 'light', mask: true,  shade: 0.00, credit: 'Michael Constantin P.' },
+  pines:  { tone: 'light', mask: false,  shade: 0.00, credit: 'Michael Constantin P.' },
   mirror: { tone: 'light', mask: false,  shade: 0.00, credit: 'Maria Budanova' },
   road:   { tone: 'light', mask: false, shade: 0.00, credit: 'Valery Sysoev' },
   solo:   { tone: 'dark',  mask: true,  shade: 0.00, credit: 'Patti Black' },
