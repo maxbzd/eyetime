@@ -38,3 +38,8 @@
 .compact .lp .row .chip:last-child { display: none; }
 @media (max-width: 640px) { .looks:not(.compact) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-2); } .looks:not(.compact) .look-desc { display: none; } .looks:not(.compact) .lp { min-height: 104px; } .looks:not(.compact) .lp-bars { display: none; } }
 .lp { overflow: hidden; max-width: 100%; } .lp .row { flex-wrap: wrap; }
+.looks-wrap { display: grid; gap: var(--s-4); }
+.looks-classic > summary { cursor: pointer; padding: var(--s-2) 0 var(--s-3); font-weight: 600; color: var(--text-2); list-style: none; }
+.looks-classic > summary::-webkit-details-marker { display: none; }
+.looks-classic > summary::before { content: '›'; display: inline-block; margin-right: 8px; transition: transform .15s; }
+.looks-classic[open] > summary::before { transform: rotate(90deg); }
