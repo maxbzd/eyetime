@@ -217,10 +217,10 @@ export const LOOKS = {
 };
 const FIRST = ['linen', 'phosphor', 'liquid', 'nocturne', 'brutal', 'zen', 'synthwave', 'moss', 'swiss', 'ink', 'candy', 'abyss', 'calm', 'obsidian', 'void', 'noir', 'pearl', 'bento', 'spectrum', 'tide', 'ledger', 'vital', 'aura']; // the gallery order: the default, then the newest
 export const LOOK_IDS = [...FIRST, ...Object.keys(LOOKS).filter((id) => !FIRST.includes(id))];
-/** The collection shown first in the gallery; the older looks sit under "Classic" (they keep working for anyone who chose them). */
-export const NEW_LOOK_IDS = FIRST.slice(0, 12);
-/** Looks that are kept but not offered (not released yet). */
-export const PARKED_LOOK_IDS = ['spectrum', 'tide', 'ledger', 'vital', 'aura'];
+/** Looks shown first in the gallery (none now); the rest sit under "Classic" once there are some. */
+export const NEW_LOOK_IDS = [];
+/** Looks that are kept (they still work for anyone who has one) but not offered. */
+export const PARKED_LOOK_IDS = ['linen', 'phosphor', 'liquid', 'nocturne', 'brutal', 'zen', 'synthwave', 'moss', 'swiss', 'ink', 'candy', 'abyss', 'spectrum', 'tide', 'ledger', 'vital', 'aura'];
 export const CLASSIC_LOOK_IDS = LOOK_IDS.filter((id) => !NEW_LOOK_IDS.includes(id) && !PARKED_LOOK_IDS.includes(id));
 
 /* ---------- derivation ---------- */

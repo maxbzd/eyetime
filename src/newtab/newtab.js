@@ -35,6 +35,7 @@ import { resolveTextTone } from '../shared/phototone.js';
 import { getPhotoInfo, clearPhotoInfo, photoKey } from './photo-info.js';
 import { mount3d, unmount3d } from './gl3d.js';
 import { normalizeDepth } from '../shared/depth.js';
+import { FRAMES, framePaths, normalizeFrame } from '../shared/frames.js';
 import { showQuote } from '../ui/quote.js';
 import { mountStandby } from './standby.js';
 import { mountWeatherFx } from './weather-fx.js';
@@ -136,15 +137,17 @@ async function applyBackground() {
   }
   let scene = bg, photoTone = null, wxSrc = '', flatScene = bg, depthMap = '';
   if (bg === 'photo') {
-    const { newtabBg } = await getRaw('newtabBg');
+    const frame = normalizeFrame(n.frame), paths = frame ? framePaths(frame) : null; // a photo that ships with EyeTime, or the person's own
+    const newtabBg = paths ? chrome.runtime.getURL(paths.photo) : (await getRaw('newtabBg')).newtabBg;
+    document.documentElement.style.setProperty('--photo-shade', String(frame ? FRAMES[frame].shade : 1));
     if (newtabBg) {
       const info = await getPhotoInfo(newtabBg);
       document.documentElement.style.setProperty('--photo', `url(${newtabBg})`);
       if (info.soft) document.documentElement.style.setProperty('--photo-soft', `url(${info.soft})`);
-      photoTone = n.photoText === 'light' || n.photoText === 'dark' ? n.photoText : info.tone;
+      photoTone = n.photoText === 'light' || n.photoText === 'dark' ? n.photoText : frame ? FRAMES[frame].tone : info.tone;
       wxSrc = newtabBg;
     } else bg = 'look';
-    const { newtabFg } = bg === 'photo' ? await getRaw('newtabFg') : {};
+    const newtabFg = bg !== 'photo' ? '' : paths ? (paths.mask ? chrome.runtime.getURL(paths.mask) : '') : (await getRaw('newtabFg')).newtabFg;
     if (newtabFg) { document.documentElement.style.setProperty('--photo-mask', `url(${newtabFg})`); scene = 'photo-cut'; } // the cut-out subject: a masked copy of the photo goes in front of the clock
     flatScene = scene;
     const d3 = normalizeDepth(n.depth);
