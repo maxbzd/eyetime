@@ -29,6 +29,7 @@ const { launch } = require('./lib.cjs');
   ok(!(await fg()) && (await layers()).length === 0, 'no cut-out and no front layer to begin with');
 
   await p.click('#customize'); await p.waitForTimeout(300);
+  await p.locator('.hr-head', { hasText: 'Background' }).click(); await p.waitForTimeout(400); 
   ok(await p.locator('#drawerBody button', { hasText: 'Cut out the subject' }).count() === 1, 'the drawer offers the cut-out for a photo background');
   const t0 = Date.now();
   await p.locator('#drawerBody button', { hasText: 'Cut out the subject' }).click();

@@ -97,6 +97,7 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   await patch({ 'newtab.layouts': [{ id: lid, name: 'Night', when: { kind: 'manual', from: '20:00', to: '06:00' }, data: { greeting: false } }] });
   await p.reload(); await p.waitForTimeout(1200);
   await p.click('#customize'); await p.waitForTimeout(300);
+  await p.locator('.hr-head', { hasText: 'Share your Home' }).click(); await p.waitForTimeout(400); 
   const [dl] = await Promise.all([p.waitForEvent('download'), p.locator('#drawerBody button:has-text("Save theme")').click()]);
   const file = path.join('/tmp', 'eyetime-theme-test-' + Date.now() + '.json');
   await dl.saveAs(file);

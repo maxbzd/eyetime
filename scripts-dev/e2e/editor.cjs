@@ -130,7 +130,8 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   // the widget gallery: add a countdown, set it up, move it, then delete it
   const widgets = () => p.evaluate(async () => (await (await import('/src/shared/storage.js')).getSettings()).newtab.widgets);
   await p.click('.cv-bar button:has-text("Add widget")'); await p.waitForTimeout(500);
-  ok(await p.locator('.cv-panel .wg-tile').count() === 15, 'the gallery lists 15 widgets: ' + await p.locator('.cv-panel .wg-tile').count());
+  await p.locator('.wg-cats .chip', { hasText: 'All' }).click(); await p.waitForTimeout(300); 
+  ok(await p.locator('.cv-panel .wg-tile').count() === 46, 'the gallery lists all 46 widgets: ' + await p.locator('.cv-panel .wg-tile').count());
   await p.locator('.cv-panel .wg-tile', { hasText: 'Countdown' }).click(); await p.waitForTimeout(900);
   let ws = await widgets();
   ok(ws.length === 1 && ws[0].kind === 'countdown', 'adding a widget saves it: ' + JSON.stringify(ws));
@@ -149,7 +150,7 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   ok((await widgets()).length === 0 && !(await canvas()).items[wid] && await p.locator('.wgt').count() === 0, 'a widget can be deleted for good');
   // one more stays for the reload check below
   await p.click('.cv-bar button:has-text("Add widget")'); await p.waitForTimeout(400);
-  await p.locator('.cv-panel .wg-tile', { hasText: 'Sticky note' }).click(); await p.waitForTimeout(900);
+  await p.locator('.wg-cats .chip', { hasText: 'All' }).click(); await p.waitForTimeout(300); await p.locator('.cv-panel .wg-tile', { hasText: 'Sticky note' }).click(); await p.waitForTimeout(900);
 
   // Escape finishes; the arrangement survives a reload
   const saved = JSON.stringify((await canvas()).items);

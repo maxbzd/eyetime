@@ -24,6 +24,23 @@ const { launch } = require('./lib.cjs');
   ok(broken === 0, 'every theme picture loads: ' + broken + ' did not');
   ok((await p.locator('#drawerBody h4').allTextContents()).includes('Ready themes'), 'the drawer has a Ready themes section');
 
+  // the drawer is a short list of rows that open one at a time, with what is chosen shown on each
+  const rows = p.locator('#drawerBody .hr-head');
+  ok(await rows.count() === 6, 'six rows: ' + await rows.count());
+  ok((await p.locator('#drawerBody .hr-body').count()) === 0, 'all rows start closed');
+  const fits = await p.evaluate(() => { const b = document.querySelector('#drawerBody'); return b.scrollHeight <= b.clientHeight + 2; });
+  ok(fits, 'the closed drawer fits on one screen');
+  ok(/Calm/.test(await rows.nth(3).textContent()), 'the colour row shows the look: ' + await rows.nth(3).textContent());
+  await rows.nth(0).click(); await p.waitForTimeout(300);
+  ok(await p.locator('#drawerBody .hr-body').count() === 1 && await p.locator('#drawerBody .bg-tile').count() > 10, 'Background opens with its tiles');
+  await rows.nth(1).click(); await p.waitForTimeout(300);
+  ok(await p.locator('#drawerBody .hr-body').count() === 1 && await p.locator('#drawerBody .bg-tile').count() === 0 && await p.locator('#drawerBody button:has-text("Design the digits")').count() === 1, 'opening Clock closes Background');
+  await p.locator('#drawerBody .hr-head', { hasText: 'Layout' }).click(); await p.waitForTimeout(300);
+  ok(await p.locator('#drawerBody .mod-row').count() === 5 && await p.locator('#drawerBody .segmented button:has-text("Split")').count() === 1, 'Layout & blocks keeps the layout choice and the five blocks with their order');
+  await p.locator('#drawerBody .hr-head', { hasText: 'Cards' }).click(); await p.waitForTimeout(300);
+  await p.locator('#drawerBody .sk-tiles button, #drawerBody [class*=sk-] button').first().click().catch(() => {});
+  await p.locator('#drawerBody .hr-head[aria-expanded=true]').click(); await p.waitForTimeout(300);
+  ok(await p.locator('#drawerBody .hr-body').count() === 0, 'a row closes again');
   const before = await get();
   await p.locator('.st-tile', { hasText: 'Terminal' }).click(); await p.waitForTimeout(1200);
   let a = await get();

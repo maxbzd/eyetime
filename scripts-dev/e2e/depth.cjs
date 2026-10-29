@@ -38,6 +38,7 @@ const { launch } = require('./lib.cjs');
 
   // the drawer has the three controls
   await p.click('#customize'); await p.waitForTimeout(300);
+  await p.locator('.hr-head', { hasText: 'Background' }).click(); await p.waitForTimeout(400); 
   ok(await p.locator('#drawerBody input[type="range"][aria-label="Strength"]').count() === 1 && await p.locator('#drawerBody input[aria-label="Move with the mouse"]').count() === 1, 'the drawer has the depth controls');
   await p.keyboard.press('Escape'); await p.waitForTimeout(200);
 

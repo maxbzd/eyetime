@@ -41,6 +41,7 @@ const { launch } = require('./lib.cjs');
 
   // make it 3D from the drawer
   await p.click('#customize'); await p.waitForTimeout(300);
+  await p.locator('.hr-head', { hasText: 'Background' }).click(); await p.waitForTimeout(400); 
   ok(await p.locator('#drawerBody button', { hasText: 'Make the photo 3D' }).count() === 1, 'the drawer offers 3D for a photo background');
   const t0 = Date.now();
   await p.locator('#drawerBody button', { hasText: 'Make the photo 3D' }).click();
@@ -104,6 +105,7 @@ const { launch } = require('./lib.cjs');
   // removing the depth
   await sp.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.setRaw({ newtabBg: (await chrome.storage.local.get('newtabBg')).newtabBg }); });
   await p.click('#customize'); await p.waitForTimeout(400);
+  await p.locator('.hr-head', { hasText: 'Background' }).click(); await p.waitForTimeout(400); 
   ok(await p.locator('#drawerBody button', { hasText: 'Make the photo 3D' }).count() === 1, 'the drawer offers to make it again');
   await p.click('#drawerClose');
 
