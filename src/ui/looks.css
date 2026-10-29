@@ -580,3 +580,142 @@ html[data-look="tide"] body[data-layout="canvas"] .greet-block h1 { font-weight:
 :is(html, .lp)[data-look="liquid"] .progress i, :is(html, .lp)[data-look="liquid"] .goal-bar i { border-radius: 99px; background-image: linear-gradient(180deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0)); box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 50%, transparent); }
 :is(html, .lp)[data-look="liquid"] .ring .bar { filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--accent) 45%, transparent)); stroke-linecap: round; }
 :is(html, .lp)[data-look="liquid"] .switch .track { background: rgba(120, 130, 170, .3); } :is(html, .lp)[data-look="liquid"] .switch input:checked ~ .track { background: var(--accent); }
+
+/* ═══════════════════════════ NOCTURNE ═══════════════════════════ */
+:is(html, .lp)[data-look="nocturne"] .card { border-color: color-mix(in srgb, var(--accent) 22%, transparent); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), var(--card-shadow) }
+:is(html, .lp)[data-look="nocturne"] .clock { font-weight: 200; letter-spacing: -.05em; text-shadow: 0 0 60px color-mix(in srgb, var(--accent) 45%, transparent) }
+:is(html, .lp)[data-look="nocturne"] h1, :is(html, .lp)[data-look="nocturne"] h2, :is(html, .lp)[data-look="nocturne"] .hero h1, :is(html, .lp)[data-look="nocturne"] .kpi .value, :is(html, .lp)[data-look="nocturne"] .today-total { font-family: var(--font-display); font-style: italic; font-weight: 500 }
+:is(html, .lp)[data-look="nocturne"] #date, :is(html, .lp)[data-look="nocturne"] .hero p { letter-spacing: .12em; text-transform: uppercase; font-size: 11px; color: var(--text-3) }
+:is(html, .lp)[data-look="nocturne"] .btn-primary { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 80%, #fff), var(--accent)); box-shadow: 0 0 24px -4px color-mix(in srgb, var(--accent) 60%, transparent) }
+:is(html, .lp)[data-look="nocturne"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="nocturne"] .mode-chip[aria-pressed="true"] { box-shadow: 0 0 16px -4px var(--accent); border-color: var(--accent) }
+:is(html, .lp)[data-look="nocturne"] .progress i, :is(html, .lp)[data-look="nocturne"] .goal-bar i { box-shadow: 0 0 12px var(--accent) }
+:is(html, .lp)[data-look="nocturne"] .ring .bar { filter: drop-shadow(0 0 7px var(--accent)) }
+:is(html, .lp)[data-look="nocturne"] .eyebrow, :is(html, .lp)[data-look="nocturne"] .group-title, :is(html, .lp)[data-look="nocturne"] .card-title { letter-spacing: .18em; text-transform: uppercase; font-size: 10.5px; font-weight: 600 }
+
+/* ═══════════════════════════ BRUTAL ═══════════════════════════ */
+:is(html, .lp)[data-look="brutal"] body { font-weight: 500 }
+:is(html, .lp)[data-look="brutal"] .card { border: 3px solid var(--text); box-shadow: 5px 5px 0 var(--text); -webkit-backdrop-filter: none; backdrop-filter: none; border-radius: var(--r-md) }
+:is(html, .lp)[data-look="brutal"] .clock { font-weight: 800; letter-spacing: -.05em; -webkit-text-stroke: 0; text-shadow: 4px 4px 0 var(--accent) }
+:is(html, .lp)[data-look="brutal"] h1, :is(html, .lp)[data-look="brutal"] h2, :is(html, .lp)[data-look="brutal"] .hero h1, :is(html, .lp)[data-look="brutal"] .kpi .value, :is(html, .lp)[data-look="brutal"] .today-total { font-weight: 800; letter-spacing: -.03em; text-transform: uppercase }
+:is(html, .lp)[data-look="brutal"] .btn { border: 3px solid var(--text); border-radius: var(--r-sm); box-shadow: 3px 3px 0 var(--text); font-weight: 700; text-transform: uppercase; letter-spacing: .02em; transition: transform .08s, box-shadow .08s }
+:is(html, .lp)[data-look="brutal"] .btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--text) }
+:is(html, .lp)[data-look="brutal"] .btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--text) }
+:is(html, .lp)[data-look="brutal"] .btn-primary { background: var(--accent); color: var(--accent-fg) }
+:is(html, .lp)[data-look="brutal"] .btn-ghost { border-color: transparent; box-shadow: none }
+:is(html, .lp)[data-look="brutal"] .input, :is(html, .lp)[data-look="brutal"] .select, :is(html, .lp)[data-look="brutal"] .textarea { border: 3px solid var(--text); border-radius: var(--r-sm); background: var(--surface); box-shadow: 3px 3px 0 var(--text) }
+:is(html, .lp)[data-look="brutal"] .chip, :is(html, .lp)[data-look="brutal"] .mode-chip { border: 2px solid var(--text); border-radius: var(--r-sm); font-weight: 700; background: var(--surface) }
+:is(html, .lp)[data-look="brutal"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="brutal"] .mode-chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); box-shadow: 2px 2px 0 var(--text) }
+:is(html, .lp)[data-look="brutal"] .badge, :is(html, .lp)[data-look="brutal"] .badge-accent { border: 2px solid var(--text); border-radius: 2px; font-weight: 800; text-transform: uppercase; background: var(--accent); color: var(--accent-fg) }
+:is(html, .lp)[data-look="brutal"] .progress, :is(html, .lp)[data-look="brutal"] .goal-bar { height: 14px; border: 3px solid var(--text); border-radius: 0; background: var(--surface) }
+:is(html, .lp)[data-look="brutal"] .progress i, :is(html, .lp)[data-look="brutal"] .goal-bar i { background: var(--accent); border-radius: 0 }
+:is(html, .lp)[data-look="brutal"] .segmented { border: 3px solid var(--text); border-radius: var(--r-sm); background: var(--surface) }
+:is(html, .lp)[data-look="brutal"] .segmented [aria-pressed="true"], :is(html, .lp)[data-look="brutal"] .segmented [aria-selected="true"] { background: var(--text); color: var(--bg); box-shadow: none; border-radius: 0 }
+:is(html, .lp)[data-look="brutal"] .ring .bar { stroke-linecap: butt }
+
+/* ═══════════════════════════ ZEN ═══════════════════════════ */
+:is(html, .lp)[data-look="zen"] .card { border-color: var(--border); box-shadow: none }
+:is(html, .lp)[data-look="zen"] .clock { font-family: var(--font-display); font-weight: 300; letter-spacing: .02em }
+:is(html, .lp)[data-look="zen"] h1, :is(html, .lp)[data-look="zen"] h2, :is(html, .lp)[data-look="zen"] .hero h1, :is(html, .lp)[data-look="zen"] .kpi .value, :is(html, .lp)[data-look="zen"] .today-total { font-family: var(--font-display); font-weight: 400; letter-spacing: .01em }
+:is(html, .lp)[data-look="zen"] .hero p, :is(html, .lp)[data-look="zen"] #date { letter-spacing: .22em; text-transform: uppercase; font-size: 10.5px }
+:is(html, .lp)[data-look="zen"] .btn { background: transparent; border-color: var(--border-strong); box-shadow: none; letter-spacing: .06em; font-weight: 500 }
+:is(html, .lp)[data-look="zen"] .btn-primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent) }
+:is(html, .lp)[data-look="zen"] .btn-ghost { border-color: transparent }
+:is(html, .lp)[data-look="zen"] .input, :is(html, .lp)[data-look="zen"] .select, :is(html, .lp)[data-look="zen"] .textarea { background: transparent; border-width: 0 0 1px 0; border-radius: 0; box-shadow: none }
+:is(html, .lp)[data-look="zen"] .chip, :is(html, .lp)[data-look="zen"] .mode-chip { background: transparent; border-color: var(--border-strong) }
+:is(html, .lp)[data-look="zen"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="zen"] .mode-chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); box-shadow: none }
+:is(html, .lp)[data-look="zen"] .progress, :is(html, .lp)[data-look="zen"] .goal-bar { height: 2px; background: var(--border) }
+:is(html, .lp)[data-look="zen"] .eyebrow, :is(html, .lp)[data-look="zen"] .group-title, :is(html, .lp)[data-look="zen"] .card-title { letter-spacing: .24em; text-transform: uppercase; font-size: 10px; font-weight: 500; color: var(--text-3) }
+:is(html, .lp)[data-look="zen"] .ring .bar { stroke-width: 2px }
+
+/* ═══════════════════════════ SYNTHWAVE ═══════════════════════════ */
+:is(html, .lp)[data-look="synthwave"] .card { border-color: color-mix(in srgb, var(--accent) 55%, transparent); background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent 40%); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent), 0 0 28px -8px var(--accent), inset 0 0 30px -16px var(--accent) }
+:is(html, .lp)[data-look="synthwave"] .clock { font-family: var(--font-display); font-weight: 500; letter-spacing: -.02em; background: linear-gradient(180deg, #fff3a8 8%, #ff8bd9 55%, #b04bff 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 18px rgba(255, 69, 242, .55)) }
+:is(html, .lp)[data-look="synthwave"][data-scheme="light"] .clock { background: linear-gradient(180deg, #d1217f 5%, #8a1fd0 60%, #4b1a9c 100%); -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 0 14px rgba(255, 69, 242, .35)) }
+:is(html, .lp)[data-look="synthwave"] h1, :is(html, .lp)[data-look="synthwave"] h2, :is(html, .lp)[data-look="synthwave"] .hero h1 { font-family: var(--font-display); letter-spacing: .02em; text-transform: uppercase; font-size: .9em }
+:is(html, .lp)[data-look="synthwave"] .hero p, :is(html, .lp)[data-look="synthwave"] #date { letter-spacing: .3em; text-transform: uppercase; font-size: 10.5px; color: var(--text-3) }
+:is(html, .lp)[data-look="synthwave"] .btn { border-color: color-mix(in srgb, var(--accent) 65%, transparent); box-shadow: 0 0 14px -6px var(--accent); text-transform: uppercase; letter-spacing: .08em; font-size: 12px; font-weight: 600 }
+:is(html, .lp)[data-look="synthwave"] .btn-primary { background: linear-gradient(90deg, #ff45f2, #8b5bff); color: #fff; border-color: transparent; box-shadow: 0 0 26px -4px #ff45f2 }
+:is(html, .lp)[data-look="synthwave"] .btn-ghost { box-shadow: none; border-color: transparent; text-transform: none; letter-spacing: 0; font-size: var(--fs-md) }
+:is(html, .lp)[data-look="synthwave"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="synthwave"] .mode-chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); box-shadow: 0 0 14px -3px var(--accent) }
+:is(html, .lp)[data-look="synthwave"] .progress i, :is(html, .lp)[data-look="synthwave"] .goal-bar i { background: linear-gradient(90deg, #ff45f2, #6fe3ff); box-shadow: 0 0 12px #ff45f2 }
+:is(html, .lp)[data-look="synthwave"] .ring .bar { filter: drop-shadow(0 0 8px var(--accent)) }
+:is(html, .lp)[data-look="synthwave"] .eyebrow, :is(html, .lp)[data-look="synthwave"] .group-title, :is(html, .lp)[data-look="synthwave"] .card-title { letter-spacing: .22em; text-transform: uppercase; font-size: 10px; color: var(--accent-text) }
+
+/* ═══════════════════════════ MOSS ═══════════════════════════ */
+:is(html, .lp)[data-look="moss"] .card { border-color: color-mix(in srgb, var(--accent) 16%, var(--border)); box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255, 255, 255, .05) }
+:is(html, .lp)[data-look="moss"] .clock { font-family: var(--font-display); font-weight: 500; letter-spacing: -.02em }
+:is(html, .lp)[data-look="moss"] h1, :is(html, .lp)[data-look="moss"] h2, :is(html, .lp)[data-look="moss"] .hero h1, :is(html, .lp)[data-look="moss"] .kpi .value, :is(html, .lp)[data-look="moss"] .today-total { font-family: var(--font-display); font-weight: 600 }
+:is(html, .lp)[data-look="moss"] .hero h1 { font-style: italic }
+:is(html, .lp)[data-look="moss"] .btn-primary { background: var(--accent); color: var(--accent-fg); border-radius: var(--r-full); box-shadow: 0 6px 16px -8px var(--accent) }
+:is(html, .lp)[data-look="moss"] .btn { border-radius: var(--r-full) }
+:is(html, .lp)[data-look="moss"] .chip, :is(html, .lp)[data-look="moss"] .mode-chip { border-radius: var(--r-full) }
+:is(html, .lp)[data-look="moss"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="moss"] .mode-chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent) }
+:is(html, .lp)[data-look="moss"] .progress, :is(html, .lp)[data-look="moss"] .goal-bar { height: 8px; border-radius: 99px }
+:is(html, .lp)[data-look="moss"] .progress i, :is(html, .lp)[data-look="moss"] .goal-bar i { border-radius: 99px }
+:is(html, .lp)[data-look="moss"] .eyebrow, :is(html, .lp)[data-look="moss"] .group-title, :is(html, .lp)[data-look="moss"] .card-title { letter-spacing: .12em; text-transform: uppercase; font-size: 10.5px; color: var(--text-3) }
+
+/* ═══════════════════════════ SWISS ═══════════════════════════ */
+:is(html, .lp)[data-look="swiss"] body { letter-spacing: -.01em }
+:is(html, .lp)[data-look="swiss"] .card { background: transparent; border: 2px solid var(--text); box-shadow: none; border-radius: 0; -webkit-backdrop-filter: none; backdrop-filter: none }
+:is(html, .lp)[data-look="swiss"] .clock { font-weight: 800; letter-spacing: -.07em; line-height: .86 }
+:is(html, .lp)[data-look="swiss"] h1, :is(html, .lp)[data-look="swiss"] h2, :is(html, .lp)[data-look="swiss"] .hero h1, :is(html, .lp)[data-look="swiss"] .kpi .value, :is(html, .lp)[data-look="swiss"] .today-total { font-weight: 800; letter-spacing: -.045em }
+:is(html, .lp)[data-look="swiss"] .hero p, :is(html, .lp)[data-look="swiss"] #date { font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--text) }
+:is(html, .lp)[data-look="swiss"] .btn { border: 2px solid var(--text); border-radius: 0; background: transparent; box-shadow: none; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: 12px }
+:is(html, .lp)[data-look="swiss"] .btn:hover { background: var(--text); color: var(--bg) }
+:is(html, .lp)[data-look="swiss"] .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent) }
+:is(html, .lp)[data-look="swiss"] .btn-primary:hover { background: var(--text); border-color: var(--text); color: var(--bg) }
+:is(html, .lp)[data-look="swiss"] .btn-ghost { border-color: transparent }
+:is(html, .lp)[data-look="swiss"] .input, :is(html, .lp)[data-look="swiss"] .select, :is(html, .lp)[data-look="swiss"] .textarea { border: 2px solid var(--text); border-radius: 0; background: transparent }
+:is(html, .lp)[data-look="swiss"] .chip, :is(html, .lp)[data-look="swiss"] .mode-chip { border: 2px solid var(--text); border-radius: 0; background: transparent; font-weight: 700 }
+:is(html, .lp)[data-look="swiss"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="swiss"] .mode-chip[aria-pressed="true"] { background: var(--text); color: var(--bg); box-shadow: none }
+:is(html, .lp)[data-look="swiss"] .badge, :is(html, .lp)[data-look="swiss"] .badge-accent { border-radius: 0; background: var(--accent); color: #fff; font-weight: 800; text-transform: uppercase }
+:is(html, .lp)[data-look="swiss"] .progress, :is(html, .lp)[data-look="swiss"] .goal-bar { height: 10px; border-radius: 0; background: transparent; border: 2px solid var(--text) }
+:is(html, .lp)[data-look="swiss"] .progress i, :is(html, .lp)[data-look="swiss"] .goal-bar i { border-radius: 0; background: var(--accent) }
+:is(html, .lp)[data-look="swiss"] .segmented { border: 2px solid var(--text); border-radius: 0; background: transparent }
+:is(html, .lp)[data-look="swiss"] .segmented [aria-pressed="true"], :is(html, .lp)[data-look="swiss"] .segmented [aria-selected="true"] { background: var(--text); color: var(--bg); box-shadow: none; border-radius: 0 }
+:is(html, .lp)[data-look="swiss"] .eyebrow, :is(html, .lp)[data-look="swiss"] .group-title, :is(html, .lp)[data-look="swiss"] .card-title { font-weight: 800; text-transform: uppercase; letter-spacing: .06em; font-size: 11px; color: var(--text) }
+:is(html, .lp)[data-look="swiss"] .ring .bar { stroke-linecap: butt; stroke: var(--accent) }
+
+/* ═══════════════════════════ INK ═══════════════════════════ */
+:is(html, .lp)[data-look="ink"] .card { background: transparent; border-color: color-mix(in srgb, var(--accent) 30%, var(--border)); box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none }
+:is(html, .lp)[data-look="ink"] .clock { font-family: var(--font-display); font-weight: 400; letter-spacing: -.02em; font-variant-numeric: lining-nums tabular-nums }
+:is(html, .lp)[data-look="ink"] h1, :is(html, .lp)[data-look="ink"] h2, :is(html, .lp)[data-look="ink"] .hero h1, :is(html, .lp)[data-look="ink"] .kpi .value, :is(html, .lp)[data-look="ink"] .today-total { font-family: var(--font-display); font-weight: 400; letter-spacing: -.01em }
+:is(html, .lp)[data-look="ink"] .hero p, :is(html, .lp)[data-look="ink"] #date { font-family: var(--font-display); font-style: italic; color: var(--text-3) }
+:is(html, .lp)[data-look="ink"] .btn { background: transparent; border-color: color-mix(in srgb, var(--accent) 50%, transparent); box-shadow: none; text-transform: uppercase; letter-spacing: .16em; font-size: 11px; font-weight: 500; border-radius: var(--r-sm) }
+:is(html, .lp)[data-look="ink"] .btn:hover { background: var(--accent); color: var(--accent-fg) }
+:is(html, .lp)[data-look="ink"] .btn-primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent) }
+:is(html, .lp)[data-look="ink"] .btn-ghost { border-color: transparent; text-transform: none; letter-spacing: 0; font-size: var(--fs-md); font-weight: 500 }
+:is(html, .lp)[data-look="ink"] .input, :is(html, .lp)[data-look="ink"] .select, :is(html, .lp)[data-look="ink"] .textarea { background: transparent; border-width: 0 0 1px 0; border-radius: 0; border-color: var(--border-strong) }
+:is(html, .lp)[data-look="ink"] .chip, :is(html, .lp)[data-look="ink"] .mode-chip { background: transparent; border-color: var(--border-strong); letter-spacing: .06em }
+:is(html, .lp)[data-look="ink"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="ink"] .mode-chip[aria-pressed="true"] { border-color: var(--accent); color: var(--accent-text); background: transparent; box-shadow: none }
+:is(html, .lp)[data-look="ink"] .progress, :is(html, .lp)[data-look="ink"] .goal-bar { height: 1px; background: var(--border-strong) }
+:is(html, .lp)[data-look="ink"] .progress i, :is(html, .lp)[data-look="ink"] .goal-bar i { background: var(--accent); height: 3px; margin-top: -1px }
+:is(html, .lp)[data-look="ink"] .eyebrow, :is(html, .lp)[data-look="ink"] .group-title, :is(html, .lp)[data-look="ink"] .card-title { letter-spacing: .26em; text-transform: uppercase; font-size: 10px; font-weight: 500; color: var(--accent-text) }
+:is(html, .lp)[data-look="ink"] .ring .bar { stroke-width: 1.5px; stroke: var(--accent) }
+
+/* ═══════════════════════════ CANDY ═══════════════════════════ */
+:is(html, .lp)[data-look="candy"] .card { border: 2px solid var(--border); box-shadow: 0 8px 0 -2px color-mix(in srgb, var(--accent) 22%, transparent), var(--card-shadow) }
+:is(html, .lp)[data-look="candy"] .clock { font-family: var(--font-display); font-weight: 600; letter-spacing: -.04em; text-shadow: 3px 3px 0 color-mix(in srgb, var(--accent) 35%, transparent) }
+:is(html, .lp)[data-look="candy"] h1, :is(html, .lp)[data-look="candy"] h2, :is(html, .lp)[data-look="candy"] .hero h1, :is(html, .lp)[data-look="candy"] .kpi .value, :is(html, .lp)[data-look="candy"] .today-total { font-family: var(--font-display); font-weight: 700; letter-spacing: -.02em; font-size: .92em }
+:is(html, .lp)[data-look="candy"] .btn { border-radius: var(--r-full); font-weight: 800; border-width: 2px; box-shadow: 0 4px 0 -1px var(--border-strong); transition: transform .12s, box-shadow .12s }
+:is(html, .lp)[data-look="candy"] .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 -1px var(--border-strong) }
+:is(html, .lp)[data-look="candy"] .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 -1px var(--border-strong) }
+:is(html, .lp)[data-look="candy"] .btn-primary { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 75%, #fff), var(--accent)); color: var(--accent-fg); box-shadow: 0 4px 0 -1px color-mix(in srgb, var(--accent) 65%, #000) }
+:is(html, .lp)[data-look="candy"] .btn-ghost { box-shadow: none; border-color: transparent }
+:is(html, .lp)[data-look="candy"] .input, :is(html, .lp)[data-look="candy"] .select, :is(html, .lp)[data-look="candy"] .textarea { border-width: 2px; border-radius: var(--r-md); background: var(--surface) }
+:is(html, .lp)[data-look="candy"] .chip, :is(html, .lp)[data-look="candy"] .mode-chip { border-width: 2px; border-radius: var(--r-full); font-weight: 700 }
+:is(html, .lp)[data-look="candy"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="candy"] .mode-chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent) }
+:is(html, .lp)[data-look="candy"] .badge, :is(html, .lp)[data-look="candy"] .badge-accent { border-radius: var(--r-full); font-weight: 800 }
+:is(html, .lp)[data-look="candy"] .progress, :is(html, .lp)[data-look="candy"] .goal-bar { height: 14px; border-radius: 99px; border: 2px solid var(--border) }
+:is(html, .lp)[data-look="candy"] .progress i, :is(html, .lp)[data-look="candy"] .goal-bar i { border-radius: 99px; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.3) 0 6px, transparent 6px 12px) }
+:is(html, .lp)[data-look="candy"] .ring .bar { stroke-linecap: round; stroke-width: 7px }
+
+/* ═══════════════════════════ ABYSS ═══════════════════════════ */
+:is(html, .lp)[data-look="abyss"] .card { border-color: color-mix(in srgb, var(--accent) 24%, transparent); background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, transparent), transparent 50%); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 10%, transparent), 0 12px 36px -12px color-mix(in srgb, var(--accent) 35%, transparent), inset 0 1px 0 rgba(255,255,255,.06) }
+:is(html, .lp)[data-look="abyss"] .clock { font-weight: 200; letter-spacing: -.05em; text-shadow: 0 0 50px color-mix(in srgb, var(--accent) 50%, transparent) }
+:is(html, .lp)[data-look="abyss"] .btn-primary { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 85%, #fff), var(--accent)); box-shadow: 0 0 24px -6px var(--accent) }
+:is(html, .lp)[data-look="abyss"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="abyss"] .mode-chip[aria-pressed="true"] { box-shadow: 0 0 16px -4px var(--accent); border-color: var(--accent) }
+:is(html, .lp)[data-look="abyss"] .progress i, :is(html, .lp)[data-look="abyss"] .goal-bar i { box-shadow: 0 0 14px var(--accent) }
+:is(html, .lp)[data-look="abyss"] .ring .bar { filter: drop-shadow(0 0 8px var(--accent)) }
+:is(html, .lp)[data-look="abyss"] .eyebrow, :is(html, .lp)[data-look="abyss"] .group-title, :is(html, .lp)[data-look="abyss"] .card-title { letter-spacing: .16em; text-transform: uppercase; font-size: 10.5px; color: var(--accent-text) }
+:is(html, .lp)[data-look="abyss"] .input, :is(html, .lp)[data-look="abyss"] .select, :is(html, .lp)[data-look="abyss"] .textarea { background: color-mix(in srgb, var(--accent) 5%, transparent); border-color: color-mix(in srgb, var(--accent) 25%, transparent) }
