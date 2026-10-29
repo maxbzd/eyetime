@@ -22,7 +22,7 @@ export function buildGallery({ onAdd, onClose }) {
   const chips = h('div', { class: 'wg-cats', role: 'group', 'aria-label': t('wg.title') });
   function fill() {
     previews.forEach((p) => p.destroy()); previews = [];
-    const kinds = WIDGET_KIND_IDS.filter((k) => cat === 'all' || WIDGET_KINDS[k].cat === cat);
+    const kinds = WIDGET_KIND_IDS.filter((k) => !WIDGET_KINDS[k].hidden && (cat === 'all' || WIDGET_KINDS[k].cat === cat));
     grid.replaceChildren(...kinds.map((kind) => {
       const p = previewWidget(kind); previews.push(p);
       return h('button', { class: 'wg-tile', type: 'button', onclick: () => onAdd(kind) },

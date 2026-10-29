@@ -10,6 +10,7 @@ import { normalizeWidgets } from './widgets.js';
 import { normalizeType } from './typeface.js';
 import { normalizeDepth } from './depth.js';
 import { normalizeSkin } from './skins.js';
+import { sanitizeScene, sanitizeParamValues } from './scene/schema.js';
 import { normalizeHex } from './color.js';
 import { PHOTO_TEXT } from './phototone.js';
 
@@ -31,6 +32,8 @@ export function sanitizeHome(h) {
   if ('widgets' in o) out.widgets = normalizeWidgets(o.widgets);
   if ('type' in o) out.type = normalizeType(o.type);
   if ('depth' in o) out.depth = normalizeDepth(o.depth);
+  if ('scene' in o) { const sc = o.scene ? sanitizeScene(o.scene).scene : null; out.scene = sc && sc.layers.length ? sc : null; }
+  if ('sceneParams' in o) out.sceneParams = sanitizeParamValues(o.sceneParams);
   if ('dna' in o) out.dna = normalizeSkin(o.dna) || { s: 'look' };
   if (typeof o.background === 'string' && /^[a-z]{3,12}$/.test(o.background)) out.background = o.background;
   if (PHOTO_TEXT.includes(o.photoText)) out.photoText = o.photoText;
