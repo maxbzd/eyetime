@@ -28,8 +28,8 @@ const pebble = customWidget({ name: 'Goal pebble', size: [300, 300], root: [
     group([{ t: 'path', d: wavePath, fill: "=alpha('#ffffff', 0.35)" }], { x: '=-180 + mod(t * 22, 180) - 40', y: '=300 - goal * 270 - 6' }),
   ], { x: 0, y: 0, w: 300, h: 300, clip: 'ellipse' }),
   { t: 'ellipse', x: 2, y: 2, w: 296, h: 296, stroke: 'rgba(255,255,255,0.75)', sw: 3 },
-  text(150, 160, 64, '{fmt(goal * 100, 0)}', { align: 'middle', weight: 600, fill: '#ffffff', shadow: { x: 0, y: 4, blur: 14, color: 'rgba(20,30,100,0.45)' } }),
-  text(150, 194, 18, 'of today\'s goal', { align: 'middle', fill: 'rgba(255,255,255,0.9)', weight: 500 }),
+  text(150, 160, 64, '{fmt(goal * 100, 0)}', { align: 'middle', weight: 600, fill: "=mixc('#121530', '#ffffff', dark)", shadow: { x: 0, y: 4, blur: 14, color: 'rgba(20,30,100,0.25)' } }),
+  text(150, 194, 18, 'of today\'s goal', { align: 'middle', fill: "=mixc('#2a2f5a', '#ffffff', dark)", weight: 500 }),
 ] });
 
 // Three capsules: focus, tasks, streak.
