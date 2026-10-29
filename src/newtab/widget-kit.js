@@ -11,6 +11,13 @@ export function el(tag, cls, ...kids) {
   return h(tag, props, ...rest);
 }
 export { h, clear, fmtNumber };
+/** `clear(root, …kids)` that gives the keyboard focus back to the same control (matched by tag and label) when the widget redraws itself under it. */
+export function clearKeep(root, ...kids) {
+  const a = document.activeElement, key = a && root.contains(a) && a !== root ? [a.tagName, a.getAttribute('aria-label') || a.className] : null;
+  clear(root, ...kids);
+  if (!key) return;
+  for (const c of root.querySelectorAll(key[0])) if ((c.getAttribute('aria-label') || c.className) === key[1]) { c.focus({ preventScroll: true }); break; }
+}
 export const SVG_NS = 'http://www.w3.org/2000/svg';
 export const deg = (n) => fmtNumber(n) + '°';
 
