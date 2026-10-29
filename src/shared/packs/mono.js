@@ -20,7 +20,7 @@ const base = (id, scene, o) => ({
   id, appearance: {}, // the app's own look and scheme stay as the person chose them
   home: {
     background: 'scene', scene, clock24: true, clockStyle: 'thin', layout: 'center', greeting: false, dna: { s: 'bare' }, modules: { ...MODULES_OFF },
-    type: { clock: { font: o.font || 'antonio', weight: o.weight ?? 300, tracking: o.tracking ?? 0.02, fill: 'solid', color: o.color || null, glow: 0, shadow: o.shadow ?? 0, opacity: o.opacity ?? 1 }, text: { font: 'inter', weight: 500, tracking: 0.12, upper: true } },
+    type: { clock: { font: o.font || 'inter', weight: o.weight ?? 700, tracking: o.tracking ?? -0.02, fill: o.fill || 'solid', color: o.color || null, glow: 0, shadow: o.shadow ?? 0, opacity: o.opacity ?? 1 }, text: { font: 'inter', weight: 500, tracking: 0.12, upper: true } },
     widgets: o.widgets, canvas: { on: true, items: o.items },
   },
 });
@@ -32,15 +32,15 @@ const paperScene = {
   layers: [
     full(grad(180, [0, "=mixc('#ffffff', '#101010', dark)"], [1, "=mixc('#ececec', '#050505', dark)"])),
     // the shelf: a dark soft wedge hanging under the clock, the way a ledge throws a shadow
-    { t: 'path', x: '=W * 0.5', y: '=H * 0.5', d: 'M-290 0L290 0L420 330L-420 330Z', fill: grad(180, [0, "=alpha(mixc('#000000', '#ffffff', dark), mix(0.36, 0.14, dark))"], [1, "=alpha(mixc('#000000', '#ffffff', dark), 0)"]), blur: 6 },
-    { t: 'rect', x: '=W * 0.5 - 290', y: '=H * 0.5 - 2', w: 580, h: 3, fill: "=alpha(mixc('#000000', '#ffffff', dark), 0.18)", blur: 1 },
+    { t: 'path', x: '=W * 0.5', y: '=H * 0.46', d: 'M-290 0L290 0L420 330L-420 330Z', fill: grad(180, [0, "=alpha(mixc('#000000', '#ffffff', dark), mix(0.36, 0.14, dark))"], [1, "=alpha(mixc('#000000', '#ffffff', dark), 0)"]), blur: 6 },
+    { t: 'rect', x: '=W * 0.5 - 290', y: '=H * 0.46 - 2', w: 580, h: 3, fill: "=alpha(mixc('#000000', '#ffffff', dark), 0.18)", blur: 1 },
     { t: 'noise', x: 0, y: 0, w: '=W', h: '=H', op: 0.035, freq: 1.1, blend: 'multiply' },
   ],
 };
 const paperWord = focusLabel(46, 'token:text', 16), paperWave = wave(9, 46, 3, 'token:text', 1);
 const paper = base('paper', paperScene, {
-  weight: 480, tracking: 0.0, widgets: [paperWord, paperWave],
-  items: { clock: { x: 50, y: 28, s: 3.6, sx: 2.3 }, greeting: { x: 50, y: 7, s: 1 }, [paperWord.id]: { x: 50, y: 67, w: 400 }, [paperWave.id]: { x: 50, y: 89, w: 90 } },
+  widgets: [paperWord, paperWave],
+  items: { clock: { x: 50, y: 28, s: 3.4, sx: 2.6 }, greeting: { x: 50, y: 7, s: 1 }, [paperWord.id]: { x: 50, y: 67, w: 400 }, [paperWave.id]: { x: 50, y: 89, w: 90 } },
 });
 
 /* ---------- Carbon: a woven black surface with soft light and a thin clock ---------- */
@@ -65,8 +65,8 @@ const carbonMark = customWidget({ name: 'Mark', size: [200, 90], root: [
 ] });
 const carbonWave = wave(7, 40, 3, '#ffffff', 3);
 const carbon = base('carbon', carbonScene, {
-  font: 'inter', weight: 100, tracking: 0.0, color: '#ffffff', widgets: [carbonMark, carbonWave],
-  items: { clock: { x: 50, y: 24, s: 2.8, sx: 2.3 }, greeting: { x: 50, y: 10, s: 1 }, [carbonWave.id]: { x: 50, y: 55, w: 70 }, [carbonMark.id]: { x: 50, y: 75, w: 200 } },
+  fill: 'glass', color: '#ffffff', widgets: [carbonMark, carbonWave],
+  items: { clock: { x: 50, y: 26, s: 3.2, sx: 2.6 }, greeting: { x: 50, y: 8, s: 1 }, [carbonWave.id]: { x: 50, y: 58, w: 70 }, [carbonMark.id]: { x: 50, y: 75, w: 200 } },
 });
 
 /* ---------- Torn: black paper above, white below, a ragged edge with a shadow ---------- */
@@ -90,8 +90,8 @@ const tornSig = customWidget({ name: 'Signature', size: [300, 100], root: [text(
 const tornWave = wave(26, 36, 3, '#f5f5f5', 5);
 const tornFocus = focusLabel(26, '#f5f5f5', 10);
 const torn = base('torn', tornScene, {
-  weight: 300, color: '#ffffff', widgets: [tornSig, tornWave, tornFocus],
-  items: { clock: { x: 27, y: 22, s: 2.3, sx: 1.8 }, greeting: { x: 27, y: 9, s: 1 }, [tornWave.id]: { x: 22, y: 48, w: 260 }, [tornFocus.id]: { x: 26, y: 60, w: 400 }, [tornSig.id]: { x: 74, y: 84, w: 300 } },
+  color: '#ffffff', widgets: [tornSig, tornWave, tornFocus],
+  items: { clock: { x: 27, y: 22, s: 2.6, sx: 2.1 }, greeting: { x: 27, y: 9, s: 1 }, [tornWave.id]: { x: 22, y: 48, w: 260 }, [tornFocus.id]: { x: 26, y: 60, w: 400 }, [tornSig.id]: { x: 74, y: 84, w: 300 } },
 });
 
 export const MONO_PACKS = [paper, carbon, torn];
