@@ -4,7 +4,12 @@ import { h, clear } from '../ui/dom.js';
 import { onChange } from '../shared/storage.js';
 import { fmtNumber } from '../shared/i18n.js';
 
-export const el = (tag, cls, ...kids) => h(tag, { class: cls }, ...kids);
+/** An element with a class and children; a plain object among the children is taken as more attributes (style, title …). */
+export function el(tag, cls, ...kids) {
+  const props = { class: cls }, rest = [];
+  for (const k of kids) { if (k && typeof k === 'object' && !k.nodeType && !Array.isArray(k)) Object.assign(props, k); else rest.push(k); }
+  return h(tag, props, ...rest);
+}
 export { h, clear, fmtNumber };
 export const SVG_NS = 'http://www.w3.org/2000/svg';
 export const deg = (n) => fmtNumber(n) + '°';
