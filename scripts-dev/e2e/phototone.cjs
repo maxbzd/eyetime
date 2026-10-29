@@ -35,6 +35,7 @@ const { launch } = require('./lib.cjs');
   // the controls: the drawer lists Auto / White / Black for a photo and saves the choice
   await photo('bright'); await p.reload(); await p.waitForTimeout(1200);
   await p.click('#customize'); await p.waitForTimeout(300);
+  await p.locator('.hr-head', { hasText: 'Background' }).click(); await p.waitForTimeout(400); 
   ok(await p.locator('#drawerBody .segmented[aria-label="Text colour on the photo"] button').count() === 3, 'the drawer offers Auto / White / Black for a photo');
   await p.locator('#drawerBody .segmented[aria-label="Text colour on the photo"] button', { hasText: 'Black' }).click(); await p.waitForTimeout(700);
   ok(await sp.evaluate(async () => (await (await import('/src/shared/storage.js')).getSettings()).newtab.photoText) === 'dark', 'the choice is saved');
