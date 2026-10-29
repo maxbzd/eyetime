@@ -1,0 +1,50 @@
+/* The additional widgets. Everything sizes itself from the card's own width (cqi), so S, M and L are the same widget at three widths. */
+.wgt .chip { display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-2); font-size: var(--fs-xs); cursor: pointer; }
+.wgt .chip.on, .wgt .chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-text); }
+.wgt .track { fill: none; stroke: var(--surface-3); stroke-width: 5px; } .wgt .bar { fill: none; stroke: var(--accent); stroke-width: 5px; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dasharray .4s var(--ease); }
+
+/* clock */
+.wgt-clock { align-items: center; justify-content: center; text-align: center; }
+.cl-svg { width: min(100%, 78vh); height: auto; display: block; overflow: visible; }
+.cl-rim { fill: color-mix(in srgb, var(--surface-2) 60%, transparent); stroke: var(--border-strong); stroke-width: .8; }
+.cl-tick { stroke: var(--text-3); stroke-width: .9; stroke-linecap: round; } .cl-tick.big { stroke: var(--text); stroke-width: 1.8; }
+.cl-dot { fill: var(--text-3); } .cl-dot.big { fill: var(--text); } .cl-num { fill: var(--text); font: 700 11px var(--font); }
+.cl-hand { stroke: var(--text); stroke-linecap: round; } .cl-s { stroke: var(--accent); } .cl-pin { fill: var(--accent); }
+.cd-time { font-size: clamp(34px, 24cqi, 150px); font-weight: 300; letter-spacing: -.05em; line-height: 1; }
+.cf-row { display: flex; align-items: center; justify-content: center; gap: clamp(3px, 1.6cqi, 10px); font-size: clamp(30px, 21cqi, 120px); font-weight: 650; line-height: 1; }
+.cf-tile { position: relative; display: grid; place-items: center; min-width: .78em; padding: .16em .08em; border-radius: .14em; background: var(--surface-2); border: 1px solid var(--border); box-shadow: 0 .04em 0 color-mix(in srgb, var(--text) 8%, transparent), inset 0 -.06em .1em color-mix(in srgb, var(--text) 6%, transparent); }
+.cf-tile b { font-variant-numeric: tabular-nums; letter-spacing: -.02em; } .cf-tile i { position: absolute; left: 0; right: 0; top: 50%; height: max(1px, .02em); background: color-mix(in srgb, var(--text) 24%, transparent); }
+.cf-sep { opacity: .5; padding-bottom: .1em; } .cf-sec { font-size: clamp(13px, 5cqi, 24px); color: var(--text-3); }
+.cl-zone { font-size: var(--fs-xs); letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+
+/* date */
+.wgt[data-style="leaf"], .wgt[data-style="plain"], .wgt[data-style="bar"] { align-items: center; text-align: center; }
+.dt-top { font-size: clamp(11px, 6cqi, 18px); font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-text); }
+.dt-day { font-size: clamp(48px, 46cqi, 190px); font-weight: 760; letter-spacing: -.06em; line-height: .95; }
+.dt-wk { font-size: clamp(13px, 7.5cqi, 26px); color: var(--text-2); text-transform: capitalize; }
+.dt-line { font-size: clamp(22px, 11cqi, 52px); font-weight: 500; letter-spacing: -.03em; }
+.dt-bar { display: flex; align-items: center; gap: var(--s-3); text-align: left; } .dt-bar .dt-day { font-size: clamp(40px, 26cqi, 96px); color: var(--accent-text); }
+.dt-col { display: flex; flex-direction: column; gap: 2px; min-width: 0; color: var(--text-2); font-size: clamp(12px, 5.2cqi, 18px); } .dt-col b { color: var(--text); font-size: 1.35em; text-transform: capitalize; font-weight: 600; }
+
+/* moon, sun */
+.wgt-moon { align-items: center; text-align: center; }
+.mo-svg { width: min(78cqi, 220px); height: auto; filter: drop-shadow(0 0 14px rgba(255, 244, 200, .22)); }
+.mo-dark { fill: color-mix(in srgb, var(--text) 10%, transparent); } .mo-rim { fill: none; stroke: color-mix(in srgb, var(--text) 22%, transparent); stroke-width: .8; }
+.mo-name { font-size: clamp(15px, 8cqi, 26px); font-weight: 600; letter-spacing: -.02em; }
+.wgt-sun .su-svg { width: 100%; height: auto; overflow: visible; }
+.su-track { fill: none; stroke: var(--surface-3); stroke-width: 1.6; stroke-dasharray: 1.2 3; stroke-linecap: round; } .su-horizon { stroke: var(--border-strong); stroke-width: .6; }
+.su-done { fill: none; stroke: color-mix(in srgb, #ffb84d 80%, var(--accent)); stroke-width: 1.8; stroke-linecap: round; }
+.su-sun { fill: #ffb84d; filter: drop-shadow(0 0 5px rgba(255, 184, 77, .9)); } .su-sun.night { fill: var(--text-3); filter: none; }
+.su-times { display: flex; justify-content: space-between; font-size: clamp(14px, 7cqi, 22px); } .su-times span { display: inline-flex; align-items: center; gap: 6px; color: var(--text-2); } .su-times b { color: var(--text); font-weight: 600; }
+
+/* year */
+.yr-dots { display: grid; grid-template-columns: repeat(auto-fill, minmax(clamp(5px, 2.6cqi, 11px), 1fr)); gap: clamp(2px, .9cqi, 4px); }
+.yr-dots i, .yr-weeks i { aspect-ratio: 1; border-radius: 50%; background: var(--surface-3); display: block; } .yr-dots i.on { background: var(--text-3); } .yr-dots i.now { background: var(--accent); box-shadow: 0 0 0 2px var(--accent-ring), 0 0 10px var(--accent); }
+.yr-weeks { display: grid; grid-template-columns: repeat(26, 1fr); gap: clamp(2px, 1cqi, 5px); } .yr-weeks i { aspect-ratio: 1 / 1.9; border-radius: 3px; } .yr-weeks i.on { background: var(--text-3); } .yr-weeks i.now { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.yr-foot { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2); flex-wrap: wrap; } .yr-foot b { font-size: clamp(15px, 7cqi, 26px); font-weight: 600; letter-spacing: -.02em; }
+.yr-ringwrap { position: relative; width: min(100%, 220px); aspect-ratio: 1; align-self: center; } .yr-ring { width: 100%; height: 100%; } .yr-pct { position: absolute; inset: 0; display: grid; place-content: center; font-size: clamp(22px, 15cqi, 52px); font-weight: 300; letter-spacing: -.04em; }
+
+/* timer */
+.tm-ringwrap { position: relative; width: min(100%, 210px); aspect-ratio: 1; align-self: center; } .tm-ring { width: 100%; height: 100%; } .tm-time { position: absolute; inset: 0; display: grid; place-content: center; font-size: clamp(24px, 17cqi, 56px); font-weight: 300; letter-spacing: -.04em; }
+.tm-presets, .tm-btns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+@container (max-width: 190px) { .yr-foot .wg-sub { display: none; } .wgt .wg-label { font-size: 10px; } .tm-presets { display: none; } .su-times { font-size: 13px; } }
