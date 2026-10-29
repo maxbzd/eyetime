@@ -5,6 +5,7 @@ import { h, icon } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
 import { updateSettings } from '../shared/storage.js';
 import { home, effectiveNow } from './home-config.js';
+import { skinControls } from './skin-panel.js';
 import { backgroundControls, depthControls, lookControls, accentControls, clockFormatControls } from './home-controls.js';
 
 /**
@@ -25,7 +26,7 @@ export async function buildScenePanel(kind, { onClose }) {
         h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.close'), onclick: onClose }, icon('x'))),
       ...(kind === 'scene'
         ? [...backgroundControls(n, set), section(t('dp.title'), ...depthControls(n, set))]
-        : [section(t('ap.looks'), ...lookControls(s, set)), section(t('home.accent'), ...accentControls(s, set)), section(t('home.clock'), ...clockFormatControls(n, set))]),
+        : [section(t('ap.looks'), ...lookControls(s, set)), section(t('sk.cards'), skinControls({ skin: n.dna, onChange: (v) => set((x) => { x.newtab.dna = v || { s: 'look' }; }) })), section(t('home.accent'), ...accentControls(s, set)), section(t('home.clock'), ...clockFormatControls(n, set))]),
     ].filter(Boolean));
     root.scrollTop = top;
   }

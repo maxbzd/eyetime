@@ -7,6 +7,8 @@ import { updateSettings } from '../shared/storage.js';
 import { WIDGET_KIND_IDS, WIDGET_KINDS, WORLD_ZONES, BIG_METRICS, PERIODS, STACK_WHEN, STACKABLE, MAX_STACK, normalizeCfg, zoneCity } from '../shared/widgets.js';
 import { widgetName, previewWidget } from './widgets.js';
 import { home, effectiveNow } from './home-config.js';
+import { skinControls } from './skin-panel.js';
+import { normalizeSkin } from '../shared/skins.js';
 
 const head = (title, onClose) => h('div', { class: 'ty-head' }, h('h3', { text: title }),
   onClose ? h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.close'), onclick: onClose }, icon('x')) : null);
@@ -27,7 +29,9 @@ export function buildGallery({ onAdd, onClose }) {
 /** The settings of one widget (for kinds that have any), plus a delete button. */
 export async function buildWidgetPanel(id, kind, { onClose, onDelete }) {
   const w0 = (await effectiveNow()).newtab.widgets.find((x) => x.id === id);
-  let cfg = normalizeCfg(kind, w0 && w0.cfg);
+  let cfg = normalizeCfg(kind, w0 && w0.cfg), skin = normalizeSkin(w0 && w0.skin);
+  const saveSkin = (v) => { skin = normalizeSkin(v); return updateSkin(); };
+  const updateSkin = () => updateSettings((s) => { const w = home(s).widgets.find((x) => x.id === id); if (w) { if (skin) w.skin = skin; else delete w.skin; } }).then(draw);
   const save = (patch) => { cfg = normalizeCfg(kind, { ...cfg, ...patch }); return updateSettings((s) => { const w = home(s).widgets.find((x) => x.id === id); if (w) w.cfg = cfg; }); };
   const root = h('section', { class: 'cv-panel', 'aria-label': widgetName(kind) });
   const row = (label, control) => h('label', { class: 'wg-field' }, h('span', { class: 'ty-lbl', text: label }), control);
@@ -65,6 +69,7 @@ export async function buildWidgetPanel(id, kind, { onClose, onDelete }) {
         : h('p', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, text: t('wg.stack.full') }));
     } else fields.push(h('p', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, text: t('wg.noConfig') }));
     root.replaceChildren(head(widgetName(kind), onClose), ...fields,
+      h('div', { class: 'stack gap-2' }, h('div', { class: 'eyebrow', text: t('sk.title') }), skinControls({ skin, inherit: true, onChange: saveSkin })),
       h('button', { class: 'btn btn-sm wg-del', type: 'button', onclick: onDelete }, icon('trash-2'), t('wg.delete')));
   }
   draw();
