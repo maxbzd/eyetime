@@ -84,10 +84,10 @@ export function clockDecls(s) {
     // the picture's size and place are set by the page (--clk-bgs / --clk-bgp)
     const tint = s.color || 'var(--glass-tint, #fff)';
     Object.assign(d, {
-      'background-image': `linear-gradient(180deg, color-mix(in srgb, ${tint} 52%, transparent), color-mix(in srgb, ${tint} 16%, transparent) 62%, color-mix(in srgb, ${tint} 34%, transparent)), var(--photo-soft, none)`,
+      'background-image': `linear-gradient(180deg, color-mix(in srgb, ${tint} 60%, transparent), color-mix(in srgb, ${tint} 18%, transparent) 56%, color-mix(in srgb, ${tint} 40%, transparent)), var(--photo-soft, none)`,
       'background-size': 'auto, var(--clk-bgs, cover)', 'background-position': '0 0, var(--clk-bgp, center)', 'background-repeat': 'no-repeat',
       '-webkit-background-clip': 'text', 'background-clip': 'text', '-webkit-text-fill-color': 'transparent', color: 'transparent',
-      '-webkit-text-stroke': '0',
+      '-webkit-text-stroke': '0', 'text-shadow': 'none', // the page's own text shadow would show through the clear glass as a fog
     });
   } else if (s.fill === 'photo') {
     // the digits are windows into the photo itself
@@ -104,7 +104,7 @@ export function clockDecls(s) {
   }
   const glowColor = s.fill === 'gradient' ? (s.color || GRAD_A) : base || 'currentColor';
   const parts = [];
-  if (s.fill === 'glass') parts.push(`drop-shadow(0 0 1px color-mix(in srgb, ${s.color || 'var(--glass-tint, #fff)'} 80%, transparent))`, 'drop-shadow(0 14px 34px rgba(0, 0, 0, 0.28))'); // a fine bright rim (a stroke would show the overlapping contours of some fonts)
+  if (s.fill === 'glass') parts.push(`drop-shadow(0 -1px 0 color-mix(in srgb, ${s.color || 'var(--glass-tint, #fff)'} 55%, transparent))`, `drop-shadow(0 0 0.5px color-mix(in srgb, ${s.color || 'var(--glass-tint, #fff)'} 100%, transparent))`, `drop-shadow(0 0 14px color-mix(in srgb, ${s.color || 'var(--glass-tint, #fff)'} 22%, transparent))`, 'drop-shadow(0 16px 30px rgba(0, 0, 0, 0.26))'); // a fine bright rim (a stroke would show the overlapping contours of some fonts)
   if (s.fill === 'photo') parts.push('drop-shadow(0 10px 28px rgba(0, 0, 0, 0.3))');
   if (s.glow > 0) parts.push(`drop-shadow(0 0 ${Math.round(8 + s.glow * 48)}px color-mix(in srgb, ${glowColor} ${Math.round(40 + s.glow * 40)}%, transparent))`);
   if (s.shadow > 0) parts.push(`drop-shadow(0 ${Math.round(2 + s.shadow * 18)}px ${Math.round(6 + s.shadow * 34)}px rgba(0, 0, 0, ${r3(0.15 + s.shadow * 0.4)}))`);

@@ -24,7 +24,7 @@ function frame(id, frameId, o) {
     home: {
       background: 'photo', frame: frameId, clock24: true, photoText: 'auto', clockStyle: 'thin', layout: 'center', greeting: false, dna: { s: 'bare' }, modules: { ...MODULES_OFF },
       depth: { on: true, parallax: true, strength: 55 },
-      type: { clock: { font: o.font || 'antonio', weight: o.weight ?? 140, tracking: o.tracking ?? 0.02, fill: o.fill || 'solid', color: o.color || '#ffffff', glow: 0, shadow: o.shadow ?? 0, opacity: o.opacity ?? 0.8 }, text: { font: 'inter', weight: 500, tracking: 0.12, upper: true } },
+      type: { clock: { font: o.font || 'inter', weight: o.weight ?? 700, tracking: o.tracking ?? 0.02, fill: o.fill || 'glass', ...(o.color ? { color: o.color } : {}), glow: 0, shadow: o.shadow ?? 0, opacity: o.opacity ?? 1 }, text: { font: 'inter', weight: 500, tracking: 0.12, upper: true } },
       widgets: [sig, foc],
       canvas: { on: true, items: { clock: o.clock, greeting: o.date, [sig.id]: o.sig, [foc.id]: o.foc } },
     },
@@ -32,13 +32,15 @@ function frame(id, frameId, o) {
 }
 
 
+// Apple-like: big, slightly stretched digits of frosted glass (clear on a dark photo, smoked on a light one) between the photo and its foreground.
+const BIG = { s: 4.2, sx: 3.1 };
 export const FRAME_PACKS = [
-  frame('summit', 'peak', { word: 'stillness', clock: { x: 50, y: 37, s: 4.4, sx: 3.0 }, date: { x: 50, y: 14.5, s: 1 }, sig: { x: 20, y: 88, w: 300 }, foc: { x: 80, y: 90, w: 280 } }),
-  frame('pinefog', 'pines', { word: 'breathe', weight: 160, clock: { x: 50, y: 36, s: 4.6, sx: 3.2 }, date: { x: 50, y: 14.5, s: 1 }, sig: { x: 20, y: 88, w: 300 }, foc: { x: 80, y: 90, w: 280 } }),
-  frame('mirror', 'mirror', { color: '#f2f2f2', opacity: 0.85, weight: 150, word: 'be still', clock: { x: 50, y: 66, s: 4.0, sx: 2.8 }, date: { x: 50, y: 41.5, s: 1 }, sig: { x: 18, y: 91, w: 300 }, foc: { x: 82, y: 92, w: 280 } }),
-  frame('longroad', 'road', { fill: 'outline', weight: 100, color: '#ffffff', opacity: 0.9, word: 'onward', clock: { x: 50, y: 34, s: 4.2, sx: 2.7 }, date: { x: 50, y: 13, s: 1 }, sig: { x: 20, y: 88, w: 300 }, foc: { x: 80, y: 90, w: 280 } }),
-  frame('lonetree', 'solo', { color: '#1c1c1c', opacity: 0.85, weight: 140, word: 'alone, not lonely', wordSize: 60, clock: { x: 50, y: 39, s: 4.8, sx: 2.8 }, date: { x: 50, y: 8, s: 1 }, sig: { x: 18, y: 89, w: 320 }, foc: { x: 82, y: 91, w: 280 } }),
-  frame('blackshore', 'shore', { color: '#0c0c0c', ink: '#f2f2f2', opacity: 0.95, weight: 220, word: 'tide', clock: { x: 36, y: 25, s: 3.2, sx: 2.5 }, date: { x: 36, y: 8.5, s: 1 }, sig: { x: 16, y: 88, w: 300 }, foc: { x: 82, y: 91, w: 280 } }),
-  frame('alpenglow', 'alpen', { weight: 130, opacity: 0.78, word: 'alpenglow', clock: { x: 50, y: 37, s: 4.4, sx: 3.0 }, date: { x: 50, y: 14.5, s: 1 }, sig: { x: 20, y: 88, w: 300 }, foc: { x: 80, y: 90, w: 280 } }),
-  frame('haze', 'haze', { color: '#101010', ink: '#e9e9e9', opacity: 0.82, weight: 120, word: 'quiet', clock: { x: 50, y: 39, s: 4.8, sx: 3.0 }, date: { x: 50, y: 8, s: 1 }, sig: { x: 20, y: 88, w: 300 }, foc: { x: 80, y: 90, w: 280 } }),
+  frame('summit', 'peak', { word: 'stillness', clock: { x: 50, y: 48, ...BIG }, date: { x: 50, y: 19, s: 1 }, sig: { x: 20, y: 88, w: 300 }, foc: { x: 80, y: 90, w: 280 } }),
+  frame('pinefog', 'pines', { word: 'breathe', ink: '#f0f0f0', clock: { x: 50, y: 57, s: 3.6, sx: 2.7 }, date: { x: 50, y: 34, s: 1 }, sig: { x: 18, y: 92, w: 300 }, foc: { x: 80, y: 90, w: 280 } }),
+  frame('mirror', 'mirror', { word: 'be still', clock: { x: 50, y: 60, s: 3.4, sx: 2.6 }, date: { x: 50, y: 37, s: 1 }, sig: { x: 18, y: 91, w: 300 }, foc: { x: 82, y: 92, w: 280 } }),
+  frame('longroad', 'road', { word: 'onward', clock: { x: 50, y: 38, ...BIG }, date: { x: 50, y: 12, s: 1 }, sig: { x: 20, y: 88, w: 300 }, foc: { x: 80, y: 90, w: 280 } }),
+  frame('lonetree', 'solo', { color: '#0e0e0e', word: 'alone, not lonely', wordSize: 60, clock: { x: 50, y: 42, s: 4.4, sx: 3.2 }, date: { x: 50, y: 11, s: 1 }, sig: { x: 18, y: 89, w: 320 }, foc: { x: 82, y: 91, w: 280 } }),
+  frame('blackshore', 'shore', { ink: '#f2f2f2', word: 'tide', clock: { x: 37, y: 26, s: 3.4, sx: 2.6 }, date: { x: 37, y: 8, s: 1 }, sig: { x: 16, y: 88, w: 300 }, foc: { x: 82, y: 91, w: 280 } }),
+  frame('alpenglow', 'alpen', { color: '#0c1226', word: 'alpenglow', clock: { x: 50, y: 46, ...BIG }, date: { x: 50, y: 17, s: 1 }, sig: { x: 20, y: 88, w: 300 }, foc: { x: 80, y: 90, w: 280 } }),
+  frame('haze', 'haze', { ink: '#e9e9e9', word: 'quiet', clock: { x: 50, y: 44, ...BIG }, date: { x: 50, y: 12, s: 1 }, sig: { x: 20, y: 88, w: 300 }, foc: { x: 80, y: 90, w: 280 } }),
 ];
