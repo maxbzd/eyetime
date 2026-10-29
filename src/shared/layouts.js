@@ -1,7 +1,7 @@
 // Layouts of Home (pure): the default arrangement plus named variants that switch on by themselves — while a focus session runs, or at certain hours.
 // A layout only holds the Home settings that differ (HOME_KEYS); everything it leaves out is read from the default.
 
-export const HOME_KEYS = ['canvas', 'widgets', 'type', 'background', 'photoText', 'bgColor', 'depth', 'layout', 'clockStyle', 'greeting', 'modules', 'order'];
+export const HOME_KEYS = ['canvas', 'widgets', 'type', 'dna', 'background', 'photoText', 'bgColor', 'depth', 'layout', 'clockStyle', 'greeting', 'modules', 'order'];
 const HOME_SET = new Set(HOME_KEYS);
 export const MAX_LAYOUTS = 8;
 export const WHEN_KINDS = ['manual', 'focus', 'time'];
