@@ -58,7 +58,7 @@ const { launch } = require('./lib.cjs');
   await patch({ 'quotes.start': false });
 
   // Settings: the group is there and its switches write the settings
-  const set = await open('src/options/options.html#general');
+  const set = await open('src/options/options.html#home');
   ok(await set.locator('.group-title', { hasText: 'Quotes' }).count() === 1, 'Settings has a Quotes group');
   await set.locator('.setting', { hasText: 'On the break screen' }).locator('.switch').click(); await set.waitForTimeout(500);
   ok(await sp.evaluate(async () => (await (await import('/src/shared/storage.js')).getSettings()).quotes.rest) === false, 'a switch in Settings changes the setting');

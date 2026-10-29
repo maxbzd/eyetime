@@ -49,7 +49,7 @@ const { launch } = require('./lib.cjs');
   ok(armed, 'settings with the night clock on are accepted');
 
   // Settings group
-  const set = await app.ctx.newPage(); await set.goto(ext('src/options/options.html#general')); await set.waitForTimeout(1000);
+  const set = await app.ctx.newPage(); await set.goto(ext('src/options/options.html#home')); await set.waitForTimeout(1000);
   ok(await set.locator('.group-title', { hasText: 'Night clock' }).count() === 1, 'Settings has a Night clock group');
   ok(await set.locator('.setting', { hasText: 'Start after' }).count() === 1 && await set.locator('.setting', { hasText: 'Show seconds' }).count() >= 1, 'with it on, its options show');
 
