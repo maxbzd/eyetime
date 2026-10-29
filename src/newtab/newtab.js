@@ -187,7 +187,7 @@ async function applyWeatherFx(photo = wxPhoto) {
 
 /** The skin of every card on Home: the theme's (newtab.dna), or the widget's own. */
 function applySkins() {
-  const dna = normalizeSkin(settings.newtab.dna), own = new Map((settings.newtab.widgets || []).map((w) => [`wgt-${w.id}`, w.skin]));
+  const dna0 = normalizeSkin(settings.newtab.dna), lookSkin = LOOKS[settings.appearance.look]?.skin, dna = dna0 && dna0.s !== 'look' ? dna0 : lookSkin ? { s: lookSkin } : dna0, own = new Map((settings.newtab.widgets || []).map((w) => [`wgt-${w.id}`, w.skin]));
   const env = skinEnv();
   for (const el of document.querySelectorAll('main.nt #focus, main.nt .card.mod, main.nt .wgt:not(.wgt-preview)')) paintSkin(/** @type {HTMLElement} */ (el), own.get(el.id) || dna, env);
 }

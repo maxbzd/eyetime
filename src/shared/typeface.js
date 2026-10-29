@@ -23,6 +23,8 @@ export const TYPEFACES = {
   fraunces:    { label: 'Fraunces',         stack: `"Fraunces", ${SERIF}`,              w: [100, 900], def: 300, cyr: false },
   instrument:  { label: 'Instrument Serif', stack: `"Instrument Serif", ${SERIF}`,      w: [400, 400], def: 400, cyr: false },
   caveat:      { label: 'Caveat',           stack: '"Caveat", "Comic Sans MS", cursive', w: [400, 700], def: 500, cyr: true },
+  literata:    { label: 'Literata',         stack: `"Literata", ${SERIF}`,             w: [200, 900], def: 400, cyr: true },
+  onest:       { label: 'Onest',            stack: `"Onest", "Inter", ${SANS}`,        w: [100, 900], def: 300, cyr: true },
   system:      { label: 'System',           stack: SANS,                                w: [100, 900], def: 300, cyr: true },
 };
 export const TYPEFACE_IDS = Object.keys(TYPEFACES);

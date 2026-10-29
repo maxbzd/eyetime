@@ -363,3 +363,36 @@ body[data-tone="light"] { --glass-tint: #1b1713; } /* on a light photo the glass
 body.bg-gl .bg.bgx-photo { background-image: none; transform: none; }
 .gl3d { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .dl.dl-gl { inset: 0; left: 0; right: 0; bottom: 0; height: auto; will-change: auto; transform: none; }
+
+/* ---------- the new collection: Home scenes ---------- */
+/* Linen: woven paper, a soft patch of sun, a little grain */
+.bgx-linen { background-color: var(--bg);
+  background-image: var(--page-bg), repeating-linear-gradient(0deg, color-mix(in srgb, var(--text) 3.4%, transparent) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, color-mix(in srgb, var(--text) 2.6%, transparent) 0 1px, transparent 1px 4px); }
+.bgx-linen::after { opacity: .5; mix-blend-mode: multiply; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+:root[data-scheme="dark"] .bgx-linen::after { mix-blend-mode: screen; opacity: .22; }
+.bgx-linen::before { background: radial-gradient(ellipse 70% 60% at 50% 40%, transparent 55%, color-mix(in srgb, var(--text) 9%, transparent) 130%); }
+
+/* Phosphor, night: a CRT — scan lines, a phosphor bloom and a slow flicker */
+.bgx-crt { background-color: var(--bg); background-image: radial-gradient(ellipse 80% 70% at 50% 45%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 70%), radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0, 0, 0, .75) 125%); }
+.bgx-crt::before { background: repeating-linear-gradient(180deg, rgba(0, 0, 0, .34) 0 1px, transparent 1px 3px); mix-blend-mode: multiply; }
+.bgx-crt::after { background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--accent) 9%, transparent) 50%, transparent); height: 22%; inset: auto 0 auto 0; top: -22%; animation: crt-roll 9s linear infinite; }
+@keyframes crt-roll { to { top: 122%; } }
+:root[data-motion="reduced"] .bgx-crt::after { animation: none; display: none; }
+@media (prefers-reduced-motion: reduce) { .bgx-crt::after { animation: none; display: none; } }
+/* Phosphor, day: green-bar printer paper with tractor-feed holes */
+.bgx-greenbar { background-color: var(--bg);
+  background-image: repeating-linear-gradient(180deg, transparent 0 30px, color-mix(in srgb, var(--accent) 9%, transparent) 30px 60px),
+    radial-gradient(circle at 14px 50%, color-mix(in srgb, var(--text) 30%, transparent) 4px, transparent 5px), radial-gradient(circle at calc(100% - 14px) 50%, color-mix(in srgb, var(--text) 30%, transparent) 4px, transparent 5px);
+  background-size: auto, 28px 30px, 28px 30px; background-position: 0 0, 0 0, 100% 0; background-repeat: repeat, repeat-y, repeat-y; }
+.bgx-greenbar::before { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 14%, transparent) 0 36px, transparent 36px calc(100% - 36px), color-mix(in srgb, var(--accent) 14%, transparent) calc(100% - 36px)); }
+
+/* Liquid: big soft colour orbs that drift slowly behind the glass */
+.bgx-liquid { background-color: var(--bg); background-image: var(--page-bg); }
+.bgx-liquid::before, .bgx-liquid::after { inset: -20%; filter: blur(46px) saturate(1.25); opacity: .95; }
+.bgx-liquid::before { background: radial-gradient(34% 34% at 22% 30%, var(--lq-a), transparent 70%), radial-gradient(30% 30% at 78% 24%, var(--lq-b), transparent 70%); animation: lq-drift-a 26s ease-in-out infinite alternate; }
+.bgx-liquid::after { background: radial-gradient(32% 32% at 70% 78%, var(--lq-c), transparent 70%), radial-gradient(26% 26% at 18% 80%, var(--lq-d), transparent 70%); animation: lq-drift-b 32s ease-in-out infinite alternate; }
+.bgx-liquid { --lq-a: rgba(255, 140, 170, .75); --lq-b: rgba(120, 170, 255, .8); --lq-c: rgba(150, 235, 210, .7); --lq-d: rgba(255, 205, 130, .65); }
+:root[data-scheme="dark"] .bgx-liquid { --lq-a: rgba(255, 70, 130, .5); --lq-b: rgba(70, 110, 255, .6); --lq-c: rgba(30, 210, 180, .38); --lq-d: rgba(170, 90, 255, .42); }
+@keyframes lq-drift-a { to { transform: translate(7%, 5%) rotate(8deg) scale(1.08); } } @keyframes lq-drift-b { to { transform: translate(-6%, -6%) rotate(-7deg) scale(1.1); } }
+:root[data-motion="reduced"] .bgx-liquid::before, :root[data-motion="reduced"] .bgx-liquid::after { animation: none; }
+@media (prefers-reduced-motion: reduce) { .bgx-liquid::before, .bgx-liquid::after { animation: none; } }
