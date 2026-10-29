@@ -23,8 +23,13 @@ export function foldGroup(title, ...rows) {
   const key = 'et-fold-' + title;
   let open = false;
   try { open = localStorage.getItem(key) === '1'; } catch { /* no storage: folded */ }
-  const d = h('details', { class: 'fold', open }, h('summary', { class: 'group-title fold-head' }, title, icon('chevron-down')), h('div', { class: 'card list' }, rows.flat().filter(Boolean)));
-  d.addEventListener('toggle', () => { try { localStorage.setItem(key, d.open ? '1' : '0'); } catch { /* ignore */ } });
+  const body = h('div', { class: 'card list', hidden: !open });
+  body.append(...rows.flat().filter(Boolean));
+  const head = h('button', { class: 'fold-head', type: 'button', 'aria-expanded': String(open), onclick: () => {
+    open = !open; body.hidden = !open; head.setAttribute('aria-expanded', String(open)); d.classList.toggle('open', open);
+    try { localStorage.setItem(key, open ? '1' : '0'); } catch { /* ignore */ }
+  } }, h('span', { text: title }), icon('chevron-down'));
+  const d = h('div', { class: 'fold' + (open ? ' open' : '') }, h('h3', { class: 'group-title' }, head), body);
   return d;
 }
 
