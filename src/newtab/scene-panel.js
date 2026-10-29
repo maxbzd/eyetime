@@ -6,15 +6,16 @@ import { t } from '../shared/i18n.js';
 import { updateSettings } from '../shared/storage.js';
 import { home, effectiveNow } from './home-config.js';
 import { skinControls } from './skin-panel.js';
+import { starterGallery } from './starter-panel.js';
 import { backgroundControls, depthControls, lookControls, accentControls, clockFormatControls } from './home-controls.js';
 
 /**
- * @param {'scene' | 'look'} kind
+ * @param {'scene' | 'look' | 'themes'} kind
  * @param {{ onClose: () => void }} o
  * @returns {Promise<HTMLElement>}
  */
 export async function buildScenePanel(kind, { onClose }) {
-  const root = h('section', { class: 'cv-panel', 'aria-label': kind === 'scene' ? t('home.background') : t('ap.looks') });
+  const root = h('section', { class: 'cv-panel', 'aria-label': kind === 'scene' ? t('home.background') : kind === 'themes' ? t('st.title') : t('ap.looks') });
   const section = (title, ...kids) => h('div', { class: 'stack gap-2' }, h('div', { class: 'eyebrow', text: title }), ...kids);
 
   /** Draw from fresh settings; a change redraws the panel in place (keeping the scroll position). */
@@ -22,9 +23,10 @@ export async function buildScenePanel(kind, { onClose }) {
     const s = await effectiveNow(), n = s.newtab, top = root.scrollTop;
     const set = async (fn) => { await updateSettings((x) => { fn({ ...x, newtab: home(x) }); }); await draw(); };
     root.replaceChildren(...[
-      h('div', { class: 'ty-head' }, h('h3', { text: kind === 'scene' ? t('home.background') : t('ap.looks') }),
+      h('div', { class: 'ty-head' }, h('h3', { text: kind === 'scene' ? t('home.background') : kind === 'themes' ? t('st.title') : t('ap.looks') }),
         h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.close'), onclick: onClose }, icon('x'))),
-      ...(kind === 'scene'
+      ...(kind === 'themes' ? [starterGallery({ set })]
+        : kind === 'scene'
         ? [...backgroundControls(n, set), section(t('dp.title'), ...depthControls(n, set))]
         : [section(t('ap.looks'), ...lookControls(s, set)), section(t('sk.cards'), skinControls({ skin: n.dna, onChange: (v) => set((x) => { x.newtab.dna = v || { s: 'look' }; }) })), section(t('home.accent'), ...accentControls(s, set)), section(t('home.clock'), ...clockFormatControls(n, set))]),
     ].filter(Boolean));

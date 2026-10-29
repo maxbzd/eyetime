@@ -303,7 +303,7 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
   const bar = h('div', { class: 'cv-bar', role: 'toolbar', 'aria-label': t('cv.edit') },
     h('button', { class: 'btn btn-ghost btn-sm', type: 'button', 'data-tip': t('ly.title'), onclick: openLayouts }, icon('layers'), h('span', { class: 'cv-layername', text: layoutName })), h('span', { class: 'sep' }),
     btnUndo, btnRedo, h('span', { class: 'sep' }), addHolder, tb(icon('shapes'), t('cv.widgets'), openGallery), h('span', { class: 'sep' }),
-    tb(icon('image'), t('home.background'), () => openScene('scene')), tb(icon('palette'), t('ap.looks'), () => openScene('look')),
+    tb(icon('wand-sparkles'), t('st.title'), () => openScene('themes')), tb(icon('image'), t('home.background'), () => openScene('scene')), tb(icon('palette'), t('ap.looks'), () => openScene('look')),
     tb(icon('type'), t('cv.style'), () => { panelOff = false; closePanel(); const sel = selected && (selected === 'clock' || selected === 'greeting') ? selected : 'clock'; select(sel); frames.get(sel)?.focus({ preventScroll: true }); }), h('span', { class: 'sep' }),
     h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('cv.help'), 'data-tip': t('cv.help'), onclick: openHelp }, icon('circle-help')), more,
     h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => stop() }, icon('check'), t('cv.done')));
