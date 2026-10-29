@@ -28,8 +28,8 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   await ob.click('text=Next'); await ob.waitForSelector('.opt');
   await ob.click('#card .segmented button >> nth=2'); // 50m
   await ob.click('text=Next'); await ob.waitForSelector('.ob-looks');   // new step: pick a look (applies instantly)
-  await ob.locator('.ob-looks .look-card', { hasText: 'Midnight' }).click(); await sleep(500);
-  ok((await get('settings')).appearance.look === 'midnight', 'look picked during onboarding is applied and saved');
+  await ob.locator('.ob-looks .look-card', { hasText: 'Nocturne' }).click(); await sleep(500);
+  ok((await get('settings')).appearance.look === 'nocturne', 'look picked during onboarding is applied and saved');
   await ob.click('text=Next'); await ob.waitForSelector('text=You’re all set');
   await ob.click('text=Start my first');
   await sleep(1500);
