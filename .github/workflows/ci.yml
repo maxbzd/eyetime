@@ -56,6 +56,7 @@ jobs:
       - run: node scripts-dev/e2e/weather.cjs
       - run: node scripts-dev/e2e/volume.cjs
       - run: node scripts-dev/e2e/siteai.cjs
+      - run: node scripts-dev/e2e/skins.cjs
       - run: node scripts-dev/e2e/tasksync.cjs
       - run: node scripts-dev/e2e/perf.cjs
       # screenshots of the main screens against scripts-dev/e2e/visual-baseline (proved stable on CI fonts); after an intended UI change run `node scripts-dev/e2e/visual.cjs --update`
