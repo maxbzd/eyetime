@@ -14,7 +14,7 @@ export const BINDINGS = {
   t: 'seconds since the scene started', dt: 'seconds since the last frame', W: 'width of the area in units (always 1000)', H: 'height of the area in the same units', aspect: 'width ÷ height',
   hour: '0–23', minute: '0–59', second: '0–59', dayFrac: 'the day so far, 0 at midnight → 1', weekday: '0 Sunday … 6', daylight: '0 at night → 1 at midday (from your city when set)', night: '1 when it is dark',
   dark: '1 in a dark look, 0 in a light one', mouseX: '0–1 across the window', mouseY: '0–1 down the window', reduced: '1 when reduced motion is on',
-  focus: '1 while a focus session runs', focusFrac: 'how far the session is, 0–1', paused: '1 while paused', goal: 'daily goal, 0–1', goalMin: 'minutes of the goal', focusToday: 'focus minutes today', sessionsToday: 'sessions today',
+  focus: '1 while a focus session runs', focusFrac: 'how far the session is, 0–1', focusLeft: 'seconds left in the session when it was last read (use with focusEnd)', focusEnd: 'when the session ends, in seconds since 1970 (0 while paused)', nowS: 'now, in seconds since 1970', paused: '1 while paused', goal: 'daily goal, 0–1', goalMin: 'minutes of the goal', focusToday: 'focus minutes today', sessionsToday: 'sessions today',
   tasksOpen: 'open tasks', tasksDone: 'tasks done today', streak: 'days in a row', screenToday: 'screen minutes today',
   week: 'array: focus minutes of the last 7 days', days14: 'array: focus minutes of the last 14 days', tasks: 'array of open tasks (for a list)',
 };
@@ -22,8 +22,8 @@ export const ARRAY_BINDINGS = new Set(['week', 'days14', 'tasks']);
 export const ITEM_VARS = ['item.text', 'item.starred', 'item.i', 'item.n'];
 export const NODE_TYPES = ['group', 'rect', 'ellipse', 'line', 'lines', 'path', 'text', 'ring', 'bar', 'spark', 'list', 'particles', 'noise'];
 export const BLENDS = ['normal', 'screen', 'multiply', 'overlay', 'lighten', 'plus-lighter', 'soft-light', 'color-dodge'];
-export const TOKENS = ['bg', 'surface', 'text', 'text-2', 'text-3', 'accent', 'accent-text', 'accent-soft', 'border', 'border-strong', 'productive', 'distracting', 'neutral', 'success', 'warning'];
-export const ACTIONS = ['focus.start', 'focus.stop', 'focus.pause', 'focus.resume', 'task.toggle', 'state.set'];
+export const TOKENS = ['bg', 'surface', 'text', 'text-2', 'text-3', 'accent', 'accent-text', 'accent-soft', 'border', 'border-strong', 'productive', 'distracting', 'neutral', 'success', 'warning', 'hero-fg', 'hero-fg-2'];
+export const ACTIONS = ['focus.toggle', 'focus.start', 'focus.stop', 'focus.pause', 'focus.resume', 'task.toggle', 'state.set'];
 
 const NUM = { x: [-4000, 5000], y: [-4000, 5000], w: [0, 5000], h: [0, 5000], x1: [-4000, 5000], y1: [-4000, 5000], x2: [-4000, 5000], y2: [-4000, 5000], rot: [-3600, 3600], sc: [0, 20], op: [0, 1], sw: [0, 200], r: [0, 3000], blur: [0, 120], size: [0, 2000], ls: [-100, 400], val: [0, 1], gap: [2, 500], rowh: [1, 1000], weight: [100, 900] };
 const NUM_DEFAULT = { op: 1, sc: 1, rot: 0, val: 0, weight: 400 };
@@ -42,7 +42,7 @@ const PER_TYPE = {
   particles: ['x', 'y', 'w', 'h', 'n', 'size', 'speed', 'colors', 'twinkle', 'dir', 'op', 'blend', 'show', 'layer', 'seed'],
   noise: ['x', 'y', 'w', 'h', 'op', 'freq', 'blend', 'show', 'seed', 'tint'],
 };
-const ENUMS = { blend: BLENDS, font: ['display', 'body', 'mono'], align: ['start', 'middle', 'end'], kind: ['line', 'bars', 'dots', 'area'], cap: ['butt', 'round'], layer: ['back', 'front'], dir: ['up', 'down', 'left', 'right', 'any', 'h', 'v', 'diag'] };
+const ENUMS = { blend: BLENDS, font: ['display', 'body', 'mono', 'script', 'condensed', 'serif'], align: ['start', 'middle', 'end'], kind: ['line', 'bars', 'dots', 'area'], cap: ['butt', 'round'], layer: ['back', 'front'], dir: ['up', 'down', 'left', 'right', 'any', 'h', 'v', 'diag'] };
 const COLOR_RE = /^(?:#[0-9a-fA-F]{3,8}|none|transparent|currentColor|rgba?\([\d\s.,%/]+\)|hsla?\([\d\s.,%/deg]+\))$/;
 const PATH_RE = /^[MmLlHhVvCcSsQqTtAaZz0-9eE+\-., ]+$/;
 

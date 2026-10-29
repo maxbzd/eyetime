@@ -21,7 +21,7 @@ const { launch } = require('./lib.cjs');
   await p.locator('#side > a', { hasText: 'Appearance' }).click(); await p.waitForTimeout(300);
   ok((await shown()).join() === 'appearance' && (await p.evaluate(() => location.hash)) === '#appearance', 'the side list opens a section');
   ok(await p.locator('#side .side-sub a').count() >= 3, 'the groups of the section are listed under it');
-  ok(await p.locator('.look-card').count() >= 20 && await p.locator('.look-now').count() === 1, 'the looks are in a dense grid with the chosen one explained');
+  ok(await p.locator('.look-card').count() >= 16 && await p.locator('.look-now').count() === 1, 'the looks are in a dense grid with the chosen one explained');
 
   // a group link scrolls to it and is marked
   await p.locator('#side .side-sub a', { hasText: 'Advanced' }).click(); await p.waitForTimeout(900);

@@ -10,18 +10,17 @@ const PARKED = ['spectrum', 'tide', 'ledger', 'vital', 'aura', 'obsidian', 'void
 const seeded = (seed) => () => { seed = (seed + 0x6d2b79f5) >>> 0; let t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; // mulberry32
 const clone = (v) => JSON.parse(JSON.stringify(v));
 
-test('eight starters with distinct ids, only long-standing looks, and every part survives validation', () => {
-  assert.ok(STARTERS.length >= 9);
+test('starters with distinct ids that leave the app look alone, and every part survives validation', () => {
+  assert.ok(STARTERS.length >= 10);
   assert.equal(new Set(STARTER_IDS).size, STARTERS.length);
   for (const s of STARTERS) {
-    assert.ok(!PARKED.includes(s.appearance.look), s.id + ' uses a look that is not released');
-    assert.ok(LOOKS[s.appearance.look], s.id + ' look exists');
+    assert.ok(!s.appearance.look || (LOOKS[s.appearance.look] && !PARKED.includes(s.appearance.look)), s.id + ' names no look that is unreleased or missing');
     const d = starterData(s);
-    assert.equal(d.appearance.look, s.appearance.look); assert.equal(d.appearance.mode, s.appearance.mode);
+    assert.deepEqual(Object.keys(d.appearance), Object.keys(s.appearance), s.id + ': only the named appearance keys are set');
     assert.equal(d.home.widgets.length, s.home.widgets.length, s.id + ': no widget was dropped');
     assert.equal(Object.keys(d.home.canvas.items).length, Object.keys(s.home.canvas.items).length, s.id + ': no canvas item was dropped');
     assert.equal(d.home.background, s.home.background, s.id + ' background'); assert.equal(d.home.dna.s, s.home.dna.s);
-    assert.equal(d.home.type.clock.font, s.home.type.clock.font); assert.equal(d.home.scene.layers.length, s.home.scene.layers.length, s.id + ': the scene kept every layer'); assert.deepEqual(d.home.widgets.map((w) => w.cfg.ui.root.length), s.home.widgets.map((w) => w.cfg.ui.root.length), s.id + ': custom widgets kept their nodes');
+    assert.equal(d.home.type.clock.font, s.home.type.clock.font); if (s.home.scene) assert.equal(d.home.scene.layers.length, s.home.scene.layers.length, s.id + ': the scene kept every layer'); else assert.ok(d.home.frame, s.id + ': a photo theme names its frame'); assert.deepEqual(d.home.widgets.map((w) => w.cfg.ui.root.length), s.home.widgets.map((w) => w.cfg.ui.root.length), s.id + ': custom widgets kept their nodes');
     for (const id of Object.keys(d.home.canvas.items)) assert.ok(['clock', 'greeting', 'quote', 'focus'].includes(id) || d.home.widgets.some((w) => w.id === id), s.id + ': canvas item ' + id + ' has a widget');
     assert.deepEqual(sanitizeHome(d.home), d.home, s.id + ': validation is stable');
   }
@@ -31,8 +30,10 @@ test('applying a starter replaces the Home keys and merges the appearance; resto
   const s = clone(DEFAULTS);
   s.newtab.widgets = [{ id: 'wold001', kind: 'sticky', cfg: { text: 'mine' } }]; s.newtab.background = 'photo';
   const before = clone(s);
-  const prev = applyStarter(s, s.newtab, starterData(STARTERS.find((x) => x.id === 'nocturne')));
-  assert.equal(s.appearance.look, 'nocturne'); assert.equal(s.newtab.background, 'scene'); assert.ok(s.newtab.widgets.some((w) => w.kind === 'custom')); assert.ok(s.newtab.scene && s.newtab.scene.layers.length > 5);
+  const look = s.appearance.look;
+  const prev = applyStarter(s, s.newtab, starterData(STARTERS.find((x) => x.id === 'torn')));
+  assert.equal(s.appearance.look, look, 'a theme that names no look leaves it alone'); assert.equal(s.newtab.background, 'scene'); assert.ok(s.newtab.widgets.some((w) => w.kind === 'custom')); assert.ok(s.newtab.scene && s.newtab.scene.layers.length >= 3); assert.equal(s.newtab.clock24, true);
+  const prev2 = applyStarter(s, s.newtab, starterData(STARTERS.find((x) => x.id === 'summit'))); assert.equal(s.newtab.background, 'photo'); assert.equal(s.newtab.frame, 'peak'); void prev2;
   assert.equal(s.newtab.canvas.on, true);
   assert.equal(s.newtab.links.length, before.newtab.links.length, 'links (data) are untouched');
   restoreHome(s, s.newtab, prev);
@@ -44,7 +45,7 @@ test('surprise: always valid, hangs together, and is reproducible from a seed', 
     const a = surprise(seeded(i)), b = surprise(seeded(i));
     assert.deepEqual(a, b, 'same seed, same theme');
     const d = starterData(a);
-    assert.ok(LOOKS[d.appearance.look] && !PARKED.includes(d.appearance.look));
+    assert.deepEqual(Object.keys(d.appearance), ['mode'], 'a surprise changes the scheme, not the look');
     const widgets = d.home.widgets;
     assert.ok(widgets.length >= 2 && widgets.length <= 4, 'a few widgets, not a wall: ' + widgets.length);
     assert.equal(new Set(widgets.map((w) => w.id)).size, widgets.length, 'unique ids');
@@ -58,9 +59,9 @@ test('surprise: always valid, hangs together, and is reproducible from a seed', 
   assert.ok(kinds.size >= 18, 'a good spread of kinds over many surprises: ' + kinds.size);
 });
 
-test('surprise: a good spread of looks and both arrangements', () => {
-  const looks = new Set(), bottoms = []; 
-  for (let i = 1; i <= 300; i++) { const a = surprise(seeded(i)); looks.add(a.appearance.look); bottoms.push(Object.values(a.home.canvas.items).some((it) => it.y >= 78)); }
-  assert.ok(looks.size >= 8, 'looks: ' + looks.size);
+test('surprise: a good spread of themes and both arrangements', () => {
+  const from = new Set(), bottoms = []; 
+  for (let i = 1; i <= 300; i++) { const a = surprise(seeded(i)); from.add(a.from); bottoms.push(Object.values(a.home.canvas.items).some((it) => it.y >= 78)); }
+  assert.equal(from.size, STARTERS.length, 'every theme comes up: ' + from.size);
   const share = bottoms.filter(Boolean).length / bottoms.length; assert.ok(share > 0.1 && share < 0.5, 'bottom row share ' + share);
 });

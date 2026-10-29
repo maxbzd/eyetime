@@ -7,8 +7,10 @@
 import { compile, compileTemplate, isFormula, toNumber, truthy } from '../../shared/scene/expr.js';
 import { daylightAt, createSource, createPointer } from './data.js';
 
+/** The faces a scene text can name besides the look's own (the files are in ui/tokens.css). */
+const FONT_FAMILIES = { mono: 'var(--font-mono, ui-monospace, "JetBrains Mono", monospace)', script: '"Mrs Saint Delafield", "Caveat", cursive', condensed: '"Antonio", "Oswald", var(--font)', serif: '"Cormorant Garamond", "Iowan Old Style", Georgia, serif' };
 const SVG = 'http://www.w3.org/2000/svg';
-const FAST = new Set(['t', 'dt', 'mouseX', 'mouseY', 'second']);
+const FAST = new Set(['t', 'dt', 'mouseX', 'mouseY', 'second', 'nowS']);
 const mk = (tag, attrs = {}) => { const e = document.createElementNS(SVG, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v)); return e; };
 const colour = (v) => (typeof v === 'string' && v.startsWith('token:') ? `var(--${v.slice(6)})` : v);
 let uid = 0;
@@ -144,7 +146,7 @@ function buildNode(n, ctx) {
     num('weight', 400, (v) => el.setAttribute('font-weight', Math.round(v)));
     num('ls', 0, (v) => el.setAttribute('letter-spacing', v));
     el.setAttribute('text-anchor', n.align || 'start');
-    el.style.fontFamily = n.font === 'mono' ? 'var(--font-mono, ui-monospace, "JetBrains Mono", monospace)' : n.font === 'body' ? 'var(--font)' : 'var(--font-display, var(--font))';
+    el.style.fontFamily = FONT_FAMILIES[n.font] || (n.font === 'body' ? 'var(--font)' : 'var(--font-display, var(--font))');
     if (n.upper) el.style.textTransform = 'uppercase'; if (n.italic) el.style.fontStyle = 'italic';
     bind(n.fill === undefined ? 'token:text' : n.fill, (v) => el.setAttribute('fill', v), { paint: true });
     if (n.stroke !== undefined) bind(n.stroke, (v) => el.setAttribute('stroke', v), { paint: true }); if (n.sw !== undefined) num('sw', 0, (v) => el.setAttribute('stroke-width', v));
@@ -264,10 +266,10 @@ function runtime(host, def, opts, isUi) {
   function fillEnv(dt, tNow) {
     const d = new Date(), hf = d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600, s = source.snapshot(), dl = daylightAt(hf, s.rise, s.set);
     env.set('t', tNow); env.set('dt', dt); env.set('W', UW); env.set('H', H); env.set('aspect', UW / H);
-    env.set('hour', d.getHours()); env.set('minute', d.getMinutes()); env.set('second', d.getSeconds()); env.set('dayFrac', hf / 24); env.set('weekday', d.getDay());
+    env.set('hour', d.getHours()); env.set('minute', d.getMinutes()); env.set('second', d.getSeconds()); env.set('dayFrac', hf / 24); env.set('weekday', d.getDay()); env.set('nowS', Math.floor(Date.now() / 1000));
     env.set('daylight', dl); env.set('night', 1 - Math.min(1, Math.max(0, dl / 0.35)));
     env.set('mouseX', pointer.p.x); env.set('mouseY', pointer.p.y); env.set('reduced', reduced() ? 1 : 0); env.set('dark', document.documentElement.dataset.scheme === 'dark' ? 1 : 0);
-    for (const k of ['focus', 'focusFrac', 'paused', 'goal', 'goalMin', 'focusToday', 'sessionsToday', 'tasksOpen', 'tasksDone', 'streak', 'screenToday', 'week', 'days14', 'tasks']) env.set(k, s[k]);
+    for (const k of ['focus', 'focusLeft', 'focusEnd', 'focusFrac', 'paused', 'goal', 'goalMin', 'focusToday', 'sessionsToday', 'tasksOpen', 'tasksDone', 'streak', 'screenToday', 'week', 'days14', 'tasks']) env.set(k, s[k]);
     for (const [k, v] of paramVals) env.set(k, v);
     for (const { k, ease, when } of stateDefs) {
       const target = manual.has(k) ? manual.get(k) : when ? (truthy(when.run(env)) ? 1 : 0) : 0;

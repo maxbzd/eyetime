@@ -20,7 +20,7 @@ export function daylightAt(hourFloat, rise = 6.5, set = 19) {
 
 /** A source of slow data. `snapshot()` → the latest values; `onChange(cb)` fires when they change; `destroy()`. */
 export function createSource() {
-  let snap = { focus: 0, focusFrac: 0, paused: 0, goal: 0, goalMin: 0, focusToday: 0, sessionsToday: 0, tasksOpen: 0, tasksDone: 0, streak: 0, screenToday: 0, week: [0, 0, 0, 0, 0, 0, 0], days14: new Array(14).fill(0), tasks: [], rise: 6.5, set: 19 };
+  let snap = { focus: 0, focusLeft: 0, focusEnd: 0, focusFrac: 0, paused: 0, goal: 0, goalMin: 0, focusToday: 0, sessionsToday: 0, tasksOpen: 0, tasksDone: 0, streak: 0, screenToday: 0, week: [0, 0, 0, 0, 0, 0, 0], days14: new Array(14).fill(0), tasks: [], rise: 6.5, set: 19 };
   const subs = new Set();
   let alive = true, timer = 0;
   async function load() {
@@ -32,7 +32,7 @@ export function createSource() {
     if (place) { const st = sunTimes(new Date(), place.lat, place.lon); if (!('polar' in st)) { rise = st.rise.getHours() + st.rise.getMinutes() / 60; set = st.set.getHours() + st.set.getMinutes() / 60; } }
     const todayKey = dayKey();
     snap = {
-      focus: f ? 1 : 0, focusFrac: f && plannedMs(f) ? 1 - Math.min(1, Math.max(0, remainingMs(f) / plannedMs(f))) : 0, paused: f && isPaused(f) ? 1 : 0,
+      focus: f ? 1 : 0, focusLeft: f ? Math.ceil(remainingMs(f) / 1000) : 0, focusEnd: f && !isPaused(f) ? Math.round(Date.now() / 1000 + remainingMs(f) / 1000) : 0, focusFrac: f && plannedMs(f) ? 1 - Math.min(1, Math.max(0, remainingMs(f) / plannedMs(f))) : 0, paused: f && isPaused(f) ? 1 : 0,
       goal: g.goalMin ? g.pct : 0, goalMin: g.goalMin || 0, focusToday: Math.round((today.fs || 0) / 60), sessionsToday: today.fc || 0,
       tasksOpen: open.length, tasksDone: tasks.filter((t) => t.done && t.doneAt && dayKey(new Date(t.doneAt)) === todayKey).length, streak: focusStreak(days),
       screenToday: Math.round(Object.values(today.d || {}).reduce((a, b) => a + b, 0) / 60),

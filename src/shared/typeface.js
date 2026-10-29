@@ -25,13 +25,16 @@ export const TYPEFACES = {
   caveat:      { label: 'Caveat',           stack: '"Caveat", "Comic Sans MS", cursive', w: [400, 700], def: 500, cyr: true },
   literata:    { label: 'Literata',         stack: `"Literata", ${SERIF}`,             w: [200, 900], def: 400, cyr: true },
   onest:       { label: 'Onest',            stack: `"Onest", "Inter", ${SANS}`,        w: [100, 900], def: 300, cyr: true },
+  antonio:     { label: 'Antonio',          stack: `"Antonio", "Oswald", ${SANS}`,      w: [100, 700], def: 300, cyr: false },
+  cormorant:   { label: 'Cormorant',        stack: `"Cormorant Garamond", ${SERIF}`,    w: [300, 700], def: 400, cyr: true },
+  signature:   { label: 'Mrs Saint Delafield', stack: '"Mrs Saint Delafield", "Caveat", cursive', w: [400, 400], def: 400, cyr: false },
   system:      { label: 'System',           stack: SANS,                                w: [100, 900], def: 300, cyr: true },
 };
 export const TYPEFACE_IDS = Object.keys(TYPEFACES);
 export const FILLS = ['solid', 'gradient', 'outline', 'glass', 'photo'];
 
 /** What a style looks like when the user has not touched it. */
-export const CLOCK_DEFAULT = { font: 'look', weight: null, tracking: null, fill: 'solid', color: null, color2: null, angle: 100, stroke: 2, glow: 0, shadow: 0, seconds: false, tabular: true };
+export const CLOCK_DEFAULT = { font: 'look', weight: null, tracking: null, fill: 'solid', color: null, color2: null, angle: 100, stroke: 2, glow: 0, shadow: 0, opacity: 1, seconds: false, tabular: true };
 export const TEXT_DEFAULT = { font: 'look', weight: null, tracking: null, color: null, upper: false };
 
 const num = (v, lo, hi, fallback) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : fallback);
@@ -50,7 +53,7 @@ export function normalizeType(raw) {
       font: cf, weight: wt(cf, c.weight), tracking: typeof c.tracking === 'number' ? r3(num(c.tracking, -0.12, 0.3, 0)) : null,
       fill: FILLS.includes(c.fill) ? c.fill : 'solid', color: hex(c.color), color2: hex(c.color2),
       angle: Math.round(num(c.angle, 0, 360, CLOCK_DEFAULT.angle)), stroke: r3(num(c.stroke, 0.5, 6, CLOCK_DEFAULT.stroke)),
-      glow: r3(num(c.glow, 0, 1, 0)), shadow: r3(num(c.shadow, 0, 1, 0)), seconds: c.seconds === true, tabular: c.tabular !== false,
+      glow: r3(num(c.glow, 0, 1, 0)), shadow: r3(num(c.shadow, 0, 1, 0)), opacity: r3(num(c.opacity, 0.15, 1, 1)), seconds: c.seconds === true, tabular: c.tabular !== false,
     },
     text: {
       font: tf, weight: wt(tf, x.weight), tracking: typeof x.tracking === 'number' ? r3(num(x.tracking, -0.05, 0.3, 0)) : null,
@@ -106,6 +109,7 @@ export function clockDecls(s) {
   if (s.glow > 0) parts.push(`drop-shadow(0 0 ${Math.round(8 + s.glow * 48)}px color-mix(in srgb, ${glowColor} ${Math.round(40 + s.glow * 40)}%, transparent))`);
   if (s.shadow > 0) parts.push(`drop-shadow(0 ${Math.round(2 + s.shadow * 18)}px ${Math.round(6 + s.shadow * 34)}px rgba(0, 0, 0, ${r3(0.15 + s.shadow * 0.4)}))`);
   if (parts.length) d.filter = parts.join(' ');
+  if (s.opacity < 1) d.opacity = String(s.opacity);
   return d;
 }
 
