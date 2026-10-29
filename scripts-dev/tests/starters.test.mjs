@@ -11,8 +11,8 @@ const seeded = (seed) => () => { seed = (seed + 0x6d2b79f5) >>> 0; let t = seed;
 const clone = (v) => JSON.parse(JSON.stringify(v));
 
 test('eight starters with distinct ids, only long-standing looks, and every part survives validation', () => {
-  assert.equal(STARTERS.length, 8);
-  assert.equal(new Set(STARTER_IDS).size, 8);
+  assert.ok(STARTERS.length >= 11);
+  assert.equal(new Set(STARTER_IDS).size, STARTERS.length);
   for (const s of STARTERS) {
     assert.ok(!PARKED.includes(s.appearance.look), s.id + ' uses a look that is not released');
     assert.ok(LOOKS[s.appearance.look], s.id + ' look exists');
@@ -31,7 +31,7 @@ test('applying a starter replaces the Home keys and merges the appearance; resto
   const s = clone(DEFAULTS);
   s.newtab.widgets = [{ id: 'wold001', kind: 'sticky', cfg: { text: 'mine' } }]; s.newtab.background = 'photo';
   const before = clone(s);
-  const prev = applyStarter(s, s.newtab, starterData(STARTERS[1]));
+  const prev = applyStarter(s, s.newtab, starterData(STARTERS.find((x) => x.id === 'night')));
   assert.equal(s.appearance.look, 'midnight'); assert.equal(s.newtab.background, 'stars'); assert.ok(s.newtab.widgets.some((w) => w.kind === 'goal'));
   assert.equal(s.newtab.canvas.on, true);
   assert.equal(s.newtab.links.length, before.newtab.links.length, 'links (data) are untouched');

@@ -6,6 +6,9 @@ import { sanitizeHome } from './themefile.js';
 import { sanitizeAppearance } from './looks.js';
 import { HOME_KEYS } from './layouts.js';
 import { WIDGET_KINDS, defaultCfg } from './widgets.js';
+import linen from './packs/linen.js';
+import phosphor from './packs/phosphor.js';
+import liquid from './packs/liquid.js';
 
 const MODULES_OFF = { focus: false, today: false, tasks: false, habits: false, notes: false, links: false };
 let n = 0;
@@ -35,8 +38,11 @@ const glass = scene([['orb', { palette: 'aurora' }, 14, 36, 1], ['clock', { view
 const sakura = scene([['mood', {}, 14, 34, 1], ['habit', {}, 86, 34, 1], ['date', { style: 'leaf' }, 14, 74, 1], ['water', {}, 86, 72, 1]], { clock: { x: 50, y: 42, s: 1.1 }, greeting: { x: 50, y: 60, s: 1 } });
 const mono = scene([['label', { text: 'Focus.', font: 'display', weight: 700, align: 'center' }, 50, 80, 2]], { clock: { x: 50, y: 40, s: 1.5 }, greeting: { x: 50, y: 60, s: 0.8 } });
 
+/** The new collection: full packs (look, a scene, widgets drawn with the scene language, layout, type) come first. */
+export const PACKS = [linen, phosphor, liquid];
 /** @type {Array<{ id: string, appearance: any, home: any }>} */
 export const STARTERS = [
+  ...PACKS,
   { id: 'dawn', appearance: { look: 'calm', mode: 'light', accent: 'look' }, home: base({ ...dawn, background: 'dawn', clockStyle: 'thin', dna: { s: 'glass' }, type: clockType({ font: 'look', weight: 200 }) }) },
   { id: 'night', appearance: { look: 'midnight', mode: 'dark', accent: 'look' }, home: base({ ...night, background: 'stars', clockStyle: 'bold', dna: { s: 'neon' }, type: clockType({ font: 'orbitron', weight: 500, glow: 0.45, tracking: 0.04 }) }) },
   { id: 'planner', appearance: { look: 'paper', mode: 'light', accent: 'look' }, home: base({ ...planner, background: 'grain', clockStyle: 'serif', dna: { s: 'paper' }, type: clockType({ font: 'fraunces', weight: 300 }) }) },

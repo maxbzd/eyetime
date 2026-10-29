@@ -19,7 +19,7 @@ const { launch } = require('./lib.cjs');
   p.on('pageerror', (e) => bad.push('pageerror: ' + e)); p.on('console', (m) => { if (m.type() === 'error') bad.push('console: ' + m.text()); });
   await p.goto(ext('src/newtab/newtab.html')); await p.waitForTimeout(1200);
   await p.click('#customize'); await p.waitForTimeout(400);
-  ok(await p.locator('#drawerBody .st-tile').count() === 8, 'eight ready themes: ' + await p.locator('#drawerBody .st-tile').count());
+  ok(await p.locator('#drawerBody .st-tile').count() >= 11, 'the ready themes are listed: ' + await p.locator('#drawerBody .st-tile').count());
   const broken = await p.evaluate(() => [...document.querySelectorAll('.st-tile img')].filter((i) => !i.complete || i.naturalWidth < 100).length);
   ok(broken === 0, 'every theme picture loads: ' + broken + ' did not');
   ok((await p.locator('#drawerBody h4').allTextContents()).includes('Ready themes'), 'the drawer has a Ready themes section');
@@ -70,7 +70,7 @@ const { launch } = require('./lib.cjs');
   };
   for (const size of [{ width: 1440, height: 900 }, { width: 1366, height: 768 }]) {
     await p.setViewportSize(size);
-    for (const id of ['dawn', 'night', 'planner', 'terminal', 'zen', 'glass', 'sakura', 'mono']) {
+    for (const id of await sp.evaluate(async () => (await import('/src/shared/starters.js')).STARTER_IDS)) {
       await sp.evaluate(async (id) => { const st = await import('/src/shared/storage.js'), S = await import('/src/shared/starters.js'); await st.updateSettings((s) => { S.applyStarter(s, s.newtab, S.starterData(S.STARTERS.find((x) => x.id === id))); }); }, id);
       await p.waitForTimeout(700); await overlaps(`${size.width}x${size.height} ${id}`);
     }
