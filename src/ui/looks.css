@@ -504,3 +504,79 @@ html[data-look="obsidian"][data-scheme="dark"] body[data-layout="canvas"] .greet
 html[data-look="obsidian"][data-scheme="dark"] body[data-layout="canvas"] .greet-block h1 { font-size: clamp(18px, 1.8vw, 22px); font-weight: 500; letter-spacing: 0; color: rgba(255, 255, 255, .72); margin: 0; text-shadow: none; }
 html[data-look="tide"] body[data-layout="canvas"] .clock { font-size: clamp(96px, 16vw, 220px); font-weight: 200; letter-spacing: -.055em; line-height: .95; }
 html[data-look="tide"] body[data-layout="canvas"] .greet-block h1 { font-weight: 600; letter-spacing: -.02em; }
+
+/* ═══════════════════════════ LINEN — paper, ink, a terracotta stamp ═══════════════════════════ */
+:is(html, .lp)[data-look="linen"] body { font-feature-settings: "ss01", "cv11"; }
+:is(html, .lp)[data-look="linen"] .card { border-color: var(--border); box-shadow: 0 1px 0 rgba(255, 255, 255, .6) inset, var(--card-shadow); }
+:is(html, .lp)[data-look="linen"][data-scheme="dark"] .card { box-shadow: 0 1px 0 rgba(255, 240, 220, .05) inset, var(--card-shadow); }
+:is(html, .lp)[data-look="linen"] h1, :is(html, .lp)[data-look="linen"] h2, :is(html, .lp)[data-look="linen"] .hero h1, :is(html, .lp)[data-look="linen"] .kpi .value, :is(html, .lp)[data-look="linen"] .today-total, :is(html, .lp)[data-look="linen"] .tl-total b { font-family: var(--font-display); font-optical-sizing: auto; font-variant-numeric: lining-nums; }
+:is(html, .lp)[data-look="linen"] .clock { font-family: var(--font-display); font-weight: 300; letter-spacing: -.035em; font-variant-numeric: lining-nums tabular-nums; }
+:is(html, .lp)[data-look="linen"] .hero h1 { font-weight: 450; letter-spacing: -.02em; font-style: italic; }
+:is(html, .lp)[data-look="linen"] #date { font-family: var(--font-display); font-style: italic; color: var(--text-3); letter-spacing: .01em; }
+:is(html, .lp)[data-look="linen"] .eyebrow, :is(html, .lp)[data-look="linen"] .group-title, :is(html, .lp)[data-look="linen"] .card-title { font-family: var(--font); text-transform: uppercase; letter-spacing: .16em; font-size: 10.5px; font-weight: 600; color: var(--text-3); }
+:is(html, .lp)[data-look="linen"] .card-title::after, :is(html, .lp)[data-look="linen"] .group-title::after { content: ""; display: block; width: 22px; height: 1.5px; margin-top: 7px; background: var(--accent); border-radius: 1px; }
+:is(html, .lp)[data-look="linen"] .btn-primary { background: var(--accent); color: var(--accent-fg); border-color: color-mix(in srgb, #000 18%, var(--accent)); box-shadow: 0 1px 0 rgba(255, 255, 255, .22) inset, 0 2px 0 color-mix(in srgb, #000 25%, var(--accent)); letter-spacing: .02em; font-weight: 600; }
+:is(html, .lp)[data-look="linen"] .btn-primary:hover { transform: translateY(1px); box-shadow: 0 1px 0 rgba(255, 255, 255, .22) inset, 0 1px 0 color-mix(in srgb, #000 25%, var(--accent)); }
+:is(html, .lp)[data-look="linen"] .btn:not(.btn-primary):not(.btn-ghost):not(.btn-danger-solid) { background: var(--surface); border-color: var(--border-strong); }
+:is(html, .lp)[data-look="linen"] .input, :is(html, .lp)[data-look="linen"] .select, :is(html, .lp)[data-look="linen"] .textarea { background: color-mix(in srgb, var(--surface) 60%, transparent); border-color: var(--border-strong); border-top-color: var(--border); box-shadow: 0 1px 2px rgba(60, 40, 10, .08) inset; }
+:is(html, .lp)[data-look="linen"] .chip, :is(html, .lp)[data-look="linen"] .mode-chip { background: transparent; border-color: var(--border-strong); }
+:is(html, .lp)[data-look="linen"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="linen"] .mode-chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); box-shadow: none; }
+:is(html, .lp)[data-look="linen"] .badge, :is(html, .lp)[data-look="linen"] .badge-accent { background: transparent; border: 1px solid currentColor; text-transform: uppercase; letter-spacing: .1em; font-size: 10px; font-weight: 700; transform: rotate(-1.5deg); border-radius: 3px; }
+:is(html, .lp)[data-look="linen"] .progress, :is(html, .lp)[data-look="linen"] .goal-bar { height: 4px; background: color-mix(in srgb, var(--text) 8%, transparent); }
+:is(html, .lp)[data-look="linen"] .ring .bar { stroke-width: 3px; } :is(html, .lp)[data-look="linen"] .ring .track { stroke-width: 3px; }
+:is(html, .lp)[data-look="linen"] .segmented { background: color-mix(in srgb, var(--text) 5%, transparent); border-color: var(--border); }
+:is(html, .lp)[data-look="linen"] .segmented [aria-pressed="true"], :is(html, .lp)[data-look="linen"] .segmented [aria-selected="true"] { background: var(--surface); box-shadow: 0 1px 2px rgba(60, 40, 10, .18); }
+
+/* ═══════════════════════════ PHOSPHOR — a glowing terminal ═══════════════════════════ */
+:is(html, .lp)[data-look="phosphor"] body { letter-spacing: 0; font-variant-ligatures: none; }
+:is(html, .lp)[data-look="phosphor"] ::selection { background: var(--accent); color: var(--bg); }
+:is(html, .lp)[data-look="phosphor"] .card { background: color-mix(in srgb, var(--surface) 82%, transparent); border-color: color-mix(in srgb, var(--accent) 52%, var(--border)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent), 0 0 24px -6px color-mix(in srgb, var(--accent) 38%, transparent), inset 0 0 26px -14px color-mix(in srgb, var(--accent) 40%, transparent); -webkit-backdrop-filter: none; backdrop-filter: none; }
+:is(html, .lp)[data-look="phosphor"][data-scheme="light"] .card { background: color-mix(in srgb, var(--surface) 92%, transparent); box-shadow: 0 1px 0 #fff inset, 0 2px 0 var(--border-strong); }
+:is(html, .lp)[data-look="phosphor"] .clock { font-weight: 500; letter-spacing: -.04em; text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 75%, transparent), 0 0 42px color-mix(in srgb, var(--accent) 40%, transparent); }
+:is(html, .lp)[data-look="phosphor"][data-scheme="light"] .clock { text-shadow: none; }
+:is(html, .lp)[data-look="phosphor"] .hero h1::after { content: "▍"; margin-left: .15em; color: var(--accent); animation: ph-blink 1.05s steps(1) infinite; }
+@keyframes ph-blink { 50% { opacity: 0; } }
+:is(html[data-motion="reduced"], .lp)[data-look="phosphor"] .hero h1::after { animation: none; }
+@media (prefers-reduced-motion: reduce) { :is(html, .lp)[data-look="phosphor"] .hero h1::after { animation: none; } }
+:is(html, .lp)[data-look="phosphor"] .hero p, :is(html, .lp)[data-look="phosphor"] #date { color: var(--text-3); text-transform: lowercase; }
+:is(html, .lp)[data-look="phosphor"] h1, :is(html, .lp)[data-look="phosphor"] h2 { text-transform: lowercase; }
+:is(html, .lp)[data-look="phosphor"] .eyebrow, :is(html, .lp)[data-look="phosphor"] .group-title, :is(html, .lp)[data-look="phosphor"] .card-title { text-transform: uppercase; letter-spacing: .12em; font-size: 10.5px; color: var(--accent-text); }
+:is(html, .lp)[data-look="phosphor"] .card-title::before, :is(html, .lp)[data-look="phosphor"] .group-title::before { content: "$ "; opacity: .7; }
+:is(html, .lp)[data-look="phosphor"] .btn { background: transparent; border-color: color-mix(in srgb, var(--accent) 60%, transparent); color: var(--accent-text); text-transform: uppercase; letter-spacing: .08em; font-size: 11.5px; font-weight: 600; box-shadow: 0 0 12px -6px var(--accent); }
+:is(html, .lp)[data-look="phosphor"] .btn:hover { background: color-mix(in srgb, var(--accent) 16%, transparent); box-shadow: 0 0 18px -4px var(--accent); }
+:is(html, .lp)[data-look="phosphor"] .btn-primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); box-shadow: 0 0 22px -4px var(--accent); }
+:is(html, .lp)[data-look="phosphor"] .btn-primary:hover { background: var(--accent); filter: brightness(1.12); }
+:is(html, .lp)[data-look="phosphor"] .btn-ghost { border-color: transparent; box-shadow: none; text-transform: none; letter-spacing: 0; font-size: var(--fs-md); color: var(--text-2); }
+:is(html, .lp)[data-look="phosphor"] .input, :is(html, .lp)[data-look="phosphor"] .select, :is(html, .lp)[data-look="phosphor"] .textarea { background: color-mix(in srgb, var(--accent) 5%, transparent); border-color: color-mix(in srgb, var(--accent) 38%, transparent); caret-color: var(--accent); }
+:is(html, .lp)[data-look="phosphor"] .chip, :is(html, .lp)[data-look="phosphor"] .mode-chip { background: transparent; border-color: color-mix(in srgb, var(--accent) 34%, transparent); }
+:is(html, .lp)[data-look="phosphor"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="phosphor"] .mode-chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); box-shadow: 0 0 14px -3px var(--accent); }
+:is(html, .lp)[data-look="phosphor"] .progress, :is(html, .lp)[data-look="phosphor"] .goal-bar { height: 8px; border-radius: 0; background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--accent) 16%, transparent) 0 5px, transparent 5px 7px); }
+:is(html, .lp)[data-look="phosphor"] .progress i, :is(html, .lp)[data-look="phosphor"] .goal-bar i { border-radius: 0; background: repeating-linear-gradient(90deg, var(--accent) 0 5px, transparent 5px 7px); box-shadow: 0 0 10px var(--accent); }
+:is(html, .lp)[data-look="phosphor"] .ring .bar { filter: drop-shadow(0 0 6px var(--accent)); stroke-linecap: butt; } :is(html, .lp)[data-look="phosphor"] .ring, :is(html, .lp)[data-look="phosphor"] .ring svg { overflow: visible; }
+:is(html, .lp)[data-look="phosphor"] .badge, :is(html, .lp)[data-look="phosphor"] .badge-accent { background: transparent; border: 1px solid currentColor; text-transform: uppercase; letter-spacing: .08em; border-radius: 0; }
+:is(html, .lp)[data-look="phosphor"] .segmented { background: transparent; border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+:is(html, .lp)[data-look="phosphor"] .segmented [aria-pressed="true"], :is(html, .lp)[data-look="phosphor"] .segmented [aria-selected="true"] { background: var(--accent); color: var(--accent-fg); box-shadow: none; }
+:is(html, .lp)[data-look="phosphor"] .tab[aria-selected="true"]::after { box-shadow: 0 0 12px var(--accent); }
+
+/* ═══════════════════════════ LIQUID — bright glass that bends the colour ═══════════════════════════ */
+:is(html, .lp)[data-look="liquid"] .card { background-image: linear-gradient(135deg, rgba(255, 255, 255, .34), rgba(255, 255, 255, .04) 50%, rgba(255, 255, 255, .16)); border-color: rgba(255, 255, 255, .5); -webkit-backdrop-filter: blur(26px) saturate(1.7); backdrop-filter: blur(26px) saturate(1.7); box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, .7), inset 0 -1px 0 rgba(255, 255, 255, .16), var(--card-shadow); }
+:is(html, .lp)[data-look="liquid"][data-scheme="dark"] .card { background-image: linear-gradient(135deg, rgba(255, 255, 255, .13), rgba(255, 255, 255, .02) 50%, rgba(255, 255, 255, .07)); border-color: rgba(255, 255, 255, .2); box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, .26), inset 0 -1px 0 rgba(255, 255, 255, .06), var(--card-shadow); }
+:is(html, .lp)[data-look="liquid"] .clock { font-weight: 250; letter-spacing: -.055em; text-shadow: 0 8px 40px color-mix(in srgb, var(--accent) 30%, transparent); }
+:is(html, .lp)[data-look="liquid"] .hero h1 { font-weight: 600; letter-spacing: -.03em; }
+:is(html, .lp)[data-look="liquid"] .btn { border-radius: var(--r-full); background-image: linear-gradient(180deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, .06)); border-color: rgba(255, 255, 255, .55); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8), 0 6px 16px -8px rgba(30, 40, 120, .4); }
+:is(html, .lp)[data-look="liquid"][data-scheme="dark"] .btn { background-image: linear-gradient(180deg, rgba(255, 255, 255, .18), rgba(255, 255, 255, .03)); border-color: rgba(255, 255, 255, .22); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28), 0 6px 16px -8px rgba(0, 0, 0, .6); }
+:is(html, .lp)[data-look="liquid"] .btn-primary { background-color: var(--accent); background-image: linear-gradient(180deg, rgba(255, 255, 255, .42), rgba(255, 255, 255, 0) 60%); color: var(--accent-fg); border-color: color-mix(in srgb, var(--accent) 70%, #fff); box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, .7), 0 12px 26px -10px var(--accent); }
+:is(html, .lp)[data-look="liquid"] .btn-primary:hover { filter: brightness(1.08) saturate(1.1); }
+:is(html, .lp)[data-look="liquid"] .btn-ghost { background: transparent; background-image: none; border-color: transparent; box-shadow: none; }
+:is(html, .lp)[data-look="liquid"] .input, :is(html, .lp)[data-look="liquid"] .select, :is(html, .lp)[data-look="liquid"] .textarea { background: rgba(255, 255, 255, .42); border-color: rgba(255, 255, 255, .6); border-radius: var(--r-md); box-shadow: inset 0 1px 2px rgba(30, 40, 120, .1); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+:is(html, .lp)[data-look="liquid"][data-scheme="dark"] .input, :is(html, .lp)[data-look="liquid"][data-scheme="dark"] .select, :is(html, .lp)[data-look="liquid"][data-scheme="dark"] .textarea { background: rgba(255, 255, 255, .07); border-color: rgba(255, 255, 255, .18); box-shadow: none; }
+:is(html, .lp)[data-look="liquid"] .chip, :is(html, .lp)[data-look="liquid"] .mode-chip { background: rgba(255, 255, 255, .4); border-color: rgba(255, 255, 255, .6); backdrop-filter: blur(10px); }
+:is(html, .lp)[data-look="liquid"][data-scheme="dark"] .chip, :is(html, .lp)[data-look="liquid"][data-scheme="dark"] .mode-chip { background: rgba(255, 255, 255, .07); border-color: rgba(255, 255, 255, .18); }
+:is(html, .lp)[data-look="liquid"] .chip[aria-pressed="true"], :is(html, .lp)[data-look="liquid"] .mode-chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); box-shadow: 0 6px 16px -8px var(--accent); }
+:is(html, .lp)[data-look="liquid"] .segmented { background: rgba(255, 255, 255, .35); border-color: rgba(255, 255, 255, .55); backdrop-filter: blur(10px); border-radius: var(--r-full); }
+:is(html, .lp)[data-look="liquid"][data-scheme="dark"] .segmented { background: rgba(255, 255, 255, .06); border-color: rgba(255, 255, 255, .16); }
+:is(html, .lp)[data-look="liquid"] .segmented [aria-pressed="true"], :is(html, .lp)[data-look="liquid"] .segmented [aria-selected="true"] { background: var(--surface); box-shadow: 0 4px 12px -4px rgba(30, 40, 120, .35); border-radius: var(--r-full); }
+:is(html, .lp)[data-look="liquid"] .progress, :is(html, .lp)[data-look="liquid"] .goal-bar { height: 8px; border-radius: 99px; background: rgba(255, 255, 255, .45); }
+:is(html, .lp)[data-look="liquid"] .progress i, :is(html, .lp)[data-look="liquid"] .goal-bar i { border-radius: 99px; background-image: linear-gradient(180deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0)); box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 50%, transparent); }
+:is(html, .lp)[data-look="liquid"] .ring .bar { filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--accent) 45%, transparent)); stroke-linecap: round; }
+:is(html, .lp)[data-look="liquid"] .switch .track { background: rgba(120, 130, 170, .3); } :is(html, .lp)[data-look="liquid"] .switch input:checked ~ .track { background: var(--accent); }
