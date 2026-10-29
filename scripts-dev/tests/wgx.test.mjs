@@ -23,6 +23,16 @@ test('moonPath: nothing at new, a whole disc at full, flipped when waning', () =
   assert.match(moonPath(0.4).d, /0 0 1 0,-50 Z$/); // gibbous bulges the other way
 });
 
+test('sunTimes: sunrise and sunset fall on the asked day, so the sun is up around noon of that day', () => {
+  for (const [d, lat, lon] of [[new Date(2026, 9, 29, 14, 32), 38.72, -9.14], [new Date(2026, 0, 3, 9, 0), 50.45, 30.52], [new Date(2026, 6, 15, 23, 59), 51.5, -0.12]]) {
+    const s = sunTimes(d, lat, lon), day = (x) => x.toISOString().slice(0, 10);
+    assert.equal(day(s.rise), day(new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))), 'rise on the day: ' + s.rise.toISOString());
+    assert.ok(sunProgress(new Date(s.noon), s.rise, s.set) > 0.45 && sunProgress(new Date(s.noon), s.rise, s.set) < 0.55);
+  }
+  const t = new Date(2026, 9, 29, 14, 32), s = sunTimes(t, 38.72, -9.14), p = sunProgress(t, s.rise, s.set);
+  assert.ok(p > 0.6 && p < 0.85, 'mid-afternoon is late in the day arc: ' + p);
+});
+
 test('sunTimes: Greenwich at the equinox, a midsummer day in Kyiv, the poles', () => {
   const s = sunTimes(new Date(2024, 2, 20), 51.4769, 0);
   const min = (d) => d.getUTCHours() * 60 + d.getUTCMinutes();
