@@ -11,6 +11,8 @@ export const FONTS = {
   nunito: { label: 'Nunito', stack: '"Nunito", "Inter", ui-rounded, ui-sans-serif, system-ui, sans-serif' },
   serif: { label: 'Source Serif', stack: '"Source Serif 4", "Iowan Old Style", Georgia, "Times New Roman", serif' },
   mono: { label: 'JetBrains Mono', stack: '"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace' },
+  literata: { label: 'Literata', stack: '"Literata", "Source Serif 4", "Iowan Old Style", Georgia, "Times New Roman", serif' },
+  onest: { label: 'Onest', stack: '"Onest", "Inter", ui-sans-serif, system-ui, sans-serif' },
   system: { label: 'System', stack: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' },
 };
 
@@ -30,6 +32,24 @@ export const SCALES = [90, 100, 110, 125];
 const blobs = (a = 22, b = 14) => `radial-gradient(900px 560px at 8% -10%, color-mix(in srgb, var(--accent) ${a}%, transparent), transparent 62%), radial-gradient(800px 600px at 100% 0%, color-mix(in srgb, var(--productive) ${b}%, transparent), transparent 60%), radial-gradient(700px 500px at 50% 115%, color-mix(in srgb, var(--distracting) ${b - 4}%, transparent), transparent 62%)`;
 
 export const LOOKS = {
+  /* ───────── the new collection (v3) ───────── */
+  linen: {
+    name: 'Linen', blurb: 'Warm paper, ink and a terracotta stamp. Calm like a good notebook.', homeScene: { dark: 'linen', light: 'linen' }, font: 'inter', display: 'literata', radii: [3, 6, 10, 16], cards: 'solid', shadow: 'soft', borderW: 1, headingW: 560, headingLs: '-.012em',
+    light: { bg: '#f4eee2', surface: '#fbf8f1', text: '#231c15', accent: '#b0431d', border: '#e2d7c2', borderStrong: '#c9b998' },
+    dark: { bg: '#14110e', surface: '#1c1814', text: '#eee4d3', accent: '#e58f60', border: '#342c23', borderStrong: '#574a39' },
+    pageBg: { light: 'radial-gradient(1100px 700px at 12% -12%, rgba(255, 255, 255, .75), transparent 62%), radial-gradient(900px 600px at 100% 110%, rgba(176, 67, 29, .07), transparent 66%)', dark: 'radial-gradient(1100px 700px at 12% -12%, rgba(229, 143, 96, .08), transparent 62%), radial-gradient(900px 600px at 100% 110%, rgba(229, 143, 96, .05), transparent 66%)' },
+  },
+  phosphor: {
+    name: 'Phosphor', blurb: 'A glowing green terminal at night; green-bar printer paper by day.', homeScene: { dark: 'crt', light: 'greenbar' }, font: 'mono', display: 'mono', radii: [0, 2, 3, 4], cards: 'outline', shadow: 'glow', borderW: 1, headingW: 700, headingLs: '0',
+    light: { bg: '#e6ecd9', surface: '#f2f6e8', text: '#14281a', accent: '#17702f', border: '#bfd0aa', borderStrong: '#8fae7a' },
+    dark: { bg: '#040a05', surface: '#071109', text: '#b4ffc4', accent: '#3dff86', border: '#10401f', borderStrong: '#1d7a3a' },
+  },
+  liquid: {
+    name: 'Liquid', blurb: 'Bright, rounded glass that bends the colour behind it.', homeScene: { dark: 'liquid', light: 'liquid' }, skin: 'liquid', font: 'onest', display: 'onest', radii: [12, 18, 26, 38], cards: 'glass', shadow: 'airy', borderW: 1, headingW: 650, headingLs: '-.025em',
+    light: { bg: '#e8eefc', surface: '#ffffff', text: '#121530', accent: '#3b63f5' },
+    dark: { bg: '#080a18', surface: '#141830', text: '#f1f3ff', accent: '#7c9bff' },
+    pageBg: { light: 'radial-gradient(900px 640px at 8% -10%, rgba(255, 170, 190, .55), transparent 64%), radial-gradient(900px 640px at 100% 0%, rgba(150, 190, 255, .6), transparent 66%), radial-gradient(800px 560px at 50% 112%, rgba(170, 240, 215, .5), transparent 66%)', dark: 'radial-gradient(900px 640px at 8% -10%, rgba(255, 110, 150, .22), transparent 64%), radial-gradient(900px 640px at 100% 0%, rgba(90, 130, 255, .26), transparent 66%), radial-gradient(800px 560px at 50% 112%, rgba(60, 220, 190, .16), transparent 66%)' },
+  },
   calm: {
     name: 'Calm', blurb: 'Warm, quiet, neutral. The default.', font: 'inter', display: 'inter', radii: 'soft', cards: 'solid', shadow: 'soft', borderW: 1, headingW: 650, headingLs: '-.015em', homeBg: 'dawn', homeScene: 'dawn',
     light: { bg: '#faf9f7', surface: '#ffffff', text: '#1c1917', accent: '#cf450a' },
@@ -145,7 +165,7 @@ export const LOOKS = {
     dark: { bg: '#041217', surface: '#09202a', text: '#dff4f8', accent: '#38bdf8' },
   },
 };
-const FIRST = ['calm', 'obsidian', 'void', 'noir', 'pearl', 'bento', 'spectrum', 'tide', 'ledger', 'vital', 'aura']; // the gallery order: the default, then the newest
+const FIRST = ['linen', 'phosphor', 'liquid', 'calm', 'obsidian', 'void', 'noir', 'pearl', 'bento', 'spectrum', 'tide', 'ledger', 'vital', 'aura']; // the gallery order: the default, then the newest
 export const LOOK_IDS = [...FIRST, ...Object.keys(LOOKS).filter((id) => !FIRST.includes(id))];
 
 /* ---------- derivation ---------- */
