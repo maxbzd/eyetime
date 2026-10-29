@@ -36,7 +36,7 @@ const fromJulian = (jd) => new Date((jd - 2440587.5) * DAY_MS);
  */
 export function sunTimes(date, lat, lon) {
   const noonUtc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 12);
-  const n = Math.ceil(julian(noonUtc) - 2451545.0 + 0.0008), Js = n - lon / 360;
+  const n = Math.round(julian(noonUtc) - 2451545.0 + 0.0008), Js = n - lon / 360;
   const M = (357.5291 + 0.98560028 * Js) % 360, Mr = M * RAD;
   const C = 1.9148 * Math.sin(Mr) + 0.02 * Math.sin(2 * Mr) + 0.0003 * Math.sin(3 * Mr);
   const L = ((M + C + 180 + 102.9372) % 360) * RAD;
