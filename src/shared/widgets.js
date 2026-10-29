@@ -2,9 +2,10 @@
 // A widget instance is { id, kind, cfg, skin? }; where it sits on Home is kept with the other blocks in newtab.canvas.items under the same id.
 
 import { normalizeSkin } from './skins.js';
+import { MORE_KINDS, OLD_CATS, moreDefaultCfg, moreNormalizeCfg } from './widgets-more.js';
 
 /** `w`: [min, max, default] width in px on the 1440 px reference window; `icon`: a Lucide name (literals, so the icon builder finds them). */
-export const WIDGET_KINDS = {
+const FIRST = {
   mainfocus: { icon: 'target', w: [260, 760, 460] },
   rings: { icon: 'circle-dot', w: [300, 640, 420] },
   countdown: { icon: 'timer', w: [200, 520, 280] },
@@ -21,9 +22,14 @@ export const WIDGET_KINDS = {
   recap: { icon: 'moon', w: [260, 560, 340] },
   stack: { icon: 'layers', w: [280, 640, 400] },
 };
+/** Every widget: `cat` its category, `w` [min, max, default] width, `sizes` [S, M, L] widths, `icon`. */
+export const WIDGET_KINDS = {
+  ...Object.fromEntries(Object.entries(FIRST).map(([k, v]) => [k, { ...v, cat: OLD_CATS[k], sizes: [Math.max(v.w[0], Math.round(v.w[2] * 0.66)), v.w[2], Math.min(v.w[1], Math.round(v.w[2] * 1.5))] }])),
+  ...MORE_KINDS,
+};
 export const WIDGET_KIND_IDS = Object.keys(WIDGET_KINDS);
 export const WIDGET_ID_RE = /^w[0-9a-z]{4,10}$/;
-export const MAX_WIDGETS = 24;
+export const MAX_WIDGETS = 40;
 
 export const WORLD_ZONES = ['UTC', 'Europe/London', 'Europe/Lisbon', 'Europe/Paris', 'Europe/Madrid', 'Europe/Rome', 'Europe/Berlin', 'Europe/Warsaw', 'Europe/Kyiv', 'Europe/Istanbul', 'Europe/Moscow',
   'Asia/Tbilisi', 'Asia/Yerevan', 'Asia/Dubai', 'Asia/Tehran', 'Asia/Jerusalem', 'Asia/Almaty', 'Asia/Kolkata', 'Asia/Bangkok', 'Asia/Jakarta', 'Asia/Singapore', 'Asia/Hong_Kong', 'Asia/Shanghai', 'Asia/Manila', 'Asia/Seoul', 'Asia/Tokyo',
@@ -75,7 +81,7 @@ export function defaultCfg(kind, now = new Date()) {
     case 'bignumber': return { metric: 'focusToday' };
     case 'sticky': return { text: '' };
     case 'stack': return defaultStack();
-    default: return {};
+    default: return moreDefaultCfg(kind);
   }
 }
 
@@ -96,7 +102,7 @@ export function normalizeCfg(kind, cfg, now = new Date()) {
         .map((x) => ({ kind: x.kind, when: STACK_WHEN.includes(x.when) ? x.when : 'any', cfg: normalizeCfg(x.kind, x.cfg, now) }));
       return items.length ? { items, pick: c.pick === 'manual' ? 'manual' : 'auto', i: Math.min(items.length - 1, Math.max(0, Number.isInteger(c.i) ? c.i : 0)) } : d;
     }
-    default: return {};
+    default: return moreNormalizeCfg(kind, c);
   }
 }
 

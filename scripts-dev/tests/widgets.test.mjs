@@ -79,3 +79,27 @@ test('a stack keeps only real members, caps them, and puts the right one on top 
   assert.deepEqual([9, 19].map((h) => stackIndex(any, h)), [0, 1]); // "any" is the fallback
   assert.equal(stackIndex({ ...st, pick: 'manual', i: 1 }, 8), 1); // the person's choice wins
 });
+
+test('the whole catalogue: every kind has a category, three growing sizes inside its range, and settings that survive validation', async () => {
+  const { WIDGET_KINDS, normalizeCfg, defaultCfg, normalizeWidgets } = await import('../../src/shared/widgets.js');
+  const { WIDGET_CATS, moreNormalizeCfg } = await import('../../src/shared/widgets-more.js');
+  const kinds = Object.keys(WIDGET_KINDS);
+  assert.ok(kinds.length >= 45, 'at least 45 widgets: ' + kinds.length);
+  for (const k of kinds) {
+    const m = WIDGET_KINDS[k];
+    assert.ok(WIDGET_CATS.includes(m.cat), k + ' category');
+    assert.ok(m.sizes.length === 3 && m.sizes[0] < m.sizes[1] && m.sizes[1] < m.sizes[2], k + ' sizes ' + m.sizes);
+    assert.ok(m.sizes.every((s) => s >= m.w[0] && s <= m.w[1]) && m.w[2] === m.sizes[1], k + ' range');
+    assert.deepEqual(normalizeCfg(k, defaultCfg(k)), defaultCfg(k), k + ' default round trip');
+    for (const junk of [null, 'x', 5, [], { a: 1 }, { view: {}, n: 'x', text: 5 }]) assert.doesNotThrow(() => normalizeCfg(k, junk), k);
+  }
+  assert.deepEqual(moreNormalizeCfg('clock', { view: 'x', face: 'y', seconds: 'yes', zone: 'Not/AZone' }), { view: 'analog', face: 'minimal', seconds: false, zone: '' });
+  assert.equal(moreNormalizeCfg('clock', { zone: 'Asia/Tokyo' }).zone, 'Asia/Tokyo');
+  assert.deepEqual(moreNormalizeCfg('timer', { minutes: 999, endsAt: -5, left: 1000.4, title: 'x'.repeat(99) }), { minutes: 180, endsAt: 0, left: 1000, title: 'x'.repeat(40) });
+  assert.deepEqual(moreNormalizeCfg('timer', { endsAt: 5000, left: 3000 }), { minutes: 25, endsAt: 5000, left: 0, title: '' }); // running wins over paused
+  assert.equal(moreNormalizeCfg('counter', { count: -3, target: 1e9, step: 0 }).count, 0); assert.equal(moreNormalizeCfg('counter', { target: 1e9 }).target, 99999);
+  const mood = moreNormalizeCfg('mood', { log: Object.fromEntries(Array.from({ length: 40 }, (_, i) => [`2024-01-${String(i % 28 + 1).padStart(2, '0')}`, 3]).concat([['bad', 3], ['2024-02-01', 9]])) });
+  assert.ok(Object.keys(mood.log).length <= 28 && !('bad' in mood.log) && !('2024-02-01' in mood.log));
+  assert.equal(normalizeWidgets([{ id: 'wabc123', kind: 'moon', cfg: {} }, { id: 'wabc124', kind: 'nonsense' }]).length, 1);
+  assert.equal(moreNormalizeCfg('label', { font: 'comic', weight: 5000, align: 'up' }).weight, 800);
+});

@@ -82,7 +82,7 @@
 
 /* ---------- skins (shared/skins.js): the cards take their look from variables, a skin only sets them ---------- */
 .card.sk-on { border-radius: var(--r-lg); box-shadow: var(--card-shadow); } /* some cards set their own radius and shadow; a skin wins */
-.sk-on { transition: background var(--t-med), box-shadow var(--t-med), border-color var(--t-med), border-radius var(--t-med); }
+.sk-on { color: var(--text); transition: background var(--t-med), box-shadow var(--t-med), border-color var(--t-med), border-radius var(--t-med); }
 .sk-bare { text-shadow: 0 1px 12px rgba(0, 0, 0, .28); } body[data-tone="light"] .sk-bare { text-shadow: 0 1px 12px rgba(255, 255, 255, .35); }
 .sk-liquid { -webkit-backdrop-filter: var(--sk-bf, blur(0px)) blur(var(--card-blur)) saturate(1.7) brightness(1.06); backdrop-filter: var(--sk-bf, blur(0px)) blur(var(--card-blur)) saturate(1.7) brightness(1.06); }
 [data-sk="glass"], [data-sk="tint"], [data-sk="neon"] { -webkit-backdrop-filter: blur(var(--card-blur)) saturate(1.5); backdrop-filter: blur(var(--card-blur)) saturate(1.5); }

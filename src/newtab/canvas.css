@@ -105,3 +105,5 @@ body.cv-editing .nt-corners { visibility: hidden; }
 .sk-prev i { display: block; height: 3px; border-radius: 2px; background: var(--text, #fff); opacity: .85; } .sk-prev i + i { width: 60%; opacity: .5; }
 .sk-name { font-size: 11px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sk-row { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); font-size: var(--fs-sm); } .sk-fine summary { cursor: pointer; font-size: var(--fs-sm); color: var(--text-2); padding: 4px 0; }
+.wg-cats { display: flex; flex-wrap: wrap; gap: 6px; }
+.wg-cats .chip { display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-2); font-size: var(--fs-xs); cursor: pointer; } .wg-cats .chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-text); }
