@@ -278,7 +278,7 @@ function runtime(host, def, opts, isUi) {
     if (every && acc >= every) {
       const s = window.performance.now(); draw(acc / 1000); acc = 0;
       slowCount = window.performance.now() - s > 12 ? slowCount + 1 : Math.max(0, slowCount - 1); // a heavy scene is drawn less often rather than made to stutter
-      if (slowCount > 20) { still = false; acc = -200; slowCount = 10; }
+      if (slowCount > 20) { acc = -200; slowCount = 10; }
     }
     void dt;
     if (!document.hidden && every !== 0) raf = window.requestAnimationFrame(loop); else timer = window.setTimeout(() => { if (alive) { last = window.performance.now(); raf = window.requestAnimationFrame(loop); } }, every === 0 ? 1500 : 500);
