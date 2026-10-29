@@ -19,6 +19,7 @@ import { createWidgetHost } from './widgets.js';
 import { applyDepth } from './depth.js';
 import { BACKGROUNDS, CLOCKS, LAYOUTS, backgroundControls, depthControls, lookControls, accentControls, clockFormatControls } from './home-controls.js';
 import { themeBlock } from './theme-io.js';
+import { starterGallery } from './starter-panel.js';
 import { resolveSettings, wantedLayout, activeLayoutId, editingLayoutId, setFocusing, home } from './home-config.js';
 import { downloadBackup, needsBackup } from '../ui/backup.js';
 import { send } from '../ui/api.js';
@@ -253,6 +254,7 @@ function drawDrawer() {
   const [clockSeg, greeting] = clockFormatControls(n, set);
   clear(body,
     section(t('cv.edit'), h('p', { class: 'muted', style: { marginBottom: 'var(--s-3)' }, text: t('cv.drawerHint') }), h('button', { class: 'btn btn-primary', type: 'button', onclick: openEditor }, icon('move'), t('cv.edit'))),
+    section(t('st.title'), starterGallery({ set })),
     section(t('th.title'), themeBlock()),
     section(t('ap.looks'), ...lookControls(settings, set)),
     section(t('home.accent'), ...accentControls(settings, set)),

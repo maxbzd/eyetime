@@ -126,3 +126,11 @@
 :root[data-motion="reduced"] .ob-orb i { animation: none; }
 .lk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(clamp(52px, 22cqi, 92px), 1fr)); gap: clamp(6px, 2cqi, 12px); } .lk-tile { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: clamp(8px, 3cqi, 14px) 4px; border-radius: var(--r-md, 14px); background: color-mix(in srgb, var(--surface-2) 70%, transparent); color: var(--text-2); text-decoration: none; font-size: clamp(10px, 3.4cqi, 13px); min-width: 0; transition: transform .15s var(--ease), background .15s; } .lk-tile:hover { transform: translateY(-2px); background: var(--surface-3); color: var(--text); }
 .lk-tile .fav { width: clamp(22px, 9cqi, 38px); height: clamp(22px, 9cqi, 38px); border-radius: 8px; } .lk-t { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ready themes */
+.st-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
+.st-tile { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 0; border: 1px solid var(--border); border-radius: var(--r-md, 12px); background: var(--surface); overflow: hidden; cursor: pointer; text-align: left; transition: transform .15s var(--ease), box-shadow .15s, border-color .15s; }
+.st-tile img { display: block; width: 100%; height: auto; aspect-ratio: 8 / 5; object-fit: cover; background: var(--surface-3); }
+.st-tile .st-name { padding: 0 var(--s-3) var(--s-2); font-size: var(--fs-sm); font-weight: 600; color: var(--text); }
+.st-tile:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 8px 22px rgba(0, 0, 0, .18); }
+.st-tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
