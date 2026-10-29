@@ -82,7 +82,7 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
 
   // a widget: add, duplicate, delete the copy
   await p.click('.cv-bar button:has-text("Add widget")'); await p.waitForTimeout(400);
-  await p.locator('.cv-panel .wg-tile', { hasText: 'Sticky note' }).click(); await p.waitForTimeout(900);
+  await p.locator('.wg-cats .chip', { hasText: 'All' }).click(); await p.waitForTimeout(300); await p.locator('.cv-panel .wg-tile', { hasText: 'Sticky note' }).click(); await p.waitForTimeout(900);
   const sticky = async () => sp.evaluate(async () => (await (await import('/src/shared/storage.js')).getSettings()).newtab.widgets);
   let ws = await sticky(); ok(ws.length === 1, 'one widget added');
   await p.locator('.cv-insp button[aria-label="Duplicate"]').click(); await p.waitForTimeout(1200);

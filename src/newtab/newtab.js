@@ -17,9 +17,10 @@ import { applyCanvas, canvasActive } from './canvas.js';
 import { applyType, clockSeconds, alignClockFill } from './type-apply.js';
 import { createWidgetHost } from './widgets.js';
 import { applyDepth } from './depth.js';
-import { BACKGROUNDS, CLOCKS, LAYOUTS, backgroundControls, depthControls, lookControls, accentControls, clockFormatControls } from './home-controls.js';
-import { themeBlock } from './theme-io.js';
-import { starterGallery } from './starter-panel.js';
+import { BACKGROUNDS, CLOCKS, LAYOUTS } from './home-controls.js';
+import { starterGallery, applyStarterWith } from './starter-panel.js';
+import { surprise } from '../shared/starters.js';
+import { homeRows, moduleOrder } from './home-rows.js';
 import { resolveSettings, wantedLayout, activeLayoutId, editingLayoutId, setFocusing, home } from './home-config.js';
 import { downloadBackup, needsBackup } from '../ui/backup.js';
 import { send } from '../ui/api.js';
@@ -44,9 +45,6 @@ import { loadWeather } from './weather.js';
 import { describeCode } from '../shared/weather.js';
 
 const DARK_SCENES = ['aurora', 'stars', 'photo', 'sea', 'onyx', 'peaks'];
-const MODULES = ['today', 'tasks', 'habits', 'notes', 'links'];
-/** Saved order, completed with any module it does not mention (new modules, hand-edited backups). */
-const moduleOrder = (n) => [...new Set([...(n.order || []).filter((m) => MODULES.includes(m)), ...MODULES])];
 let settings, rawSettings, linksMod, standby;
 
 /* ---------- hero ---------- */
@@ -238,32 +236,14 @@ function closeDrawer() { $('#drawer').hidden = true; $('#scrim').hidden = true; 
 function drawDrawer() {
   const body = $('#drawerBody'), n = settings.newtab;
   const set = (fn) => updateSettings((s) => { fn({ ...s, newtab: home(s) }); }); // edits go to the layout in use
-
-  const seg = (label, list, value, key, keyPrefix) => h('div', { class: 'segmented wrap-seg', role: 'group', 'aria-label': label },
-    list.map((v) => h('button', { type: 'button', 'aria-pressed': String(v === value), text: t(keyPrefix + v), onclick: () => set((s) => { s.newtab[key] = v; }) })));
-
-  const order = moduleOrder(n);
-  const move = (m, d) => set((s) => { const o = moduleOrder(s.newtab); const i = o.indexOf(m), j = i + d; if (j < 0 || j >= o.length) return; [o[i], o[j]] = [o[j], o[i]]; s.newtab.order = o; });
-  const modRows = order.map((m, i) => h('div', { class: 'toggle-row mod-row' },
-    h('span', { class: 'grow', text: t('mod.' + m) }),
-    h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', disabled: i === 0, 'aria-label': t('home.moveUp') + ': ' + t('mod.' + m), onclick: () => move(m, -1) }, icon('arrow-up')),
-    h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', disabled: i === order.length - 1, 'aria-label': t('home.moveDown') + ': ' + t('mod.' + m), onclick: () => move(m, 1) }, icon('arrow-down')),
-    h('span', { class: 'switch' }, h('input', { type: 'checkbox', checked: !!n.modules[m], 'aria-label': t('mod.' + m), onchange: (e) => set((s) => { s.newtab.modules[m] = e.target.checked; }) }), h('span', { class: 'track' }), h('span', { class: 'thumb' }))));
-
   const section = (title, ...kids) => h('div', {}, h('h4', { text: title }), ...kids);
-  const [clockSeg, greeting] = clockFormatControls(n, set);
+  const top = body.scrollTop;
   clear(body,
-    section(t('cv.edit'), h('p', { class: 'muted', style: { marginBottom: 'var(--s-3)' }, text: t('cv.drawerHint') }), h('button', { class: 'btn btn-primary', type: 'button', onclick: openEditor }, icon('move'), t('cv.edit'))),
     section(t('st.title'), starterGallery({ set })),
-    section(t('th.title'), themeBlock()),
-    section(t('ap.looks'), ...lookControls(settings, set)),
-    section(t('home.accent'), ...accentControls(settings, set)),
-    section(t('home.background'), ...backgroundControls(n, set)),
-    section(t('dp.title'), ...depthControls(n, set)),
-    section(t('home.layout'), seg(t('home.layout'), LAYOUTS, n.layout, 'layout', 'layout.')),
-    section(t('home.modules'), modRows),
-    section(t('home.clock'), seg(t('home.clockStyle'), CLOCKS, n.clockStyle, 'clockStyle', 'clock.'), h('div', { style: { height: 'var(--s-3)' } }), clockSeg, greeting),
+    h('button', { class: 'btn btn-primary', type: 'button', onclick: openEditor }, icon('move'), t('cv.edit')),
+    section(t('hr.title'), homeRows({ settings, n, set, redraw: drawDrawer, openEditor })),
     h('a', { class: 'btn', href: chrome.runtime.getURL('src/options/options.html#appearance') }, icon('palette'), t('home.moreAppearance')));
+  body.scrollTop = top;
 }
 
 /* ---------- boot ---------- */
@@ -333,7 +313,7 @@ function renderOff() {
   homeOff = s0.newtab.enabled === false;
   if (s0.newtab.enabled === false) { renderOff(); return; } // a browser never lets an extension hand the tab back: it stays empty and quiet
   await morningPlan();
-  installPalette({ extra: () => [{ group: 'go', icon: 'moon', label: t('sb.now'), run: () => window.dispatchEvent(new window.CustomEvent('et:standby')), keys: ['night', 'clock', 'standby', 'sleep'] }, { group: 'focus', icon: 'calendar-clock', label: t('plan.title'), run: openDayPlan, keys: ['plan', 'schedule', 'day', 'blocks'] }, { group: 'go', icon: 'moon', label: t('sc.closeDay'), run: openShutdown, keys: ['shutdown', 'review', 'plan tomorrow'] }, { group: 'go', icon: 'move', label: t('cv.edit'), run: openEditor, keys: ['arrange', 'move', 'drag', 'layout', 'widgets'] }, { group: 'go', icon: 'sliders-horizontal', label: t('sc.customize'), run: openDrawer, keys: ['customize', 'layout', 'background', 'clock'] }] });
+  installPalette({ extra: () => [{ group: 'go', icon: 'moon', label: t('sb.now'), run: () => window.dispatchEvent(new window.CustomEvent('et:standby')), keys: ['night', 'clock', 'standby', 'sleep'] }, { group: 'focus', icon: 'calendar-clock', label: t('plan.title'), run: openDayPlan, keys: ['plan', 'schedule', 'day', 'blocks'] }, { group: 'go', icon: 'moon', label: t('sc.closeDay'), run: openShutdown, keys: ['shutdown', 'review', 'plan tomorrow'] }, { group: 'go', icon: 'move', label: t('cv.edit'), run: openEditor, keys: ['arrange', 'move', 'drag', 'layout', 'widgets'] }, { group: 'go', icon: 'dices', label: t('st.surprise'), run: () => applyStarterWith((fn) => updateSettings((x) => { fn({ ...x, newtab: home(x) }); }), surprise(), t('st.surprise')), keys: ['surprise', 'random', 'theme', 'shuffle'] }, { group: 'go', icon: 'sliders-horizontal', label: t('sc.customize'), run: openDrawer, keys: ['customize', 'layout', 'background', 'clock'] }] });
   paintClock(); scheduleClock(); applyType(settings); await applyBackground();
   let rz = 0; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { paintClock(); applyCanvas(settings); }, 120); });
   mountFocusCard($('#focus'), { variant: 'large' });
