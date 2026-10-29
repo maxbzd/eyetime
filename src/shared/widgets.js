@@ -46,7 +46,7 @@ export const MAX_STACK = 5;
 /** The part of the day: morning 5–11, day 12–17, evening 18–22, night 23–4. */
 export const partOfDay = (hour) => (hour >= 5 && hour < 12 ? 'morning' : hour >= 12 && hour < 18 ? 'day' : hour >= 18 && hour < 23 ? 'evening' : 'night');
 /** The widget kinds a stack can hold (everything but a stack). */
-export const STACKABLE = Object.keys(WIDGET_KINDS).filter((k) => k !== 'stack');
+export const STACKABLE = Object.keys(WIDGET_KINDS).filter((k) => k !== 'stack' && !WIDGET_KINDS[k].hidden);
 /** What a new stack holds: the day's plan in the morning, the main focus by day, the recap in the evening. */
 export const defaultStack = () => ({ items: [{ kind: 'plan', when: 'morning', cfg: {} }, { kind: 'mainfocus', when: 'day', cfg: { text: '', day: '', done: false } }, { kind: 'recap', when: 'evening', cfg: {} }], pick: 'auto', i: 0 });
 /**

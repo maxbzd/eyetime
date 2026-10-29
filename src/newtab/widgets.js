@@ -18,6 +18,7 @@ import { loadGuess } from '../shared/guessstore.js';
 import { TIME_DEFS } from './widgets-time.js';
 import { FOCUS_DEFS } from './widgets-focus.js';
 import { LIFE_DEFS } from './widgets-life.js';
+import { CUSTOM_DEFS } from './widgets-custom.js';
 import { describeCode } from '../shared/weather.js';
 import { openDayPlan } from './dayplan.js';
 import { openShutdown } from './shutdown.js';
@@ -327,7 +328,7 @@ const DEFS = {
   },
 };
 
-Object.assign(DEFS, TIME_DEFS, FOCUS_DEFS, LIFE_DEFS);
+Object.assign(DEFS, TIME_DEFS, FOCUS_DEFS, LIFE_DEFS, CUSTOM_DEFS);
 
 /* ---------- the host: keeps the page's widget cards in step with the saved list ---------- */
 
