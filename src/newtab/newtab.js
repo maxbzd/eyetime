@@ -37,6 +37,8 @@ import { showQuote } from '../ui/quote.js';
 import { mountStandby } from './standby.js';
 import { mountWeatherFx } from './weather-fx.js';
 import { autoGuess } from '../ui/siteai.js';
+import { paintSkin, skinEnv } from './skin-apply.js';
+import { normalizeSkin } from '../shared/skins.js';
 import { loadWeather } from './weather.js';
 import { describeCode } from '../shared/weather.js';
 
@@ -184,6 +186,13 @@ async function applyWeatherFx(photo = wxPhoto) {
   await weatherFx.set(fx, power, photo);
 }
 
+/** The skin of every card on Home: the theme's (newtab.dna), or the widget's own. */
+function applySkins() {
+  const dna = normalizeSkin(settings.newtab.dna), own = new Map((settings.newtab.widgets || []).map((w) => [`wgt-${w.id}`, w.skin]));
+  const env = skinEnv();
+  for (const el of document.querySelectorAll('main.nt #focus, main.nt .card.mod, main.nt .wgt:not(.wgt-preview)')) paintSkin(/** @type {HTMLElement} */ (el), own.get(el.id) || dna, env);
+}
+
 /* ---------- modules ---------- */
 
 let modEls = [], widgetEls = [];
@@ -275,6 +284,7 @@ async function applySettings(rawIn, first = false) {
     else if (linksMod && JSON.stringify(s.newtab.links) !== prevLinks) linksMod.update(s);
     if (!$('#drawer').hidden) drawDrawer();
   }
+  applySkins();
 }
 
 /** Yesterday evening's plan becomes today's priorities (and stale plans are dropped). */
@@ -334,7 +344,7 @@ function renderOff() {
   mountGettingStarted($('#gs'), { startShortSession: async () => { const s = await getSettings(); await send('focus:start', { minutes: 5, strict: false, scope: s.focus.scope }); } });
   paintNudge(); setInterval(paintNudge, 60_000); paintBackupNudge();
   onChange(['tasks', 'd:*'], paintNudge);
-  renderModules();
+  renderModules(); applySkins();
   $('#customize').addEventListener('click', openDrawer);
   $('#moreMods').addEventListener('click', () => document.body.classList.toggle('show-mods'));
   $('#drawerClose').addEventListener('click', closeDrawer);
