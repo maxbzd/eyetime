@@ -104,3 +104,10 @@ section.sec > div[id] { scroll-margin-top: 92px; }
 
 .setting-desc.warn { color: var(--distracting-text); }
 .wx-pick { justify-content: flex-start; text-align: left; height: auto; padding: 6px 8px; } .wx-pick .ico { color: var(--accent-text); }
+
+/* a folded group of settings */
+.fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none; }
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary .ico { color: var(--text-3); transition: transform .2s var(--ease); } .fold[open] > summary .ico { transform: rotate(180deg); }
+.fold > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.fold > .card { margin-top: var(--s-3); }

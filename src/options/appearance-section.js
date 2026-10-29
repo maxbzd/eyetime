@@ -1,7 +1,7 @@
 // Settings → Appearance: looks gallery, colour mode, accent, type, shape, density, custom CSS, share/import/reset.
 
 import { h, icon, toast, confirmDialog } from '../ui/dom.js';
-import { row, group, toggle, select, segmented, sectionHead } from './ui.js';
+import { row, group, foldGroup, toggle, select, segmented, sectionHead } from './ui.js';
 import { t } from '../shared/i18n.js';
 import { FONTS, RADII, DENSITY, CARD_STYLES, SCALES, LOOK_EXPORT_KEYS, sanitizeAppearance, sanitizeCustomCss } from '../shared/looks.js';
 import { DEFAULT_SETTINGS } from '../shared/defaults.js';
@@ -67,14 +67,14 @@ export function appearance({ s, save }) {
         h('span', { class: 'muted', text: t('ap.darkFrom') }), timeIn(ap.schedule.dark, t('ap.darkFrom'), (v) => save((x) => { x.appearance.schedule.dark = v; }, true)),
         h('span', { class: 'muted', text: t('ap.lightFrom') }), timeIn(ap.schedule.light, t('ap.lightFrom'), (v) => save((x) => { x.appearance.schedule.light = v; }, true))) }) : null,
       row({ title: t('opt.accent'), desc: t('ap.accentDesc'), stack: true, control: accentPicker(ap, set('accent')) })),
-    group(t('ap.shape'),
+    foldGroup(t('ap.shape'),
       row({ title: t('ap.font'), desc: t('ap.fontDesc'), control: select([['look', t('ap.fromLook')], ...Object.entries(FONTS).map(([id, f]) => [id, id === 'system' ? t('ap.fontSystem') : f.label])], ap.font, set('font'), { label: t('ap.font') }) }),
       row({ title: t('ap.scale'), desc: t('ap.scaleDesc'), control: segmented(SCALES.map((v) => [v, v + '%']), ap.scale, set('scale'), t('ap.scale')) }),
       row({ title: t('ap.radius'), desc: t('ap.radiusDesc'), control: select([['look', t('ap.fromLook')], ...Object.keys(RADII).map((id) => [id, t('radius.' + id)])], ap.radius, set('radius'), { label: t('ap.radius') }) }),
       row({ title: t('ap.density'), desc: t('ap.densityDesc'), control: segmented(Object.keys(DENSITY).map((id) => [id, t('density.' + id)]), ap.density, set('density'), t('ap.density')) }),
       row({ title: t('ap.cards'), desc: t('ap.cardsDesc'), control: select(CARD_STYLES.map((id) => [id, id === 'look' ? t('ap.fromLook') : t('cards.' + id)]), ap.cards, set('cards'), { label: t('ap.cards') }) }),
       row({ title: t('ap.motion'), desc: t('ap.motionDesc'), control: toggle(ap.motion === 'reduced', (v) => save((x) => { x.appearance.motion = v ? 'reduced' : 'system'; }, true), t('ap.motion')) })),
-    group(t('ap.advanced'),
+    foldGroup(t('ap.advanced'),
       row({ title: t('ap.css'), desc: t('ap.cssDesc'), stack: true, control: h('div', { class: 'stack gap-2', style: { width: '100%' } }, css, cssErr) }),
       row({ title: t('ap.share'), desc: t('ap.shareDesc'), stack: true, control: h('div', { class: 'row gap-2 wrap' },
         h('button', { class: 'btn', type: 'button', onclick: share }, icon('copy'), t('ap.copy')),

@@ -18,6 +18,16 @@ export function group(title, ...rows) {
   return h('div', {}, title ? h('h3', { class: 'group-title', text: title }) : null, h('div', { class: 'card list' }, rows.flat().filter(Boolean)));
 }
 
+/** A group that stays folded until opened (the choice is remembered): the same rows as `group`, out of the way of the ones people need first. */
+export function foldGroup(title, ...rows) {
+  const key = 'et-fold-' + title;
+  let open = false;
+  try { open = localStorage.getItem(key) === '1'; } catch { /* no storage: folded */ }
+  const d = h('details', { class: 'fold', open }, h('summary', { class: 'group-title fold-head' }, title, icon('chevron-down')), h('div', { class: 'card list' }, rows.flat().filter(Boolean)));
+  d.addEventListener('toggle', () => { try { localStorage.setItem(key, d.open ? '1' : '0'); } catch { /* ignore */ } });
+  return d;
+}
+
 export function toggle(checked, onChange, label) {
   return h('label', { class: 'switch' },
     h('input', { type: 'checkbox', checked, 'aria-label': label, onchange: (e) => onChange(e.target.checked) }), h('span', { class: 'track' }), h('span', { class: 'thumb' }));
