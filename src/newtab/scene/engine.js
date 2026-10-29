@@ -47,7 +47,7 @@ function paintOf(raw, ctx) {
 function buildNode(n, ctx) {
   const t = n.t;
   if (t === 'particles') return makeParticles(n, ctx);
-  const el = t === 'group' || t === 'ring' || t === 'bar' || t === 'list' ? mk('g') : t === 'ellipse' ? mk('ellipse') : t === 'rect' ? mk('rect') : t === 'line' ? mk('line') : t === 'path' ? mk('path') : t === 'text' ? mk('text') : t === 'spark' ? mk('g') : t === 'noise' ? mk('rect') : null;
+  const el = t === 'group' || t === 'ring' || t === 'lines' || t === 'bar' || t === 'list' ? mk('g') : t === 'ellipse' ? mk('ellipse') : t === 'rect' ? mk('rect') : t === 'line' ? mk('line') : t === 'path' ? mk('path') : t === 'text' ? mk('text') : t === 'spark' ? mk('g') : t === 'noise' ? mk('rect') : null;
   if (!el) return null;
   const setters = []; // [vars[], (env) => void]
   const use = (vars) => { for (const v of vars || []) ctx.vars.add(v); };
@@ -69,7 +69,11 @@ function buildNode(n, ctx) {
     } else el.setAttribute('transform', `translate(${x} ${y}) rotate(${rot}) scale(${sc})`);
   };
   const g = (key, fallback) => num(key, fallback, (v) => { geo[key] = v; place(); });
-  if (t === 'line') { for (const k of ['x1', 'y1', 'x2', 'y2']) num(k, 0, (v) => el.setAttribute(k, v)); }
+  if (t === 'line') {
+    for (const k of ['x1', 'y1', 'x2', 'y2']) num(k, 0, (v) => el.setAttribute(k, v));
+    bind(n.stroke === undefined ? 'token:text-3' : n.stroke, (v) => el.setAttribute('stroke', v), { paint: true }); num('sw', 1, (v) => el.setAttribute('stroke-width', v));
+    el.setAttribute('stroke-linecap', n.cap || 'round'); if (n.dash) el.setAttribute('stroke-dasharray', n.dash);
+  }
   else if (t === 'ring') {
     const rr = { cx: 0, cy: 0, r: 40, sw: 8, val: 0 }, bar = mk('circle'), track = mk('circle');
     el.append(track, bar);
@@ -145,6 +149,22 @@ function buildNode(n, ctx) {
     bind(n.fill === undefined ? 'token:text' : n.fill, (v) => el.setAttribute('fill', v), { paint: true });
     if (n.stroke !== undefined) bind(n.stroke, (v) => el.setAttribute('stroke', v), { paint: true }); if (n.sw !== undefined) num('sw', 0, (v) => el.setAttribute('stroke-width', v));
     el.style.fontVariantNumeric = 'tabular-nums';
+  } else if (t === 'lines') {
+    const id = 'scl' + (++uid), pat = mk('pattern', { id, patternUnits: 'userSpaceOnUse' }), ln = mk('line'), rect = mk('rect');
+    const L = { gap: 8, sw: 1, w: 1000, h: 600 };
+    const redraw = () => {
+      const dir = n.dir || 'h', gp = Math.max(2, L.gap);
+      pat.setAttribute('width', dir === 'h' ? 10 : gp); pat.setAttribute('height', dir === 'v' ? 10 : gp);
+      if (dir === 'h') { ln.setAttribute('x1', 0); ln.setAttribute('x2', 10); ln.setAttribute('y1', gp / 2); ln.setAttribute('y2', gp / 2); }
+      else if (dir === 'v') { ln.setAttribute('x1', gp / 2); ln.setAttribute('x2', gp / 2); ln.setAttribute('y1', 0); ln.setAttribute('y2', 10); }
+      else { pat.setAttribute('width', gp); pat.setAttribute('height', gp); ln.setAttribute('x1', 0); ln.setAttribute('y1', gp); ln.setAttribute('x2', gp); ln.setAttribute('y2', 0); }
+      ln.setAttribute('stroke-width', L.sw); rect.setAttribute('width', L.w); rect.setAttribute('height', L.h);
+    };
+    pat.append(ln); ctx.defs.append(pat); rect.setAttribute('fill', `url(#${id})`); el.append(rect);
+    num('gap', 8, (v) => { L.gap = v; redraw(); }); num('sw', 1, (v) => { L.sw = v; redraw(); }); num('w', 1000, (v) => { L.w = v; redraw(); }); num('h', 600, (v) => { L.h = v; redraw(); });
+    g('x', 0); g('y', 0);
+    bind(n.stroke === undefined ? 'rgba(128,128,128,.3)' : n.stroke, (v) => ln.setAttribute('stroke', v), { paint: true });
+    redraw();
   } else if (t === 'path') {
     if (n.d) el.setAttribute('d', n.d);
     g('x', 0); g('y', 0); if (n.rot !== undefined) g('rot', 0); if (n.sc !== undefined) g('sc', 1);
@@ -153,7 +173,7 @@ function buildNode(n, ctx) {
   } else if (t === 'group') {
     g('x', 0); g('y', 0); if (n.rot !== undefined) g('rot', 0); if (n.sc !== undefined) g('sc', 1);
     const kids = buildTree(n.children || [], ctx); el.append(kids.el); childUpdate = kids.update;
-    if (n.clip && n.w !== undefined && n.h !== undefined) { const id = 'scc' + (++uid), cp = mk('clipPath', { id }); const r = mk('rect', { x: 0, y: 0, width: n.w, height: n.h }); cp.append(r); ctx.defs.append(cp); el.setAttribute('clip-path', `url(#${id})`); }
+    if (n.clip && typeof n.w === 'number' && typeof n.h === 'number') { const id = 'scc' + (++uid), cp = mk('clipPath', { id }); const r = n.clip === 'ellipse' ? mk('ellipse', { cx: n.w / 2, cy: n.h / 2, rx: n.w / 2, ry: n.h / 2 }) : mk('rect', { x: 0, y: 0, width: n.w, height: n.h }); cp.append(r); ctx.defs.append(cp); el.setAttribute('clip-path', `url(#${id})`); }
   } else if (t === 'noise') {
     const id = 'scn' + (++uid), f = mk('filter', { id, x: 0, y: 0, width: '100%', height: '100%' });
     f.append(mk('feTurbulence', { type: 'fractalNoise', baseFrequency: n.freq || 0.8, numOctaves: 2, seed: n.seed || 1, stitchTiles: 'stitch' }), mk('feColorMatrix', { values: '0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1.1 -0.2' }));
@@ -246,7 +266,7 @@ function runtime(host, def, opts, isUi) {
     env.set('t', tNow); env.set('dt', dt); env.set('W', UW); env.set('H', H); env.set('aspect', UW / H);
     env.set('hour', d.getHours()); env.set('minute', d.getMinutes()); env.set('second', d.getSeconds()); env.set('dayFrac', hf / 24); env.set('weekday', d.getDay());
     env.set('daylight', dl); env.set('night', 1 - Math.min(1, Math.max(0, dl / 0.35)));
-    env.set('mouseX', pointer.p.x); env.set('mouseY', pointer.p.y); env.set('reduced', reduced() ? 1 : 0);
+    env.set('mouseX', pointer.p.x); env.set('mouseY', pointer.p.y); env.set('reduced', reduced() ? 1 : 0); env.set('dark', document.documentElement.dataset.scheme === 'dark' ? 1 : 0);
     for (const k of ['focus', 'focusFrac', 'paused', 'goal', 'goalMin', 'focusToday', 'sessionsToday', 'tasksOpen', 'tasksDone', 'streak', 'screenToday', 'week', 'days14', 'tasks']) env.set(k, s[k]);
     for (const [k, v] of paramVals) env.set(k, v);
     for (const { k, ease, when } of stateDefs) {
