@@ -11,6 +11,7 @@ import { looksGallery, accentPicker } from '../ui/appearance.js';
 import { cutOut } from './cutout.js';
 import { makeDepth } from './depth-make.js';
 import { photoKey } from './photo-info.js';
+import { FRAME_IDS } from '../shared/frames.js';
 
 export const BACKGROUNDS = ['look', 'peaks', 'dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'grid', 'living', 'plain', 'color'];
 export const CLOCKS = ['thin', 'bold', 'mono', 'serif', 'compact', 'stacked', 'none'];
@@ -83,15 +84,17 @@ export function volumeBlock(n, set) {
 export function backgroundControls(n, set) {
   const fileIn = h('input', { type: 'file', accept: 'image/*', hidden: true, onchange: async (e) => {
     const f = e.target.files[0]; if (!f) return;
-    try { await setRaw({ newtabBg: await fileToDataUrl(f) }); await chrome.storage.local.remove(['newtabFg', 'newtabDepth']); await set((s) => { s.newtab.background = 'photo'; }); toast(t('home.photoSaved')); } catch { toast(t('common.error')); }
+    try { await setRaw({ newtabBg: await fileToDataUrl(f) }); await chrome.storage.local.remove(['newtabFg', 'newtabDepth']); await set((s) => { s.newtab.background = 'photo'; s.newtab.frame = ''; }); toast(t('home.photoSaved')); } catch { toast(t('common.error')); }
   } });
   const tiles = [...BACKGROUNDS, 'photo', ...(n.scene && n.scene.layers && n.scene.layers.length ? ['scene'] : [])].map((id) => h('button', { class: 'bg-tile', type: 'button', 'aria-pressed': String(n.background === id), onclick: async () => {
-    if (id === 'photo') { const { newtabBg } = await getRaw('newtabBg'); if (!newtabBg) { fileIn.click(); return; } }
+    if (id === 'photo' && !n.frame) { const { newtabBg } = await getRaw('newtabBg'); if (!newtabBg) { fileIn.click(); return; } }
     await set((s) => { s.newtab.background = id; });
   } }, h('i', { class: 'bgx-' + (id === 'photo' ? 'plain' : id), style: id === 'photo' ? { background: 'repeating-linear-gradient(45deg, var(--surface-2), var(--surface-2) 6px, var(--surface-3) 6px, var(--surface-3) 12px)' } : id === 'color' ? { '--bg-color': normalizeHex(n.bgColor) || '#e9e4ff' } : {} }), h('span', { text: t('bg.' + id) })));
   const colorIn = h('label', { class: 'row gap-2', style: { marginTop: 'var(--s-3)' } }, h('span', { class: 'muted-2', text: t('home.bgColor') }),
     h('input', { type: 'color', value: normalizeHex(n.bgColor) || '#e9e4ff', 'aria-label': t('home.bgColor'), onchange: (e) => set((s) => { s.newtab.bgColor = e.target.value; s.newtab.background = 'color'; }) }));
-  return [h('div', { class: 'bg-grid' }, tiles), fileIn,
+  const frames = h('div', { class: 'frame-grid', role: 'group', 'aria-label': t('bg.frames') }, FRAME_IDS.map((id) => h('button', { class: 'frame-tile', type: 'button', 'aria-pressed': String(n.background === 'photo' && n.frame === id), 'aria-label': t('bg.frame.' + id), 'data-tip': t('bg.frame.' + id),
+    onclick: () => set((s) => { s.newtab.background = 'photo'; s.newtab.frame = id; }) }, h('img', { src: chrome.runtime.getURL(`src/newtab/frames/${id}-t.webp`), alt: '', width: 80, height: 50 }))));
+  return [h('div', { class: 'bg-grid' }, tiles), h('div', { class: 'muted-2 frame-label', text: t('bg.frames') }), frames, fileIn,
     n.background === 'color' ? null : colorIn,
     n.background === 'photo' ? h('button', { class: 'btn btn-sm', style: { marginTop: 'var(--s-3)' }, type: 'button', onclick: () => fileIn.click() }, icon('image'), t('home.changePhoto')) : null,
     n.background === 'photo' ? h('div', { class: 'stack gap-2', style: { marginTop: 'var(--s-4)' } }, h('div', { class: 'eyebrow', text: t('bg.textTone') }),

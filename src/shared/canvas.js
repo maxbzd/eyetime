@@ -10,7 +10,7 @@
 
 /** The blocks that can be moved. `text` blocks scale, `card` blocks change width. */
 export const CANVAS_BLOCKS = {
-  clock:    { kind: 'text', min: 0.4, max: 3, def: 1 },
+  clock:    { kind: 'text', min: 0.4, max: 9, def: 1 },
   greeting: { kind: 'text', min: 0.5, max: 2.5, def: 1 },
   quote:    { kind: 'text', min: 0.5, max: 2, def: 1 },
   focus:    { kind: 'card', min: 320, max: 1000, def: 760 },

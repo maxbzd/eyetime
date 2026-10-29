@@ -92,7 +92,7 @@ body { min-height: calc(100vh / var(--ui-scale, 1)); position: relative; }
 .dl { position: absolute; left: -4%; right: -4%; bottom: -40px; pointer-events: none; background-repeat: no-repeat; background-position: bottom; background-size: 100% 100%; will-change: transform;
   transform: translate3d(calc(var(--px, 0) * var(--str, 1) * var(--k, 20) * -1px), calc(var(--py, 0) * var(--str, 1) * var(--k, 20) * -.5px), 0); }
 .dl-near { height: max(46vw, 62vh); background-image: url("scenes/peaks-near.svg"); }
-.dl-photo { inset: 0; bottom: 0; height: auto; --k: 16; background-image: linear-gradient(to bottom, rgba(0, 0, 0, .28), rgba(0, 0, 0, .5)), var(--photo); background-size: cover; background-position: center;
+.dl-photo { inset: 0; bottom: 0; height: auto; --k: 16; background-image: linear-gradient(to bottom, rgba(0, 0, 0, calc(.28 * var(--photo-shade, 1))), rgba(0, 0, 0, calc(.5 * var(--photo-shade, 1)))), var(--photo); background-size: cover; background-position: center;
   -webkit-mask-image: var(--photo-mask); mask-image: var(--photo-mask); -webkit-mask-size: cover; mask-size: cover; -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
   transform: translate3d(calc(var(--px, 0) * var(--str, 1) * var(--k) * -1px), calc(var(--py, 0) * var(--str, 1) * var(--k) * -.5px), 0) scale(1.06); }
 body.has-depth .bg.bgx-photo { transform: translate3d(calc(var(--px, 0) * var(--str, 1) * -7px), calc(var(--py, 0) * var(--str, 1) * -3px), 0) scale(1.06); }
@@ -128,7 +128,7 @@ body.cv-editing { --str: 0 !important; }
 @media (prefers-reduced-motion: reduce) { .bgx-living { animation: none; } }
 .bgx-color { background: var(--bg-color, var(--bg)); }
 .bgx-photo { background-image: var(--photo); }
-.bgx-photo::after { background: linear-gradient(to bottom, rgba(0,0,0,.28), rgba(0,0,0,.5)); }
+.bgx-photo::after { background: linear-gradient(to bottom, rgba(0, 0, 0, calc(.28 * var(--photo-shade, 1))), rgba(0, 0, 0, calc(.5 * var(--photo-shade, 1)))); }
 
 /* ---------- top bar ---------- */
 /* three quiet glass buttons in the corners (statistics, settings, customize) instead of a bar */
@@ -403,3 +403,9 @@ body.bg-gl .bg.bgx-photo { background-image: none; transform: none; }
 .sc-svg { overflow: hidden; }
 .sc-ui { position: relative; inset: auto; width: 100%; height: auto; }
 .sc-ui .sc-svg { position: absolute; }
+.frame-label { margin: var(--s-3) 0 var(--s-2); font-size: var(--fs-sm); }
+.frame-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-2); }
+.frame-tile { position: relative; aspect-ratio: 16 / 10; padding: 0; border-radius: 10px; border: 2px solid transparent; outline: 1px solid var(--border-strong); overflow: hidden; background: var(--surface-2); cursor: pointer; }
+.frame-tile img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.frame-tile[aria-pressed="true"] { border-color: var(--accent); outline-color: var(--accent); }
+.frame-tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
