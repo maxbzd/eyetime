@@ -60,7 +60,7 @@ export function skinTokens(skin, env) {
   switch (skin.s) {
     case 'glass': bg = dim(ink, al); border = 'rgba(255, 255, 255, .30)'; break;
     case 'liquid':
-      bg = `linear-gradient(135deg, rgba(255, 255, 255, ${(.16 + al * .4).toFixed(3)}), rgba(255, 255, 255, ${(.02 + al * .15).toFixed(3)}) 55%, rgba(255, 255, 255, ${(.08 + al * .3).toFixed(3)})), ${dim(ink, al * .6)}`;
+      bg = `linear-gradient(135deg, rgba(255, 255, 255, ${(.16 + al * .4).toFixed(3)}), rgba(255, 255, 255, ${(.02 + al * .15).toFixed(3)}) 55%, rgba(255, 255, 255, ${(.08 + al * .3).toFixed(3)})), ${dim(ink, .16 + al * .7)}`;
       border = 'rgba(255, 255, 255, .42)';
       shadow = `${shadow === 'none' ? '' : shadow + ', '}inset 0 1.5px 0 rgba(255, 255, 255, .62), inset 0 -1px 0 rgba(255, 255, 255, .18), inset 0 0 26px rgba(255, 255, 255, .10)`;
       break;
