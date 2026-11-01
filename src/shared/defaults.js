@@ -84,11 +84,12 @@ export const DEFAULT_SETTINGS = {
     enabled: true,
     modules: { focus: true, today: true, tasks: true, habits: true, notes: true, links: true },
     background: 'look',        // 'look' (the look's own scene: Calm = Dawn, others = their page colour) | gradient / pattern id | 'color' | 'photo'
-    frame: '',                 // a photo that ships with EyeTime (shared/frames.js) used when the background is 'photo'; '' = the person's own photo
+    quiet: false,              // a theme may hide the page's own buttons until the mouse moves (a clean lock-screen look)
+    frame: 'daily',            // a photo that ships with EyeTime (shared/frames.js) used when the background is 'photo'; 'daily' = a new wallpaper every day; '' = the person's own photo
     photoText: 'auto',         // text colour on a photo background: auto (white or black, whichever reads better) | light | dark
     bgColor: '#e9e4ff',        // used by background 'color'
     clockStyle: 'thin',        // thin | bold | mono | serif | compact | stacked | none
-    layout: 'center',          // center | split | minimal
+    layout: 'today',           // today (the dashboard: composer, goal, eyes, screen, your day) | center | split | minimal
     order: ['today', 'tasks', 'habits', 'notes', 'links'],
     links: [],
     clock24: null,             // null = follow locale

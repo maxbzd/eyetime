@@ -13,7 +13,7 @@
   const msg = (k, fb) => chrome.i18n.getMessage(k) || fb;
   const LABEL = msg('dockTab', 'EyeTime');
   const ITEMS = [
-    { k: 'focus', tab: 'now', color: '#ff6a3d', name: msg('dockFocus', 'Focus'), shapes: [['circle', { cx: 12, cy: 12, r: 10 }], ['circle', { cx: 12, cy: 12, r: 6 }], ['circle', { cx: 12, cy: 12, r: 2 }]] },
+    { k: 'focus', tab: 'now', color: '#d2f56b', name: msg('dockFocus', 'Focus'), shapes: [['circle', { cx: 12, cy: 12, r: 10 }], ['circle', { cx: 12, cy: 12, r: 6 }], ['circle', { cx: 12, cy: 12, r: 2 }]] },
     { k: 'tasks', tab: 'now', color: '#32d74b', name: msg('dockTasks', 'Tasks'), shapes: [['path', { d: 'm3 17 2 2 4-4' }], ['path', { d: 'm3 7 2 2 4-4' }], ['path', { d: 'M13 6h8' }], ['path', { d: 'M13 12h8' }], ['path', { d: 'M13 18h8' }]] },
     { k: 'learn', tab: 'learn', color: '#0a84ff', name: msg('dockLearn', 'Learn'), shapes: [['path', { d: 'M12 7v14' }], ['path', { d: 'M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z' }]] },
   ];
@@ -52,7 +52,7 @@
     .track { stroke: rgba(255, 255, 255, .16); } .arc { transition: stroke-dashoffset .6s cubic-bezier(.3, 1, .4, 1); }
     .pct { font-size: 10px; letter-spacing: .01em; color: rgba(255, 255, 255, .9); font-variant-numeric: tabular-nums; min-height: 10px; }
     .grip { position: absolute; left: 50%; top: 50%; width: 3px; height: 26px; margin: -13px 0 0 -1.5px; border-radius: 2px; background: rgba(255, 255, 255, .55); pointer-events: none; transition: opacity .2s, background .3s; }
-    .wrap.live .grip { background: #ff6a3d; } .wrap.expanded .grip { opacity: 0; }
+    .wrap.live .grip { background: #d2f56b; } .wrap.expanded .grip { opacity: 0; }
     .panel { position: fixed; top: 12px; bottom: 12px; width: 392px; max-width: calc(100vw - 96px); border-radius: 24px; overflow: hidden; z-index: 1; pointer-events: none; opacity: 0; visibility: hidden; background: #000;
       box-shadow: 0 0 0 .5px rgba(255, 255, 255, .16), 0 28px 70px rgba(0, 0, 0, .5), 0 6px 18px rgba(0, 0, 0, .3); transition: transform .32s cubic-bezier(.2, .9, .25, 1.02), opacity .2s, visibility 0s .32s; }
     .right .panel { right: 70px; transform: translateX(34px) scale(.98); transform-origin: right center; } .left .panel { left: 70px; transform: translateX(-34px) scale(.98); transform-origin: left center; }

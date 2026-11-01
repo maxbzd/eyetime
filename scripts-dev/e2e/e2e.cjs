@@ -199,6 +199,7 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   ok(metaAfter.v === 99 && (await get('syncStatus')).error === 'incompatible', 'a cloud copy from a newer format is left alone');
   await sw.evaluate(() => chrome.storage.local.set({ syncSettings: false })); await helper.evaluate(() => chrome.storage.sync.clear());
   await helper.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((x) => { x.appearance.look = 'calm'; }, { touch: false }); });
+  if (await pg7.locator('#tdPanelBtn').isVisible() && !(await pg7.locator('.plan-link').isVisible())) await pg7.locator('#tdPanelBtn').click(); // Home · Today keeps the cards in a panel
   await pg7.locator('.plan-link').click(); await pg7.waitForSelector('dialog[open] .sd-stats'); 
   await pg7.locator('dialog[open] input[type=text], dialog[open] .input').first().fill('Shipped the draft');
   await pg7.locator('dialog[open] .items .check input').first().check();

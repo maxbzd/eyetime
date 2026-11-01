@@ -2,7 +2,7 @@
 :root[data-scheme="dark"] { color-scheme: dark;
   --bg: #000; --surface: #0c0c0e; --surface-2: #131316; --surface-3: #1b1b1f; --text: #f5f5f7; --text-2: #a8a8ae; --text-3: #8e8e95;
   --border: rgba(255, 255, 255, .09); --border-strong: rgba(255, 255, 255, .16); --bar-empty: rgba(255, 255, 255, .12);
-  --accent: #ff6a3d; --accent-fg: #000; --accent-soft: rgba(255, 106, 61, .16); --accent-text: #ff8a63;
+  --accent: #d2f56b; --accent-fg: #12160a; --accent-soft: rgba(210, 245, 107, .14); --accent-text: #d2f56b; --signal: #d2f56b; --signal-fg: #12160a;
   --shadow-1: none; --shadow-2: none; --shadow-3: none; --card-bg: #0c0c0e; --card-border: rgba(255, 255, 255, .09); --card-shadow: none; --card-blur: 0px; --page-bg: none; }
 html, body { height: 100%; }
 body { margin: 0; border-radius: 24px; overflow: hidden; display: flex; flex-direction: column; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font); font-size: 13px; line-height: 1.38; -webkit-font-smoothing: antialiased; }
