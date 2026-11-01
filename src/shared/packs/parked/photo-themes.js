@@ -3,7 +3,7 @@
 //   Editorial — a tall hairline clock with the small typography of a poster: today's tasks as numbered lines, a handwritten word, a mark and a Focus countdown.
 // Everything is data; the cards are the theme's own card style (liquid glass / bare).
 
-import { text, rect, group, customWidget } from './kit.js';
+import { text, rect, group, customWidget } from '../kit.js';
 
 const OFF = { focus: false, today: false, tasks: false, habits: false, notes: false, links: false };
 const TIME_LEFT = '(paused ? focusLeft : max(0, focusEnd - nowS))';

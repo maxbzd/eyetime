@@ -11,7 +11,7 @@ const seeded = (seed) => () => { seed = (seed + 0x6d2b79f5) >>> 0; let t = seed;
 const clone = (v) => JSON.parse(JSON.stringify(v));
 
 test('starters with distinct ids that leave the app look alone, and every part survives validation', () => {
-  assert.ok(STARTERS.length >= 10);
+  assert.ok(STARTERS.length >= 6);
   assert.equal(new Set(STARTER_IDS).size, STARTERS.length);
   for (const s of STARTERS) {
     assert.ok(!s.appearance.look || (LOOKS[s.appearance.look] && !PARKED.includes(s.appearance.look)), s.id + ' names no look that is unreleased or missing');
@@ -31,9 +31,9 @@ test('applying a starter replaces the Home keys and merges the appearance; resto
   s.newtab.widgets = [{ id: 'wold001', kind: 'sticky', cfg: { text: 'mine' } }]; s.newtab.background = 'photo';
   const before = clone(s);
   const look = s.appearance.look;
-  const prev = applyStarter(s, s.newtab, starterData(STARTERS.find((x) => x.id === 'ed-solo')));
+  const prev = applyStarter(s, s.newtab, starterData(STARTERS.find((x) => x.id === 'lock-solo')));
   assert.equal(s.appearance.look, look, 'a theme that names no look leaves it alone'); assert.equal(s.newtab.background, 'photo'); assert.equal(s.newtab.frame, 'solo'); assert.ok(s.newtab.widgets.some((w) => w.kind === 'custom')); assert.equal(s.newtab.clock24, true);
-  const prev2 = applyStarter(s, s.newtab, starterData(STARTERS.find((x) => x.id === 'glass-peak'))); assert.equal(s.newtab.background, 'photo'); assert.equal(s.newtab.frame, 'peak'); void prev2;
+  const prev2 = applyStarter(s, s.newtab, starterData(STARTERS.find((x) => x.id === 'lock-peak'))); assert.equal(s.newtab.background, 'photo'); assert.equal(s.newtab.frame, 'peak'); void prev2;
   assert.equal(s.newtab.canvas.on, true);
   assert.equal(s.newtab.links.length, before.newtab.links.length, 'links (data) are untouched');
   restoreHome(s, s.newtab, prev);
