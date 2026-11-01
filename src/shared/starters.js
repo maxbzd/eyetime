@@ -1,13 +1,12 @@
 // Ready-made Home themes ("starters") and "Surprise me": a whole look in one tap — appearance, background, clock type, card skin, widgets and where they sit.
 // Pure data and functions (no DOM). Everything goes through sanitizeHome, so a starter can never put an invalid value into the settings.
-// The themes are the packs in ./packs: Frames (a real photograph, a tall clock between it and its foreground) and Mono (scenes drawn with the scene language).
+// The themes are the packs in ./packs: Glass and Editorial: real photographs (shared/frames.js) with a clock between the photo and its foreground.
 
 import { sanitizeHome } from './themefile.js';
 import { sanitizeAppearance } from './looks.js';
 import { HOME_KEYS } from './layouts.js';
 import { WIDGET_KINDS, defaultCfg } from './widgets.js';
-import { FRAME_PACKS } from './packs/frames.js';
-import { MONO_PACKS } from './packs/mono.js';
+import { PHOTO_PACKS } from './packs/photo-themes.js';
 
 const MODULES_OFF = { focus: false, today: false, tasks: false, habits: false, notes: false, links: false };
 let n = 0;
@@ -16,7 +15,7 @@ const W = (kind, cfg = {}, skin) => ({ id: 'wst' + String(++n).padStart(3, '0'),
 const base = (extra) => ({ layout: 'center', greeting: true, modules: { ...MODULES_OFF }, ...extra });
 
 /** The collection: Frames (real photographs) and Mono (black-and-white scenes). Earlier experiments are parked in packs/parked and not offered. */
-export const PACKS = [...FRAME_PACKS, ...MONO_PACKS];
+export const PACKS = PHOTO_PACKS;
 /** @type {Array<{ id: string, appearance: any, home: any }>} */
 export const STARTERS = [...PACKS];
 export const STARTER_IDS = STARTERS.map((s) => s.id);

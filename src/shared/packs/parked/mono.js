@@ -1,7 +1,7 @@
 // Mono — three black-and-white themes drawn with the scene language, in the spirit of the Frames: a white page with one word, a carbon surface with a thin clock, torn paper.
 // They have no photo; everything is shapes, gradients and lines. The widgets are small and quiet, like the Frames'.
 
-import { text, rect, group, full, grad, radial, customWidget } from './kit.js';
+import { text, rect, group, full, grad, radial, customWidget } from '../kit.js';
 
 const MODULES_OFF = { focus: false, today: false, tasks: false, habits: false, notes: false, links: false };
 const toggle = { on: { click: { do: 'focus.toggle' } } };
