@@ -30,8 +30,8 @@ export async function updateBadge(settings) {
   if (isFocusActive(raw.focus)) {
     const min = Math.ceil(remainingMs(raw.focus) / 60000);
     await chrome.action.setBadgeText({ text: String(min) });
-    await chrome.action.setBadgeBackgroundColor({ color: '#cf450a' });
-    await chrome.action.setBadgeTextColor?.({ color: '#ffffff' });
+    await chrome.action.setBadgeBackgroundColor({ color: '#171612' }); // focus: ink with a lime count, like the countdown on Home
+    await chrome.action.setBadgeTextColor?.({ color: '#d2f56b' });
     await chrome.action.setTitle({ title: t('badge.focusTitle', { n: min }) + (raw.focus.goal ? ` — ${raw.focus.goal}` : '') });
     return;
   }

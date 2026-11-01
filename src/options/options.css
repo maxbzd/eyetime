@@ -110,3 +110,23 @@ section.sec > div[id] { scroll-margin-top: 92px; }
 .fold-head .ico { color: var(--text-3); transition: transform .2s var(--ease); } .fold.open .fold-head .ico { transform: rotate(180deg); }
 .fold-head:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
 .fold > .card { margin-top: var(--s-3); }
+
+/* ═══════════ v4 · serif section titles, pill navigation, quiet cards ═══════════ */
+.settings-layout { max-width: 1200px; padding: var(--s-6) var(--s-8) 120px; grid-template-columns: 240px minmax(0, 1fr); gap: 56px; }
+.side-wrap { top: 88px; }
+.side-search .input { height: 40px; border-radius: var(--r-full); background: var(--surface); box-shadow: 0 0 0 1px var(--border); padding-left: 38px; }
+.side-search .ico { left: 14px; }
+.side a { height: 38px; padding: 0 14px; border-radius: var(--r-full); }
+.side a:hover { background: color-mix(in srgb, var(--text) 5%, transparent); }
+.side a[aria-current="true"] { background: var(--surface); box-shadow: 0 0 0 1px var(--border), var(--shadow-1); }
+.side a[aria-current="true"] .ico { color: var(--text); }
+.settings-main { max-width: 780px; }
+.sec-head h2 { font-family: var(--font-serif); font-weight: 400; font-size: 44px; line-height: 1; letter-spacing: -.02em; }
+.sec-head p { margin-top: 10px; font-size: var(--fs-md); }
+section.sec + section.sec { border-top: 0; padding-top: var(--s-12); }
+section.sec .card { border-radius: 24px; }
+.preset { border-radius: 20px; }
+.preset.on { border-color: var(--text); box-shadow: 0 0 0 1px var(--text); }
+.preset.on .ic { background: var(--signal); color: var(--signal-fg); }
+.setting.hit { background: var(--signal-soft); }
+.saved { top: 80px; box-shadow: var(--shadow-2); }

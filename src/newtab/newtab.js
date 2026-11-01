@@ -35,7 +35,7 @@ import { resolveTextTone } from '../shared/phototone.js';
 import { getPhotoInfo, clearPhotoInfo, photoKey } from './photo-info.js';
 import { mount3d, unmount3d } from './gl3d.js';
 import { normalizeDepth } from '../shared/depth.js';
-import { FRAMES, framePaths, normalizeFrame } from '../shared/frames.js';
+import { FRAMES, framePaths, normalizeFrame, DAILY, dailyFrame } from '../shared/frames.js';
 import { showQuote } from '../ui/quote.js';
 import { mountStandby } from './standby.js';
 import { mountWeatherFx } from './weather-fx.js';
@@ -44,6 +44,8 @@ import { paintSkin, skinEnv } from './skin-apply.js';
 import { normalizeSkin } from '../shared/skins.js';
 import { loadWeather } from './weather.js';
 import { describeCode } from '../shared/weather.js';
+import { mountFocusLine } from './today/focusline.js';
+import { mountGlance } from './today/glance.js';
 
 const DARK_SCENES = ['aurora', 'stars', 'photo', 'sea', 'onyx', 'peaks'];
 let settings, rawSettings, linksMod, standby;
@@ -128,16 +130,24 @@ async function paintNudge() {
 
 /* ---------- background ---------- */
 
+/** A "quiet" theme hides the page's own buttons; they come back for a few seconds when the mouse moves or a key is pressed. */
+let awakeTimer = 0;
+const wake = () => { document.body.classList.add('awake'); clearTimeout(awakeTimer); awakeTimer = window.setTimeout(() => document.body.classList.remove('awake'), 2800); };
+window.addEventListener('pointermove', wake, { passive: true }); window.addEventListener('keydown', wake);
+
 async function applyBackground() {
   const n = settings.newtab;
   let bg = BACKGROUNDS.includes(n.background) || n.background === 'photo' || (n.background === 'scene' && n.scene && n.scene.layers && n.scene.layers.length) ? n.background : 'look';
+  const today = n.layout === 'today' && !canvasActive(settings);
+  if (today && bg === 'look') bg = 'photo'; // Today: a wallpaper (a new one every day unless one was picked)
   if (bg === 'look') { // "as in the look": Calm paints Dawn, Tide a sea (one per scheme), the others their own page colour
     const scene = LOOKS[settings.appearance.look]?.homeScene;
     bg = (scene && typeof scene === 'object' ? scene[document.documentElement.dataset.scheme] : scene) || 'look';
   }
   let scene = bg, photoTone = null, wxSrc = '', flatScene = bg, depthMap = '';
   if (bg === 'photo') {
-    const frame = normalizeFrame(n.frame), paths = frame ? framePaths(frame) : null; // a photo that ships with EyeTime, or the person's own
+    const frame = n.frame === DAILY || (today && n.background === 'look') ? dailyFrame(new Date(), wallSkip()) : normalizeFrame(n.frame), paths = frame ? framePaths(frame) : null; // a photo that ships with EyeTime, or the person's own
+    paintCredit(today ? frame : '');
     const newtabBg = paths ? chrome.runtime.getURL(paths.photo) : (await getRaw('newtabBg')).newtabBg;
     document.documentElement.style.setProperty('--photo-shade', String(frame ? FRAMES[frame].shade : 1));
     if (newtabBg) {
@@ -156,10 +166,11 @@ async function applyBackground() {
       if (newtabDepth && newtabDepth.key === photoKey(wxSrc)) { depthMap = newtabDepth.png; scene = 'photo-3d'; }
     }
   }
-  if (bg !== 'photo') { clearPhotoInfo(); document.documentElement.style.removeProperty('--photo'); document.documentElement.style.removeProperty('--photo-soft'); } // the glass / photo clock falls back to a plain fill
+  if (bg !== 'photo') { paintCredit(''); clearPhotoInfo(); document.documentElement.style.removeProperty('--photo'); document.documentElement.style.removeProperty('--photo-soft'); } // the glass / photo clock falls back to a plain fill
   const color = normalizeHex(n.bgColor) || '#e9e4ff';
   if (bg === 'color') document.documentElement.style.setProperty('--bg-color', color);
   document.body.dataset.bg = bg;
+  document.body.classList.toggle('quiet', n.quiet === true);
   $('.bg').className = 'bg bgx-' + bg;
   await applyScene(bg === 'scene' ? n : null);
   applyDepth(settings, scene);
@@ -171,6 +182,19 @@ async function applyBackground() {
   document.body.dataset.tone = photoTone && bg === 'photo' ? (resolveTextTone(n.photoText, photoTone) === 'dark' ? 'light' : 'dark') : bg === 'scene' && n.scene.tone ? n.scene.tone : DARK_SCENES.includes(bg) || (bg === 'color' && luminance(color) < 0.28) ? 'dark' : '';
   alignClockFill();
   applyWeatherFx(wxSrc);
+}
+
+/** "Next photo" on Today: how many wallpapers to skip today (kept for the day, then it starts over). */
+function wallSkip() { try { const v = JSON.parse(localStorage.getItem('et-wall-skip') || 'null'); return v && v.day === dayKey() ? v.n : 0; } catch { return 0; } }
+function nextWall() { try { localStorage.setItem('et-wall-skip', JSON.stringify({ day: dayKey(), n: wallSkip() + 1 })); } catch { /* private mode */ } applyBackground(); }
+/** Bottom-left on Today: who took the photo, and a way to see another one. */
+function paintCredit(frame) {
+  const el = $('#tdCredit');
+  if (!frame || !FRAMES[frame]) { el.hidden = true; return; }
+  const daily = settings.newtab.frame === DAILY || settings.newtab.background === 'look';
+  clear(el, h('span', { class: 'cr-name', text: t('bg.frame.' + frame) }), h('span', { class: 'cr-by', text: FRAMES[frame].credit }),
+    daily ? h('button', { class: 'cr-next', type: 'button', 'aria-label': t('td.nextPhoto'), 'data-tip': t('td.nextPhoto'), onclick: nextWall }, icon('refresh-cw')) : null);
+  el.hidden = false;
 }
 
 /** A scene as the background: drawn by the scene engine (loaded when one is used). Same scene, new knobs → only the knobs change. */
@@ -266,8 +290,11 @@ function drawDrawer() {
 /* ---------- boot ---------- */
 
 let homeOff; // whether this page was opened with the home page switched off
+let todayOn; // whether this page was built as the Today dashboard (its composer and tiles replace the focus card)
+const isToday = (s) => s.newtab.layout === 'today' && !canvasActive(s);
 async function applySettings(rawIn, first = false) {
   if (homeOff !== undefined && homeOff !== (rawIn.newtab.enabled === false)) { location.reload(); return; } // switched on or off in another tab: show the other page
+  if (todayOn !== undefined && todayOn !== isToday(resolveSettings(rawIn))) { location.reload(); return; } // Today ⇄ another arrangement: build the other page
   rawSettings = rawIn;
   const s = resolveSettings(rawIn); // the layout that is on now, over the default
   const prevMods = settings ? JSON.stringify([settings.newtab.modules, settings.newtab.order]) : null;
@@ -301,7 +328,7 @@ function homeShortcuts(e) {
   const k = e.key;
   const go = (fn) => { e.preventDefault(); fn(); };
   if (k === 'f') go(() => { const el = document.querySelector('#focus input[id^="goal"]'); el?.scrollIntoView({ block: 'center' }); el?.focus(); });
-  else if (k === 'n') go(() => { const el = document.querySelector('#mod-tasks input'); el?.scrollIntoView({ block: 'center' }); el?.focus(); });
+  else if (k === 'n') go(() => { window.dispatchEvent(new window.CustomEvent('et:open-panel')); const el = document.querySelector('#mod-tasks input'); el?.scrollIntoView({ block: 'center' }); el?.focus(); });
   else if (k === 'd') go(openShutdown);
   else if (k === 'c') go(openDrawer);
   else if (k === 'i') go(() => { location.href = '../insights/insights.html'; });
@@ -333,7 +360,16 @@ function renderOff() {
   installPalette({ extra: () => [{ group: 'go', icon: 'moon', label: t('sb.now'), run: () => window.dispatchEvent(new window.CustomEvent('et:standby')), keys: ['night', 'clock', 'standby', 'sleep'] }, { group: 'focus', icon: 'calendar-clock', label: t('plan.title'), run: openDayPlan, keys: ['plan', 'schedule', 'day', 'blocks'] }, { group: 'go', icon: 'moon', label: t('sc.closeDay'), run: openShutdown, keys: ['shutdown', 'review', 'plan tomorrow'] }, { group: 'go', icon: 'move', label: t('cv.edit'), run: openEditor, keys: ['arrange', 'move', 'drag', 'layout', 'widgets'] }, { group: 'go', icon: 'dices', label: t('st.surprise'), run: () => applyStarterWith((fn) => updateSettings((x) => { fn({ ...x, newtab: home(x) }); }), surprise(), t('st.surprise')), keys: ['surprise', 'random', 'theme', 'shuffle'] }, { group: 'go', icon: 'sliders-horizontal', label: t('sc.customize'), run: openDrawer, keys: ['customize', 'layout', 'background', 'clock'] }] });
   paintClock(); scheduleClock(); applyType(settings); await applyBackground();
   let rz = 0; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { paintClock(); applyCanvas(settings); }, 120); });
-  mountFocusCard($('#focus'), { variant: 'large' });
+  todayOn = isToday(settings);
+  if (todayOn) {
+    $('#focus').className = 'fl'; // not a card: one line under the clock
+    mountFocusLine($('#focus'), $('#countdown'));
+    mountGlance($('#tdGlance'));
+    const panel = (open) => { document.body.classList.toggle('td-panel', open); $('#tdPanelBtn').setAttribute('aria-expanded', String(open)); };
+    $('#tdPanelBtn').addEventListener('click', () => panel(!document.body.classList.contains('td-panel')));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.body.classList.contains('td-panel') && $('#drawer').hidden) panel(false); });
+    window.addEventListener('et:open-panel', () => panel(true));
+  } else mountFocusCard($('#focus'), { variant: 'large' });
   setTimeout(() => autoGuess().catch(() => {}), 5000); // experimental, off by default: the on-device model learns about the few most used unknown sites
   setInterval(() => applyWeatherFx(), 10 * 60_000); onChange(['weatherCache'], () => applyWeatherFx());
   standby = mountStandby({ getSettings: () => settings, getFocus: () => runningFocus });
