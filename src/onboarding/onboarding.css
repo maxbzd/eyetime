@@ -40,3 +40,16 @@ body { min-height: 100vh; display: flex; flex-direction: column; }
 .ob-card { min-height: 520px; }
 .opt.hours { justify-content: flex-start; padding-top: 0; border-top: 0; } .opt.hours[hidden] { display: none; } .opt.hours .input { width: 110px; }
 .looks.ob-looks { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent); padding-bottom: 20px; }
+
+/* ═══════════ v4 ═══════════ */
+.bg { background: radial-gradient(1000px 560px at 50% -200px, color-mix(in srgb, var(--signal) 22%, transparent), transparent 70%), var(--bg); }
+.brand { font-weight: 650; letter-spacing: -.03em; } .brand img { border-radius: 9px; }
+.dots li { width: 24px; height: 4px; }
+.dots li.on { background: var(--text); } .dots li.done { background: color-mix(in srgb, var(--text) 40%, var(--border-strong)); }
+.ob-card { border-radius: 32px; padding: 40px; background: var(--surface); backdrop-filter: none; border: 1px solid var(--border); }
+.step h1 { font-family: var(--font-serif); font-weight: 400; font-size: 46px; letter-spacing: -.015em; line-height: 1; }
+.hero-mark { width: 64px; height: 64px; border-radius: 18px; }
+.point .ic { border-radius: 50%; background: var(--surface-2); color: var(--text); }
+.point:first-child .ic { background: var(--signal); color: var(--signal-fg); }
+.pin { border-radius: 20px; } .pin .ico { color: var(--text); }
+@media (max-width: 560px) { .ob-card { padding: 24px; } .step h1 { font-size: 34px; } }

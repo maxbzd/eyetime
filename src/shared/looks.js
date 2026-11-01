@@ -101,9 +101,9 @@ export const LOOKS = {
     pageBg: { light: 'radial-gradient(900px 640px at 8% -10%, rgba(255, 170, 190, .55), transparent 64%), radial-gradient(900px 640px at 100% 0%, rgba(150, 190, 255, .6), transparent 66%), radial-gradient(800px 560px at 50% 112%, rgba(170, 240, 215, .5), transparent 66%)', dark: 'radial-gradient(900px 640px at 8% -10%, rgba(255, 110, 150, .22), transparent 64%), radial-gradient(900px 640px at 100% 0%, rgba(90, 130, 255, .26), transparent 66%), radial-gradient(800px 560px at 50% 112%, rgba(60, 220, 190, .16), transparent 66%)' },
   },
   calm: {
-    name: 'Calm', blurb: 'Warm, quiet, neutral. The default.', font: 'inter', display: 'inter', radii: 'soft', cards: 'solid', shadow: 'soft', borderW: 1, headingW: 650, headingLs: '-.015em', homeBg: 'dawn', homeScene: 'dawn',
-    light: { bg: '#faf9f7', surface: '#ffffff', text: '#1c1917', accent: '#cf450a' },
-    dark: { bg: '#0f0e0d', surface: '#181716', text: '#f5f3f0', accent: '#ff7a3d' },
+    name: 'Calm', blurb: 'Bone paper, soft ink and one stroke of lime. The default.', font: 'inter', display: 'inter', radii: [10, 14, 22, 30], cards: 'solid', shadow: 'paper', borderW: 1, headingW: 600, headingLs: '-.028em', homeScene: 'plain',
+    light: { bg: '#efeee9', surface: '#ffffff', surface2: '#f5f4f0', surface3: '#ebe9e3', text: '#171612', accent: '#171612', border: '#e6e4de', borderStrong: '#cfccc3' },
+    dark: { bg: '#0b0b0c', surface: '#151517', surface2: '#1e1e21', surface3: '#29292c', text: '#f2f1ec', accent: '#d2f56b', border: '#232326', borderStrong: '#3a3a3e' },
   },
   paper: {
     name: 'Paper', blurb: 'Parchment and serif type, like a well-set book.', font: 'serif', display: 'serif', radii: [3, 5, 8, 12], cards: 'solid', shadow: 'soft', borderW: 1, headingW: 600, headingLs: '-.01em', homeBg: 'grain',
@@ -238,6 +238,9 @@ function shadows(style, scheme, t) {
   if (style === 'deep') return scheme === 'dark'
     ? ['0 0 0 1px rgba(255, 255, 255, .04)', '0 10px 30px rgba(0, 0, 0, .65)', '0 24px 70px rgba(0, 0, 0, .8)']
     : ['0 1px 2px rgba(20, 19, 24, .06)', '0 1px 2px rgba(20, 19, 24, .05), 0 10px 30px rgba(20, 19, 24, .09)', '0 2px 4px rgba(20, 19, 24, .06), 0 24px 60px rgba(20, 19, 24, .18)'];
+  if (style === 'paper') return scheme === 'dark'
+    ? ['0 0 0 1px rgba(255, 255, 255, .03)', '0 1px 0 rgba(255, 255, 255, .04) inset, 0 18px 40px -18px rgba(0, 0, 0, .7)', '0 40px 100px -24px rgba(0, 0, 0, .85), 0 0 0 1px rgba(255, 255, 255, .06)']
+    : ['0 1px 0 rgba(20, 20, 19, .03)', '0 1px 2px rgba(20, 20, 19, .04), 0 18px 40px -20px rgba(20, 20, 19, .16)', '0 2px 6px rgba(20, 20, 19, .05), 0 40px 100px -24px rgba(20, 20, 19, .28)'];
   if (style === 'airy') return scheme === 'dark'
     ? ['0 0 0 1px rgba(255, 255, 255, .05)', '0 12px 40px rgba(2, 2, 20, .5)', '0 28px 80px rgba(2, 2, 20, .65)']
     : ['0 1px 2px rgba(70, 70, 150, .06)', '0 12px 38px rgba(70, 70, 150, .13)', '0 28px 80px rgba(70, 70, 150, .22)'];
@@ -250,8 +253,8 @@ function shadows(style, scheme, t) {
 export function deriveColors(look, scheme, accentBase) {
   const b = look[scheme], dark = scheme === 'dark';
   const { bg, surface, text } = b;
-  const surface2 = mix(surface, text, dark ? 0.06 : 0.04);
-  const surface3 = mix(surface, text, dark ? 0.11 : 0.08);
+  const surface2 = b.surface2 || mix(surface, text, dark ? 0.06 : 0.04);
+  const surface3 = b.surface3 || mix(surface, text, dark ? 0.11 : 0.08);
   const border = b.border || mix(surface, text, dark ? 0.13 : 0.11);
   const borderStrong = b.borderStrong || mix(surface, text, dark ? 0.27 : 0.23);
   const grounds = [surface, bg, surface2];

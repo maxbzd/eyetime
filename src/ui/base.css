@@ -3,7 +3,7 @@
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body {
   margin: 0; background: var(--page-bg), var(--bg); background-attachment: fixed; color: var(--text); zoom: var(--ui-scale, 1);
-  font: 400 var(--fs-md)/1.5 var(--font); font-feature-settings: "cv11", "ss03";
+  font: 400 var(--fs-md)/1.5 var(--font); font-feature-settings: "cv11", "ss03"; letter-spacing: -.003em;
   -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
 }
 h1, h2, h3, h4, p { margin: 0; }
@@ -17,9 +17,9 @@ img, svg { display: block; max-width: 100%; }
 ul, ol { margin: 0; padding: 0; list-style: none; }
 hr { border: 0; border-top: 1px solid var(--border); margin: 0; }
 [hidden] { display: none !important; }
-::selection { background: var(--accent-soft); color: var(--text); }
+::selection { background: var(--signal); color: var(--signal-fg); }
 
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; border-radius: 8px; }
 :focus:not(:focus-visible) { outline: none; }
 
 /* scrollbars */

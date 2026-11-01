@@ -2,7 +2,7 @@
 // there are no setInterval / setTimeout loops — only chrome.alarms and browser events.
 
 import { captureErrors } from '../shared/errorlog.js';
-import { ensureSchema, getSettings, getRaw, setRaw, pruneOldDays } from '../shared/storage.js';
+import { ensureSchema, getSettings, updateSettings, getRaw, setRaw, pruneOldDays } from '../shared/storage.js';
 import { isMinorUpdate } from '../shared/whatsnew.js';
 import { isFocusActive } from '../shared/blocking.js';
 import { initTracker } from './tracker.js';
@@ -57,6 +57,10 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   await boot();
   const settings = await getSettings();
   if (details.reason === 'update' && isMinorUpdate(details.previousVersion, chrome.runtime.getManifest().version)) await setRaw({ whatsNew: { version: chrome.runtime.getManifest().version, from: details.previousVersion } });
+  if (details.reason === 'update') { // EyeTime 4 redesign: the old default arrangement of Home moves to the new one, once (an arrangement someone chose stays)
+    const { designV } = await getRaw('designV');
+    if (designV !== 4) { await updateSettings((s) => { if (s.newtab.layout === 'center' && !(s.newtab.canvas && s.newtab.canvas.on)) s.newtab.layout = 'today'; }); await setRaw({ designV: 4 }); }
+  } else if (details.reason === 'install') await setRaw({ designV: 4 });
   if (details.reason === 'install' && !settings.onboarded) chrome.tabs.create({ url: chrome.runtime.getURL('src/onboarding/onboarding.html') });
   chrome.alarms.create('prune', { periodInMinutes: 60 * 24 });
 });

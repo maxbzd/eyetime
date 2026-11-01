@@ -13,7 +13,7 @@ import { normalizeSkin } from './skins.js';
 import { sanitizeScene, sanitizeParamValues } from './scene/schema.js';
 import { normalizeHex } from './color.js';
 import { PHOTO_TEXT } from './phototone.js';
-import { normalizeFrame } from './frames.js';
+import { normalizeFrame, DAILY } from './frames.js';
 
 export const THEME_FORMAT = 'eyetime-theme';
 export const THEME_VERSION = 1;
@@ -21,7 +21,7 @@ export const THEME_MAX_CHARS = 6_000_000;
 const MEDIA_MAX = { bg: 3_500_000, fg: 1_200_000 };
 const MODULES = ['today', 'tasks', 'habits', 'notes', 'links'];
 const CLOCKS = ['thin', 'bold', 'mono', 'serif', 'compact', 'stacked', 'none'];
-const LAYOUTS = ['center', 'split', 'minimal'];
+const LAYOUTS = ['today', 'center', 'split', 'minimal'];
 
 const dataUrl = (v, max, kinds) => (typeof v === 'string' && v.length <= max && new RegExp(`^data:image/(${kinds});base64,[A-Za-z0-9+/=]+$`).test(v) ? v : null);
 
@@ -37,7 +37,8 @@ export function sanitizeHome(h) {
   if ('sceneParams' in o) out.sceneParams = sanitizeParamValues(o.sceneParams);
   if ('dna' in o) out.dna = normalizeSkin(o.dna) || { s: 'look' };
   if (typeof o.background === 'string' && /^[a-z]{3,12}$/.test(o.background)) out.background = o.background;
-  if ('frame' in o) out.frame = normalizeFrame(o.frame);
+  if ('frame' in o) out.frame = o.frame === DAILY ? DAILY : normalizeFrame(o.frame);
+  if ('quiet' in o) out.quiet = o.quiet === true;
   if ('clock24' in o) out.clock24 = o.clock24 === true || o.clock24 === false ? o.clock24 : null;
   if (PHOTO_TEXT.includes(o.photoText)) out.photoText = o.photoText;
   if ('bgColor' in o) { const c = normalizeHex(o.bgColor); if (c) out.bgColor = c; }

@@ -10,3 +10,4 @@ export const radial = (cx, cy, r, ...stops) => ({ g: 'radial', cx, cy, r, stops 
 /** Widgets of a pack: { id, kind: 'custom', cfg: { ui } } and where they sit. */
 let seq = 0;
 export const customWidget = (ui, params = {}) => ({ id: 'wpk' + String(++seq).padStart(3, '0'), kind: 'custom', cfg: { ui, params } });
+export const path = (d, o = {}) => ({ t: 'path', d, ...o });

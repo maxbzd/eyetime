@@ -320,3 +320,29 @@ button.tag { appearance: none; padding-right: 9px; font-family: inherit; border:
 .trig-line { margin: 0; font-weight: 560; } .trig .muted-2 { margin: 0; font-size: var(--fs-sm); max-width: 70ch; }
 .tag-wrap .dd[aria-expanded="true"] { box-shadow: none; border-color: transparent; }
 .guess-mark { display: inline-grid; place-items: center; margin-left: 6px; color: var(--accent-text); vertical-align: middle; } .guess-mark .ico { font-size: 12px; }
+
+/* ═══════════ v4 · bone paper, big quiet numbers, one lime highlight ═══════════ */
+.page-head { margin-bottom: var(--s-6); }
+.tabs { margin: 0 0 var(--s-6); gap: 4px; padding: 4px; width: max-content; max-width: 100%; border-radius: var(--r-full); background: color-mix(in srgb, var(--text) 5%, transparent); }
+.tab { height: 36px; }
+.kpis, .kpis-auto { gap: 14px; }
+.kpi { padding: 22px 22px 20px; gap: 6px; border-radius: 24px; }
+.kpi .label { font-size: 11px; font-weight: 650; letter-spacing: .09em; text-transform: uppercase; color: var(--text-3); }
+.kpi .label .ico { display: none; }
+.kpi .value { font-size: clamp(26px, 16cqw, 44px); font-weight: 600; letter-spacing: -.05em; line-height: 1.05; margin-top: 10px; }
+.kpi .sub { font-size: 12.5px; }
+.delta { padding: 2px 8px 2px 6px; }
+.card { border-radius: 24px; }
+.card-head { padding: 22px 24px 0; }
+.card-head h3 { font-size: 15px; font-weight: 600; letter-spacing: -.015em; }
+.card-head p { font-size: 12.5px; }
+.card-body { padding-left: 24px; padding-right: 24px; }
+.insight .ico-wrap, .review .ico-wrap { border-radius: 50%; }
+.review-suggest { border-radius: 18px; padding: 18px 20px; background: var(--signal-soft); color: var(--text); }
+.review-suggest .btn-primary { --btn-bg: var(--text); --btn-fg: var(--bg); --btn-bg-h: color-mix(in srgb, var(--text) 85%, var(--bg)); }
+.review-suggest.ok { background: var(--success-soft); }
+.chart .stack-bar { width: 22px; }
+.chart .stack-bar > * { border-radius: 4px; }
+.bars .bar { border-radius: 6px 6px 3px 3px; }
+.bars .bar.best { background: var(--signal) !important; box-shadow: 0 0 0 1px color-mix(in srgb, var(--signal-fg) 12%, transparent) inset; }
+.scope .segmented, .page-head .segmented { background: color-mix(in srgb, var(--text) 6%, transparent); }
