@@ -17,12 +17,26 @@
   <link rel="stylesheet" href="canvas.css">
   <link rel="stylesheet" href="widgets.css">
   <link rel="stylesheet" href="widgets2.css">
+  <link rel="stylesheet" href="today.css">
 </head>
 <body data-bg="dawn">
+  <!-- the glass clock: lights its own edges like a bevel of frosted glass (used by the "glass" fill, see shared/typeface.js) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <filter id="et-glass" x="-3%" y="-3%" width="106%" height="106%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="0.8" result="blur"/>
+      <feSpecularLighting in="blur" surfaceScale="2" specularConstant="1.6" specularExponent="36" lighting-color="#fff" result="hi"><feDistantLight azimuth="232" elevation="40"/></feSpecularLighting>
+      <feComposite in="hi" in2="SourceAlpha" operator="in" result="hiIn"/>
+      <feSpecularLighting in="blur" surfaceScale="2" specularConstant="0.9" specularExponent="24" lighting-color="#fff" result="lo"><feDistantLight azimuth="52" elevation="28"/></feSpecularLighting>
+      <feComposite in="lo" in2="SourceAlpha" operator="in" result="loIn"/>
+      <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="loIn"/><feMergeNode in="hiIn"/></feMerge>
+    </filter>
+  </svg>
   <div class="bg" aria-hidden="true"></div>
   <div class="bg-front" id="bgFront" aria-hidden="true"></div>
+  <div class="td-veil" aria-hidden="true"></div>
 
   <header class="nt-corners">
+    <button class="btn btn-icon on-bg td-panel-btn" id="tdPanelBtn" type="button" aria-controls="modules" aria-expanded="false" data-i18n-attr="aria-label:mod.tasks;data-tip:mod.tasks"><i data-icon="list-checks"></i></button>
     <a class="btn btn-icon on-bg nt-c nt-tl" href="../insights/insights.html" data-i18n-attr="aria-label:nav.insights;data-tip:nav.insights"><i data-icon="chart-column"></i></a>
     <a class="btn btn-icon on-bg nt-c nt-tr" href="../options/options.html" data-i18n-attr="aria-label:nav.settings;data-tip:nav.settings"><i data-icon="settings"></i></a>
     <button class="btn on-bg nt-c nt-bl" id="customize" type="button"><i data-icon="sliders-horizontal"></i><span class="nt-lbl" data-i18n="home.customize">Customize</span></button>
@@ -31,6 +45,7 @@
   <main class="nt">
     <section class="hero">
       <div class="clock num" id="clock"></div>
+      <div class="countdown" id="countdown" role="timer" hidden></div>
       <div class="greet-block" id="greetBlock"><h1 id="greeting"></h1><p id="date"></p></div>
       <figure class="quote" id="quote" hidden><blockquote class="q-text"></blockquote><figcaption class="q-by"></figcaption></figure>
     </section>
@@ -41,6 +56,7 @@
 
     <section class="card focus-card" id="focus"></section>
 
+
     <section class="card wn" id="wn" aria-labelledby="wnTitle" hidden></section>
     <section class="card gs" id="gs" aria-labelledby="gsTitle" hidden></section>
 
@@ -49,6 +65,9 @@
     <button class="btn btn-ghost more-mods on-bg" id="moreMods" type="button"><i data-icon="layout-grid"></i><span data-i18n="home.showCards">Cards</span></button>
     <div class="modules" id="modules"></div>
   </main>
+
+  <div class="td-glance" id="tdGlance" hidden></div>
+  <footer class="td-credit" id="tdCredit" hidden></footer>
 
   <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" hidden>
     <div class="drawer-head">

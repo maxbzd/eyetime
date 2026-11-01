@@ -18,3 +18,23 @@ h1 { font-size: clamp(28px, 5vw, 40px); letter-spacing: -.035em; }
 .quote { margin: var(--s-2) auto var(--s-3); max-width: 52ch; text-align: center; color: var(--text-2); }
 .quote .q-text { margin: 0; font-size: var(--fs-lg); line-height: 1.45; text-wrap: balance; }
 .quote .q-by { margin-top: 6px; font-size: var(--fs-sm); color: var(--text-3); letter-spacing: .02em; }
+
+/* ═══════════ v4 · the eye break is always night: a dark, quiet screen is itself a rest for the eyes ═══════════ */
+body { --bg: #0b0b0c; --surface: #151517; --surface-2: #1e1e21; --surface-3: #29292c; --border: #232326; --border-strong: #3a3a3e;
+  --text: #f2f1ec; --text-2: #c6c5c1; --text-3: #9a9997; --accent: #d2f56b; --accent-fg: #12160a; --accent-hover: #b9d85e;
+  --signal: #d2f56b; --signal-fg: #12160a; color-scheme: dark; background: #0b0b0c; color: var(--text); }
+.glow { background: radial-gradient(700px 520px at 50% 42%, rgba(210, 245, 107, .07), transparent 70%); }
+.top { font-weight: 650; letter-spacing: -.03em; }
+.top img { border-radius: 8px; }
+.ring { width: 260px; height: 260px; }
+.ring .track { stroke: rgba(255, 255, 255, .08); stroke-width: 3; }
+.ring .bar { stroke: var(--signal); stroke-width: 3; filter: drop-shadow(0 0 10px rgba(210, 245, 107, .45)); }
+.ring .num { font-size: 96px; font-weight: 200; letter-spacing: -.06em; }
+h1 { font-family: var(--font-serif); font-weight: 400; font-size: clamp(40px, 6vw, 64px); letter-spacing: -.015em; line-height: 1; }
+.lead { color: var(--text-2); }
+.quote .q-text { font-family: var(--font-serif); font-size: 20px; line-height: 1.35; }
+.stage.finished .ring .bar { stroke: var(--signal); }
+.btn { --btn-bg: transparent; --btn-bd: var(--border-strong); --btn-bg-h: var(--surface-2); --btn-fg: var(--text); box-shadow: none; }
+.btn-ghost { --btn-bd: transparent; --btn-fg: var(--text-2); }
+.btn-primary { --btn-bg: var(--signal); --btn-fg: var(--signal-fg); --btn-bd: transparent; --btn-bg-h: #c3e65f; }
+@media (max-height: 820px) { .ring { width: 190px; height: 190px; } .ring .num { font-size: 68px; } }

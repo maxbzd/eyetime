@@ -15,7 +15,7 @@ import { FRAME_IDS } from '../shared/frames.js';
 
 export const BACKGROUNDS = ['look', 'peaks', 'dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'grid', 'living', 'plain', 'color'];
 export const CLOCKS = ['thin', 'bold', 'mono', 'serif', 'compact', 'stacked', 'none'];
-export const LAYOUTS = ['center', 'split', 'minimal'];
+export const LAYOUTS = ['today', 'center', 'split', 'minimal'];
 
 /** Downscale a user photo so storage stays small. */
 export function fileToDataUrl(file, maxW = 1920) {
@@ -94,7 +94,8 @@ export function backgroundControls(n, set) {
     h('input', { type: 'color', value: normalizeHex(n.bgColor) || '#e9e4ff', 'aria-label': t('home.bgColor'), onchange: (e) => set((s) => { s.newtab.bgColor = e.target.value; s.newtab.background = 'color'; }) }));
   const frames = h('div', { class: 'frame-grid', role: 'group', 'aria-label': t('bg.frames') }, FRAME_IDS.map((id) => h('button', { class: 'frame-tile', type: 'button', 'aria-pressed': String(n.background === 'photo' && n.frame === id), 'aria-label': t('bg.frame.' + id), 'data-tip': t('bg.frame.' + id),
     onclick: () => set((s) => { s.newtab.background = 'photo'; s.newtab.frame = id; }) }, h('img', { src: chrome.runtime.getURL(`src/newtab/frames/${id}-t.webp`), alt: '', width: 80, height: 50 }))));
-  return [h('div', { class: 'bg-grid' }, tiles), h('div', { class: 'muted-2 frame-label', text: t('bg.frames') }), frames, fileIn,
+  const daily = h('button', { class: 'chip', type: 'button', style: { marginBottom: 'var(--s-2)' }, 'aria-pressed': String(n.background === 'photo' && n.frame === 'daily'), onclick: () => set((s) => { s.newtab.background = 'photo'; s.newtab.frame = 'daily'; }) }, icon('refresh-cw'), t('bg.daily'));
+  return [h('div', { class: 'bg-grid' }, tiles), h('div', { class: 'muted-2 frame-label', text: t('bg.frames') }), daily, frames, fileIn,
     n.background === 'color' ? null : colorIn,
     n.background === 'photo' ? h('button', { class: 'btn btn-sm', style: { marginTop: 'var(--s-3)' }, type: 'button', onclick: () => fileIn.click() }, icon('image'), t('home.changePhoto')) : null,
     n.background === 'photo' ? h('div', { class: 'stack gap-2', style: { marginTop: 'var(--s-4)' } }, h('div', { class: 'eyebrow', text: t('bg.textTone') }),
