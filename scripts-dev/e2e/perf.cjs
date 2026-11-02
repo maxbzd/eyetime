@@ -37,7 +37,7 @@ const BUDGET = { homeMs: 3500, insightsMs: 5000, optionsMs: 3000, storageMB: 6, 
     out[label] = Date.now() - t0; if (out[label] > budget) bad.push(`${label} took ${out[label]} ms (budget ${budget})`);
     await p.close();
   };
-  await timed('homeMs', 'src/newtab/newtab.html', '#mod-tasks .item', BUDGET.homeMs);
+  await timed('homeMs', 'src/newtab/newtab.html', '#goalToday', BUDGET.homeMs);
   await timed('insightsMs', 'src/insights/insights.html?range=30', '.kpi', BUDGET.insightsMs);
   await timed('insightsSitesMs', 'src/insights/insights.html?range=30', '.card table, .card .site-row, .card', BUDGET.insightsMs, () => localStorage.setItem('et-itab', 'sites'));
   await timed('optionsMs', 'src/options/options.html#data', '#data .setting', BUDGET.optionsMs);
@@ -51,7 +51,7 @@ const BUDGET = { homeMs: 3500, insightsMs: 5000, optionsMs: 3000, storageMB: 6, 
   out.workerMs = Date.now() - t0;
   if (out.workerMs > BUDGET.workerMs) bad.push(`the worker took ${out.workerMs} ms to answer with ${BUDGET.tabsOpen} tabs open (budget ${BUDGET.workerMs})`);
   if (reply && reply.error) bad.push('the worker did not answer: ' + reply.error);
-  await timed('homeBusyMs', 'src/newtab/newtab.html', '#mod-tasks .item', BUDGET.homeMs);
+  await timed('homeBusyMs', 'src/newtab/newtab.html', '#goalToday', BUDGET.homeMs);
 
   console.log(Object.entries(out).map(([k, v]) => `${k}=${typeof v === 'number' ? (k.endsWith('MB') ? v.toFixed(2) : Math.round(v)) : v}`).join('  '));
   console.log(bad.length ? 'FAIL perf\n  ' + bad.join('\n  ') : 'PASS perf: a year of data and ' + BUDGET.tabsOpen + ' tabs within budget');

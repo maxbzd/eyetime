@@ -31,7 +31,7 @@ const { launch } = require('./lib.cjs');
   });
   const sp = await app.ctx.newPage(); await sp.goto(ext('src/options/options.html')); await sp.waitForTimeout(600);
   const set = (fn, arg) => sp.evaluate(async ([src, a]) => { const st = await import('/src/shared/storage.js'); await st.updateSettings(new Function('s', 'a', src)); }, [`(${fn})(s, a)`, arg]).catch(() => {});
-  await sp.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.onboarded = true; s.language = 'en'; s.newtab.widgets = [{ id: 'wwx01', kind: 'weather', cfg: {} }]; }); await st.setRaw({ gsDismissed: true }); });
+  await sp.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.onboarded = true; s.newtab.layout = 'center'; // these cases are about the arrangements Today hands over to s.language = 'en'; s.newtab.widgets = [{ id: 'wwx01', kind: 'weather', cfg: {} }]; }); await st.setRaw({ gsDismissed: true }); });
   const cfg = (patch) => sp.evaluate(async (pt) => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { Object.assign(s.weather, pt); }); }, patch);
   const clearCache = () => sp.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.setRaw({ weatherCache: null }); });
   const p = await app.ctx.newPage();
