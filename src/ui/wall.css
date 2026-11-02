@@ -1,0 +1,25 @@
+/* White-on-photo for the pause page, the eye break and onboarding (see wall.js). Nothing here applies until the photo has loaded. */
+body.has-wall { color: #fff; color-scheme: dark; background: #14121a;
+  --text: #fff; --text-2: rgba(255, 255, 255, .82); --text-3: rgba(255, 255, 255, .64); --surface: rgba(255, 255, 255, .1); --surface-2: rgba(255, 255, 255, .12); --surface-3: rgba(255, 255, 255, .2);
+  --border: rgba(255, 255, 255, .18); --border-strong: rgba(255, 255, 255, .34); --bg: #14121a; --accent: #fff; --accent-fg: #141414; --accent-text: #fff; --accent-soft: rgba(255, 255, 255, .16);
+  --signal: #fff; --signal-fg: #141414; --signal-ink: #fff; --signal-soft: rgba(255, 255, 255, .16); --shadow-1: none; --shadow-2: none; --shadow-3: none; }
+body.has-wall::before { content: ""; position: fixed; inset: 0; z-index: -2; background: var(--wall) center / cover no-repeat; animation: wall-in 1s var(--ease) both; }
+body.has-wall::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(60% 55% at 50% 45%, rgba(0, 0, 0, .22), transparent 75%), linear-gradient(180deg, rgba(0, 0, 0, .18), rgba(0, 0, 0, .1) 40%, rgba(0, 0, 0, .38)); }
+@keyframes wall-in { from { opacity: 0; transform: scale(1.04); } }
+body.has-wall .glow, body.has-wall .bg { display: none; }
+body.has-wall :is(h1, .lead, .clock, .eyebrow, .quote, .top, .note, .why-q) { text-shadow: 0 1px 2px rgba(0, 0, 0, .18), 0 2px 24px rgba(0, 0, 0, .22); }
+body.has-wall .btn { --btn-bg: rgba(24, 22, 28, .34); --btn-bd: rgba(255, 255, 255, .2); --btn-bg-h: rgba(255, 255, 255, .24); --btn-fg: #fff; -webkit-backdrop-filter: blur(16px) saturate(1.3); backdrop-filter: blur(16px) saturate(1.3); box-shadow: none; }
+body.has-wall .btn-primary { --btn-bg: #fff; --btn-fg: #141414; --btn-bd: transparent; --btn-bg-h: rgba(255, 255, 255, .88); }
+body.has-wall .btn-ghost { --btn-bg: transparent; --btn-bd: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
+body.has-wall .chip { background: rgba(24, 22, 28, .34); border-color: rgba(255, 255, 255, .2); color: #fff; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+body.has-wall .chip:hover { background: rgba(255, 255, 255, .24); }
+body.has-wall .site-pill, body.has-wall .goal, body.has-wall .plan, body.has-wall .ob-card { background: rgba(24, 22, 28, .38); border: 0; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16); -webkit-backdrop-filter: blur(28px) saturate(1.3); backdrop-filter: blur(28px) saturate(1.3); color: #fff; }
+body.has-wall .orb { background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, .8), rgba(255, 255, 255, .28) 70%); box-shadow: 0 0 0 10px rgba(255, 255, 255, .12), 0 30px 80px -10px rgba(0, 0, 0, .35); }
+body.has-wall .orb span { color: #141414; }
+body.has-wall .ring .track { stroke: rgba(255, 255, 255, .25); } body.has-wall .ring .bar { stroke: #fff; filter: none; }
+body.has-wall .why-note, body.has-wall .manage { color: #fff; }
+body.has-wall .dots li { background: rgba(255, 255, 255, .35); } body.has-wall .dots li.on, body.has-wall .dots li.done { background: #fff; }
+body.has-wall .point .ic, body.has-wall .point:first-child .ic { background: rgba(255, 255, 255, .16); color: #fff; }
+body.has-wall .input, body.has-wall .select { background: rgba(255, 255, 255, .12); color: #fff; }
+@media (prefers-reduced-motion: reduce) { body.has-wall::before { animation: none; } }
