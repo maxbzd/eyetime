@@ -10,8 +10,8 @@ body[data-layout="today"] { --ink-on: #fff; --ink-on-2: rgba(255, 255, 255, .78)
 .td-veil { display: none; }
 body[data-layout="today"] .td-veil { display: block; position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(60% 50% at 50% 46%, rgba(0, 0, 0, .16), transparent 70%),
-    linear-gradient(180deg, rgba(0, 0, 0, .14) 0%, transparent 22%, transparent 62%, rgba(0, 0, 0, .34) 100%); }
+    radial-gradient(60% 50% at 50% 46%, rgba(0, 0, 0, calc(.16 + var(--vc, 0))), transparent 72%),
+    linear-gradient(180deg, rgba(0, 0, 0, calc(.14 + var(--vt, 0))) 0%, transparent 24%, transparent 60%, rgba(0, 0, 0, calc(.34 + var(--vb, 0))) 100%); }
 body[data-layout="today"] .td-veil::after { content: ""; position: absolute; inset: -50%; opacity: .07; mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.4 -.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
 body[data-layout="today"] .bg { animation: td-bg-in 1.2s var(--ease) both; }
@@ -150,3 +150,36 @@ body[data-layout="today"] #gs .gs-steps, body[data-layout="today"] #gs .gs-list 
 body[data-layout="today"] #gs .gs-step { padding: 8px 12px; border: 0; background: rgba(255, 255, 255, .08); }
 body[data-layout="today"] #gs .gs-text span { display: none; }
 body[data-layout="today"]:has(#gs:not([hidden])) .quote, body[data-layout="today"]:has(#wn:not([hidden])) .quote { display: none; }
+
+/* the evening nudge is one row: icon, a sentence, two buttons, a close */
+body[data-layout="today"] #nudge:not([hidden]) { display: flex; flex-wrap: nowrap; align-items: center; gap: 10px; width: fit-content; max-width: min(760px, 100%); }
+body[data-layout="today"] #nudge .nudge-text { flex: 1 1 auto; min-width: 0; }
+body[data-layout="today"] #nudge .btn { flex: none; }
+@media (max-width: 760px) { body[data-layout="today"] #nudge:not([hidden]) { flex-wrap: wrap; border-radius: 26px; } }
+
+/* narrow windows (and 125 % zoom): nothing may spill sideways, even what is only shown on focus */
+.fl-hints { flex-wrap: wrap; max-width: 100%; }
+.fl-hint, .fl-pill { max-width: 100%; }
+.gl { white-space: nowrap; }
+.fl-input { text-overflow: ellipsis; }
+@media (max-width: 520px) {
+  body[data-layout="today"] .td-glance:not([hidden]) { padding: 16px 14px; }
+  .gl { font-size: 12px; gap: 6px; }
+  .fl-input { font-size: 23px; padding: 0 66px; }
+  body[data-layout="today"] #focus.fl { margin-top: 28px; }
+  body[data-layout="today"] .td-credit:not([hidden]) { left: 16px; bottom: 18px; } body[data-layout="today"] .nt-corners { right: 10px; bottom: 14px; }
+  body[data-layout="today"] main.nt { padding-inline: 16px; }
+  body[data-layout="today"] :is(#nudge, #wn, #gs):not([hidden]) { margin-top: 20px; }
+}
+
+/* short windows: the clock follows the height too, so the page never needs a scrollbar for its own content */
+body[data-layout="today"] .clock, .countdown .cd-time { font-size: clamp(84px, min(13vw, 21vh), 184px) !important; }
+@media (max-height: 720px) {
+  body[data-layout="today"] main.nt { padding-top: 56px; padding-bottom: 84px; }
+  body[data-layout="today"] #focus.fl { margin-top: 24px; }
+  body[data-layout="today"] :is(#nudge, #wn, #gs):not([hidden]) { margin-top: 18px; }
+  .fl-input { height: 48px; font-size: 26px; }
+}
+
+/* until the photo has faded in the page is a deep neutral, not paper: no flash of light on a new tab */
+body[data-layout="today"] { background: #15131a !important; }
