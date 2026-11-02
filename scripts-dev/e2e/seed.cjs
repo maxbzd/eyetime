@@ -15,13 +15,13 @@ const SAMPLES = {
   ja: { tasks: ['四半期レポートを書く', 'セクション2を下書きして、グラフを作る', 'プルリクエストをレビューする', '会議の航空券を予約する', '請求書を送る'], habits: ['20分体を動かす', '15分読書する'], then: '立ち上がって水を飲む', query: 'レポ' },
 };
 
-async function seed(page, { look, mode, background, clockStyle, lang = 'en' }) {
-  await page.evaluate(async ([look, mode, background, clockStyle, lang, sample]) => {
+async function seed(page, { look, mode, background, clockStyle, lang = 'en', layout = '', frame = '' }) {
+  await page.evaluate(async ([look, mode, background, clockStyle, lang, sample, layout, frame]) => {
     const st = await import('/src/shared/storage.js');
     const { rangeKeys } = await import('/src/shared/time.js');
     await st.updateSettings((s) => {
       s.onboarded = true; s.language = lang; s.focus.dailyGoal = 120; s.blocking.plans = [{ id: 'p', when: '', then: sample.then }];
-      Object.assign(s.appearance, { look, mode }); Object.assign(s.newtab, { background, clockStyle });
+      Object.assign(s.appearance, { look, mode }); Object.assign(s.newtab, { background, clockStyle }); if (layout) s.newtab.layout = layout; if (frame) s.newtab.frame = frame; // Today and its wallpaper, or another arrangement for the look showcase
     });
     await st.setRaw({ gsDismissed: true }); // the first-run checklist is not what a store screenshot is about
     const keys = rangeKeys(30);
@@ -47,6 +47,6 @@ async function seed(page, { look, mode, background, clockStyle, lang = 'en' }) {
       { id: 't1', title: 'Python', note: '', createdAt: 1, links: [L('p1', 'https://docs.python.org/3/tutorial', 'The Python Tutorial', 'done'), L('p2', 'https://github.com/python/cpython', 'CPython on GitHub', 'doing'), L('p3', 'https://docs.google.com/document/d/1', 'My notes', 'todo')] },
       { id: 't2', title: 'Design systems', note: '', createdAt: 2, links: [L('d1', 'https://www.youtube.com/watch?v=abc', 'Building a design system', 'todo')] }]);
     await st.setCollection('habits', { items: [{ id: 'h1', name: sample.habits[0] }, { id: 'h2', name: sample.habits[1] }], log: Object.fromEntries(keys.slice(-5).map((k, i) => [k, i === 4 ? ['h1'] : ['h1', 'h2']])) });
-  }, [look, mode, background, clockStyle, lang, SAMPLES[lang] || SAMPLES.en]);
+  }, [look, mode, background, clockStyle, lang, SAMPLES[lang] || SAMPLES.en, layout, frame]);
 }
 module.exports = { seed, SAMPLES };

@@ -14,7 +14,7 @@ function analogFace(face) {
   const out = [];
   if (face === 'ticks') for (let i = 0; i < 60; i++) { const big = i % 5 === 0, a = i * 6 * Math.PI / 180, r1 = big ? 40 : 44, r2 = 47.5; out.push(svg('line', { class: big ? 'cl-tick big' : 'cl-tick', x1: 50 + Math.sin(a) * r1, y1: 50 - Math.cos(a) * r1, x2: 50 + Math.sin(a) * r2, y2: 50 - Math.cos(a) * r2 })); }
   else if (face === 'dots') for (let i = 0; i < 12; i++) { const a = i * 30 * Math.PI / 180; out.push(svg('circle', { class: i % 3 === 0 ? 'cl-dot big' : 'cl-dot', cx: 50 + Math.sin(a) * 43, cy: 50 - Math.cos(a) * 43, r: i % 3 === 0 ? 2.6 : 1.5 }));
-  } else if (face === 'bold') for (const [i, n] of [[0, '12'], [1, '3'], [2, '6'], [3, '9']]) { const a = i * 90 * Math.PI / 180; out.push(svg('text', { class: 'cl-num', x: 50 + Math.sin(a) * 38, y: 50 - Math.cos(a) * 38 + 5, 'text-anchor': 'middle' }, document.createTextNode(n))); }
+  } else if (face === 'bold') for (const [i, n] of /** @type {Array<[number, string]>} */ ([[0, '12'], [1, '3'], [2, '6'], [3, '9']])) { const a = i * 90 * Math.PI / 180; out.push(svg('text', { class: 'cl-num', x: 50 + Math.sin(a) * 38, y: 50 - Math.cos(a) * 38 + 5, 'text-anchor': 'middle' }, document.createTextNode(n))); }
   else for (let i = 0; i < 4; i++) { const a = i * 90 * Math.PI / 180; out.push(svg('line', { class: 'cl-tick big', x1: 50 + Math.sin(a) * 41, y1: 50 - Math.cos(a) * 41, x2: 50 + Math.sin(a) * 46, y2: 50 - Math.cos(a) * 46 })); }
   return out;
 }
@@ -94,7 +94,7 @@ export const TIME_DEFS = {
         const tm = (d) => fmtTime(d);
         clear(root, el('div', 'wg-label', place.name), arc,
           el('div', 'su-times', el('span', '', icon('sun'), el('b', 'num', tm(s.rise))), el('span', '', icon('moon'), el('b', 'num', tm(s.set)))),
-          el('div', 'wg-sub', t('wg.sun.len', { t: fmtDuration((s.set - s.rise) / 1000) })));
+          el('div', 'wg-sub', t('wg.sun.len', { t: fmtDuration((Number(s.set) - Number(s.rise)) / 1000) })));
       };
       return live(draw, { watch: ['settings'], every: 60_000, align: 60_000 });
     },

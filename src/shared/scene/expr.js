@@ -20,7 +20,7 @@ const mixc = (a, b, k) => { const x = parseColor(a), y = parseColor(b), t = clam
 void hex2;
 
 const def = (name, arity, fn) => FUNCS.set(name, { arity, fn });
-for (const [n, f] of [['sin', Math.sin], ['cos', Math.cos], ['tan', Math.tan], ['abs', Math.abs], ['floor', Math.floor], ['ceil', Math.ceil], ['round', Math.round], ['sqrt', (x) => Math.sqrt(Math.max(0, x))], ['sign', Math.sign], ['fract', (x) => x - Math.floor(x)], ['exp', (x) => Math.exp(clamp(x, -50, 50))], ['log', (x) => Math.log(Math.max(1e-9, x))]]) def(n, 1, (a) => f(num(a)));
+for (const [n, f] of /** @type {Array<[string, (x: number) => number]>} */ ([['sin', Math.sin], ['cos', Math.cos], ['tan', Math.tan], ['abs', Math.abs], ['floor', Math.floor], ['ceil', Math.ceil], ['round', Math.round], ['sqrt', (x) => Math.sqrt(Math.max(0, x))], ['sign', Math.sign], ['fract', (x) => x - Math.floor(x)], ['exp', (x) => Math.exp(clamp(x, -50, 50))], ['log', (x) => Math.log(Math.max(1e-9, x))]])) def(n, 1, (a) => f(num(a)));
 def('min', [2, 4], (...a) => Math.min(...a.map(num))); def('max', [2, 4], (...a) => Math.max(...a.map(num)));
 def('pow', 2, (a, b) => { const r = Math.pow(num(a), clamp(num(b), -8, 8)); return Number.isFinite(r) ? r : 0; });
 def('mod', 2, (a, b) => { const d = num(b) || 1; return ((num(a) % d) + d) % d; });
