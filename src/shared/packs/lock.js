@@ -42,11 +42,11 @@ function lock(id, frame, o = {}) {
 }
 
 export const LOCK_PACKS = [
-  lock('lock-peak', 'peak', { clock: { x: 50, y: 41, s: 4.6, sx: 3.5 } }),
-  lock('lock-alpen', 'alpen', { tint: '#0c1226', clock: { x: 50, y: 42, s: 4.6, sx: 3.5 } }),
-  lock('lock-solo', 'solo', { tint: '#101010', ink: '#141414', c: { x: 78, y: 84, w: 460 } }),
-  lock('lock-pines', 'pines', { clock: { x: 50, y: 52, s: 4.4, sx: 3.3 }, date: { x: 50, y: 26, s: 1.25 }, c: { x: 50, y: 88, w: 460 } }),
-  lock('lock-mirror', 'mirror', { clock: { x: 50, y: 58, s: 4.0, sx: 3.1 }, date: { x: 50, y: 34, s: 1.25 }, c: { x: 50, y: 88, w: 460 } }),
+  lock('lock-peak', 'peak', { clock: { x: 50, y: 39, s: 4.6, sx: 3.5 } }),
+  lock('lock-alpen', 'alpen', { tint: '#0c1226', clock: { x: 50, y: 39, s: 4.6, sx: 3.5 } }),
+  lock('lock-solo', 'solo', { tint: '#101010', ink: '#141414', clock: { x: 50, y: 38, s: 4.6, sx: 3.5 }, c: { x: 78, y: 84, w: 460 } }),
+  lock('lock-pines', 'pines', { clock: { x: 50, y: 42, s: 4.4, sx: 3.3 }, date: { x: 50, y: 20, s: 1.25 }, c: { x: 50, y: 88, w: 460 } }),
+  lock('lock-mirror', 'mirror', { clock: { x: 50, y: 45, s: 4.0, sx: 3.1 }, date: { x: 50, y: 22, s: 1.25 }, c: { x: 50, y: 88, w: 460 } }),
   lock('lock-shore', 'shore', { tint: '#0c0c0c', clock: { x: 36, y: 30, s: 4.0, sx: 3.0 }, date: { x: 36, y: 10, s: 1.25 }, c: { x: 68, y: 82, w: 460 } }),
-  lock('lock-haze', 'haze', { tint: '#101010', ink: '#161616', clock: { x: 50, y: 38, s: 4.6, sx: 3.5 }, c: { x: 50, y: 70, w: 460 } }),
+  lock('lock-haze', 'haze', { tint: '#101010', ink: '#161616', clock: { x: 50, y: 30, s: 3.8, sx: 2.9 }, c: { x: 50, y: 70, w: 460 } }),
 ];
