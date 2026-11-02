@@ -60,8 +60,8 @@ const POOLS = [
 const HEIGHT = { clock: [166, 291], date: [144, 175], moon: [215, 245], year: [191, 260], timer: [227, 374], focusnow: [219, 138], goal: [217, 288], streak: [133, 157], heat: [172, 244], hours: [165, 200], sessions: [133, 133], compare: [185, 173], topsites: [188, 188], todo: [192, 197], habit: [159, 196], counter: [141, 166], month: [219, 290], weekstrip: [81, 142], breath: [175, 265], water: [148, 164], mood: [105, 127], quote: [129, 142], orb: [158, 256] };
 /** Corners: four slots 40% of the window height apart. Bottom: three slots under the greeting. `budget`: the tallest a widget may be (px) at the usual 900px height. */
 const PATTERNS = [
-  { slots: [[14, 30], [86, 30], [14, 70], [86, 70]], budget: 270, clock: [38, 58], maxW: 330 },
-  { slots: [[22, 80], [50, 82], [78, 80]], budget: 190, clock: [37, 60], maxW: 330 },
+  { slots: [[14, 30], [86, 30], [14, 70], [86, 70]], budget: 270, clock: [32, 58], maxW: 330 }, // the clock block (up to ~320 px tall) must end above the greeting even in a 768 px window
+  { slots: [[22, 80], [50, 82], [78, 80]], budget: 190, clock: [32, 56], maxW: 330 },
 ];
 /** 0 = use S, 1 = use M, -1 = does not fit. */
 const sizeFor = (kind, budget, maxW) => {
