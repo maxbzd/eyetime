@@ -35,7 +35,7 @@ import { resolveTextTone } from '../shared/phototone.js';
 import { getPhotoInfo, clearPhotoInfo, photoKey } from './photo-info.js';
 import { mount3d, unmount3d } from './gl3d.js';
 import { normalizeDepth } from '../shared/depth.js';
-import { FRAMES, framePaths, normalizeFrame, DAILY, dailyFrame } from '../shared/frames.js';
+import { FRAMES, framePaths, normalizeFrame, DAILY, dailyFrame, wallVeil } from '../shared/frames.js';
 import { showQuote } from '../ui/quote.js';
 import { mountStandby } from './standby.js';
 import { mountWeatherFx } from './weather-fx.js';
@@ -139,21 +139,26 @@ async function applyBackground() {
   const n = settings.newtab;
   let bg = BACKGROUNDS.includes(n.background) || n.background === 'photo' || (n.background === 'scene' && n.scene && n.scene.layers && n.scene.layers.length) ? n.background : 'look';
   const today = n.layout === 'today' && !canvasActive(settings);
-  if (today && bg === 'look') bg = 'photo'; // Today: a wallpaper (a new one every day unless one was picked)
+  if (today && bg !== 'photo') bg = 'photo'; // Today is a photograph with white type: another background (a gradient, a colour, a scene) becomes the wallpaper of the day
   if (bg === 'look') { // "as in the look": Calm paints Dawn, Tide a sea (one per scheme), the others their own page colour
     const scene = LOOKS[settings.appearance.look]?.homeScene;
     bg = (scene && typeof scene === 'object' ? scene[document.documentElement.dataset.scheme] : scene) || 'look';
   }
   let scene = bg, photoTone = null, wxSrc = '', flatScene = bg, depthMap = '';
   if (bg === 'photo') {
-    const frame = n.frame === DAILY || (today && n.background === 'look') ? dailyFrame(new Date(), wallSkip()) : normalizeFrame(n.frame), paths = frame ? framePaths(frame) : null; // a photo that ships with EyeTime, or the person's own
+    let frame = n.frame === DAILY || (today && n.background !== 'photo') ? dailyFrame(new Date(), wallSkip()) : normalizeFrame(n.frame); // a photo that ships with EyeTime, or the person's own
+    if (today && !frame && !(await getRaw('newtabBg')).newtabBg) frame = dailyFrame(new Date(), wallSkip()); // asked for their own photo but has none (yet)
+    const paths = frame ? framePaths(frame) : null;
     paintCredit(today ? frame : '');
+    const setVeil = ([vc, vt, vb]) => { const st = document.documentElement.style; st.setProperty('--vc', String(vc)); st.setProperty('--vt', String(vt)); st.setProperty('--vb', String(vb)); };
+    setVeil(today && frame ? wallVeil(frame) : [0, 0, 0]);
     const newtabBg = paths ? chrome.runtime.getURL(paths.photo) : (await getRaw('newtabBg')).newtabBg;
     document.documentElement.style.setProperty('--photo-shade', String(frame ? FRAMES[frame].shade : 1));
     if (newtabBg) {
       const info = await getPhotoInfo(newtabBg);
       document.documentElement.style.setProperty('--photo', `url(${newtabBg})`);
       if (info.soft) document.documentElement.style.setProperty('--photo-soft', `url(${info.soft})`);
+      if (today && !frame) setVeil(info.tone === 'dark' ? [0.4, 0.45, 0.3] : [0.18, 0.22, 0.14]); // their own photo: a light one needs more veil under white type
       photoTone = n.photoText === 'light' || n.photoText === 'dark' ? n.photoText : frame ? FRAMES[frame].tone : info.tone;
       wxSrc = newtabBg;
     } else bg = 'look';

@@ -5,7 +5,7 @@ A calm, neutral interface with one warm accent. Light and dark are first-class. 
 ## Principles
 
 1. **Quiet by default.** Neutral surfaces, hairline borders, soft shadows (light) or borders only (dark). Colour is reserved for meaning.
-2. **One accent.** Ember orange by default for actions and focus; the user may pick a look's own colour, one of ten presets or any custom colour. Accent never carries data. See [THEMES.md](THEMES.md).
+2. **One signal.** Calm is bone paper and soft ink with a single stroke of lime (`--signal`) for "now": a running session, today's progress, the start action. Other looks map `--signal` onto their own accent. The user may pick a look's own colour, one of ten presets or any custom colour. Accent never carries data. See [THEMES.md](THEMES.md).
 3. **Data colours are semantic.** Productive = blue, neutral = warm gray, distracting = red. Always paired with a text label or icon — never colour alone.
 4. **Honest empty states.** Zero is zero. Empty states explain what will appear and what to do next.
 5. **Comfortable density.** Body 14 px, minimum UI text 12 px, 36 px controls, 8 px grid.
@@ -37,12 +37,20 @@ Looks: `<html data-look="…" data-scheme="light|dark">`. All tokens above are *
 
 Charts (`charts.js/css`): `stackedColumns`, `heatmap`, `classLegend`, shared tooltip. Marks follow the dataviz spec: bars ≤ 24 px, 4 px rounded data-end, 2 px gaps between segments, hairline grid, labels in text tokens (never series colour).
 
+## Voice and shape (v4)
+
+- **Serif for the voice** (`--font-serif`: Instrument Serif, Cormorant Garamond for Cyrillic): greetings, page titles, quotes, the line of intent. Everything you read or tap stays Inter.
+- **Pills and soft circles**: buttons, tabs, chips and segmented controls are fully round; cards are 22–30 px; inputs are tonal (no outline until focus).
+- **Signal tokens**: `--signal`, `--signal-fg`, `--signal-ink` (signal as text), `--signal-soft`. Never use the accent for data.
+- **Wallpapers** (Home · Today, the pause page, the eye break, onboarding; Calm only): white type on a photo of the day, so every wallpaper has a veil (`veil: [centre, top, bottom]` in `shared/frames.js`) measured by `scripts-dev/e2e/wall-contrast.cjs` to keep ≥ 3.2:1 under large type and ≥ 4.5:1 under small type. Add a wallpaper → run the script and paste the numbers.
+- Data pages (Insights, Settings, the popup) stay on light paper: tables and charts read better there.
+
 ## Surfaces
 
 | Surface | Job | Layout |
 |---|---|---|
 | Popup (380 px) | Start focus, classify the current site, glance at today | Focus card → site card → today → capture |
-| Home (new tab) | Calm start page; one focus input | Clock → focus card → masonry of cards; customise drawer |
+| Home (new tab) | A photo, the time, one focus line | Wallpaper of the day → clock → hello → line of intent; corners for goal, eye break, credit; a glass panel for tasks, habits, notes, links; customise sheet |
 | Insights | Understand the week | KPI row → time chart → sites + highlights → typical day + calendar |
 | Settings | Tune defaults | Sticky section nav, long scrolling page, auto-save |
 | Onboarding | Set up in < 60 s | 4 steps, one decision per screen |
