@@ -31,7 +31,7 @@ const { launch } = require('./lib.cjs');
       const st = await import('/src/shared/storage.js'), W = await import('/src/shared/widgets.js');
       const m = W.WIDGET_KINDS[kind], ids = ['wca000', 'wcb000', 'wcc000'], items = {};
       ids.forEach((id, i) => { items[id] = { x: [4, 28, 58][i], y: 20, w: m.sizes[i] }; });
-      await st.updateSettings((s) => { s.onboarded = true; s.newtab.layout = 'center'; // these cases are about the arrangements Today hands over to s.language = 'en'; s.newtab.greeting = false; s.newtab.modules = { focus: false, today: false, tasks: false, habits: false, notes: false, links: false }; s.newtab.widgets = ids.map((id) => ({ id, kind, cfg: W.defaultCfg(kind) })); s.newtab.canvas = { on: true, items }; });
+      await st.updateSettings((s) => { s.onboarded = true; s.newtab.layout = 'center'; s.language = 'en'; s.newtab.greeting = false; s.newtab.modules = { focus: false, today: false, tasks: false, habits: false, notes: false, links: false }; s.newtab.widgets = ids.map((id) => ({ id, kind, cfg: W.defaultCfg(kind) })); s.newtab.canvas = { on: true, items }; });
     }, kind);
     await p.goto(ext('src/newtab/newtab.html')); await p.waitForTimeout(700);
     const r = await p.evaluate(() => [...document.querySelectorAll('.wgt:not(.wgt-preview)')].map((c) => ({ w: Math.round(c.getBoundingClientRect().width), h: Math.round(c.getBoundingClientRect().height), over: c.scrollWidth - c.clientWidth > 2, empty: !c.textContent.trim() && !c.querySelector('svg, img, .ob-orb, .ph-img, .br-circle') })));

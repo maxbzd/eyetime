@@ -13,6 +13,7 @@ const ring = (p) => svg('svg', { class: 'gl-ring', viewBox: '0 0 20 20', width: 
   svg('circle', { cx: 10, cy: 10, r: 8, fill: 'none', 'stroke-width': 2.4, 'stroke-linecap': 'round', class: 'gl-arc', 'stroke-dasharray': `${(50.27 * Math.min(1, p)).toFixed(2)} 50.27`, transform: 'rotate(-90 10 10)' }));
 
 export function mountGlance(root) {
+  root.setAttribute('aria-label', t('today.title')); // a landmark of its own (complementary): the corners are page content too
   async function paint() {
     const s = await getSettings();
     const [[, day]] = await getDays([dayKey()]);
