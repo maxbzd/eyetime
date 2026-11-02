@@ -19,7 +19,7 @@ import { createWidgetHost } from './widgets.js';
 import { applyDepth } from './depth.js';
 import { BACKGROUNDS, CLOCKS, LAYOUTS } from './home-controls.js';
 import { starterGallery, applyStarterWith } from './starter-panel.js';
-import { surprise } from '../shared/starters.js';
+import { surprise, restoreHome } from '../shared/starters.js';
 import { homeRows, moduleOrder } from './home-rows.js';
 import { resolveSettings, wantedLayout, activeLayoutId, editingLayoutId, setFocusing, home } from './home-config.js';
 import { downloadBackup, needsBackup } from '../ui/backup.js';
@@ -273,6 +273,12 @@ function openDrawer() {
 /** The arrangement editor (loaded on demand): drag, resize and hide the blocks of Home. */
 async function openEditor() {
   if (window.innerWidth < 1100) { toast(t('cv.tooNarrow')); return; }
+  if (todayOn) { // the editor arranges the classic blocks: Today hands over to "Centered" (the page rebuilds itself) and the editor opens there
+    try { sessionStorage.setItem('et-open-editor', '1'); } catch { /* private mode */ }
+    $('#drawer').hidden = true; $('#scrim').hidden = true;
+    await updateSettings((s) => { home(s).layout = 'center'; });
+    return;
+  }
   $('#drawer').hidden = true; $('#scrim').hidden = true;
   const { startEditing } = await import('./canvas-edit.js');
   await startEditing(settings, { onExit: () => { checkLayout(); $('#customize').focus(); } });
@@ -299,7 +305,7 @@ let todayOn; // whether this page was built as the Today dashboard (its composer
 const isToday = (s) => s.newtab.layout === 'today' && !canvasActive(s);
 async function applySettings(rawIn, first = false) {
   if (homeOff !== undefined && homeOff !== (rawIn.newtab.enabled === false)) { location.reload(); return; } // switched on or off in another tab: show the other page
-  if (todayOn !== undefined && todayOn !== isToday(resolveSettings(rawIn))) { location.reload(); return; } // Today ⇄ another arrangement: build the other page
+  if (todayOn !== undefined && todayOn !== isToday(resolveSettings(rawIn))) { try { sessionStorage.setItem('et-undo-armed', '1'); } catch { /* private mode */ } location.reload(); return; } // Today ⇄ another arrangement: build the other page
   rawSettings = rawIn;
   const s = resolveSettings(rawIn); // the layout that is on now, over the default
   const prevMods = settings ? JSON.stringify([settings.newtab.modules, settings.newtab.order]) : null;
@@ -403,4 +409,10 @@ function renderOff() {
   onChange(['newtabBg', 'newtabFg', 'newtabDepth'], applyBackground);
   window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', () => setTimeout(applyBackground, 0));
   watchFocus();
+  try { // a ready theme changed the arrangement and the page was rebuilt: bring its "Undo" toast back
+    const armed = sessionStorage.getItem('et-undo-armed'), u = JSON.parse(sessionStorage.getItem('et-undo') || 'null');
+    sessionStorage.removeItem('et-undo-armed'); sessionStorage.removeItem('et-undo');
+    if (armed && u && Date.now() - u.at < 20_000) toast(t('st.applied', { name: u.label }), { action: t('common.undo'), onAction: () => updateSettings((s) => { restoreHome(s, home(s), u.before); }) });
+  } catch { /* private mode */ }
+  try { if (sessionStorage.getItem('et-open-editor')) { sessionStorage.removeItem('et-open-editor'); if (!todayOn) openEditor(); } } catch { /* private mode */ }
 })();

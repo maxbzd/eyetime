@@ -14,7 +14,7 @@ const { launch } = require('./lib.cjs');
   await sp.evaluate(async ({ part, other }) => {
     const st = await import('/src/shared/storage.js');
     await st.updateSettings((s) => {
-      s.onboarded = true; s.language = 'en';
+      s.onboarded = true; s.newtab.layout = 'center'; // these cases are about the arrangements Today hands over to s.language = 'en';
       s.newtab.widgets = [{ id: 'wstk1', kind: 'stack', cfg: { items: [{ kind: 'recap', when: other, cfg: {} }, { kind: 'sticky', when: part, cfg: { text: 'on top now' } }, { kind: 'plan', when: 'any', cfg: {} }], pick: 'auto', i: 0 } }];
     });
     await st.setRaw({ gsDismissed: true });

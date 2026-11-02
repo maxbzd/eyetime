@@ -10,6 +10,7 @@ export async function applyStarterWith(set, starter, label) {
   let before = null;
   await set((s) => { before = applyStarter(s, s.newtab, starterData(starter)); });
   toast(t('st.applied', { name: label }), { action: t('common.undo'), onAction: () => set((s) => { restoreHome(s, s.newtab, before); }) });
+  try { sessionStorage.setItem('et-undo', JSON.stringify({ label, before, at: Date.now() })); } catch { /* private mode */ } // if the page rebuilds itself (Today ⇄ another arrangement) the toast comes back (see newtab.js)
 }
 
 /**
