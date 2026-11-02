@@ -208,11 +208,11 @@ export function mountFocusCard(root, { variant = 'compact' } = {}) {
   async function refresh() { await load(); render(); }
 
   refresh();
-  onChange(['focus', 'rest', 'settings', 'review', 'tasks', 'calendar', 'calendarDays', 'd:*'], async () => {
+  const off = onChange(['focus', 'rest', 'settings', 'review', 'tasks', 'calendar', 'calendarDays', 'd:*'], async () => {
     const state = () => !!st.focus + ':' + !!st.rest + ':' + isPaused(st.focus); // running, paused and idle each get their own view
     const was = state();
     await load();
     if (was !== state() || (!st.focus && !st.rest && !root.contains(document.activeElement))) render();
   });
-  return { refresh };
+  return { refresh, destroy() { off(); clearInterval(tickId); clear(root); } };
 }

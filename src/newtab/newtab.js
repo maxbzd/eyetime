@@ -19,7 +19,7 @@ import { createWidgetHost } from './widgets.js';
 import { applyDepth } from './depth.js';
 import { BACKGROUNDS, CLOCKS, LAYOUTS } from './home-controls.js';
 import { starterGallery, applyStarterWith } from './starter-panel.js';
-import { surprise, restoreHome } from '../shared/starters.js';
+import { surprise } from '../shared/starters.js';
 import { homeRows, moduleOrder } from './home-rows.js';
 import { resolveSettings, wantedLayout, activeLayoutId, editingLayoutId, setFocusing, home } from './home-config.js';
 import { downloadBackup, needsBackup } from '../ui/backup.js';
@@ -273,13 +273,12 @@ function openDrawer() {
 /** The arrangement editor (loaded on demand): drag, resize and hide the blocks of Home. */
 async function openEditor() {
   if (window.innerWidth < 1100) { toast(t('cv.tooNarrow')); return; }
-  if (todayOn) { // the editor arranges the classic blocks: Today hands over to "Centered" (the page rebuilds itself) and the editor opens there
-    try { sessionStorage.setItem('et-open-editor', '1'); } catch { /* private mode */ }
-    $('#drawer').hidden = true; $('#scrim').hidden = true;
-    await updateSettings((s) => { home(s).layout = 'center'; });
-    return;
-  }
   $('#drawer').hidden = true; $('#scrim').hidden = true;
+  if (todayOn) { // the editor arranges the classic blocks: Today hands over to "Centered" first
+    await updateSettings((s) => { home(s).layout = 'center'; });
+    for (let i = 0; i < 80 && todayOn; i++) await new Promise((r) => setTimeout(r, 50)); // the page switches in place
+    if (todayOn) return;
+  }
   const { startEditing } = await import('./canvas-edit.js');
   await startEditing(settings, { onExit: () => { checkLayout(); $('#customize').focus(); } });
 }
@@ -301,16 +300,33 @@ function drawDrawer() {
 /* ---------- boot ---------- */
 
 let homeOff; // whether this page was opened with the home page switched off
-let todayOn; // whether this page was built as the Today dashboard (its composer and tiles replace the focus card)
+let todayOn; // whether the page shows the Today dashboard (its composer and tiles replace the focus card)
 const isToday = (s) => s.newtab.layout === 'today' && !canvasActive(s);
+let homeParts = null; // what is mounted for the arrangement in use, so it can be swapped without a reload
+/** Mount the focus parts of the arrangement in use (Today: the line and the corner tiles; otherwise the focus card). */
+function mountHome() {
+  homeParts?.destroy();
+  todayOn = isToday(settings);
+  document.body.classList.remove('td-panel'); $('#tdPanelBtn')?.setAttribute('aria-expanded', 'false');
+  if (todayOn) {
+    $('#focus').className = 'fl'; // not a card: one line under the clock
+    const line = mountFocusLine($('#focus'), $('#countdown')), glance = mountGlance($('#tdGlance'));
+    homeParts = { destroy() { line.destroy(); glance.destroy(); } };
+  } else {
+    $('#focus').className = 'card focus-card';
+    $('#countdown').hidden = true; $('#tdGlance').hidden = true;
+    const card = mountFocusCard($('#focus'), { variant: 'large' });
+    homeParts = { destroy() { card.destroy(); $('#focus').className = 'card focus-card'; } };
+  }
+}
 async function applySettings(rawIn, first = false) {
   if (homeOff !== undefined && homeOff !== (rawIn.newtab.enabled === false)) { location.reload(); return; } // switched on or off in another tab: show the other page
-  if (todayOn !== undefined && todayOn !== isToday(resolveSettings(rawIn))) { try { sessionStorage.setItem('et-undo-armed', '1'); if (!$('#drawer').hidden) sessionStorage.setItem('et-drawer-open', '1'); } catch { /* private mode */ } location.reload(); return; } // Today ⇄ another arrangement: build the other page
   rawSettings = rawIn;
   const s = resolveSettings(rawIn); // the layout that is on now, over the default
   const prevMods = settings ? JSON.stringify([settings.newtab.modules, settings.newtab.order]) : null;
   const prevLinks = settings ? JSON.stringify(settings.newtab.links) : null;
   settings = s;
+  if (todayOn !== undefined && todayOn !== isToday(s)) mountHome(); // Today ⇄ another arrangement: the focus parts of the page change in place
   standby?.rearm?.();
   paintClock(); scheduleClock(); applyType(s); await applyBackground();
   const wEls = widgetHost.sync(s); // widgets: new / removed cards re-lay the grid, a changed setting only updates its card
@@ -371,16 +387,11 @@ function renderOff() {
   installPalette({ extra: () => [{ group: 'go', icon: 'moon', label: t('sb.now'), run: () => window.dispatchEvent(new window.CustomEvent('et:standby')), keys: ['night', 'clock', 'standby', 'sleep'] }, { group: 'focus', icon: 'calendar-clock', label: t('plan.title'), run: openDayPlan, keys: ['plan', 'schedule', 'day', 'blocks'] }, { group: 'go', icon: 'moon', label: t('sc.closeDay'), run: openShutdown, keys: ['shutdown', 'review', 'plan tomorrow'] }, { group: 'go', icon: 'move', label: t('cv.edit'), run: openEditor, keys: ['arrange', 'move', 'drag', 'layout', 'widgets'] }, { group: 'go', icon: 'dices', label: t('st.surprise'), run: () => applyStarterWith((fn) => updateSettings((x) => { fn({ ...x, newtab: home(x) }); }), surprise(), t('st.surprise')), keys: ['surprise', 'random', 'theme', 'shuffle'] }, { group: 'go', icon: 'sliders-horizontal', label: t('sc.customize'), run: openDrawer, keys: ['customize', 'layout', 'background', 'clock'] }] });
   paintClock(); scheduleClock(); applyType(settings); await applyBackground();
   let rz = 0; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { paintClock(); applyCanvas(settings); }, 120); });
-  todayOn = isToday(settings);
-  if (todayOn) {
-    $('#focus').className = 'fl'; // not a card: one line under the clock
-    mountFocusLine($('#focus'), $('#countdown'));
-    mountGlance($('#tdGlance'));
-    const panel = (open) => { document.body.classList.toggle('td-panel', open); $('#tdPanelBtn').setAttribute('aria-expanded', String(open)); };
-    $('#tdPanelBtn').addEventListener('click', () => panel(!document.body.classList.contains('td-panel')));
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.body.classList.contains('td-panel') && $('#drawer').hidden) panel(false); });
-    window.addEventListener('et:open-panel', () => panel(true));
-  } else mountFocusCard($('#focus'), { variant: 'large' });
+  mountHome();
+  const panel = (open) => { document.body.classList.toggle('td-panel', open); $('#tdPanelBtn').setAttribute('aria-expanded', String(open)); };
+  $('#tdPanelBtn').addEventListener('click', () => panel(!document.body.classList.contains('td-panel')));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && todayOn && document.body.classList.contains('td-panel') && $('#drawer').hidden) panel(false); });
+  window.addEventListener('et:open-panel', () => { if (todayOn) panel(true); });
   setTimeout(() => autoGuess().catch(() => {}), 5000); // experimental, off by default: the on-device model learns about the few most used unknown sites
   setInterval(() => applyWeatherFx(), 10 * 60_000); onChange(['weatherCache'], () => applyWeatherFx());
   standby = mountStandby({ getSettings: () => settings, getFocus: () => runningFocus });
@@ -409,11 +420,4 @@ function renderOff() {
   onChange(['newtabBg', 'newtabFg', 'newtabDepth'], applyBackground);
   window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', () => setTimeout(applyBackground, 0));
   watchFocus();
-  try { // a ready theme changed the arrangement and the page was rebuilt: bring its "Undo" toast back
-    const armed = sessionStorage.getItem('et-undo-armed'), u = JSON.parse(sessionStorage.getItem('et-undo') || 'null');
-    sessionStorage.removeItem('et-undo-armed'); sessionStorage.removeItem('et-undo');
-    if (armed && u && Date.now() - u.at < 20_000) toast(t('st.applied', { name: u.label }), { action: t('common.undo'), onAction: () => updateSettings((s) => { restoreHome(s, home(s), u.before); }), ms: 30_000 }); // it lost a moment to the rebuild (and a slow machine is slower still): it stays
-  } catch { /* private mode */ }
-  try { if (sessionStorage.getItem('et-drawer-open')) { sessionStorage.removeItem('et-drawer-open'); openDrawer(); } } catch { /* private mode */ } // the drawer was open when the page rebuilt itself: keep browsing themes
-  try { if (sessionStorage.getItem('et-open-editor')) { sessionStorage.removeItem('et-open-editor'); if (!todayOn) openEditor(); } } catch { /* private mode */ }
 })();
