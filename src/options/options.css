@@ -112,7 +112,9 @@ section.sec > div[id] { scroll-margin-top: 92px; }
 .fold > .card { margin-top: var(--s-3); }
 
 /* ═══════════ v4 · serif section titles, pill navigation, quiet cards ═══════════ */
-.settings-layout { max-width: 1200px; padding: var(--s-6) var(--s-8) 120px; grid-template-columns: 240px minmax(0, 1fr); gap: 56px; }
+.settings-layout { max-width: 1200px; }
+@media (min-width: 861px) { .settings-layout { padding: var(--s-6) var(--s-8) 120px; grid-template-columns: 240px minmax(0, 1fr); gap: 56px; } }
+@media (max-width: 860px) { .settings-layout { padding: var(--s-4) var(--s-4) 96px; } .sec-head h2 { font-size: 36px; } .side a { height: 36px; } }
 .side-wrap { top: 88px; }
 .side-search .input { height: 40px; border-radius: var(--r-full); background: var(--surface); box-shadow: 0 0 0 1px var(--border); padding-left: 38px; }
 .side-search .ico { left: 14px; }
