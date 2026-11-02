@@ -21,7 +21,7 @@ const { launch } = require('./lib.cjs');
     g.fillStyle = '#0f2415'; g.beginPath(); g.ellipse(1050, 800, 330, 190, 0, Math.PI, 0); g.fill();
     const st = await import('/src/shared/storage.js');
     await st.setRaw({ newtabBg: c.toDataURL('image/jpeg', 0.88), gsDismissed: true });
-    await st.updateSettings((s) => { s.onboarded = true; s.language = 'en'; s.newtab.background = 'photo'; });
+    await st.updateSettings((s) => { s.onboarded = true; s.newtab.layout = 'center'; // these cases are about the arrangements Today hands over to s.language = 'en'; s.newtab.background = 'photo'; });
   });
   const p = await app.ctx.newPage();
   p.on('pageerror', (e) => bad.push('pageerror: ' + e)); p.on('console', (m) => { if (m.type() === 'error' && !/GL Driver|GPU stall/.test(m.text())) bad.push('console: ' + m.text()); });
