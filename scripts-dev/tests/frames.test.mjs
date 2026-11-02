@@ -38,7 +38,7 @@ test('normalizeFrame knows our ids only; "daily" is kept by theme files and is t
   assert.equal(sanitizeHome({ frame: 'daily' }).frame, 'daily');
   assert.equal(sanitizeHome({ frame: 'sand' }).frame, 'sand');
   assert.equal(sanitizeHome({ frame: '<script>' }).frame, '');
-  assert.equal(DEFAULT_SETTINGS.newtab.frame, 'daily'); assert.equal(DEFAULT_SETTINGS.newtab.layout, 'today');
+  assert.equal(DEFAULT_SETTINGS.newtab.frame, ''); assert.equal(DEFAULT_SETTINGS.newtab.layout, 'today');
   assert.equal(sanitizeHome({ layout: 'today' }).layout, 'today'); assert.equal(sanitizeHome({ layout: 'nope' }).layout, undefined);
 });
 
