@@ -61,6 +61,7 @@ const { launch } = require('./lib.cjs');
   ok(overflow === 0, 'none of them overflows');
 
   // what is placed never overlaps: the starters and a run of surprises, at a desktop and at a laptop-sized window
+  // (the page needs a moment to re-lay itself out after a theme lands: measuring too early compares the old clock with the new greeting)
   const overlaps = async (label) => {
     const boxes = await p.evaluate(() => [...document.querySelectorAll('main.nt .wgt, #clock, #greeting')].filter((e) => e.getBoundingClientRect().width > 0).map((e) => { const r = e.getBoundingClientRect(); return { id: e.id || e.className.split(' ').find((c) => c.startsWith('wgt-')), x: r.x, y: r.y, w: r.width, h: r.height }; }));
     for (let a = 0; a < boxes.length; a++) for (let b = a + 1; b < boxes.length; b++) {
@@ -72,11 +73,11 @@ const { launch } = require('./lib.cjs');
     await p.setViewportSize(size);
     for (const id of await sp.evaluate(async () => (await import('/src/shared/starters.js')).STARTER_IDS)) {
       await sp.evaluate(async (id) => { const st = await import('/src/shared/storage.js'), S = await import('/src/shared/starters.js'); await st.updateSettings((s) => { S.applyStarter(s, s.newtab, S.starterData(S.STARTERS.find((x) => x.id === id))); }); }, id);
-      await p.waitForTimeout(700); await overlaps(`${size.width}x${size.height} ${id}`);
+      await p.waitForTimeout(1800); await overlaps(`${size.width}x${size.height} ${id}`);
     }
     for (let i = 0; i < 8; i++) {
       await sp.evaluate(async () => { const st = await import('/src/shared/storage.js'), S = await import('/src/shared/starters.js'); await st.updateSettings((s) => { S.applyStarter(s, s.newtab, S.starterData(S.surprise())); }); });
-      await p.waitForTimeout(700); await overlaps(`${size.width}x${size.height} surprise ${i}`);
+      await p.waitForTimeout(1800); await overlaps(`${size.width}x${size.height} surprise ${i}`);
     }
   }
   await app.close();
