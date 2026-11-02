@@ -1,6 +1,6 @@
 // Records the product demo (store/demo.mp4 + store/demo.gif):  node scripts-dev/e2e/demo.cjs
 // One scripted walkthrough with the realistic demo data: add a task by typing, start a focus session, the pause page,
-// the insights, the command palette switching the look. Needs Playwright + Chromium + ffmpeg.
+// the insights, another photo of the day. Needs Playwright + Chromium + ffmpeg.
 const { launch } = require('./lib.cjs');
 const { seed } = require('./seed.cjs');
 const path = require('path');
@@ -17,7 +17,7 @@ const CURSOR = `(() => { const c = document.createElement('div'); c.style.cssTex
   const app = await launch({ viewport: { width: 1280, height: 720 }, recordVideo: { dir: TMP, size: { width: 1280, height: 720 } } });
   const ext = (p) => `chrome-extension://${app.id}/${p}`;
   const seedPage = await app.ctx.newPage(); await seedPage.goto(ext('src/options/options.html')); await seedPage.waitForTimeout(800);
-  await seed(seedPage, { look: 'calm', mode: 'light', background: 'dawn', clockStyle: 'thin' });
+  await seed(seedPage, { look: 'calm', mode: 'light', background: 'photo', clockStyle: 'thin', layout: 'today', frame: 'daily' });
   await seedPage.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.focus.dailyGoal = 120; }); await st.setRaw({ gsDismissed: true }); });
   await seedPage.close();
   await app.ctx.addInitScript(CURSOR);
@@ -33,18 +33,25 @@ const CURSOR = `(() => { const c = document.createElement('div'); c.style.cssTex
   await p.mouse.move(mx, my);
   await p.waitForTimeout(2200);
 
-  // 1. type a task in plain words
-  await p.mouse.wheel(0, 380); await p.waitForTimeout(1200);
-  const input = p.locator('input[placeholder][maxlength="300"]').first();
+  // 1. one line: say what you focus on, press Enter — the clock becomes the countdown
+  const goal = p.locator('#goalToday');
+  await click(goal);
+  await goal.pressSequentially('Write the quarterly report', { delay: 70 });
+  await p.waitForTimeout(900);
+  await goal.press('Enter');
+  await p.waitForTimeout(3000);
+
+  // 2. tasks wait in a glass panel: add one in plain words
+  await click(p.locator('#tdPanelBtn'));
+  await p.waitForTimeout(900);
+  const input = p.locator('#mod-tasks input').first();
   await click(input);
   await input.pressSequentially('Prepare the slides tomorrow 10:00 45m !', { delay: 70 });
-  await p.waitForTimeout(1800);
+  await p.waitForTimeout(1500);
   await input.press('Enter');
-  await p.waitForTimeout(1600);
-
-  // 2. one click: start focus
-  await click(p.locator('.focus-card .btn-primary').first());
-  await p.waitForTimeout(2600);
+  await p.waitForTimeout(1800);
+  await click(p.locator('#tdPanelBtn'));
+  await p.waitForTimeout(900);
 
   // 3. a distracting site gets a calm pause
   await p.goto(ext('src/blocked/blocked.html?u=http%3A%2F%2Freddit.com%2F&r=friction&a=pause'));
@@ -59,14 +66,13 @@ const CURSOR = `(() => { const c = document.createElement('div'); c.style.cssTex
   await p.mouse.wheel(0, 520); await p.waitForTimeout(1800);
   await p.mouse.wheel(0, 520); await p.waitForTimeout(1800);
 
-  // 5. the command palette: change the whole look in a few keys
+  // 5. a new photo every day — and another one on request
+  await app.sw.evaluate(() => chrome.storage.local.set({ focus: null }));
   await p.goto(ext('src/newtab/newtab.html'));
-  await p.waitForTimeout(1200);
-  await p.keyboard.press('Control+k'); await p.waitForSelector('dialog.palette[open]');
-  await p.keyboard.type('terminal', { delay: 110 });
-  await p.waitForTimeout(1000);
-  await p.keyboard.press('Enter');
-  await p.waitForTimeout(3200);
+  await p.mouse.move(mx, my);
+  await p.waitForTimeout(1800);
+  for (let i = 0; i < 3; i++) { await click(p.locator('.cr-next')); await p.waitForTimeout(1900); }
+  await p.waitForTimeout(800);
 
   const video = await p.video().path();
   await app.close();
@@ -74,6 +80,6 @@ const CURSOR = `(() => { const c = document.createElement('div'); c.style.cssTex
   fs.mkdirSync(OUT, { recursive: true });
   const run = (args) => cp.execFileSync('ffmpeg', ['-y', '-loglevel', 'error', ...args], { stdio: 'inherit' });
   run(['-ss', '0.6', '-i', video, '-vf', 'fps=25,scale=1280:-2', '-c:v', 'libx264', '-crf', '27', '-preset', 'slow', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-an', path.join(OUT, 'demo.mp4')]);
-  run(['-ss', '0.6', '-i', video, '-vf', 'fps=10,scale=800:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4', path.join(OUT, 'demo.gif')]);
+  run(['-ss', '0.6', '-i', video, '-vf', 'fps=8,scale=720:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=64:stats_mode=diff[p];[b]paletteuse=dither=none', path.join(OUT, 'demo.gif')]);
   for (const f of ['demo.mp4', 'demo.gif']) console.log(f, (fs.statSync(path.join(OUT, f)).size / 1024).toFixed(0) + ' KB');
 })().catch((e) => { console.error(e); process.exit(1); });

@@ -1,6 +1,30 @@
 # Changelog
 
-## Unreleased — Home becomes yours
+## 4.0.0 — 2026-11-02 — A calmer EyeTime
+
+A new look for the whole app, and a new Home built around one idea: a photo, the time and one line.
+
+### New: Home · Today
+- **A wallpaper that changes every day**: 14 colour photographs ship with EyeTime (public domain, credits in `docs/PHOTO-CREDITS.md`), a soft veil and a touch of film grain keep white type readable on every one (checked by `scripts-dev/e2e/wall-contrast.cjs`). *Another photo* is one click away; or pick one, or use your own.
+- **One line of intent**: type what you focus on and press Enter — the session starts. The length is a small pill, today's priorities appear as one-click hints. While a session runs the clock becomes the countdown with a thin progress line; pause, +5 min and end show on hover.
+- **Quiet corners**: today's focus against your goal (top left), the next eye break (top right), the photo's name and credit (bottom left), four small icons (bottom right).
+- **Tasks, habits, notes and links** open in a glass panel (the list icon or `N`). The first-run list, the *What's new* card and the evening "close the day" nudge show as quiet glass under the line.
+- Existing profiles move from the old default arrangement to Today once, on update; any arrangement you chose (split, minimal, your own canvas) stays. Customize → Layout → *Centered* brings the old Home back.
+
+### Changed: the look of everything
+- **Calm is redrawn**: bone paper and soft ink, one lime signal for "now", a serif voice (Instrument Serif; Cyrillic falls back to Cormorant), pill buttons and tabs, tonal inputs, a floating customize sheet. A new mark and toolbar icons. Dark mode is near-black with the same lime.
+- The **pause page, the eye break and onboarding** show the photo of the day behind a veil (the eye break stays dim so it still rests the eyes). Insights, Settings and the popup keep the light paper, where tables and charts read best.
+- The dock, the short-video guard card and the toolbar badge follow the new accent.
+- Other looks are untouched; their accent is the new "signal".
+
+### Fixed
+- Settings no longer overflows at 400 px / 125 % zoom; the header fits in every language.
+- `npm run types` is clean again (Date arithmetic and two tuple casts in the widgets and the scene formulas).
+
+### Also in this release
+Everything below that was never published: the Home editor, widgets, the scene engine, photo themes, quotes, weather, the night clock and the five looks of the unpublished 3.5.0.
+
+## Previously unreleased — Home becomes yours
 
 ### New: arrange Home
 - **Free-form Home editor** (Customize → Arrange Home): drag every block, pull any corner or side to resize, stretch the clock any way you like, snapping guides, undo/redo (Ctrl/⌘ Z), keyboard moves. It opens on exactly what the page already shows.
