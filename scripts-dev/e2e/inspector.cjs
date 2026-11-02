@@ -12,7 +12,7 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   process.on('unhandledRejection', (e) => { console.log('FAIL (crashed)\n' + bad.join('\n') + '\n' + e); process.exit(1); });
   const ok = (cond, msg) => { if (!cond) bad.push(msg); };
   const sp = await app.ctx.newPage(); await sp.goto(ext('src/options/options.html')); await sp.waitForTimeout(600);
-  await sp.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.onboarded = true; s.newtab.layout = 'center'; // these cases are about the arrangements Today hands over to s.language = 'en'; }); await st.setRaw({ gsDismissed: true }); });
+  await sp.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.onboarded = true; s.newtab.layout = 'center'; s.language = 'en'; }); await st.setRaw({ gsDismissed: true }); });
   const p = await app.ctx.newPage();
   p.on('pageerror', (e) => bad.push('pageerror: ' + e)); p.on('console', (m) => { if (m.type() === 'error') bad.push('console: ' + m.text()); });
   const items = () => sp.evaluate(async () => (await (await import('/src/shared/storage.js')).getSettings()).newtab.canvas.items);
