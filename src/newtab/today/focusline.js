@@ -99,11 +99,11 @@ export function mountFocusLine(root, countdown) {
   async function refresh() { await load(); render(); }
 
   refresh();
-  onChange(['focus', 'rest', 'settings', 'review', 'tasks'], async () => {
+  const off = onChange(['focus', 'rest', 'settings', 'review', 'tasks'], async () => {
     const state = () => !!st.focus + ':' + !!st.rest + ':' + isPaused(st.focus) + ':' + !!st.review;
     const was = state();
     await load();
     if (was !== state() || (!st.focus && !st.rest && !root.contains(document.activeElement))) render();
   });
-  return { refresh };
+  return { refresh, destroy() { off(); clearInterval(tickId); clear(root); clear(countdown); countdown.hidden = true; document.body.classList.remove('td-run', 'td-rest', 'td-paused'); } };
 }
