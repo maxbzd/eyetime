@@ -29,7 +29,7 @@ test('sunTimes: sunrise and sunset fall on the asked day, so the sun is up aroun
     assert.equal(day(s.rise), day(new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))), 'rise on the day: ' + s.rise.toISOString());
     assert.ok(sunProgress(new Date(s.noon), s.rise, s.set) > 0.45 && sunProgress(new Date(s.noon), s.rise, s.set) < 0.55);
   }
-  const t = new Date(2026, 9, 29, 14, 32), s = sunTimes(t, 38.72, -9.14), p = sunProgress(t, s.rise, s.set);
+  const s = sunTimes(new Date(2026, 9, 29, 14, 32), 38.72, -9.14), p = sunProgress(new Date(Date.UTC(2026, 9, 29, 14, 32)), s.rise, s.set); // the day is asked in local time, the moment is Lisbon's 14:32 (UTC in late October)
   assert.ok(p > 0.6 && p < 0.85, 'mid-afternoon is late in the day arc: ' + p);
 });
 
