@@ -73,6 +73,7 @@ const { launch } = require('./lib.cjs');
   await p.locator('.wgt-water .wa-cup').nth(2).click(); await p.waitForTimeout(500);
   ok((await cfgOf('water')).n === 3, 'the third glass fills three');
   ok(/3 of 8/.test(await p.locator('.wgt-water').textContent()), 'the water text follows');
+  await p.addStyleTag({ content: '#nudge { display: none !important }' }); // in the evening the "close the day" nudge floats over the widgets: this case is about the widgets
   await p.locator('.wgt-mood .md-btn').nth(3).click(); await p.waitForTimeout(500);
   ok(Object.values((await cfgOf('mood')).log).includes(4), 'the mood is saved for today');
   await p.locator('.wgt-habit .hb-done').click(); await p.waitForTimeout(600);
