@@ -19,7 +19,16 @@ body[data-layout="today"] .bg { animation: td-bg-in 1.2s var(--ease) both; }
 
 /* ---------- the middle: date, time, hello, intent ---------- */
 body[data-layout="today"] main.nt { position: relative; z-index: 1; max-width: none; min-height: 100vh; margin: 0; padding: 72px 24px 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; }
-body[data-layout="today"] main.nt > :not(.hero):not(#focus):not(.modules):not(.backup-nudge) { display: none !important; }
+body[data-layout="today"] .rings, body[data-layout="today"] .more-mods { display: none !important; }
+/* what the app has to say (the first-run list, "what's new", the evening nudge) stays, as quiet glass under the line of intent */
+body[data-layout="today"] #focus { order: 1; } body[data-layout="today"] #nudge { order: 2; } body[data-layout="today"] #wn, body[data-layout="today"] #gs { order: 3; }
+body[data-layout="today"] :is(#nudge, #wn, #gs):not([hidden]) { width: min(560px, 100%); margin: 28px 0 0; border: 0; border-radius: 26px; background: rgba(22, 20, 26, .42); color: #fff; box-shadow: inset 0 0 0 1px var(--glass-hi), 0 24px 60px -24px rgba(0, 0, 0, .45); -webkit-backdrop-filter: blur(30px) saturate(1.35); backdrop-filter: blur(30px) saturate(1.35); text-shadow: none;
+  color-scheme: dark; --text: #fff; --text-2: rgba(255, 255, 255, .82); --text-3: rgba(255, 255, 255, .62); --surface: rgba(255, 255, 255, .08); --surface-2: rgba(255, 255, 255, .1); --surface-3: rgba(255, 255, 255, .18); --border: rgba(255, 255, 255, .14); --border-strong: rgba(255, 255, 255, .28);
+  --accent: #fff; --accent-fg: #141414; --accent-text: #fff; --accent-soft: rgba(255, 255, 255, .16); --signal: #fff; --signal-fg: #141414; --signal-ink: #fff; --signal-soft: rgba(255, 255, 255, .16); --bg: #141414; }
+body[data-layout="today"] #nudge:not([hidden]) { border-radius: 99px; padding: 8px 8px 8px 18px; font-size: 13.5px; }
+body[data-layout="today"] #wn:not([hidden]), body[data-layout="today"] #gs:not([hidden]) { padding: 20px 22px; }
+body[data-layout="today"] :is(#nudge, #wn, #gs) .btn-primary { --btn-bg: #fff; --btn-fg: #141414; --btn-bd: transparent; --btn-bg-h: rgba(255, 255, 255, .88); }
+body[data-layout="today"] :is(#nudge, #wn, #gs) .btn:not(.btn-primary):not(.btn-ghost) { --btn-bg: rgba(255, 255, 255, .12); --btn-bd: transparent; --btn-bg-h: rgba(255, 255, 255, .22); --btn-fg: #fff; box-shadow: none; }
 body[data-layout="today"] .hero { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0; margin: 0; color: var(--ink-on); text-shadow: var(--lift); }
 body[data-layout="today"] .greet-block { display: contents; }
 body[data-layout="today"] #date { order: -1; margin: 0 0 6px; font-size: 12px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-on-2); }
@@ -135,3 +144,9 @@ body[data-layout="today"] #mod-today { display: none !important; }
 .drawer-body { padding: 4px 26px 32px; gap: 22px; }
 .drawer h4 { font-size: 11px; font-weight: 650; letter-spacing: .09em; text-transform: uppercase; color: var(--text-3); margin-bottom: 12px; }
 .drawer .st-tile { border-radius: 18px; overflow: hidden; }
+
+/* the first-run list: one column, short rows; the quote steps aside while a card is open */
+body[data-layout="today"] #gs .gs-steps, body[data-layout="today"] #gs .gs-list { grid-template-columns: 1fr; gap: 8px; }
+body[data-layout="today"] #gs .gs-step { padding: 8px 12px; border: 0; background: rgba(255, 255, 255, .08); }
+body[data-layout="today"] #gs .gs-text span { display: none; }
+body[data-layout="today"]:has(#gs:not([hidden])) .quote, body[data-layout="today"]:has(#wn:not([hidden])) .quote { display: none; }
