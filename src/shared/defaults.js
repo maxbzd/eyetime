@@ -85,7 +85,7 @@ export const DEFAULT_SETTINGS = {
     modules: { focus: true, today: true, tasks: true, habits: true, notes: true, links: true },
     background: 'look',        // 'look' (the look's own scene: Calm = Dawn, others = their page colour) | gradient / pattern id | 'color' | 'photo'
     quiet: false,              // a theme may hide the page's own buttons until the mouse moves (a clean lock-screen look)
-    frame: 'daily',            // a photo that ships with EyeTime (shared/frames.js) used when the background is 'photo'; 'daily' = a new wallpaper every day; '' = the person's own photo
+    frame: '',                 // a photo that ships with EyeTime (shared/frames.js) used when the background is 'photo'; 'daily' = a new wallpaper every day; '' = the person's own photo. (Today with the background "as in the look" shows the wallpaper of the day by itself.)
     photoText: 'auto',         // text colour on a photo background: auto (white or black, whichever reads better) | light | dark
     bgColor: '#e9e4ff',        // used by background 'color'
     clockStyle: 'thin',        // thin | bold | mono | serif | compact | stacked | none
