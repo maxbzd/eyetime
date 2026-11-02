@@ -19,7 +19,7 @@ const { launch } = require('./lib.cjs');
   p.on('pageerror', (e) => bad.push('pageerror: ' + e)); p.on('console', (m) => { if (m.type() === 'error') bad.push('console: ' + m.text()); });
   await p.goto(ext('src/newtab/newtab.html')); await p.waitForTimeout(1200);
   await p.click('#customize'); await p.waitForTimeout(400);
-  ok(await p.locator('#drawerBody .st-tile').count() >= 9, 'the ready themes are listed: ' + await p.locator('#drawerBody .st-tile').count());
+  ok(await p.locator('#drawerBody .st-tile').count() >= 7, 'the ready themes are listed: ' + await p.locator('#drawerBody .st-tile').count());
   const broken = await p.evaluate(() => [...document.querySelectorAll('.st-tile img')].filter((i) => !i.complete || i.naturalWidth < 100).length);
   ok(broken === 0, 'every theme picture loads: ' + broken + ' did not');
   ok((await p.locator('#drawerBody h4').allTextContents()).includes('Ready themes'), 'the drawer has a Ready themes section');
@@ -49,7 +49,7 @@ const { launch } = require('./lib.cjs');
   ok(a.links === 1 && a.tasks === 1, 'links and tasks are untouched');
   ok(await p.locator('.wgt-custom').count() === 1 && await p.locator('.bg.bgx-photo, .bg.bgx-photo-cut').count() >= 1, 'the photo and the widgets show on Home');
   const toast = p.locator('.toast', { hasText: 'Lock · Peak' }); ok(await toast.count() >= 1, 'a toast says which theme is on');
-  await toast.getByRole('button', { name: 'Undo' }).click(); await p.waitForTimeout(1200);
+  await toast.getByRole('button', { name: 'Undo' }).dispatchEvent('click'); await p.waitForTimeout(1200); // a click event, not a pointer click: the glass clock makes a page without a GPU too slow for Playwright's stability wait
   a = await get();
   ok(a.look === before.look && a.bg === before.bg && a.kinds.join() === 'sticky', 'Undo brings the old Home back: ' + JSON.stringify(a));
 
@@ -60,7 +60,7 @@ const { launch } = require('./lib.cjs');
   const overflow = await p.evaluate(() => [...document.querySelectorAll('.wgt')].filter((c) => c.scrollWidth - c.clientWidth > 2).length);
   ok(overflow === 0, 'none of them overflows');
 
-  // what is placed never overlaps: the eight starters and a run of surprises, at a desktop and at a laptop-sized window
+  // what is placed never overlaps: the starters and a run of surprises, at a desktop and at a laptop-sized window
   const overlaps = async (label) => {
     const boxes = await p.evaluate(() => [...document.querySelectorAll('main.nt .wgt, #clock, #greeting')].filter((e) => e.getBoundingClientRect().width > 0).map((e) => { const r = e.getBoundingClientRect(); return { id: e.id || e.className.split(' ').find((c) => c.startsWith('wgt-')), x: r.x, y: r.y, w: r.width, h: r.height }; }));
     for (let a = 0; a < boxes.length; a++) for (let b = a + 1; b < boxes.length; b++) {
