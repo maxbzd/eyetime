@@ -137,7 +137,7 @@ body[data-layout="today"] #mod-today { display: none !important; }
 @media (prefers-reduced-motion: reduce) { body[data-layout="today"] .bg, .fl-dot, .gl-eye.due .ico { animation: none; } }
 
 /* ---------- the customize sheet (every arrangement) ---------- */
-.scrim { background: color-mix(in srgb, var(--overlay) 70%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.scrim { background: color-mix(in srgb, var(--overlay) 78%, transparent); } /* no full-screen blur: it makes the page crawl without a GPU */
 .drawer { top: 12px; right: 12px; bottom: 12px; width: min(400px, calc(100vw - 24px)); border: 0; border-radius: 30px; box-shadow: var(--shadow-3), 0 0 0 1px color-mix(in srgb, var(--text) 6%, transparent); overflow: hidden; }
 .drawer-head { padding: 26px 26px 10px; }
 .drawer-head h2 { font-family: var(--font-serif); font-weight: 400; font-size: 34px; letter-spacing: -.015em; line-height: 1; }
