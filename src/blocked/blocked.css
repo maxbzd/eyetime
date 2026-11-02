@@ -50,9 +50,9 @@ h1 { overflow-wrap: anywhere; }
 .glow { background: radial-gradient(800px 480px at 50% 22%, color-mix(in srgb, var(--signal) 16%, transparent), transparent 70%); }
 .top { font-weight: 650; letter-spacing: -.03em; } .top img { border-radius: 8px; }
 .site-pill { box-shadow: var(--shadow-1); }
-h1 { font-family: var(--font-serif); font-weight: 400; font-size: clamp(44px, 7vw, 72px); letter-spacing: -.015em; line-height: .98; max-width: 16ch; }
+h1 { font-family: var(--font-serif); font-weight: 400; font-size: clamp(40px, 5.4vw, 60px); letter-spacing: -.015em; line-height: .98; max-width: 16ch; }
 .lead { font-size: 17px; }
-.orb { width: 150px; height: 150px; background: radial-gradient(circle at 35% 30%, color-mix(in srgb, #fff 45%, var(--signal)), var(--signal) 62%, color-mix(in srgb, var(--signal) 80%, #000));
+.orb { width: 112px; height: 112px; background: radial-gradient(circle at 35% 30%, color-mix(in srgb, #fff 45%, var(--signal)), var(--signal) 62%, color-mix(in srgb, var(--signal) 80%, #000));
   box-shadow: 0 0 0 10px color-mix(in srgb, var(--signal) 16%, transparent), 0 30px 80px -10px color-mix(in srgb, var(--signal) 60%, transparent); }
 .orb span { color: var(--signal-fg); font-weight: 650; }
 .goal { border-radius: 20px; box-shadow: var(--shadow-1); }
@@ -61,3 +61,5 @@ h1 { font-family: var(--font-serif); font-weight: 400; font-size: clamp(44px, 7v
 .quote .q-text { font-family: var(--font-serif); font-size: 20px; line-height: 1.35; }
 .why-note { color: var(--signal-ink); }
 .manage { border-radius: var(--r-full); border-color: var(--border); }
+
+@media (max-height: 860px) { .stage { gap: var(--s-3); padding-bottom: 40px; } .quote { margin: 0 auto; } .top { padding-block: 14px; } }
