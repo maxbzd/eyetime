@@ -11,7 +11,7 @@ const { launch } = require('./lib.cjs');
   const sp = await app.ctx.newPage(); await sp.goto(ext('src/options/options.html')); await sp.waitForTimeout(600);
   // patch = { 'newtab.depth': {...}, 'newtab.background': 'dawn', ... } (dotted paths; the page code never evaluates strings: the extension forbids it)
   const upd = (patch) => sp.evaluate(async (patch) => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { for (const [path, v] of Object.entries(patch)) { const keys = path.split('.'); const last = keys.pop(); let o = s; for (const k of keys) o = o[k]; o[last] = v; } }); }, patch);
-  await sp.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.onboarded = true; s.newtab.layout = 'center'; // these cases are about the arrangements Today hands over to s.language = 'en'; s.appearance.look = 'calm'; s.newtab.background = 'peaks'; }); await st.setRaw({ gsDismissed: true }); });
+  await sp.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.onboarded = true; s.newtab.layout = 'center'; s.language = 'en'; s.appearance.look = 'calm'; s.newtab.background = 'peaks'; }); await st.setRaw({ gsDismissed: true }); });
 
   const p = await app.ctx.newPage();
   p.on('pageerror', (e) => bad.push('pageerror: ' + e)); p.on('console', (m) => { if (m.type() === 'error') bad.push('console: ' + m.text()); });

@@ -19,7 +19,7 @@ const { launch } = require('./lib.cjs');
     g.fillStyle = '#2b1a10'; g.beginPath(); g.ellipse(595, 195, 16, 20, 0, 0, 7); g.ellipse(685, 195, 16, 20, 0, 0, 7); g.fill();
     const st = await import('/src/shared/storage.js');
     await st.setRaw({ newtabBg: c.toDataURL('image/jpeg', 0.85), gsDismissed: true });
-    await st.updateSettings((s) => { s.onboarded = true; s.newtab.layout = 'center'; // these cases are about the arrangements Today hands over to s.language = 'en'; s.newtab.background = 'photo'; });
+    await st.updateSettings((s) => { s.onboarded = true; s.newtab.layout = 'center'; s.language = 'en'; s.newtab.background = 'photo'; });
   });
   const p = await app.ctx.newPage();
   p.on('pageerror', (e) => bad.push('pageerror: ' + e)); p.on('console', (m) => { if (m.type() === 'error') bad.push('console: ' + m.text()); });
