@@ -14,6 +14,7 @@ const ring = (p) => svg('svg', { class: 'gl-ring', viewBox: '0 0 20 20', width: 
 
 export function mountGlance(root) {
   root.setAttribute('aria-label', t('today.title')); // a landmark of its own (complementary): the corners are page content too
+  let dead = false;
   async function paint() {
     const s = await getSettings();
     const [[, day]] = await getDays([dayKey()]);
@@ -22,6 +23,7 @@ export function mountGlance(root) {
     const eye = s.eye.enabled ? await send('break:state').catch(() => null) : null;
     const left = eye && typeof eye.since === 'number' ? Math.max(0, s.eye.intervalMin * 60 - eye.since) : null;
     const focusTxt = goal ? `${fs >= 60 ? fmtDuration(fs) : '0m'} / ${fmtDuration(goal * 60)}` : fs >= 60 ? fmtDuration(fs) : '';
+    if (dead) return;
     clear(root,
       h('a', { class: 'gl gl-focus', href: '../insights/insights.html', 'aria-label': t('goal.label') + ': ' + focusTxt, 'data-tip': t('goal.label') }, ring(goal ? fs / (goal * 60) : 0), h('span', { class: 'num', text: focusTxt || t('focus.title') })),
       left === null ? null : h('button', { class: 'gl gl-eye' + (eye.due || left === 0 ? ' due' : ''), type: 'button', 'data-tip': t('eye.breakNow'), onclick: () => send('break:open') },
@@ -29,6 +31,6 @@ export function mountGlance(root) {
     root.hidden = false;
   }
   paint();
-  onChange(['d:*', 'settings', 'focus'], paint);
-  setInterval(paint, 30_000);
+  const off = onChange(['d:*', 'settings', 'focus'], paint), iv = setInterval(paint, 30_000);
+  return { destroy() { off(); clearInterval(iv); dead = true; clear(root); root.hidden = true; } };
 }
