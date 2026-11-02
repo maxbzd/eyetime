@@ -412,7 +412,7 @@ function renderOff() {
   try { // a ready theme changed the arrangement and the page was rebuilt: bring its "Undo" toast back
     const armed = sessionStorage.getItem('et-undo-armed'), u = JSON.parse(sessionStorage.getItem('et-undo') || 'null');
     sessionStorage.removeItem('et-undo-armed'); sessionStorage.removeItem('et-undo');
-    if (armed && u && Date.now() - u.at < 20_000) toast(t('st.applied', { name: u.label }), { action: t('common.undo'), onAction: () => updateSettings((s) => { restoreHome(s, home(s), u.before); }), ms: 9000 }); // it lost a second or two to the rebuild: it stays a little longer
+    if (armed && u && Date.now() - u.at < 20_000) toast(t('st.applied', { name: u.label }), { action: t('common.undo'), onAction: () => updateSettings((s) => { restoreHome(s, home(s), u.before); }), ms: 30_000 }); // it lost a moment to the rebuild (and a slow machine is slower still): it stays
   } catch { /* private mode */ }
   try { if (sessionStorage.getItem('et-drawer-open')) { sessionStorage.removeItem('et-drawer-open'); openDrawer(); } } catch { /* private mode */ } // the drawer was open when the page rebuilt itself: keep browsing themes
   try { if (sessionStorage.getItem('et-open-editor')) { sessionStorage.removeItem('et-open-editor'); if (!todayOn) openEditor(); } } catch { /* private mode */ }
