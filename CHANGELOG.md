@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.0.0 — 2026-11-02 — A calmer EyeTime
+## 3.5.0 — 2026-11-02 — A calmer EyeTime
 
 A new look for the whole app, and a new Home built around one idea: a photo, the time and one line.
 
@@ -22,9 +22,9 @@ A new look for the whole app, and a new Home built around one idea: a photo, the
 - `npm run types` is clean again (Date arithmetic and two tuple casts in the widgets and the scene formulas).
 
 ### Also in this release
-Everything below that was never published: the Home editor, widgets, the scene engine, photo themes, quotes, weather, the night clock and the five looks of the unpublished 3.5.0.
+The work that was waiting for a release: the Home editor, widgets, the scene engine, photo themes, quotes, weather, the night clock, and five new looks. Details below.
 
-## Previously unreleased — Home becomes yours
+### Also in this release: Home becomes yours
 
 ### New: arrange Home
 - **Free-form Home editor** (Customize → Arrange Home): drag every block, pull any corner or side to resize, stretch the clock any way you like, snapping guides, undo/redo (Ctrl/⌘ Z), keyboard moves. It opens on exactly what the page already shows.
@@ -50,7 +50,7 @@ Everything below that was never published: the Home editor, widgets, the scene e
 - Two independent test reports: honest pause hint, a forgotten pause resumes quietly or ends the session, a damaged schema stamp is repaired, backups without a stamp keep settings and the calendar, notes obey their cap, the Home page follows the on/off switch in other tabs, and more.
 - The editor used to open with the clock and greeting far bigger than on the page; it now opens at the size of their words.
 
-## 3.5.0 — 2026-10-24
+### Also in this release: five new looks
 
 Five new looks, each designed as a whole (Settings → Appearance, first in the gallery).
 

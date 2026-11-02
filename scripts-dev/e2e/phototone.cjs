@@ -8,7 +8,7 @@ const { launch } = require('./lib.cjs');
   const bad = [];
   const ok = (c, m) => { if (!c) bad.push(m); };
   const sp = await app.ctx.newPage(); await sp.goto(ext('src/options/options.html')); await sp.waitForTimeout(600);
-  await sp.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.onboarded = true; s.language = 'en'; }); await st.setRaw({ gsDismissed: true }); });
+  await sp.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.onboarded = true; s.newtab.layout = 'center'; // these cases are about the arrangements Today hands over to s.language = 'en'; }); await st.setRaw({ gsDismissed: true }); });
   const photo = (kind) => sp.evaluate(async (kind) => {
     const c = document.createElement('canvas'); c.width = 320; c.height = 180; const x = c.getContext('2d');
     const g = x.createLinearGradient(0, 0, 0, 180);
