@@ -24,7 +24,9 @@ const { launch } = require('./lib.cjs');
   ok(await p.locator('.look-card').count() >= 16 && await p.locator('.look-now').count() === 1, 'the looks are in a dense grid with the chosen one explained');
 
   // a group link scrolls to it and is marked
-  await p.locator('#side .side-sub a', { hasText: 'Advanced' }).click(); await p.waitForTimeout(900);
+  await p.locator('#side .side-sub a', { hasText: 'Advanced' }).click();
+  await p.waitForFunction(() => window.scrollY > 300, null, { timeout: 6000 }).catch(() => {}); // a smooth scroll on a slow machine takes its time
+  await p.waitForFunction(() => /Advanced/.test(document.querySelector('#side .side-sub a[aria-current="true"]')?.textContent || ''), null, { timeout: 4000 }).catch(() => {});
   ok(await p.evaluate(() => window.scrollY) > 300, 'a group link scrolls to the group');
   ok(await p.locator('#side .side-sub a[aria-current="true"]').innerText().then((x) => /Advanced/.test(x)), 'the group being read is marked');
 
