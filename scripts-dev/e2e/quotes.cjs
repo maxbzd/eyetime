@@ -10,7 +10,7 @@ const { launch } = require('./lib.cjs');
   const ok = (c, m) => { if (!c) bad.push(m); };
   const sp = await app.ctx.newPage(); await sp.goto(ext('src/options/options.html')); await sp.waitForTimeout(600);
   const patch = (b) => sp.evaluate(async (b) => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { for (const [k, v] of Object.entries(b)) { const parts = k.split('.'); let o = s; for (const q of parts.slice(0, -1)) o = o[q]; o[parts.at(-1)] = v; } }); }, b);
-  await patch({ onboarded: true, language: 'en' });
+  await patch({ onboarded: true, language: 'en', 'newtab.layout': 'center' }); // Home as it is when the editor and the quote block are in play
   await sp.evaluate(async () => (await import('/src/shared/storage.js')).setRaw({ gsDismissed: true }));
   const errs = [];
   const open = async (page) => { const p = await app.ctx.newPage(); p.on('pageerror', (e) => errs.push(String(e))); await p.goto(ext(page)); await p.waitForTimeout(1200); return p; };

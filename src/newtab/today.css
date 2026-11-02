@@ -183,3 +183,7 @@ body[data-layout="today"] .clock, .countdown .cd-time { font-size: clamp(84px, m
 
 /* until the photo has faded in the page is a deep neutral, not paper: no flash of light on a new tab */
 body[data-layout="today"] { background: #15131a !important; }
+
+/* keyboard focus on the line of intent: a clear ring (the underline alone is too faint a mark) */
+.fl-input:focus-visible { outline: 2px solid rgba(255, 255, 255, .95); outline-offset: 6px; border-radius: 14px; }
+.fl-len:focus-visible, .fl-go:focus-visible, .fl-hint:focus-visible, .fl-pill:focus-visible, .gl:focus-visible, .cr-next:focus-visible { opacity: 1; outline: 2px solid #fff; outline-offset: 3px; }
