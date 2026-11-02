@@ -53,3 +53,4 @@ body { min-height: 100vh; display: flex; flex-direction: column; }
 .point:first-child .ic { background: var(--signal); color: var(--signal-fg); }
 .pin { border-radius: 20px; } .pin .ico { color: var(--text); }
 @media (max-width: 560px) { .ob-card { padding: 24px; } .step h1 { font-size: 34px; } }
+@media (max-height: 760px) { .ob-card { padding: 28px 32px; min-height: 0; } .step h1 { font-size: 36px; } .step { gap: var(--s-4); } }

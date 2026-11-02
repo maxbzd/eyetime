@@ -102,6 +102,14 @@ export function migrate(raw, now = Date.now()) {
   return { settings, tasks, habits, captures, days, meta: { schemaVersion: SCHEMA_VERSION, installedAt: raw.meta?.installedAt || now, migratedFrom: hadV1 ? '1.x' : null }, removeKeys };
 }
 
+/** EyeTime 4: the old default arrangement of Home ("center", no free-form canvas) becomes Today, once; an arrangement someone chose stays. Returns true if it changed `settings`. */
+export function moveHomeToToday(settings) {
+  const n = settings && settings.newtab;
+  if (!n || n.layout !== 'center' || (n.canvas && n.canvas.on)) return false;
+  n.layout = 'today';
+  return true;
+}
+
 /** 2.0 -> 2.1 settings: the old top-level `theme` / `accent` moved into `appearance`. */
 export function upgradeSettingsV2(settings) {
   const s = { ...(settings || {}) };

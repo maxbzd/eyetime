@@ -1,7 +1,7 @@
 // The wallpaper of the moments (pause page, eye break, onboarding): the same photo of the day as the new tab, behind a soft veil.
 // Only in the Calm look (the others keep their own colour); `body.has-wall` switches the page to white-on-photo (see wall.css).
 
-import { FRAMES, framePaths, dailyFrame } from '../shared/frames.js';
+import { FRAMES, framePaths, dailyFrame, wallVeil } from '../shared/frames.js';
 import { dayKey } from '../shared/time.js';
 
 const look = document.documentElement.getAttribute('data-look');
@@ -12,7 +12,7 @@ if (!look || look === 'calm') {
   if (FRAMES[id]) {
     const img = new Image();
     const url = chrome.runtime.getURL(framePaths(id).photo);
-    img.onload = () => { document.documentElement.style.setProperty('--wall', `url(${url})`); document.body.classList.add('has-wall'); };
+    img.onload = () => { const [c, t, b] = wallVeil(id); const st = document.documentElement.style; st.setProperty('--vc', String(c)); st.setProperty('--vt', String(t)); st.setProperty('--vb', String(b)); st.setProperty('--wall', `url(${url})`); document.body.classList.add('has-wall'); };
     img.src = url;
   }
 }

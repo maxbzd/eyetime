@@ -63,3 +63,7 @@ h1 { font-family: var(--font-serif); font-weight: 400; font-size: clamp(40px, 5.
 .manage { border-radius: var(--r-full); border-color: var(--border); }
 
 @media (max-height: 860px) { .stage { gap: var(--s-3); padding-bottom: 40px; } .quote { margin: 0 auto; } .top { padding-block: 14px; } }
+
+/* short windows (a laptop with a toolbar is ~650 px of page): everything must be reachable without scrolling */
+@media (max-height: 780px) { .stage { gap: 10px; padding-bottom: 28px; } h1 { font-size: 40px; } .quote { display: none; } .orb { width: 84px; height: 84px; margin: 0; } .breath { margin: 0; } .lead { font-size: 16px; } .actions { margin-top: 8px; } .top { padding-block: 10px; } }
+@media (max-height: 640px) { .plan { display: none; } .why { margin-top: 0; } }

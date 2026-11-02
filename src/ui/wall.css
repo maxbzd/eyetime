@@ -5,7 +5,7 @@ body.has-wall { color: #fff; color-scheme: dark; background: #14121a;
   --signal: #fff; --signal-fg: #141414; --signal-ink: #fff; --signal-soft: rgba(255, 255, 255, .16); --shadow-1: none; --shadow-2: none; --shadow-3: none; }
 body.has-wall::before { content: ""; position: fixed; inset: 0; z-index: -2; background: var(--wall) center / cover no-repeat; animation: wall-in 1s var(--ease) both; }
 body.has-wall::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background: radial-gradient(60% 55% at 50% 45%, rgba(0, 0, 0, .22), transparent 75%), linear-gradient(180deg, rgba(0, 0, 0, .18), rgba(0, 0, 0, .1) 40%, rgba(0, 0, 0, .38)); }
+  background: radial-gradient(60% 55% at 50% 45%, rgba(0, 0, 0, calc(.22 + var(--vc, 0))), transparent 75%), linear-gradient(180deg, rgba(0, 0, 0, calc(.18 + var(--vt, 0))), rgba(0, 0, 0, .1) 40%, rgba(0, 0, 0, calc(.38 + var(--vb, 0)))); }
 @keyframes wall-in { from { opacity: 0; transform: scale(1.04); } }
 body.has-wall .glow, body.has-wall .bg { display: none; }
 body.has-wall :is(h1, .lead, .clock, .eyebrow, .quote, .top, .note, .why-q) { text-shadow: 0 1px 2px rgba(0, 0, 0, .18), 0 2px 24px rgba(0, 0, 0, .22); }

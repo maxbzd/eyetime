@@ -87,8 +87,8 @@ export function monthGrid(year, month, weekStart = 1) {
 
 /** The year as a row of days: how many there are, which one is today (0-based) and how many are left. */
 export function yearInfo(date = new Date()) {
-  const y = date.getFullYear(), start = new Date(y, 0, 1), end = new Date(y + 1, 0, 1), total = Math.round((end - start) / DAY_MS);
-  const index = Math.floor((new Date(y, date.getMonth(), date.getDate()) - start) / DAY_MS);
+  const y = date.getFullYear(), start = new Date(y, 0, 1), end = new Date(y + 1, 0, 1), total = Math.round((end.getTime() - start.getTime()) / DAY_MS);
+  const index = Math.floor((new Date(y, date.getMonth(), date.getDate()).getTime() - start.getTime()) / DAY_MS);
   return { year: y, total, index, left: total - index - 1, frac: (index + 1) / total };
 }
 
