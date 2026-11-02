@@ -305,7 +305,7 @@ let todayOn; // whether this page was built as the Today dashboard (its composer
 const isToday = (s) => s.newtab.layout === 'today' && !canvasActive(s);
 async function applySettings(rawIn, first = false) {
   if (homeOff !== undefined && homeOff !== (rawIn.newtab.enabled === false)) { location.reload(); return; } // switched on or off in another tab: show the other page
-  if (todayOn !== undefined && todayOn !== isToday(resolveSettings(rawIn))) { try { sessionStorage.setItem('et-undo-armed', '1'); } catch { /* private mode */ } location.reload(); return; } // Today ⇄ another arrangement: build the other page
+  if (todayOn !== undefined && todayOn !== isToday(resolveSettings(rawIn))) { try { sessionStorage.setItem('et-undo-armed', '1'); if (!$('#drawer').hidden) sessionStorage.setItem('et-drawer-open', '1'); } catch { /* private mode */ } location.reload(); return; } // Today ⇄ another arrangement: build the other page
   rawSettings = rawIn;
   const s = resolveSettings(rawIn); // the layout that is on now, over the default
   const prevMods = settings ? JSON.stringify([settings.newtab.modules, settings.newtab.order]) : null;
@@ -412,7 +412,8 @@ function renderOff() {
   try { // a ready theme changed the arrangement and the page was rebuilt: bring its "Undo" toast back
     const armed = sessionStorage.getItem('et-undo-armed'), u = JSON.parse(sessionStorage.getItem('et-undo') || 'null');
     sessionStorage.removeItem('et-undo-armed'); sessionStorage.removeItem('et-undo');
-    if (armed && u && Date.now() - u.at < 20_000) toast(t('st.applied', { name: u.label }), { action: t('common.undo'), onAction: () => updateSettings((s) => { restoreHome(s, home(s), u.before); }) });
+    if (armed && u && Date.now() - u.at < 20_000) toast(t('st.applied', { name: u.label }), { action: t('common.undo'), onAction: () => updateSettings((s) => { restoreHome(s, home(s), u.before); }), ms: 9000 }); // it lost a second or two to the rebuild: it stays a little longer
   } catch { /* private mode */ }
+  try { if (sessionStorage.getItem('et-drawer-open')) { sessionStorage.removeItem('et-drawer-open'); openDrawer(); } } catch { /* private mode */ } // the drawer was open when the page rebuilt itself: keep browsing themes
   try { if (sessionStorage.getItem('et-open-editor')) { sessionStorage.removeItem('et-open-editor'); if (!todayOn) openEditor(); } } catch { /* private mode */ }
 })();
