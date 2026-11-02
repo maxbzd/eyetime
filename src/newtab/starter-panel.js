@@ -5,12 +5,14 @@ import { h, icon, toast } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
 import { STARTERS, starterData, applyStarter, restoreHome, surprise } from '../shared/starters.js';
 
+/** If the page rebuilds itself (Today ⇄ another arrangement) the "Undo" toast comes back after the rebuild (see newtab.js). */
+function stashUndo(label, before) { try { sessionStorage.setItem('et-undo', JSON.stringify({ label, before, at: Date.now() })); } catch { /* private mode */ } }
+
 /** Put a starter on Home and offer to take it back. */
 export async function applyStarterWith(set, starter, label) {
   let before = null;
-  await set((s) => { before = applyStarter(s, s.newtab, starterData(starter)); });
+  await set((s) => { before = applyStarter(s, s.newtab, starterData(starter)); stashUndo(label, before); }); // stashed before the write: the page may rebuild itself the moment it lands
   toast(t('st.applied', { name: label }), { action: t('common.undo'), onAction: () => set((s) => { restoreHome(s, s.newtab, before); }) });
-  try { sessionStorage.setItem('et-undo', JSON.stringify({ label, before, at: Date.now() })); } catch { /* private mode */ } // if the page rebuilds itself (Today ⇄ another arrangement) the toast comes back (see newtab.js)
 }
 
 /**
