@@ -44,16 +44,24 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - uses: actions/cache@v4
-        with: { path: ~/.cache/ms-playwright, key: playwright-${{ runner.os }}-v1 }
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-v1
       - run: npm i --no-save playwright axe-core && npx playwright install --with-deps chromium
       # screenshots of the main screens against scripts-dev/e2e/visual-baseline (CI fonts); after an intended UI change run the suites once, download the `visual-diff-*` artifacts and copy the `*-now.png` files over the baseline
       - run: node scripts-dev/e2e/run.mjs --shard ${{ matrix.shard }}/5 --jobs 2 --retries 1
       - uses: actions/upload-artifact@v4
         if: always()
-        with: { name: visual-diff-${{ matrix.shard }}, path: /tmp/eyetime-visual-diff, if-no-files-found: ignore }
+        with:
+          name: visual-diff-${{ matrix.shard }}
+          path: /tmp/eyetime-visual-diff
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         if: failure()
-        with: { name: e2e-logs-${{ matrix.shard }}, path: /tmp/eyetime-e2e, if-no-files-found: ignore }
+        with:
+          name: e2e-logs-${{ matrix.shard }}
+          path: /tmp/eyetime-e2e
+          if-no-files-found: ignore
   # one stable name to require in the branch rules, whatever the number of shards
   e2e-ok:
     needs: e2e
