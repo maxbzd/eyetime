@@ -3,6 +3,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch: # run it by hand on any branch (gh workflow run ci.yml --ref <branch>)
 jobs:
   check:
     runs-on: ubuntu-latest
