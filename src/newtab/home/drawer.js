@@ -8,8 +8,10 @@ import { homeRows } from '../home-rows.js';
 import { home } from '../home-config.js';
 import { checkLayout } from './layout-watch.js';
 import { state } from './state.js';
+import { track } from '../../shared/usage-store.js';
 
 export function openDrawer() {
+  track('drawer_open');
   $('#drawer').hidden = false; $('#scrim').hidden = false; drawDrawer(); $('#drawerClose').focus();
 }
 /** The arrangement editor (loaded on demand): drag, resize and hide the blocks of Home. */
@@ -21,6 +23,7 @@ export async function openEditor() {
     for (let i = 0; i < 80 && state.todayOn; i++) await new Promise((r) => setTimeout(r, 50)); // the page switches in place
     if (state.todayOn) return;
   }
+  track('editor_open');
   const { startEditing } = await import('../canvas-edit.js');
   await startEditing(state.settings, { onExit: () => { checkLayout(); $('#customize').focus(); } });
 }

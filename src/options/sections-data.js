@@ -13,6 +13,7 @@ import { downloadBackup } from '../ui/backup.js';
 import { makeClassifier } from '../shared/classify.js';
 import { fmtTime } from '../shared/i18n.js';
 import { dayKey } from '../shared/time.js';
+import { usageGroup } from './usage-group.js';
 
 const sec = (id, ...kids) => h('section', { class: 'sec', id }, kids);
 
@@ -85,6 +86,7 @@ export function data({ s, save, refresh }) {
       storageRow,
       row({ title: t('opt.import'), desc: t('opt.importDesc'), control: h('button', { class: 'btn', type: 'button', onclick: () => fileIn.click() }, icon('upload'), t('opt.importBtn')) }),
       row({ title: t('opt.csv'), desc: t('opt.csvDesc'), control: h('a', { class: 'btn', href: chrome.runtime.getURL('src/insights/insights.html') }, icon('arrow-up-right'), t('opt.openInsights')) })),
+    usageGroup(),
     h('div', {}, h('h3', { class: 'group-title', text: t('opt.groupPrivacy') }),
       h('div', { class: 'card' }, h('div', { class: 'setting' }, h('div', { class: 'setting-text' }, h('div', { class: 'setting-title', text: t('opt.privacyTitle') }), h('div', { class: 'setting-desc', text: t('opt.privacyBody') }))),
         h('div', { class: 'privacy-head' }, h('span', { text: t('opt.permName') }), h('span', { text: t('opt.permWhy') })),

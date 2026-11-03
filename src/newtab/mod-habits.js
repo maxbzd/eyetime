@@ -5,6 +5,7 @@ import { t, fmtNumber } from '../shared/i18n.js';
 import { getCollection, setCollection, onChange } from '../shared/storage.js';
 import { dayKey, rangeKeys, addDays } from '../shared/time.js';
 import { uid, card } from './mod-common.js';
+import { track } from '../shared/usage-store.js';
 
 /* ---------- habits ---------- */
 const SUGGESTIONS = ['habits.s1', 'habits.s2', 'habits.s3', 'habits.s4'];
@@ -26,6 +27,7 @@ export function habitsModule() {
   function toggle(id, on) {
     const k = dayKey(); const set = new Set(data.log[k] || []);
     on ? set.add(id) : set.delete(id);
+    if (on) track('habit_check');
     set.size ? data.log[k] = [...set] : delete data.log[k];
     save(); render();
   }

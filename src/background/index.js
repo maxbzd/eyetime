@@ -25,6 +25,7 @@ import { armCalendar } from './calendar.js';
 import './messages.js';
 import './companion.js';
 import { buildMenus } from './menus.js';
+import { armUsage, onUsageAlarm } from './usage.js';
 
 captureErrors('worker');
 
@@ -51,6 +52,7 @@ async function boot() {
   syncDock();
   rolloverTasks();
   armCalendar({ refresh: true });
+  armUsage();
   return migrated;
 }
 
@@ -68,6 +70,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 
 chrome.runtime.onStartup.addListener(boot);
 chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'prune') pruneOldDays().then(checkStorage); });
+chrome.alarms.onAlarm.addListener(onUsageAlarm);
 
 chrome.commands.onCommand.addListener(async (cmd) => {
   if (cmd !== 'toggle-focus') return;
