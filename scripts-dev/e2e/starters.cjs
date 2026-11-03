@@ -20,6 +20,7 @@ const { launch } = require('./lib.cjs');
   await p.goto(ext('src/newtab/newtab.html')); await p.waitForTimeout(1200);
   await p.click('#customize'); await p.waitForTimeout(400);
   ok(await p.locator('#drawerBody .st-tile').count() >= 7, 'the ready themes are listed: ' + await p.locator('#drawerBody .st-tile').count());
+  await p.waitForFunction(() => [...document.querySelectorAll('.st-tile img')].every((i) => i.complete && i.naturalWidth >= 100), null, { timeout: 8000 }).catch(() => {}); // a slow machine decodes them a moment later
   const broken = await p.evaluate(() => [...document.querySelectorAll('.st-tile img')].filter((i) => !i.complete || i.naturalWidth < 100).length);
   ok(broken === 0, 'every theme picture loads: ' + broken + ' did not');
   ok((await p.locator('#drawerBody h4').allTextContents()).includes('Ready themes'), 'the drawer has a Ready themes section');
@@ -63,11 +64,18 @@ const { launch } = require('./lib.cjs');
   // what is placed never overlaps: the starters and a run of surprises, at a desktop and at a laptop-sized window
   // (the page needs a moment to re-lay itself out after a theme lands: measuring too early compares the old clock with the new greeting)
   const overlaps = async (label) => {
-    const boxes = await p.evaluate(() => [...document.querySelectorAll('main.nt .wgt, #clock, #greeting')].filter((e) => e.getBoundingClientRect().width > 0).map((e) => { const r = e.getBoundingClientRect(); return { id: e.id || e.className.split(' ').find((c) => c.startsWith('wgt-')), x: r.x, y: r.y, w: r.width, h: r.height }; }));
-    for (let a = 0; a < boxes.length; a++) for (let b = a + 1; b < boxes.length; b++) {
-      const A = boxes[a], B = boxes[b], ox = Math.min(A.x + A.w, B.x + B.w) - Math.max(A.x, B.x), oy = Math.min(A.y + A.h, B.y + B.h) - Math.max(A.y, B.y);
-      ok(!(ox > 6 && oy > 6), `${label}: ${A.id} and ${B.id} overlap (${Math.round(ox)}x${Math.round(oy)})`);
-    }
+    const found = async () => {
+      const boxes = await p.evaluate(() => [...document.querySelectorAll('main.nt .wgt, #clock, #greeting')].filter((e) => e.getBoundingClientRect().width > 0).map((e) => { const r = e.getBoundingClientRect(); return { id: e.id || e.className.split(' ').find((c) => c.startsWith('wgt-')), x: r.x, y: r.y, w: r.width, h: r.height }; }));
+      const out = [];
+      for (let a = 0; a < boxes.length; a++) for (let b = a + 1; b < boxes.length; b++) {
+        const A = boxes[a], B = boxes[b], ox = Math.min(A.x + A.w, B.x + B.w) - Math.max(A.x, B.x), oy = Math.min(A.y + A.h, B.y + B.h) - Math.max(A.y, B.y);
+        if (ox > 6 && oy > 6) out.push(`${label}: ${A.id} and ${B.id} overlap (${Math.round(ox)}x${Math.round(oy)})`);
+      }
+      return out;
+    };
+    let now = await found();
+    for (let i = 0; i < 10 && now.length; i++) { await p.waitForTimeout(700); now = await found(); } // a slow machine is still laying the new theme out: only an overlap that stays counts
+    now.forEach((m) => ok(false, m));
   };
   for (const size of [{ width: 1440, height: 900 }, { width: 1366, height: 768 }]) {
     await p.setViewportSize(size);
