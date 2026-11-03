@@ -39,7 +39,7 @@ export async function getSettings() {
 }
 
 /** One lock per name shared by every context of the extension (pages, popup, worker), so two of them never read-modify-write the same key at once. */
-const withLock = (name, fn) => (typeof navigator !== 'undefined' && navigator.locks ? navigator.locks.request('eyetime:' + name, fn) : fn());
+export const withLock = (name, fn) => (typeof navigator !== 'undefined' && navigator.locks ? navigator.locks.request('eyetime:' + name, fn) : fn());
 
 let settingsQueue = Promise.resolve();
 /**
@@ -233,6 +233,7 @@ export async function exportAll() {
   delete all.newtabBg; delete all.newtabFg; delete all.newtabDepth; delete all.siteGuess; // guesses are tied to this computer's model
   delete all.tasksBase; delete all.tasksTomb; delete all.tasksSyncStatus; // device-level sync bookkeeping
   delete all.calendarSub; delete all.calendarSubs; delete all.calendarSrc; // calendar addresses are secrets: they never leave this device, not even in a backup file
+  delete all.usage; delete all.usageShare; // the usage counters and the consent belong to this browser, not to the person: a backup restored elsewhere must not carry the anonymous id
   return { app: 'eyetime', version: 2, exportedAt: new Date().toISOString(), data: all };
 }
 
@@ -281,6 +282,7 @@ export async function importAll(payload) {
 
 export async function resetAll() {
   await dropCalendarPermission();
+  try { await (await import('./usage-store.js')).forgetOnReset(); } catch { /* nothing was shared, or no network: the local data is deleted all the same */ }
   await area().clear();
   await ensureSchema();
 }

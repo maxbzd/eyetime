@@ -7,6 +7,7 @@ import { t } from '../shared/i18n.js';
 import { getSettings, updateSettings } from '../shared/storage.js';
 import { debounce } from '../ui/dom.js';
 import * as S from './sections.js';
+import { track } from '../shared/usage-store.js';
 
 const SECTIONS = [
   { id: 'general', icon: 'settings-2', fn: S.general }, { id: 'home', icon: 'house', fn: S.home }, { id: 'appearance', icon: 'palette', fn: S.appearance }, { id: 'focus', icon: 'target', fn: S.focus }, { id: 'blocking', icon: 'shield', fn: S.blocking },
@@ -113,6 +114,7 @@ function spy() {
 
 (async function main() {
   await bootPage({ onSettings: async (s) => { if (JSON.stringify(s) === lastSaved) return; settings = s; draw(); } });
+  track('settings_view');
   settings = await getSettings();
   mountHeader($('#header'), 'settings');
   installPalette();

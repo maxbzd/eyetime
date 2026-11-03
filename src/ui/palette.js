@@ -11,6 +11,7 @@ import { isFocusLive } from '../shared/blocking.js';
 import { isPaused } from '../shared/focus.js';
 import { taskFromInput } from '../shared/tasks.js';
 import { modeName } from '../shared/modes.js';
+import { track } from '../shared/usage-store.js';
 
 const SECTIONS = ['general', 'home', 'appearance', 'focus', 'blocking', 'eye', 'tracking', 'data', 'about'];
 const ITABS = ['overview', 'focus', 'sites', 'patterns'];
@@ -60,6 +61,7 @@ async function commands(extra) {
 }
 
 function mount(extra) {
+  track('palette_open');
   if (open) return;
   open = true;
   try { localStorage.setItem('et-palette-used', '1'); window.dispatchEvent(new window.CustomEvent('et:palette-used')); } catch { /* ignore */ }

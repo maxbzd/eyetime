@@ -13,6 +13,7 @@ import { openDayPlan } from './dayplan.js';
 import { mondayKey, itemsFor, addItem, toggleItem, removeItem, weekProgress, MAX_WEEK_ITEMS } from '../shared/week.js';
 import { parseQuickAdd } from '../shared/quickadd.js';
 import { card, emptyMini } from './mod-common.js';
+import { track } from '../shared/usage-store.js';
 
 /* ---------- tasks ---------- */
 export function tasksModule() {
@@ -56,7 +57,7 @@ export function tasksModule() {
     const input = h('input', { class: 'input', placeholder: t('tasks.add'), 'aria-label': t('tasks.add'), maxlength: 300, oninput: (e) => drawPreview(e.target.value), onkeydown: (e) => {
       if (e.key !== 'Enter' || !e.target.value.trim()) return;
       const { task, prioDenied } = taskFromInput(e.target.value, tasks);
-      tasks.unshift(task); save(); render();
+      tasks.unshift(task); track('task_add'); save(); render();
       if (prioDenied) toast(t('tasks.maxPriorities', { n: MAX_PRIORITIES }));
       document.querySelector('#mod-tasks input')?.focus();
     } });
@@ -100,7 +101,7 @@ export function tasksModule() {
         !x.done && x.resume ? h('span', { class: 'resume', title: x.resume }, icon('corner-down-right'), h('span', { text: x.resume })) : null,
       ].filter(Boolean);
       return h('div', { class: 'item' + (x.done ? ' done' : '') + (x.starred && !x.done ? ' prio' : '') },
-        h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: x.done, 'aria-label': x.text, onchange: (e) => { x.done = e.target.checked; x.doneAt = x.done ? Date.now() : 0; if (x.done) x.starred = false; save(); render(); getCollection('estLog', []).then((log) => setCollection('estLog', updateEstLog(log, x))); if (x.done && x.est && x.focusSec >= 300) toast(t('tasks.tookVs', { actual: fmtDuration(x.focusSec), est: fmtDuration(x.est * 60) })); } }), h('span', { class: 'box' }, icon('check'))),
+        h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: x.done, 'aria-label': x.text, onchange: (e) => { x.done = e.target.checked; if (x.done) track('task_done'); x.doneAt = x.done ? Date.now() : 0; if (x.done) x.starred = false; save(); render(); getCollection('estLog', []).then((log) => setCollection('estLog', updateEstLog(log, x))); if (x.done && x.est && x.focusSec >= 300) toast(t('tasks.tookVs', { actual: fmtDuration(x.focusSec), est: fmtDuration(x.est * 60) })); } }), h('span', { class: 'box' }, icon('check'))),
         h('div', { class: 'item-main' },
           h('div', { class: 'item-title' }, x.starred && !x.done ? priStar() : null, x.text),
           meta.length ? h('div', { class: 'item-meta' }, meta) : null),

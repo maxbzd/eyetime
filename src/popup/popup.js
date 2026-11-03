@@ -10,6 +10,7 @@ import { makeClassifier } from '../shared/classify.js';
 import { loadGuess } from '../shared/guessstore.js';
 import { dayKey } from '../shared/time.js';
 import { hostFromUrl, matches } from '../shared/domains.js';
+import { track } from '../shared/usage-store.js';
 
 const CLASSES = [{ id: 'productive' }, { id: 'neutral' }, { id: 'distracting' }];
 let tab = null;
@@ -93,6 +94,7 @@ async function renderFooter() {
 
 (async function main() {
   await bootPage({ onSettings: () => { renderSite(); renderFooter(); } });
+  track('popup_open');
   const [active] = await chrome.tabs.query({ active: true, currentWindow: true });
   tab = active ? { id: active.id, host: hostFromUrl(active.url) } : null;
   const preview = new URLSearchParams(location.search).get('site'); // ?site=github.com renders the site card without a real tab (docs, screenshots)
