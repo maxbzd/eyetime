@@ -3,7 +3,7 @@
 import { calendarGroup as calCalendarGroup } from './calendar-group.js';
 import { h, icon, toast, confirmDialog } from '../ui/dom.js';
 import { send } from '../ui/api.js';
-import { row, group, sectionHead } from './ui.js';
+import { row, group, adv, sectionHead } from './ui.js';
 import { t } from '../shared/i18n.js';
 import { importAll, resetAll, getRaw, setRaw, getRange, getCollection, updateCollection, storageUsage, slimNow } from '../shared/storage.js';
 import { tasksToMarkdown, tasksToCsv, parseTasksText } from '../shared/taskio.js';
@@ -72,20 +72,20 @@ export function data({ s, save, refresh }) {
   storageRow.querySelector('.setting-text').append(usage);
 
   return sec('data', sectionHead(t('sec.data'), t('sec.dataDesc')),
-    calendarGroup,
-    tasksGroup,
-    syncGroup(s),
+    adv(calendarGroup, 'calendar'),
+    adv(tasksGroup, 'tasksIO'),
+    adv(syncGroup(s), 'sync'),
     group(t('opt.groupBackup'),
       row({ title: t('opt.export'), desc: t('opt.exportDesc'), control: h('button', { class: 'btn', type: 'button', onclick: doExport }, icon('download'), t('opt.exportBtn')) }),
-      row({ title: t('opt.journal'), desc: t('opt.journalDesc'), control: h('button', { class: 'btn', type: 'button', onclick: async () => {
+      row({ adv: 'backupMore', title: t('opt.journal'), desc: t('opt.journalDesc'), control: h('button', { class: 'btn', type: 'button', onclick: async () => {
         const entries = await getRange(90);
         const md = buildJournal(entries, { classify: makeClassifier(s).classify, clock24: s.newtab.clock24 ?? undefined });
         const url = URL.createObjectURL(new Blob([md], { type: 'text/markdown' }));
         const a = h('a', { href: url, download: `eyetime-journal-${dayKey()}.md` }); document.body.append(a); a.click(); a.remove(); URL.revokeObjectURL(url);
       } }, icon('file-text'), t('opt.journalBtn')) }),
-      storageRow,
+      adv(storageRow, 'backupMore'),
       row({ title: t('opt.import'), desc: t('opt.importDesc'), control: h('button', { class: 'btn', type: 'button', onclick: () => fileIn.click() }, icon('upload'), t('opt.importBtn')) }),
-      row({ title: t('opt.csv'), desc: t('opt.csvDesc'), control: h('a', { class: 'btn', href: chrome.runtime.getURL('src/insights/insights.html') }, icon('arrow-up-right'), t('opt.openInsights')) })),
+      row({ adv: 'backupMore', title: t('opt.csv'), desc: t('opt.csvDesc'), control: h('a', { class: 'btn', href: chrome.runtime.getURL('src/insights/insights.html') }, icon('arrow-up-right'), t('opt.openInsights')) })),
     usageGroup(),
     h('div', {}, h('h3', { class: 'group-title', text: t('opt.groupPrivacy') }),
       h('div', { class: 'card' }, h('div', { class: 'setting' }, h('div', { class: 'setting-text' }, h('div', { class: 'setting-title', text: t('opt.privacyTitle') }), h('div', { class: 'setting-desc', text: t('opt.privacyBody') }))),

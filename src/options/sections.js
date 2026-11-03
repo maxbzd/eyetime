@@ -2,7 +2,7 @@
 
 import { h, icon, toast } from '../ui/dom.js';
 import { send } from '../ui/api.js';
-import { row, group, toggle, select, segmented, domainEditor, sectionHead } from './ui.js';
+import { row, group, adv, advGroup, toggle, select, segmented, domainEditor, sectionHead } from './ui.js';
 import { t, LANGUAGES, weekdayName, fmtDuration } from '../shared/i18n.js';
 import { PRESETS, PRESET_IDS } from '../shared/catalog.js';
 import { parseUserDomain } from '../shared/domains.js';
@@ -19,8 +19,8 @@ export function general({ s, save, refresh }) {
   return sec('general', sectionHead(t('sec.general'), t('sec.generalDesc')),
     group(null,
       row({ title: t('opt.language'), control: select([['auto', t('opt.auto')], ...Object.entries(LANGUAGES)], s.language, (v) => save((x) => { x.language = v; }, true), { label: t('opt.language') }) })),
-    dockGroup(s, save, refresh),
-    siteAiGroup(s, save, refresh),
+    adv(dockGroup(s, save, refresh), 'dock'),
+    adv(siteAiGroup(s, save, refresh), 'smartSites'),
     group(t('opt.groupNotify'),
       row({ title: t('opt.badge'), desc: t('opt.badgeDesc'), control: toggle(s.tracking.badge, (v) => save((x) => { x.tracking.badge = v; }), t('opt.badge')) }),
       row({ title: t('opt.weekly'), desc: t('opt.weeklyDesc'), control: toggle(s.weeklyReport, (v) => save((x) => { x.weeklyReport = v; }), t('opt.weekly')) })));
@@ -32,14 +32,14 @@ export function home({ s, save, refresh }) {
     group(t('opt.groupHome'),
       row({ title: t('opt.homeEnabled'), desc: t('opt.homeEnabledDesc'), control: toggle(s.newtab.enabled, (v) => save((x) => { x.newtab.enabled = v; }), t('opt.homeEnabled')) }),
       row({ title: t('opt.homeCustomize'), desc: t('opt.homeCustomizeDesc'), control: h('a', { class: 'btn', href: chrome.runtime.getURL('src/newtab/newtab.html') }, icon('sliders-horizontal'), t('home.customize')) })),
-    weatherGroup(s, save, refresh),
+    adv(weatherGroup(s, save, refresh), 'weather'),
     group(t('qt.title'),
       row({ title: t('qt.on'), desc: t('qt.onDesc'), control: toggle(s.quotes.on, (v) => save((x) => { x.quotes.on = v; }, true), t('qt.on')) }),
       s.quotes.on ? [
-        ...['home', 'pause', 'rest', 'start'].map((k) => row({ title: t('qt.' + k), control: toggle(s.quotes[k], (v) => save((x) => { x.quotes[k] = v; }), t('qt.' + k)) })),
-        row({ title: t('qt.every'), control: segmented([['day', t('qt.everyDay')], ['tab', t('qt.everyTab')]], s.quotes.every, (v) => save((x) => { x.quotes.every = v; }), t('qt.every')) }),
+        ...['home', 'pause', 'rest', 'start'].map((k) => row({ adv: 'quotesMore', title: t('qt.' + k), control: toggle(s.quotes[k], (v) => save((x) => { x.quotes[k] = v; }), t('qt.' + k)) })),
+        row({ adv: 'quotesMore', title: t('qt.every'), control: segmented([['day', t('qt.everyDay')], ['tab', t('qt.everyTab')]], s.quotes.every, (v) => save((x) => { x.quotes.every = v; }), t('qt.every')) }),
       ] : null),
-    group(t('sb.title'),
+    advGroup('standby', t('sb.title'),
       row({ title: t('sb.title'), desc: t('sb.desc'), control: toggle(s.standby.on, (v) => save((x) => { x.standby.on = v; }, true), t('sb.title')) }),
       s.standby.on ? [
         row({ title: t('sb.after'), control: select([5, 10, 15, 30, 60].map((m) => [m, t('opt.minutes', { n: m })]), s.standby.after, (v) => save((x) => { x.standby.after = Number(v); }), { label: t('sb.after') }) }),
@@ -106,22 +106,22 @@ export function focus({ s, save, refresh }) {
   return sec('focus', sectionHead(t('sec.focus'), t('sec.focusDesc')),
     group(null,
       row({ title: t('opt.focusDefault'), desc: t('opt.focusDefaultDesc'), control: select(s.focus.presets.map((m) => [m, t('opt.minutes', { n: m })]), s.focus.minutes, (v) => save((x) => { x.focus.minutes = Number(v); }), { label: t('opt.focusDefault') }) }),
-      row({ title: t('opt.focusPresets'), desc: t('opt.focusPresetsDesc'), stack: true, control: presetsIn }),
+      row({ adv: 'presets', title: t('opt.focusPresets'), desc: t('opt.focusPresetsDesc'), stack: true, control: presetsIn }),
       row({ title: t('opt.restAfter'), desc: t('opt.restAfterDesc'), control: select([[0, t('common.off')], ...[3, 5, 10, 15].map((m) => [m, t('opt.minutes', { n: m })])], s.focus.breakMinutes, (v) => save((x) => { x.focus.breakMinutes = Number(v); }), { label: t('opt.restAfter') }) }),
-      row({ title: t('opt.longBreak'), desc: t('opt.longBreakDesc'), control: h('div', { class: 'row gap-2' },
+      row({ adv: 'longBreak', title: t('opt.longBreak'), desc: t('opt.longBreakDesc'), control: h('div', { class: 'row gap-2' },
         select([[0, t('common.off')], ...[2, 3, 4, 5].map((n) => [n, t('opt.everyN', { n })])], s.focus.longBreak.every, (v) => save((x) => { x.focus.longBreak.every = Number(v); }), { label: t('opt.longBreak') }),
         select([10, 15, 20, 30].map((m) => [m, t('opt.minutes', { n: m })]), s.focus.longBreak.minutes, (v) => save((x) => { x.focus.longBreak.minutes = Number(v); }), { label: t('opt.longBreakLen') })) }),
       row({ title: t('focus.strict'), desc: t('opt.strictDesc'), control: toggle(s.focus.strict, (v) => save((x) => { x.focus.strict = v; }), t('focus.strict')) })),
     group(t('opt.groupProductivity'),
       row({ title: t('opt.dailyGoal'), desc: t('opt.dailyGoalDesc'), control: select([[0, t('common.off')], ...[30, 60, 90, 120, 180, 240, 300].map((m) => [m, fmtDuration(m * 60)])], s.focus.dailyGoal, (v) => save((x) => { x.focus.dailyGoal = Number(v); }), { label: t('opt.dailyGoal') }) }),
-      s.focus.dailyGoal ? row({ title: t('opt.goalDays'), desc: t('opt.goalDaysDesc'), control: h('div', { class: 'row gap-1 wrap' }, [1, 2, 3, 4, 5, 6, 0].map((d) => h('button', { class: 'chip chip-day', type: 'button', 'aria-pressed': String(s.focus.goalDays.includes(d)), text: weekdayName(d), onclick: () => save((x) => { const on = x.focus.goalDays.includes(d); if (on && x.focus.goalDays.length === 1) return; x.focus.goalDays = on ? x.focus.goalDays.filter((n) => n !== d) : [...x.focus.goalDays, d]; }, true) }))) }) : null,
-      s.focus.dailyGoal ? row({ title: t('opt.streakGrace'), desc: t('opt.streakGraceDesc'), control: toggle(s.focus.streakGrace, (v) => save((x) => { x.focus.streakGrace = v; }), t('opt.streakGrace')) }) : null,
+      s.focus.dailyGoal ? row({ adv: 'goalDays', title: t('opt.goalDays'), desc: t('opt.goalDaysDesc'), control: h('div', { class: 'row gap-1 wrap' }, [1, 2, 3, 4, 5, 6, 0].map((d) => h('button', { class: 'chip chip-day', type: 'button', 'aria-pressed': String(s.focus.goalDays.includes(d)), text: weekdayName(d), onclick: () => save((x) => { const on = x.focus.goalDays.includes(d); if (on && x.focus.goalDays.length === 1) return; x.focus.goalDays = on ? x.focus.goalDays.filter((n) => n !== d) : [...x.focus.goalDays, d]; }, true) }))) }) : null,
+      s.focus.dailyGoal ? row({ adv: 'streakGrace', title: t('opt.streakGrace'), desc: t('opt.streakGraceDesc'), control: toggle(s.focus.streakGrace, (v) => save((x) => { x.focus.streakGrace = v; }), t('opt.streakGrace')) }) : null,
       row({ title: t('opt.ambient'), desc: t('opt.ambientDesc'), control: select(['off', 'brown', 'rain', 'river', 'forest'].map((k) => [k, t('ambient.' + k)]), s.focus.ambient, (v) => send('ambient:set', { kind: v }).then(() => {}), { label: t('opt.ambient') }) }),
       row({ title: t('opt.scope'), desc: t('opt.scopeDesc'), control: select([['distractions', t('opt.scopeDistractions')], ['only-mine', t('focus.onlyMine')]], s.focus.scope, (v) => save((x) => { x.focus.scope = v; }), { label: t('opt.scope') }) }),
-      row({ title: t('opt.review'), desc: t('opt.reviewDesc'), control: toggle(s.focus.review, (v) => save((x) => { x.focus.review = v; }), t('opt.review')) }),
-      row({ title: t('opt.modes'), desc: t('opt.modesDesc'), stack: true, control: modesEditor(s, save) }),
-      row({ title: t('opt.reminders'), desc: t('opt.remindersDesc'), stack: true, control: remindersEditor(s, save) })),
-    group(t('opt.groupExtras'),
+      row({ adv: 'review', title: t('opt.review'), desc: t('opt.reviewDesc'), control: toggle(s.focus.review, (v) => save((x) => { x.focus.review = v; }), t('opt.review')) }),
+      row({ adv: 'modes', title: t('opt.modes'), desc: t('opt.modesDesc'), stack: true, control: modesEditor(s, save) }),
+      row({ adv: 'reminders', title: t('opt.reminders'), desc: t('opt.remindersDesc'), stack: true, control: remindersEditor(s, save) })),
+    advGroup('focusExtras', t('opt.groupExtras'),
       row({ title: t('opt.focusSound'), desc: t('opt.focusSoundDesc'), control: toggle(s.focus.sound, (v) => save((x) => { x.focus.sound = v; }), t('opt.focusSound')) }),
       row({ title: t('opt.focusUrl'), desc: t('opt.focusUrlDesc'), control: urlIn }),
       row({ title: t('opt.suggestBreak'), desc: t('opt.suggestBreakDesc'), control: toggle(s.focus.suggestBreak, (v) => save((x) => { x.focus.suggestBreak = v; }), t('opt.suggestBreak')) })));
@@ -188,12 +188,12 @@ export function blocking({ s, save, refresh }) {
 
     group(t('opt.groupFriction'),
       row({ title: t('opt.friction'), desc: t('opt.frictionDesc'), control: toggle(fr.enabled, (v) => save((x) => { x.blocking.friction.enabled = v; }, true), t('opt.friction')) }),
-      fr.enabled ? row({ title: t('opt.frictionSeconds'), control: select([5, 8, 10, 15, 30].map((n) => [n, t('opt.seconds', { n })]), fr.seconds, (v) => save((x) => { x.blocking.friction.seconds = Number(v); }), { label: t('opt.frictionSeconds') }) }) : null,
-      row({ title: t('opt.passMinutes'), desc: t('opt.passMinutesDesc'), control: select(mins([5, 10, 15, 30]), fr.passMinutes, (v) => save((x) => { x.blocking.friction.passMinutes = Number(v); }), { label: t('opt.passMinutes') }) }),
-      row({ title: t('opt.budget'), desc: t('opt.budgetDesc'), control: h('div', { class: 'row gap-2' }, b.budget.enabled ? select([15, 30, 45, 60, 90, 120].map((m) => [m, fmtDuration(m * 60)]), b.budget.minutes, (v) => save((x) => { x.blocking.budget.minutes = Number(v); }), { label: t('opt.budget') }) : null, toggle(b.budget.enabled, (v) => save((x) => { x.blocking.budget.enabled = v; }, true), t('opt.budget'))) }),
-      fr.enabled ? row({ title: t('opt.plans'), desc: t('opt.plansDesc'), stack: true, control: plansEditor(s, save) }) : null),
+      fr.enabled ? row({ adv: 'friction', title: t('opt.frictionSeconds'), control: select([5, 8, 10, 15, 30].map((n) => [n, t('opt.seconds', { n })]), fr.seconds, (v) => save((x) => { x.blocking.friction.seconds = Number(v); }), { label: t('opt.frictionSeconds') }) }) : null,
+      row({ adv: 'friction', title: t('opt.passMinutes'), desc: t('opt.passMinutesDesc'), control: select(mins([5, 10, 15, 30]), fr.passMinutes, (v) => save((x) => { x.blocking.friction.passMinutes = Number(v); }), { label: t('opt.passMinutes') }) }),
+      row({ adv: 'friction', title: t('opt.budget'), desc: t('opt.budgetDesc'), control: h('div', { class: 'row gap-2' }, b.budget.enabled ? select([15, 30, 45, 60, 90, 120].map((m) => [m, fmtDuration(m * 60)]), b.budget.minutes, (v) => save((x) => { x.blocking.budget.minutes = Number(v); }), { label: t('opt.budget') }) : null, toggle(b.budget.enabled, (v) => save((x) => { x.blocking.budget.enabled = v; }, true), t('opt.budget'))) }),
+      fr.enabled ? row({ adv: 'friction', title: t('opt.plans'), desc: t('opt.plansDesc'), stack: true, control: plansEditor(s, save) }) : null),
 
-    group(t('opt.groupSchedule'),
+    advGroup('schedule', t('opt.groupSchedule'),
       row({ title: t('opt.schedule'), desc: t('opt.scheduleDesc'), control: toggle(sch.enabled, (v) => save((x) => { x.blocking.schedule.enabled = v; }, true), t('opt.schedule')) }),
       sch.enabled ? [
         row({ title: t('opt.schedDays'), desc: sch.days.length ? undefined : t('opt.schedNoDays'), warn: !sch.days.length, stack: true, control: days }),
@@ -201,17 +201,17 @@ export function blocking({ s, save, refresh }) {
         row({ title: t('opt.schedStrict'), desc: t('opt.schedStrictDesc'), control: toggle(sch.strict, (v) => save((x) => { x.blocking.schedule.strict = v; }), t('opt.schedStrict')) }),
       ] : null),
 
-    h('div', {}, h('h3', { class: 'group-title', text: t('opt.groupLimits') }), h('p', { class: 'hint', style: { margin: '-4px 4px 10px' }, text: t('opt.limitsDesc') }), limits),
+    adv(h('div', {}, h('h3', { class: 'group-title', text: t('opt.groupLimits') }), h('p', { class: 'hint', style: { margin: '-4px 4px 10px' }, text: t('opt.limitsDesc') }), limits), 'limits'),
 
     group(t('opt.groupAlways'), row({ title: t('opt.always'), desc: t('opt.alwaysDesc'), stack: true, control: domainEditor({ items: b.always, onAdd: addTo('always'), onRemove: removeFrom('always'), placeholder: 'example.com', empty: t('opt.alwaysEmpty') }) })),
 
     group(t('opt.groupFeed'),
       row({ title: t('opt.shortLimit'), desc: t('opt.shortLimitDesc'), control: toggle(feed.shortLimit, (v) => save((x) => { x.blocking.feed.shortLimit = v; }, true), t('opt.shortLimit')) }),
-      feed.shortLimit ? row({ title: t('opt.shortMinutes'), control: select(mins([1, 3, 5, 10, 15]), feed.shortMinutes, (v) => save((x) => { x.blocking.feed.shortMinutes = Number(v); }), { label: t('opt.shortMinutes') }) }) : null,
-      row({ title: t('opt.hideShorts'), desc: t('opt.hideShortsDesc'), control: toggle(feed.hideShorts, (v) => save((x) => { x.blocking.feed.hideShorts = v; }), t('opt.hideShorts')) }),
-      row({ title: t('opt.hideRecs'), desc: t('opt.hideRecsDesc'), control: toggle(feed.hideRecs, (v) => save((x) => { x.blocking.feed.hideRecs = v; }), t('opt.hideRecs')) }),
-      row({ title: t('opt.hideHome'), desc: t('opt.hideHomeDesc'), control: toggle(feed.hideHome, (v) => save((x) => { x.blocking.feed.hideHome = v; }), t('opt.hideHome')) }),
-      row({ title: t('opt.hideComments'), control: toggle(feed.hideComments, (v) => save((x) => { x.blocking.feed.hideComments = v; }), t('opt.hideComments')) })));
+      feed.shortLimit ? row({ adv: 'feed', title: t('opt.shortMinutes'), control: select(mins([1, 3, 5, 10, 15]), feed.shortMinutes, (v) => save((x) => { x.blocking.feed.shortMinutes = Number(v); }), { label: t('opt.shortMinutes') }) }) : null,
+      row({ adv: 'feed', title: t('opt.hideShorts'), desc: t('opt.hideShortsDesc'), control: toggle(feed.hideShorts, (v) => save((x) => { x.blocking.feed.hideShorts = v; }), t('opt.hideShorts')) }),
+      row({ adv: 'feed', title: t('opt.hideRecs'), desc: t('opt.hideRecsDesc'), control: toggle(feed.hideRecs, (v) => save((x) => { x.blocking.feed.hideRecs = v; }), t('opt.hideRecs')) }),
+      row({ adv: 'feed', title: t('opt.hideHome'), desc: t('opt.hideHomeDesc'), control: toggle(feed.hideHome, (v) => save((x) => { x.blocking.feed.hideHome = v; }), t('opt.hideHome')) }),
+      row({ adv: 'feed', title: t('opt.hideComments'), control: toggle(feed.hideComments, (v) => save((x) => { x.blocking.feed.hideComments = v; }), t('opt.hideComments')) })));
 }
 
 /* ============================== Eye care ============================== */
@@ -223,10 +223,10 @@ export function eye({ s, save }) {
       e.enabled ? [
         row({ title: t('opt.eyeInterval'), desc: t('opt.eyeIntervalDesc'), control: select(mins([15, 20, 30, 45, 60]), e.intervalMin, (v) => save((x) => { x.eye.intervalMin = Number(v); }), { label: t('opt.eyeInterval') }) }),
         row({ title: t('opt.eyeLength'), control: select([20, 30, 60].map((n) => [n, t('opt.seconds', { n })]), e.breakSeconds, (v) => save((x) => { x.eye.breakSeconds = Number(v); }), { label: t('opt.eyeLength') }) }),
-        row({ title: t('opt.eyeNotify'), desc: t('opt.eyeNotifyDesc'), control: toggle(e.notify, (v) => save((x) => { x.eye.notify = v; }), t('opt.eyeNotify')) }),
+        row({ adv: 'eyeNotify', title: t('opt.eyeNotify'), desc: t('opt.eyeNotifyDesc'), control: toggle(e.notify, (v) => save((x) => { x.eye.notify = v; }), t('opt.eyeNotify')) }),
         row({ title: t('opt.eyePreview'), control: h('button', { class: 'btn', type: 'button', onclick: () => send('break:open') }, icon('eye'), t('opt.eyePreviewBtn')) }),
       ] : null),
-    group(t('opt.groupBedtime'),
+    advGroup('bedtime', t('opt.groupBedtime'),
       row({ title: t('opt.bedtime'), desc: t('opt.bedtimeDesc'), control: toggle(e.bedtime.enabled, (v) => save((x) => { x.eye.bedtime.enabled = v; }, true), t('opt.bedtime')) }),
       e.bedtime.enabled ? [
         row({ title: t('opt.bedtimeAt'), control: h('input', { class: 'input input-sm', type: 'time', value: e.bedtime.time, 'aria-label': t('opt.bedtimeAt'), onchange: (ev) => { if (ev.target.value) save((x) => { x.eye.bedtime.time = ev.target.value; }); } }) }),
@@ -251,12 +251,12 @@ export function tracking({ s, save, refresh }) {
   return sec('tracking', sectionHead(t('sec.tracking'), t('sec.trackingDesc')),
     group(null,
       row({ title: t('opt.trackEnabled'), desc: t('opt.trackEnabledDesc'), control: toggle(tr.enabled, (v) => save((x) => { x.tracking.enabled = v; }, true), t('opt.trackEnabled')) }),
-      row({ title: t('opt.idle'), desc: t('opt.idleDesc'), control: select([[30, t('opt.seconds', { n: 30 })], [60, t('opt.minutes', { n: 1 })], [120, t('opt.minutes', { n: 2 })], [300, t('opt.minutes', { n: 5 })]], tr.idleSeconds, (v) => save((x) => { x.tracking.idleSeconds = Number(v); }, true), { label: t('opt.idle') }) }),
-      row({ title: t('opt.audible'), desc: t('opt.audibleDesc'), control: toggle(tr.countAudible, (v) => save((x) => { x.tracking.countAudible = v; }), t('opt.audible')) }),
-      row({ title: t('opt.incognito'), desc: t('opt.incognitoDesc'), control: toggle(tr.incognito, (v) => save((x) => { x.tracking.incognito = v; }), t('opt.incognito')) })),
-    group(t('opt.groupExcluded'), row({ title: t('opt.excluded'), desc: t('opt.excludedDesc'), stack: true, control: domainEditor({ items: tr.excluded, placeholder: 'example.com',
+      row({ adv: 'trackMore', title: t('opt.idle'), desc: t('opt.idleDesc'), control: select([[30, t('opt.seconds', { n: 30 })], [60, t('opt.minutes', { n: 1 })], [120, t('opt.minutes', { n: 2 })], [300, t('opt.minutes', { n: 5 })]], tr.idleSeconds, (v) => save((x) => { x.tracking.idleSeconds = Number(v); }, true), { label: t('opt.idle') }) }),
+      row({ adv: 'trackMore', title: t('opt.audible'), desc: t('opt.audibleDesc'), control: toggle(tr.countAudible, (v) => save((x) => { x.tracking.countAudible = v; }), t('opt.audible')) }),
+      row({ adv: 'trackMore', title: t('opt.incognito'), desc: t('opt.incognitoDesc'), control: toggle(tr.incognito, (v) => save((x) => { x.tracking.incognito = v; }), t('opt.incognito')) })),
+    advGroup('excluded', t('opt.groupExcluded'), row({ title: t('opt.excluded'), desc: t('opt.excludedDesc'), stack: true, control: domainEditor({ items: tr.excluded, placeholder: 'example.com',
       onAdd: (d) => save((x) => { if (!x.tracking.excluded.includes(d)) x.tracking.excluded.push(d); }, true), onRemove: (d) => save((x) => { x.tracking.excluded = x.tracking.excluded.filter((v) => v !== d); }, true) }) })),
-    group(t('opt.groupCompanion'),
+    advGroup('companion', t('opt.groupCompanion'),
       row({ title: t('opt.comp'), desc: t('opt.compDesc'), control: h('div', { class: 'row gap-3' }, comp.enabled ? status : null, toggle(comp.enabled, setCompanion, t('opt.comp'))) }),
       comp.enabled ? row({ title: t('opt.compToken'), desc: t('opt.compTokenDesc'), control: tokenIn }) : null,
       row({ title: t('opt.compHow'), desc: t('opt.compHowDesc'), control: h('a', { class: 'btn', href: 'https://github.com/maxbzd/eyetime/tree/main/companion', target: '_blank', rel: 'noopener' }, icon('external-link'), t('opt.compDocs')) })));
