@@ -1,344 +1,50 @@
+// Home (the new tab page): boots the page and keeps it in step with the settings. The parts live in ./home/:
+//   state · hero (clock, date, greeting, quote) · background · blocks (modules, widgets, skins) · parts (the focus line or card) · nudges · drawer (customize + editor)
+//   focus-watch (tab title, focus layout) · layout-watch · shortcuts · palette. This file only decides what to do when the settings change.
+
 import { bootPage } from '../ui/page.js';
-import { $, h, icon, clear, toast } from '../ui/dom.js';
-import { mountFocusCard } from '../ui/focus-card.js';
-import { mountToday } from '../ui/today-card.js';
-import { tasksModule, habitsModule, notesModule, linksModule } from './modules.js';
-import { t, fmtDate, fmtTime } from '../shared/i18n.js';
-import { getSettings, updateSettings, getRaw, setRaw, onChange, getDays, getCollection } from '../shared/storage.js';
-import { nudge as pickNudge, dayReview, applyPlans } from '../shared/productivity.js';
+import { $, h, icon } from '../ui/dom.js';
+import { t } from '../shared/i18n.js';
+import { getSettings, updateSettings, setCollection, getCollection, onChange } from '../shared/storage.js';
+import { applyPlans } from '../shared/productivity.js';
 import { applyRepeats } from '../shared/tasks.js';
-import { openShutdown } from './shutdown.js';
-import { installPalette } from '../ui/palette.js';
+import { dayKey } from '../shared/time.js';
+import { send } from '../ui/api.js';
 import { mountGettingStarted } from './getting-started.js';
 import { mountWhatsNew } from './whatsnew.js';
-import { openDayPlan } from './dayplan.js';
 import { mountRings } from './rings.js';
-import { applyCanvas, canvasActive } from './canvas.js';
-import { applyType, clockSeconds, alignClockFill } from './type-apply.js';
-import { createWidgetHost } from './widgets.js';
-import { applyDepth } from './depth.js';
-import { BACKGROUNDS, CLOCKS, LAYOUTS } from './home-controls.js';
-import { starterGallery, applyStarterWith } from './starter-panel.js';
-import { surprise } from '../shared/starters.js';
-import { homeRows, moduleOrder } from './home-rows.js';
-import { resolveSettings, wantedLayout, activeLayoutId, editingLayoutId, setFocusing, home } from './home-config.js';
-import { downloadBackup, needsBackup } from '../ui/backup.js';
-import { send } from '../ui/api.js';
-import { setCollection } from '../shared/storage.js';
-import { dayKey } from '../shared/time.js';
-import { LOOKS } from '../shared/looks.js';
-import { fmtDuration } from '../shared/i18n.js';
-import { clock, remainingMs, isPaused } from '../shared/focus.js';
-import { isFocusActive, isFocusLive } from '../shared/blocking.js';
-import { luminance, normalizeHex } from '../shared/color.js';
-import { resolveTextTone } from '../shared/phototone.js';
-import { getPhotoInfo, clearPhotoInfo, photoKey } from './photo-info.js';
-import { mount3d, unmount3d } from './gl3d.js';
-import { normalizeDepth } from '../shared/depth.js';
-import { FRAMES, framePaths, normalizeFrame, DAILY, dailyFrame, wallVeil } from '../shared/frames.js';
-import { showQuote } from '../ui/quote.js';
+import { applyCanvas } from './canvas.js';
+import { applyType } from './type-apply.js';
+import { resolveSettings } from './home-config.js';
 import { mountStandby } from './standby.js';
-import { mountWeatherFx } from './weather-fx.js';
 import { autoGuess } from '../ui/siteai.js';
-import { paintSkin, skinEnv } from './skin-apply.js';
-import { normalizeSkin } from '../shared/skins.js';
-import { loadWeather } from './weather.js';
-import { describeCode } from '../shared/weather.js';
-import { mountFocusLine } from './today/focusline.js';
-import { mountGlance } from './today/glance.js';
-
-const DARK_SCENES = ['aurora', 'stars', 'photo', 'sea', 'onyx', 'peaks'];
-let settings, rawSettings, linksMod, standby;
-
-/* ---------- hero ---------- */
-
-function paintClock() {
-  const now = new Date();
-  const time = fmtTime(now, settings.newtab.clock24 ?? undefined, clockSeconds(settings));
-  const clockEl = $('#clock');
-  if (settings.newtab.clockStyle === 'stacked') {
-    const [hh, ...rest] = time.split(':');
-    const tail = rest.join(':'), ap = /\s?([AP]M)$/i.exec(tail);
-    clear(clockEl, h('span', { class: 'h', text: hh }), h('span', { class: 'm' }, tail.replace(/\s?[AP]M$/i, ''), ap ? h('span', { class: 'ap', text: ap[1].toUpperCase() }) : null));
-  } else clockEl.textContent = time;
-  document.body.dataset.clock = CLOCKS.includes(settings.newtab.clockStyle) ? settings.newtab.clockStyle : 'thin';
-  document.body.dataset.layout = canvasActive(settings) ? 'canvas' : LAYOUTS.includes(settings.newtab.layout) ? settings.newtab.layout : 'center';
-  $('#date').textContent = fmtDate(now);
-  showQuote($('#quote'), 'day', settings);
-  alignClockFill();
-  const hr = now.getHours();
-  $('#greeting').textContent = settings.newtab.greeting ? t(hr < 5 ? 'greet.night' : hr < 12 ? 'greet.morning' : hr < 18 ? 'greet.afternoon' : 'greet.evening') : '';
-}
-
-/** The clock ticks every 10 s, every second when seconds are shown. */
-let clockTimer = 0, clockEvery = 0;
-function scheduleClock() {
-  const every = clockSeconds(settings) ? 1000 : 10_000;
-  if (every === clockEvery) return;
-  clearInterval(clockTimer); clockEvery = every; clockTimer = setInterval(() => { paintClock(); checkLayout(); }, every);
-}
-
-/** A layout that switches on by itself (during focus, or at certain hours) takes over when its moment comes. */
-function checkLayout() {
-  if (rawSettings && !editingLayoutId() && wantedLayout(rawSettings) !== activeLayoutId()) applySettings(rawSettings);
-}
-
-/** A gentle, snoozable reminder to save a backup file (history lives only on this device). */
-async function paintBackupNudge() {
-  const el = $('#backupNudge');
-  const { lastBackupAt = 0, backupSnoozedUntil = 0, meta } = await getRaw(['lastBackupAt', 'backupSnoozedUntil', 'meta']);
-  const all = await chrome.storage.local.get(null);
-  const daysStored = Object.keys(all).filter((k) => k.startsWith('d:')).length;
-  if (!needsBackup({ now: Date.now(), installedAt: meta && meta.installedAt, lastBackupAt, daysStored, snoozedUntil: backupSnoozedUntil })) { el.hidden = true; return; }
-  el.hidden = false;
-  clear(el, icon('database'), h('span', { class: 'nudge-text', text: t('backup.title') + '. ' + t('backup.body') }),
-    h('button', { class: 'btn btn-sm btn-primary', type: 'button', onclick: async () => { await downloadBackup(); el.hidden = true; } }, icon('download'), t('backup.now')),
-    h('button', { class: 'btn btn-sm', type: 'button', onclick: async () => { await setRaw({ backupSnoozedUntil: Date.now() + 14 * 86_400_000 }); el.hidden = true; } }, t('backup.later')));
-}
-
-/** While a session runs the tab title shows the countdown, so it is visible from other tabs. */
-let runningFocus = null;
-function paintTitle() {
-  document.title = runningFocus && isFocusActive(runningFocus) ? `${clock(remainingMs(runningFocus))} · EyeTime` : runningFocus && isPaused(runningFocus) ? `⏸ ${clock(remainingMs(runningFocus))} · EyeTime` : 'EyeTime';
-}
-async function watchFocus() {
-  const sync = async () => { runningFocus = (await getRaw('focus')).focus; paintTitle(); setFocusing(!!runningFocus && isFocusLive(runningFocus)); checkLayout(); }; // a paused session keeps the focus layout
-  await sync();
-  onChange('focus', sync);
-  setInterval(() => { paintTitle(); const on = !!runningFocus && isFocusLive(runningFocus); setFocusing(on); checkLayout(); }, 1000);
-}
-
-/* ---------- day-loop nudge: one gentle prompt (plan · review · goal) ---------- */
-
-const nudgeOff = (kind) => { try { return localStorage.getItem('et-nudge-off') === dayKey() + ':' + kind; } catch { return false; } };
-async function paintNudge() {
-  const el = $('#nudge');
-  const [[, day]] = await getDays([dayKey()]);
-  const tasks = (await getCollection('tasks', [])).filter((x) => !x.done);
-  const kind = pickNudge({ now: new Date(), fsSec: day?.fs || 0, goalMin: settings.focus.dailyGoal, openTasks: tasks.length, starred: tasks.filter((x) => x.starred).length, sessionsToday: (day?.ss || []).length });
-  if (!kind || kind === 'start' || nudgeOff(kind)) { el.hidden = true; return; }
-  const r = dayReview(day);
-  const rated = r.avgRating ? t(r.avgRating >= 2.5 ? 'review.r3' : r.avgRating >= 1.75 ? 'review.r2' : 'review.r1').toLowerCase() : '';
-  const msg = { plan: t('nudge.plan'), goal: t('nudge.goal'), review: r.sessions ? (rated ? t('nudge.review', { n: r.sessions, time: fmtDuration(r.minutes * 60) }).replace(/\.$/, '') + ' · ' + rated + '.' : t('nudge.review', { n: r.sessions, time: fmtDuration(r.minutes * 60) })) : t('nudge.reviewEmpty') }[kind];
-  const ico = { plan: { icon: 'star' }, goal: { icon: 'trophy' }, review: { icon: 'moon' } }[kind].icon;
-  clear(el, icon(ico), h('span', { class: 'nudge-text', text: msg }),
-    kind === 'review' ? h('button', { class: 'btn btn-sm btn-primary', type: 'button', onclick: openShutdown }, icon('moon'), t('nudge.closeDay')) : null,
-    kind === 'review' ? h('a', { class: 'btn btn-sm', href: '../insights/insights.html' }, t('nudge.seeDay')) : null,
-    h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.close'), onclick: () => { try { localStorage.setItem('et-nudge-off', dayKey() + ':' + kind); } catch { /* private mode */ } el.hidden = true; } }, icon('x')));
-  el.hidden = false;
-}
-
-/* ---------- background ---------- */
-
-/** A "quiet" theme hides the page's own buttons; they come back for a few seconds when the mouse moves or a key is pressed. */
-let awakeTimer = 0;
-const wake = () => { document.body.classList.add('awake'); clearTimeout(awakeTimer); awakeTimer = window.setTimeout(() => document.body.classList.remove('awake'), 2800); };
-window.addEventListener('pointermove', wake, { passive: true }); window.addEventListener('keydown', wake);
-
-async function applyBackground() {
-  const n = settings.newtab;
-  let bg = BACKGROUNDS.includes(n.background) || n.background === 'photo' || (n.background === 'scene' && n.scene && n.scene.layers && n.scene.layers.length) ? n.background : 'look';
-  const today = n.layout === 'today' && !canvasActive(settings);
-  if (today && bg !== 'photo') bg = 'photo'; // Today is a photograph with white type: another background (a gradient, a colour, a scene) becomes the wallpaper of the day
-  if (bg === 'look') { // "as in the look": Calm paints Dawn, Tide a sea (one per scheme), the others their own page colour
-    const scene = LOOKS[settings.appearance.look]?.homeScene;
-    bg = (scene && typeof scene === 'object' ? scene[document.documentElement.dataset.scheme] : scene) || 'look';
-  }
-  let scene = bg, photoTone = null, wxSrc = '', flatScene = bg, depthMap = '';
-  if (bg === 'photo') {
-    let frame = n.frame === DAILY || (today && n.background !== 'photo') ? dailyFrame(new Date(), wallSkip()) : normalizeFrame(n.frame); // a photo that ships with EyeTime, or the person's own
-    if (today && !frame && !(await getRaw('newtabBg')).newtabBg) frame = dailyFrame(new Date(), wallSkip()); // asked for their own photo but has none (yet)
-    const paths = frame ? framePaths(frame) : null;
-    paintCredit(today ? frame : '');
-    const setVeil = ([vc, vt, vb]) => { const st = document.documentElement.style; st.setProperty('--vc', String(vc)); st.setProperty('--vt', String(vt)); st.setProperty('--vb', String(vb)); };
-    setVeil(today && frame ? wallVeil(frame) : [0, 0, 0]);
-    const newtabBg = paths ? chrome.runtime.getURL(paths.photo) : (await getRaw('newtabBg')).newtabBg;
-    document.documentElement.style.setProperty('--photo-shade', String(frame ? FRAMES[frame].shade : 1));
-    if (newtabBg) {
-      const info = await getPhotoInfo(newtabBg);
-      document.documentElement.style.setProperty('--photo', `url(${newtabBg})`);
-      if (info.soft) document.documentElement.style.setProperty('--photo-soft', `url(${info.soft})`);
-      if (today && !frame) setVeil(info.tone === 'dark' ? [0.4, 0.45, 0.3] : [0.18, 0.22, 0.14]); // their own photo: a light one needs more veil under white type
-      photoTone = n.photoText === 'light' || n.photoText === 'dark' ? n.photoText : frame ? FRAMES[frame].tone : info.tone;
-      wxSrc = newtabBg;
-    } else bg = 'look';
-    const newtabFg = bg !== 'photo' ? '' : paths ? (paths.mask ? chrome.runtime.getURL(paths.mask) : '') : (await getRaw('newtabFg')).newtabFg;
-    if (newtabFg) { document.documentElement.style.setProperty('--photo-mask', `url(${newtabFg})`); scene = 'photo-cut'; } // the cut-out subject: a masked copy of the photo goes in front of the clock
-    flatScene = scene;
-    const d3 = normalizeDepth(n.depth);
-    if (bg === 'photo' && wxSrc && d3.on && d3.volume) { // a 3D photo: its depth map was made for this very photo
-      const { newtabDepth } = await getRaw('newtabDepth');
-      if (newtabDepth && newtabDepth.key === photoKey(wxSrc)) { depthMap = newtabDepth.png; scene = 'photo-3d'; }
-    }
-  }
-  if (bg !== 'photo') { paintCredit(''); clearPhotoInfo(); document.documentElement.style.removeProperty('--photo'); document.documentElement.style.removeProperty('--photo-soft'); } // the glass / photo clock falls back to a plain fill
-  const color = normalizeHex(n.bgColor) || '#e9e4ff';
-  if (bg === 'color') document.documentElement.style.setProperty('--bg-color', color);
-  document.body.dataset.bg = bg;
-  document.body.classList.toggle('quiet', n.quiet === true);
-  $('.bg').className = 'bg bgx-' + bg;
-  await applyScene(bg === 'scene' ? n : null);
-  applyDepth(settings, scene);
-  let gl = false;
-  if (depthMap) gl = await mount3d({ photo: wxSrc, depthMap, depth: n.depth }); else unmount3d();
-  document.body.classList.toggle('bg-gl', gl);
-  if (depthMap && !gl) applyDepth(settings, flatScene); // no WebGL or a broken map: the flat photo, as before
-  // light hero text on scenes that are dark in every theme, and on dark custom colours; a photo follows the person's choice or its own brightness
-  document.body.dataset.tone = photoTone && bg === 'photo' ? (resolveTextTone(n.photoText, photoTone) === 'dark' ? 'light' : 'dark') : bg === 'scene' && n.scene.tone ? n.scene.tone : DARK_SCENES.includes(bg) || (bg === 'color' && luminance(color) < 0.28) ? 'dark' : '';
-  alignClockFill();
-  applyWeatherFx(wxSrc);
-}
-
-/** "Next photo" on Today: how many wallpapers to skip today (kept for the day, then it starts over). */
-function wallSkip() { try { const v = JSON.parse(localStorage.getItem('et-wall-skip') || 'null'); return v && v.day === dayKey() ? v.n : 0; } catch { return 0; } }
-function nextWall() { try { localStorage.setItem('et-wall-skip', JSON.stringify({ day: dayKey(), n: wallSkip() + 1 })); } catch { /* private mode */ } applyBackground(); }
-/** Bottom-left on Today: who took the photo, and a way to see another one. */
-function paintCredit(frame) {
-  const el = $('#tdCredit');
-  if (!frame || !FRAMES[frame]) { el.hidden = true; return; }
-  const daily = settings.newtab.frame === DAILY || settings.newtab.background === 'look';
-  clear(el, h('span', { class: 'cr-name', text: t('bg.frame.' + frame) }), h('span', { class: 'cr-by', text: FRAMES[frame].credit }),
-    daily ? h('button', { class: 'cr-next', type: 'button', 'aria-label': t('td.nextPhoto'), 'data-tip': t('td.nextPhoto'), onclick: nextWall }, icon('refresh-cw')) : null);
-  el.hidden = false;
-}
-
-/** A scene as the background: drawn by the scene engine (loaded when one is used). Same scene, new knobs → only the knobs change. */
-let sceneInst = null, sceneSig = '';
-async function applyScene(n) {
-  const sig = n ? JSON.stringify(n.scene) : '';
-  if (sig === sceneSig && (sceneInst || !n)) { if (sceneInst) sceneInst.setParams(n.sceneParams); return; }
-  sceneSig = sig;
-  if (sceneInst) { sceneInst.destroy(); sceneInst = null; }
-  if (!n) return;
-  const [{ mountScene }, { runAction }] = await Promise.all([import('./scene/engine.js'), import('./scene/actions.js')]);
-  if (sceneSig !== sig) return; // changed again while loading
-  sceneInst = mountScene($('.bg'), n.scene, { params: n.sceneParams, onAction: runAction });
-}
-
-/** Rain or snow over the background, if the person turned the weather and its effect on and it is raining or snowing where they are (or `#fx=rain|snow|thunder|drizzle` to look at one). */
-const weatherFx = mountWeatherFx();
-let wxPhoto = '';
-async function applyWeatherFx(photo = wxPhoto) {
-  wxPhoto = photo;
-  const forced = /[#&]fx=(rain|snow|thunder|drizzle)\b/.exec(location.hash);
-  let fx = null, power = 1;
-  const by = (kind) => ({ drizzle: 0.5, thunder: 1.4 }[kind] || 1);
-  if (forced) { fx = forced[1] === 'snow' ? 'snow' : 'rain'; power = by(forced[1]); }
-  else if (settings.weather && settings.weather.on && settings.weather.effect) {
-    const r = await loadWeather();
-    if (r.ok) { const k = describeCode(r.data.code, r.data.day); fx = k.fx; power = by(k.kind); }
-  }
-  await weatherFx.set(fx, power, photo);
-}
-
-/** The skin of every card on Home: the theme's (newtab.dna), or the widget's own. */
-function applySkins() {
-  const dna0 = normalizeSkin(settings.newtab.dna), lookSkin = LOOKS[settings.appearance.look]?.skin, dna = dna0 && dna0.s !== 'look' ? dna0 : lookSkin ? { s: lookSkin } : dna0, own = new Map((settings.newtab.widgets || []).map((w) => [`wgt-${w.id}`, w.skin]));
-  const env = skinEnv();
-  for (const el of document.querySelectorAll('main.nt #focus, main.nt .card.mod, main.nt .wgt:not(.wgt-preview)')) paintSkin(/** @type {HTMLElement} */ (el), own.get(el.id) || dna, env);
-}
-
-/* ---------- modules ---------- */
-
-let modEls = [], widgetEls = [];
-const widgetHost = createWidgetHost();
-
-function renderModules() {
-  const on = settings.newtab.modules;
-  modEls = [];
-  linksMod = null;
-  for (const id of moduleOrder(settings.newtab)) {
-    if (!on[id]) continue;
-    let el;
-    if (id === 'today') { el = h('section', { class: 'card mod', id: 'mod-today' }); mountToday(el); }
-    else if (id === 'tasks') el = tasksModule();
-    else if (id === 'habits') el = habitsModule();
-    else if (id === 'notes') el = notesModule();
-    else { linksMod = linksModule(settings); el = linksMod.el; }
-    modEls.push(el);
-  }
-  widgetEls = widgetHost.sync(settings);
-  layoutModules();
-  applyCanvas(settings);
-}
-
-/** A flat bento grid (see newtab.css): the saved order is the reading order, rows share one height. */
-function layoutModules() { clear($('#modules'), [...modEls, ...widgetEls]); }
-
-/* ---------- customize drawer ---------- */
-
-function openDrawer() {
-  $('#drawer').hidden = false; $('#scrim').hidden = false; drawDrawer(); $('#drawerClose').focus();
-}
-/** The arrangement editor (loaded on demand): drag, resize and hide the blocks of Home. */
-async function openEditor() {
-  if (window.innerWidth < 1100) { toast(t('cv.tooNarrow')); return; }
-  $('#drawer').hidden = true; $('#scrim').hidden = true;
-  if (todayOn) { // the editor arranges the classic blocks: Today hands over to "Centered" first
-    await updateSettings((s) => { home(s).layout = 'center'; });
-    for (let i = 0; i < 80 && todayOn; i++) await new Promise((r) => setTimeout(r, 50)); // the page switches in place
-    if (todayOn) return;
-  }
-  const { startEditing } = await import('./canvas-edit.js');
-  await startEditing(settings, { onExit: () => { checkLayout(); $('#customize').focus(); } });
-}
-function closeDrawer() { $('#drawer').hidden = true; $('#scrim').hidden = true; $('#customize').focus(); }
-
-function drawDrawer() {
-  const body = $('#drawerBody'), n = settings.newtab;
-  const set = (fn) => updateSettings((s) => { fn({ ...s, newtab: home(s) }); }); // edits go to the layout in use
-  const section = (title, ...kids) => h('div', {}, h('h4', { text: title }), ...kids);
-  const top = body.scrollTop;
-  clear(body,
-    section(t('st.title'), starterGallery({ set })),
-    h('button', { class: 'btn btn-primary', type: 'button', onclick: openEditor }, icon('move'), t('cv.edit')),
-    section(t('hr.title'), homeRows({ settings, n, set, redraw: drawDrawer, openEditor })),
-    h('a', { class: 'btn', href: chrome.runtime.getURL('src/options/options.html#appearance') }, icon('palette'), t('home.moreAppearance')));
-  body.scrollTop = top;
-}
-
-/* ---------- boot ---------- */
+import { state, isToday } from './home/state.js';
+import { paintClock, scheduleClock } from './home/hero.js';
+import { applyBackground, applyWeatherFx } from './home/background.js';
+import { renderModules, syncBlocks, blocksSig, applySkins } from './home/blocks.js';
+import { mountHome, installPanel } from './home/parts.js';
+import { paintNudge, paintBackupNudge } from './home/nudges.js';
+import { installDrawer, drawDrawer } from './home/drawer.js';
+import { installShortcuts } from './home/shortcuts.js';
+import { installHomePalette } from './home/palette.js';
+import { watchFocus } from './home/focus-watch.js';
 
 let homeOff; // whether this page was opened with the home page switched off
-let todayOn; // whether the page shows the Today dashboard (its composer and tiles replace the focus card)
-const isToday = (s) => s.newtab.layout === 'today' && !canvasActive(s);
-let homeParts = null; // what is mounted for the arrangement in use, so it can be swapped without a reload
-/** Mount the focus parts of the arrangement in use (Today: the line and the corner tiles; otherwise the focus card). */
-function mountHome() {
-  homeParts?.destroy();
-  todayOn = isToday(settings);
-  document.body.classList.remove('td-panel'); $('#tdPanelBtn')?.setAttribute('aria-expanded', 'false');
-  if (todayOn) {
-    $('#focus').className = 'fl'; // not a card: one line under the clock
-    const line = mountFocusLine($('#focus'), $('#countdown')), glance = mountGlance($('#tdGlance'));
-    homeParts = { destroy() { line.destroy(); glance.destroy(); } };
-  } else {
-    $('#focus').className = 'card focus-card';
-    $('#countdown').hidden = true; $('#tdGlance').hidden = true;
-    const card = mountFocusCard($('#focus'), { variant: 'large' });
-    homeParts = { destroy() { card.destroy(); $('#focus').className = 'card focus-card'; } };
-  }
-}
+
 async function applySettings(rawIn, first = false) {
   if (homeOff !== undefined && homeOff !== (rawIn.newtab.enabled === false)) { location.reload(); return; } // switched on or off in another tab: show the other page
-  rawSettings = rawIn;
+  state.raw = rawIn;
   const s = resolveSettings(rawIn); // the layout that is on now, over the default
-  const prevMods = settings ? JSON.stringify([settings.newtab.modules, settings.newtab.order]) : null;
-  const prevLinks = settings ? JSON.stringify(settings.newtab.links) : null;
-  settings = s;
-  if (todayOn !== undefined && todayOn !== isToday(s)) mountHome(); // Today ⇄ another arrangement: the focus parts of the page change in place
-  standby?.rearm?.();
+  const prev = state.settings ? blocksSig(state.settings) : null;
+  state.settings = s;
+  if (state.todayOn !== undefined && state.todayOn !== isToday(s)) mountHome(); // Today ⇄ another arrangement: the focus parts of the page change in place
+  state.standby?.rearm?.();
   paintClock(); scheduleClock(); applyType(s); await applyBackground();
-  const wEls = widgetHost.sync(s); // widgets: new / removed cards re-lay the grid, a changed setting only updates its card
-  if (!first && (wEls.length !== widgetEls.length || wEls.some((e, i) => e !== widgetEls[i]))) { widgetEls = wEls; layoutModules(); }
-  applyCanvas(s);
-  if (!first) {
-    if (JSON.stringify([s.newtab.modules, s.newtab.order]) !== prevMods) renderModules();
-    else if (linksMod && JSON.stringify(s.newtab.links) !== prevLinks) linksMod.update(s);
-    if (!$('#drawer').hidden) drawDrawer();
-  }
+  syncBlocks(s, first, prev);
+  if (!first && !$('#drawer').hidden) drawDrawer();
   applySkins();
 }
+state.reapply = () => applySettings(state.raw);
 
 /** Yesterday evening's plan becomes today's priorities (and stale plans are dropped). */
 async function morningPlan() {
@@ -346,29 +52,6 @@ async function morningPlan() {
   const r = applyPlans(tasks, dayKey());
   const rep = applyRepeats(r.tasks, dayKey(), (ms) => dayKey(new Date(ms))); // finished daily/weekly tasks that are due again
   if (r.changed || rep.changed) await setCollection('tasks', rep.tasks);
-}
-
-/** Single-key shortcuts (ignored while typing): the new tab is where work starts, so it should be drivable from the keyboard. */
-const SHORTCUTS = [['Ctrl K', 'sc.palette'], ['f', 'sc.focus'], ['n', 'sc.task'], ['d', 'sc.closeDay'], ['c', 'sc.customize'], ['i', 'sc.insights'], ['s', 'sc.settings'], ['?', 'sc.help']];
-function homeShortcuts(e) {
-  if (e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName) || document.querySelector('dialog[open]') || !$('#drawer').hidden) return;
-  const k = e.key;
-  const go = (fn) => { e.preventDefault(); fn(); };
-  if (k === 'f') go(() => { const el = document.querySelector('#focus input[id^="goal"]'); el?.scrollIntoView({ block: 'center' }); el?.focus(); });
-  else if (k === 'n') go(() => { window.dispatchEvent(new window.CustomEvent('et:open-panel')); const el = document.querySelector('#mod-tasks input'); el?.scrollIntoView({ block: 'center' }); el?.focus(); });
-  else if (k === 'd') go(openShutdown);
-  else if (k === 'c') go(openDrawer);
-  else if (k === 'i') go(() => { location.href = '../insights/insights.html'; });
-  else if (k === 's') go(() => { location.href = '../options/options.html'; });
-  else if (k === '?') go(openShortcutHelp);
-}
-function openShortcutHelp() {
-  const dlg = h('dialog', { class: 'dialog' }, h('form', { method: 'dialog' },
-    h('div', { class: 'dialog-body stack gap-3' }, h('h3', { text: t('sc.title') }),
-      h('div', { class: 'sc-list' }, SHORTCUTS.map(([key, label]) => h('div', { class: 'sc-row' }, h('span', { class: 'kbd', text: key }), h('span', { text: t(label) }))))),
-    h('div', { class: 'dialog-actions' }, h('button', { class: 'btn btn-primary', value: 'ok', text: t('common.close'), autofocus: true }))));
-  dlg.addEventListener('close', () => dlg.remove());
-  document.body.append(dlg); dlg.showModal();
 }
 
 /** The home page is switched off: an empty, quiet page with one way back. */
@@ -380,43 +63,26 @@ function renderOff() {
 
 (async function main() {
   const s0 = await bootPage({ onSettings: (s) => applySettings(s) });
-  rawSettings = s0; settings = resolveSettings(s0);
+  state.raw = s0; state.settings = resolveSettings(s0);
   homeOff = s0.newtab.enabled === false;
-  if (s0.newtab.enabled === false) { renderOff(); return; } // a browser never lets an extension hand the tab back: it stays empty and quiet
+  if (homeOff) { renderOff(); return; } // a browser never lets an extension hand the tab back: it stays empty and quiet
   await morningPlan();
-  installPalette({ extra: () => [{ group: 'go', icon: 'moon', label: t('sb.now'), run: () => window.dispatchEvent(new window.CustomEvent('et:standby')), keys: ['night', 'clock', 'standby', 'sleep'] }, { group: 'focus', icon: 'calendar-clock', label: t('plan.title'), run: openDayPlan, keys: ['plan', 'schedule', 'day', 'blocks'] }, { group: 'go', icon: 'moon', label: t('sc.closeDay'), run: openShutdown, keys: ['shutdown', 'review', 'plan tomorrow'] }, { group: 'go', icon: 'move', label: t('cv.edit'), run: openEditor, keys: ['arrange', 'move', 'drag', 'layout', 'widgets'] }, { group: 'go', icon: 'dices', label: t('st.surprise'), run: () => applyStarterWith((fn) => updateSettings((x) => { fn({ ...x, newtab: home(x) }); }), surprise(), t('st.surprise')), keys: ['surprise', 'random', 'theme', 'shuffle'] }, { group: 'go', icon: 'sliders-horizontal', label: t('sc.customize'), run: openDrawer, keys: ['customize', 'layout', 'background', 'clock'] }] });
-  paintClock(); scheduleClock(); applyType(settings); await applyBackground();
-  let rz = 0; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { paintClock(); applyCanvas(settings); }, 120); });
-  mountHome();
-  const panel = (open) => { document.body.classList.toggle('td-panel', open); $('#tdPanelBtn').setAttribute('aria-expanded', String(open)); };
-  $('#tdPanelBtn').addEventListener('click', () => panel(!document.body.classList.contains('td-panel')));
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && todayOn && document.body.classList.contains('td-panel') && $('#drawer').hidden) panel(false); });
-  window.addEventListener('et:open-panel', () => { if (todayOn) panel(true); });
+  installHomePalette();
+  paintClock(); scheduleClock(); applyType(state.settings); await applyBackground();
+  let rz = 0; window.addEventListener('resize', () => { clearTimeout(rz); rz = window.setTimeout(() => { paintClock(); applyCanvas(state.settings); }, 120); });
+  mountHome(); installPanel();
   setTimeout(() => autoGuess().catch(() => {}), 5000); // experimental, off by default: the on-device model learns about the few most used unknown sites
   setInterval(() => applyWeatherFx(), 10 * 60_000); onChange(['weatherCache'], () => applyWeatherFx());
-  standby = mountStandby({ getSettings: () => settings, getFocus: () => runningFocus });
-  if (new URLSearchParams(location.search).has('standby')) standby.show();
+  state.standby = mountStandby({ getSettings: () => state.settings, getFocus: () => state.runningFocus });
+  if (new URLSearchParams(location.search).has('standby')) state.standby.show();
   mountRings($('#rings'));
   mountWhatsNew($('#wn'));
   mountGettingStarted($('#gs'), { startShortSession: async () => { const s = await getSettings(); await send('focus:start', { minutes: 5, strict: false, scope: s.focus.scope }); } });
   paintNudge(); setInterval(paintNudge, 60_000); paintBackupNudge();
   onChange(['tasks', 'd:*'], paintNudge);
   renderModules(); applySkins();
-  $('#customize').addEventListener('click', openDrawer);
+  installDrawer(); installShortcuts();
   $('#moreMods').addEventListener('click', () => document.body.classList.toggle('show-mods'));
-  $('#drawerClose').addEventListener('click', closeDrawer);
-  $('#scrim').addEventListener('click', closeDrawer);
-  document.addEventListener('keydown', homeShortcuts);
-  document.addEventListener('keydown', (e) => {
-    if ($('#drawer').hidden) return;
-    if (e.key === 'Escape') { closeDrawer(); return; }
-    if (e.key !== 'Tab') return; // keep keyboard focus inside the open drawer
-    const f = [...$('#drawer').querySelectorAll('button, input, a[href], select')].filter((el) => !el.disabled && el.offsetParent !== null);
-    if (!f.length) return;
-    const first = f[0], last = f[f.length - 1];
-    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-  });
   onChange(['newtabBg', 'newtabFg', 'newtabDepth'], applyBackground);
   window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', () => setTimeout(applyBackground, 0));
   watchFocus();
