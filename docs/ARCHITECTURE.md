@@ -16,6 +16,13 @@ Plain ES modules, no bundler, no runtime dependencies. Open any file and read it
                                       chrome.storage.local
 ```
 
+## The pages, in files
+
+- **Home** (`src/newtab/newtab.js`, about 90 lines) only boots the page and decides what to do when the settings change. The parts are in `src/newtab/home/`: `state` (what they share: the settings in view, the running session; they read it, never each other's variables), `hero` (clock, date, greeting, quote), `background` (wallpaper, own photo with cut-out and depth, scene, weather effect, credit), `blocks` (modules, widgets, skins), `parts` (the focus line and corner tiles of Today, or the focus card; swapped in place when the arrangement changes), `nudges`, `drawer` (customize + the editor), `focus-watch`, `layout-watch`, `shortcuts`, `palette`.
+- **The focus control** (`src/ui/focus-card/`, used by the popup, the dock and Home): `session` (state and actions), `idle` and `running` (views), `index` (mounts, re-renders on change, `destroy()`). `src/ui/focus-card.js` re-exports it.
+- **Settings** (`src/options/`): one file per section; `simple.js` lists the settings hidden in the *Essentials* view (and keeps visible what the person already changed or uses); search and *All settings* show everything.
+- **Measurement** (`src/shared/usage*.js`, `src/background/usage.js`, `server/usage/`): see `docs/MEASUREMENT.md`.
+
 ## Storage layout
 
 | Key | Content |
@@ -97,6 +104,9 @@ Pure function from a raw 1.x storage snapshot to the 2.0 layout (settings mappin
 | Calendar subscription against a local server | `calendar.cjs` |
 | Visual regression (en/ru/de × light/dark, frozen clock): `--update` rewrites the baseline after an intended change | `visual.cjs`, `visual-baseline/` |
 | Load: a year of dense data, 60 open tabs, with budgets | `perf.cjs` |
+| All the end-to-end suites at once, in parallel or in CI shards (`suites.json`, `run.mjs`: `npm run e2e`) | `scripts-dev/e2e/run.mjs` |
+| Essentials / All settings, "Make it calm again"; anonymous usage (counting, preview, consent, report, forget) | `essentials.cjs`, `usage.cjs` |
+| The collector for the usage report, against an in-memory SQLite | `scripts-dev/tests/usage-server.test.mjs` |
 | Types from JSDoc (`src/shared`, `src/background`) | `npm run types` |
 
 ## Why these permissions

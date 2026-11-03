@@ -15,6 +15,8 @@ async function launch(opts = {}) {
     args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`, '--no-proxy-server'],
     viewport: opts.viewport || { width: 1280, height: 800 }, ...(opts.deviceScaleFactor ? { deviceScaleFactor: opts.deviceScaleFactor } : {}), colorScheme: opts.colorScheme || 'light', ...(opts.recordVideo ? { recordVideo: opts.recordVideo } : {}),
   });
+  // Settings opens on its essentials for a new person; the suites that drive a setting need all of them (a test that is about the essentials sets 'essentials' itself)
+  await ctx.addInitScript(() => { try { if (location.protocol === 'chrome-extension:' && !localStorage.getItem('et-settings-mode')) localStorage.setItem('et-settings-mode', 'all'); } catch { /* no storage */ } });
   await ctx.route(/^https?:\/\//, (route) => { const u = new URL(route.request().url()); return route.fulfill({ status: 200, contentType: 'text/html', body: fakePage(u.host, u.pathname + u.search) }); });
   let [sw] = ctx.serviceWorkers();
   if (!sw) sw = await ctx.waitForEvent('serviceworker', { timeout: 20000 });

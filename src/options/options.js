@@ -4,9 +4,11 @@ import { installPalette } from '../ui/palette.js';
 import { $, h, icon, clear } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { t } from '../shared/i18n.js';
-import { getSettings, updateSettings } from '../shared/storage.js';
+import { getSettings, updateSettings, getRaw } from '../shared/storage.js';
 import { debounce } from '../ui/dom.js';
 import * as S from './sections.js';
+import { setSimpleContext, segmented } from './ui.js';
+import { readMode, writeMode, touchedRaw, RAW_KEYS } from './simple.js';
 import { track } from '../shared/usage-store.js';
 
 const SECTIONS = [
@@ -17,6 +19,8 @@ const SECTIONS = [
 let settings;
 let active = 'general'; // the section on the screen (one at a time; a search shows every match)
 let savedTimer;
+let mode = readMode(); // 'essentials' (the default) or 'all': which settings are shown; search always looks through all of them
+let touched = new Set(); // raw storage keys that hold something the person uses (see simple.js)
 let lastSaved = '';
 const notifyWorker = debounce(() => send('settings:changed'), 400);
 
@@ -41,11 +45,31 @@ function draw() {
   const focusLabel = document.activeElement?.getAttribute?.('aria-label');
   const ctx = { s: settings, save, refresh: draw };
   const root = $('#content');
+  setSimpleContext(settings, touched);
   clear(root, SECTIONS.map((x) => x.fn(ctx)));
   for (const sec of root.querySelectorAll('section.sec')) [...sec.children].filter((g) => g.querySelector(':scope > h3.group-title')).forEach((g, i) => { g.id = `${sec.id}-g${i}`; });
-  applyFilter(); nav();
+  markEssentials(root);
+  applyFilter(); nav(); drawMode();
   window.scrollTo(0, y);
   if (focusLabel) document.querySelector(`[aria-label="${CSS.escape(focusLabel)}"]`)?.focus({ preventScroll: true });
+}
+
+/** A group whose every row is advanced is advanced as a whole; each section that hides something says so, with a way to show it. */
+function markEssentials(root) {
+  for (const sec of root.querySelectorAll('section.sec')) {
+    for (const g of sec.querySelectorAll(':scope > div')) {
+      const rows = g.querySelectorAll('.setting');
+      if (rows.length && [...rows].every((r) => r.closest('[data-adv]'))) g.dataset.adv = '1';
+    }
+    const n = [...sec.querySelectorAll('.setting')].filter((r) => r.closest('[data-adv]')).length;
+    if (n) sec.append(h('div', { class: 'simple-note' }, h('span', { text: t('sm.note') }), h('button', { class: 'btn btn-sm', type: 'button', onclick: () => setMode('all') }, t('sm.showAll') + ` (+${n})`)));
+  }
+}
+
+function setMode(m) { mode = m; writeMode(m); applyFilter(); nav(); drawMode(); }
+/** The switch under the search box: the essentials, or every setting. */
+function drawMode() {
+  clear($('#mode'), segmented([['essentials', t('sm.essentials')], ['all', t('sm.all')]], mode, setMode, t('sm.label')));
 }
 
 /** Filter the long settings page: rows whose title or description match, with their groups and sections. */
@@ -58,6 +82,7 @@ function applyFilter() {
   rows.forEach((r) => { r.hidden = false; r.classList.remove('hit'); });
   root.querySelectorAll('section.sec > div').forEach((e) => { e.hidden = false; });
   root.classList.toggle('searching', !!q);
+  root.classList.toggle('simple', mode === 'essentials' && !q);
   root.querySelectorAll('section.sec').forEach((e) => { e.hidden = !q && e.id !== active; });
   $('#qcount').textContent = '';
   if (!q) return;
@@ -82,7 +107,7 @@ function go(id, { scroll = true } = {}) {
 
 function nav() {
   const side = $('#side');
-  const groups = [...document.querySelectorAll(`#${active} > div[id]`)].map((g) => [g.id, g.querySelector('h3.group-title')?.textContent || '']).filter(([, n]) => n);
+  const groups = [...document.querySelectorAll(`#${active} > div[id]`)].filter((g) => !(mode === 'essentials' && !query.trim() && g.dataset.adv)).map((g) => [g.id, g.querySelector('h3.group-title')?.textContent || '']).filter(([, n]) => n);
   const list = [];
   for (const { id, icon: ico } of SECTIONS) {
     list.push(h('a', { href: '#' + id, 'aria-current': String(!query.trim() && id === active), onclick: (e) => { e.preventDefault(); go(id); } }, icon(ico), t('sec.' + id)));
@@ -116,6 +141,7 @@ function spy() {
   await bootPage({ onSettings: async (s) => { if (JSON.stringify(s) === lastSaved) return; settings = s; draw(); } });
   track('settings_view');
   settings = await getSettings();
+  touched = touchedRaw(await getRaw(RAW_KEYS));
   mountHeader($('#header'), 'settings');
   installPalette();
   $('#q').addEventListener('input', (e) => { query = e.target.value; applyFilter(); nav(); });

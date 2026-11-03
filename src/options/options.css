@@ -136,3 +136,9 @@ section.sec .card { border-radius: 24px; }
 /* the exact report that would be sent (Settings → Data & privacy → Anonymous usage) */
 .usage-preview { box-sizing: border-box; width: 100%; margin: 0; padding: 12px 14px; max-height: 280px; overflow: auto; border-radius: var(--r-md); background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--border); font: 12px/1.5 var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace); color: var(--text-2); white-space: pre; user-select: text; }
 .setting-stack > .setting-ctl:has(.usage-preview) { width: 100%; }
+
+/* Essentials / All settings: what is advanced is hidden until asked for (simple.js); a search always shows everything */
+#content.simple [data-adv] { display: none !important; }
+.simple-note { display: none; }
+#content.simple .simple-note { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 10px 10px 10px 16px; border-radius: var(--r-full); background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--border); color: var(--text-3); font-size: var(--fs-sm); }
+.side-mode { margin: 0 0 14px; } .side-mode .segmented { display: flex; flex-wrap: wrap; width: 100%; max-width: 100%; box-sizing: border-box; border-radius: 22px; } .side-mode .segmented button { flex: 1 1 auto; justify-content: center; white-space: nowrap; } /* long labels (pt, it, pl) wrap onto a second line rather than push the page wider */
