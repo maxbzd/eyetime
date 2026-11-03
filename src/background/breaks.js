@@ -5,6 +5,7 @@ import { meetingQuiet } from './meetings.js';
 import { getSettings, updateDay } from '../shared/storage.js';
 import { dayKey, toMinutes } from '../shared/time.js';
 import { resolveLocale, setLocale, t } from '../shared/i18n.js';
+import { track } from '../shared/usage-store.js';
 
 const session = () => chrome.storage.session;
 const NATURAL_BREAK_SEC = 5 * 60; // being away this long counts as a rest
@@ -54,6 +55,7 @@ export function openBreakPage() {
 export function completeBreak() {
   return serial(async () => {
     await updateDay(dayKey(), (d) => { d.b = (d.b || 0) + 1; });
+    track('eye_break_done');
     await setEyeState({ since: 0, due: false, notifiedAt: 0 });
     chrome.notifications.clear('eye-break');
   });
@@ -61,7 +63,7 @@ export function completeBreak() {
 
 /** Dismissed without doing it: remind again after a full interval. */
 export function skipBreak() {
-  return serial(async () => { await setEyeState({ since: 0, due: false, notifiedAt: 0 }); chrome.notifications.clear('eye-break'); });
+  return serial(async () => { track('eye_break_skip'); await setEyeState({ since: 0, due: false, notifiedAt: 0 }); chrome.notifications.clear('eye-break'); });
 }
 
 export function snoozeBreak(minutes = 5) {

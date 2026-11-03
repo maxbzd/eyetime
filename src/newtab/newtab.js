@@ -28,6 +28,7 @@ import { installDrawer, drawDrawer } from './home/drawer.js';
 import { installShortcuts } from './home/shortcuts.js';
 import { installHomePalette } from './home/palette.js';
 import { watchFocus } from './home/focus-watch.js';
+import { track } from '../shared/usage-store.js';
 
 let homeOff; // whether this page was opened with the home page switched off
 
@@ -66,6 +67,7 @@ function renderOff() {
   state.raw = s0; state.settings = resolveSettings(s0);
   homeOff = s0.newtab.enabled === false;
   if (homeOff) { renderOff(); return; } // a browser never lets an extension hand the tab back: it stays empty and quiet
+  track('newtab_view');
   await morningPlan();
   installHomePalette();
   paintClock(); scheduleClock(); applyType(state.settings); await applyBackground();

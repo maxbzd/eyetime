@@ -149,7 +149,7 @@ export const zh = {
   'opt.import': '从备份恢复', 'opt.importDesc': '用文件内容替换本设备上的所有数据。', 'opt.importBtn': '导入 JSON',
   'opt.importTitle': '替换你的数据？', 'opt.importBody': '当前的设置和历史记录将被备份覆盖。', 'opt.importConfirm': '替换', 'opt.importDone': '备份已恢复', 'opt.importFail': '该文件不是 EyeTime 备份。',
   'opt.csv': '将统计导出为 CSV', 'opt.csvDesc': '每个网站每天的用时，可用于电子表格。导出按钮在“统计”页面。',
-  'opt.groupPrivacy': '隐私', 'opt.privacyTitle': '100% 本地', 'opt.privacyBody': 'EyeTime 没有账号、没有服务器，也没有统计分析。只保存域名和秒数——绝不保存页面地址、标题或内容。以下是每项权限的用途：',
+  'opt.groupPrivacy': '隐私', 'opt.privacyTitle': '100% 本地', 'opt.privacyBody': "EyeTime 没有账号，也没有广告。只保存域名和秒数——绝不保存页面地址、标题或内容——除非你开启需要联网的功能（例如上面的匿名使用数据），否则任何内容都不会离开你的设备。以下是每项权限的用途：",
   'perm.storage': '在本设备上保存你的设置和统计数据。', 'perm.tabs': '读取当前标签页的地址，以便知道你在哪个网站。', 'perm.webNavigation': '让被暂停的网站在加载前就被拦下。',
   'perm.idle': '检测你是否离开，避免把空闲时间计入。', 'perm.alarms': '为计时器和提醒唤醒扩展，无需在后台持续运行。', 'perm.notifications': '护眼休息和专注完成的提醒。',
   'perm.offscreen': '播放柔和的开始/结束提示音。', 'perm.favicon': '从浏览器自己的缓存显示网站图标——不会下载任何内容。', 'perm.hosts': '仅用于限制这些网站上的短视频刷屏。',
@@ -340,4 +340,5 @@ export const zh = {
   'layout.today': "今天", 'td.breaks': {"other": "{n} 次休息"}, 'td.length': "专注时长",
   'td.ask': "你现在专注什么？", 'td.nextPhoto': "换一张照片", 'bg.frame.aurum': "金色时刻", 'bg.frame.dunes': "暮色沙丘", 'bg.frame.mauve': "淡紫薄雾", 'bg.frame.blue': "蓝色山峦", 'bg.frame.still': "静湖", 'bg.frame.vista': "远方", 'bg.frame.coast': "海岸", 'bg.frame.cloudsea': "云海", 'bg.frame.above': "云端之上", 'bg.frame.pier': "栈桥", 'bg.frame.blush': "晚霞", 'bg.frame.rose': "粉色云朵", 'bg.frame.dusk': "黄昏", 'bg.frame.sand': "沙",
   'bg.daily': "每天一张新照片",
+  "us.title": "匿名使用情况", "us.on": "分享匿名使用数据", "us.desc": "每周一次：你在多少天使用了 EyeTime、每项功能用了多少次，以及你的外观与语言。绝不包含网站、任务、笔记、目标或时间。除非你开启，否则保持关闭。", "us.notConfigured": "此版本没有可发送的地址，因此无法分享任何内容。", "us.show": "显示将要发送的内容", "us.hide": "隐藏", "us.previewNote": "这就是下一份完整报告。它在你的设备上生成，并通过 HTTPS 发送，不带 Cookie。", "us.last": "上次报告：{when}", "us.never": "尚未发送任何内容。", "us.reset": "新的匿名 ID", "us.resetDesc": "你的 ID 以 {id} 开头。新建 ID 会请求服务器忘记旧的。", "us.denied": "浏览器未允许。", "us.ask": "分享匿名使用数据，帮助改进 EyeTime？", "us.askYes": "分享", "us.askNo": "不用了", "us.askMore": "会发送什么", "us.thanks": "谢谢。你可以在“设置”中查看发送的内容并随时停止。",
 };
