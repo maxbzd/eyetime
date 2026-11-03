@@ -10,6 +10,7 @@ import { updateEstLog } from '../shared/tasks.js';
 import { sweepTabs } from './blocker.js';
 import { updateBadge } from './badge.js';
 import { playChime, setAmbient } from './audio.js';
+import { track } from '../shared/usage-store.js';
 
 const ICON = 'icons/icon128.png';
 const MIN_CREDIT_SEC = 120; // an early stop counts as focus time only after 2 minutes
@@ -39,6 +40,7 @@ async function startFocusNow({ minutes, goal = '', strict = false, taskId = '', 
   const session = createSession({ minutes, goal: text, strict, taskId, scope: scope || modeCfg?.scope || settings.focus.scope, mode: modeCfg?.id || '', allow: modeCfg?.allow || [] });
   if (tag) session.tag = tag; // the project this session belongs to (first #tag of its task), kept in the session log for Insights
   await setRaw({ focus: session, rest: null, review: null });
+  track('focus_start');
   await chrome.alarms.clear('rest-end');
   await chrome.alarms.create('focus-end', { when: session.endsAt });
   await updateSettings((s) => { s.focus.minutes = session.minutes; s.focus.strict = session.strict; s.focus.scope = session.scope; if (modeCfg) s.focus.mode = modeCfg.id; }, { touch: false });
@@ -63,6 +65,7 @@ export async function pauseFocus() {
   if (!focus || !isFocusActive(focus) || focus.strict) return { ok: false, error: focus && focus.strict ? 'strict' : 'none' };
   const next = pauseSession(focus);
   await setRaw({ focus: next });
+  track('focus_pause');
   await chrome.alarms.clear('focus-end');
   await chrome.alarms.create('focus-resume', { when: next.pausedAt + MAX_PAUSE_MS });
   setAmbient('off');
@@ -105,6 +108,7 @@ export async function stopFocus() {
   if (!focus) return;
   await chrome.alarms.clear('focus-end'); await chrome.alarms.clear('focus-resume');
   await setRaw({ focus: null });
+  track('focus_stop');
   setAmbient('off');
   const sec = Math.round(elapsedMs(focus) / 1000);
   const settings = await getSettings();
@@ -152,6 +156,7 @@ export async function finishFocus() {
   const { focus } = await getRaw('focus');
   if (!focus || isFocusLive(focus)) return; // still running, or paused (a paused session waits for its resume)
   await setRaw({ focus: null });
+  track('focus_done');
   setAmbient('off');
   let sessionsToday = 0;
   await updateDay(sessionDay(focus), (d) => { d.fs = (d.fs || 0) + focus.minutes * 60; d.fc = (d.fc || 0) + 1; sessionsToday = d.fc; addSession(d, makeSessionEntry(focus, { sec: focus.minutes * 60, completed: true })); });

@@ -4,11 +4,13 @@
 import { h, icon, toast } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
 import { STARTERS, starterData, applyStarter, restoreHome, surprise } from '../shared/starters.js';
+import { track } from '../shared/usage-store.js';
 
 /** Put a starter on Home and offer to take it back. */
 export async function applyStarterWith(set, starter, label) {
   let before = null;
   await set((s) => { before = applyStarter(s, s.newtab, starterData(starter)); });
+  track('starter_apply');
   toast(t('st.applied', { name: label }), { action: t('common.undo'), onAction: () => set((s) => { restoreHome(s, s.newtab, before); }) });
 }
 

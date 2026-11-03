@@ -5,6 +5,7 @@ import { h } from '../ui/dom.js';
 import { t, fmtTime, fmtDate } from '../shared/i18n.js';
 import { clock, remainingMs, isPaused } from '../shared/focus.js';
 import { isFocusActive } from '../shared/blocking.js';
+import { track } from '../shared/usage-store.js';
 
 export const STANDBY_STYLES = ['red', 'amber', 'white'];
 export const STANDBY_AFTER = [5, 10, 15, 30, 60];
@@ -44,7 +45,7 @@ export function mountStandby({ getSettings, getFocus, onShow }) {
 
   function show() {
     if (on) return;
-    on = true; moved = 0;
+    on = true; moved = 0; track('standby_open');
     root.hidden = false; // (shown first: the digits are measured to fill the screen)
     paint(); nudge();
     document.querySelector('main.nt')?.setAttribute('inert', '');

@@ -17,6 +17,7 @@ import { makeClassifier } from '../shared/classify.js';
 import { loadGuess } from '../shared/guessstore.js';
 import { summarize, delta, insights as computeInsights, focusStreak, suggestLimit } from '../shared/stats.js';
 import { rangeKeys, addDays, dayKey, parseKey } from '../shared/time.js';
+import { track } from '../shared/usage-store.js';
 
 const RANGES = { today: 1, 7: 7, 30: 30 };
 let range = new URLSearchParams(location.search).get('range') || localStorage.getItem('et-range') || '7';
@@ -321,6 +322,7 @@ function exportCsv() {
 (async function main() {
   send('tracker:sync').catch(() => {});
   await bootPage({ onSettings: async () => { data = await load(); drawRange(); render(); } });
+  track('insights_view');
   mountHeader($('#header'), 'insights');
   $('#export').addEventListener('click', exportCsv);
   installPalette({ extra: () => [{ group: 'go', icon: 'download', label: t('insights.export'), run: exportCsv, keys: ['csv', 'download', 'export'] }] });

@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Measurement (optional, off by default)
+- **Anonymous usage** (Settings → Data & privacy): once a week EyeTime can send the days it was used and how often each of its own features was, with the look, layout and language: numbers and names from a fixed list, never a site, task, note, goal or time. *Show what would be sent* shows the exact next report; switching off (or *Delete all my data*) asks the collector to forget the random id. EyeTime asks once, after a first finished session and a second day, and never again. Counting happens on the device either way; nothing leaves it unless you switch sharing on, and a build without a collector address (`src/shared/usage-config.js`) cannot send at all. The collector, its schema and the queries for activation, D1/D7/D30 retention and feature adoption are in `server/usage/`; `docs/MEASUREMENT.md` says what is measured and why, `PRIVACY.md` lists every field.
+
+### Under the hood
+- Home (`newtab.js`, 420 lines) is split into `src/newtab/home/*` (hero, background, blocks, parts, nudges, drawer, shortcuts, palette) and the focus card into `src/ui/focus-card/*`; switching between Today and the other arrangements happens in place.
+- The end-to-end suites run in parallel and in five balanced CI shards (`scripts-dev/e2e/run.mjs`, `suites.json`): a retried pass is reported as flaky, one stable `e2e-ok` check for the branch rules. A unit test fails when a new test script is not listed.
+- A research kit for watching people use EyeTime (`docs/research/`, `scripts-dev/research/`): protocol, consent, screener, observation sheet, analysis rules, a clean-profile session launcher and a summary with the SUS score.
+
 ## 3.5.0 — 2026-11-02 — A calmer EyeTime
 
 A new look for the whole app, and a new Home built around one idea: a photo, the time and one line.

@@ -7,6 +7,7 @@ import { t, fmtDuration } from '../shared/i18n.js';
 import { getDays, getCollection, setCollection, updateDay } from '../shared/storage.js';
 import { dayKey, addDays } from '../shared/time.js';
 import { dayReview, planDay, MAX_PRIORITIES } from '../shared/productivity.js';
+import { track } from '../shared/usage-store.js';
 
 export async function openShutdown() {
   const today = dayKey();
@@ -49,6 +50,7 @@ export async function openShutdown() {
     h('div', { class: 'dialog-actions' },
       h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => dlg.close(), text: t('common.cancel') }),
       h('button', { class: 'btn btn-primary', type: 'button', onclick: async () => {
+        track('shutdown_done');
         const text = win.value.trim().slice(0, 200);
         await updateDay(today, (d) => { if (text) d.w = text; else delete d.w; });
         const fresh = await getCollection('tasks', []);

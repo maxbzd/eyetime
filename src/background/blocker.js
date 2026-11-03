@@ -9,6 +9,7 @@ import { makeClassifier } from '../shared/classify.js';
 import { logError } from '../shared/errorlog.js';
 import { getRaw, setRaw, updateDay } from '../shared/storage.js';
 import { dayKey } from '../shared/time.js';
+import { track } from '../shared/usage-store.js';
 
 /** If the stored policy cannot be read at all, the factory rules apply (a pause page on distracting sites) rather than letting everything through. */
 function failClosed(url) {
@@ -37,6 +38,7 @@ export async function checkTab(tabId, url) {
   try { d = await evaluate(url, Date.now(), tabId); } catch (e) { logError('blocker:evaluate', e); d = failClosed(url); } // damaged settings must not open the gates
   if (d.action === 'allow') return;
   logAttempt(tabId, url, d).catch(() => {});
+  track('block_page');
   try { await chrome.tabs.update(tabId, { url: blockedPageUrl(url, d) }); } catch { /* tab closed */ }
 }
 
@@ -55,6 +57,7 @@ export async function sweepTabs() {
 
 /** Temporary "continue" permission for a rule domain. */
 export async function grantPass(rule, minutes, tabId = null) {
+  track('block_continue');
   const { passes = {} } = await getRaw('passes');
   const now = Date.now();
   for (const k of Object.keys(passes)) if (passes[k] <= now) delete passes[k];

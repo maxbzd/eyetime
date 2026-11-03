@@ -28,11 +28,12 @@ export function emptyUsage(installedAt) {
   return { v: 1, base: dayNumber(installedAt || Date.now()), days: [], first: {}, total: {}, period: {} };
 }
 
-/** A stored value that may be missing or damaged → a usable record. */
+/** A stored value that may be missing or damaged → a usable record.
+ * @returns {Usage} */
 export function normalizeUsage(/** @type {any} */ u, /** @type {number} */ installedAt) {
   if (!u || typeof u !== 'object' || u.v !== 1 || !Number.isInteger(u.base)) return emptyUsage(installedAt);
   const obj = (/** @type {any} */ o) => (o && typeof o === 'object' && !Array.isArray(o) ? Object.fromEntries(Object.entries(o).filter(([k, v]) => FEATURES.includes(k) && Number.isInteger(v) && v >= 0)) : {});
-  return { v: 1, base: u.base, days: Array.isArray(u.days) ? [...new Set(u.days.filter((/** @type {any} */ n) => Number.isInteger(n) && n >= 0))].sort((a, b) => a - b).slice(-KEEP_DAYS) : [], first: obj(u.first), total: obj(u.total), period: obj(u.period) };
+  return { v: /** @type {1} */ (1), base: u.base, days: Array.isArray(u.days) ? [...new Set(u.days.filter((/** @type {any} */ n) => Number.isInteger(n) && n >= 0))].sort((a, b) => a - b).slice(-KEEP_DAYS) : [], first: obj(u.first), total: obj(u.total), period: obj(u.period) };
 }
 
 export const ageOf = (/** @type {Usage} */ u, /** @type {number} */ now) => Math.max(0, dayNumber(now) - u.base);
@@ -68,6 +69,23 @@ export function buildReport(/** @type {Usage} */ u, /** @type {ReportContext} */
 /** After a report was accepted: the counters of the period start again (the days and the first uses stay: they are the history). */
 export function afterReport(/** @type {Usage} */ u) { u.period = {}; return u; }
 
+/** After a report was accepted: take away exactly what was in it, so a use that happened while it was on its way is counted in the next one. */
+export function subtractPeriod(/** @type {Usage} */ u, /** @type {Record<string, number>} */ sent) {
+  for (const [f, n] of Object.entries(sent)) { const left = (u.period[f] || 0) - n; if (left > 0) u.period[f] = left; else delete u.period[f]; }
+  return u;
+}
+
+/** The interface mode of the settings in the words of a report. */
+export const modeOf = (/** @type {string} */ m) => (m === 'light' || m === 'dark' ? m : 'auto');
+
+/**
+ * Show the one-time question "share anonymous usage?" Only to someone who has finished a focus session and come back on another day, only once,
+ * and only when there is a collector to share with. `share` is the stored consent.
+ */
+export function shouldAsk(/** @type {Usage} */ u, /** @type {any} */ share, /** @type {boolean} */ haveEndpoint) {
+  return haveEndpoint && !(share && (share.on || share.askedAt)) && (u.total.focus_done || 0) >= 1 && u.days.length >= 2;
+}
+
 /**
  * Is a report due? `share` is the stored consent: `{ on, optInAt, lastReportAt, lastTryAt }`.
  * Weekly, the first one a day after turning sharing on; a failed try waits six hours.
@@ -89,6 +107,6 @@ export function detectEnv(/** @type {string} */ ua = '', /** @type {string} */ p
 }
 
 /** A random identifier with no meaning: 128 random bits as 32 hex characters. */
-export function newId(/** @type {(a: Uint8Array) => Uint8Array} */ fill = (a) => crypto.getRandomValues(a)) {
+export function newId(/** @type {(a: Uint8Array<ArrayBuffer>) => Uint8Array} */ fill = (a) => { crypto.getRandomValues(a); return a; }) {
   return [...fill(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, '0')).join('');
 }

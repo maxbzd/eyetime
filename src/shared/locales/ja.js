@@ -149,7 +149,7 @@ export const ja = {
   'opt.import': 'バックアップから復元', 'opt.importDesc': 'このデバイスのデータをすべて、ファイルの内容で置き換えます。', 'opt.importBtn': 'JSONを読み込む',
   'opt.importTitle': 'データを置き換えますか？', 'opt.importBody': '現在の設定と履歴はバックアップの内容で上書きされます。', 'opt.importConfirm': '置き換える', 'opt.importDone': 'バックアップを復元しました', 'opt.importFail': 'EyeTimeのバックアップファイルではありません。',
   'opt.csv': '統計をCSVで書き出す', 'opt.csvDesc': 'サイトごと・日ごとの時間を表計算ソフト用に書き出します。書き出しボタンは統計ページにあります。',
-  'opt.groupPrivacy': 'プライバシー', 'opt.privacyTitle': '100%ローカル', 'opt.privacyBody': 'EyeTimeにはアカウントもサーバーも分析機能もありません。保存されるのはドメイン名と秒数のみで、ページのアドレス、タイトル、内容は保存しません。各権限が必要な理由は次のとおりです。',
+  'opt.groupPrivacy': 'プライバシー', 'opt.privacyTitle': '100%ローカル', 'opt.privacyBody': "EyeTimeにはアカウントも広告もありません。保存されるのはドメイン名と秒数のみで、ページのアドレス、タイトル、内容は保存しません。必要な機能（上の匿名の利用数など）をオンにしない限り、データが端末の外に出ることはありません。各権限が必要な理由は次のとおりです。",
   'perm.storage': '設定と統計をこのデバイスに保存します。', 'perm.tabs': 'アクティブなタブのアドレスを読み取り、どのサイトを見ているか判断します。', 'perm.webNavigation': '一時停止中のサイトを、読み込まれる前に止められるようにします。',
   'perm.idle': '離席を検出し、無操作の時間を数えないようにします。', 'perm.alarms': 'バックグラウンドで常駐せずに、タイマーとリマインダーのために拡張機能を起動します。', 'perm.notifications': '目の休憩とセッション完了のリマインダー。',
   'perm.offscreen': '開始・終了時のやさしい音を再生します。', 'perm.favicon': 'ブラウザ自身のキャッシュからサイトのアイコンを表示します。何もダウンロードしません。', 'perm.hosts': 'それらのサイトでショート動画のスクロールを制限するためだけに使います。',
@@ -340,4 +340,5 @@ export const ja = {
   'layout.today': "今日", 'td.breaks': {"other": "休憩 {n} 回"}, 'td.length': "セッションの長さ",
   'td.ask': "いま集中することは？", 'td.nextPhoto': "別の写真", 'bg.frame.aurum': "ゴールデンアワー", 'bg.frame.dunes': "夕暮れの砂丘", 'bg.frame.mauve': "藤色の霧", 'bg.frame.blue': "青い丘", 'bg.frame.still': "静かな湖", 'bg.frame.vista': "遠く", 'bg.frame.coast': "海岸", 'bg.frame.cloudsea': "雲海", 'bg.frame.above': "雲の上", 'bg.frame.pier': "桟橋", 'bg.frame.blush': "ほのかな夕焼け", 'bg.frame.rose': "ピンクの雲", 'bg.frame.dusk': "たそがれ", 'bg.frame.sand': "砂",
   'bg.daily': "毎日新しい写真",
+  "us.title": "匿名の利用状況", "us.on": "匿名の利用数を共有する", "us.desc": "週に1回、EyeTime を使った日数、各機能を使った回数、そしてテーマと言語を送ります。サイト、タスク、メモ、目標、時刻は一切含みません。オンにするまではオフです。", "us.notConfigured": "このバージョンには送信先がないため、何も共有されません。", "us.show": "送信される内容を表示", "us.hide": "非表示", "us.previewNote": "これが次のレポートのすべてです。お使いの端末で作成され、Cookie なしで HTTPS 経由で送信されます。", "us.last": "最後のレポート: {when}", "us.never": "まだ何も送信されていません。", "us.reset": "新しい匿名 ID", "us.resetDesc": "あなたの ID は {id} で始まります。新しくすると、サーバーに古いものを忘れるよう依頼します。", "us.denied": "ブラウザが許可しませんでした。", "us.ask": "匿名の利用数を共有して EyeTime の改善に協力しますか？", "us.askYes": "共有する", "us.askNo": "いいえ", "us.askMore": "送信される内容", "us.thanks": "ありがとうございます。送信内容の確認と停止は設定からできます。",
 };
