@@ -8,6 +8,7 @@ import { bestHours } from '../shared/productivity.js';
 import { estimateAccuracy } from '../shared/quickadd.js';
 import { accuracyInput } from '../shared/tasks.js';
 import { dayKey, rangeKeys } from '../shared/time.js';
+import { track } from '../shared/usage-store.js';
 
 export async function openDayPlan() {
   const [settings, tasks, estLog, days, events, allDayEvents] = await Promise.all([getSettings(), getCollection('tasks', []), getCollection('estLog', []), getDays(rangeKeys(112)), getCollection('calendar', []), getCollection('calendarDays', [])]);
@@ -44,7 +45,7 @@ export async function openDayPlan() {
         const x = fresh.find((y) => y.id === r.b.taskId); if (!x) continue;
         x.at = r.time.value; x.atDay = today; if (!x.est) x.est = r.b.minutes; n++;
       }
-      if (n) { await setCollection('tasks', fresh); toast(t('plan.done', { n })); }
+      if (n) { await setCollection('tasks', fresh); track('plan_done'); toast(t('plan.done', { n })); }
     }
     dlg.remove();
   });

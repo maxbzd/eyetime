@@ -16,7 +16,10 @@ Repository → Settings → Pages → *Build and deployment* → Source: **GitHu
 1. Register at https://chrome.google.com/webstore/devconsole (pay the fee, verify the e-mail).
 2. *Add new item* → upload `eyetime-chrome.zip` from the latest release.
 3. *Store listing*: paste name/summary/description from `store/listing/<lang>.md` (EN, RU, ES, DE, FR, PT, IT, PL, UK, ZH-CN, JA; each language with its own screenshots), category *Productivity*, upload the screenshots, small promo tile `store/promo`.
-4. *Privacy practices*: single purpose, every row of the permission table, "no remote code", data usage = none collected, privacy policy URL.
+4. *Privacy practices*: single purpose, every row of the permission table, "no remote code", privacy policy URL, and the data usage:
+   - **While `USAGE_ENDPOINT` in `src/shared/usage-config.js` is empty** (the default; nothing can be sent): *none collected*.
+   - **Once the collector is set up and the address is in** (see `docs/MEASUREMENT.md`): tick **User activity** (the counts of EyeTime's own buttons and screens, and the days it was used), and answer the three certifications as true: the data is not sold, not used for anything unrelated to the single purpose, and not used for creditworthiness or lending. Say it is **optional and off by default** (opt-in) and that a person can read the exact report and stop at any time. The text for the field: *"Optional, off by default. If the user turns on 'Share anonymous usage numbers', EyeTime sends one report a week with counts of its own features and the days it was used, and the interface look and language. No websites, text, or identity. The user can see the exact report and stop at any time; stopping deletes it from the server."*
+   - Firefox (AMO): the manifest already declares `technicalAndInteraction` as an **optional** data permission; AMO shows it in the listing. Nothing to do but keep it in step with the above.
 5. *Distribution*: public, all regions. Submit for review (typically a few days; a first review with `tabs` + `webNavigation` can ask questions — the justifications are written to pre-empt them).
 6. Edge Add-ons: see section 2b.
 

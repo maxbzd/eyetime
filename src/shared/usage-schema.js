@@ -8,8 +8,8 @@ export const FEATURES = [
   'newtab_view', 'popup_open', 'insights_view', 'settings_view',
   'focus_start', 'focus_done', 'focus_stop', 'focus_pause',
   'eye_break_done', 'eye_break_skip', 'block_page', 'block_continue',
-  'task_add', 'task_done', 'habit_check', 'note_edit', 'shutdown_done', 'plan_done',
-  'palette_open', 'drawer_open', 'editor_open', 'starter_apply', 'wall_next', 'standby_open', 'dock_open',
+  'task_add', 'task_done', 'habit_check', 'shutdown_done', 'plan_done',
+  'palette_open', 'drawer_open', 'editor_open', 'starter_apply', 'wall_next', 'standby_open',
 ];
 
 export const BROWSERS = ['chrome', 'edge', 'firefox', 'other'];
@@ -47,7 +47,7 @@ export function validateReport(r) {
   if (!isInt(r.age, LIMITS.maxAge)) return bad('age');
   if (!Array.isArray(r.act) || r.act.length > LIMITS.days || !r.act.every((n) => isInt(n, LIMITS.maxAge))) return bad('active days');
   if (new Set(r.act).size !== r.act.length) return bad('active days repeat');
-  for (const [name, max] of [['first', LIMITS.maxAge], ['ft', LIMITS.maxCount]]) {
+  for (const [name, max] of /** @type {[string, number][]} */ ([['first', LIMITS.maxAge], ['ft', LIMITS.maxCount]])) {
     const o = r[name];
     if (!o || typeof o !== 'object' || Array.isArray(o)) return bad(name);
     for (const [k, v] of Object.entries(o)) if (!FEATURES.includes(k) || !isInt(v, max)) return bad(`${name}.${k}`);

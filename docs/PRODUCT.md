@@ -33,7 +33,7 @@ Primary languages: English and Russian (existing audience); structure supports a
 2. **Honest data.** No fake 100 %s. Empty means empty — and says what will appear and when.
 3. **Friction, not force.** Gentle speed bumps (breathing pause, short wait) by default; *Strict* is an explicit, per-session choice.
 4. **Calm interface.** Quiet neutral UI, one accent colour, real light & dark themes, comfortable type sizes.
-5. **Private and verifiable.** No accounts, no analytics, no remote code, minimal permissions, no unauthenticated local servers.
+5. **Private and verifiable.** No accounts, no remote code, minimal permissions, no unauthenticated local servers. No analytics either, with one exception: anonymous usage numbers that a person has switched on, can read in full before they are sent, and can stop (and have deleted) at any time (`docs/MEASUREMENT.md`).
 6. **Great defaults, optional depth.** Works after a 30-second setup; power users can tune everything.
 
 ## 3b. Jobs to be done

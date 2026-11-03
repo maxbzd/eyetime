@@ -1,6 +1,6 @@
 # Privacy Policy
 
-EyeTime is **local-first**. It has no account, no servers of its own, no analytics, no ads and no remote code.
+EyeTime is **local-first**. It has no account, no ads and no remote code. It has no analytics either, unless you switch on the one optional thing described under *Anonymous usage* below: off by default, and you can read every report before it is sent.
 
 ## What is stored (on your device only, in `chrome.storage.local`)
 
@@ -13,7 +13,7 @@ EyeTime is **local-first**. It has no account, no servers of its own, no analyti
 
 ## What is sent anywhere
 
-**Nothing.** The extension makes no network requests of its own. Three exceptions, all entirely opt-in (plus one feature that stays on your computer, described last):
+**Nothing.** The extension makes no network requests of its own. The exceptions are all entirely opt-in (plus one feature that stays on your computer, described among them):
 
 - **Desktop companion** — if you switch it on in Settings → Tracking, the extension reads `http://127.0.0.1:8765/v1/today` on **your own computer** using a pairing token. Nothing is sent to it.
 
@@ -25,6 +25,24 @@ EyeTime is **local-first**. It has no account, no servers of its own, no analyti
 
 - **Task sync** — off by default and a separate switch (Settings → Data & privacy → *Sync tasks too*), because task text is personal. If you switch it on, your open tasks and the ones finished in the last three days are stored in your browser's own sync storage (`chrome.storage.sync`) and travel to your other browsers signed in to the same account, governed by that browser's sync policy. Habits, notes, history and the calendar never sync. Nothing goes to EyeTime or any third party. To remove the cloud copy, turn the switch off on all your devices and clear sync data in the browser's sync settings.
 - **The dock** — off by default. If you turn it on in Settings → General → Dock, the browser asks you to allow EyeTime to access websites. EyeTime then draws a small black tab on the edge of web pages and, when you open it, a panel from EyeTime's own pages inside the page. It does **not** read, copy or send page content. The only things taken from a page are its address and title, and only when you press *Save* (or use *Save to EyeTime topic* in the right-click menu): they are stored on your device in your topics list, with tracking parameters removed. The numbers on the tab's rings come from EyeTime's own local data. Topics are included in the backup file and never synced or sent anywhere. You can hide the dock on chosen sites (for example your bank), and turning the dock off withdraws the access.
+
+- **Anonymous usage** — off by default. If you switch on *Share anonymous usage numbers* (Settings → Data & privacy; EyeTime also asks once, after you have finished a focus session and come back on another day, and never again whatever you answer), EyeTime sends **one small report a week** to its own collector, over HTTPS, without cookies. Its purpose is to find out whether new people reach a first session, whether they come back, and which features nobody uses, so that EyeTime can be made simpler and better. The report is **numbers and names from a fixed list**; *Show what would be sent* in the same place shows the exact next report, built by the same code that sends it. It is described here field by field:
+
+  | Field | What it holds |
+  |---|---|
+  | `v` | the version of the report format |
+  | `id` | a random identifier made when you switch sharing on (128 random bits, not derived from anything on your device or in your browser). It is replaced when you press *New anonymous ID*, and deleted when you switch sharing off |
+  | `app` | the EyeTime version, e.g. 3.5.0 |
+  | `br`, `os` | the browser family (Chrome, Edge, Firefox) and the operating-system family (Mac, Windows, Linux, ChromeOS): nothing finer, no version, no model |
+  | `lang`, `look`, `layout`, `mode` | your interface language, the look and the arrangement of Home you chose, and light / dark / automatic |
+  | `age` | whole days since you installed EyeTime |
+  | `act` | the days (counted as days since the install, never as dates or times) on which you opened or used EyeTime, for the last 60 days |
+  | `first` | for each feature in the list below, how many days after the install you first used it |
+  | `ft` | for each feature, how many times you used it since the last report |
+
+  The features that are counted, and nothing else: `newtab_view`, `popup_open`, `insights_view`, `settings_view`, `focus_start`, `focus_done`, `focus_stop`, `focus_pause`, `eye_break_done`, `eye_break_skip`, `block_page`, `block_continue`, `task_add`, `task_done`, `habit_check`, `shutdown_done`, `plan_done`, `palette_open`, `drawer_open`, `editor_open`, `starter_apply`, `wall_next`, `standby_open`. These are the names of EyeTime's own buttons and screens. **Never** a website, an address, a page title, a task, a note, a goal, a name, a time of day, a location or anything you typed.
+
+  The counters are kept on your device whether or not you share (that is how *Show what would be sent* can show you your own numbers, and how sharing, once switched on, reports the real days since the install rather than only the future); they are never sent unless you switch sharing on. **The collector** (its code is in this repository, `server/usage/`) accepts exactly these fields and refuses anything else, keeps at most one report per install per six hours, and does not store or log your IP address, headers, cookies or user agent. **Stopping**: switching sharing off sends one request that asks the collector to delete everything it holds for your `id`, then deletes the `id` here; *Delete all my data* in Settings does the same. The counters and the `id` are never part of a backup file and are never synced. In Firefox the browser asks for its own *technical and interaction data* permission when you switch sharing on, and you can withdraw it in the add-on's permissions.
 
 Fonts and icons are bundled inside the extension; no content is loaded from the internet.
 
@@ -46,6 +64,7 @@ Fonts and icons are bundled inside the extension; no content is loaded from the 
 | Optional: `127.0.0.1:8765` | Only when you enable the desktop companion |
 | Optional: websites (`http://*/*`, `https://*/*`) | Asked only when you turn on the **dock** (Settings → General → Dock); withdrawn when you turn it off. See below. |
 | Optional: `api.open-meteo.com`, `geocoding-api.open-meteo.com` | Asked only when you turn on the weather; withdrawn when you turn it off |
+| Optional (Firefox): technical and interaction data | Asked only when you switch on *Share anonymous usage numbers* (see above); nothing is sent without it. Chrome has no such permission: the switch is the consent |
 | Optional: one `https://` site | Asked only when you subscribe to a calendar link, and only for the site that hosts your calendar (for example calendar.google.com); withdrawn when you unsubscribe, reset or restore a backup |
 
 ## Your control

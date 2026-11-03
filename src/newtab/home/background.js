@@ -20,6 +20,7 @@ import { applyDepth } from '../depth.js';
 import { mountWeatherFx } from '../weather-fx.js';
 import { loadWeather } from '../weather.js';
 import { state } from './state.js';
+import { track } from '../../shared/usage-store.js';
 
 const DARK_SCENES = ['aurora', 'stars', 'photo', 'sea', 'onyx', 'peaks'];
 
@@ -84,7 +85,7 @@ export async function applyBackground() {
 
 /** "Next photo" on Today: how many wallpapers to skip today (kept for the day, then it starts over). */
 function wallSkip() { try { const v = JSON.parse(localStorage.getItem('et-wall-skip') || 'null'); return v && v.day === dayKey() ? v.n : 0; } catch { return 0; } }
-function nextWall() { try { localStorage.setItem('et-wall-skip', JSON.stringify({ day: dayKey(), n: wallSkip() + 1 })); } catch { /* private mode */ } applyBackground(); }
+function nextWall() { track('wall_next'); try { localStorage.setItem('et-wall-skip', JSON.stringify({ day: dayKey(), n: wallSkip() + 1 })); } catch { /* private mode */ } applyBackground(); }
 /** Bottom-left on Today: who took the photo, and a way to see another one. */
 function paintCredit(frame) {
   const el = $('#tdCredit');
