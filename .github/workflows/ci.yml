@@ -28,42 +28,35 @@ jobs:
         with: { python-version: '3.12' }
       - run: python -m unittest -v test_companion
         working-directory: companion
+  # The end-to-end suites are listed in scripts-dev/e2e/suites.json and split into balanced shards by run.mjs (two browsers at a time per machine).
+  # A suite that fails once and passes on the retry is reported as a warning (a flaky test) and does not fail the build.
   e2e:
     runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5]
+    name: e2e (${{ matrix.shard }}/5)
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
+      - uses: actions/cache@v4
+        with: { path: ~/.cache/ms-playwright, key: playwright-${{ runner.os }}-v1 }
       - run: npm i --no-save playwright axe-core && npx playwright install --with-deps chromium
-      - run: node scripts-dev/e2e/e2e.cjs
-      - run: node scripts-dev/e2e/upgrade.cjs
-      - run: node scripts-dev/e2e/a11y.cjs --strict
-      - run: node scripts-dev/e2e/keyboard.cjs
-      - run: node scripts-dev/e2e/blocking.cjs
-      - run: node scripts-dev/e2e/calendar.cjs
-      - run: node scripts-dev/e2e/storage.cjs
-      - run: node scripts-dev/e2e/dock.cjs
-      - run: node scripts-dev/e2e/editor.cjs
-      - run: node scripts-dev/e2e/depth.cjs
-      - run: node scripts-dev/e2e/cutout.cjs
-      - run: node scripts-dev/e2e/layouts.cjs
-      - run: node scripts-dev/e2e/settings.cjs
-      - run: node scripts-dev/e2e/phototone.cjs
-      - run: node scripts-dev/e2e/quotes.cjs
-      - run: node scripts-dev/e2e/standby.cjs
-      - run: node scripts-dev/e2e/stack.cjs
-      - run: node scripts-dev/e2e/inspector.cjs
-      - run: node scripts-dev/e2e/weather.cjs
-      - run: node scripts-dev/e2e/volume.cjs
-      - run: node scripts-dev/e2e/siteai.cjs
-      - run: node scripts-dev/e2e/skins.cjs
-      - run: node scripts-dev/e2e/catalogue.cjs
-      - run: node scripts-dev/e2e/starters.cjs
-      - run: node scripts-dev/e2e/scene.cjs
-      - run: node scripts-dev/e2e/tasksync.cjs
-      - run: node scripts-dev/e2e/perf.cjs
-      # screenshots of the main screens against scripts-dev/e2e/visual-baseline (proved stable on CI fonts); after an intended UI change run `node scripts-dev/e2e/visual.cjs --update`
-      - run: node scripts-dev/e2e/visual.cjs
+      # screenshots of the main screens against scripts-dev/e2e/visual-baseline (CI fonts); after an intended UI change run the suites once, download the `visual-diff-*` artifacts and copy the `*-now.png` files over the baseline
+      - run: node scripts-dev/e2e/run.mjs --shard ${{ matrix.shard }}/5 --jobs 2 --retries 1
       - uses: actions/upload-artifact@v4
         if: always()
-        with: { name: visual-diff, path: /tmp/eyetime-visual-diff, if-no-files-found: ignore }
+        with: { name: visual-diff-${{ matrix.shard }}, path: /tmp/eyetime-visual-diff, if-no-files-found: ignore }
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with: { name: e2e-logs-${{ matrix.shard }}, path: /tmp/eyetime-e2e, if-no-files-found: ignore }
+  # one stable name to require in the branch rules, whatever the number of shards
+  e2e-ok:
+    needs: e2e
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: test "${{ needs.e2e.result }}" = success
