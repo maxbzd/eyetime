@@ -7,6 +7,7 @@ import { sanitizeAppearance } from './looks.js';
 import { HOME_KEYS } from './layouts.js';
 import { WIDGET_KINDS, defaultCfg } from './widgets.js';
 import { LOCK_PACKS } from './packs/lock.js';
+import { DEFAULT_SETTINGS } from './defaults.js';
 
 const MODULES_OFF = { focus: false, today: false, tasks: false, habits: false, notes: false, links: false };
 let n = 0;
@@ -45,6 +46,20 @@ export function restoreHome(s, target, before) {
   Object.assign(s.appearance, before.appearance);
   for (const k of HOME_KEYS) if (k in before.home) target[k] = before.home[k];
   if ('clock24' in before) s.newtab.clock24 = before.clock24;
+}
+
+/**
+ * "Calm default": the designed Home and look, as a starter, so one tap (with Undo) brings back what EyeTime was made to look like: a new photograph every day under Today,
+ * the Calm look with its own type, shape and cards. Nothing the person wrote is touched: not the light / dark choice (`mode`), not reduced motion, not the 12 / 24 hour clock,
+ * not tasks, links, notes, habits, widgets or history.
+ */
+export function calmDefault() {
+  const n = DEFAULT_SETTINGS.newtab, a = DEFAULT_SETTINGS.appearance;
+  return {
+    id: 'calm',
+    appearance: { look: a.look, accent: a.accent, font: a.font, scale: a.scale, radius: a.radius, density: a.density, cards: a.cards, customCss: a.customCss },
+    home: { layout: n.layout, background: n.background, frame: n.frame, quiet: n.quiet, photoText: n.photoText, clockStyle: n.clockStyle, greeting: n.greeting, scene: n.scene, sceneParams: {}, dna: n.dna, depth: n.depth, canvas: { on: false, items: {} } },
+  };
 }
 
 /* ---------- Surprise me ---------- */

@@ -132,6 +132,7 @@ No framework, no bundler, no runtime dependencies — open the folder, read the 
 ```bash
 npm run check     # syntax, manifest, i18n parity, icons + unit tests (Node 22+)
 npm run build     # dist/eyetime-chrome.zip and dist/eyetime-firefox.zip
+npm run e2e       # every end-to-end suite in Chromium, three at a time (needs Playwright; scripts-dev/e2e/README.md)
 python -m unittest -v test_companion   # in companion/
 ```
 
