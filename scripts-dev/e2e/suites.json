@@ -32,6 +32,7 @@
     {"id": "starters", "file": "starters.cjs", "weight": 201},
     {"id": "scene", "file": "scene.cjs", "weight": 9},
     {"id": "tasksync", "file": "tasksync.cjs", "weight": 6},
+    {"id": "essentials", "file": "essentials.cjs", "weight": 40},
     {"id": "usage", "file": "usage.cjs", "weight": 25},
     {"id": "perf", "file": "perf.cjs", "weight": 11},
     {"id": "visual-en", "file": "visual.cjs", "env": {"VISUAL_LANGS": "en"}, "weight": 125, "artifact": "visual"},

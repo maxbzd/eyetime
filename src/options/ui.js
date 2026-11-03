@@ -3,15 +3,28 @@ import { h, icon, clear } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
 import { dropdown } from '../ui/dropdown.js';
 import { parseUserDomain } from '../shared/domains.js';
+import { isAdvanced } from './simple.js';
+
+/** What the essentials view needs to know to decide: the settings, and which raw keys hold something (see simple.js). Set by options.js before every draw. */
+let simple = { s: /** @type {any} */ (null), touched: /** @type {Set<string>} */ (new Set()) };
+export const setSimpleContext = (/** @type {any} */ s, /** @type {Set<string>} */ touched) => { simple = { s, touched }; };
+/** Mark an element as "advanced" (hidden in the essentials view unless the person changed or uses it). Returns the element. */
+export function adv(/** @type {HTMLElement} */ el, /** @type {string} */ id) { if (isAdvanced(id, simple.s, simple.touched)) el.dataset.adv = '1'; return el; }
+/** `group` that is advanced as a whole. */
+export const advGroup = (/** @type {string} */ id, /** @type {any[]} */ ...a) => adv(group(a[0], ...a.slice(1)), id);
+/** `foldGroup` that is advanced as a whole. */
+export const advFold = (/** @type {string} */ id, /** @type {any[]} */ ...a) => adv(foldGroup(a[0], ...a.slice(1)), id);
 
 /**
  * A settings row: title + optional description on the left, control on the right.
- * @param {{ title: string, desc?: string, control?: Node | null, stack?: boolean, id?: string, warn?: boolean }} o
+ * @param {{ title: string, desc?: string, control?: Node | null, stack?: boolean, id?: string, warn?: boolean, adv?: string }} o `adv`: an entry of simple.js
  */
-export function row({ title, desc, control, stack = false, id, warn = false }) {
-  return h('div', { class: 'setting' + (stack ? ' setting-stack' : ''), id },
+export function row({ title, desc, control, stack = false, id, warn = false, adv: advId }) {
+  const el = h('div', { class: 'setting' + (stack ? ' setting-stack' : ''), id },
     h('div', { class: 'setting-text' }, h('div', { class: 'setting-title', text: title }), desc ? h('div', { class: 'setting-desc' + (warn ? ' warn' : ''), text: desc, role: warn ? 'alert' : undefined }) : null),
     control ? h('div', { class: 'setting-ctl' }, control) : null);
+  if (advId) adv(el, advId);
+  return el;
 }
 
 export function group(title, ...rows) {

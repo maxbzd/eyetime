@@ -3,7 +3,7 @@
 
 import { h, icon, toast } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
-import { STARTERS, starterData, applyStarter, restoreHome, surprise } from '../shared/starters.js';
+import { STARTERS, starterData, applyStarter, restoreHome, surprise, calmDefault } from '../shared/starters.js';
 import { track } from '../shared/usage-store.js';
 
 /** Put a starter on Home and offer to take it back. */
@@ -29,5 +29,7 @@ export function starterGallery({ set }) {
   return h('div', { class: 'stack gap-3' },
     h('p', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, text: t('st.hint') }),
     h('div', { class: 'st-grid' }, tiles),
-    h('button', { class: 'btn', type: 'button', onclick: () => apply(surprise(), t('st.surprise')) }, icon('dices'), t('st.surprise')));
+    h('div', { class: 'row gap-2' },
+      h('button', { class: 'btn grow', type: 'button', onclick: () => apply(surprise(), t('st.surprise')) }, icon('dices'), t('st.surprise')),
+      h('button', { class: 'btn grow', type: 'button', onclick: () => apply(calmDefault(), t('calm.title')) }, icon('sparkles'), t('calm.btn'))));
 }

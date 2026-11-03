@@ -1,7 +1,8 @@
 // Settings → Appearance: looks gallery, colour mode, accent, type, shape, density, custom CSS, share/import/reset.
 
 import { h, icon, toast, confirmDialog } from '../ui/dom.js';
-import { row, group, foldGroup, toggle, select, segmented, sectionHead } from './ui.js';
+import { calmDefault, applyStarter, starterData, restoreHome } from '../shared/starters.js';
+import { row, group, advFold, toggle, select, segmented, sectionHead } from './ui.js';
 import { t } from '../shared/i18n.js';
 import { FONTS, RADII, DENSITY, CARD_STYLES, SCALES, LOOK_EXPORT_KEYS, sanitizeAppearance, sanitizeCustomCss } from '../shared/looks.js';
 import { DEFAULT_SETTINGS } from '../shared/defaults.js';
@@ -53,6 +54,12 @@ export function appearance({ s, save }) {
     const out = { eyetimeLook: 1, appearance: Object.fromEntries(LOOK_EXPORT_KEYS.map((k) => [k, ap[k]])) };
     try { await navigator.clipboard.writeText(JSON.stringify(out, null, 2)); toast(t('ap.copied')); } catch { toast(t('common.error')); }
   };
+  /** One tap back to the designed look; the toast takes it back. */
+  const calm = async () => {
+    let before = null;
+    await save((x) => { before = applyStarter(x, x.newtab, starterData(calmDefault())); }, true);
+    toast(t('st.applied', { name: t('calm.title') }), { action: t('common.undo'), onAction: () => save((x) => { restoreHome(x, x.newtab, before); }, true) });
+  };
   const reset = async () => {
     if (!await confirmDialog({ title: t('ap.resetTitle'), body: t('ap.resetBody'), confirm: t('ap.reset'), danger: true })) return;
     save((x) => { x.appearance = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.appearance)); }, true);
@@ -61,20 +68,21 @@ export function appearance({ s, save }) {
   return h('section', { class: 'sec', id: 'appearance' },
     sectionHead(t('sec.appearance'), t('sec.appearanceDesc')),
     h('div', { class: 'stack gap-3 looks-pick' }, h('h3', { class: 'group-title', text: t('ap.looks') }), h('p', { class: 'look-now' }, h('b', { text: t('look.' + ap.look) }), h('span', { text: '— ' + t('lookd.' + ap.look) })), looksGallery(ap, { compact: true, onPick: (id) => save((x) => { x.appearance.look = id; if (x.newtab.background === 'dawn') x.newtab.background = 'look'; }, true) })),
+    group(null, row({ title: t('calm.title'), desc: t('calm.desc'), control: h('button', { class: 'btn', type: 'button', onclick: calm }, icon('sparkles'), t('calm.btn')) })),
     group(t('ap.color'),
       row({ title: t('opt.theme'), desc: t('ap.mode.' + ap.mode), control: segmented(mode, ap.mode, set('mode'), t('opt.theme')) }),
       ap.mode === 'schedule' ? row({ title: t('ap.schedule'), desc: t('ap.scheduleDesc'), control: h('div', { class: 'row gap-2' },
         h('span', { class: 'muted', text: t('ap.darkFrom') }), timeIn(ap.schedule.dark, t('ap.darkFrom'), (v) => save((x) => { x.appearance.schedule.dark = v; }, true)),
         h('span', { class: 'muted', text: t('ap.lightFrom') }), timeIn(ap.schedule.light, t('ap.lightFrom'), (v) => save((x) => { x.appearance.schedule.light = v; }, true))) }) : null,
       row({ title: t('opt.accent'), desc: t('ap.accentDesc'), stack: true, control: accentPicker(ap, set('accent')) })),
-    foldGroup(t('ap.shape'),
+    advFold('shape', t('ap.shape'),
       row({ title: t('ap.font'), desc: t('ap.fontDesc'), control: select([['look', t('ap.fromLook')], ...Object.entries(FONTS).map(([id, f]) => [id, id === 'system' ? t('ap.fontSystem') : f.label])], ap.font, set('font'), { label: t('ap.font') }) }),
       row({ title: t('ap.scale'), desc: t('ap.scaleDesc'), control: segmented(SCALES.map((v) => [v, v + '%']), ap.scale, set('scale'), t('ap.scale')) }),
       row({ title: t('ap.radius'), desc: t('ap.radiusDesc'), control: select([['look', t('ap.fromLook')], ...Object.keys(RADII).map((id) => [id, t('radius.' + id)])], ap.radius, set('radius'), { label: t('ap.radius') }) }),
       row({ title: t('ap.density'), desc: t('ap.densityDesc'), control: segmented(Object.keys(DENSITY).map((id) => [id, t('density.' + id)]), ap.density, set('density'), t('ap.density')) }),
       row({ title: t('ap.cards'), desc: t('ap.cardsDesc'), control: select(CARD_STYLES.map((id) => [id, id === 'look' ? t('ap.fromLook') : t('cards.' + id)]), ap.cards, set('cards'), { label: t('ap.cards') }) }),
       row({ title: t('ap.motion'), desc: t('ap.motionDesc'), control: toggle(ap.motion === 'reduced', (v) => save((x) => { x.appearance.motion = v ? 'reduced' : 'system'; }, true), t('ap.motion')) })),
-    foldGroup(t('ap.advanced'),
+    advFold('appearanceAdv', t('ap.advanced'),
       row({ title: t('ap.css'), desc: t('ap.cssDesc'), stack: true, control: h('div', { class: 'stack gap-2', style: { width: '100%' } }, css, cssErr) }),
       row({ title: t('ap.share'), desc: t('ap.shareDesc'), stack: true, control: h('div', { class: 'row gap-2 wrap' },
         h('button', { class: 'btn', type: 'button', onclick: share }, icon('copy'), t('ap.copy')),
