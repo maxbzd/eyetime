@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { DatabaseSync } from 'node:sqlite';
+let DatabaseSync = null;
+try { ({ DatabaseSync } = await import('node:sqlite')); } catch { /* Node before 22.5: the D1 part of the collector is not tested here */ }
 import { handle, MIN_GAP_MS } from '../../server/usage/handler.js';
 import { MemoryStore } from '../../server/usage/memory-store.js';
 import { D1Store } from '../../server/usage/d1-store.js';
@@ -63,7 +64,7 @@ function d1(db) {
   return { prepare: (sql) => stmt(sql), batch: async (list) => { db.exec('BEGIN'); try { for (const s of list) s._run(); db.exec('COMMIT'); } catch (e) { db.exec('ROLLBACK'); throw e; } } };
 }
 
-test('collector: the D1 store and the memory store agree, and the questions in queries.sql run', async () => {
+test('collector: the D1 store and the memory store agree, and the questions in queries.sql run', { skip: !DatabaseSync && 'node:sqlite is not available in this Node' }, async () => {
   const db = new DatabaseSync(':memory:'); db.exec(readFileSync(new URL('../../server/usage/schema.sql', import.meta.url), 'utf8'));
   const dstore = new D1Store(d1(db)), mstore = new MemoryStore();
   // 40 installs spread over eight weeks: the first half come back after a week and a month, the others do not
