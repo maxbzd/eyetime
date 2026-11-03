@@ -1,0 +1,12 @@
+# Cloudflare Worker for the optional usage report. Nothing here is deployed by this repository: see README.md.
+name = "eyetime-usage"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+# no logs, no analytics of the collector itself
+[observability]
+enabled = false
+
+[[d1_databases]]
+binding = "DB"
+database_name = "eyetime-usage"
+database_id = "REPLACE-WITH-THE-ID-FROM-wrangler-d1-create"
