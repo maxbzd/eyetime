@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS installs (
   id           TEXT PRIMARY KEY,
   first_report INTEGER NOT NULL,   -- ms since 1970, server clock
   last_report  INTEGER NOT NULL,
-  app          TEXT NOT NULL,      -- 3.5.0
+  app          TEXT NOT NULL,      -- 3.7.0
   br           TEXT NOT NULL,      -- chrome | edge | firefox | other
   os           TEXT NOT NULL,      -- mac | win | linux | cros | other
   lang         TEXT NOT NULL,
