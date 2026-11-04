@@ -11,7 +11,7 @@ export async function applyStarterWith(set, starter, label) {
   let before = null;
   await set((s) => { before = applyStarter(s, s.newtab, starterData(starter)); });
   track('starter_apply');
-  toast(t('st.applied', { name: label }), { action: t('common.undo'), onAction: () => set((s) => { restoreHome(s, s.newtab, before); }) });
+  toast(t('st.applied', { name: label }), { action: t('common.undo'), onAction: () => set((s) => { restoreHome(s, s.newtab, before); }), ms: 9000 }); // long enough to read and to change one's mind
 }
 
 /**

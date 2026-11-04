@@ -17,6 +17,7 @@ export const ADV = {
   // Appearance
   shape: { paths: ['appearance.font', 'appearance.scale', 'appearance.radius', 'appearance.density', 'appearance.cards', 'appearance.motion'] },
   appearanceAdv: { paths: ['appearance.customCss'] },
+  ritualTime: { paths: ['ritual.eveningAt'] },
   // Focus
   presets: { paths: ['focus.presets'] },
   longBreak: { paths: ['focus.longBreak'] },
