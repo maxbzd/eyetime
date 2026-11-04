@@ -57,7 +57,8 @@ async function syncOne(/** @type {any} */ conn, { force = false } = {}) {
     if (e instanceof SyncError) { status.error = e.kind; status.detail = e.message; if (e.kind === 'auth') status.needsAuth = true; if (e.kind === 'rate') status.retryAt = now + (e.retryAfter || 60) * 1000; }
     else { status.error = 'other'; status.detail = String((e && e.message) || e).slice(0, 160); logError('connections:' + conn.provider, e); }
   }
-  await patchConnection(conn.id, (c) => { c.status = status; });
+  const still = await patchConnection(conn.id, (c) => { c.status = status; });
+  if (!still) await chrome.storage.local.remove([`cl:${conn.id}:tasks`, `cl:${conn.id}:blocks`]).catch(() => {}); // disconnected while this round was running: leave no pairs behind
 }
 
 /** One round at a time (the alarm, a change of tasks and "sync now" can coincide). `only` names one connection; `force` ignores a pause. */
