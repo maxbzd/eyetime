@@ -1,5 +1,5 @@
 //! Packs the program files into the installer. `EYETIME_PAYLOAD` names the folder that holds them
-//! (eyetime.exe and eyetime-helper.exe); without it the installer still builds, but has nothing to install.
+//! (eyetime.exe, eyetime-helper.exe, and WebView2Loader.dll when the build is not MSVC); without it the installer still builds, but has nothing to install.
 use std::io::Write;
 
 fn main() {
@@ -8,7 +8,7 @@ fn main() {
     let mut f = std::fs::File::create(out).unwrap();
     writeln!(f, "pub const FILES: &[(&str, &[u8])] = &[").unwrap();
     if let Ok(dir) = std::env::var("EYETIME_PAYLOAD") {
-        for name in ["eyetime.exe", "eyetime-helper.exe"] {
+        for name in ["eyetime.exe", "eyetime-helper.exe", "WebView2Loader.dll"] {
             let p = std::path::Path::new(&dir).join(name);
             if p.exists() {
                 println!("cargo:rerun-if-changed={}", p.display());
