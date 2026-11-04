@@ -180,6 +180,15 @@ fn distracting(state: &State) -> Targets {
     t
 }
 
+/// Is this usage key ("exe:steam.exe", "site:youtube.com") on the distracting list?
+pub fn is_distracting(state: &State, key: &str) -> bool {
+    let t = distracting(state);
+    if let Some(h) = key.strip_prefix("site:") {
+        return t.domains.iter().any(|d| same_or_under(h, d));
+    }
+    key.strip_prefix("exe:").map(|e| t.exes.contains(e)).unwrap_or(false)
+}
+
 fn allowed(state: &State) -> Targets {
     let mut t = Targets::default();
     for it in state.items.iter().filter(|i| i.g == "allow") {
@@ -562,6 +571,15 @@ mod tests {
         assert!(d.blocks_host("api.x.com"));
         assert!(!d.blocks_host("max.com"));
         assert!(!d.blocks_host("notx.com"));
+    }
+
+    #[test]
+    fn distracting_keys() {
+        let s = state();
+        assert!(is_distracting(&s, "site:m.youtube.com"));
+        assert!(is_distracting(&s, "exe:steam.exe"));
+        assert!(!is_distracting(&s, "exe:code.exe"));
+        assert!(!is_distracting(&s, "site:docs.google.com"));
     }
 
     #[test]
