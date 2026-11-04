@@ -1,0 +1,20 @@
+//! Packs the program files into the installer. `EYETIME_PAYLOAD` names the folder that holds them
+//! (eyetime.exe and eyetime-helper.exe); without it the installer still builds, but has nothing to install.
+use std::io::Write;
+
+fn main() {
+    println!("cargo:rerun-if-env-changed=EYETIME_PAYLOAD");
+    let out = std::path::PathBuf::from(std::env::var("OUT_DIR").unwrap()).join("payload.rs");
+    let mut f = std::fs::File::create(out).unwrap();
+    writeln!(f, "pub const FILES: &[(&str, &[u8])] = &[").unwrap();
+    if let Ok(dir) = std::env::var("EYETIME_PAYLOAD") {
+        for name in ["eyetime.exe", "eyetime-helper.exe"] {
+            let p = std::path::Path::new(&dir).join(name);
+            if p.exists() {
+                println!("cargo:rerun-if-changed={}", p.display());
+                writeln!(f, "    ({:?}, include_bytes!({:?})),", name, p.canonicalize().unwrap().to_string_lossy().replace('\\', "/")).unwrap();
+            }
+        }
+    }
+    writeln!(f, "];").unwrap();
+}
