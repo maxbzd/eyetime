@@ -74,6 +74,9 @@ All pure and unit-tested; the UI only renders their output.
 - **Task import/export** (`taskio.js`) — Markdown round-trips through quick add; CSV has a fixed header.
 - **What's new** (`whatsnew.js`) — the worker sets `whatsNew` on a minor update; Home shows and clears it.
 
+## Connected services (`src/shared/sync/`, `shared/connections.js`, `background/connections.js`, `options/connections-group.js`)
+Two-way sync of tasks and calendar with Todoist, Notion, CalDAV, Google and Microsoft: a pure three-way merge (`pairs.js`), one run start to finish (`run.js`), one adapter per service (`providers/`), a scheduler in the worker (every 15 minutes and after a change) and the Settings screen. Credentials live in `connSecrets` and never leave the device. The full description, the OAuth registration steps and the pre-release checklist are in `docs/CONNECTIONS.md`.
+
 ## Classification (`classify.js`)
 
 Candidates: built-in productive list, enabled presets, custom/always lists, user overrides. The **most specific** (longest) domain wins; on a tie, user > custom > built-in. The allow-list demotes "distracting" to "neutral" unless the user explicitly marked the site.
@@ -105,6 +108,8 @@ Pure function from a raw 1.x storage snapshot to the 2.0 layout (settings mappin
 | Visual regression (en/ru/de × light/dark, frozen clock): `--update` rewrites the baseline after an intended change | `visual.cjs`, `visual-baseline/` |
 | Load: a year of dense data, 60 open tabs, with budgets | `perf.cjs` |
 | All the end-to-end suites at once, in parallel or in CI shards (`suites.json`, `run.mjs`: `npm run e2e`) | `scripts-dev/e2e/run.mjs` |
+| Two-way sync: the merge, tasks, planned blocks, each adapter against a mock, OAuth (PKCE), iCal/XML | `sync-*.test.mjs`, `connections-*.test.mjs`, `ical-xml.test.mjs` |
+| Connected services in Settings (Todoist mock: connect, first sync, edits, refused token, backup without secrets, disconnect) | `connections.cjs` |
 | Essentials / All settings, "Make it calm again"; anonymous usage (counting, preview, consent, report, forget) | `essentials.cjs`, `usage.cjs` |
 | The collector for the usage report, against an in-memory SQLite | `scripts-dev/tests/usage-server.test.mjs` |
 | Types from JSDoc (`src/shared`, `src/background`) | `npm run types` |
