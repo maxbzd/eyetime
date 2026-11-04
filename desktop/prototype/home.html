@@ -45,7 +45,7 @@ svg { display: block; }
 .num { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
 
 /* ------------------------------------------------------------------ app shell and the night scene */
-.app { position: relative; height: 100%; overflow: hidden; isolation: isolate; background: var(--ink); }
+.app { position: relative; height: 100%; overflow: clip; isolation: isolate; background: var(--ink); }
 .bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .bg canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .aurora { position: absolute; inset: -20%; filter: blur(70px) saturate(130%); opacity: .55; mix-blend-mode: screen; }
@@ -112,6 +112,9 @@ svg { display: block; }
 .vw h1 { margin: 6px 0 4px; font: 300 clamp(34px, 5vw, 48px)/1.05 var(--font-display); letter-spacing: -.02em; }
 .vw .lead { margin: 0 0 22px; color: var(--text-2); font: 500 15px/1.5 var(--font-body); max-width: 56ch; }
 .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 26px 2px 12px; } .sec-head h2 { margin: 0; font: 500 21px/1.1 var(--font-display); } .sec-head p { margin: 4px 0 0; color: var(--text-3); font: 500 13px/1.4 var(--font-body); }
+.hs { position: relative; } .hs-sc { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--ml, 0px), #000 calc(100% - var(--mr, 0px)), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 var(--ml, 0px), #000 calc(100% - var(--mr, 0px)), transparent 100%); scroll-behavior: auto; cursor: grab; } .hs-sc.dragging { cursor: grabbing; scroll-snap-type: none !important; } .hs-sc.dragging * { pointer-events: none; }
+.hs-nav { position: absolute; top: 46%; z-index: 4; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: rgba(12, 20, 18, .78); backdrop-filter: blur(16px); border: 1px solid var(--edge-hi); box-shadow: 0 10px 30px -8px #000; color: var(--text); opacity: 0; pointer-events: none; transform: translateY(-50%) scale(.7); transition: opacity .3s, transform .5s var(--spring), background .2s; } .hs-nav.prev { left: -10px; } .hs-nav.next { right: -10px; } .hs-nav.on { opacity: 1; pointer-events: auto; transform: translateY(-50%) scale(1); } .hs-nav.on:hover { background: rgba(30, 48, 42, .9); transform: translateY(-50%) scale(1.08); } .hs-nav.on:active { transform: translateY(-50%) scale(.92); }
+@media (hover: none) { .hs-nav { display: none; } }
 /* scrolling stage */
 .stage { position: absolute; inset: 56px 0 0 0; overflow-y: auto; overflow-x: hidden; z-index: 10; scrollbar-width: none; padding-bottom: 150px; overscroll-behavior: contain; }
 .stage::-webkit-scrollbar { display: none; }
@@ -350,10 +353,11 @@ svg { display: block; }
 .chip[aria-pressed="true"] { color: var(--text); background: rgba(140, 242, 198, .12); border-color: rgba(140, 242, 198, .45); }
 .chip[aria-pressed="true"] .app-tile { opacity: 1; filter: none; }
 .chip:active { transform: scale(.92); }
-.seg { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); padding: 4px; border-radius: 18px; background: rgba(0, 0, 0, .35); }
-.seg-hi { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 3); border-radius: 14px; background: linear-gradient(160deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .09)); transition: transform .55s var(--spring); }
+.seg { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); padding: 4px; border-radius: 18px; background: rgba(0, 0, 0, .35); }
+.seg-hi { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 4); border-radius: 14px; background: linear-gradient(160deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .09)); transition: transform .55s var(--spring); }
 .seg button { position: relative; height: 42px; font: 600 14px/1 var(--font-body); color: var(--text-3); transition: color .25s; } .seg button[aria-pressed="true"] { color: var(--text); }
 .seg-desc { margin: 12px 4px 0; font: 500 13px/1.45 var(--font-body); color: var(--text-2); min-height: 38px; }
+.mo-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 4px; border-top: 1px solid var(--edge); font: 500 14px/1.35 var(--font-body); } .mo-row:first-child { border-top: 0; }
 .info-line { display: flex; gap: 8px; align-items: center; margin: 14px 4px 16px; color: #7fb7ff; font: 500 13px/1.3 var(--font-body); } .info-line .ico { width: 16px; height: 16px; }
 .later { width: 100%; height: 54px; border-radius: 20px; margin-bottom: 14px; display: flex; align-items: center; gap: 12px; padding: 0 18px; background: rgba(255, 255, 255, .05); border: 1px solid var(--edge); font: 600 15px/1 var(--font-body); transition: background .25s, transform .35s var(--spring); } .later:hover { background: rgba(255, 255, 255, .09); } .later:active { transform: scale(.98); } .later .ico { color: var(--text-2); width: 19px; height: 19px; } .later .chev { margin-left: auto; width: 16px; height: 16px; color: var(--text-3); }
 .cta.sheet-cta { width: 100%; height: 60px; font-size: 17px; animation: flow 7s linear infinite; }
@@ -631,7 +635,8 @@ svg { display: block; }
       <div class="sheet-head"><div class="sheet-title"><input id="sheetName" maxlength="14" value="Focus" aria-label="Session name"><svg class="ico"><use href="#i-pencil"/></svg></div><button class="round-btn" id="sheetClose" type="button" aria-label="Close"><svg class="ico"><use href="#i-x"/></svg></button></div>
       <div class="opt" id="optDur"><button type="button" aria-expanded="false"><svg class="ico"><use href="#i-clock"/></svg><span data-i18n="duration">Duration</span><span class="val"><span id="durVal">25m</span><svg class="ico chev"><use href="#i-right"/></svg></span></button><div class="opt-body"><div class="opt-inner"><div><div class="wheel" id="durWheel"><div class="wheel-sel"></div><div class="wheel-list" tabindex="0" role="listbox" aria-label="Duration"></div></div></div></div></div></div>
       <div class="opt" id="optBlock"><button type="button" aria-expanded="false"><svg class="ico"><use href="#i-shield"/></svg><span data-i18n="blocked">Blocked</span><span class="val"><i class="dot-red"></i><span id="blockVal">Distractions</span><svg class="ico chev"><use href="#i-right"/></svg></span></button><div class="opt-body"><div class="opt-inner"><div><div class="chips" id="blockChips"></div></div></div></div></div>
-      <div class="opt" id="optDiff"><button type="button" aria-expanded="false"><svg class="ico"><use href="#i-half"/></svg><span data-i18n="difficulty">Difficulty</span><span class="val"><span id="diffVal">Normal</span><svg class="ico chev"><use href="#i-right"/></svg></span></button><div class="opt-body"><div class="opt-inner"><div><div class="seg" id="seg"><i class="seg-hi"></i><button type="button" data-v="0"></button><button type="button" data-v="1"></button><button type="button" data-v="2"></button></div><p class="seg-desc" id="segDesc"></p></div></div></div></div>
+      <div class="opt" id="optDiff"><button type="button" aria-expanded="false"><svg class="ico"><use href="#i-half"/></svg><span data-i18n="difficulty">Difficulty</span><span class="val"><span id="diffVal">Normal</span><svg class="ico chev"><use href="#i-right"/></svg></span></button><div class="opt-body"><div class="opt-inner"><div><div class="seg" id="seg"><i class="seg-hi"></i><button type="button" data-v="0"></button><button type="button" data-v="1"></button><button type="button" data-v="2"></button><button type="button" data-v="3"></button></div><p class="seg-desc" id="segDesc"></p></div></div></div></div>
+      <div class="opt" id="optMore"><button type="button" aria-expanded="false"><svg class="ico"><use href="#i-bolt"/></svg><span data-i18n="moreOpts">Options</span><span class="val"><span id="moreVal"></span><svg class="ico chev"><use href="#i-right"/></svg></span></button><div class="opt-body"><div class="opt-inner"><div><div id="moreList"></div></div></div></div></div>
       <div class="info-line"><svg class="ico"><use href="#i-clock"/></svg><span id="infoLine"></span></div>
       <button class="later" type="button" id="laterBtn"><svg class="ico"><use href="#i-repeat"/></svg><span data-i18n="later">Schedule for later</span><svg class="ico chev"><use href="#i-right"/></svg></button>
       <button class="cta sheet-cta" id="startBtn" type="button"><span data-i18n="startSession">Start session</span></button>
@@ -705,28 +710,28 @@ const store = { get(k) { try { return localStorage.getItem(k); } catch { return 
 /* ============================================================ words (English and Russian; the product ships in 11) */
 const WORDS = {
   en: { demo: 'Demo data', screenTime: 'Screen time', today: 'Today', screenToday: 'Total on screen', mostUsed: 'Most used', focusScore: 'Focus', switches: 'Switches', offline: 'Time away from screen', score: 'Score', gFocus: 'Focus', gEyes: 'Eyes', gRest: 'Rest',
-    eyeNext: 'Next eye break', eyeHow: 'Look 20 feet away for 20 seconds', eyeRest: 'Rest my eyes now', eyeLook: 'Look far away', tipFocus: 'Focus minutes against your daily goal.', tipEyes: 'Eye breaks you took out of the ones due.', tipRest: 'Evenings without a screen and a steady bedtime.', focusNow: 'Start focus', ctaHint: 'starts a session with your last settings',
+    eyeNext: 'Next eye break', eyeHow: 'Look 20 feet away for 20 seconds', eyeRest: 'Rest my eyes now', eyeLook: 'Look far away', moreOpts: 'Options', mClose: 'Close distracting apps now', mDnd: 'Do Not Disturb', mMute: 'Mute notification sounds', mCycles: 'Pomodoro cycles (25 / 5, a long break after 4)', mBreaks: 'Allow short breaks', frozenTag: 'Frozen · only allowed apps', on: 'on', tipFocus: 'Focus minutes against your daily goal.', tipEyes: 'Eye breaks you took out of the ones due.', tipRest: 'Evenings without a screen and a steady bedtime.', focusNow: 'Start focus', ctaHint: 'starts a session with your last settings',
     myApps: 'My apps', manage: 'Manage', unblock: 'Unblock', rules: 'Rules', upcoming: 'Up next', startsIn12: 'Starts in 12h', every20: 'Every 20 min', startsIn108: 'Starts in 108h', workTime: 'Work Time', workTimeS: 'Weekdays, 9–17', eyeRule: 'Eye breaks', eyeRuleS: '20-20-20, 20 s', weekendZen: 'Weekend Zen', weekendS: 'Sat–Sun, 9–11', newRule: 'New rule',
     you: 'You', average: 'Average', strongStart: 'Strong start', strongStartP: 'Five days of showing up. You are doing what most people don’t.', focusing: 'Focus in progress', open: 'Open',
     tHome: 'Home', tRules: 'Rules', tTimer: 'Timer', tInsights: 'Insights', tProfile: 'Profile', duration: 'Duration', blocked: 'Blocked', difficulty: 'Difficulty', later: 'Schedule for later', startSession: 'Start session',
     onBreak: 'On a break', resume: 'Resume', remaining: 'Remaining time', snooze: 'Snooze 5 min', leave: 'Leave early', doneTitle: 'Session complete', backHome: 'Back to Home',
     now: 'Today', yesterday: 'Yesterday', daysAgo: (n) => `${n} days ago`,
     hm: (h, m) => (h ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}m`), specHead: (p) => `Your screen time is <b>${p}% lower</b> than your weekly average`, offPct: (p) => `${p}% of your day`,
-    diff: ['Normal', 'Timeout', 'Locked'], diffDesc: ['You can snooze or leave at any time.', 'Leaving takes a 10 second hold. Snoozing stays available.', 'No way out until the timer ends. Use it when you mean it.'],
-    info: ['You can snooze and cancel this session', 'Leaving early needs a 10 s hold', 'Cannot be cancelled once started'],
+    diff: ['Normal', 'Timeout', 'Locked', 'Frozen'], diffDesc: ['You can snooze or leave at any time.', 'Leaving takes a 10 second hold. Snoozing stays available.', 'No way out until the timer ends. Use it when you mean it.', 'Only your allowed apps can run. Task Manager, Settings and sign-out are closed until the timer ends.'],
+    info: ['You can snooze and cancel this session', 'Leaving early needs a 10 s hold', 'Cannot be cancelled once started', 'Only allowed apps run. No way out until the end'],
     unTitle: (a) => `Unblock ${a} for…`, unLeft: (n) => `${n} out of 7 left today`, unGo: (m) => `Unblock for ${m}m`, unNever: 'Nevermind', blockedN: (a, s) => `${a} apps · ${s} sites`,
     toastRules: 'Rules arrive in the next step', toastTab: 'This tab comes in the next step', toastLater: 'Scheduling comes with Rules', unblocked: 'Unblocked', blockAgain: 'Block again', blockSub: '3 apps and 12 sites are blocked until 5:00 PM', blockedAgainT: 'Blocked again', unblockedSub: 'Apps are open for a few minutes. Then the rule blocks them again.',
     doneP: (n, m) => `${m} minutes of focus. Everything you blocked stayed blocked.`, gain: (s) => `Score +${s}`, breakOn: 'Break started. Back in 5 minutes.', lockedNote: (t) => `Locked until ${t}. Nothing to do but the work.`, holdLeave: 'Hold to leave', leftToast: 'Session ended early' },
   ru: { demo: 'Пример данных', screenTime: 'Время за экраном', today: 'Сегодня', screenToday: 'Всего за экраном', mostUsed: 'Чаще всего', focusScore: 'Фокус', switches: 'Переключения', offline: 'Время вдали от экрана', score: 'Счёт', gFocus: 'Фокус', gEyes: 'Глаза', gRest: 'Отдых',
-    eyeNext: 'Следующий перерыв для глаз', eyeHow: 'Посмотрите вдаль на 6 метров на 20 секунд', eyeRest: 'Дать глазам отдохнуть', eyeLook: 'Смотрите вдаль', tipFocus: 'Минуты фокуса относительно цели на день.', tipEyes: 'Сколько перерывов для глаз вы сделали из положенных.', tipRest: 'Вечера без экрана и ровное время сна.', focusNow: 'Начать фокус', ctaHint: 'запускает сессию с прошлыми настройками',
+    eyeNext: 'Следующий перерыв для глаз', eyeHow: 'Посмотрите вдаль на 6 метров на 20 секунд', eyeRest: 'Дать глазам отдохнуть', eyeLook: 'Смотрите вдаль', moreOpts: 'Параметры', mClose: 'Закрыть отвлекающие приложения сейчас', mDnd: 'Не беспокоить', mMute: 'Выключить звуки уведомлений', mCycles: 'Циклы помодоро (25 / 5, длинный перерыв после 4)', mBreaks: 'Разрешить короткие перерывы', frozenTag: 'Заморозка · только разрешённые приложения', on: 'вкл', tipFocus: 'Минуты фокуса относительно цели на день.', tipEyes: 'Сколько перерывов для глаз вы сделали из положенных.', tipRest: 'Вечера без экрана и ровное время сна.', focusNow: 'Начать фокус', ctaHint: 'запускает сессию с прошлыми настройками',
     myApps: 'Мои приложения', manage: 'Управлять', unblock: 'Разблокировать', rules: 'Правила', upcoming: 'Скоро', startsIn12: 'Через 12 ч', every20: 'Каждые 20 мин', startsIn108: 'Через 108 ч', workTime: 'Рабочее время', workTimeS: 'Будни, 9–17', eyeRule: 'Перерывы для глаз', eyeRuleS: '20-20-20, 20 с', weekendZen: 'Тихие выходные', weekendS: 'Сб–Вс, 9–11', newRule: 'Новое правило',
     you: 'Вы', average: 'В среднем', strongStart: 'Сильное начало', strongStartP: 'Пять дней подряд. Вы делаете то, что делают немногие.', focusing: 'Идёт фокус', open: 'Открыть',
     tHome: 'Главная', tRules: 'Правила', tTimer: 'Таймер', tInsights: 'Итоги', tProfile: 'Профиль', duration: 'Длительность', blocked: 'Блокировка', difficulty: 'Сложность', later: 'Запланировать', startSession: 'Начать сессию',
     onBreak: 'Перерыв', resume: 'Продолжить', remaining: 'Осталось', snooze: 'Отложить на 5 мин', leave: 'Выйти раньше', doneTitle: 'Сессия завершена', backHome: 'На главную',
     now: 'Сегодня', yesterday: 'Вчера', daysAgo: (n) => `${n} дн. назад`,
     hm: (h, m) => (h ? `${h} ч ${String(m).padStart(2, '0')} м` : `${m} м`), specHead: (p) => `Вы провели за экраном на <b>${p}% меньше</b>, чем в среднем за неделю`, offPct: (p) => `${p}% вашего дня`,
-    diff: ['Обычная', 'С паузой', 'Жёсткая'], diffDesc: ['Можно отложить или выйти в любой момент.', 'Чтобы выйти, нужно удерживать кнопку 10 секунд. Отложить можно.', 'Выйти нельзя, пока не кончится таймер. Включайте, когда серьёзно.'],
-    info: ['Сессию можно отложить и отменить', 'Для выхода надо удерживать 10 с', 'После старта отменить нельзя'],
+    diff: ['Обычная', 'С паузой', 'Жёсткая', 'Заморозка'], diffDesc: ['Можно отложить или выйти в любой момент.', 'Чтобы выйти, нужно удерживать кнопку 10 секунд. Отложить можно.', 'Выйти нельзя, пока не кончится таймер. Включайте, когда серьёзно.', 'Работают только разрешённые приложения. Диспетчер задач, Параметры и выход из системы закрыты до конца таймера.'],
+    info: ['Сессию можно отложить и отменить', 'Для выхода надо удерживать 10 с', 'После старта отменить нельзя', 'Работают только разрешённые приложения. Выхода нет до конца'],
     unTitle: (a) => `Разблокировать ${a} на…`, unLeft: (n) => `Осталось ${n} из 7 на сегодня`, unGo: (m) => `Разблокировать на ${m} мин`, unNever: 'Не нужно', blockedN: (a, s) => `${a} прил. · ${s} сайтов`,
     toastRules: 'Правила будут в следующем шаге', toastTab: 'Эта вкладка будет в следующем шаге', toastLater: 'Планирование придёт вместе с Правилами', unblocked: 'Разблокировано', blockAgain: 'Заблокировать снова', blockSub: '3 приложения и 12 сайтов закрыты до 17:00', blockedAgainT: 'Снова заблокировано', unblockedSub: 'Приложения открыты на несколько минут. Потом правило закроет их снова.',
     doneP: (n, m) => `${m} минут фокуса. Всё заблокированное так и осталось закрытым.`, gain: (s) => `Счёт +${s}`, breakOn: 'Перерыв начался. Вернёмся через 5 минут.', lockedNote: (t) => `Заблокировано до ${t}. Остаётся только работа.`, holdLeave: 'Удерживайте, чтобы выйти', leftToast: 'Сессия завершена раньше' },
@@ -832,8 +837,8 @@ const caveC = $('#cave'), cctx = caveC.getContext('2d');
 function mulberry(a) { return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 const photos = {}; let matcapTex = null;
 /* generated photographs, when there are any: { 'home': 'data:image/jpeg;base64,…' } (drop-in; the drawn scene is the fallback) */
-const PHOTO_URLS = { home: 'assets/home-cave.jpg', 'opal-mint': 'assets/opal-mint.jpg' };
-function loadPhoto(name, then) { if (!PHOTO_URLS[name]) return; const im = new Image(); im.onload = () => { photos[name] = im; then && then(im); }; im.onerror = () => {}; im.src = PHOTO_URLS[name]; }
+const PHOTO_URLS = { home: 'assets/home-cave.jpg', 'opal-mint': 'assets/opal-mint.jpg', 'scene-dawn': 'assets/scene-dawn.jpg', 'scene-dusk': 'assets/scene-dusk.jpg', 'scene-meadow': 'assets/scene-meadow.jpg', 'scene-forest': 'assets/scene-forest.jpg', 'scene-night': 'assets/scene-night.jpg', 'scene-dunes': 'assets/scene-dunes.jpg' };
+function loadPhoto(name, then) { if (!PHOTO_URLS[name]) return; const im = new Image(); im.onload = () => { photos[name] = im; then && then(im); document.dispatchEvent(new CustomEvent('et-photo', { detail: name })); }; im.onerror = () => {}; im.src = PHOTO_URLS[name]; }
 function drawCave() {
   const [w, h] = sizeCanvas(caveC, cctx), c = cctx, rnd = mulberry(7); c.clearRect(0, 0, w, h);
   const gw = $('#gemWrap').getBoundingClientRect(), ar = $('#app').getBoundingClientRect(), sy = gw.top - ar.top + gw.height * .79, sx = gw.left - ar.left + gw.width / 2;
@@ -956,6 +961,23 @@ function gemStill({ hue = 0, seed = 0, lock = 0, size = 360, rot = .5 } = {}) {
     const url = cv.toDataURL('image/png'); r.dispose(); const ext = r.getContext().getExtension('WEBGL_lose_context'); if (ext) ext.loseContext(); return url;
   } catch { return ''; }
 }
+/** A horizontal shelf: fades softly at the edges, scrolls by drag, wheel with Shift, arrows and the keyboard. */
+function hscroll(sc) {
+  if (sc.parentNode.classList.contains('hs')) return sc.parentNode;
+  const wrap = document.createElement('div'); wrap.className = 'hs'; sc.parentNode.insertBefore(wrap, sc); wrap.append(sc); sc.classList.add('hs-sc'); sc.tabIndex = 0;
+  const mk = (d) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'hs-nav ' + (d < 0 ? 'prev' : 'next'); b.setAttribute('aria-label', d < 0 ? 'Previous' : 'Next'); b.innerHTML = `<svg class="ico"><use href="#i-${d < 0 ? 'left' : 'right'}"/></svg>`; b.addEventListener('click', () => sc.scrollBy({ left: d * Math.max(240, sc.clientWidth * .8), behavior: 'smooth' })); wrap.append(b); return b; };
+  const prev = mk(-1), next = mk(1);
+  const upd = () => { const max = sc.scrollWidth - sc.clientWidth, x = sc.scrollLeft; sc.style.setProperty('--ml', clamp(x, 0, 56) + 'px'); sc.style.setProperty('--mr', clamp(max - x, 0, 72) + 'px'); prev.classList.toggle('on', x > 4); next.classList.toggle('on', max - x > 4); };
+  sc.addEventListener('scroll', upd, { passive: true }); if (window.ResizeObserver) new ResizeObserver(upd).observe(sc); requestAnimationFrame(upd); setTimeout(upd, 400); setTimeout(upd, 1500);
+  let d = null, moved = 0;
+  sc.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse' || e.button) return; d = { x: e.clientX, l: sc.scrollLeft }; moved = 0; });
+  window.addEventListener('pointermove', (e) => { if (!d) return; const dx = e.clientX - d.x; moved = Math.max(moved, Math.abs(dx)); if (moved > 5) { sc.classList.add('dragging'); sc.scrollLeft = d.l - dx; } });
+  window.addEventListener('pointerup', () => { if (!d) return; d = null; setTimeout(() => sc.classList.remove('dragging'), 0); });
+  sc.addEventListener('click', (e) => { if (moved > 5) { e.stopPropagation(); e.preventDefault(); moved = 0; } }, true);
+  sc.addEventListener('wheel', (e) => { if (e.shiftKey && Math.abs(e.deltaX) < Math.abs(e.deltaY)) { sc.scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
+  sc.addEventListener('keydown', (e) => { if (e.target !== sc) return; if (e.key === 'ArrowRight') { sc.scrollBy({ left: 160, behavior: 'smooth' }); e.preventDefault(); } if (e.key === 'ArrowLeft') { sc.scrollBy({ left: -160, behavior: 'smooth' }); e.preventDefault(); } });
+  return wrap;
+}
 /* ============================================================ glass behaviour: spotlight, tilt, magnetic button, ripple */
 const grid = $('.grid');
 document.addEventListener('pointermove', (e) => {
@@ -1014,7 +1036,7 @@ function wheel(root, items, initial, onChange, fmt = (v) => v) {
 }
 
 /* ============================================================ the focus sheet */
-const S = { scene: 'dawn', name: 'Focus', min: 25, blocks: new Set(['Instagram', 'YouTube', 'X', 'Telegram', 'TikTok']), diff: 0 };
+const S = { more: { close: true, dnd: true, mute: false, cycles: false, breaks: true }, scene: 'dawn', name: 'Focus', min: 25, blocks: new Set(['Instagram', 'YouTube', 'X', 'Telegram', 'TikTok']), diff: 0 };
 const BLOCKABLE = [['Instagram', '#e1306c'], ['YouTube', '#ff3b30'], ['X', '#111'], ['Telegram', '#2aa3e4'], ['TikTok', '#16d6c8'], ['Reddit', '#ff5700'], ['Discord', '#5865f2'], ['Steam', '#2b4f7d'], ['Netflix', '#d81f26']];
 const DURS = [5, 10, 15, 20, 25, 30, 45, 50, 60, 75, 90, 120];
 let durWheel, unWheel;
@@ -1023,6 +1045,9 @@ function renderSheet() {
   $('#blockVal').textContent = W().blockedN(S.blocks.size, S.blocks.size * 3 + 4); $('#diffVal').textContent = W().diff[S.diff];
   const bc = $('#blockChips'); bc.innerHTML = ''; BLOCKABLE.forEach(([n, c]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.setAttribute('aria-pressed', String(S.blocks.has(n))); b.innerHTML = `<span class="app-tile" style="background:${c}">${n.slice(0, 2)}</span>${n}`; b.addEventListener('click', () => { S.blocks.has(n) ? S.blocks.delete(n) : S.blocks.add(n); b.setAttribute('aria-pressed', String(S.blocks.has(n))); $('#blockVal').textContent = W().blockedN(S.blocks.size, S.blocks.size * 3 + 4); }); bc.append(b); });
   const labels = W().diff; $$('#seg button').forEach((b, i) => { b.textContent = labels[i]; b.setAttribute('aria-pressed', String(i === S.diff)); }); $('.seg-hi').style.transform = `translateX(${S.diff * 100}%)`; $('#segDesc').textContent = W().diffDesc[S.diff]; $('#infoLine').textContent = W().info[S.diff];
+  { const mo = $('#moreList'), names = { close: W().mClose, dnd: W().mDnd, mute: W().mMute, cycles: W().mCycles, breaks: W().mBreaks }; mo.innerHTML = '';
+    Object.keys(names).forEach((k) => { const r = document.createElement('div'); r.className = 'mo-row'; r.innerHTML = `<span>${names[k]}</span><button class="sw" role="switch" aria-checked="${S.more[k]}" type="button" aria-label="${names[k]}"></button>`; $('.sw', r).addEventListener('click', (e) => { S.more[k] = !S.more[k]; e.currentTarget.setAttribute('aria-checked', String(S.more[k])); $('#moreVal').textContent = Object.values(S.more).filter(Boolean).length + ' ' + W().on; }); mo.append(r); });
+    $('#moreVal').textContent = Object.values(S.more).filter(Boolean).length + ' ' + W().on; }
   $('#startBtn').disabled = S.blocks.size === 0; $('#startBtn').style.opacity = S.blocks.size === 0 ? .5 : 1;
 }
 $$('#seg button').forEach((b) => b.addEventListener('click', () => { S.diff = +b.dataset.v; renderSheet(); }));
@@ -1052,17 +1077,32 @@ $('#unGo').addEventListener('click', () => { closeScrim('#unScrim'); blockedNow 
 
 /* ============================================================ landscape (sky, mountains, a lake with shimmer): the session's world */
 const SCENES = {
-  dawn: { seed: 11, sky: ['#5b7cc0', '#a7a4dc', '#f0b3d6', '#ffe0cf'], sun: ['255,248,225', '255,214,190', '255,200,200'], mt: [['#8c8fc4', '#b9a6cf'], ['#5f6d9c', '#8f88b6'], ['#2f3f52', '#3d4d5f']], fog: 'rgba(255,222,215,.55)', water: ['rgba(70,96,120,.40)', 'rgba(24,52,64,.66)', 'rgba(6,20,26,.9)'], cloud: '255,240,245' },
-  dusk: { seed: 21, sky: ['#27456f', '#5b78ae', '#ee9e8c', '#ffd2a0'], sun: ['255,236,200', '255,176,140', '255,150,130'], mt: [['#6b7fa6', '#9a9bb8'], ['#42557a', '#6c759b'], ['#1c2a42', '#2a3a52']], fog: 'rgba(255,200,170,.5)', water: ['rgba(60,90,120,.42)', 'rgba(20,48,66,.7)', 'rgba(4,16,24,.92)'], cloud: '255,214,200' },
-  meadow: { seed: 31, sky: ['#40367f', '#8a62bd', '#ee86b4', '#ffc6a6'], sun: ['255,232,210', '255,170,190', '255,140,170'], mt: [['#7a5aa0', '#a56ab0'], ['#4d3d82', '#7a5aa0'], ['#241e4a', '#33295e']], fog: 'rgba(255,190,210,.5)', water: ['rgba(80,60,130,.4)', 'rgba(36,26,80,.7)', 'rgba(10,6,28,.92)'], cloud: '255,200,225' },
-  forest: { seed: 41, sky: ['#9fb6ae', '#c3d3c8', '#e1eadd', '#f3f5ea'], sun: ['255,255,235', '240,250,225', '230,245,220'], mt: [['#9db3a7', '#c0d0c5'], ['#6f8a7d', '#98ad9f'], ['#2f4a3a', '#42604e']], fog: 'rgba(235,245,230,.6)', water: ['rgba(90,120,110,.42)', 'rgba(30,62,54,.68)', 'rgba(6,22,18,.92)'], cloud: '245,250,240' },
-  night: { seed: 51, stars: true, sky: ['#040813', '#0a1530', '#16294c', '#2b4467'], sun: ['210,230,255', '120,160,220', '80,120,200'], mt: [['#1d2a46', '#2d3f62'], ['#121b32', '#1d2c4b'], ['#070c18', '#0d1526']], fog: 'rgba(80,115,170,.35)', water: ['rgba(40,70,110,.4)', 'rgba(10,26,52,.72)', 'rgba(2,8,18,.94)'], cloud: '120,150,200' },
+  dawn: { hz: .5, seed: 11, sky: ['#5b7cc0', '#a7a4dc', '#f0b3d6', '#ffe0cf'], sun: ['255,248,225', '255,214,190', '255,200,200'], mt: [['#8c8fc4', '#b9a6cf'], ['#5f6d9c', '#8f88b6'], ['#2f3f52', '#3d4d5f']], fog: 'rgba(255,222,215,.55)', water: ['rgba(70,96,120,.40)', 'rgba(24,52,64,.66)', 'rgba(6,20,26,.9)'], cloud: '255,240,245' },
+  dusk: { hz: .6, seed: 21, sky: ['#27456f', '#5b78ae', '#ee9e8c', '#ffd2a0'], sun: ['255,236,200', '255,176,140', '255,150,130'], mt: [['#6b7fa6', '#9a9bb8'], ['#42557a', '#6c759b'], ['#1c2a42', '#2a3a52']], fog: 'rgba(255,200,170,.5)', water: ['rgba(60,90,120,.42)', 'rgba(20,48,66,.7)', 'rgba(4,16,24,.92)'], cloud: '255,214,200' },
+  meadow: { hz: .6, water: false, seed: 31, sky: ['#40367f', '#8a62bd', '#ee86b4', '#ffc6a6'], sun: ['255,232,210', '255,170,190', '255,140,170'], mt: [['#7a5aa0', '#a56ab0'], ['#4d3d82', '#7a5aa0'], ['#241e4a', '#33295e']], fog: 'rgba(255,190,210,.5)', water: ['rgba(80,60,130,.4)', 'rgba(36,26,80,.7)', 'rgba(10,6,28,.92)'], cloud: '255,200,225' },
+  forest: { hz: .58, seed: 41, sky: ['#9fb6ae', '#c3d3c8', '#e1eadd', '#f3f5ea'], sun: ['255,255,235', '240,250,225', '230,245,220'], mt: [['#9db3a7', '#c0d0c5'], ['#6f8a7d', '#98ad9f'], ['#2f4a3a', '#42604e']], fog: 'rgba(235,245,230,.6)', water: ['rgba(90,120,110,.42)', 'rgba(30,62,54,.68)', 'rgba(6,22,18,.92)'], cloud: '245,250,240' },
+  night: { hz: .58, seed: 51, stars: true, sky: ['#040813', '#0a1530', '#16294c', '#2b4467'], sun: ['210,230,255', '120,160,220', '80,120,200'], mt: [['#1d2a46', '#2d3f62'], ['#121b32', '#1d2c4b'], ['#070c18', '#0d1526']], fog: 'rgba(80,115,170,.35)', water: ['rgba(40,70,110,.4)', 'rgba(10,26,52,.72)', 'rgba(2,8,18,.94)'], cloud: '120,150,200' },
 };
+SCENES.dunes = { ...SCENES.night, hz: .68, water: false, seed: 61 };
 class Landscape {
-  constructor(canvas, scene = 'dawn') { this.pal = SCENES[scene] || SCENES.dawn; this.c = canvas; this.x = canvas.getContext('2d'); this.layer = document.createElement('canvas'); this.glints = Array.from({ length: 90 }, () => ({ x: Math.random(), y: Math.random(), p: Math.random() * 6.28, s: .6 + Math.random() * 1.8, r: .7 + Math.random() * 1.6 })); this.clouds = []; this.seed = this.pal.seed; this.size(); }
+  constructor(canvas, scene = 'dawn') { this.pal = SCENES[scene] || SCENES.dawn; this.photo = photos['scene-' + (SCENES[scene] ? scene : 'dawn')] || null; this.c = canvas; this.x = canvas.getContext('2d'); this.layer = document.createElement('canvas'); this.glints = Array.from({ length: 90 }, () => ({ x: Math.random(), y: Math.random(), p: Math.random() * 6.28, s: .6 + Math.random() * 1.8, r: .7 + Math.random() * 1.6 })); this.clouds = []; this.seed = this.pal.seed; this.size(); }
   size() { const r = this.c.getBoundingClientRect(); this.w = Math.max(2, Math.round(r.width)); this.h = Math.max(2, Math.round(r.height)); const d = Math.min(devicePixelRatio || 1, 1.5); this.c.width = this.w * d; this.c.height = this.h * d; this.x.setTransform(d, 0, 0, d, 0, 0); this.layer.width = this.w; this.layer.height = this.h; this.build(); }
   ridge(x, rnd, amp, rough) { let v = 0, a = amp, f = 1; for (let o = 0; o < 6; o++) { v += (1 - Math.abs(Math.sin(x * f * 6.3 + rnd[o] * 9))) * a - a * .5; a *= rough; f *= 2.1; } return v; }
+  buildPhoto() {
+    const { w, h, pal: P } = this, c = this.layer.getContext('2d'), im = this.photo, k = Math.max(w / im.width, h / im.height);
+    c.clearRect(0, 0, w, h); c.drawImage(im, (w - im.width * k) / 2, (h - im.height * k) * .55, im.width * k, im.height * k); this.hz = (P.hz || .55) * h; this.water = P.water !== false;
+  }
+  drawPhoto(t) {
+    const { w, h, hz, x } = this; if (h < 60 || w < 60) return; x.clearRect(0, 0, w, h); x.save();
+    const s = 1.02 + .035 * (.5 + .5 * Math.sin(t * .05)), fy = hz; x.translate(w / 2 + Math.sin(t * .03) * w * .006, fy); x.scale(s, s); x.translate(-w / 2, -fy);
+    x.drawImage(this.layer, 0, 0, w, hz + 1, 0, 0, w, hz + 1);
+    if (this.water) { for (let y = hz; y < h; y += 3) { const k = (y - hz) / (h - hz), dx = Math.sin(y * .05 + t * 1.2) * (.6 + k * 3.2); x.drawImage(this.layer, 0, y, w, 3, dx - 5, y, w + 10, 3); } }
+    else x.drawImage(this.layer, 0, hz, w, h - hz, 0, hz, w, h - hz);
+    if (this.water) for (const g of this.glints) { const a = Math.max(0, Math.sin(t * g.s + g.p)); if (a < .72) continue; const gx = g.x * w, gy = hz + 10 + Math.pow(g.y, 1.5) * Math.max(1, h - hz - 14), r = Math.max(.4, g.r * (1 + (gy - hz) / h * 2)); x.globalAlpha = (a - .72) / .28 * .8; x.fillStyle = '#fff'; x.fillRect(gx - r * 2.4, gy - .5, r * 4.8, 1); x.fillRect(gx - .5, gy - r, 1, r * 2); x.beginPath(); x.arc(gx, gy, r * .6, 0, 6.283); x.fill(); x.globalAlpha = 1; }
+    x.restore();
+  }
   build() {
+    if (this.photo) return this.buildPhoto();
     const { w, h, pal: P } = this, c = this.layer.getContext('2d'), hz = h * .56, rnd = mulberry(this.seed), phases = (k) => Array.from({ length: 6 }, () => rnd() + k);
     const sky = c.createLinearGradient(0, 0, 0, hz); [0, .38, .7, 1].forEach((o, i) => sky.addColorStop(o, P.sky[i])); c.fillStyle = sky; c.fillRect(0, 0, w, h);
     if (P.stars) { for (let i = 0; i < 160; i++) { c.globalAlpha = .25 + rnd() * .7; c.fillStyle = '#e8f0ff'; c.beginPath(); c.arc(rnd() * w, rnd() * hz * .8, .4 + rnd() * 1.1, 0, 6.283); c.fill(); } c.globalAlpha = 1; }
@@ -1074,6 +1114,7 @@ class Landscape {
     this.hz = hz; this.cloudSprite = document.createElement('canvas'); this.cloudSprite.width = w * 2; this.cloudSprite.height = hz; const cc = this.cloudSprite.getContext('2d'); for (let i = 0; i < 16; i++) { const cx = rnd() * w * 2, cy = hz * (.12 + rnd() * .5), rw = 80 + rnd() * 240, rh = 12 + rnd() * 26; const g = cc.createRadialGradient(cx, cy, 0, cx, cy, rw); g.addColorStop(0, `rgba(${P.cloud},.5)`); g.addColorStop(1, `rgba(${P.cloud},0)`); cc.save(); cc.translate(cx, cy); cc.scale(1, rh / rw); cc.translate(-cx, -cy); cc.fillStyle = g; cc.beginPath(); cc.arc(cx, cy, rw, 0, 6.283); cc.fill(); cc.restore(); }
   }
   draw(t) {
+    if (this.photo) return this.drawPhoto(t);
     const { w, h, hz } = this, x = this.x; x.clearRect(0, 0, w, h);
     x.drawImage(this.layer, 0, 0, w, hz + 2, 0, 0, w, hz + 2);
     const off = (t * 5) % (w * 2); x.save(); x.beginPath(); x.rect(0, 0, w, hz); x.clip(); x.globalAlpha = .9; x.drawImage(this.cloudSprite, -off, 0); x.drawImage(this.cloudSprite, w * 2 - off, 0); x.restore();
@@ -1112,7 +1153,7 @@ function beginRun() {
   run.on = true; run.total = S.min * 60; run.left = run.total; run.speed = 1; run.snooze = false; run.last = performance.now(); run.startedAt = Date.now();
   $('#sName').textContent = S.name; $('#mBlock').textContent = W().blockedN(S.blocks.size, S.blocks.size * 3 + 4); $('#mDiff').textContent = W().diff[S.diff]; $('#sBlockers').textContent = '';
   $('#tStart').textContent = fmtClock(run.startedAt); $('#tEnd').textContent = fmtClock(run.startedAt + run.total * 1000);
-  const locked = S.diff === 2; $('#snoozeBtn').style.display = locked ? 'none' : ''; $('#leaveBtn').style.display = locked ? 'none' : ''; const ln = $('#lockedNote'); ln.style.display = locked ? 'block' : 'none'; ln.textContent = W().lockedNote(fmtClock(run.startedAt + run.total * 1000));
+  const locked = S.diff >= 2, frozen = S.diff === 3; $('#sMin').style.display = frozen ? 'none' : ''; $('#sBlockers').textContent = frozen ? W().frozenTag : ''; $('#snoozeBtn').style.display = locked ? 'none' : ''; $('#leaveBtn').style.display = locked ? 'none' : ''; const ln = $('#lockedNote'); ln.style.display = locked ? 'block' : 'none'; ln.textContent = W().lockedNote(fmtClock(run.startedAt + run.total * 1000));
   $('#leaveText').textContent = S.diff === 1 ? W().holdLeave : W().leave; $('#breakBanner').classList.remove('on'); lcd.fmt = '';
   const ses = $('#session'); ses.classList.add('on', 'in'); setTimeout(() => ses.classList.remove('in'), 1300); run.landscape = new Landscape($('#sessCanvas'), S.scene);
   window.__gem && window.__gem.glow(.5); $('#miniSession').classList.remove('show'); run.minimized = false; cancelAnimationFrame(run.raf); loop(performance.now());
@@ -1174,7 +1215,7 @@ function burst() {
 
 /* ============================================================ keys */
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { if ($('#unScrim').classList.contains('on')) closeScrim('#unScrim'); else if ($('#sheetScrim').classList.contains('on')) closeSheet(); else if ($('#countdown').classList.contains('on')) $('#cdClose').click(); return; }
+  if (e.key === 'Escape') { const anyScrim = document.querySelector('.scrim.on'); if (anyScrim && !['unScrim', 'sheetScrim'].includes(anyScrim.id)) { const x = anyScrim.querySelector('.round-btn'); if (x) x.click(); return; } if ($('#unScrim').classList.contains('on')) closeScrim('#unScrim'); else if ($('#sheetScrim').classList.contains('on')) closeSheet(); else if ($('#countdown').classList.contains('on')) $('#cdClose').click(); return; }
   const typing = /INPUT|TEXTAREA/.test((document.activeElement || {}).tagName || ''); if (typing) return;
   if (e.code === 'Space' && !run.on && !document.querySelector('.scrim.on') && !$('#done').classList.contains('on') && !$('#countdown').classList.contains('on') && !/BUTTON/.test((document.activeElement || {}).tagName || '')) { e.preventDefault(); openSheet(); }
   if (e.key === 'ArrowLeft' && !$('#dayPrev').disabled && !document.querySelector('.scrim.on')) $('#dayPrev').click(); if (e.key === 'ArrowRight' && !$('#dayNext').disabled && !document.querySelector('.scrim.on')) $('#dayNext').click();
@@ -1188,6 +1229,7 @@ async function boot() {
   buildSpectrum(); initStars(); drawCave(); buildChart(BARS[0]); setDelta(state.delta);
   window.__gem = initGem(); if (window.__gem) window.__gem.hueT = 0;
   { const th = store.get('et-hue'); if (th !== null && window.__gem) window.__gem.setBase(+th); }
+  setTimeout(() => ['dawn', 'dusk', 'meadow', 'forest', 'night', 'dunes'].forEach((n, i) => setTimeout(() => loadPhoto('scene-' + n), i * 400)), 2500);
   loadPhoto('home', () => { drawCave(); if (window.__gem) window.__gem.setStand(false); });
   loadPhoto('opal-mint', (im) => { const g = window.__gem; if (!g) return; const tex = new THREE.Texture(im); tex.needsUpdate = true; matcapTex = tex; g.setMatcap(tex); });
   applyLang();
@@ -1199,12 +1241,13 @@ async function boot() {
   countTo($('#offlineVal'), state.offline, reduced ? 0 : 1500, (v) => W().hm(Math.floor(v / 60), Math.round(v) % 60)); $('#offlineMeter').style.width = state.offPct + '%'; placeSpecPin(state.spec);
   addEventListener('resize', () => { initStars(); drawCave(); window.__gem && window.__gem.resize(); moveDock($('[aria-current=page]', dock), true); if (run.landscape) run.landscape.size(); });
 }
-Object.assign(ET, { gemStill, SCENES, $, $$, clamp, lerp, easeOut, easeExpo, tween, wait, raf, reduced, store, go, toast, wheel, countTo, mulberry, ripple, openSheet, closeSheet, openScrim, closeScrim, BLOCKABLE, DURS, S, run, Landscape, W, t: (k, ...a) => { const v = W()[k]; return typeof v === 'function' ? v(...a) : v; }, lang: () => lang, langHooks: [], startSession, gem: () => window.__gem, dpr });
+Object.assign(ET, { hscroll, gemStill, SCENES, $, $$, clamp, lerp, easeOut, easeExpo, tween, wait, raf, reduced, store, go, toast, wheel, countTo, mulberry, ripple, openSheet, closeSheet, openScrim, closeScrim, BLOCKABLE, DURS, S, run, Landscape, W, t: (k, ...a) => { const v = W()[k]; return typeof v === 'function' ? v(...a) : v; }, lang: () => lang, langHooks: [], startSession, gem: () => window.__gem, dpr });
 const _apply = applyLang; applyLang = function () { _apply(); ET.langHooks.forEach((f) => { try { f(); } catch { /* a screen that is not built yet */ } }); };
 document.fonts && document.fonts.ready ? document.fonts.ready.then(boot) : boot();
 })();
 </script>
 <script src="screens/rules.js"></script>
+<script src="screens/blocking.js"></script>
 <script src="screens/timer.js"></script>
 <script src="screens/insights.js"></script>
 <script src="screens/profile.js"></script>
