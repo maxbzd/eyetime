@@ -29,6 +29,7 @@ export async function paintBackupNudge() {
 const nudgeOff = (kind) => { try { return localStorage.getItem('et-nudge-off') === dayKey() + ':' + kind; } catch { return false; } };
 export async function paintNudge() {
   const el = $('#nudge');
+  if (state.todayOn && state.settings.ritual && state.settings.ritual.on) { if (!(await paintUsageAsk(el))) el.hidden = true; return; } // on Today the day's own card says what the nudge would
   const [[, day]] = await getDays([dayKey()]);
   const tasks = (await getCollection('tasks', [])).filter((x) => !x.done);
   const kind = pickNudge({ now: new Date(), fsSec: day?.fs || 0, goalMin: state.settings.focus.dailyGoal, openTasks: tasks.length, starred: tasks.filter((x) => x.starred).length, sessionsToday: (day?.ss || []).length });

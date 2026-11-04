@@ -22,13 +22,13 @@ body[data-layout="today"] main.nt { position: relative; z-index: 1; max-width: n
 body[data-layout="today"] .rings, body[data-layout="today"] .more-mods { display: none !important; }
 /* what the app has to say (the first-run list, "what's new", the evening nudge) stays, as quiet glass under the line of intent */
 body[data-layout="today"] #focus { order: 1; } body[data-layout="today"] #nudge { order: 2; } body[data-layout="today"] #wn, body[data-layout="today"] #gs { order: 3; }
-body[data-layout="today"] :is(#nudge, #wn, #gs):not([hidden]) { width: min(560px, 100%); margin: 28px 0 0; border: 0; border-radius: 26px; background: rgba(22, 20, 26, .42); color: #fff; box-shadow: inset 0 0 0 1px var(--glass-hi), 0 24px 60px -24px rgba(0, 0, 0, .45); -webkit-backdrop-filter: blur(30px) saturate(1.35); backdrop-filter: blur(30px) saturate(1.35); text-shadow: none;
+body[data-layout="today"] :is(#nudge, #wn, #gs, #tdRitual):not([hidden]) { width: min(560px, 100%); margin: 28px 0 0; border: 0; border-radius: 26px; background: rgba(22, 20, 26, .42); color: #fff; box-shadow: inset 0 0 0 1px var(--glass-hi), 0 24px 60px -24px rgba(0, 0, 0, .45); -webkit-backdrop-filter: blur(30px) saturate(1.35); backdrop-filter: blur(30px) saturate(1.35); text-shadow: none;
   color-scheme: dark; --text: #fff; --text-2: rgba(255, 255, 255, .82); --text-3: rgba(255, 255, 255, .62); --surface: rgba(255, 255, 255, .08); --surface-2: rgba(255, 255, 255, .1); --surface-3: rgba(255, 255, 255, .18); --border: rgba(255, 255, 255, .14); --border-strong: rgba(255, 255, 255, .28);
   --accent: #fff; --accent-fg: #141414; --accent-text: #fff; --accent-soft: rgba(255, 255, 255, .16); --signal: #fff; --signal-fg: #141414; --signal-ink: #fff; --signal-soft: rgba(255, 255, 255, .16); --bg: #141414; }
 body[data-layout="today"] #nudge:not([hidden]) { border-radius: 99px; padding: 8px 8px 8px 18px; font-size: 13.5px; }
 body[data-layout="today"] #wn:not([hidden]), body[data-layout="today"] #gs:not([hidden]) { padding: 20px 22px; }
-body[data-layout="today"] :is(#nudge, #wn, #gs) .btn-primary { --btn-bg: #fff; --btn-fg: #141414; --btn-bd: transparent; --btn-bg-h: rgba(255, 255, 255, .88); }
-body[data-layout="today"] :is(#nudge, #wn, #gs) .btn:not(.btn-primary):not(.btn-ghost) { --btn-bg: rgba(255, 255, 255, .12); --btn-bd: transparent; --btn-bg-h: rgba(255, 255, 255, .22); --btn-fg: #fff; box-shadow: none; }
+body[data-layout="today"] :is(#nudge, #wn, #gs, #tdRitual) .btn-primary { --btn-bg: #fff; --btn-fg: #141414; --btn-bd: transparent; --btn-bg-h: rgba(255, 255, 255, .88); }
+body[data-layout="today"] :is(#nudge, #wn, #gs, #tdRitual) .btn:not(.btn-primary):not(.btn-ghost) { --btn-bg: rgba(255, 255, 255, .12); --btn-bd: transparent; --btn-bg-h: rgba(255, 255, 255, .22); --btn-fg: #fff; box-shadow: none; }
 body[data-layout="today"] .hero { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0; margin: 0; color: var(--ink-on); text-shadow: var(--lift); }
 body[data-layout="today"] .greet-block { display: contents; }
 body[data-layout="today"] #date { order: -1; margin: 0 0 6px; font-size: 12px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-on-2); }
@@ -169,7 +169,7 @@ body[data-layout="today"] #nudge .btn { flex: none; }
   body[data-layout="today"] #focus.fl { margin-top: 28px; }
   body[data-layout="today"] .td-credit:not([hidden]) { left: 16px; bottom: 18px; } body[data-layout="today"] .nt-corners { right: 10px; bottom: 14px; }
   body[data-layout="today"] main.nt { padding-inline: 16px; }
-  body[data-layout="today"] :is(#nudge, #wn, #gs):not([hidden]) { margin-top: 20px; }
+  body[data-layout="today"] :is(#nudge, #wn, #gs, #tdRitual):not([hidden]) { margin-top: 20px; }
 }
 
 /* short windows: the clock follows the height too, so the page never needs a scrollbar for its own content */
@@ -177,7 +177,7 @@ body[data-layout="today"] .clock, .countdown .cd-time { font-size: clamp(84px, m
 @media (max-height: 720px) {
   body[data-layout="today"] main.nt { padding-top: 56px; padding-bottom: 84px; }
   body[data-layout="today"] #focus.fl { margin-top: 24px; }
-  body[data-layout="today"] :is(#nudge, #wn, #gs):not([hidden]) { margin-top: 18px; }
+  body[data-layout="today"] :is(#nudge, #wn, #gs, #tdRitual):not([hidden]) { margin-top: 18px; }
   .fl-input { height: 48px; font-size: 26px; }
 }
 
@@ -187,3 +187,43 @@ body[data-layout="today"] { background: #15131a !important; }
 /* keyboard focus on the line of intent: a clear ring (the underline alone is too faint a mark) */
 .fl-input:focus-visible { outline: 2px solid rgba(255, 255, 255, .95); outline-offset: 6px; border-radius: 14px; }
 .fl-len:focus-visible, .fl-go:focus-visible, .fl-hint:focus-visible, .fl-pill:focus-visible, .gl:focus-visible, .cr-next:focus-visible { opacity: 1; outline: 2px solid #fff; outline-offset: 3px; }
+
+/* ---------- the day, as one story: morning card, a quiet line while working, evening card, a quiet line when closed (today/ritual.js) ---------- */
+body[data-layout="today"] #tdRitual { order: 2; } body[data-layout="today"] #nudge { order: 3; }
+body[data-layout="today"] #tdRitual:not([hidden]) { display: flex; flex-direction: column; gap: 14px; padding: 20px 22px 18px; text-align: left; }
+body[data-layout="today"] #tdRitual .rt-head { display: flex; gap: 14px; align-items: flex-start; }
+body[data-layout="today"] #tdRitual .rt-ico { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; background: rgba(255, 255, 255, .12); font-size: 18px; }
+body[data-layout="today"] #tdRitual .rt-grow { flex: 1; min-width: 0; }
+body[data-layout="today"] #tdRitual .rt-title { margin: 0; font: 400 25px/1.15 var(--font-serif); letter-spacing: -.01em; }
+body[data-layout="today"] #tdRitual .rt-sub { margin: 4px 0 0; font-size: 13.5px; color: var(--text-3); }
+body[data-layout="today"] #tdRitual .rt-list { display: flex; flex-direction: column; gap: 3px; }
+body[data-layout="today"] #tdRitual .rt-body { max-height: min(56vh, 520px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding-right: 2px; }
+/* while a card is open the page makes room for it: a smaller clock, no quote */
+body[data-layout="today"].td-card .clock { font-size: clamp(64px, min(8.5vw, 13vh), 120px) !important; } body[data-layout="today"].td-card #quote { display: none; } body[data-layout="today"].td-evening #focus, body[data-layout="today"].td-evening #greeting { display: none; } body[data-layout="today"] #tdRitual[data-phase="evening"] .rt-body { max-height: calc(100vh - 380px); min-height: 200px; } body[data-layout="today"].td-card main.nt { justify-content: flex-start; padding-top: 48px; }
+body[data-layout="today"] #tdRitual .rt-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 40px; padding: 6px 12px; border: 0; border-radius: 14px; background: rgba(255, 255, 255, .07); color: inherit; font: inherit; font-size: 15px; text-align: left; cursor: pointer; transition: background var(--t-fast); }
+body[data-layout="today"] #tdRitual .rt-row:hover { background: rgba(255, 255, 255, .13); }
+body[data-layout="today"] #tdRitual .rt-row.on { background: rgba(255, 255, 255, .17); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .34); }
+body[data-layout="today"] #tdRitual .rt-n { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .45); font-size: 13px; font-weight: 650; }
+body[data-layout="today"] #tdRitual .rt-row.on .rt-n { background: #fff; color: #141414; box-shadow: none; }
+body[data-layout="today"] #tdRitual .rt-t { flex: 1; min-width: 0; }
+body[data-layout="today"] #tdRitual .rt-why { flex: none; font-size: 11.5px; letter-spacing: .02em; padding: 2px 8px; border-radius: 99px; background: rgba(255, 255, 255, .12); color: var(--text-2); }
+body[data-layout="today"] #tdRitual .rt-est { flex: none; font-size: 12.5px; color: var(--text-3); }
+body[data-layout="today"] #tdRitual .rt-add { width: 100%; box-sizing: border-box; height: 42px; padding: 0 14px; border: 0; border-radius: 14px; background: transparent; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .2); color: #fff; font: inherit; font-size: 15px; }
+body[data-layout="today"] #tdRitual .rt-add::placeholder { color: rgba(255, 255, 255, .55); }
+body[data-layout="today"] #tdRitual .rt-add:focus-visible, body[data-layout="today"] #tdRitual .rt-row:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+body[data-layout="today"] #tdRitual .rt-hint { min-height: 0; font-size: 12.5px; color: var(--text-3); } body[data-layout="today"] #tdRitual .rt-hint:empty { display: none; }
+body[data-layout="today"] #tdRitual .rt-slot { flex: none; font-size: 13px; font-weight: 650; padding: 2px 9px; border-radius: 99px; background: rgba(255, 255, 255, .18); }
+body[data-layout="today"] #tdRitual .rt-remind { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); cursor: pointer; }
+body[data-layout="today"] #tdRitual .rt-actions { display: flex; justify-content: flex-end; gap: 8px; }
+/* the evening card holds the "close the day" form: its fields are glass too */
+body[data-layout="today"] #tdRitual .sd-form { gap: 16px; } body[data-layout="today"] #tdRitual .sd-form h3 { margin: 0; font: 400 25px/1.15 var(--font-serif); } body[data-layout="today"] #tdRitual .sd-form .input { background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .22); color: #fff; }
+body[data-layout="today"] #tdRitual .sd-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+body[data-layout="today"] #tdRitual .sd-stat { padding: 10px 12px; border-radius: 14px; background: rgba(255, 255, 255, .07); } body[data-layout="today"] #tdRitual .sd-val { display: flex; align-items: center; gap: 6px; font-size: 20px; font-weight: 650; }
+/* working and closed: one quiet line, not a card */
+body[data-layout="today"] #tdRitual:is([data-phase="work"], [data-phase="closed"]):not([hidden]) { display: block; width: fit-content; max-width: min(640px, 100%); margin-top: 16px; padding: 0; background: none; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; border-radius: 0; }
+body[data-layout="today"] #tdRitual .rt-pill { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 4px 6px 4px 14px; border-radius: 99px; background: rgba(22, 20, 26, .3); box-shadow: inset 0 0 0 1px var(--glass-hi); font-size: 13.5px; color: #fff; }
+body[data-layout="today"] #tdRitual .rt-line { display: flex; flex: 1; align-items: baseline; gap: 8px; min-width: 0; white-space: nowrap; } body[data-layout="today"] #tdRitual .rt-line .truncate { min-width: 0; overflow: hidden; text-overflow: ellipsis; } body[data-layout="today"] #tdRitual .rt-sep { opacity: .5; }
+body[data-layout="today"] #tdRitual .rt-ring { flex: none; align-self: center; } body[data-layout="today"] #tdRitual .rt-track { stroke: rgba(255, 255, 255, .25); } body[data-layout="today"] #tdRitual .rt-arc { stroke: #fff; }
+body[data-layout="today"] #tdRitual .rt-icon { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 50%; background: transparent; color: rgba(255, 255, 255, .8); cursor: pointer; } body[data-layout="today"] #tdRitual .rt-icon:hover { background: rgba(255, 255, 255, .16); color: #fff; }
+@media (max-width: 760px) { body[data-layout="today"] #tdRitual .sd-stats { grid-template-columns: 1fr; } body[data-layout="today"] #tdRitual .rt-pill { flex-wrap: wrap; border-radius: 22px; } body[data-layout="today"] #tdRitual .rt-title { font-size: 22px; } }
+body[data-layout="today"] .fl-next { max-width: 100%; margin-top: 4px; font-size: 14px; color: rgba(255, 255, 255, .78); }

@@ -71,8 +71,9 @@ export function mountFocusLine(root, countdown) {
     const label = restMode ? t(f.long ? 'rest.long' : 'rest.title') : paused ? t('focus.paused') : t('focus.running');
     const ends = paused ? '' : t('focus.endsAt', { time: fmtTime(new Date(f.endsAt), st.settings.newtab.clock24 ?? undefined) });
     const pill = (ico, text, fn, tip) => h('button', { class: 'fl-pill', type: 'button', 'data-tip': tip, onclick: fn }, ico ? icon(ico) : null, text);
+    const nextTask = restMode ? st.tasks.find((x) => x.starred) || null : null; // after a session the break leads to what matters next, not to a blank line
     const acts = restMode
-      ? [pill('', t('rest.skip'), () => send('rest:skip')), pill('play', fmtDuration(st.settings.focus.minutes * 60), async () => { await send('rest:skip'); st.minutes = st.settings.focus.minutes; await start(); })]
+      ? [pill('', t('rest.skip'), () => send('rest:skip')), pill('play', fmtDuration((nextTask && nextTask.est ? Math.min(720, Math.max(1, nextTask.est)) : st.settings.focus.minutes) * 60), async () => { await send('rest:skip'); st.minutes = nextTask && nextTask.est ? Math.min(720, Math.max(1, nextTask.est)) : st.settings.focus.minutes; if (nextTask) { st.goal = nextTask.text; st.taskId = nextTask.id; } await start(); })]
       : f.strict ? [h('span', { class: 'fl-note' }, icon('lock'), t('focus.strictLocked'))]
       : paused ? [pill('play', t('focus.resume'), () => send('focus:resume')), pill('', t('focus.end'), endEarly)]
       : [pill('pause', t('focus.pause'), () => send('focus:pause'), t('focus.pauseTip')),
@@ -81,6 +82,7 @@ export function mountFocusLine(root, countdown) {
     clear(root, h('div', { class: 'fl-now' },
       h('div', { class: 'fl-label' }, h('span', { class: 'fl-dot' }), label, ends ? h('span', { class: 'fl-ends', text: '· ' + ends }) : null),
       h('div', { class: 'fl-goal', text: restMode ? t('rest.hint') : f.goal || t('focus.running') }),
+      nextTask ? h('div', { class: 'fl-next truncate', text: t('rt.w.next', { task: nextTask.text }) }) : null,
       h('div', { class: 'fl-acts' }, acts)));
     const paint = () => {
       const rem = remainingMs(f);
