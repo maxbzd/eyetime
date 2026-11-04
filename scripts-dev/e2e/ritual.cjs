@@ -77,6 +77,10 @@ const { launch } = require('./lib.cjs');
   // 4. evening
   ok(await card.getAttribute('data-phase') === 'evening' && /Close the day/.test(await card.innerText()), 'when the session ends the evening card comes: ' + await card.getAttribute('data-phase'));
   ok(await home.locator('body.td-evening').count() === 1 && !(await home.locator('#focus').isVisible()), 'the line of intent steps aside');
+  // a session that has just ended asks "how did it go?" even in the evening (the card of the evening does not hide it)
+  await home.evaluate(() => chrome.storage.local.set({ review: { id: 'rv1', day: '2026-11-04', goal: 'Write', taskId: '', minutes: 25, completed: true } })); await home.waitForTimeout(700);
+  ok(await home.locator('.review-card').isVisible(), 'the "how did it go?" card is visible in the evening');
+  await home.evaluate(() => chrome.storage.local.set({ review: null })); await home.waitForTimeout(500);
   await card.getByRole('button', { name: 'In an hour' }).dispatchEvent('click'); await home.waitForTimeout(900);
   ok(await card.getAttribute('data-phase') === 'work', '"in an hour" puts it away');
   await home.reload(); await home.waitForTimeout(2200);
