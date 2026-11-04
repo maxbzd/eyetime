@@ -16,7 +16,7 @@
   --edge-hi: rgba(220, 255, 240, .34);
   --text: #eaf7f0;
   --text-2: rgba(234, 247, 240, .64);
-  --text-3: rgba(234, 247, 240, .40);
+  --text-3: rgba(234, 247, 240, .56);
   --lime: #d4f77c;
   --mint: #8cf2c6;
   --sky: #86d7ff;
@@ -56,6 +56,10 @@ svg { display: block; }
 @keyframes drift1 { to { transform: translate(14%, 10%) scale(1.15); } }
 @keyframes drift2 { to { transform: translate(-16%, -8%) scale(1.2); } }
 @keyframes drift3 { to { transform: translate(-10%, -12%) scale(.9); } }
+.fog { position: absolute; left: 0; right: 0; bottom: 0; height: 52%; overflow: hidden; mix-blend-mode: screen; opacity: .9; }
+.fog i { position: absolute; bottom: -8%; width: 90%; height: 60%; border-radius: 50%; filter: blur(50px); background: radial-gradient(closest-side, rgba(110, 210, 180, .16), transparent); will-change: transform; }
+.fog i:nth-child(1) { left: -20%; animation: fog1 40s ease-in-out infinite alternate; } .fog i:nth-child(2) { right: -25%; bottom: 4%; animation: fog2 52s ease-in-out infinite alternate; background: radial-gradient(closest-side, rgba(120, 180, 220, .12), transparent); } .fog i:nth-child(3) { left: 20%; bottom: -20%; height: 40%; animation: fog3 34s ease-in-out infinite alternate; }
+@keyframes fog1 { to { transform: translateX(40%) scaleY(1.2); } } @keyframes fog2 { to { transform: translateX(-45%) scaleY(.8); } } @keyframes fog3 { to { transform: translateX(-25%); opacity: .5; } }
 .vignette { position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 38%, transparent 40%, rgba(0, 0, 0, .78) 100%); }
 .grain { position: absolute; inset: -50%; opacity: .07; mix-blend-mode: overlay; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); animation: grain 1.2s steps(6) infinite; }
 @keyframes grain { 0% { transform: translate(0, 0); } 20% { transform: translate(-3%, 2%); } 40% { transform: translate(2%, -3%); } 60% { transform: translate(-2%, -1%); } 80% { transform: translate(3%, 3%); } 100% { transform: translate(0, 0); } }
@@ -91,6 +95,23 @@ svg { display: block; }
 .win-ctl button:last-child:hover { background: rgba(255, 107, 125, .85); color: #fff; }
 .win-ctl svg { width: 12px; height: 12px; stroke-width: 1.6; }
 
+/* screens other than Home: one container each, swapped by the router with a spring + blur */
+.tb-title { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font: 400 22px/1 var(--font-display); letter-spacing: .01em; opacity: 0; pointer-events: none; transition: opacity .35s; white-space: nowrap; }
+.app[data-view]:not([data-view="home"]) .tb-title { opacity: 1; }
+.day-switch { transition: opacity .35s, transform .5s var(--out-expo); }
+.app:not([data-view="home"]) .day-switch { opacity: 0; transform: translateY(-8px); pointer-events: none; }
+.view { position: absolute; inset: 56px 0 0 0; z-index: 10; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; padding-bottom: 150px; overscroll-behavior: contain; }
+.view::-webkit-scrollbar { display: none; }
+.view[hidden] { display: none !important; }
+.view.enter, .stage.enter { animation: viewin .9s var(--out-expo) backwards; } .view.leave, .stage.leave { animation: viewout .28s ease-in forwards; pointer-events: none; }
+@keyframes viewin { from { opacity: 0; transform: translateY(26px) scale(.985); filter: blur(12px); } }
+@keyframes viewout { to { opacity: 0; transform: translateY(-10px) scale(.99); filter: blur(8px); } }
+#cave { transition: opacity .8s; } .app:not([data-view="home"]) #cave { opacity: 0; } .app:not([data-view="home"]) .aurora { opacity: .8; }
+.view, .stage { -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 26px); mask-image: linear-gradient(180deg, transparent 0, #000 26px); }
+.vw { max-width: 1240px; margin: 0 auto; padding: 8px var(--gutter-r) 0 var(--gutter); }
+.vw h1 { margin: 6px 0 4px; font: 300 clamp(34px, 5vw, 48px)/1.05 var(--font-display); letter-spacing: -.02em; }
+.vw .lead { margin: 0 0 22px; color: var(--text-2); font: 500 15px/1.5 var(--font-body); max-width: 56ch; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 26px 2px 12px; } .sec-head h2 { margin: 0; font: 500 21px/1.1 var(--font-display); } .sec-head p { margin: 4px 0 0; color: var(--text-3); font: 500 13px/1.4 var(--font-body); }
 /* scrolling stage */
 .stage { position: absolute; inset: 56px 0 0 0; overflow-y: auto; overflow-x: hidden; z-index: 10; scrollbar-width: none; padding-bottom: 150px; overscroll-behavior: contain; }
 .stage::-webkit-scrollbar { display: none; }
@@ -340,9 +361,9 @@ svg { display: block; }
 /* the wheel picker */
 .wheel { position: relative; height: 180px; mask-image: linear-gradient(transparent, #000 28%, #000 72%, transparent); -webkit-mask-image: linear-gradient(transparent, #000 28%, #000 72%, transparent); }
 .wheel-sel { position: absolute; left: 0; right: 0; top: 50%; height: 44px; margin-top: -22px; border-radius: 16px; background: rgba(255, 255, 255, .09); border: 1px solid var(--edge); pointer-events: none; }
-.wheel-list { perspective: 520px; position: absolute; inset: 0; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; padding: 68px 0; cursor: grab; touch-action: pan-y; }
-.wheel-list::-webkit-scrollbar { display: none; } .wheel-list.drag { cursor: grabbing; scroll-snap-type: none; }
-.wheel-list div { height: 44px; display: grid; place-items: center; scroll-snap-align: center; font: 300 26px/1 var(--font-display); color: var(--text); will-change: transform, opacity; }
+.wheel-list { perspective: 520px; position: absolute; inset: 0; overflow-y: auto; scrollbar-width: none; padding: 68px 0; cursor: grab; touch-action: pan-y; }
+.wheel-list::-webkit-scrollbar { display: none; } .wheel-list.drag { cursor: grabbing; }
+.wheel-list div { height: 44px; display: grid; place-items: center; font: 300 26px/1 var(--font-display); color: var(--text); will-change: transform, opacity; }
 
 /* countdown */
 .countdown { position: absolute; inset: 0; z-index: 80; display: none; overflow: hidden; background: #000; }
@@ -463,6 +484,8 @@ svg { display: block; }
       <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.500v2.500M12 19v2.500M2.500 12H5M19 12h2.500M5.300 5.300l1.800 1.800M16.900 16.900l1.800 1.800M5.300 18.700l1.800-1.800M16.900 7.100l1.800-1.800"/></symbol>
       <symbol id="i-min" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
       <symbol id="i-sq" viewBox="0 0 24 24"><rect x="5.500" y="5.500" width="13" height="13" rx="2"/></symbol>
+      <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.600 0l3-3a4 4 0 0 0-5.600-5.600l-1 1M14 10a4 4 0 0 0-5.600 0l-3 3a4 4 0 0 0 5.600 5.600l1-1"/></symbol>
+      <symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14-4M4 4v4h4M4 13a8 8 0 0 0 14 4M20 20v-4h-4"/></symbol>
       <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5 13.500h6L10 21l8-10.500h-6z"/></symbol>
     </defs>
   </svg>
@@ -470,6 +493,7 @@ svg { display: block; }
   <div class="bg" aria-hidden="true">
     <div class="aurora"><i></i><i></i><i></i></div>
     <canvas id="cave"></canvas>
+    <div class="fog"><i></i><i></i><i></i></div>
     <canvas id="stars"></canvas>
     <div class="vignette"></div>
     <div class="grain"></div>
@@ -481,6 +505,7 @@ svg { display: block; }
       <svg class="brand-mark" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="10.2"/><circle class="pupil" cx="13" cy="13" r="4.2"/></svg>
       <span>EyeTime</span>
     </div>
+    <div class="tb-title" id="tbTitle" aria-live="polite"></div>
     <div class="day-switch" role="group" aria-label="Day">
       <button type="button" id="dayPrev" aria-label="Previous day"><svg class="ico"><use href="#i-left"/></svg></button>
       <div class="label" aria-live="polite" id="dayLabel"><span>Today</span></div>
@@ -708,14 +733,14 @@ const WORDS = {
 };
 let lang = store.get('et-lang') || ((navigator.language || 'en').toLowerCase().startsWith('ru') ? 'ru' : 'en');
 const W = () => WORDS[lang];
-function applyLang() {
+let applyLang = function applyLang() {
   document.documentElement.lang = lang;
   $$('[data-i18n]').forEach((el) => { const v = W()[el.dataset.i18n]; if (typeof v === 'string') el.textContent = v; });
   $('#langBtn').textContent = lang === 'ru' ? 'EN' : 'RU';
   $('#specHead').innerHTML = W().specHead(19);
   $('#sheetName').value = lang === 'ru' ? 'Фокус' : 'Focus'; $('#sName').textContent = $('#sheetName').value;
   renderBlockCard(); renderSheet(); setDay(dayOffset, false); if (booted) { drawOffline(); drawBig(); }
-}
+};
 
 /* ============================================================ demo data (clearly marked in the title bar) */
 const DAYS = [
@@ -805,24 +830,49 @@ function drawStars(t) {
 /* the cave: two dark rock walls with a faint rim light, a floor, fog; drawn once per size */
 const caveC = $('#cave'), cctx = caveC.getContext('2d');
 function mulberry(a) { return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const photos = {};
+/* generated photographs, when there are any: { 'home': 'data:image/jpeg;base64,…' } (drop-in; the drawn scene is the fallback) */
+const PHOTO_URLS = {};
+function loadPhoto(name, then) { if (!PHOTO_URLS[name]) return; const im = new Image(); im.onload = () => { photos[name] = im; then && then(im); }; im.onerror = () => {}; im.src = PHOTO_URLS[name]; }
 function drawCave() {
-  const [w, h] = sizeCanvas(caveC, cctx), rnd = mulberry(7), c = cctx; c.clearRect(0, 0, w, h);
-  const bgG = c.createRadialGradient(w / 2, h * .42, 0, w / 2, h * .42, Math.max(w, h) * .7); bgG.addColorStop(0, '#0a1613'); bgG.addColorStop(1, '#010403'); c.fillStyle = bgG; c.fillRect(0, 0, w, h);
-  const wall = (side) => {
-    const reach = w * (w > 1100 ? .30 : .22), steps = 34, bs = [];
-    for (let i = 0; i <= steps; i++) { const f = i / steps; bs.push(reach * (.5 + .5 * Math.pow(Math.sin(Math.min(1, f) * Math.PI * .92), .6)) + (Math.sin(i * .55 + side) * .5 + .5) * reach * .3 + rnd() * reach * .2); }
-    const X = (b) => (side < 0 ? b : w - b), edge = side < 0 ? 0 : w;
-    const trace = () => { c.beginPath(); c.moveTo(edge, -10); bs.forEach((b, i) => c.lineTo(X(b), (i / steps) * h * 1.05)); c.lineTo(edge, h + 10); c.closePath(); };
-    c.save(); trace(); const g = c.createLinearGradient(edge, 0, X(reach * 1.3), 0); g.addColorStop(0, '#010302'); g.addColorStop(.6, '#0a1411'); g.addColorStop(1, '#16282a'); c.fillStyle = g; c.fill(); c.clip();
-    for (let k = 0; k < 900; k++) { const px = X(rnd() * reach * 1.3), py = rnd() * h, sz = 6 + rnd() * 46; c.globalAlpha = .05 + rnd() * .12; c.fillStyle = rnd() < .5 ? '#243e3a' : '#030706'; c.beginPath(); c.moveTo(px, py); c.lineTo(px + (rnd() - .5) * sz * 2, py + (rnd() - .3) * sz); c.lineTo(px + (rnd() - .5) * sz * 1.4, py + sz * (.5 + rnd())); c.closePath(); c.fill(); }
-    c.restore();
-    c.save(); c.beginPath(); bs.forEach((b, i) => { const y = (i / steps) * h * 1.05; i ? c.lineTo(X(b), y) : c.moveTo(X(b), y); }); c.strokeStyle = 'rgba(160,255,225,.16)'; c.lineWidth = 1; c.shadowColor = 'rgba(140,242,198,.6)'; c.shadowBlur = 30; c.stroke(); c.restore();
-  };
-  wall(-1); wall(1);
-  const fl = c.createLinearGradient(0, h * .66, 0, h); fl.addColorStop(0, 'rgba(8,14,12,0)'); fl.addColorStop(1, 'rgba(1,3,2,.95)'); c.fillStyle = fl; c.fillRect(0, h * .6, w, h * .4);
+  const [w, h] = sizeCanvas(caveC, cctx), c = cctx, rnd = mulberry(7); c.clearRect(0, 0, w, h);
   const gw = $('#gemWrap').getBoundingClientRect(), ar = $('#app').getBoundingClientRect(), sy = gw.top - ar.top + gw.height * .79, sx = gw.left - ar.left + gw.width / 2;
-  const slab = c.createRadialGradient(sx, sy + 14, 0, sx, sy + 14, w * .2); slab.addColorStop(0, '#16302b'); slab.addColorStop(.55, '#0a1613'); slab.addColorStop(1, 'rgba(2,5,4,0)'); c.save(); c.translate(0, 0); c.fillStyle = slab; c.beginPath(); c.ellipse(sx, sy + 16, w * .2, 46, 0, 0, 6.283); c.fill(); c.restore();
-  const pool = c.createRadialGradient(w / 2, h * .56, 0, w / 2, h * .56, w * .22); pool.addColorStop(0, 'rgba(140,242,198,.10)'); pool.addColorStop(1, 'rgba(140,242,198,0)'); c.fillStyle = pool; c.fillRect(0, 0, w, h);
+  c.fillStyle = '#010403'; c.fillRect(0, 0, w, h);
+  if (photos.home) { /* a generated or photographed cave replaces the drawn one */
+    const im = photos.home, k = Math.max(w / im.width, h / im.height); c.drawImage(im, (w - im.width * k) / 2, (h - im.height * k) / 2, im.width * k, im.height * k);
+    c.fillStyle = 'rgba(0,3,2,.28)'; c.fillRect(0, 0, w, h); return;
+  }
+  /* the mouth of the cave, a soft shaft of light, and the glow of the sky */
+  const mouth = c.createRadialGradient(w / 2, h * .06, 0, w / 2, h * .06, Math.max(w * .55, h * .7)); mouth.addColorStop(0, 'rgba(60,150,128,.34)'); mouth.addColorStop(.45, 'rgba(20,70,64,.14)'); mouth.addColorStop(1, 'rgba(2,10,9,0)'); c.fillStyle = mouth; c.fillRect(0, 0, w, h);
+  /* soft things are drawn small and scaled up (cheap, and it works where canvas filters do not) */
+  const small = (k, draw) => { const oc = document.createElement('canvas'); oc.width = Math.max(2, Math.round(w * k)); oc.height = Math.max(2, Math.round(h * k)); const o = oc.getContext('2d'); o.scale(k, k); draw(o); c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high'; c.drawImage(oc, 0, 0, w, h); };
+  small(.12, (o) => { const shaft = o.createLinearGradient(0, 0, 0, sy); shaft.addColorStop(0, 'rgba(170,255,225,.22)'); shaft.addColorStop(.7, 'rgba(140,242,198,.08)'); shaft.addColorStop(1, 'rgba(140,242,198,0)'); o.fillStyle = shaft; o.beginPath(); o.moveTo(w / 2 - w * .06, 0); o.lineTo(w / 2 + w * .06, 0); o.lineTo(sx + w * .15, sy); o.lineTo(sx - w * .15, sy); o.closePath(); o.fill(); });
+  /* rock walls in three depths: the far ones pale and soft, the near ones black and sharp */
+  const layer = (reachK, base, hi, k, seed, rim) => small(k, (o) => {
+    const r2 = mulberry(seed);
+    for (const side of [-1, 1]) {
+      const reach = w * reachK, steps = 46, bs = [];
+      for (let i = 0; i <= steps; i++) { const f = i / steps; const swell = .45 + .55 * Math.pow(Math.sin(Math.min(1, f * 1.04) * Math.PI * .96), .5); const jag = (Math.sin(i * .9 + seed) * .5 + .5) * .18 + r2() * .2; bs.push(reach * swell * (.82 + jag)); }
+      const X = (b) => (side < 0 ? b : w - b), edge = side < 0 ? 0 : w, Y = (i) => (i / steps) * h * 1.06 - h * .03;
+      o.save(); o.beginPath(); o.moveTo(edge, -20); bs.forEach((b, i) => o.lineTo(X(b), Y(i))); o.lineTo(edge, h + 20); o.closePath();
+      const g = o.createLinearGradient(edge, 0, X(reach * 1.15), 0); g.addColorStop(0, base); g.addColorStop(.7, base); g.addColorStop(1, hi); o.fillStyle = g; o.fill(); o.clip();
+      for (let q = 0; q < 260; q++) { /* faceted planes lit from the opening above */
+        const px = X(r2() * reach * 1.1), py = r2() * h, sz = 14 + r2() * 90, lit = r2(); o.globalAlpha = .06 + lit * .16; o.fillStyle = lit > .6 ? hi : '#000'; o.beginPath(); o.moveTo(px, py); o.lineTo(px + (r2() - .5) * sz * 2.2, py + (r2() - .25) * sz); o.lineTo(px + (r2() - .5) * sz * 1.5, py + sz * (.6 + r2())); o.closePath(); o.fill();
+      }
+      o.globalAlpha = 1; const vg = o.createLinearGradient(0, 0, 0, h); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(.7, 'rgba(0,0,0,.25)'); vg.addColorStop(1, 'rgba(0,0,0,.7)'); o.fillStyle = vg; o.fillRect(0, 0, w, h); o.restore();
+      if (rim) { o.save(); o.beginPath(); bs.forEach((b, i) => (i ? o.lineTo(X(b), Y(i)) : o.moveTo(X(b), Y(i)))); o.strokeStyle = rim; o.lineWidth = 1.3 / k; o.shadowColor = 'rgba(140,242,198,.7)'; o.shadowBlur = 22 * k; o.stroke(); o.restore(); }
+    }
+  });
+  layer(.17, '#0a1816', '#1d3a37', .25, 3, 'rgba(160,255,225,.10)');
+  layer(.24, '#050d0b', '#142925', .6, 5, 'rgba(160,255,225,.14)');
+  layer(.31, '#010403', '#0d1a18', 1, 9, 'rgba(160,255,225,.17)');
+  /* the floor, and the boulder the stand sits on */
+  const fl = c.createLinearGradient(0, sy - 30, 0, h); fl.addColorStop(0, 'rgba(10,22,20,0)'); fl.addColorStop(.35, 'rgba(5,12,11,.85)'); fl.addColorStop(1, 'rgba(1,3,2,1)'); c.fillStyle = fl; c.fillRect(0, sy - 30, w, h - sy + 30);
+  const bw = Math.min(w * .105, 170), pts = Array.from({ length: 18 }, (_, i) => { const a = (i / 18) * 6.283, rr = 1 + (rnd() - .5) * .2; return [sx + Math.cos(a) * bw * rr, sy + 18 + Math.sin(a) * bw * .26 * rr + (Math.sin(a) > 0 ? 54 : 0)]; });
+  c.save(); c.beginPath(); pts.forEach((q, i) => (i ? c.lineTo(q[0], q[1]) : c.moveTo(q[0], q[1]))); c.closePath(); const bg = c.createLinearGradient(0, sy, 0, sy + 80); bg.addColorStop(0, '#1b3733'); bg.addColorStop(.35, '#0a1614'); bg.addColorStop(1, '#010403'); c.fillStyle = bg; c.fill(); c.clip();
+  for (let k = 0; k < 70; k++) { const px = sx + (rnd() - .5) * bw * 2, py = sy + 20 + rnd() * 70, sz = 8 + rnd() * 30; c.globalAlpha = .08 + rnd() * .12; c.fillStyle = rnd() > .5 ? '#2c534c' : '#000'; c.beginPath(); c.moveTo(px, py); c.lineTo(px + (rnd() - .5) * sz * 2, py + sz * .4); c.lineTo(px + (rnd() - .5) * sz, py + sz); c.closePath(); c.fill(); }
+  c.restore(); c.save(); c.beginPath(); pts.slice(0, 9).forEach((q, i) => (i ? c.lineTo(q[0], q[1]) : c.moveTo(q[0], q[1]))); c.strokeStyle = 'rgba(160,255,225,.28)'; c.lineWidth = 1.2; c.shadowColor = 'rgba(140,242,198,.8)'; c.shadowBlur = 18; c.stroke(); c.restore();
+  const pool = c.createRadialGradient(sx, sy + 10, 0, sx, sy + 10, w * .22); pool.addColorStop(0, 'rgba(140,242,198,.16)'); pool.addColorStop(1, 'rgba(140,242,198,0)'); c.fillStyle = pool; c.fillRect(0, 0, w, h);
 }
 
 /* ============================================================ the gem (WebGL; a smooth opal, original shape, shaded in a fragment shader) */
@@ -831,15 +881,15 @@ vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;} vec4 mod289(vec4 x){retur
 float snoise(vec3 v){const vec2 C=vec2(1./6.,1./3.);const vec4 D=vec4(0.,.5,1.,2.);vec3 i=floor(v+dot(v,C.yyy));vec3 x0=v-i+dot(i,C.xxx);vec3 g=step(x0.yzx,x0.xyz);vec3 l=1.-g;vec3 i1=min(g.xyz,l.zxy);vec3 i2=max(g.xyz,l.zxy);vec3 x1=x0-i1+C.xxx;vec3 x2=x0-i2+C.yyy;vec3 x3=x0-D.yyy;i=mod289(i);
 vec4 p=perm(perm(perm(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));float n_=.142857142857;vec3 ns=n_*D.wyz-D.xzx;vec4 j=p-49.*floor(p*ns.z*ns.z);vec4 x_=floor(j*ns.z);vec4 y_=floor(j-7.*x_);vec4 x=x_*ns.x+ns.yyyy;vec4 y=y_*ns.x+ns.yyyy;vec4 h=1.-abs(x)-abs(y);vec4 b0=vec4(x.xy,y.xy);vec4 b1=vec4(x.zw,y.zw);vec4 s0=floor(b0)*2.+1.;vec4 s1=floor(b1)*2.+1.;vec4 sh=-step(h,vec4(0.));vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
 vec3 p0=vec3(a0.xy,h.x);vec3 p1=vec3(a0.zw,h.y);vec3 p2=vec3(a1.xy,h.z);vec3 p3=vec3(a1.zw,h.w);vec4 norm=tis(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);m=m*m;return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));}`;
-const GEM_VERT = `uniform float uTime; uniform float uPulse; varying vec3 vN; varying vec3 vW; varying vec3 vO; ${GLSL_NOISE}
-vec3 shape(vec3 p){ float r=1.+.11*snoise(p*.85+vec3(0.,uTime*.04,3.))+.04*snoise(p*1.7-vec3(uTime*.03)); vec3 q=p*r; q.y*=1.36; q.x*=.88; q.z*=.9; q.xz*=1.-.16*q.y; q*=1.+uPulse*.03*sin(uTime*4.); return q; }
+const GEM_VERT = `uniform float uTime; uniform float uPulse; uniform float uSeed; varying vec3 vN; varying vec3 vW; varying vec3 vOo; ${GLSL_NOISE}
+vec3 shape(vec3 p){ float r=1.+.11*snoise(p*.85+vec3(0.,uTime*.04,3.)+vec3(uSeed*1.9,uSeed*.7,uSeed*1.3))+.04*snoise(p*1.7-vec3(uTime*.03)+vec3(uSeed)); vec3 q=p*r; q.y*=1.36; q.x*=.88; q.z*=.9; q.xz*=1.-.16*q.y; q*=1.+uPulse*.03*sin(uTime*4.); return q; }
 void main(){ vec3 p=normalize(position); vec3 t=normalize(cross(p,vec3(0.,1.,.01))); vec3 b=normalize(cross(p,t)); float e=.012; vec3 P0=shape(p),P1=shape(normalize(p+t*e)),P2=shape(normalize(p+b*e)); vec3 n=normalize(cross(P1-P0,P2-P0)); if(dot(n,p)<0.) n=-n;
- vO=p; vN=normalize(mat3(modelMatrix)*n); vec4 w=modelMatrix*vec4(P0,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`;
-const GEM_FRAG = `precision highp float; uniform float uTime; uniform float uIntro; uniform float uHue; uniform float uGlow; varying vec3 vN; varying vec3 vW; varying vec3 vO; ${GLSL_NOISE}
+ vOo=p; vN=normalize(mat3(modelMatrix)*n); vec4 w=modelMatrix*vec4(P0,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`;
+const GEM_FRAG = `precision highp float; uniform float uTime; uniform float uIntro; uniform float uHue; uniform float uGlow; uniform sampler2D uMat; uniform float uMatAmt; uniform float uSeed; uniform float uLock; varying vec3 vN; varying vec3 vW; varying vec3 vOo; ${GLSL_NOISE}
 vec3 pal(float t){ return .5+.5*cos(6.28318*(t+vec3(0.,.33,.67))); }
 vec3 env(vec3 d){ float up=d.y*.5+.5; vec3 c=mix(vec3(.01,.05,.06),vec3(.08,.18,.2),up);
  c+=vec3(1.,.96,.9)*2.2*pow(max(dot(d,normalize(vec3(-.5,.8,.6))),0.),38.); c+=vec3(.4,1.,.8)*1.1*pow(max(dot(d,normalize(vec3(.85,.1,.45))),0.),14.); c+=vec3(.6,.45,1.)*1.*pow(max(dot(d,normalize(vec3(-.9,-.2,.25))),0.),12.); c+=vec3(1.,.6,.7)*.7*pow(max(dot(d,normalize(vec3(.2,-.9,.3))),0.),8.); return c; }
-void main(){ vec3 N=normalize(vN); vec3 V=normalize(cameraPosition-vW); float ndv=clamp(dot(N,V),0.,1.); float fres=pow(1.-ndv,3.); float rim=pow(1.-ndv,1.7); vec3 R=reflect(-V,N); vec3 Rf=refract(-V,N,.8);
+void main(){ vec3 vO=vOo+vec3(uSeed*.6,uSeed*1.1,uSeed*.4); vec3 N=normalize(vN); vec3 V=normalize(cameraPosition-vW); float ndv=clamp(dot(N,V),0.,1.); float fres=pow(1.-ndv,3.); float rim=pow(1.-ndv,1.7); vec3 R=reflect(-V,N); vec3 Rf=refract(-V,N,.8);
  vec3 base=mix(vec3(.02,.09,.1),vec3(.07,.2,.22),ndv);
  float film=ndv*1.15+snoise(vO*.9+vec3(0.,uTime*.04,0.))*.4+uHue; vec3 irid=mix(vec3(.82),pal(film),.72);
  float sw=snoise(vO*1.35+Rf*.9+vec3(0.,uTime*.05,0.)); vec3 inner=pal(sw*.3+ndv*.25+uHue+.12)*smoothstep(-.25,.85,sw)*(.3+.5*ndv);
@@ -847,14 +897,15 @@ void main(){ vec3 N=normalize(vN); vec3 V=normalize(cameraPosition-vW); float nd
  vec3 col=base+inner*.9+irid*(.16+.95*rim); col+=vec3(.1,.17,.17)*ndv;
  col+=env(R)*(.22+fres*1.2); float sp=pow(max(snoise(vO*16.+uTime*.2),0.),5.); col+=vec3(1.)*sp*.35*ndv;
  float n=snoise(vO*3.)*.5+.5; float th=uIntro*1.3-.12; if(uIntro<.999&&n>th) discard; float edge=smoothstep(th-.1,th,n)*step(uIntro,.999); col+=vec3(1.,.95,.8)*edge*3.2;
- col*=1.+uGlow*.55; col=1.-exp(-col*1.35); gl_FragColor=vec4(col,1.); }`;
+ if(uMatAmt>.001){ vec3 Nv=normalize((viewMatrix*vec4(N,0.)).xyz); vec3 mc=texture2D(uMat,Nv.xy*.5+.5).rgb; col=mix(col,mc*1.12+env(R)*.18+irid*.06*(1.-ndv),uMatAmt*.85); }
+ col=mix(col,vec3(dot(col,vec3(.3,.5,.2)))*.42,uLock); col*=1.+uGlow*.55; col=1.-exp(-col*1.35); gl_FragColor=vec4(col,1.); }`;
 function initGem() {
   const canvas = $('#gem'), wrap = $('#gemWrap'); let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' }); } catch { document.documentElement.classList.add('no-webgl'); return null; }
   if (!renderer.getContext()) { document.documentElement.classList.add('no-webgl'); return null; }
   renderer.setPixelRatio(dpr); renderer.setClearColor(0x000000, 0);
   const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, 1, .1, 50); camera.position.set(0, .15, 6.9);
-  const uni = { uTime: { value: 0 }, uIntro: { value: reduced ? 1 : 0 }, uHue: { value: 0 }, uGlow: { value: 0 }, uPulse: { value: 0 } };
+  const uni = { uSeed: { value: 0 }, uLock: { value: 0 }, uMat: { value: null }, uMatAmt: { value: 0 }, uTime: { value: 0 }, uIntro: { value: reduced ? 1 : 0 }, uHue: { value: 0 }, uGlow: { value: 0 }, uPulse: { value: 0 } };
   const gemMat = new THREE.ShaderMaterial({ vertexShader: GEM_VERT, fragmentShader: GEM_FRAG, uniforms: uni });
   const gem = new THREE.Mesh(new THREE.SphereGeometry(1, 176, 128), gemMat); const group = new THREE.Group(); group.add(gem); group.position.y = -.2; scene.add(group);
   /* the little black stand it sits on, with a lit rim */
@@ -872,15 +923,18 @@ function initGem() {
   const pg = new THREE.BufferGeometry(); pg.setAttribute('position', new THREE.BufferAttribute(pos, 3)); const dust = new THREE.Points(pg, new THREE.PointsMaterial({ map: glowTex, size: .16, transparent: true, opacity: 0, color: 0xcffff0, blending: THREE.AdditiveBlending, depthWrite: false })); scene.add(dust);
   let w = 0, h = 0; const resize = () => { const r = wrap.getBoundingClientRect(); w = Math.max(2, r.width); h = Math.max(2, r.height); renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = w / h < .8 ? 40 : 30; camera.updateProjectionMatrix(); }; resize();
   const api = { hue: 0, hueT: 0, glowT: 0, pulseV: 0, spin: 0, introDone: false, resize,
-    setHue(v) { this.hueT = v; }, pulse(v = 1) { this.pulseV = Math.max(this.pulseV, v); }, glow(v) { this.glowT = v; }, flash() { this.pulseV = 1.4; } };
-  let t0 = performance.now(), last = t0; const tIntro = t0 + 300;
+    setHue(v) { this.hueT = v; }, pulse(v = 1) { this.pulseV = Math.max(this.pulseV, v); }, glow(v) { this.glowT = v; }, flash() { this.pulseV = 1.4; }, setBase(v) { this.base = v; this.hueT = v; }, setMatcap(tex) { uni.uMat.value = tex; const t0m = performance.now(); const go = () => { const k = clamp((performance.now() - t0m) / 1400, 0, 1); uni.uMatAmt.value = k; if (k < 1) requestAnimationFrame(go); }; go(); } };
+  let t0 = performance.now(), last = t0; const tIntro = t0 + 300; api.rotY = 0.4; api.vel = 0; let drag = null; canvas.style.cursor = 'grab';
+  canvas.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, moved: 0, t: e.timeStamp }; canvas.setPointerCapture(e.pointerId); canvas.style.cursor = 'grabbing'; });
+  canvas.addEventListener('pointermove', (e) => { if (!drag) return; const dx = e.clientX - drag.x; drag.x = e.clientX; drag.moved += Math.abs(dx); api.rotY += dx * .011; api.vel = clamp(dx * .11, -9, 9); });
+  const up = () => { if (!drag) return; if (drag.moved < 5) api.pulse(1.1); drag = null; canvas.style.cursor = 'grab'; }; canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
   function frame(now) {
     const t = (now - t0) / 1000, dt = Math.min(.05, (now - last) / 1000); last = now;
     uni.uTime.value = t; api.hue = lerp(api.hue, api.hueT, 1 - Math.exp(-dt * 3)); uni.uHue.value = api.hue; document.documentElement.style.setProperty('--gem-h', String(Math.round(150 + api.hue * 300)));
     uni.uIntro.value = reduced ? 1 : clamp((now - tIntro) / 2800, 0, 1); const intro = easeOut(uni.uIntro.value);
     api.pulseV = lerp(api.pulseV, 0, 1 - Math.exp(-dt * 2.2)); uni.uPulse.value = api.pulseV; uni.uGlow.value = lerp(uni.uGlow.value, api.glowT + api.pulseV * .8, 1 - Math.exp(-dt * 4));
     mouse.x = lerp(mouse.x, mouse.tx, 1 - Math.exp(-dt * 3.4)); mouse.y = lerp(mouse.y, mouse.ty, 1 - Math.exp(-dt * 3.4));
-    group.rotation.y = t * .22 + mouse.x * .5; group.rotation.x = mouse.y * .14; group.position.y = -.2 + Math.sin(t * .9) * .04 + (1 - intro) * -.25; const s = (.82 + .18 * intro) * (1 + Math.sin(t * .8) * .008 + api.pulseV * .05); group.scale.setScalar(s);
+    api.vel *= Math.exp(-dt * 1.5); if (!drag) api.rotY += (.22 + api.vel) * dt; group.rotation.y = api.rotY + mouse.x * .35; group.rotation.x = mouse.y * .14; group.position.y = -.2 + Math.sin(t * .9) * .04 + (1 - intro) * -.25; const s = (.82 + .18 * intro) * (1 + Math.sin(t * .8) * .008 + api.pulseV * .05); group.scale.setScalar(s);
     camera.position.x = mouse.x * .3; camera.position.y = .15 - mouse.y * .12; camera.lookAt(0, -.1, 0);
     rimM.opacity = .55 * intro * (.75 + .25 * Math.sin(t * 1.6)); rimM.color.setHSL((150 + api.hue * 300) / 360, .75, .68); pool.material.opacity = .5 * intro * (.8 + .2 * Math.sin(t * 1.3)); pool.material.color.setHSL((150 + api.hue * 300) / 360, .8, .6); m.color.setHSL((150 + api.hue * 300) / 360, .8, .62);
     const arr = pg.attributes.position.array; for (let i = 0; i < N; i++) { const sd = seed[i], a = sd[0] + t * sd[3] * .4, y = ((sd[2] + t * sd[3] * .06) % 1) * 4.2 - 1.8; arr[i * 3] = Math.cos(a) * sd[1]; arr[i * 3 + 1] = y; arr[i * 3 + 2] = Math.sin(a) * sd[1] * .7; } pg.attributes.position.needsUpdate = true; dust.material.opacity = .55 * intro;
@@ -889,6 +943,17 @@ function initGem() {
   api.frame = frame; return api;
 }
 
+/** A polished picture of a stone (for the gemstone shelf): its own tiny renderer, drawn once, thrown away. */
+function gemStill({ hue = 0, seed = 0, lock = 0, size = 360, rot = .5 } = {}) {
+  try {
+    const cv = document.createElement('canvas'); cv.width = cv.height = size;
+    const r = new THREE.WebGLRenderer({ canvas: cv, alpha: true, antialias: true, preserveDrawingBuffer: true }); r.setSize(size, size, false); r.setClearColor(0x000000, 0);
+    const sc = new THREE.Scene(), cam = new THREE.PerspectiveCamera(28, 1, .1, 50); cam.position.set(0, 0, 5.7);
+    const u = { uTime: { value: 3 + seed }, uIntro: { value: 1 }, uHue: { value: hue }, uGlow: { value: 0 }, uPulse: { value: 0 }, uSeed: { value: seed }, uLock: { value: lock }, uMat: { value: null }, uMatAmt: { value: 0 } };
+    const m = new THREE.Mesh(new THREE.SphereGeometry(1, 128, 96), new THREE.ShaderMaterial({ vertexShader: GEM_VERT, fragmentShader: GEM_FRAG, uniforms: u })); m.rotation.y = rot; sc.add(m); r.render(sc, cam);
+    const url = cv.toDataURL('image/png'); r.dispose(); const ext = r.getContext().getExtension('WEBGL_lose_context'); if (ext) ext.loseContext(); return url;
+  } catch { return ''; }
+}
 /* ============================================================ glass behaviour: spotlight, tilt, magnetic button, ripple */
 const grid = $('.grid');
 document.addEventListener('pointermove', (e) => {
@@ -904,26 +969,37 @@ cta.addEventListener('pointermove', (e) => { if (reduced) return; const r = cta.
 cta.addEventListener('pointerleave', () => { cta.style.transform = ''; });
 function ripple(btn, e) { const r = btn.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2, s = document.createElement('span'); s.className = 'ripple'; s.style.cssText = `width:${d}px;height:${d}px;left:${(e.clientX || r.left + r.width / 2) - r.left - d / 2}px;top:${(e.clientY || r.top + r.height / 2) - r.top - d / 2}px`; btn.append(s); setTimeout(() => s.remove(), 850); }
 document.addEventListener('pointerdown', (e) => { const b = e.target.closest && e.target.closest('.cta'); if (b) ripple(b, e); });
-$$('.gauge').forEach((g) => { const on = () => { window.__gem && window.__gem.setHue(GAUGES[g.dataset.g].hue); }, off = () => { window.__gem && window.__gem.setHue(0); }; g.addEventListener('pointerenter', on); g.addEventListener('focus', on); g.addEventListener('pointerleave', off); g.addEventListener('blur', off); });
+$$('.gauge').forEach((g) => { const on = () => { window.__gem && window.__gem.setHue(GAUGES[g.dataset.g].hue); }, off = () => { window.__gem && window.__gem.setHue(window.__gem.base || 0); }; g.addEventListener('pointerenter', on); g.addEventListener('focus', on); g.addEventListener('pointerleave', off); g.addEventListener('blur', off); });
 
 /* ============================================================ dock with a springy highlight */
 const dock = $('#dock'), dockHi = $('#dockHi');
 function moveDock(btn, instant) { const r = btn.getBoundingClientRect(), d = dock.getBoundingClientRect(); if (instant) dockHi.style.transition = 'none'; dockHi.style.width = r.width + 'px'; dockHi.style.transform = `translateX(${r.left - d.left}px)`; if (instant) { dockHi.offsetWidth; dockHi.style.transition = ''; } }
-$$('button', dock).forEach((b) => b.addEventListener('click', () => {
-  if (b.dataset.tab === 'timer') { openSheet(); return; }
-  $$('button', dock).forEach((x) => x.removeAttribute('aria-current')); b.setAttribute('aria-current', 'page'); moveDock(b);
-  if (b.dataset.tab !== 'home') { toast(W().toastTab); setTimeout(() => { const h = $('[data-tab=home]'); $$('button', dock).forEach((x) => x.removeAttribute('aria-current')); h.setAttribute('aria-current', 'page'); moveDock(h); }, 1400); }
-}));
+/* ---- router: Home is the stage; every other screen registers itself in ET.screens and is built the first time it is opened ---- */
+const ET = window.ET = { screens: {}, view: 'home', words: WORDS };
+const views = {}; let switching = false;
+async function go(name) {
+  if (name === ET.view || switching) return;
+  const scr = ET.screens[name]; if (name !== 'home' && !scr) { toast(W().toastTab); return; }
+  switching = true; const from = ET.view === 'home' ? $('#stage') : views[ET.view];
+  const hiTab = name === 'settings' ? 'profile' : name; $$('button', dock).forEach((x) => { if (x.dataset.tab !== hiTab) x.removeAttribute('aria-current'); else x.setAttribute('aria-current', 'page'); }); moveDock($(`[data-tab=${hiTab}]`, dock));
+  from.classList.add('leave'); await wait(reduced ? 0 : 240); from.hidden = true; from.classList.remove('leave');
+  ET.view = name; $('#app').dataset.view = name; $('#tbTitle').textContent = scr ? (typeof scr.title === 'function' ? scr.title() : scr.title) : '';
+  let to; if (name === 'home') to = $('#stage'); else { if (!views[name]) { const el = document.createElement('main'); el.className = 'view'; el.id = 'view-' + name; $('#app').insertBefore(el, $('#miniSession')); views[name] = el; scr.mount(el); } to = views[name]; if (scr.show) scr.show(to); }
+  to.hidden = false; to.classList.add('enter'); setTimeout(() => to.classList.remove('enter'), 1000); to.scrollTop = 0; switching = false;
+  if (!reduced && window.__gem && name === 'home') window.__gem.pulse(.5);
+}
+$$('button', dock).forEach((b) => b.addEventListener('click', () => { if (b.dataset.tab === 'home' && ET.view === 'home') return; go(b.dataset.tab); }));
 let toastT; function toast(msg) { $('#toastText').textContent = msg; const t = $('#toast'); t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2200); }
-$('#toRules').addEventListener('click', () => toast(W().toastRules)); $$('.mini-rule').forEach((b) => b.addEventListener('click', () => toast(W().toastRules)));
+$('#toRules').addEventListener('click', () => go('rules')); $$('.mini-rule').forEach((b) => b.addEventListener('click', () => go('rules')));
 $('#streakChip').addEventListener('click', () => { const f = $('.flame svg'); f.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.25) rotate(-6deg)' }, { transform: 'scale(1)' }], { duration: 700, easing: 'cubic-bezier(.34,1.56,.64,1)' }); $('#flameNum').animate([{ transform: 'scale(1)' }, { transform: 'scale(1.4)' }, { transform: 'scale(1)' }], { duration: 600 }); });
 
 /* ============================================================ the wheel picker (snap, drag, keyboard; items curve away from the middle) */
 function wheel(root, items, initial, onChange, fmt = (v) => v) {
   const list = $('.wheel-list', root); list.innerHTML = ''; const els = items.map((v) => { const d = document.createElement('div'); d.textContent = fmt(v); d.setAttribute('role', 'option'); list.append(d); return d; });
-  let idx = Math.max(0, items.indexOf(initial)), ready = false; const IH = 44;
+  let idx = Math.max(0, items.indexOf(initial)), ready = false; const IH = 44; const pad = () => { list.style.paddingTop = list.style.paddingBottom = Math.max(0, (list.clientHeight - IH) / 2) + 'px'; }; pad();
   const paint = () => { const c = list.scrollTop / IH; els.forEach((e, i) => { const d = i - c, a = Math.abs(d); e.style.transform = `translateZ(${-a * 12}px) rotateX(${clamp(d * -22, -70, 70)}deg) scale(${1 - Math.min(a, 3) * .06})`; e.style.opacity = String(clamp(1 - a * .3, .12, 1)); e.style.color = a < .5 ? 'var(--text)' : 'var(--text-2)'; e.setAttribute('aria-selected', String(a < .5)); }); const n = clamp(Math.round(c), 0, items.length - 1); if (n !== idx && ready) { idx = n; onChange(items[idx]); } };
-  list.addEventListener('scroll', () => requestAnimationFrame(paint), { passive: true });
+  let snapT; const snap = () => { if (down) return; const target = clamp(Math.round(list.scrollTop / IH), 0, items.length - 1) * IH; if (Math.abs(list.scrollTop - target) > .5) list.scrollTo({ top: target, behavior: 'smooth' }); };
+  list.addEventListener('scroll', () => { requestAnimationFrame(paint); clearTimeout(snapT); snapT = setTimeout(snap, 120); }, { passive: true });
   let down = false, sy = 0, st = 0, vel = 0, ly = 0, lt = 0;
   list.addEventListener('pointerdown', (e) => { down = true; sy = e.clientY; st = list.scrollTop; list.classList.add('drag'); list.setPointerCapture(e.pointerId); ly = e.clientY; lt = e.timeStamp; vel = 0; });
   list.addEventListener('pointermove', (e) => { if (!down) return; list.scrollTop = st - (e.clientY - sy); const dt = e.timeStamp - lt; if (dt > 0) vel = (e.clientY - ly) / dt; ly = e.clientY; lt = e.timeStamp; });
@@ -931,12 +1007,12 @@ function wheel(root, items, initial, onChange, fmt = (v) => v) {
   list.addEventListener('pointerup', end); list.addEventListener('pointercancel', end);
   list.addEventListener('keydown', (e) => { const k = e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0; if (k) { e.preventDefault(); list.scrollTo({ top: clamp(idx + k, 0, items.length - 1) * IH, behavior: 'smooth' }); } });
   els.forEach((e, i) => e.addEventListener('click', () => list.scrollTo({ top: i * IH, behavior: 'smooth' })));
-  const api = { set(v) { idx = Math.max(0, items.indexOf(v)); list.scrollTop = idx * IH; paint(); }, sync() { list.scrollTop = idx * IH; paint(); } };
-  requestAnimationFrame(() => { list.scrollTop = idx * IH; paint(); ready = true; }); return api;
+  const api = { set(v) { pad(); idx = Math.max(0, items.indexOf(v)); list.scrollTop = idx * IH; paint(); }, sync() { pad(); list.scrollTop = idx * IH; paint(); } };
+  requestAnimationFrame(() => { pad(); list.scrollTop = idx * IH; paint(); ready = true; }); return api;
 }
 
 /* ============================================================ the focus sheet */
-const S = { name: 'Focus', min: 25, blocks: new Set(['Instagram', 'YouTube', 'X', 'Telegram', 'TikTok']), diff: 0 };
+const S = { scene: 'dawn', name: 'Focus', min: 25, blocks: new Set(['Instagram', 'YouTube', 'X', 'Telegram', 'TikTok']), diff: 0 };
 const BLOCKABLE = [['Instagram', '#e1306c'], ['YouTube', '#ff3b30'], ['X', '#111'], ['Telegram', '#2aa3e4'], ['TikTok', '#16d6c8'], ['Reddit', '#ff5700'], ['Discord', '#5865f2'], ['Steam', '#2b4f7d'], ['Netflix', '#d81f26']];
 const DURS = [5, 10, 15, 20, 25, 30, 45, 50, 60, 75, 90, 120];
 let durWheel, unWheel;
@@ -973,18 +1049,27 @@ $('#unClose').addEventListener('click', () => closeScrim('#unScrim')); $('#unNev
 $('#unGo').addEventListener('click', () => { closeScrim('#unScrim'); blockedNow = false; openUntil = Date.now() + unMin * 60000; renderBlockCard(); clearInterval(openTimer); tickOpen(); openTimer = setInterval(tickOpen, 250); });
 
 /* ============================================================ landscape (sky, mountains, a lake with shimmer): the session's world */
+const SCENES = {
+  dawn: { seed: 11, sky: ['#5b7cc0', '#a7a4dc', '#f0b3d6', '#ffe0cf'], sun: ['255,248,225', '255,214,190', '255,200,200'], mt: [['#8c8fc4', '#b9a6cf'], ['#5f6d9c', '#8f88b6'], ['#2f3f52', '#3d4d5f']], fog: 'rgba(255,222,215,.55)', water: ['rgba(70,96,120,.40)', 'rgba(24,52,64,.66)', 'rgba(6,20,26,.9)'], cloud: '255,240,245' },
+  dusk: { seed: 21, sky: ['#27456f', '#5b78ae', '#ee9e8c', '#ffd2a0'], sun: ['255,236,200', '255,176,140', '255,150,130'], mt: [['#6b7fa6', '#9a9bb8'], ['#42557a', '#6c759b'], ['#1c2a42', '#2a3a52']], fog: 'rgba(255,200,170,.5)', water: ['rgba(60,90,120,.42)', 'rgba(20,48,66,.7)', 'rgba(4,16,24,.92)'], cloud: '255,214,200' },
+  meadow: { seed: 31, sky: ['#40367f', '#8a62bd', '#ee86b4', '#ffc6a6'], sun: ['255,232,210', '255,170,190', '255,140,170'], mt: [['#7a5aa0', '#a56ab0'], ['#4d3d82', '#7a5aa0'], ['#241e4a', '#33295e']], fog: 'rgba(255,190,210,.5)', water: ['rgba(80,60,130,.4)', 'rgba(36,26,80,.7)', 'rgba(10,6,28,.92)'], cloud: '255,200,225' },
+  forest: { seed: 41, sky: ['#9fb6ae', '#c3d3c8', '#e1eadd', '#f3f5ea'], sun: ['255,255,235', '240,250,225', '230,245,220'], mt: [['#9db3a7', '#c0d0c5'], ['#6f8a7d', '#98ad9f'], ['#2f4a3a', '#42604e']], fog: 'rgba(235,245,230,.6)', water: ['rgba(90,120,110,.42)', 'rgba(30,62,54,.68)', 'rgba(6,22,18,.92)'], cloud: '245,250,240' },
+  night: { seed: 51, stars: true, sky: ['#040813', '#0a1530', '#16294c', '#2b4467'], sun: ['210,230,255', '120,160,220', '80,120,200'], mt: [['#1d2a46', '#2d3f62'], ['#121b32', '#1d2c4b'], ['#070c18', '#0d1526']], fog: 'rgba(80,115,170,.35)', water: ['rgba(40,70,110,.4)', 'rgba(10,26,52,.72)', 'rgba(2,8,18,.94)'], cloud: '120,150,200' },
+};
 class Landscape {
-  constructor(canvas) { this.c = canvas; this.x = canvas.getContext('2d'); this.layer = document.createElement('canvas'); this.glints = Array.from({ length: 90 }, () => ({ x: Math.random(), y: Math.random(), p: Math.random() * 6.28, s: .6 + Math.random() * 1.8, r: .7 + Math.random() * 1.6 })); this.clouds = []; this.seed = 11; this.size(); }
+  constructor(canvas, scene = 'dawn') { this.pal = SCENES[scene] || SCENES.dawn; this.c = canvas; this.x = canvas.getContext('2d'); this.layer = document.createElement('canvas'); this.glints = Array.from({ length: 90 }, () => ({ x: Math.random(), y: Math.random(), p: Math.random() * 6.28, s: .6 + Math.random() * 1.8, r: .7 + Math.random() * 1.6 })); this.clouds = []; this.seed = this.pal.seed; this.size(); }
   size() { const r = this.c.getBoundingClientRect(); this.w = Math.max(2, Math.round(r.width)); this.h = Math.max(2, Math.round(r.height)); const d = Math.min(devicePixelRatio || 1, 1.5); this.c.width = this.w * d; this.c.height = this.h * d; this.x.setTransform(d, 0, 0, d, 0, 0); this.layer.width = this.w; this.layer.height = this.h; this.build(); }
   ridge(x, rnd, amp, rough) { let v = 0, a = amp, f = 1; for (let o = 0; o < 6; o++) { v += (1 - Math.abs(Math.sin(x * f * 6.3 + rnd[o] * 9))) * a - a * .5; a *= rough; f *= 2.1; } return v; }
   build() {
-    const { w, h } = this, c = this.layer.getContext('2d'), hz = h * .56, rnd = mulberry(this.seed), phases = (k) => Array.from({ length: 6 }, () => rnd() + k);
-    const sky = c.createLinearGradient(0, 0, 0, hz); sky.addColorStop(0, '#5b7cc0'); sky.addColorStop(.38, '#a7a4dc'); sky.addColorStop(.7, '#f0b3d6'); sky.addColorStop(1, '#ffe0cf'); c.fillStyle = sky; c.fillRect(0, 0, w, h);
-    const sun = c.createRadialGradient(w * .66, hz * .96, 0, w * .66, hz * .96, w * .32); sun.addColorStop(0, 'rgba(255,248,225,.95)'); sun.addColorStop(.25, 'rgba(255,214,190,.5)'); sun.addColorStop(1, 'rgba(255,200,200,0)'); c.fillStyle = sun; c.fillRect(0, 0, w, h);
-    const layers = [{ k: 1, base: hz - h * .09, amp: h * .12, rough: .5, col: ['#8c8fc4', '#b9a6cf'] }, { k: 2, base: hz - h * .035, amp: h * .13, rough: .52, col: ['#5f6d9c', '#8f88b6'] }, { k: 3, base: hz + 2, amp: h * .06, rough: .5, col: ['#2f3f52', '#3d4d5f'] }];
-    layers.forEach((L) => { const ph = phases(L.k); c.beginPath(); c.moveTo(0, hz + 4); for (let x = 0; x <= w; x += 3) c.lineTo(x, L.base - this.ridge(x / w + L.k * .31, ph, L.amp, L.rough)); c.lineTo(w, hz + 4); c.closePath(); const g = c.createLinearGradient(0, L.base - L.amp, 0, hz); g.addColorStop(0, L.col[0]); g.addColorStop(1, L.col[1]); c.fillStyle = g; c.fill(); });
-    const fog = c.createLinearGradient(0, hz - h * .12, 0, hz + 2); fog.addColorStop(0, 'rgba(255,220,225,0)'); fog.addColorStop(1, 'rgba(255,222,215,.55)'); c.fillStyle = fog; c.fillRect(0, hz - h * .12, w, h * .12 + 2);
-    this.hz = hz; this.cloudSprite = document.createElement('canvas'); this.cloudSprite.width = w * 2; this.cloudSprite.height = hz; const cc = this.cloudSprite.getContext('2d'); for (let i = 0; i < 16; i++) { const cx = rnd() * w * 2, cy = hz * (.12 + rnd() * .5), rw = 80 + rnd() * 240, rh = 12 + rnd() * 26; const g = cc.createRadialGradient(cx, cy, 0, cx, cy, rw); g.addColorStop(0, 'rgba(255,240,245,.5)'); g.addColorStop(1, 'rgba(255,240,245,0)'); cc.save(); cc.translate(cx, cy); cc.scale(1, rh / rw); cc.translate(-cx, -cy); cc.fillStyle = g; cc.beginPath(); cc.arc(cx, cy, rw, 0, 6.283); cc.fill(); cc.restore(); }
+    const { w, h, pal: P } = this, c = this.layer.getContext('2d'), hz = h * .56, rnd = mulberry(this.seed), phases = (k) => Array.from({ length: 6 }, () => rnd() + k);
+    const sky = c.createLinearGradient(0, 0, 0, hz); [0, .38, .7, 1].forEach((o, i) => sky.addColorStop(o, P.sky[i])); c.fillStyle = sky; c.fillRect(0, 0, w, h);
+    if (P.stars) { for (let i = 0; i < 160; i++) { c.globalAlpha = .25 + rnd() * .7; c.fillStyle = '#e8f0ff'; c.beginPath(); c.arc(rnd() * w, rnd() * hz * .8, .4 + rnd() * 1.1, 0, 6.283); c.fill(); } c.globalAlpha = 1; }
+    const sx = P.stars ? .3 : .66, sun = c.createRadialGradient(w * sx, hz * (P.stars ? .35 : .96), 0, w * sx, hz * (P.stars ? .35 : .96), w * (P.stars ? .2 : .32)); sun.addColorStop(0, `rgba(${P.sun[0]},.95)`); sun.addColorStop(.25, `rgba(${P.sun[1]},.5)`); sun.addColorStop(1, `rgba(${P.sun[2]},0)`); c.fillStyle = sun; c.fillRect(0, 0, w, h);
+    if (P.stars) { c.fillStyle = '#f2f6ff'; c.beginPath(); c.arc(w * sx, hz * .35, Math.max(14, w * .018), 0, 6.283); c.fill(); }
+    const layers = [{ k: 1, base: hz - h * .09, amp: h * .12, rough: .5 }, { k: 2, base: hz - h * .035, amp: h * .13, rough: .52 }, { k: 3, base: hz + 2, amp: h * .06, rough: .5 }];
+    layers.forEach((L, li) => { const ph = phases(L.k); c.beginPath(); c.moveTo(0, hz + 4); for (let x = 0; x <= w; x += 3) c.lineTo(x, L.base - this.ridge(x / w + L.k * .31, ph, L.amp, L.rough)); c.lineTo(w, hz + 4); c.closePath(); const g = c.createLinearGradient(0, L.base - L.amp, 0, hz); g.addColorStop(0, P.mt[li][0]); g.addColorStop(1, P.mt[li][1]); c.fillStyle = g; c.fill(); });
+    const fog = c.createLinearGradient(0, hz - h * .12, 0, hz + 2); fog.addColorStop(0, P.fog.replace(/[\d.]+\)$/, '0)')); fog.addColorStop(1, P.fog); c.fillStyle = fog; c.fillRect(0, hz - h * .12, w, h * .12 + 2);
+    this.hz = hz; this.cloudSprite = document.createElement('canvas'); this.cloudSprite.width = w * 2; this.cloudSprite.height = hz; const cc = this.cloudSprite.getContext('2d'); for (let i = 0; i < 16; i++) { const cx = rnd() * w * 2, cy = hz * (.12 + rnd() * .5), rw = 80 + rnd() * 240, rh = 12 + rnd() * 26; const g = cc.createRadialGradient(cx, cy, 0, cx, cy, rw); g.addColorStop(0, `rgba(${P.cloud},.5)`); g.addColorStop(1, `rgba(${P.cloud},0)`); cc.save(); cc.translate(cx, cy); cc.scale(1, rh / rw); cc.translate(-cx, -cy); cc.fillStyle = g; cc.beginPath(); cc.arc(cx, cy, rw, 0, 6.283); cc.fill(); cc.restore(); }
   }
   draw(t) {
     const { w, h, hz } = this, x = this.x; x.clearRect(0, 0, w, h);
@@ -992,7 +1077,7 @@ class Landscape {
     const off = (t * 5) % (w * 2); x.save(); x.beginPath(); x.rect(0, 0, w, hz); x.clip(); x.globalAlpha = .9; x.drawImage(this.cloudSprite, -off, 0); x.drawImage(this.cloudSprite, w * 2 - off, 0); x.restore();
     /* mirrored water with a gentle ripple, in strips */
     const strip = 3; for (let y = hz; y < h; y += strip) { const k = (y - hz) / (h - hz), src = hz - (y - hz) * .92; if (src < 0) break; const dx = Math.sin(y * .06 + t * 1.4) * (1.5 + k * 7); x.drawImage(this.layer, 0, src, w, strip, dx - 6, y, w + 12, strip); }
-    const wg = x.createLinearGradient(0, hz, 0, h); wg.addColorStop(0, 'rgba(70,96,120,.40)'); wg.addColorStop(.5, 'rgba(24,52,64,.66)'); wg.addColorStop(1, 'rgba(6,20,26,.9)'); x.fillStyle = wg; x.fillRect(0, hz, w, h - hz);
+    const wg = x.createLinearGradient(0, hz, 0, h); wg.addColorStop(0, this.pal.water[0]); wg.addColorStop(.5, this.pal.water[1]); wg.addColorStop(1, this.pal.water[2]); x.fillStyle = wg; x.fillRect(0, hz, w, h - hz);
     for (const g of this.glints) { const a = Math.max(0, Math.sin(t * g.s + g.p)); if (a < .55) continue; const gx = g.x * w + Math.sin(t * .3 + g.p) * 8, gy = hz + 6 + Math.pow(g.y, 1.4) * (h - hz - 8), r = g.r * (1 + (gy - hz) / h * 2.6), al = (a - .55) / .45; x.globalAlpha = al * .9; x.fillStyle = '#fff'; x.fillRect(gx - r * 3, gy - .6, r * 6, 1.2); x.fillRect(gx - .6, gy - r * 1.2, 1.2, r * 2.4); x.beginPath(); x.arc(gx, gy, r * .8, 0, 6.283); x.fill(); x.globalAlpha = 1; }
   }
 }
@@ -1014,7 +1099,7 @@ const run = { on: false, total: 0, left: 0, speed: 1, snooze: false, breakLeft: 
 const fmtClock = (ms) => { const d = new Date(ms); return lang === 'ru' ? `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}` : d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); };
 async function startSession() {
   closeSheet(); if (run.on) return; run.cancelled = false;
-  const cd = $('#countdown'); cd.classList.add('on'); const land = new Landscape($('#cdCanvas')); land.draw(0); run.cdLand = land;
+  const cd = $('#countdown'); cd.classList.add('on'); const land = new Landscape($('#cdCanvas'), S.scene); land.draw(0); run.cdLand = land;
   const num = $('#cdNum'); window.__gem && window.__gem.pulse(1);
   for (const n of [3, 2, 1]) { if (run.cancelled) break; num.innerHTML = `<span>${n}</span>`; land.draw(n); await wait(reduced ? 300 : 1000); }
   cd.classList.remove('on'); num.innerHTML = ''; if (run.cancelled) return;
@@ -1027,7 +1112,7 @@ function beginRun() {
   $('#tStart').textContent = fmtClock(run.startedAt); $('#tEnd').textContent = fmtClock(run.startedAt + run.total * 1000);
   const locked = S.diff === 2; $('#snoozeBtn').style.display = locked ? 'none' : ''; $('#leaveBtn').style.display = locked ? 'none' : ''; const ln = $('#lockedNote'); ln.style.display = locked ? 'block' : 'none'; ln.textContent = W().lockedNote(fmtClock(run.startedAt + run.total * 1000));
   $('#leaveText').textContent = S.diff === 1 ? W().holdLeave : W().leave; $('#breakBanner').classList.remove('on'); lcd.fmt = '';
-  const ses = $('#session'); ses.classList.add('on', 'in'); setTimeout(() => ses.classList.remove('in'), 1300); run.landscape = run.landscape || new Landscape($('#sessCanvas')); run.landscape.size();
+  const ses = $('#session'); ses.classList.add('on', 'in'); setTimeout(() => ses.classList.remove('in'), 1300); run.landscape = new Landscape($('#sessCanvas'), S.scene);
   window.__gem && window.__gem.glow(.5); $('#miniSession').classList.remove('show'); run.minimized = false; cancelAnimationFrame(run.raf); loop(performance.now());
 }
 function loop(now) {
@@ -1100,8 +1185,11 @@ document.addEventListener('keydown', (e) => { if (e.key !== 'Tab') return; const
 async function boot() {
   buildSpectrum(); initStars(); drawCave(); buildChart(BARS[0]); setDelta(state.delta);
   window.__gem = initGem(); if (window.__gem) window.__gem.hueT = 0;
+  { const th = store.get('et-hue'); if (th !== null && window.__gem) window.__gem.setBase(+th); }
+  loadPhoto('home', () => drawCave());
+  loadPhoto('opal-mint', (im) => { const g = window.__gem; if (!g) return; const tex = new THREE.Texture(im); tex.needsUpdate = true; g.setMatcap(tex); });
   applyLang();
-  const t0 = performance.now(); const cdEl = $('#countdown'), doneEl = $('#done'); function tick(now) { const covered = cdEl.classList.contains('on') || doneEl.classList.contains('on') || (run.on && !run.minimized); if (!covered) { drawStars(now - t0); if (window.__gem) window.__gem.frame(now); } requestAnimationFrame(tick); } requestAnimationFrame(tick);
+  const t0 = performance.now(); const cdEl = $('#countdown'), doneEl = $('#done'); function tick(now) { const covered = ET.view !== 'home' || cdEl.classList.contains('on') || doneEl.classList.contains('on') || (run.on && !run.minimized); if (!covered) { drawStars(now - t0); if (window.__gem) window.__gem.frame(now); } requestAnimationFrame(tick); } requestAnimationFrame(tick);
   durWheel = wheel($('#durWheel'), DURS, S.min, (v) => { S.min = v; renderSheet(); }, (v) => `${v} ${lang === 'ru' ? 'мин' : 'min'}`);
   requestAnimationFrame(drawCave); moveDock($('[aria-current=page]', dock), true);
   setTimeout(() => document.documentElement.classList.add('booted'), reduced ? 0 : 4200); booted = true; const d = reduced ? 0 : 1; await wait(d * 650);
@@ -1109,6 +1197,13 @@ async function boot() {
   countTo($('#offlineVal'), state.offline, reduced ? 0 : 1500, (v) => W().hm(Math.floor(v / 60), Math.round(v) % 60)); $('#offlineMeter').style.width = state.offPct + '%'; placeSpecPin(state.spec);
   addEventListener('resize', () => { initStars(); drawCave(); window.__gem && window.__gem.resize(); moveDock($('[aria-current=page]', dock), true); if (run.landscape) run.landscape.size(); });
 }
+Object.assign(ET, { gemStill, SCENES, $, $$, clamp, lerp, easeOut, easeExpo, tween, wait, raf, reduced, store, go, toast, wheel, countTo, mulberry, ripple, openSheet, closeSheet, openScrim, closeScrim, BLOCKABLE, DURS, S, run, Landscape, W, t: (k, ...a) => { const v = W()[k]; return typeof v === 'function' ? v(...a) : v; }, lang: () => lang, langHooks: [], startSession, gem: () => window.__gem, dpr });
+const _apply = applyLang; applyLang = function () { _apply(); ET.langHooks.forEach((f) => { try { f(); } catch { /* a screen that is not built yet */ } }); };
 document.fonts && document.fonts.ready ? document.fonts.ready.then(boot) : boot();
 })();
 </script>
+<script src="screens/rules.js"></script>
+<script src="screens/timer.js"></script>
+<script src="screens/insights.js"></script>
+<script src="screens/profile.js"></script>
+<script src="screens/settings.js"></script>
