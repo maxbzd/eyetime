@@ -1,0 +1,124 @@
+//! eyetime-setup.exe: the installer and, with --uninstall, the uninstaller. One window, one animation, a few honest steps.
+//! It needs administrator rights (it installs a Windows service) and asks for them once, when it starts.
+
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
+mod payload {
+    include!(concat!(env!("OUT_DIR"), "/payload.rs"));
+}
+mod steps;
+
+use serde_json::{json, Value};
+use std::borrow::Cow;
+use tao::dpi::LogicalSize;
+use tao::event::{Event, WindowEvent};
+use tao::event_loop::{ControlFlow, EventLoopBuilder};
+use tao::window::WindowBuilder;
+use wry::http::{header::CONTENT_TYPE, Response};
+use wry::WebViewBuilder;
+
+#[derive(Debug)]
+enum Ui {
+    Js(String),
+    Cmd(Value),
+}
+
+fn asset(path: &str) -> Option<(&'static str, &'static [u8])> {
+    Some(match path {
+        "/" | "/index.html" => ("text/html; charset=utf-8", include_bytes!("../ui/index.html")),
+        "/fonts.css" => ("text/css", include_bytes!("../ui/fonts.css")),
+        "/cave.jpg" => ("image/jpeg", include_bytes!("../ui/cave.jpg")),
+        "/gem-sprite.webp" => ("image/webp", include_bytes!("../ui/gem-sprite.webp")),
+        "/fonts/figtree-v9-_Xms-HUzqDCFdgfMm4S9DQ.woff2" => ("font/woff2", include_bytes!("../ui/fonts/figtree-v9-_Xms-HUzqDCFdgfMm4S9DQ.woff2")),
+        "/fonts/figtree-v9-_Xms-HUzqDCFdgfMm4q9DbZs.woff2" => ("font/woff2", include_bytes!("../ui/fonts/figtree-v9-_Xms-HUzqDCFdgfMm4q9DbZs.woff2")),
+        "/fonts/outfit-v15-QGYvz_MVcBeNP4NJtEtq.woff2" => ("font/woff2", include_bytes!("../ui/fonts/outfit-v15-QGYvz_MVcBeNP4NJtEtq.woff2")),
+        "/fonts/outfit-v15-QGYvz_MVcBeNP4NJuktqQ4E.woff2" => ("font/woff2", include_bytes!("../ui/fonts/outfit-v15-QGYvz_MVcBeNP4NJuktqQ4E.woff2")),
+        _ => return None,
+    })
+}
+
+fn main() {
+    let args: Vec<String> = std::env::args().collect();
+    let uninstall = args.iter().any(|a| a == "--uninstall");
+    if !steps::is_admin() {
+        steps::relaunch_elevated(&args[1..]);
+        return;
+    }
+
+    let event_loop = EventLoopBuilder::<Ui>::with_user_event().build();
+    let proxy = event_loop.create_proxy();
+    let window = WindowBuilder::new()
+        .with_title("EyeTime Setup")
+        .with_inner_size(LogicalSize::new(760.0, 520.0))
+        .with_resizable(false)
+        .with_decorations(false)
+        .with_transparent(true)
+        .build(&event_loop)
+        .expect("window");
+
+    let ipc_proxy = proxy.clone();
+    let webview = WebViewBuilder::new()
+        .with_transparent(true)
+        .with_url("app://localhost/")
+        .with_custom_protocol("app".into(), |_id, req| {
+            let path = req.uri().path().to_string();
+            match asset(&path) {
+                Some((ct, bytes)) => Response::builder().header(CONTENT_TYPE, ct).body(Cow::Borrowed(bytes)).unwrap(),
+                None => Response::builder().status(404).body(Cow::Borrowed(&b"not found"[..])).unwrap(),
+            }
+        })
+        .with_ipc_handler(move |req| {
+            if let Ok(v) = serde_json::from_str::<Value>(req.body()) {
+                let _ = ipc_proxy.send_event(Ui::Cmd(v));
+            }
+        })
+        .build(&window)
+        .expect("webview");
+
+    let mut finished_uninstall = false;
+    let existing = steps::service_exists();
+    event_loop.run(move |event, _, flow| {
+        *flow = ControlFlow::Wait;
+        match event {
+            Event::UserEvent(Ui::Js(code)) => {
+                let _ = webview.evaluate_script(&code);
+            }
+            Event::UserEvent(Ui::Cmd(c)) => match c["cmd"].as_str().unwrap_or("") {
+                "ready" => {
+                    let _ = webview.evaluate_script(&format!("window.__ev({})", json!({"type": "init", "mode": if uninstall { "uninstall" } else { "install" }, "existing": existing})));
+                }
+                "drag" => {
+                    let _ = window.drag_window();
+                }
+                "install" => {
+                    let desktop = c["opts"]["desktop"].as_bool().unwrap_or(true);
+                    let p = proxy.clone();
+                    std::thread::spawn(move || steps::install(desktop, &|m| {
+                        let _ = p.send_event(Ui::Js(format!("window.__ev({m})")));
+                    }));
+                }
+                "uninstall" => {
+                    finished_uninstall = true;
+                    let delete = c["opts"]["deleteData"].as_bool().unwrap_or(false);
+                    let p = proxy.clone();
+                    std::thread::spawn(move || steps::uninstall(delete, &|m| {
+                        let _ = p.send_event(Ui::Js(format!("window.__ev({m})")));
+                    }));
+                }
+                "open_app" => {
+                    steps::open_app();
+                    *flow = ControlFlow::Exit;
+                }
+                "close" => {
+                    if uninstall && finished_uninstall {
+                        steps::remove_self_later();
+                    }
+                    *flow = ControlFlow::Exit;
+                }
+                _ => {}
+            },
+            Event::WindowEvent { event: WindowEvent::CloseRequested, .. } => *flow = ControlFlow::Exit,
+            _ => {}
+        }
+    });
+}

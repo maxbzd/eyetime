@@ -15,12 +15,12 @@
     en: {
       engineOn: 'Blocking engine: running', engineOff: 'Blocking engine: not running', engineWarnHosts: 'Blocking engine: cannot write the hosts file', engineWarnAgent: 'Blocking engine: running, no screen agent yet', clock: 'The clock was moved. A locked block keeps its own time.',
       nothing: 'Nothing is blocked right now', nothingSub: 'Start a session or add a rule', blockedSub: (a, s, t) => `${a} apps and ${s} sites are blocked${t ? ' · ' + t : ''}`, until: (m) => `${m >= 60 ? Math.floor(m / 60) + ' h ' : ''}${m % 60} min left`,
-      closed: (n) => `EyeTime closed ${n}`, locked: 'This is locked. Only an emergency key opens it.', rejected: 'Not allowed while a locked block is running', offline: 'The blocking engine is not running',
+      closed: (n) => `EyeTime closed ${n}`, closing: (n) => `${n} is being closed. Save your work`, locked: 'This is locked. Only an emergency key opens it.', rejected: 'Not allowed while a locked block is running', offline: 'The blocking engine is not running',
       pinTitle: 'Enter your PIN', pinWrong: 'Wrong PIN', pinLocked: (s) => `Too many tries. Wait ${s} s`, cancel: 'Cancel', ok: 'Continue', hold: 'Hold', holding: 'Keep holding…', wait: (s) => `Wait ${s} s`, ready: 'Continue', type: 'Type this text exactly. Pasting is off.', mathQ: 'Solve it', wrong: 'Not right', friendQ: 'Ask your partner for the code', pinFor: 'PIN',
       ttEnd: 'Leave the session', ttBreak: 'Take a break', ttUnblock: 'Unblock for a while', ttEmerg: 'Emergency key', ttUninstall: 'Allow uninstalling', emergBtn: (n) => `Emergency key (${n} left)`, noKeys: 'No emergency keys left this week',
       pinCard: 'App PIN', pinCardD: 'Asked before anything can be loosened', pinSet: 'Set PIN', pinChange: 'Change', pinRemove: 'Remove', pinNew: 'New PIN (4 to 12 digits)', pinOld: 'Current PIN', pinSaved: 'PIN saved', pinGone: 'PIN removed', partnerSaved: 'Partner code saved',
-      streak: 'days',
-      dTitleLocked: 'Locked session', dTitleFrozen: 'Frozen session', dTitleRule: 'Locked rule',
+      streak: 'days', uninT: 'Updating or removing EyeTime', uninD: 'While EyeTime protects you, setup cannot change or remove it. This permission lasts 10 minutes.', uninBtn: 'Allow uninstalling', uninOk: 'Allowed for 10 minutes. Run setup now.',
+      dTitleEvery: 'Block everything', dTitleLocked: 'Locked session', dTitleFrozen: 'Frozen session', dTitleRule: 'Locked rule',
       dLockedA: (m, t) => `${m} min, until ${t}. It cannot be ended, paused or changed once it starts.`,
       dFrozenA: (m, t) => `${m} min, until ${t}. Everything except Windows itself and EyeTime is closed: no browser, no games, no other apps. Task Manager and Settings are closed too.`,
       dRuleA: (w) => `${w}. While it runs, it cannot be switched off or loosened.`,
@@ -34,12 +34,12 @@
     ru: {
       engineOn: 'Движок блокировки: работает', engineOff: 'Движок блокировки: не запущен', engineWarnHosts: 'Движок блокировки: не может записать файл hosts', engineWarnAgent: 'Движок блокировки: работает, агент экрана ещё не подключился', clock: 'Часы переведены. Строгая блокировка идёт по своему времени.',
       nothing: 'Сейчас ничего не заблокировано', nothingSub: 'Запустите сессию или добавьте правило', blockedSub: (a, s, t) => `Закрыто: ${a} прилож. и ${s} сайтов${t ? ' · ' + t : ''}`, until: (m) => `осталось ${m >= 60 ? Math.floor(m / 60) + ' ч ' : ''}${m % 60} мин`,
-      closed: (n) => `EyeTime закрыл ${n}`, locked: 'Это заблокировано. Откроет только аварийный ключ.', rejected: 'Пока идёт строгая блокировка, так менять нельзя', offline: 'Движок блокировки не запущен',
+      closed: (n) => `EyeTime закрыл ${n}`, closing: (n) => `${n} закрывается. Сохраните работу`, locked: 'Это заблокировано. Откроет только аварийный ключ.', rejected: 'Пока идёт строгая блокировка, так менять нельзя', offline: 'Движок блокировки не запущен',
       pinTitle: 'Введите PIN', pinWrong: 'Неверный PIN', pinLocked: (s) => `Слишком много попыток. Подождите ${s} с`, cancel: 'Отмена', ok: 'Продолжить', hold: 'Удерживайте', holding: 'Держите…', wait: (s) => `Подождите ${s} с`, ready: 'Продолжить', type: 'Введите текст точно как написано. Вставка отключена.', mathQ: 'Решите пример', wrong: 'Неверно', friendQ: 'Попросите у напарника код', pinFor: 'PIN',
       ttEnd: 'Выйти из сессии', ttBreak: 'Сделать перерыв', ttUnblock: 'Разблокировать на время', ttEmerg: 'Аварийный ключ', ttUninstall: 'Разрешить удаление', emergBtn: (n) => `Аварийный ключ (осталось ${n})`, noKeys: 'На этой неделе аварийных ключей не осталось',
       pinCard: 'PIN приложения', pinCardD: 'Спрашивается, прежде чем что-то ослабить', pinSet: 'Задать PIN', pinChange: 'Изменить', pinRemove: 'Убрать', pinNew: 'Новый PIN (от 4 до 12 цифр)', pinOld: 'Текущий PIN', pinSaved: 'PIN сохранён', pinGone: 'PIN убран', partnerSaved: 'Код напарника сохранён',
-      streak: 'дн.',
-      dTitleLocked: 'Строгая сессия', dTitleFrozen: 'Замороженная сессия', dTitleRule: 'Строгое правило',
+      streak: 'дн.', uninT: 'Обновление и удаление EyeTime', uninD: 'Пока EyeTime вас защищает, программа установки не может его изменить или удалить. Разрешение действует 10 минут.', uninBtn: 'Разрешить удаление', uninOk: 'Разрешено на 10 минут. Запускайте установку.',
+      dTitleEvery: 'Закрыть всё', dTitleLocked: 'Строгая сессия', dTitleFrozen: 'Замороженная сессия', dTitleRule: 'Строгое правило',
       dLockedA: (m, t) => `${m} мин, до ${t}. После старта её нельзя закончить, поставить на паузу или изменить.`,
       dFrozenA: (m, t) => `${m} мин, до ${t}. Закрыто всё, кроме самой Windows и EyeTime: ни браузера, ни игр, ни других программ. Диспетчер задач и Параметры тоже закрываются.`,
       dRuleA: (w) => `${w}. Пока оно действует, его нельзя выключить или ослабить.`,
@@ -95,7 +95,8 @@
       if (k === 'et-s-launch' || k === 'et-s-tray') invoke('apply_setting', { key: k.slice(5), value: String(v) }).catch(() => {});
     },
     startSession: async (S) => {
-      if (S.diff >= 2 && !(await confirmSession(S))) return false;
+      const every = [...S.blocks].some((b) => /^(everything|all|все|всё|\*)$/i.test(b));
+      if ((S.diff >= 2 || every) && !(await confirmSession(S, every))) return false;
       const r = await req({ op: 'start_session', name: S.name, minutes: S.min, level: S.diff, blocks: [...S.blocks], scene: S.scene, allow_breaks: !!S.more.breaks, dnd: !!S.more.dnd, mute: !!S.more.mute, close_now: !!S.more.close });
       if (!r.ok) { ET.toast(r.code === 'busy' ? L().busy : r.code === 'no_escape' ? L().noEscape : r.code === 'offline' ? L().offline : r.message || '?'); return false; }
       status = r.data; expectSession = true; return true;
@@ -172,10 +173,10 @@
   function extraLines(everything) {
     const tam = (protectNow().tam) || {}, out = [L().dWork]; if (tam.private !== false) out.push(L().dPriv); if (tam.vpn !== false) out.push(L().dVpn); if (tam.taskmgr) out.push(L().dTask); if (everything) out.push(L().dEvery); return out;
   }
-  async function confirmSession(S) {
-    const frozen = S.diff >= 3, ends = Date.now() + S.min * 60000, left = status ? status.emergencyLeft : 0;
-    const lines = [frozen ? L().dFrozenA(S.min, clock(ends)) : L().dLockedA(S.min, clock(ends)), L().dKeys(left), ...extraLines([...S.blocks].some((b) => /^(everything|all|все|всё|\*)$/i.test(b)))];
-    return confirmDanger({ title: frozen ? L().dTitleFrozen : L().dTitleLocked, lines });
+  async function confirmSession(S, every) {
+    const frozen = S.diff >= 3, hard = S.diff >= 2, ends = Date.now() + S.min * 60000, left = status ? status.emergencyLeft : 0;
+    const lines = hard ? [frozen ? L().dFrozenA(S.min, clock(ends)) : L().dLockedA(S.min, clock(ends)), L().dKeys(left), ...extraLines(every)] : [L().dEvery, L().dWork];
+    return confirmDanger({ title: frozen ? L().dTitleFrozen : hard ? L().dTitleLocked : L().dTitleEvery, lines });
   }
   const lockedRuleIds = new Set(); // rules the person has already agreed to as locked
   try { (JSON.parse(localStorage.getItem('et-rules')) || []).forEach((r) => { if (r.on !== false && r.level >= 2) lockedRuleIds.add(r.id + ':' + r.level); }); } catch { /* none */ }
@@ -310,7 +311,7 @@
     b.textContent = L().emergBtn(st.emergencyLeft); b.disabled = st.emergencyLeft <= 0;
   }
   function news(st) {
-    for (const e of st.events || []) if (e.atMs > lastEvent) { lastEvent = e.atMs; if (lastEvent && e.kind !== 'tool') ET.toast(L().closed(e.name.replace(/\.exe$/, ''))); }
+    for (const e of st.events || []) if (e.atMs > lastEvent) { lastEvent = e.atMs; if (lastEvent && e.kind !== 'tool') ET.toast((e.kind === 'closing' ? L().closing : L().closed)(e.name.replace(/\.exe$/, ''))); }
   }
   async function refresh() {
     const r = await req({ op: 'status' });
@@ -323,10 +324,28 @@
     }
     paintEngine();
   }
+  /* window buttons (the window has no frame of its own) */
+  {
+    const wc = $('.win-ctl');
+    if (wc) {
+      wc.removeAttribute('aria-hidden');
+      const names = [['minimize', 'Minimize', 'Свернуть'], ['toggle_maximize', 'Maximize', 'Развернуть'], ['close', 'Close', 'Закрыть']];
+      $$('button', wc).forEach((b, i) => { b.tabIndex = 0; b.setAttribute('aria-label', names[i][lang() === 'ru' ? 2 : 1]); b.addEventListener('click', () => invoke('window_ctl', { action: names[i][0] }).catch(() => {})); });
+    }
+  }
+  /* first start after an update: if the helper has no setup yet but this window does, hand it over */
+  req({ op: 'get_state' }).then((r) => { if (r.ok && r.data && !Object.keys(r.data).length) KEYS.forEach((k) => { const v = localStorage.getItem(k); if (v) ETB.push(k, v); }); });
   setInterval(refresh, 2000); refresh();
   ET.engineText = (d) => d;
   document.addEventListener('et-settings-shown', paintEngine);
-  new MutationObserver(paintEngine).observe(document.body, { childList: true, subtree: true });
+  function uninstallCard() {
+    const v = $('#view-settings'); if (!v || $('#etbUninst')) return;
+    const card = document.createElement('div'); card.id = 'etbUninst'; card.className = 'glass st-group'; card.style.marginTop = '16px';
+    card.innerHTML = `<div class="etb-pincard" style="padding:6px 4px"><div><h3 style="margin:0">${L().uninT}</h3><p class="s" style="margin:4px 0 0;max-width:480px">${L().uninD}</p></div><div class="b"><button type="button">${L().uninBtn}</button></div></div>`;
+    $('button', card).onclick = async () => { const r = await ask('uninstall'); if (r) ET.toast(L().uninOk); };
+    v.append(card);
+  }
+  new MutationObserver(() => { paintEngine(); uninstallCard(); }).observe(document.body, { childList: true, subtree: true });
 
   /* ---------------------------------------------------------------- the buttons that used to pretend */
   const stop = (e) => { e.stopImmediatePropagation(); e.preventDefault(); };

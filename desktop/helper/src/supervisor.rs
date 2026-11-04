@@ -534,6 +534,9 @@ impl<O: Os> Supervisor<O> {
                 if self.state.protect.tam.uninstall && self.p.uninstall_ok_until_ms <= t {
                     return Response::err("challenge", "Ask for permission first");
                 }
+                // the setup program stops the service next: that is allowed for a couple of minutes
+                self.p.uninstall_ok_until_ms = self.p.uninstall_ok_until_ms.max(t + 120_000);
+                self.dirty = true;
                 Response::done()
             }
         }

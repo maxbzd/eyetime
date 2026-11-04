@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EyeTime Setup</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="app://localhost/fonts.css">
+<style>
+:root { --mint: #8cf2c6; --lime: #d4f77c; --text: #eaf2ff; --text-2: #9fb0c8; --rose: #ff6b7d; --amber: #ffb86b; --out: cubic-bezier(.16, 1, .3, 1); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; color: var(--text); font-family: Figtree, 'Segoe UI', system-ui, sans-serif; -webkit-font-smoothing: antialiased; user-select: none; }
+#win { position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: 22px; background: #05080e; }
+/* the cave, slowly breathing */
+#cave { position: absolute; inset: -4%; background: url(app://localhost/cave.jpg) center / cover; opacity: 0; transform: scale(1.12); transition: opacity 2.2s ease, transform 14s ease-out; filter: saturate(1.05); }
+.on #cave { opacity: .9; transform: scale(1.0); }
+#shade { position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 40%, rgba(5, 8, 14, 0) 20%, rgba(5, 8, 14, .55) 70%, rgba(5, 8, 14, .92) 100%), linear-gradient(180deg, rgba(5, 8, 14, .35), rgba(5, 8, 14, .1) 40%, rgba(5, 8, 14, .8)); }
+canvas#sky { position: absolute; inset: 0; width: 100%; height: 100%; }
+#halo { position: absolute; left: 50%; top: 36%; width: 520px; height: 520px; margin: -260px 0 0 -260px; border-radius: 50%; background: radial-gradient(closest-side, rgba(140, 242, 198, .38), rgba(140, 200, 255, .16) 45%, transparent 72%); opacity: 0; transform: scale(.4); transition: opacity 1.6s .3s, transform 2.2s .2s var(--out); filter: blur(6px); }
+.on #halo { opacity: 1; transform: scale(1); animation: breathe 5s ease-in-out 2.5s infinite; }
+@keyframes breathe { 50% { transform: scale(1.12); opacity: .75; } }
+#gemwrap { position: absolute; left: 50%; top: 36%; width: 300px; height: 300px; margin: -150px 0 0 -150px; transition: transform 1.1s var(--out), top 1.1s var(--out); }
+canvas#gem { width: 100%; height: 100%; opacity: 0; transform: translateY(40px) scale(.7) rotate(-8deg); transition: opacity 1.4s .5s, transform 1.9s .4s var(--out); }
+.on canvas#gem { opacity: 1; transform: none; }
+#ring { position: absolute; left: -34px; top: -34px; width: calc(100% + 68px); height: calc(100% + 68px); transform: rotate(-90deg); opacity: 0; transition: opacity .8s; pointer-events: none; }
+.busy #ring { opacity: 1; }
+#ring circle { fill: none; stroke-width: 2.4; }
+#ring .bg { stroke: rgba(255, 255, 255, .1); }
+#ring .fg { stroke: url(#rg); stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset .7s var(--out); filter: drop-shadow(0 0 6px rgba(140, 242, 198, .8)); }
+body.compact #gemwrap { top: 23%; transform: scale(.6); }
+body.compact #halo { top: 23%; }
+#halo { transition: opacity 1.6s .3s, transform 2.2s .2s var(--out), top 1.1s var(--out); }
+
+.screen { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 56px 40px; display: flex; flex-direction: column; align-items: center; text-align: center; opacity: 0; transform: translateY(24px); pointer-events: none; transition: opacity .6s var(--out), transform .8s var(--out); }
+.screen.show { opacity: 1; transform: none; pointer-events: auto; }
+h1 { font: 300 40px/1 Outfit, sans-serif; letter-spacing: 1px; display: flex; gap: 1px; }
+h1 span { display: inline-block; opacity: 0; transform: translateY(18px); filter: blur(6px); }
+.on h1 span { animation: letter .9s var(--out) forwards; }
+@keyframes letter { to { opacity: 1; transform: none; filter: none; } }
+h2 { font: 400 28px/1.15 Outfit, sans-serif; letter-spacing: .3px; }
+.sub { color: var(--text-2); font-size: 14.5px; line-height: 1.5; margin-top: 10px; max-width: 500px; }
+.cta { margin-top: 20px; min-width: 220px; height: 52px; padding: 0 34px; border: 0; border-radius: 999px; background: linear-gradient(135deg, var(--mint), var(--lime)); color: #07120d; font: 600 16px Figtree, sans-serif; letter-spacing: .2px; cursor: pointer; position: relative; overflow: hidden; box-shadow: 0 10px 40px rgba(140, 242, 198, .35), inset 0 1px 0 rgba(255, 255, 255, .5); transition: transform .3s var(--out), box-shadow .3s; }
+.cta:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 16px 50px rgba(140, 242, 198, .5), inset 0 1px 0 rgba(255, 255, 255, .5); }
+.cta:active { transform: scale(.98); }
+.cta::after { content: ''; position: absolute; top: 0; bottom: 0; width: 60px; left: -80px; background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .6), transparent); transform: skewX(-18deg); animation: sheen 3.4s ease-in-out 2.6s infinite; }
+@keyframes sheen { 0% { left: -80px; } 40%, 100% { left: 120%; } }
+.ghost { margin-top: 14px; background: none; border: 0; color: var(--text-2); font: 500 14px Figtree, sans-serif; cursor: pointer; padding: 8px 14px; border-radius: 999px; transition: color .2s, background .2s; }
+.ghost:hover { color: var(--text); background: rgba(255, 255, 255, .06); }
+.row { display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+.opts { margin-top: 14px; display: grid; gap: 8px; text-align: left; font-size: 14px; color: var(--text-2); max-height: 0; overflow: hidden; opacity: 0; transition: max-height .6s var(--out), opacity .5s; }
+.opts.open { max-height: 190px; opacity: 1; }
+.opts label { display: flex; gap: 10px; align-items: center; cursor: pointer; }
+.opts input { appearance: none; width: 20px; height: 20px; border-radius: 7px; border: 1.5px solid rgba(255, 255, 255, .35); background: rgba(255, 255, 255, .05); display: grid; place-items: center; cursor: pointer; transition: all .2s; flex: none; }
+.opts input:checked { background: var(--mint); border-color: var(--mint); }
+.opts input:checked::after { content: ''; width: 5px; height: 10px; border: solid #07120d; border-width: 0 2.4px 2.4px 0; transform: rotate(45deg) translate(-1px, -1px); }
+#w-sub { max-height: 90px; overflow: hidden; transition: max-height .5s var(--out), opacity .4s, margin .5s; }
+#s-welcome.o #w-sub { max-height: 0; opacity: 0; margin-top: 0; }
+.fine { margin-top: 18px; font-size: 12px; color: rgba(159, 176, 200, .7); max-width: 480px; line-height: 1.5; }
+#steps { margin-top: 12px; width: 360px; display: grid; gap: 6px; text-align: left; font-size: 14px; color: var(--text-2); }
+#steps div { display: flex; gap: 10px; align-items: center; opacity: .35; transition: opacity .4s, color .4s; }
+#steps div.now { opacity: 1; color: var(--text); }
+#steps div.ok { opacity: .85; }
+#steps i { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, .3); display: grid; place-items: center; flex: none; transition: all .35s var(--out); }
+#steps .now i { border-color: var(--mint); border-top-color: transparent; animation: spin .9s linear infinite; }
+#steps .ok i { background: var(--mint); border-color: var(--mint); animation: none; }
+#steps .ok i::after { content: ''; width: 4px; height: 8px; border: solid #07120d; border-width: 0 2px 2px 0; transform: rotate(45deg) translate(-.5px, -.5px); }
+@keyframes spin { to { transform: rotate(360deg); } }
+#pct { font: 200 46px/1 Outfit, sans-serif; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+.err { color: #ffb4be; background: rgba(255, 107, 125, .08); border: 1px solid rgba(255, 107, 125, .3); border-radius: 14px; padding: 12px 16px; margin-top: 14px; font-size: 13px; max-width: 500px; max-height: 90px; overflow: auto; text-align: left; user-select: text; word-break: break-word; }
+.warn { color: #ffd9a8; }
+#x { position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .06); color: var(--text-2); cursor: pointer; font-size: 16px; z-index: 10; transition: all .2s; }
+#x:hover { background: rgba(255, 107, 125, .25); color: #fff; }
+#drag { position: absolute; left: 0; right: 0; top: 0; height: 52px; z-index: 5; }
+#flash { position: absolute; inset: 0; background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, .85), rgba(140, 242, 198, .3) 40%, transparent 70%); opacity: 0; pointer-events: none; }
+#flash.go { animation: flash 1.4s ease-out; }
+@keyframes flash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition-duration: .01s !important; } }
+</style>
+</head>
+<body>
+<div id="win">
+  <div id="cave"></div><div id="shade"></div><canvas id="sky"></canvas><div id="halo"></div>
+  <div id="gemwrap"><canvas id="gem" width="600" height="600"></canvas>
+    <svg id="ring" viewBox="0 0 100 100"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8cf2c6"/><stop offset="1" stop-color="#d4f77c"/></linearGradient></defs><circle class="bg" cx="50" cy="50" r="48.6" pathLength="100"/><circle class="fg" id="rfg" cx="50" cy="50" r="48.6" pathLength="100"/></svg>
+  </div>
+  <div id="flash"></div>
+  <div id="drag"></div><button id="x" aria-label="Close">✕</button>
+
+  <section class="screen" id="s-welcome">
+    <h1 id="title" aria-label="EyeTime"></h1>
+    <p class="sub" id="w-sub"></p>
+    <button class="cta" id="go" type="button"></button>
+    <button class="ghost" id="more" type="button" style="margin-top:8px"></button>
+    <div class="opts" id="opts"><label><input type="checkbox" id="o-desk"><span id="o-desk-t"></span></label><p class="fine" id="w-fine" style="margin:4px 0 0;text-align:left"></p></div>
+  </section>
+
+  <section class="screen" id="s-busy">
+    <div id="pct">0%</div>
+    <div id="steps"></div>
+  </section>
+
+  <section class="screen" id="s-done">
+    <h2 id="d-t"></h2><p class="sub" id="d-s"></p>
+    <div class="row"><button class="cta" id="open" type="button" style="margin-top:0"></button></div>
+    <button class="ghost" id="d-close" type="button"></button>
+  </section>
+
+  <section class="screen" id="s-block">
+    <h2 id="b-t"></h2><p class="sub" id="b-s"></p>
+    <div class="row"><button class="cta" id="b-open" type="button" style="margin-top:0"></button></div>
+    <button class="ghost" id="b-close" type="button"></button>
+  </section>
+
+  <section class="screen" id="s-error">
+    <h2 id="e-t"></h2><p class="sub" id="e-s"></p><div class="err" id="e-d"></div>
+    <button class="ghost" id="e-close" type="button" style="margin-top:16px"></button>
+  </section>
+
+  <section class="screen" id="s-remove">
+    <h2 id="r-t"></h2><p class="sub" id="r-s"></p>
+    <div class="opts open" style="margin-top:16px"><label><input type="checkbox" id="r-data"><span id="r-data-t"></span></label></div>
+    <div class="row"><button class="cta" id="r-go" type="button" style="margin-top:0;background:linear-gradient(135deg,#ff9aa6,#ffb86b);box-shadow:0 10px 40px rgba(255,140,120,.3)"></button></div>
+    <button class="ghost" id="r-cancel" type="button"></button>
+  </section>
+</div>
+
+<script>
+'use strict';
+const $ = (s) => document.querySelector(s);
+const post = (o) => window.ipc.postMessage(JSON.stringify(o));
+const ru = /^ru|^uk|^be/i.test(navigator.language || '');
+const T = {
+  en: {
+    sub: 'Close the doors that pull you away. EyeTime blocks distracting sites and apps at system level, and helps you keep your eyes and your attention.',
+    install: 'Install EyeTime', options: 'Options', desk: 'Create a desktop shortcut',
+    fine: 'Installs for all users and asks Windows for administrator rights once. EyeTime Helper runs as a protected Windows service so that blocks hold even when the window is closed. Nothing leaves your computer.',
+    steps: ['Preparing', 'Copying files', 'Installing the blocking engine', 'Protecting the engine', 'Creating shortcuts', 'Starting EyeTime'],
+    dt: 'EyeTime is ready', ds: 'The blocking engine is running. Open EyeTime to set up your first rule.', open: 'Open EyeTime', close: 'Close',
+    bt: 'EyeTime is protecting you', bsLocked: 'A locked block is running right now. It will not be interrupted, not even by this installer. Run setup again when it ends.', bsChallenge: 'To change or remove EyeTime, open it and choose Settings → Allow uninstalling. This small step is on purpose. Then run setup again.',
+    et: 'Something went wrong', es: 'Nothing was left half-installed. You can try again.',
+    rt: 'Remove EyeTime?', rs: 'The blocking engine will stop and every block it holds will be lifted. Your rules and statistics stay on this computer unless you tick the box.', rdata: 'Also delete my rules and statistics', rgo: 'Remove', rcancel: 'Keep EyeTime',
+    rsteps: ['Preparing', 'Stopping the blocking engine', 'Lifting blocks', 'Removing files', 'Cleaning up'],
+    rdt: 'EyeTime was removed', rds: 'Every block was lifted and the hosts file is as it was. Thank you for trying it.',
+    upd: 'Update EyeTime',
+  },
+  ru: {
+    sub: 'Закройте двери, которые уводят вас от дел. EyeTime блокирует отвлекающие сайты и приложения на уровне системы и помогает беречь глаза и внимание.',
+    install: 'Установить EyeTime', options: 'Параметры', desk: 'Создать ярлык на рабочем столе',
+    fine: 'Устанавливается для всех пользователей, один раз запросит права администратора. Помощник EyeTime работает как защищённая служба Windows, поэтому блокировки держатся, даже когда окно закрыто. Ничего не уходит с вашего компьютера.',
+    steps: ['Подготовка', 'Копирование файлов', 'Установка движка блокировки', 'Защита движка', 'Создание ярлыков', 'Запуск EyeTime'],
+    dt: 'EyeTime готов', ds: 'Движок блокировки работает. Откройте EyeTime и настройте первое правило.', open: 'Открыть EyeTime', close: 'Закрыть',
+    bt: 'EyeTime вас защищает', bsLocked: 'Сейчас идёт строгая блокировка. Её нельзя прервать, даже установщиком. Запустите установку снова, когда она закончится.', bsChallenge: 'Чтобы изменить или удалить EyeTime, откройте его и выберите Настройки → Разрешить удаление. Этот небольшой шаг сделан намеренно. Потом запустите установку снова.',
+    et: 'Что-то пошло не так', es: 'Ничего не осталось наполовину установленным. Можно попробовать ещё раз.',
+    rt: 'Удалить EyeTime?', rs: 'Движок блокировки остановится, все блокировки будут сняты. Правила и статистика останутся на этом компьютере, если не отметить пункт ниже.', rdata: 'Удалить также мои правила и статистику', rgo: 'Удалить', rcancel: 'Оставить EyeTime',
+    rsteps: ['Подготовка', 'Остановка движка блокировки', 'Снятие блокировок', 'Удаление файлов', 'Уборка'],
+    rdt: 'EyeTime удалён', rds: 'Все блокировки сняты, файл hosts такой же, как был. Спасибо, что попробовали.',
+    upd: 'Обновить EyeTime',
+  },
+}[ru ? 'ru' : 'en'];
+
+/* the name, letter by letter */
+const title = $('#title'); [...'EyeTime'].forEach((c, i) => { const s = document.createElement('span'); s.textContent = c; s.style.animationDelay = (1.1 + i * 0.07) + 's'; title.append(s); });
+$('#w-sub').textContent = T.sub; $('#go').textContent = T.install; $('#more').textContent = T.options; $('#o-desk-t').textContent = T.desk; $('#w-fine').textContent = T.fine; $('#o-desk').checked = true;
+$('#open').textContent = T.open; $('#d-close').textContent = T.close; $('#b-t').textContent = T.bt; $('#b-close').textContent = T.close; $('#b-open').textContent = T.open; $('#e-t').textContent = T.et; $('#e-s').textContent = T.es; $('#e-close').textContent = T.close;
+$('#r-t').textContent = T.rt; $('#r-s').textContent = T.rs; $('#r-data-t').textContent = T.rdata; $('#r-go').textContent = T.rgo; $('#r-cancel').textContent = T.rcancel;
+
+/* screens */
+let current = null;
+function show(id) { document.body.classList.add('compact'); if (current) $(current).classList.remove('show'); current = '#s-' + id; setTimeout(() => $(current).classList.add('show'), current ? 220 : 0); document.body.classList.toggle('busy', id === 'busy'); document.body.classList.toggle('done', id === 'done'); }
+
+/* the night: slow stars */
+const sky = $('#sky'), sx = sky.getContext('2d'); let W = 0, H = 0; const stars = [];
+function size() { const r = sky.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1); W = sky.width = r.width * d; H = sky.height = r.height * d; stars.length = 0; for (let i = 0; i < 90; i++) stars.push({ x: Math.random() * W, y: Math.random() * H * .8, r: (0.4 + Math.random() * 1.4) * d, p: Math.random() * 6.28, s: 0.5 + Math.random() * 1.5 }); }
+addEventListener('resize', size); size();
+
+/* the gem: a turntable of 60 frames rendered from the real stone */
+const sprite = new Image(); sprite.src = 'app://localhost/gem-sprite.webp';
+const gem = $('#gem'), gx = gem.getContext('2d'); const FR = 60, COLS = 10, FS = 300;
+let ang = 0, spin = 0.18, pct = 0, shownPct = 0, burst = [], t0 = performance.now();
+function frame(now) {
+  const t = (now - t0) / 1000; sx.clearRect(0, 0, W, H);
+  for (const s of stars) { const a = .35 + .65 * Math.abs(Math.sin(t * s.s + s.p)); sx.globalAlpha = a * .8; sx.fillStyle = '#dff6ff'; sx.beginPath(); sx.arc(s.x, s.y, s.r, 0, 6.283); sx.fill(); }
+  // light sparks around the stone while it works, and a burst when it is done
+  for (const p of burst) { p.life++; p.vy += p.g; p.x += p.vx; p.y += p.vy; sx.globalAlpha = Math.max(0, 1 - p.life / p.max); sx.fillStyle = p.c; sx.shadowColor = p.c; sx.shadowBlur = 12; sx.beginPath(); sx.arc(p.x, p.y, p.r, 0, 6.283); sx.fill(); }
+  sx.shadowBlur = 0; burst = burst.filter((p) => p.life < p.max); sx.globalAlpha = 1;
+  spin += ((document.body.classList.contains('busy') ? 0.55 + shownPct / 100 * 0.9 : document.body.classList.contains('done') ? 0.22 : 0.18) - spin) * 0.03;
+  ang = (ang + spin * 0.016 * 60 / 60) % FR; const i = Math.floor(ang) % FR, sc = sprite.complete ? sprite : null;
+  gx.clearRect(0, 0, 600, 600); if (sc && sc.naturalWidth) gx.drawImage(sc, (i % COLS) * FS, Math.floor(i / COLS) * FS, FS, FS, 0, 0, 600, 600);
+  const bob = Math.sin(t * 1.1) * 7; gem.style.marginTop = bob + 'px';
+  shownPct += (pct - shownPct) * 0.08; $('#pct').textContent = Math.round(shownPct) + '%';
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+function sparks(n, fromCenter) { const r = sky.getBoundingClientRect(), d = W / r.width, cx = W / 2, cy = H * 0.3; const cols = ['#d4f77c', '#8cf2c6', '#86d7ff', '#a98bff', '#ffffff']; for (let k = 0; k < n; k++) { const a = Math.random() * 6.283, v = (fromCenter ? 3 : 1) + Math.random() * (fromCenter ? 9 : 3) ; burst.push({ x: cx + Math.cos(a) * 80 * d * (fromCenter ? 0.3 : 1), y: cy + Math.sin(a) * 80 * d * (fromCenter ? 0.3 : 1), vx: Math.cos(a) * v * d, vy: Math.sin(a) * v * d - (fromCenter ? 3 : 0), g: fromCenter ? .12 * d : -.01, r: (1.2 + Math.random() * 2.6) * d, c: cols[(Math.random() * cols.length) | 0], life: 0, max: fromCenter ? 90 + Math.random() * 70 : 60 + Math.random() * 50 }); } }
+setInterval(() => { if (document.body.classList.contains('busy')) sparks(2, false); }, 160);
+
+/* buttons */
+$('#more').onclick = () => { $('#opts').classList.toggle('open'); $('#s-welcome').classList.toggle('o'); };
+$('#go').onclick = () => { post({ cmd: 'install', opts: { desktop: $('#o-desk').checked } }); };
+$('#r-go').onclick = () => { post({ cmd: 'uninstall', opts: { deleteData: $('#r-data').checked } }); };
+$('#r-cancel').onclick = () => post({ cmd: 'close' });
+['#d-close', '#b-close', '#e-close', '#x'].forEach((s) => ($(s).onclick = () => post({ cmd: 'close' })));
+$('#open').onclick = () => post({ cmd: 'open_app' }); $('#b-open').onclick = () => post({ cmd: 'open_app' });
+$('#drag').addEventListener('mousedown', (e) => { if (e.button === 0) post({ cmd: 'drag' }); });
+document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+/* what the program tells the page */
+let uninstall = false;
+function steps(list) { const box = $('#steps'); box.innerHTML = ''; list.forEach((t) => { const d = document.createElement('div'); d.innerHTML = '<i></i><span></span>'; d.lastChild.textContent = t; box.append(d); }); }
+window.__ev = (m) => {
+  if (m.type === 'init') {
+    uninstall = m.mode === 'uninstall'; document.documentElement.lang = ru ? 'ru' : 'en';
+    if (m.existing && !uninstall) $('#go').textContent = T.upd;
+    requestAnimationFrame(() => document.body.classList.add('on')); $('#win').classList.add('on');
+    setTimeout(() => show(uninstall ? 'remove' : 'welcome'), 1900);
+  } else if (m.type === 'start') {
+    steps(uninstall ? T.rsteps : T.steps); pct = 0; show('busy'); sparks(40, true);
+  } else if (m.type === 'step') {
+    [...$('#steps').children].forEach((d, i) => { d.className = i < m.index ? 'ok' : i === m.index ? 'now' : ''; });
+    pct = m.pct; $('#rfg').style.strokeDashoffset = String(100 - m.pct);
+  } else if (m.type === 'done') {
+    [...$('#steps').children].forEach((d) => (d.className = 'ok')); pct = 100; $('#rfg').style.strokeDashoffset = '0';
+    $('#d-t').textContent = uninstall ? T.rdt : T.dt; $('#d-s').textContent = uninstall ? T.rds : T.ds; $('#open').style.display = uninstall ? 'none' : '';
+    setTimeout(() => { $('#flash').classList.add('go'); sparks(160, true); show('done'); }, 700);
+  } else if (m.type === 'blocked') {
+    $('#b-s').textContent = m.reason === 'locked' ? T.bsLocked : T.bsChallenge; show('block');
+  } else if (m.type === 'error') {
+    $('#e-d').textContent = m.message; show('error');
+  }
+};
+post({ cmd: 'ready' });
+</script>
+</body>
+</html>
