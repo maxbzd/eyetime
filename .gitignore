@@ -28,3 +28,4 @@ dist/
 node_modules/
 
 site/assets/
+desktop/target
