@@ -1,0 +1,455 @@
+//! The supervisor against a pretend computer.
+
+use crate::os::{Os, Proc};
+use crate::supervisor::Supervisor;
+use eyetime_core::friction::Pin;
+use eyetime_core::hosts;
+use eyetime_core::ipc::{Fg, Request, Response, Status, Win};
+use serde_json::{json, Value};
+use std::collections::HashMap;
+use std::io;
+use std::sync::{Arc, Mutex};
+
+#[derive(Default)]
+pub struct World {
+    pub wall: i64,
+    pub mono: i64,
+    pub hosts: String,
+    pub hosts_writable: bool,
+    pub procs: Vec<Proc>,
+    pub killed: Vec<u32>,
+    pub taskmgr: bool,
+    pub awake: bool,
+    pub doh: bool,
+    pub safeboot: bool,
+    pub store: Option<String>,
+    pub dns_flushes: u32,
+}
+
+#[derive(Clone)]
+pub struct Fake(pub Arc<Mutex<World>>);
+
+impl Os for Fake {
+    fn wall_ms(&self) -> i64 {
+        self.0.lock().unwrap().wall
+    }
+    fn mono_ms(&self) -> i64 {
+        self.0.lock().unwrap().mono
+    }
+    fn tz_offset_ms(&self) -> i64 {
+        0
+    }
+    fn read_hosts(&self) -> io::Result<String> {
+        Ok(self.0.lock().unwrap().hosts.clone())
+    }
+    fn write_hosts(&self, text: &str) -> io::Result<()> {
+        let mut w = self.0.lock().unwrap();
+        if !w.hosts_writable {
+            return Err(io::Error::new(io::ErrorKind::PermissionDenied, "no"));
+        }
+        w.hosts = text.to_string();
+        Ok(())
+    }
+    fn flush_dns(&self) {
+        self.0.lock().unwrap().dns_flushes += 1;
+    }
+    fn processes(&self) -> Vec<Proc> {
+        let w = self.0.lock().unwrap();
+        w.procs.iter().filter(|p| !w.killed.contains(&p.pid)).cloned().collect()
+    }
+    fn terminate(&self, pid: u32) -> bool {
+        self.0.lock().unwrap().killed.push(pid);
+        true
+    }
+    fn own_pid(&self) -> u32 {
+        1
+    }
+    fn set_taskmgr_locked(&self, on: bool) {
+        self.0.lock().unwrap().taskmgr = on;
+    }
+    fn set_firefox_doh_off(&self, on: bool) {
+        self.0.lock().unwrap().doh = on;
+    }
+    fn set_keep_awake(&self, on: bool) {
+        self.0.lock().unwrap().awake = on;
+    }
+    fn set_safeboot(&self, on: bool) {
+        self.0.lock().unwrap().safeboot = on;
+    }
+    fn in_safe_mode(&self) -> bool {
+        false
+    }
+    fn read_store(&self) -> Option<String> {
+        self.0.lock().unwrap().store.clone()
+    }
+    fn write_store(&self, text: &str) -> io::Result<()> {
+        self.0.lock().unwrap().store = Some(text.to_string());
+        Ok(())
+    }
+    fn log(&self, _line: &str) {}
+}
+
+// Wednesday 2026-11-04 10:00 UTC
+const T0: i64 = 1_793_786_400_000;
+
+fn world() -> (Fake, Supervisor<Fake>) {
+    let w = Arc::new(Mutex::new(World { wall: T0, mono: 1_000_000, hosts: "127.0.0.1 localhost\r\n".into(), hosts_writable: true, ..Default::default() }));
+    let f = Fake(w);
+    let s = Supervisor::new(f.clone());
+    (f, s)
+}
+
+fn advance(f: &Fake, s: &mut Supervisor<Fake>, secs: i64) {
+    for _ in 0..secs / 2 {
+        {
+            let mut w = f.0.lock().unwrap();
+            w.wall += 2000;
+            w.mono += 2000;
+        }
+        s.tick();
+    }
+}
+
+fn set(s: &mut Supervisor<Fake>, keys: Value) -> Response {
+    s.handle(Request::SetState { keys: serde_json::from_value::<HashMap<String, Value>>(keys).unwrap(), pin: None })
+}
+
+fn setup(s: &mut Supervisor<Fake>) {
+    let r = set(
+        s,
+        json!({
+            "et-items": [
+                {"name":"YouTube","type":"site","g":"dis"},
+                {"name":"Steam","type":"app","g":"dis"},
+                {"name":"docs.google.com","type":"site","g":"allow"}
+            ],
+            "et-protect": {"friction":"type","emerg":3,"emergWeek":1}
+        }),
+    );
+    assert!(r.ok, "{r:?}");
+}
+
+fn start(s: &mut Supervisor<Fake>, minutes: u32, level: u8) -> Response {
+    s.handle(Request::StartSession { name: "Deep work".into(), minutes, level, blocks: vec![], scene: "".into(), allow_breaks: true, dnd: false, mute: false, close_now: false })
+}
+
+fn status(s: &mut Supervisor<Fake>) -> Status {
+    serde_json::from_value(s.handle(Request::Status).data).unwrap()
+}
+
+fn proc(pid: u32, exe: &str) -> Proc {
+    Proc { pid, exe: exe.into() }
+}
+
+#[test]
+fn a_session_closes_sites_and_programs_and_ends_by_itself() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    f.0.lock().unwrap().procs = vec![proc(10, "steam.exe"), proc(11, "notepad.exe"), proc(12, "explorer.exe")];
+    advance(&f, &mut s, 4);
+    assert!(f.0.lock().unwrap().killed.is_empty(), "nothing is closed before a session");
+    assert!(start(&mut s, 25, 1).ok);
+    advance(&f, &mut s, 4);
+    let w = f.0.lock().unwrap();
+    assert_eq!(w.killed, vec![10]);
+    assert!(w.hosts.contains("0.0.0.0 youtube.com"));
+    assert!(w.hosts.starts_with("127.0.0.1 localhost"));
+    drop(w);
+    advance(&f, &mut s, 25 * 60);
+    let w = f.0.lock().unwrap();
+    assert!(!w.hosts.contains(hosts::BEGIN), "the hosts file is clean again");
+    drop(w);
+    assert!(status(&mut s).session.is_none());
+    assert_eq!(status(&mut s).streak_days, 1);
+    assert_eq!(*status(&mut s).focus_minutes.last().unwrap(), 25);
+}
+
+#[test]
+fn someone_editing_the_hosts_file_is_undone() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    start(&mut s, 30, 2);
+    advance(&f, &mut s, 4);
+    f.0.lock().unwrap().hosts = "127.0.0.1 localhost\r\n".into();
+    advance(&f, &mut s, 2);
+    assert!(f.0.lock().unwrap().hosts.contains("youtube.com"));
+    assert!(status(&mut s).events.iter().any(|e| e.name == "hosts"));
+}
+
+#[test]
+fn a_locked_session_cannot_be_ended_or_loosened_but_an_emergency_key_opens_it() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    start(&mut s, 60, 2);
+    advance(&f, &mut s, 4);
+    // no way out by asking
+    assert_eq!(s.handle(Request::Challenge { action: "end_session".into(), target: None, minutes: None }).code, "locked");
+    assert_eq!(s.handle(Request::Challenge { action: "break".into(), target: None, minutes: Some(5) }).code, "locked");
+    // no way out by editing
+    let r = set(&mut s, json!({"et-items": []}));
+    assert_eq!(r.code, "locked");
+    let r = set(&mut s, json!({"et-protect": {"friction":"none","emerg":3,"emergWeek":1}}));
+    assert_eq!(r.code, "locked");
+    // adding more to the list is fine
+    assert!(set(&mut s, json!({"et-kw": ["casino"]})).ok);
+    assert!(status(&mut s).decision.locked());
+
+    // the emergency key: a challenge, the right answer after the pause
+    let c = s.handle(Request::Challenge { action: "emergency".into(), target: None, minutes: None });
+    assert!(c.ok, "{c:?}");
+    let id = c.data["id"].as_str().unwrap().to_string();
+    assert!(c.data.get("answer").is_none());
+    let early = s.handle(Request::Complete { challenge_id: id.clone(), answer: "x".into(), pin: None, partner_code: None });
+    assert_eq!(early.code, "early");
+    advance(&f, &mut s, 4);
+    let wrong = s.handle(Request::Complete { challenge_id: id, answer: "x".into(), pin: None, partner_code: None });
+    assert_eq!(wrong.code, "wrong");
+}
+
+fn answer_for(s: &mut Supervisor<Fake>, action: &str, target: Option<&str>) -> (String, String) {
+    // the test peeks at the pending challenge the way a person reads the text on the screen
+    let c = s.handle(Request::Challenge { action: action.into(), target: target.map(|t| t.into()), minutes: Some(5) });
+    assert!(c.ok, "{c:?}");
+    (c.data["id"].as_str().unwrap().to_string(), c.data["prompt"].as_str().unwrap().to_string())
+}
+
+#[test]
+fn typing_the_text_ends_a_soft_session_and_the_streak_resets() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    start(&mut s, 60, 1);
+    advance(&f, &mut s, 4);
+    let (id, text) = answer_for(&mut s, "end_session", None);
+    advance(&f, &mut s, 4);
+    let r = s.handle(Request::Complete { challenge_id: id, answer: text, pin: None, partner_code: None });
+    assert!(r.ok, "{r:?}");
+    assert!(status(&mut s).session.is_none());
+    advance(&f, &mut s, 2);
+    assert!(!f.0.lock().unwrap().hosts.contains(hosts::BEGIN));
+}
+
+#[test]
+fn emergency_key_with_the_right_text_releases_even_a_frozen_session_and_is_counted() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    assert!(start(&mut s, 120, 3).ok);
+    f.0.lock().unwrap().procs = vec![proc(20, "taskmgr.exe"), proc(21, "notepad.exe")];
+    advance(&f, &mut s, 4);
+    {
+        let w = f.0.lock().unwrap();
+        assert!(w.taskmgr && w.killed.contains(&20), "frozen: task manager locked and closed");
+    }
+    // allow-only needs a sight of the screen to know what is open
+    s.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![Win { exe: "notepad.exe".into(), title: "".into(), pid: 21 }], screen_locked: false });
+    advance(&f, &mut s, 2);
+    assert!(f.0.lock().unwrap().killed.contains(&21));
+    let (id, text) = answer_for(&mut s, "emergency", None);
+    advance(&f, &mut s, 4);
+    let r = s.handle(Request::Complete { challenge_id: id, answer: text, pin: None, partner_code: None });
+    assert!(r.ok, "{r:?}");
+    advance(&f, &mut s, 2);
+    let st = status(&mut s);
+    assert!(st.session.is_none() && !st.decision.active());
+    assert_eq!(st.emergency_total, 1);
+    assert_eq!(st.emergency_left, 0); // one a week
+    assert!(!f.0.lock().unwrap().taskmgr);
+    // a second one in the same week is refused
+    start(&mut s, 60, 2);
+    assert_eq!(s.handle(Request::Challenge { action: "emergency".into(), target: None, minutes: None }).code, "no_keys");
+}
+
+#[test]
+fn frozen_sessions_have_a_ceiling() {
+    let (_f, mut s) = world();
+    assert_eq!(start(&mut s, 9 * 60, 3).code, "bad_request");
+    assert!(start(&mut s, 8 * 60, 3).ok);
+}
+
+#[test]
+fn the_clock_cannot_be_used_to_skip_a_locked_session() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    start(&mut s, 60, 2);
+    advance(&f, &mut s, 10);
+    f.0.lock().unwrap().wall += 3 * 3_600_000; // forward three hours
+    advance(&f, &mut s, 2);
+    let st = status(&mut s);
+    assert!(st.session.is_some() && st.decision.locked(), "still locked");
+    assert!(st.clock_tampered);
+    f.0.lock().unwrap().wall -= 6 * 3_600_000; // and back
+    advance(&f, &mut s, 2);
+    assert!(status(&mut s).session.is_some());
+}
+
+#[test]
+fn a_restart_keeps_the_session_and_cannot_roll_the_clock_back() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    start(&mut s, 60, 2);
+    advance(&f, &mut s, 600);
+    s.shutdown(true);
+    let store = f.0.lock().unwrap().store.clone();
+    // the computer starts again: the monotonic clock starts over, and the person set the wall clock back two hours
+    let w = Arc::new(Mutex::new(World { wall: T0 - 2 * 3_600_000, mono: 5_000, hosts: f.0.lock().unwrap().hosts.clone(), hosts_writable: true, store, ..Default::default() }));
+    let f2 = Fake(w);
+    let mut s2 = Supervisor::new(f2.clone());
+    advance(&f2, &mut s2, 4);
+    let st = status(&mut s2);
+    assert!(st.session.is_some(), "the session survived the restart");
+    assert!(st.decision.locked());
+    // it ends when it should by the trusted time (about 50 more minutes), not two hours later
+    advance(&f2, &mut s2, 49 * 60);
+    assert!(status(&mut s2).session.is_some());
+    advance(&f2, &mut s2, 3 * 60);
+    assert!(status(&mut s2).session.is_none());
+}
+
+#[test]
+fn the_pin_guards_loosening_and_locks_out_guessing() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    assert!(s.handle(Request::SetPin { old: None, new: "4821".into() }).ok);
+    assert!(set(&mut s, json!({"et-protect": {"friction":"type","emerg":3,"emergWeek":1,"pinOn":true}})).ok);
+    assert_eq!(s.handle(Request::SetPin { old: Some("0000".into()), new: "1111".into() }).code, "pin");
+    // loosening now needs the PIN
+    let weaker = json!({"et-items": []});
+    assert_eq!(set(&mut s, weaker.clone()).code, "pin");
+    let r = s.handle(Request::SetState { keys: serde_json::from_value(weaker).unwrap(), pin: Some("4821".into()) });
+    assert!(r.ok, "{r:?}");
+    for _ in 0..2 {
+        s.handle(Request::SetPin { old: Some("1".into()), new: "2222".into() });
+    }
+    advance(&f, &mut s, 2);
+    assert_eq!(s.handle(Request::SetPin { old: Some("9999".into()), new: "2222".into() }).code, "pin");
+    assert_eq!(s.handle(Request::SetPin { old: Some("4821".into()), new: "2222".into() }).code, "pin_locked");
+    let _ = Pin::default();
+}
+
+#[test]
+fn what_is_in_front_is_counted_and_a_daily_limit_closes_it() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    set(&mut s, json!({"et-limits": [{"id":"l1","name":"Steam","scope":"app","kind":"time","amount":2,"per":"day","on":true,"act":"block"}]}));
+    f.0.lock().unwrap().procs = vec![proc(30, "steam.exe")];
+    let obs = Request::Observe { fg: Some(Fg { exe: "Steam.exe".into(), title: "Steam".into(), pid: 30 }), idle_secs: 0, windows: vec![], screen_locked: false };
+    for _ in 0..80 {
+        s.handle(obs.clone());
+        advance(&f, &mut s, 2);
+        if !f.0.lock().unwrap().killed.is_empty() {
+            break;
+        }
+    }
+    let st = status(&mut s);
+    assert!(st.today.secs["exe:steam.exe"] >= 120);
+    assert!(f.0.lock().unwrap().killed.contains(&30));
+    assert_eq!(st.decision.reasons[0].kind, "limit");
+    // a break lifts it for a while
+    let (id, text) = answer_for(&mut s, "unblock", Some("l1"));
+    advance(&f, &mut s, 4);
+    assert!(s.handle(Request::Complete { challenge_id: id, answer: text, pin: None, partner_code: None }).ok);
+    assert!(!status(&mut s).decision.active());
+}
+
+#[test]
+fn being_away_is_not_screen_time() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    let away = Request::Observe { fg: Some(Fg { exe: "steam.exe".into(), title: "".into(), pid: 30 }), idle_secs: 600, windows: vec![], screen_locked: false };
+    for _ in 0..10 {
+        s.handle(away.clone());
+        advance(&f, &mut s, 2);
+    }
+    let st = status(&mut s);
+    assert!(st.today.secs.is_empty());
+    assert!(st.today.offline_secs >= 18);
+}
+
+#[test]
+fn allow_only_closes_open_windows_that_are_not_on_the_list() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    set(&mut s, json!({"et-items": [{"name":"VS Code","type":"app","g":"allow"}]}));
+    s.handle(Request::StartSession { name: "Only code".into(), minutes: 30, level: 1, blocks: vec!["Everything".into()], scene: "".into(), allow_breaks: false, dnd: false, mute: false, close_now: false });
+    f.0.lock().unwrap().procs = vec![proc(40, "code.exe"), proc(41, "game.exe"), proc(42, "svchost.exe")];
+    s.handle(Request::Observe {
+        fg: Some(Fg { exe: "code.exe".into(), title: "x".into(), pid: 40 }),
+        idle_secs: 0,
+        windows: vec![Win { exe: "code.exe".into(), title: "".into(), pid: 40 }, Win { exe: "game.exe".into(), title: "".into(), pid: 41 }],
+        screen_locked: false,
+    });
+    advance(&f, &mut s, 2);
+    assert_eq!(f.0.lock().unwrap().killed, vec![41]);
+}
+
+#[test]
+fn vpn_tools_and_private_windows_follow_the_guards() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    f.0.lock().unwrap().procs = vec![proc(50, "NordVPN.exe")];
+    start(&mut s, 30, 1);
+    let r = s.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![], screen_locked: false });
+    assert!(r.ok);
+    assert_eq!(r.data["closePrivate"], true);
+    advance(&f, &mut s, 2);
+    assert!(f.0.lock().unwrap().killed.contains(&50));
+}
+
+#[test]
+fn the_extension_is_told_what_is_closed() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    assert_eq!(s.handle(Request::Site { host: Some("youtube.com".into()), incognito: false, browser: "chrome".into() }).data["blocked"], false);
+    start(&mut s, 30, 1);
+    advance(&f, &mut s, 2);
+    assert_eq!(s.handle(Request::Site { host: Some("www.youtube.com".into()), incognito: false, browser: "chrome".into() }).data["blocked"], true);
+    assert_eq!(s.handle(Request::Site { host: Some("docs.google.com".into()), incognito: false, browser: "chrome".into() }).data["blocked"], false);
+    assert!(status(&mut s).ext_connected);
+}
+
+#[test]
+fn uninstalling_needs_permission_and_not_during_a_lock() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    assert_eq!(s.handle(Request::Uninstall { pin: None }).code, "challenge");
+    let (id, text) = answer_for(&mut s, "uninstall", None);
+    advance(&f, &mut s, 4);
+    assert!(s.handle(Request::Complete { challenge_id: id, answer: text, pin: None, partner_code: None }).ok);
+    assert!(s.handle(Request::Uninstall { pin: None }).ok);
+    start(&mut s, 30, 2);
+    advance(&f, &mut s, 2);
+    assert_eq!(s.handle(Request::Uninstall { pin: None }).code, "locked");
+}
+
+#[test]
+fn a_hosts_file_that_cannot_be_written_is_reported_not_fatal() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    f.0.lock().unwrap().hosts_writable = false;
+    start(&mut s, 30, 1);
+    advance(&f, &mut s, 2);
+    assert!(!status(&mut s).hosts_ok);
+}
+
+#[test]
+fn unknown_state_keys_are_ignored_and_the_state_survives_a_restart() {
+    let (f, mut s) = world();
+    assert!(set(&mut s, json!({"et-kw": ["poker"], "evil": 1})).ok);
+    s.shutdown(true);
+    let store = f.0.lock().unwrap().store.clone();
+    assert!(!store.as_ref().unwrap().contains("evil"));
+    let f2 = Fake(Arc::new(Mutex::new(World { wall: T0, mono: 1, store, hosts_writable: true, ..Default::default() })));
+    let mut s2 = Supervisor::new(f2);
+    assert_eq!(s2.handle(Request::GetState).data["et-kw"], json!(["poker"]));
+}
+
+#[test]
+fn shutdown_without_keeping_blocks_cleans_up() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    start(&mut s, 30, 2);
+    advance(&f, &mut s, 4);
+    assert!(f.0.lock().unwrap().hosts.contains(hosts::BEGIN));
+    s.shutdown(false);
+    let w = f.0.lock().unwrap();
+    assert!(!w.hosts.contains(hosts::BEGIN) && !w.taskmgr);
+}

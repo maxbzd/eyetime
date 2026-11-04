@@ -24,6 +24,10 @@ impl ClockGuard {
         self.skew_ms = off - a;
         mono + a
     }
+    /// after a restart: the lock continues from a known moment
+    pub fn set_anchor(&mut self, anchor: i64) {
+        self.anchor = Some(anchor);
+    }
     /// how far the wall clock has been moved since the lock began (positive: forward)
     pub fn skew_ms(&self) -> i64 {
         self.skew_ms

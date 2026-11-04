@@ -1,0 +1,28 @@
+[package]
+name = "eyetime-helper"
+version = "0.1.0"
+edition = "2021"
+description = "EyeTime helper: the Windows service that carries blocks out, and the agent that sees the screen"
+
+[lib]
+name = "eyetime_helper"
+path = "src/lib.rs"
+
+[[bin]]
+name = "eyetime-helper"
+path = "src/main.rs"
+
+[dependencies]
+eyetime-core = { path = "../core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[target.'cfg(windows)'.dependencies]
+windows-service = "0.8"
+windows-sys = { version = "0.61", features = [
+  "Win32_Foundation", "Win32_System_Threading", "Win32_System_ProcessStatus", "Win32_System_Diagnostics_ToolHelp",
+  "Win32_System_Pipes", "Win32_System_IO", "Win32_Storage_FileSystem", "Win32_Security", "Win32_Security_Authorization",
+  "Win32_UI_WindowsAndMessaging", "Win32_System_SystemInformation", "Win32_System_Time", "Win32_System_Registry",
+  "Win32_System_Power", "Win32_UI_Input_KeyboardAndMouse", "Win32_System_RemoteDesktop", "Win32_System_Environment",
+  "Win32_Graphics_Dwm", "Win32_UI_Shell", "Win32_Media_Audio", "Win32_System_LibraryLoader", "Win32_System_Services", "Win32_System_Com"
+] }
