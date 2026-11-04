@@ -26,6 +26,7 @@ import './messages.js';
 import './companion.js';
 import { buildMenus } from './menus.js';
 import { armUsage, onUsageAlarm } from './usage.js';
+import { armConnections, onConnectionsAlarm, watchTasks } from './connections.js';
 
 captureErrors('worker');
 
@@ -53,6 +54,7 @@ async function boot() {
   rolloverTasks();
   armCalendar({ refresh: true });
   armUsage();
+  armConnections();
   return migrated;
 }
 
@@ -71,6 +73,8 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 chrome.runtime.onStartup.addListener(boot);
 chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'prune') pruneOldDays().then(checkStorage); });
 chrome.alarms.onAlarm.addListener(onUsageAlarm);
+chrome.alarms.onAlarm.addListener(onConnectionsAlarm);
+watchTasks();
 
 chrome.commands.onCommand.addListener(async (cmd) => {
   if (cmd !== 'toggle-focus') return;
