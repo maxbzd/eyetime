@@ -127,7 +127,15 @@ fn set_dnd(on: bool) {
 }
 
 pub fn run() {
-    // only one agent per session
+    // only one agent per session: a second one finds the name taken and leaves
+    let name: Vec<u16> = "Local\\EyeTimeAgent".encode_utf16().chain(std::iter::once(0)).collect();
+    unsafe {
+        let h = windows_sys::Win32::System::Threading::CreateMutexW(std::ptr::null(), 0, name.as_ptr());
+        if h.is_null() || windows_sys::Win32::Foundation::GetLastError() == 183 {
+            return;
+        }
+        std::mem::forget(h); // held until the process ends
+    }
     let mut dnd = false;
     loop {
         let result = std::fs::OpenOptions::new().read(true).write(true).open(PIPE_NAME);

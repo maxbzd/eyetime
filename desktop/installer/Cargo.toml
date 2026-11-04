@@ -1,0 +1,15 @@
+[package]
+name = "eyetime-setup"
+version = "0.1.0"
+edition = "2021"
+description = "EyeTime installer"
+build = "build.rs"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+tao = "0.34"
+wry = "0.53"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging", "Win32_System_Threading"] }
