@@ -61,7 +61,8 @@ async function adoptFile30() {
 
 async function writeMerged(src) {
   const subs = await loadSubs();
-  const live = new Set([FILE_KEY, ...subs.map((x) => x.id)]);
+  const { conns } = await getRaw('conns'); // the calendars of connected services (Settings → Connected services) are sources too
+  const live = new Set([FILE_KEY, ...subs.map((x) => x.id), ...Object.keys(conns || {}).map((id) => 'conn-' + id)]);
   for (const k of Object.keys(src)) if (!live.has(k)) delete src[k]; // an orphan (a removed calendar) never stays
   const { events, allDay } = mergeSources(src);
   await setRaw({ calendarSrc: src, calendar: events, calendarDays: allDay });
