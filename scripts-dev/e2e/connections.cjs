@@ -42,13 +42,12 @@ const { launch } = require('./lib.cjs');
   const conn = () => o.evaluate(async () => Object.values((await chrome.storage.local.get('conns')).conns || {})[0] || null);
   const syncNow = () => o.evaluate(async () => { const { syncConnections } = await import('/src/background/connections.js'); await syncConnections({ force: true }); });
 
-  // 1. the group is there, empty, and every service is offered; Google and Microsoft say they are not available in this build (no OAuth client yet)
+  // 1. the group is there, empty, and the services that work are offered (Google and Microsoft wait for their OAuth clients and are not shown)
   ok(await o.locator('h3.group-title', { hasText: 'Connected services' }).count() === 1, 'the Connected services group is in Data & privacy');
   await o.getByRole('button', { name: 'Connect a service', exact: true }).click(); await o.waitForTimeout(300);
   const dlg = o.locator('dialog[open]');
-  ok(await dlg.locator('button[data-provider]').count() === 5, 'five services are offered: ' + await dlg.locator('button[data-provider]').count());
-  ok(await dlg.locator('button[data-provider=google]').isDisabled() && await dlg.locator('button[data-provider=microsoft]').isDisabled(), 'Google and Microsoft are off without an OAuth client');
-  ok(/not available in this build/.test(await dlg.locator('button[data-provider=google]').innerText()), 'and say why');
+  ok(await dlg.locator('button[data-provider]').count() === 3, 'three services are offered: ' + await dlg.locator('button[data-provider]').count());
+  ok(await dlg.locator('button[data-provider=google]').count() === 0 && await dlg.locator('button[data-provider=microsoft]').count() === 0, 'Google and Microsoft are not offered while there is no OAuth client in the build');
   ok(/Things/.test(await dlg.innerText()), 'Things is explained, not hidden');
 
   // 2. Todoist: a wrong token is told plainly; the right one leads to the choice

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.7.0 — 2026-11-04 — The day as one story, and your other tools
 
 ### Measurement (optional, off by default)
 - **Anonymous usage** (Settings → Data & privacy): once a week EyeTime can send the days it was used and how often each of its own features was, with the look, layout and language: numbers and names from a fixed list, never a site, task, note, goal or time. *Show what would be sent* shows the exact next report; switching off (or *Delete all my data*) asks the collector to forget the random id. EyeTime asks once, after a first finished session and a second day, and never again. Counting happens on the device either way; nothing leaves it unless you switch sharing on, and a build without a collector address (`src/shared/usage-config.js`) cannot send at all. The collector, its schema and the queries for activation, D1/D7/D30 retention and feature adoption are in `server/usage/`; `docs/MEASUREMENT.md` says what is measured and why, `PRIVACY.md` lists every field.
@@ -12,11 +12,11 @@
 - Settings → Home page → *Daily ritual* switches it off or moves the evening. The "Plan my day" dialog and the "Close the day" shortcut (`D`) work as before and write to the same record.
 
 ### Connected services (two-way sync)
-- **Settings → Data & privacy → Connected services**: keep your tasks in step with **Todoist**, **Notion**, **Google Tasks**, **Microsoft To Do** and **CalDAV** reminders (iCloud, Fastmail, Nextcloud), and your calendar with **Google**, **Outlook** and **CalDAV** calendars: busy times come in (the planner and the meeting warning use them), planned focus blocks go out as events marked as EyeTime's. Things (Apple) has no way to be reached from outside the app, so it cannot be connected: export Markdown or CSV.
+- **Settings → Data & privacy → Connected services**: keep your tasks in step with **Todoist**, **Notion** and **CalDAV** reminders (iCloud, Fastmail, Nextcloud), and your calendar with **CalDAV** calendars: busy times come in (the planner and the meeting warning use them), planned focus blocks go out as events marked as EyeTime's. Things (Apple) has no way to be reached from outside the app, so it cannot be connected: export Markdown or CSV.
 - Real two-way merging, not an export: each side's changes are carried over field by field against what both looked like at the last sync; an edit beats a deletion; a first connection matches tasks with the same text instead of duplicating them; a sync that would delete a large part of your tasks stops and asks first (*Allow deletions once*); *Delete in both places* can be turned off.
 - Direct and private: the browser talks to the service itself (no EyeTime server); the browser asks for that service's address only, and it is withdrawn when you disconnect. Tokens and passwords stay on the device, outside backups and settings sync.
 - Runs every 15 minutes in the background and shortly after you change a task; *Sync now*, a status on every row, a refused sign-in pauses the connection and asks to sign in again, a service that asks to slow down is left alone for as long as it asks.
-- **Not enabled until registered**: Google and Microsoft need OAuth client ids that the team registers once (`docs/CONNECTIONS.md`); until then they say *not available in this build*. The adapters are tested against mocks of each service, not yet against live accounts: `docs/CONNECTIONS.md` has the checklist.
+- **Google and Microsoft are prepared but not offered yet**: they need OAuth clients registered once by the team (`docs/CONNECTIONS.md`); the code is in, the choice is not shown and the extra `identity` permission is not requested until then. The adapters are tested against mocks of each service, not yet against live accounts: `docs/CONNECTIONS.md` has the checklist.
 
 ### Settings
 - **Essentials / All settings**: Settings opens on the essentials (about 40 rows instead of 86); the switch is under the search box and the choice is remembered. Anything you have already changed or use (a dock, reminders, a calendar subscription, sync) stays visible; search and *All settings* show everything; each section says how many are hidden.

@@ -112,7 +112,7 @@ function openConnect(done, again = null) {
   /** The step that asks which service. */
   function pick() {
     body.replaceChildren(h('h3', { text: t('cn.dlgTitle') }), h('p', { class: 'muted-2', text: t('cn.pick') }),
-      h('div', { class: 'stack gap-2' }, providerList().map((def) => {
+      h('div', { class: 'stack gap-2' }, providerList().filter((def) => !def.available || def.available()).map((def) => { // a service that is not set up in this build is not offered
         const off = def.available && !def.available();
         return h('button', { class: 'btn cn-pick', type: 'button', disabled: off, 'data-provider': def.id, onclick: () => form(def) },
           icon(def.icon), h('span', { text: def.label }), off ? h('span', { class: 'muted', text: t('cn.na') }) : null);
