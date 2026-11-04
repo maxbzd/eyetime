@@ -58,7 +58,7 @@ export function appearance({ s, save }) {
   const calm = async () => {
     let before = null;
     await save((x) => { before = applyStarter(x, x.newtab, starterData(calmDefault())); }, true);
-    toast(t('st.applied', { name: t('calm.title') }), { action: t('common.undo'), onAction: () => save((x) => { restoreHome(x, x.newtab, before); }, true) });
+    toast(t('st.applied', { name: t('calm.title') }), { action: t('common.undo'), onAction: () => save((x) => { restoreHome(x, x.newtab, before); }, true), ms: 9000 });
   };
   const reset = async () => {
     if (!await confirmDialog({ title: t('ap.resetTitle'), body: t('ap.resetBody'), confirm: t('ap.reset'), danger: true })) return;

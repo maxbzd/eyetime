@@ -2,24 +2,15 @@
 
 import { h, icon, toast } from '../ui/dom.js';
 import { t, fmtDuration } from '../shared/i18n.js';
-import { getSettings, getCollection, setCollection, getDays } from '../shared/storage.js';
-import { planDay, toMin } from '../shared/dayplan.js';
-import { bestHours } from '../shared/productivity.js';
-import { estimateAccuracy } from '../shared/quickadd.js';
-import { accuracyInput } from '../shared/tasks.js';
-import { dayKey, rangeKeys } from '../shared/time.js';
+import { getCollection, setCollection, updateDay } from '../shared/storage.js';
+import { loadPlanContext, proposeBlocks } from './plan-context.js';
 import { track } from '../shared/usage-store.js';
 
 export async function openDayPlan() {
-  const [settings, tasks, estLog, days, events, allDayEvents] = await Promise.all([getSettings(), getCollection('tasks', []), getCollection('estLog', []), getDays(rangeKeys(112)), getCollection('calendar', []), getCollection('calendarDays', [])]);
-  const today = dayKey();
-  const now = new Date();
+  const ctx = await loadPlanContext();
+  const { tasks, today, acc, best, busy, busyDay } = ctx;
   const open = tasks.filter((x) => !x.done);
-  const best = bestHours(days);
-  const acc = estimateAccuracy(accuracyInput(tasks, estLog));
-  const busy = events.filter((e) => e.day === today).map((e) => ({ start: toMin(e.start), end: toMin(e.end) }));
-  const busyDay = (allDayEvents || []).some((e) => e.day === today); // an all-day event (trip, conference): plan lighter
-  const plan = planDay({ maxBlocks: busyDay ? 2 : undefined, tasks: open, nowMin: now.getHours() * 60 + now.getMinutes(), bestStart: best ? best.start : null, calibration: acc ? acc.median : null, busy, defaultMinutes: settings.focus.minutes, goalMinutes: settings.focus.dailyGoal, workEnd: (settings.blocking.schedule && settings.blocking.schedule.enabled && settings.blocking.schedule.end) || '18:00', today });
+  const plan = proposeBlocks(ctx, open);
 
   const rows = plan.blocks.map((b) => {
     const on = h('input', { type: 'checkbox', checked: true, 'aria-label': b.text, disabled: b.fixed });
@@ -45,7 +36,7 @@ export async function openDayPlan() {
         const x = fresh.find((y) => y.id === r.b.taskId); if (!x) continue;
         x.at = r.time.value; x.atDay = today; if (!x.est) x.est = r.b.minutes; n++;
       }
-      if (n) { await setCollection('tasks', fresh); track('plan_done'); toast(t('plan.done', { n })); }
+      if (n) { await setCollection('tasks', fresh); await updateDay(today, (d) => { d.rt = { ...(d.rt || {}), p: Date.now() }; }); track('plan_done'); toast(t('plan.done', { n })); }
     }
     dlg.remove();
   });

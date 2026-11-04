@@ -5,6 +5,7 @@ import { $ } from '../../ui/dom.js';
 import { mountFocusCard } from '../../ui/focus-card.js';
 import { mountFocusLine } from '../today/focusline.js';
 import { mountGlance } from '../today/glance.js';
+import { mountRitual } from '../today/ritual.js';
 import { state, isToday } from './state.js';
 
 let homeParts = null; // what is mounted for the arrangement in use, so it can be swapped without a reload
@@ -15,8 +16,8 @@ export function mountHome() {
   document.body.classList.remove('td-panel'); $('#tdPanelBtn')?.setAttribute('aria-expanded', 'false');
   if (state.todayOn) {
     $('#focus').className = 'fl'; // not a card: one line under the clock
-    const line = mountFocusLine($('#focus'), $('#countdown')), glance = mountGlance($('#tdGlance'));
-    homeParts = { destroy() { line.destroy(); glance.destroy(); } };
+    const line = mountFocusLine($('#focus'), $('#countdown')), glance = mountGlance($('#tdGlance')), ritual = mountRitual($('#tdRitual'));
+    homeParts = { destroy() { line.destroy(); glance.destroy(); ritual.destroy(); } };
   } else {
     $('#focus').className = 'card focus-card';
     $('#countdown').hidden = true; $('#tdGlance').hidden = true;

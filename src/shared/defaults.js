@@ -106,6 +106,7 @@ export const DEFAULT_SETTINGS = {
   },
 
   weeklyReport: true,
+  ritual: { on: true, eveningAt: '18:00' }, // the daily ritual on Home: choose what matters in the morning, close the day in the evening (shared/ritual.js)
   dock: { enabled: false, side: 'right', y: 0.4, hidden: [], design: 2 }, // the edge tab on web pages (needs the optional access to websites)
   calendar: { warn: true, warnMin: 2, quiet: false }, // meeting warning during a focus session; silence eye-break notices and chimes while a meeting is on
   companion: { enabled: false, token: '' },

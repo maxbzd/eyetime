@@ -22,6 +22,9 @@ async function launch(opts = {}) {
   if (!sw) sw = await ctx.waitForEvent('serviceworker', { timeout: 20000 });
   const id = sw.url().split('/')[2];
   for (let i = 0; i < 40; i++) { if (await sw.evaluate(() => typeof chrome.storage !== 'undefined').catch(() => false)) break; await new Promise(r => setTimeout(r, 250)); }
+  // The daily ritual shows a card that depends on the time of day (morning, evening): the suites are about other things and must not depend on when they run.
+  // ritual.cjs asks for it (`ritual: true`).
+  if (!opts.ritual) await sw.evaluate(async () => { const { settings } = await chrome.storage.local.get('settings'); await chrome.storage.local.set({ settings: { ...(settings || {}), ritual: { on: false, eveningAt: '18:00' } } }); });
   const close = async () => { await ctx.close(); };
   return { ctx, sw, id, close, url: (h, p = '/') => `http://${h}:${PORT}${p}` };
 }

@@ -39,6 +39,9 @@ export function home({ s, save, refresh }) {
         ...['home', 'pause', 'rest', 'start'].map((k) => row({ adv: 'quotesMore', title: t('qt.' + k), control: toggle(s.quotes[k], (v) => save((x) => { x.quotes[k] = v; }), t('qt.' + k)) })),
         row({ adv: 'quotesMore', title: t('qt.every'), control: segmented([['day', t('qt.everyDay')], ['tab', t('qt.everyTab')]], s.quotes.every, (v) => save((x) => { x.quotes.every = v; }), t('qt.every')) }),
       ] : null),
+    group(t('rt.set.title'),
+      row({ title: t('rt.set.on'), desc: t('rt.set.onDesc'), control: toggle(s.ritual.on, (v) => save((x) => { x.ritual.on = v; }, true), t('rt.set.on')) }),
+      s.ritual.on ? row({ adv: 'ritualTime', title: t('rt.set.evening'), desc: t('rt.set.eveningDesc'), control: h('input', { class: 'input input-sm', type: 'time', value: s.ritual.eveningAt, 'aria-label': t('rt.set.evening'), onchange: (ev) => { if (ev.target.value) save((x) => { x.ritual.eveningAt = ev.target.value; }); } }) }) : null),
     advGroup('standby', t('sb.title'),
       row({ title: t('sb.title'), desc: t('sb.desc'), control: toggle(s.standby.on, (v) => save((x) => { x.standby.on = v; }, true), t('sb.title')) }),
       s.standby.on ? [
