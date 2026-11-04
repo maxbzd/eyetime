@@ -1,0 +1,11 @@
+[package]
+name = "eyetime-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Rules, schedules, limits, friction and the decision engine of EyeTime. No operating system calls: everything here is testable anywhere."
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
