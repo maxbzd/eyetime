@@ -3,10 +3,10 @@
   const ET = window.ET, { $, $$, clamp, wait, reduced, toast } = ET;
   const D = {
     en: { title: 'Timer', h1: 'Timer', lead: 'Pick a length, close the doors, stay as long as you like.', detox: 'Digital detox', detoxS: 'A longer reset. Everything distracting is closed.', mixes: 'Soundscapes', mixesS: 'Quiet sound under your work. Plays only while this window is open.', quick: 'Quick starts', quickS: 'A session with your last list of blocked apps.', breathe: 'Breathe', breatheS: 'One minute that slows the heart and rests the eyes.', noDis: 'No distracting apps', start: 'Start', vol: 'Volume', playing: 'Playing', stop: 'Stop', min: 'min', hr: 'hr',
-      detoxCards: [['Quiet Hours', 120, 'dawn'], ['The Retreat', 240, 'forest'], ['Digital Sabbath', 480, 'meadow'], ['Deep Work', 90, 'dusk'], ['Night Reset', 60, 'night']],
+      detoxCards: [['Quiet Hours', 120, 'dawn'], ['The Retreat', 240, 'forest'], ['Digital Sabbath', 480, 'meadow'], ['Deep Work', 90, 'dusk'], ['Night Reset', 60, 'night'], ['Moonlight', 180, 'dunes']],
       mixList: ['Brown focus', 'Rain', 'Ocean', 'Forest wind', 'Fireplace'], quickList: [['Pomodoro', '25 / 5'], ['Deep work', '50 / 10'], ['Sprint', '15'], ['Eye reset', '5']], inhale: 'Breathe in', hold: 'Hold', exhale: 'Breathe out', round: (n, m) => `Round ${n} of ${m}`, breathDone: 'Well done. Eyes rested, pulse slower.', breathBtn: 'Start breathing', close: 'Close' },
     ru: { title: 'Таймер', h1: 'Таймер', lead: 'Выберите длительность, закройте двери и оставайтесь сколько нужно.', detox: 'Цифровой детокс', detoxS: 'Долгая перезагрузка. Всё отвлекающее закрыто.', mixes: 'Звуки', mixesS: 'Тихий фон под работу. Играет, пока окно открыто.', quick: 'Быстрый старт', quickS: 'Сессия с вашим последним списком блокировки.', breathe: 'Дыхание', breatheS: 'Одна минута, которая замедляет пульс и отдыхает глаза.', noDis: 'Без отвлекающих приложений', start: 'Старт', vol: 'Громкость', playing: 'Играет', stop: 'Стоп', min: 'мин', hr: 'ч',
-      detoxCards: [['Тихие часы', 120, 'dawn'], ['Уединение', 240, 'forest'], ['Цифровой шабат', 480, 'meadow'], ['Глубокая работа', 90, 'dusk'], ['Ночная перезагрузка', 60, 'night']],
+      detoxCards: [['Тихие часы', 120, 'dawn'], ['Уединение', 240, 'forest'], ['Цифровой шабат', 480, 'meadow'], ['Глубокая работа', 90, 'dusk'], ['Ночная перезагрузка', 60, 'night'], ['Лунный свет', 180, 'dunes']],
       mixList: ['Коричневый шум', 'Дождь', 'Океан', 'Ветер в лесу', 'Камин'], quickList: [['Помодоро', '25 / 5'], ['Глубокая работа', '50 / 10'], ['Спринт', '15'], ['Сброс для глаз', '5']], inhale: 'Вдох', hold: 'Задержка', exhale: 'Выдох', round: (n, m) => `Круг ${n} из ${m}`, breathDone: 'Отлично. Глаза отдохнули, пульс стал ровнее.', breathBtn: 'Начать дыхание', close: 'Закрыть' },
   };
   const L = () => D[ET.lang()] || D.en;
@@ -77,7 +77,7 @@
     $('#app').append($('#breath', el));
     $('#tmVolIn', el).addEventListener('input', (e) => { vol = e.target.value / 100; if (master && cur) master.gain.value = vol; });
     $('#tmBgo', el).addEventListener('click', breathe); $('#brClose').addEventListener('click', () => { brOn = false; $('#breath').classList.remove('on'); });
-    render(); ET.langHooks.push(() => { render(); $('#tbTitle').textContent = L().title; });
+    ET.hscroll($('#tmDetox', el)); render(); ET.langHooks.push(() => { render(); $('#tbTitle').textContent = L().title; });
   }
   function render() {
     const l = L(); $('h1', root).textContent = l.h1; $('.lead', root).textContent = l.lead; $('#tmD').textContent = l.detox; $('#tmDs').textContent = l.detoxS; $('#tmM').textContent = l.mixes; $('#tmMs').textContent = l.mixesS; $('#tmQ').textContent = l.quick; $('#tmQs').textContent = l.quickS; $('#tmB').textContent = l.breathe; $('#tmBs').textContent = l.breatheS; $('#tmVol').textContent = l.vol; $('#tmBh').textContent = l.breathe + ' · 4-4-6'; $('#tmBp').textContent = l.breatheS; $('#tmBgo').textContent = l.breathBtn;
@@ -85,7 +85,7 @@
     l.detoxCards.forEach(([name, min, scene], i) => {
       const b = document.createElement('button'); b.className = 'detox rise'; b.style.setProperty('--d', 100 + i * 80); b.type = 'button'; b.setAttribute('aria-label', `${name} ${lenTxt(min)}`);
       b.innerHTML = `<canvas></canvas><div class="t"><h3>${name}</h3><p>${l.noDis}</p><span class="go">${ico('timer')}${lenTxt(min)}</span></div>`; dx.append(b);
-      requestAnimationFrame(() => { const cv = $('canvas', b); const land = new ET.Landscape(cv, scene); land.draw(3); let raf = 0, t0 = 0; const loop = (n) => { land.draw(3 + n / 1000); raf = requestAnimationFrame(loop); }; b.addEventListener('pointerenter', () => { if (!reduced) raf = requestAnimationFrame(loop); }); b.addEventListener('pointerleave', () => cancelAnimationFrame(raf)); });
+      requestAnimationFrame(() => { const cv = $('canvas', b); const land = new ET.Landscape(cv, scene); land.draw(3); if (window.ResizeObserver) new ResizeObserver(() => { land.size(); land.draw(3); }).observe(cv); let raf = 0, t0 = 0; const loop = (n) => { land.draw(3 + n / 1000); raf = requestAnimationFrame(loop); }; b.addEventListener('pointerenter', () => { if (!reduced) raf = requestAnimationFrame(loop); }); b.addEventListener('pointerleave', () => cancelAnimationFrame(raf)); });
       b.addEventListener('click', () => { ET.S.min = min; ET.S.name = name.slice(0, 14); ET.S.scene = scene; ET.S.diff = 0; ET.startSession(); });
     });
     const mx = $('#tmMixes'); mx.innerHTML = '';
@@ -105,5 +105,6 @@
     for (let r = 1; r <= 3 && brOn; r++) { const rt = l.round(r, 3); await phase(l.inhale, 4000, .55, 1.55, rt); await phase(l.hold, 4000, 1.55, 1.58, rt); await phase(l.exhale, 6000, 1.58, .55, rt); }
     if (brOn) { t.textContent = '✓'; s.textContent = l.breathDone; await wait(reduced ? 100 : 2200); box.classList.remove('on'); toast(l.breathDone); } brOn = false;
   }
+  document.addEventListener('et-photo', (e) => { if (root && /^scene-/.test(e.detail)) render(); });
   ET.screens.timer = { title: () => L().title, mount };
 })();
