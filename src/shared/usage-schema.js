@@ -8,7 +8,7 @@ export const FEATURES = [
   'newtab_view', 'popup_open', 'insights_view', 'settings_view',
   'focus_start', 'focus_done', 'focus_stop', 'focus_pause',
   'eye_break_done', 'eye_break_skip', 'block_page', 'block_continue',
-  'task_add', 'task_done', 'habit_check', 'shutdown_done', 'plan_done',
+  'task_add', 'task_done', 'habit_check', 'shutdown_done', 'plan_done', 'ritual_plan', 'ritual_skip',
   'palette_open', 'drawer_open', 'editor_open', 'starter_apply', 'wall_next', 'standby_open',
 ];
 
