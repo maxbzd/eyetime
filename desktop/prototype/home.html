@@ -1,9 +1,10 @@
 <title>EyeTime Desktop</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&family=Figtree:wght@400;500;600;700&display=swap">
+
+
+<link rel="stylesheet" href="vendor/fonts.css">
 <style>
+html.real .demo-chip, html.real .demo-skip { display: none !important; }
 /* Layout concept: a full-bleed night scene (cave, stars, a living gem) with a three-column glass interface above it:
    rules and screen time left, the score and the one big action in the middle, rules and streak right, a floating pill dock below. */
 :root {
@@ -694,7 +695,8 @@ svg { display: block; }
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>window.ETB = window.__TAURI__ ? { q: [], push(k, v) { this.q.push([k, v]); } } : undefined;</script>
+<script src="vendor/three.min.js"></script>
 <script>
 (() => {
 'use strict';
@@ -705,7 +707,7 @@ const easeOut = (t) => 1 - Math.pow(1 - t, 4), easeExpo = (t) => (t >= 1 ? 1 : 1
 const raf = () => new Promise((r) => requestAnimationFrame(r)), wait = (ms) => new Promise((r) => setTimeout(r, ms));
 /** a promise that runs `fn(t)` for `ms` milliseconds with t from 0 to 1 */
 async function tween(ms, fn) { if (reduced) { fn(1); return; } const t0 = performance.now(); for (;;) { const t = clamp((performance.now() - t0) / ms, 0, 1); fn(t); if (t >= 1) return; await raf(); } }
-const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch { /* private window */ } } };
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch { /* private window */ } if (window.ETB && k.startsWith('et-')) window.ETB.push(k, v); } };
 
 /* ============================================================ words (English and Russian; the product ships in 11) */
 const WORDS = {
@@ -1063,9 +1065,10 @@ cta.addEventListener('click', openSheet);
 
 /* ============================================================ unblock */
 let unMin = 5, openUntil = 0, openTimer = null, blockedNow = true;
+let realCard = null;
 function renderBlockCard() {
   const card = $('#blockCard'), ring = $('#blockRing'); card.classList.toggle('is-open', !blockedNow);
-  $('#blockTitle').textContent = blockedNow ? W().workTime : W().unblocked; $('#blockSub').textContent = blockedNow ? W().blockSub : W().unblockedSub;
+  $('#blockTitle').textContent = blockedNow ? (realCard ? realCard.title : W().workTime) : W().unblocked; $('#blockSub').textContent = blockedNow ? (realCard ? realCard.sub : W().blockSub) : W().unblockedSub;
   $('#blockIcon').firstElementChild.setAttribute('href', blockedNow ? '#i-shield' : '#i-unlock');
   const b = $('#unblockBtn'); b.querySelector('span').textContent = blockedNow ? W().unblock : W().blockAgain; b.querySelector('use').setAttribute('href', blockedNow ? '#i-unlock' : '#i-lock');
 }
@@ -1142,6 +1145,7 @@ const run = { on: false, total: 0, left: 0, speed: 1, snooze: false, breakLeft: 
 const fmtClock = (ms) => { const d = new Date(ms); return lang === 'ru' ? `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}` : d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); };
 async function startSession() {
   closeSheet(); if (run.on) return; run.cancelled = false;
+  if (window.ETB && !(await window.ETB.startSession(S))) return;
   const cd = $('#countdown'); cd.classList.add('on'); const land = new Landscape($('#cdCanvas'), S.scene); land.draw(0); run.cdLand = land;
   const num = $('#cdNum'); window.__gem && window.__gem.pulse(1);
   for (const n of [3, 2, 1]) { if (run.cancelled) break; num.innerHTML = `<span>${n}</span>`; land.draw(n); await wait(reduced ? 300 : 1000); }
@@ -1242,6 +1246,17 @@ async function boot() {
   addEventListener('resize', () => { initStars(); drawCave(); window.__gem && window.__gem.resize(); moveDock($('[aria-current=page]', dock), true); if (run.landscape) run.landscape.size(); });
 }
 Object.assign(ET, { hscroll, gemStill, SCENES, $, $$, clamp, lerp, easeOut, easeExpo, tween, wait, raf, reduced, store, go, toast, wheel, countTo, mulberry, ripple, openSheet, closeSheet, openScrim, closeScrim, BLOCKABLE, DURS, S, run, Landscape, W, t: (k, ...a) => { const v = W()[k]; return typeof v === 'function' ? v(...a) : v; }, lang: () => lang, langHooks: [], startSession, gem: () => window.__gem, dpr });
+Object.assign(ET, {
+  /* the real app: the helper tells the screens what is going on */
+  setBlockCard(c) { realCard = c; if (blockedNow) renderBlockCard(); },
+  unblockGranted(m) { unMin = m; blockedNow = false; openUntil = Date.now() + m * 60000; renderBlockCard(); clearInterval(openTimer); tickOpen(); openTimer = setInterval(tickOpen, 250); },
+  askUnblockMinutes: () => unMin,
+  setHome(d) { if (dayOffset !== 0 || !booted) { DAYS[0] = { ...DAYS[0], ...d.day }; if (d.bars) BARS[0] = d.bars; return; } DAYS[0] = { ...DAYS[0], ...d.day }; state = { ...DAYS[0] }; if (d.bars) { BARS[0] = d.bars; buildChart(BARS[0]); } countBig(state.screen, 600); countTo($('#focusPct'), state.focusPct, 600, (v) => Math.round(v) + '%'); countTo($('#switchNum'), state.switches, 400); countTo($('#scoreVal'), state.score, 600); paintGauges(600); drawOffline(); $('#offlineMeter').style.width = state.offPct + '%'; countTo($('#offlineVal'), state.offline, 600, (v) => W().hm(Math.floor(v / 60), Math.round(v) % 60)); },
+  setStreak(n) { $('#streakNum').textContent = $('#flameNum').textContent = String(n); },
+  /* a session that was already running when the window opened: no countdown, straight to the lake */
+  resumeRun(ses, leftSec, totalSec) { if (run.on) return; Object.assign(S, { name: ses.name, min: Math.round(totalSec / 60), diff: ses.level, scene: ses.scene || S.scene }); beginRun(); run.total = totalSec; run.left = leftSec; run.startedAt = ses.startedAtMs; $('#tStart').textContent = fmtClock(ses.startedAtMs); $('#tEnd').textContent = fmtClock(ses.endsAtMs); },
+  endRunExternal(completed) { finish(completed); },
+});
 const _apply = applyLang; applyLang = function () { _apply(); ET.langHooks.forEach((f) => { try { f(); } catch { /* a screen that is not built yet */ } }); };
 document.fonts && document.fonts.ready ? document.fonts.ready.then(boot) : boot();
 })();
@@ -1252,3 +1267,4 @@ document.fonts && document.fonts.ready ? document.fonts.ready.then(boot) : boot(
 <script src="screens/insights.js"></script>
 <script src="screens/profile.js"></script>
 <script src="screens/settings.js"></script>
+<script src="bridge.js"></script>

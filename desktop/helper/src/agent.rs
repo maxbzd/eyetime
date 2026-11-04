@@ -95,6 +95,31 @@ fn windows() -> Vec<(usize, Win)> {
     list
 }
 
+struct Wanted<'a> {
+    pids: &'a [u32],
+    posted: u32,
+}
+unsafe extern "system" fn ask_close(hwnd: HWND, lparam: LPARAM) -> BOOL {
+    let w = &mut *(lparam as *mut Wanted);
+    let mut pid = 0u32;
+    GetWindowThreadProcessId(hwnd, &mut pid);
+    if w.pids.contains(&pid) {
+        PostMessageW(hwnd, WM_CLOSE, 0, 0);
+        w.posted += 1;
+    }
+    TRUE
+}
+/// the polite way: the program gets the same message as when its close button is pressed, and may ask to save
+fn ask_programs_to_close(pids: &[u32]) {
+    if pids.is_empty() {
+        return;
+    }
+    let mut w = Wanted { pids, posted: 0 };
+    unsafe {
+        EnumWindows(Some(ask_close), &mut w as *mut _ as LPARAM);
+    }
+}
+
 fn set_dnd(on: bool) {
     // pop-up notifications off while a session asks for quiet
     let key = r"HKCU\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings";
@@ -135,6 +160,7 @@ pub fn run() {
                             }
                         }
                     }
+                    ask_programs_to_close(&orders.close_pids);
                     if orders.dnd != dnd {
                         set_dnd(orders.dnd);
                         dnd = orders.dnd;

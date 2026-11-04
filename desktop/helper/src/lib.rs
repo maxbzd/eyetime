@@ -2,6 +2,7 @@
 //! `os_windows`, `server` and `agent` the Windows side.
 
 pub mod os;
+pub mod sim;
 pub mod supervisor;
 
 #[cfg(windows)]

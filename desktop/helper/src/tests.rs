@@ -1,93 +1,15 @@
 //! The supervisor against a pretend computer.
 
-use crate::os::{Os, Proc};
+use crate::os::Proc;
 use crate::supervisor::Supervisor;
 use eyetime_core::friction::Pin;
 use eyetime_core::hosts;
 use eyetime_core::ipc::{Fg, Request, Response, Status, Win};
 use serde_json::{json, Value};
 use std::collections::HashMap;
-use std::io;
 use std::sync::{Arc, Mutex};
 
-#[derive(Default)]
-pub struct World {
-    pub wall: i64,
-    pub mono: i64,
-    pub hosts: String,
-    pub hosts_writable: bool,
-    pub procs: Vec<Proc>,
-    pub killed: Vec<u32>,
-    pub taskmgr: bool,
-    pub awake: bool,
-    pub doh: bool,
-    pub safeboot: bool,
-    pub store: Option<String>,
-    pub dns_flushes: u32,
-}
-
-#[derive(Clone)]
-pub struct Fake(pub Arc<Mutex<World>>);
-
-impl Os for Fake {
-    fn wall_ms(&self) -> i64 {
-        self.0.lock().unwrap().wall
-    }
-    fn mono_ms(&self) -> i64 {
-        self.0.lock().unwrap().mono
-    }
-    fn tz_offset_ms(&self) -> i64 {
-        0
-    }
-    fn read_hosts(&self) -> io::Result<String> {
-        Ok(self.0.lock().unwrap().hosts.clone())
-    }
-    fn write_hosts(&self, text: &str) -> io::Result<()> {
-        let mut w = self.0.lock().unwrap();
-        if !w.hosts_writable {
-            return Err(io::Error::new(io::ErrorKind::PermissionDenied, "no"));
-        }
-        w.hosts = text.to_string();
-        Ok(())
-    }
-    fn flush_dns(&self) {
-        self.0.lock().unwrap().dns_flushes += 1;
-    }
-    fn processes(&self) -> Vec<Proc> {
-        let w = self.0.lock().unwrap();
-        w.procs.iter().filter(|p| !w.killed.contains(&p.pid)).cloned().collect()
-    }
-    fn terminate(&self, pid: u32) -> bool {
-        self.0.lock().unwrap().killed.push(pid);
-        true
-    }
-    fn own_pid(&self) -> u32 {
-        1
-    }
-    fn set_taskmgr_locked(&self, on: bool) {
-        self.0.lock().unwrap().taskmgr = on;
-    }
-    fn set_firefox_doh_off(&self, on: bool) {
-        self.0.lock().unwrap().doh = on;
-    }
-    fn set_keep_awake(&self, on: bool) {
-        self.0.lock().unwrap().awake = on;
-    }
-    fn set_safeboot(&self, on: bool) {
-        self.0.lock().unwrap().safeboot = on;
-    }
-    fn in_safe_mode(&self) -> bool {
-        false
-    }
-    fn read_store(&self) -> Option<String> {
-        self.0.lock().unwrap().store.clone()
-    }
-    fn write_store(&self, text: &str) -> io::Result<()> {
-        self.0.lock().unwrap().store = Some(text.to_string());
-        Ok(())
-    }
-    fn log(&self, _line: &str) {}
-}
+use crate::sim::{Fake, World};
 
 // Wednesday 2026-11-04 10:00 UTC
 const T0: i64 = 1_793_786_400_000;
@@ -150,6 +72,10 @@ fn a_session_closes_sites_and_programs_and_ends_by_itself() {
     assert!(f.0.lock().unwrap().killed.is_empty(), "nothing is closed before a session");
     assert!(start(&mut s, 25, 1).ok);
     advance(&f, &mut s, 4);
+    assert!(f.0.lock().unwrap().killed.is_empty(), "first it is asked to close, so that it can offer to save");
+    let asked = s.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![], screen_locked: false });
+    assert_eq!(asked.data["closePids"], json!([10]));
+    advance(&f, &mut s, 16);
     let w = f.0.lock().unwrap();
     assert_eq!(w.killed, vec![10]);
     assert!(w.hosts.contains("0.0.0.0 youtube.com"));
@@ -237,9 +163,11 @@ fn emergency_key_with_the_right_text_releases_even_a_frozen_session_and_is_count
     advance(&f, &mut s, 4);
     {
         let w = f.0.lock().unwrap();
-        assert!(w.taskmgr && w.killed.contains(&20), "frozen: task manager locked and closed");
+        assert!(w.taskmgr && w.killed.contains(&20), "frozen: task manager locked and closed (tools are not asked)");
     }
     // allow-only needs a sight of the screen to know what is open
+    s.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![Win { exe: "notepad.exe".into(), title: "".into(), pid: 21 }], screen_locked: false });
+    advance(&f, &mut s, 12);
     s.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![Win { exe: "notepad.exe".into(), title: "".into(), pid: 21 }], screen_locked: false });
     advance(&f, &mut s, 2);
     assert!(f.0.lock().unwrap().killed.contains(&21));
@@ -332,7 +260,7 @@ fn what_is_in_front_is_counted_and_a_daily_limit_closes_it() {
     set(&mut s, json!({"et-limits": [{"id":"l1","name":"Steam","scope":"app","kind":"time","amount":2,"per":"day","on":true,"act":"block"}]}));
     f.0.lock().unwrap().procs = vec![proc(30, "steam.exe")];
     let obs = Request::Observe { fg: Some(Fg { exe: "Steam.exe".into(), title: "Steam".into(), pid: 30 }), idle_secs: 0, windows: vec![], screen_locked: false };
-    for _ in 0..80 {
+    for _ in 0..100 {
         s.handle(obs.clone());
         advance(&f, &mut s, 2);
         if !f.0.lock().unwrap().killed.is_empty() {
@@ -377,7 +305,15 @@ fn allow_only_closes_open_windows_that_are_not_on_the_list() {
         windows: vec![Win { exe: "code.exe".into(), title: "".into(), pid: 40 }, Win { exe: "game.exe".into(), title: "".into(), pid: 41 }],
         screen_locked: false,
     });
-    advance(&f, &mut s, 2);
+    for _ in 0..12 {
+        s.handle(Request::Observe {
+            fg: Some(Fg { exe: "code.exe".into(), title: "x".into(), pid: 40 }),
+            idle_secs: 0,
+            windows: vec![Win { exe: "code.exe".into(), title: "".into(), pid: 40 }, Win { exe: "game.exe".into(), title: "".into(), pid: 41 }],
+            screen_locked: false,
+        });
+        advance(&f, &mut s, 2);
+    }
     assert_eq!(f.0.lock().unwrap().killed, vec![41]);
 }
 
@@ -390,7 +326,7 @@ fn vpn_tools_and_private_windows_follow_the_guards() {
     let r = s.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![], screen_locked: false });
     assert!(r.ok);
     assert_eq!(r.data["closePrivate"], true);
-    advance(&f, &mut s, 2);
+    advance(&f, &mut s, 20);
     assert!(f.0.lock().unwrap().killed.contains(&50));
 }
 
@@ -452,4 +388,73 @@ fn shutdown_without_keeping_blocks_cleans_up() {
     s.shutdown(false);
     let w = f.0.lock().unwrap();
     assert!(!w.hosts.contains(hosts::BEGIN) && !w.taskmgr);
+}
+
+#[test]
+fn normal_sessions_can_be_left_without_ceremony_and_resume_takes_back_breaks() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    start(&mut s, 30, 0);
+    advance(&f, &mut s, 2);
+    let c = s.handle(Request::Challenge { action: "end_session".into(), target: None, minutes: None });
+    assert_eq!(c.data["kind"], "none");
+    let id = c.data["id"].as_str().unwrap().to_string();
+    assert!(s.handle(Request::Complete { challenge_id: id, answer: "".into(), pin: None, partner_code: None }).ok);
+    assert!(status(&mut s).session.is_none());
+
+    // a break, then "block again"
+    start(&mut s, 30, 1);
+    let (id, text) = answer_for(&mut s, "break", None);
+    advance(&f, &mut s, 4);
+    assert!(s.handle(Request::Complete { challenge_id: id, answer: text, pin: None, partner_code: None }).ok);
+    assert!(!status(&mut s).decision.active());
+    assert!(s.handle(Request::Resume).ok);
+    advance(&f, &mut s, 2);
+    assert!(status(&mut s).decision.active());
+}
+
+#[test]
+fn distracting_time_is_counted_apart() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    let fg = |exe: &str| Request::Observe { fg: Some(Fg { exe: exe.into(), title: "".into(), pid: 9 }), idle_secs: 0, windows: vec![], screen_locked: false };
+    for _ in 0..10 {
+        s.handle(fg("steam.exe"));
+        advance(&f, &mut s, 2);
+    }
+    for _ in 0..5 {
+        s.handle(fg("code.exe"));
+        advance(&f, &mut s, 2);
+    }
+    let st = status(&mut s);
+    assert!(st.today.dis_secs >= 18 && st.today.dis_secs < st.today.secs.values().sum::<u32>());
+}
+
+#[test]
+fn a_setup_without_a_way_out_is_refused_by_the_helper() {
+    let (f, mut s) = world();
+    // no emergency keys at all: a locked session or rule would be a trap
+    assert!(set(&mut s, json!({"et-protect": {"emerg": 0, "emergWeek": 0}})).ok);
+    assert_eq!(start(&mut s, 30, 2).code, "no_escape");
+    assert!(start(&mut s, 30, 1).ok, "a soft session is always fine");
+    let r = set(&mut s, json!({"et-rules": [{"id":"r","name":"Always","level":2,"from":"00:00","to":"00:00","days":[0,1,2,3,4,5,6]}]}));
+    assert_eq!(r.code, "no_escape");
+    // with a key it is allowed; a frozen rule has to be short
+    assert!(set(&mut s, json!({"et-protect": {"emerg": 3, "emergWeek": 1}})).ok);
+    assert!(set(&mut s, json!({"et-rules": [{"id":"r","name":"Always","level":2,"from":"00:00","to":"00:00","days":[0,1,2,3,4,5,6]}]})).ok);
+    let r = set(&mut s, json!({"et-rules": [{"id":"r","name":"Always","level":3,"from":"00:00","to":"00:00","days":[0,1,2,3,4,5,6]}]}));
+    assert_eq!(r.code, "no_escape");
+    let _ = f;
+}
+
+#[test]
+fn a_program_that_closes_by_itself_is_left_alone() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    f.0.lock().unwrap().procs = vec![proc(10, "steam.exe")];
+    start(&mut s, 30, 1);
+    advance(&f, &mut s, 4);
+    f.0.lock().unwrap().procs.clear(); // it saved and quit
+    advance(&f, &mut s, 30);
+    assert!(f.0.lock().unwrap().killed.is_empty());
 }
