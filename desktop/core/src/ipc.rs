@@ -34,6 +34,42 @@ pub enum Request {
     Usage,
     /// the installer and the window ask before uninstalling
     Uninstall { #[serde(default)] pin: Option<String> },
+    /// the little agent in the person's session: what it sees, every couple of seconds. The answer is what it should do.
+    Observe { #[serde(default)] fg: Option<Fg>, #[serde(default)] idle_secs: u32, #[serde(default)] windows: Vec<Win>, #[serde(default)] screen_locked: bool },
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
+pub struct Fg {
+    pub exe: String,
+    pub title: String,
+    pub pid: u32,
+}
+
+/// a window on the screen
+#[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
+pub struct Win {
+    pub exe: String,
+    pub title: String,
+    pub pid: u32,
+}
+
+/// What the agent in the person's session has to do (it can reach windows, the service cannot).
+#[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct Orders {
+    pub close_private: bool,
+    pub mute: bool,
+    pub dnd: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct BlockEvent {
+    pub at_ms: i64,
+    /// "app" | "private" | "vpn" | "tool" | "site"
+    pub kind: String,
+    pub name: String,
+    pub reason: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -55,6 +91,12 @@ pub struct Status {
     /// the dead-man switch: a frozen block ends by itself at this time whatever happens
     pub frozen_limit_ms: Option<i64>,
     pub streak_days: u32,
+    pub events: Vec<BlockEvent>,
+    pub agent_connected: bool,
+    pub ext_connected: bool,
+    pub emergency_until_ms: i64,
+    /// minutes of focus per day, last two weeks, oldest first
+    pub focus_minutes: Vec<u32>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]

@@ -192,4 +192,30 @@ impl Now {
     pub fn hour(&self) -> u8 {
         (self.minute / 60) as u8
     }
+    /// `ms` is the moment (ms since 1970, UTC), `tz_offset_ms` how far local time is ahead of UTC right now.
+    pub fn from_local(ms: i64, tz_offset_ms: i64) -> Now {
+        let local = ms + tz_offset_ms;
+        let days = local.div_euclid(86_400_000);
+        let minute = (local.rem_euclid(86_400_000) / 60_000) as u16;
+        let weekday = (days + 3).rem_euclid(7) as u8; // 1970-01-01 was a Thursday
+        let (y, m, d) = crate::friction::civil_from_days(days);
+        Now { ms, weekday, minute, day: format!("{y:04}-{m:02}-{d:02}") }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn local_time_from_milliseconds() {
+        // 2026-11-04 (Wednesday) 10:30 UTC, in a zone two hours ahead
+        let ms = 1_793_788_200_000;
+        let n = Now::from_local(ms, 2 * 3_600_000);
+        assert_eq!((n.day.as_str(), n.weekday, n.minute), ("2026-11-04", 2, 12 * 60 + 30));
+        // the same moment where it is already the next day
+        let n = Now::from_local(ms, 14 * 3_600_000);
+        assert_eq!((n.day.as_str(), n.weekday, n.minute), ("2026-11-05", 3, 30));
+        // before 1970
+        assert_eq!(Now::from_local(-60_000, 0).day, "1969-12-31");
+    }
 }
