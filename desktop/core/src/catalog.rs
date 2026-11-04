@@ -120,9 +120,24 @@ pub const TOOLS_CLOSED_WHEN_FROZEN: &[&str] = &["taskmgr.exe", "systemsettings.e
 /// Tools that open the way around a block.
 pub const VPN_AND_PROXY: &[&str] = &["openvpn.exe", "nordvpn.exe", "expressvpn.exe", "protonvpn.exe", "windscribe.exe", "wireguard.exe", "tailscale.exe", "psiphon3.exe", "tor.exe", "v2rayn.exe", "clash.exe", "cloudflare warp.exe", "warp-svc.exe", "hotspotshield.exe", "surfshark.exe", "mullvad vpn.exe"];
 
+/// Is this window title a private window of a browser? (English and Russian wording of Chrome, Edge, Firefox, Brave, Opera, Vivaldi, Yandex.)
+pub fn is_private_title(title: &str) -> bool {
+    let t = title.to_lowercase();
+    ["incognito", "inprivate", "private browsing", "(private)", "\u{2014} private", "- private", "инкогнито", "приватн"].iter().any(|k| t.contains(k))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn private_windows_are_recognised() {
+        assert!(is_private_title("New Tab - Google Chrome (Incognito)"));
+        assert!(is_private_title("[InPrivate] Bing - Microsoft Edge"));
+        assert!(is_private_title("Mozilla Firefox Private Browsing"));
+        assert!(is_private_title("Новая вкладка — Режим инкогнито"));
+        assert!(!is_private_title("Private equity news - Google Chrome"));
+        assert!(!is_private_title("Inbox - Gmail"));
+    }
     #[test]
     fn brands_and_addresses() {
         let it = Item { name: "YouTube".into(), kind: "site".into(), ..Default::default() };
