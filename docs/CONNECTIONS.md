@@ -10,8 +10,8 @@ Everything goes **straight from the browser to the service**: there is no EyeTim
 | Todoist | yes (text, done, due date, priority ⇄ star, estimate ⇄ duration) | – | API token the person pastes | a mock of API v1 (`helpers/mock-todoist.mjs`) |
 | Notion | yes (a database: title, checkbox or status, date) | – | integration token + database link | a mock (`helpers/mock-notion.mjs`) |
 | CalDAV: iCloud, Fastmail, Nextcloud… | yes (VTODO) | yes (VEVENT) | app-specific password | a mock (`helpers/mock-caldav.mjs`) |
-| Google | yes (Tasks) | yes (Calendar) | OAuth in the browser's own window, silent renewal | mocks (`helpers/mock-cloud.mjs`) |
-| Microsoft | yes (To Do) | yes (Outlook calendar) | OAuth code + PKCE with a refresh token | mocks (`helpers/mock-cloud.mjs`) |
+| Google *(not offered yet)* | yes (Tasks) | yes (Calendar) | OAuth in the browser's own window, silent renewal | mocks (`helpers/mock-cloud.mjs`) |
+| Microsoft *(not offered yet)* | yes (To Do) | yes (Outlook calendar) | OAuth code + PKCE with a refresh token | mocks (`helpers/mock-cloud.mjs`) |
 | Things (Apple) | **impossible** | – | the app has no web API and no way to be reached from outside it; export Markdown or CSV instead | – |
 
 **Be honest about it: none of the adapters has been run against a live service yet.** They are written from the services' documentation and tested against mocks that follow the same paths, methods and fields. Before a release that advertises a connection, someone has to connect a real account of each (a throwaway one) and run the checklist at the end of this page. Expect small differences: a field name, a paging detail, a rate limit.
@@ -23,7 +23,7 @@ Known limits, also told to the person where they matter:
 
 ## Google and Microsoft: registering the OAuth clients (the team does this once)
 
-The code is finished; the two connections show as *not available in this build* until the client ids are in `src/shared/sync/oauth-config.js`. A client id is public by design; there is no client secret anywhere in EyeTime.
+The code is finished, but **3.7.0 does not offer them**: the dialog lists a service only when its client id is in `src/shared/sync/oauth-config.js`, and the manifest does not ask for `identity`. To switch them on: register the clients below, fill in the ids, add `"optional_permissions": ["identity"]` to `manifest.json` (Firefox too), and update PRIVACY.md, `site/privacy.html` and `store/SUBMISSION.md` (they say Todoist, Notion and CalDAV today). A client id is public by design; there is no client secret anywhere in EyeTime.
 
 Both need the **redirect URI** the browser gives the extension: `https://<extension-id>.chromiumapp.org/` (Chrome, Edge) or the `…extensions.allizom.org` address (Firefox). Print it with `chrome.identity.getRedirectURL()` from any extension page. The extension id of a store build is fixed by the store; for development, pin it with a `key` in the manifest.
 
