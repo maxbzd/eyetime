@@ -3,20 +3,21 @@
 
 use crate::os::Os;
 use eyetime_core::catalog::{is_private_title, never_close, BROWSERS, TOOLS_CLOSED_WHEN_FROZEN, VPN_AND_PROXY};
-use eyetime_core::engine::{apply_cools, canonical_key, decide, hour_keys, Decision, Grants};
+use eyetime_core::engine::{apply_cools, canonical_key, decide, hour_keys, is_distracting, Decision, Grants};
 use eyetime_core::friction::{days_from_civil, civil_from_days, Challenge, Ledger, Pin, PinResult, Verdict};
 use eyetime_core::hosts;
 use eyetime_core::ipc::{challenge_data, BlockEvent, Fg, Orders, Request, Response, Status, Win};
 use eyetime_core::model::{Now, Session, State, KEYS};
-use eyetime_core::tamper::{boot_time, loosens, ClockGuard};
+use eyetime_core::tamper::{boot_time, loosens, unsafe_setup, ClockGuard, MAX_FROZEN_MIN};
 use eyetime_core::usage::Usage;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::{BTreeMap, HashMap, VecDeque};
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
-/// a frozen block can never be longer than this, so that nobody is locked out for good
-pub const MAX_FROZEN_MIN: u32 = 8 * 60;
+/// how long a program gets to close by itself (and offer to save) before it is closed by force
+pub const GRACE_MS: i64 = 15_000;
+pub const GRACE_FROZEN_MS: i64 = 8_000;
 pub const MAX_SESSION_MIN: u32 = 24 * 60;
 const FRESH_MS: i64 = 10_000;
 const AWAY_SECS: u32 = 180;
@@ -71,6 +72,7 @@ pub struct Supervisor<O: Os> {
     last_event: HashMap<String, i64>,
     applied: Applied,
     hosts_ok: bool,
+    closing: HashMap<u32, i64>,
     dirty: bool,
     last_save: i64,
     tz: i64,
@@ -102,6 +104,7 @@ impl<O: Os> Supervisor<O> {
             last_event: HashMap::new(),
             applied: Applied::default(),
             hosts_ok: true,
+            closing: HashMap::new(),
             dirty: false,
             last_save: 0,
             tz: 0,
@@ -153,6 +156,9 @@ impl<O: Os> Supervisor<O> {
         let hk = hour_keys(&self.state);
         let key = key.map(|k| canonical_key(&self.state, &k));
         self.p.usage.tick(&now, key.as_deref(), dt, &hk);
+        if key.as_deref().map(|k| is_distracting(&self.state, k)).unwrap_or(false) {
+            self.p.usage.mark_distracting(&now, dt);
+        }
         apply_cools(&mut self.p.usage, &self.state, &now);
 
         self.p.grants.prune(t);
@@ -218,7 +224,8 @@ impl<O: Os> Supervisor<O> {
             decide(&self.state, now, &self.p.usage, self.p.session.as_ref(), &self.p.grants)
         };
         let ses = self.p.session.as_ref().filter(|s| s.ends_at_ms > t && self.p.emergency_until_ms <= t);
-        self.orders = Orders { close_private: self.decision.close_private, mute: ses.map(|s| s.mute).unwrap_or(false), dnd: ses.map(|s| s.dnd).unwrap_or(false) };
+        let close_pids = std::mem::take(&mut self.orders.close_pids);
+        self.orders = Orders { close_private: self.decision.close_private, mute: ses.map(|s| s.mute).unwrap_or(false), dnd: ses.map(|s| s.dnd).unwrap_or(false), close_pids };
     }
 
     // ---------- carrying it out ----------
@@ -293,11 +300,32 @@ impl<O: Os> Supervisor<O> {
                 }
             }
         }
+        // programs are asked to close first, so that they can offer to save; only what is still there after the grace time is closed by force
+        let grace = if d.level >= 3 { GRACE_FROZEN_MS } else { GRACE_MS };
+        let mut ask: Vec<u32> = Vec::new();
+        let live: Vec<u32> = doomed.iter().map(|x| x.0).collect();
+        self.closing.retain(|pid, _| live.contains(pid));
         for (pid, exe, kind) in doomed {
-            if self.os.terminate(pid) {
-                self.event(t, kind, &exe, &reason);
+            if kind == "tool" {
+                if self.os.terminate(pid) {
+                    self.event(t, kind, &exe, &reason);
+                }
+                continue;
+            }
+            let since = *self.closing.entry(pid).or_insert(t);
+            if since == t {
+                self.event(t, "closing", &exe, &reason);
+            }
+            if t - since >= grace {
+                if self.os.terminate(pid) {
+                    self.event(t, kind, &exe, &reason);
+                }
+                self.closing.remove(&pid);
+            } else {
+                ask.push(pid);
             }
         }
+        self.orders.close_pids = ask;
 
         // 3. system switches, only when they change
         let want_tm = d.lock_taskmgr;
@@ -415,6 +443,15 @@ impl<O: Os> Supervisor<O> {
             Request::Status => Response::ok(self.status()),
             Request::Decision => Response::ok(&self.decision),
             Request::Usage => Response::ok(&self.p.usage.days),
+            Request::Resume => {
+                if let Some(s) = self.p.session.as_mut() {
+                    s.snooze_until_ms = None;
+                }
+                self.p.grants = Grants::default();
+                self.dirty = true;
+                self.recompute(t, &now);
+                Response::ok(self.status())
+            }
             Request::GetState => Response::ok(&self.p.keys),
 
             Request::Observe { fg, idle_secs, windows, screen_locked } => {
@@ -441,6 +478,10 @@ impl<O: Os> Supervisor<O> {
                     merged.insert(k, v);
                 }
                 let new_state = State::from_keys(&merged);
+                let trap = unsafe_setup(&new_state);
+                if !trap.is_empty() && unsafe_setup(&self.state).is_empty() {
+                    return Response::err_with("no_escape", "Locked rules need an emergency key a week, and frozen ones at most 8 hours", trap);
+                }
                 let weaker = loosens(&self.state, &new_state);
                 if !weaker.is_empty() {
                     if self.locked_now(t) {
@@ -464,6 +505,9 @@ impl<O: Os> Supervisor<O> {
                     return Response::err("busy", "A session is already running");
                 }
                 let level = level.min(3);
+                if level >= 2 && !(self.state.protect.emerg >= 1 && self.state.protect.emerg_week >= 1) {
+                    return Response::err("no_escape", "A locked session needs at least one emergency key a week");
+                }
                 let cap = if level >= 3 { MAX_FROZEN_MIN } else { MAX_SESSION_MIN };
                 if minutes == 0 || minutes > cap || blocks.len() > 100 || name.len() > 80 {
                     return Response::err("bad_request", format!("Length must be 1 to {cap} minutes"));
@@ -573,6 +617,11 @@ impl<O: Os> Supervisor<O> {
         // emergency and uninstall are never easier than "hold"
         if matches!(action, "emergency" | "uninstall") && matches!(protect.friction.as_str(), "none") {
             protect.friction = "hold".into();
+        }
+        // a Normal session can be left or paused at any time, that is what Normal means
+        if matches!(action, "end_session" | "break") && session.as_ref().map(|s| s.level == 0).unwrap_or(false) {
+            protect.friction = "none".into();
+            protect.pin_on = false;
         }
         let ch = Challenge::new(&protect, action, t, seed, used);
         let data = challenge_data(&ch);

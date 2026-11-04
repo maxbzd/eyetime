@@ -3,6 +3,7 @@
 //!   --console      run in the foreground, for trying things out
 //!   --agent        the little program inside the person's session (the service starts it)
 //!   --native-host  the end of the browser extension's messaging channel
+//!   --cleanup      remove every trace of a block (run after stopping the service)
 
 #[cfg(windows)]
 mod win {
@@ -104,6 +105,10 @@ fn main() {
         "--console" => win::run_console(),
         "--agent" => eyetime_helper::agent::run(),
         "--native-host" => eyetime_helper::agent::native_host(),
+        "--cleanup" => {
+            eyetime_helper::os_windows::cleanup_all();
+            println!("EyeTime blocks removed from the hosts file and the system policies.");
+        }
         _ => println!("eyetime-helper --service | --console | --agent | --native-host"),
     }
     #[cfg(not(windows))]

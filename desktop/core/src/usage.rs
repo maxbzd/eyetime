@@ -18,6 +18,9 @@ pub struct DayUsage {
     pub hour_keys: BTreeMap<String, Vec<u32>>,
     pub switches: u32,
     pub offline_secs: u32,
+    /// seconds on things from the distracting list (the whole day, and by hour)
+    pub dis_secs: u32,
+    pub dis_hours: Vec<u32>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
@@ -37,6 +40,9 @@ impl Usage {
         let d = self.days.entry(day.to_string()).or_default();
         if d.hours.len() != 24 {
             d.hours = vec![0; 24];
+        }
+        if d.dis_hours.len() != 24 {
+            d.dis_hours = vec![0; 24];
         }
         d
     }
@@ -80,6 +86,14 @@ impl Usage {
             self.days.remove(&first);
         }
         self.cool_until.retain(|_, until| *until > now.ms);
+    }
+
+    /// The thing counted by the last `tick` was a distracting one.
+    pub fn mark_distracting(&mut self, now: &Now, dt: u32) {
+        let h = now.hour() as usize;
+        let d = self.day_mut(&now.day);
+        d.dis_secs += dt;
+        d.dis_hours[h] += dt;
     }
 
     pub fn today(&self, now: &Now) -> DayUsage {
