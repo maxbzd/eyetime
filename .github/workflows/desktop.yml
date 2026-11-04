@@ -1,0 +1,64 @@
+name: Desktop
+on:
+  push:
+    branches: [main, 'claude/eyetime-v2-redesign']
+    paths: ['desktop/**', '.github/workflows/desktop.yml']
+  pull_request:
+    paths: ['desktop/**', '.github/workflows/desktop.yml']
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: desktop
+
+jobs:
+  # The logic (rules, hosts file, challenges, tamper guards, the helper against a pretend computer) and the screens against it.
+  logic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with: { targets: x86_64-pc-windows-gnu }
+      - uses: Swatinem/rust-cache@v2
+        with: { workspaces: desktop }
+      - run: cargo test -p eyetime-core -p eyetime-helper
+      - name: The Windows code compiles (checked, not run)
+        run: |
+          sudo apt-get update && sudo apt-get install -y gcc-mingw-w64-x86-64
+          cargo check -p eyetime-helper --target x86_64-pc-windows-gnu
+      - name: The screens against the real logic
+        run: |
+          cargo build -p eyetime-helper --bin eyetime-sim
+          (./target/debug/eyetime-sim prototype 8131 &) ; sleep 1
+          npm i --no-save playwright && npx playwright install --with-deps chromium
+          node tests/e2e_real.cjs
+
+  # The real thing, built on Windows: the helper (service), the window (Tauri), and the installer with both inside.
+  windows:
+    runs-on: windows-latest
+    needs: logic
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with: { workspaces: desktop }
+      - name: Build the helper and the window
+        run: cargo build --release -p eyetime-helper -p eyetime
+      - name: Gather the files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force payload | Out-Null
+          Copy-Item target/release/eyetime.exe payload/eyetime.exe
+          Copy-Item target/release/eyetime-helper.exe payload/eyetime-helper.exe
+      - name: Build the installer (with the files inside)
+        shell: pwsh
+        run: |
+          $env:EYETIME_PAYLOAD = (Resolve-Path payload).Path
+          cargo build --release -p eyetime-setup
+          Copy-Item target/release/eyetime-setup.exe EyeTime-Setup.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eyetime-windows
+          path: |
+            desktop/EyeTime-Setup.exe
+          # The installer is not signed yet: Windows SmartScreen will warn about an unknown publisher.

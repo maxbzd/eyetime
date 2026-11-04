@@ -1,0 +1,16 @@
+[package]
+name = "eyetime"
+version = "0.1.0"
+edition = "2021"
+description = "EyeTime desktop: the window"
+build = "build.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png", "image-ico", "custom-protocol"] }
+tauri-plugin-single-instance = "2"
+tauri-plugin-autostart = "2"
+serde = { workspace = true }
+serde_json = { workspace = true }
