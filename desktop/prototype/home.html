@@ -452,7 +452,7 @@ svg { display: block; }
 }
 </style>
 
-<div class="app" id="app">
+<div class="app" id="app" data-view="home">
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
       <linearGradient id="gGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d4f77c"/><stop offset=".55" stop-color="#8cf2c6"/><stop offset="1" stop-color="#86d7ff"/></linearGradient>
@@ -830,20 +830,21 @@ function drawStars(t) {
 /* the cave: two dark rock walls with a faint rim light, a floor, fog; drawn once per size */
 const caveC = $('#cave'), cctx = caveC.getContext('2d');
 function mulberry(a) { return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
-const photos = {};
+const photos = {}; let matcapTex = null;
 /* generated photographs, when there are any: { 'home': 'data:image/jpeg;base64,…' } (drop-in; the drawn scene is the fallback) */
-const PHOTO_URLS = {};
+const PHOTO_URLS = { home: 'assets/home-cave.jpg', 'opal-mint': 'assets/opal-mint.jpg' };
 function loadPhoto(name, then) { if (!PHOTO_URLS[name]) return; const im = new Image(); im.onload = () => { photos[name] = im; then && then(im); }; im.onerror = () => {}; im.src = PHOTO_URLS[name]; }
 function drawCave() {
   const [w, h] = sizeCanvas(caveC, cctx), c = cctx, rnd = mulberry(7); c.clearRect(0, 0, w, h);
   const gw = $('#gemWrap').getBoundingClientRect(), ar = $('#app').getBoundingClientRect(), sy = gw.top - ar.top + gw.height * .79, sx = gw.left - ar.left + gw.width / 2;
   c.fillStyle = '#010403'; c.fillRect(0, 0, w, h);
-  if (photos.home) { /* a generated or photographed cave replaces the drawn one */
-    const im = photos.home, k = Math.max(w / im.width, h / im.height); c.drawImage(im, (w - im.width * k) / 2, (h - im.height * k) / 2, im.width * k, im.height * k);
-    c.fillStyle = 'rgba(0,3,2,.28)'; c.fillRect(0, 0, w, h); return;
+  if (photos.home) { /* a photographed cave replaces the drawn one: the arch frames the gem, the slab is the ground below the interface */
+    const im = photos.home, k = Math.max(w / im.width, h / im.height) * 1.04, iw = im.width * k, ih = im.height * k, ox = clamp(w / 2 - .49 * iw, w - iw, 0), oy = h - ih;
+    c.drawImage(im, ox, oy, iw, ih);
+    const vg = c.createRadialGradient(w / 2, h * .42, h * .18, w / 2, h * .5, Math.max(w, h) * .75); vg.addColorStop(0, 'rgba(0,3,2,0)'); vg.addColorStop(1, 'rgba(0,3,2,.55)'); c.fillStyle = vg; c.fillRect(0, 0, w, h);
+    const tx = c.createLinearGradient(0, h * .46, 0, h * .9); tx.addColorStop(0, 'rgba(0,3,2,0)'); tx.addColorStop(1, 'rgba(0,3,2,.62)'); c.fillStyle = tx; c.fillRect(0, h * .46, w, h * .54);
+    return;
   }
-  /* the mouth of the cave, a soft shaft of light, and the glow of the sky */
-  const mouth = c.createRadialGradient(w / 2, h * .06, 0, w / 2, h * .06, Math.max(w * .55, h * .7)); mouth.addColorStop(0, 'rgba(60,150,128,.34)'); mouth.addColorStop(.45, 'rgba(20,70,64,.14)'); mouth.addColorStop(1, 'rgba(2,10,9,0)'); c.fillStyle = mouth; c.fillRect(0, 0, w, h);
   /* soft things are drawn small and scaled up (cheap, and it works where canvas filters do not) */
   const small = (k, draw) => { const oc = document.createElement('canvas'); oc.width = Math.max(2, Math.round(w * k)); oc.height = Math.max(2, Math.round(h * k)); const o = oc.getContext('2d'); o.scale(k, k); draw(o); c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high'; c.drawImage(oc, 0, 0, w, h); };
   small(.12, (o) => { const shaft = o.createLinearGradient(0, 0, 0, sy); shaft.addColorStop(0, 'rgba(170,255,225,.22)'); shaft.addColorStop(.7, 'rgba(140,242,198,.08)'); shaft.addColorStop(1, 'rgba(140,242,198,0)'); o.fillStyle = shaft; o.beginPath(); o.moveTo(w / 2 - w * .06, 0); o.lineTo(w / 2 + w * .06, 0); o.lineTo(sx + w * .15, sy); o.lineTo(sx - w * .15, sy); o.closePath(); o.fill(); });
@@ -887,6 +888,7 @@ void main(){ vec3 p=normalize(position); vec3 t=normalize(cross(p,vec3(0.,1.,.01
  vOo=p; vN=normalize(mat3(modelMatrix)*n); vec4 w=modelMatrix*vec4(P0,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`;
 const GEM_FRAG = `precision highp float; uniform float uTime; uniform float uIntro; uniform float uHue; uniform float uGlow; uniform sampler2D uMat; uniform float uMatAmt; uniform float uSeed; uniform float uLock; varying vec3 vN; varying vec3 vW; varying vec3 vOo; ${GLSL_NOISE}
 vec3 pal(float t){ return .5+.5*cos(6.28318*(t+vec3(0.,.33,.67))); }
+vec3 hueRot(vec3 c,float a){ const vec3 k=vec3(.57735); float ca=cos(a),sa=sin(a); return c*ca+cross(k,c)*sa+k*dot(k,c)*(1.-ca); }
 vec3 env(vec3 d){ float up=d.y*.5+.5; vec3 c=mix(vec3(.01,.05,.06),vec3(.08,.18,.2),up);
  c+=vec3(1.,.96,.9)*2.2*pow(max(dot(d,normalize(vec3(-.5,.8,.6))),0.),38.); c+=vec3(.4,1.,.8)*1.1*pow(max(dot(d,normalize(vec3(.85,.1,.45))),0.),14.); c+=vec3(.6,.45,1.)*1.*pow(max(dot(d,normalize(vec3(-.9,-.2,.25))),0.),12.); c+=vec3(1.,.6,.7)*.7*pow(max(dot(d,normalize(vec3(.2,-.9,.3))),0.),8.); return c; }
 void main(){ vec3 vO=vOo+vec3(uSeed*.6,uSeed*1.1,uSeed*.4); vec3 N=normalize(vN); vec3 V=normalize(cameraPosition-vW); float ndv=clamp(dot(N,V),0.,1.); float fres=pow(1.-ndv,3.); float rim=pow(1.-ndv,1.7); vec3 R=reflect(-V,N); vec3 Rf=refract(-V,N,.8);
@@ -897,7 +899,7 @@ void main(){ vec3 vO=vOo+vec3(uSeed*.6,uSeed*1.1,uSeed*.4); vec3 N=normalize(vN)
  vec3 col=base+inner*.9+irid*(.16+.95*rim); col+=vec3(.1,.17,.17)*ndv;
  col+=env(R)*(.22+fres*1.2); float sp=pow(max(snoise(vO*16.+uTime*.2),0.),5.); col+=vec3(1.)*sp*.35*ndv;
  float n=snoise(vO*3.)*.5+.5; float th=uIntro*1.3-.12; if(uIntro<.999&&n>th) discard; float edge=smoothstep(th-.1,th,n)*step(uIntro,.999); col+=vec3(1.,.95,.8)*edge*3.2;
- if(uMatAmt>.001){ vec3 Nv=normalize((viewMatrix*vec4(N,0.)).xyz); vec3 mc=texture2D(uMat,Nv.xy*.5+.5).rgb; col=mix(col,mc*1.12+env(R)*.18+irid*.06*(1.-ndv),uMatAmt*.85); }
+ if(uMatAmt>.001){ vec3 Nv=normalize((viewMatrix*vec4(N,0.)).xyz); vec2 uv=Nv.xy*.46+.5+.045*vec2(snoise(vO*1.7+vec3(uTime*.07,0.,0.)),snoise(vO*1.7+vec3(7.,uTime*.07,0.))); vec3 mc=texture2D(uMat,clamp(uv,.02,.98)).rgb; float lu=dot(mc,vec3(.3,.55,.15)); mc=mix(vec3(lu),mc,2.1); mc=pow(max(mc,0.),vec3(1.22))*1.55; mc=hueRot(mc,uHue*6.28318); col=mix(col,mc+env(R)*.16+irid*.12*rim+vec3(1.)*fres*.18,uMatAmt*.82); }
  col=mix(col,vec3(dot(col,vec3(.3,.5,.2)))*.42,uLock); col*=1.+uGlow*.55; col=1.-exp(-col*1.35); gl_FragColor=vec4(col,1.); }`;
 function initGem() {
   const canvas = $('#gem'), wrap = $('#gemWrap'); let renderer;
@@ -923,7 +925,7 @@ function initGem() {
   const pg = new THREE.BufferGeometry(); pg.setAttribute('position', new THREE.BufferAttribute(pos, 3)); const dust = new THREE.Points(pg, new THREE.PointsMaterial({ map: glowTex, size: .16, transparent: true, opacity: 0, color: 0xcffff0, blending: THREE.AdditiveBlending, depthWrite: false })); scene.add(dust);
   let w = 0, h = 0; const resize = () => { const r = wrap.getBoundingClientRect(); w = Math.max(2, r.width); h = Math.max(2, r.height); renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = w / h < .8 ? 40 : 30; camera.updateProjectionMatrix(); }; resize();
   const api = { hue: 0, hueT: 0, glowT: 0, pulseV: 0, spin: 0, introDone: false, resize,
-    setHue(v) { this.hueT = v; }, pulse(v = 1) { this.pulseV = Math.max(this.pulseV, v); }, glow(v) { this.glowT = v; }, flash() { this.pulseV = 1.4; }, setBase(v) { this.base = v; this.hueT = v; }, setMatcap(tex) { uni.uMat.value = tex; const t0m = performance.now(); const go = () => { const k = clamp((performance.now() - t0m) / 1400, 0, 1); uni.uMatAmt.value = k; if (k < 1) requestAnimationFrame(go); }; go(); } };
+    setHue(v) { this.hueT = v; }, pulse(v = 1) { this.pulseV = Math.max(this.pulseV, v); }, glow(v) { this.glowT = v; }, flash() { this.pulseV = 1.4; }, setStand(v) { stand.visible = v; pool.position.y = v ? -1.4 : -1.75; }, setBase(v) { this.base = v; this.hueT = v; }, setMatcap(tex) { uni.uMat.value = tex; const t0m = performance.now(); const go = () => { const k = clamp((performance.now() - t0m) / 1400, 0, 1); uni.uMatAmt.value = k; if (k < 1) requestAnimationFrame(go); }; go(); } };
   let t0 = performance.now(), last = t0; const tIntro = t0 + 300; api.rotY = 0.4; api.vel = 0; let drag = null; canvas.style.cursor = 'grab';
   canvas.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, moved: 0, t: e.timeStamp }; canvas.setPointerCapture(e.pointerId); canvas.style.cursor = 'grabbing'; });
   canvas.addEventListener('pointermove', (e) => { if (!drag) return; const dx = e.clientX - drag.x; drag.x = e.clientX; drag.moved += Math.abs(dx); api.rotY += dx * .011; api.vel = clamp(dx * .11, -9, 9); });
@@ -949,7 +951,7 @@ function gemStill({ hue = 0, seed = 0, lock = 0, size = 360, rot = .5 } = {}) {
     const cv = document.createElement('canvas'); cv.width = cv.height = size;
     const r = new THREE.WebGLRenderer({ canvas: cv, alpha: true, antialias: true, preserveDrawingBuffer: true }); r.setSize(size, size, false); r.setClearColor(0x000000, 0);
     const sc = new THREE.Scene(), cam = new THREE.PerspectiveCamera(28, 1, .1, 50); cam.position.set(0, 0, 5.7);
-    const u = { uTime: { value: 3 + seed }, uIntro: { value: 1 }, uHue: { value: hue }, uGlow: { value: 0 }, uPulse: { value: 0 }, uSeed: { value: seed }, uLock: { value: lock }, uMat: { value: null }, uMatAmt: { value: 0 } };
+    const u = { uTime: { value: 3 + seed }, uIntro: { value: 1 }, uHue: { value: hue }, uGlow: { value: 0 }, uPulse: { value: 0 }, uSeed: { value: seed }, uLock: { value: lock }, uMat: { value: matcapTex }, uMatAmt: { value: matcapTex ? 1 : 0 } };
     const m = new THREE.Mesh(new THREE.SphereGeometry(1, 128, 96), new THREE.ShaderMaterial({ vertexShader: GEM_VERT, fragmentShader: GEM_FRAG, uniforms: u })); m.rotation.y = rot; sc.add(m); r.render(sc, cam);
     const url = cv.toDataURL('image/png'); r.dispose(); const ext = r.getContext().getExtension('WEBGL_lose_context'); if (ext) ext.loseContext(); return url;
   } catch { return ''; }
@@ -1186,8 +1188,8 @@ async function boot() {
   buildSpectrum(); initStars(); drawCave(); buildChart(BARS[0]); setDelta(state.delta);
   window.__gem = initGem(); if (window.__gem) window.__gem.hueT = 0;
   { const th = store.get('et-hue'); if (th !== null && window.__gem) window.__gem.setBase(+th); }
-  loadPhoto('home', () => drawCave());
-  loadPhoto('opal-mint', (im) => { const g = window.__gem; if (!g) return; const tex = new THREE.Texture(im); tex.needsUpdate = true; g.setMatcap(tex); });
+  loadPhoto('home', () => { drawCave(); if (window.__gem) window.__gem.setStand(false); });
+  loadPhoto('opal-mint', (im) => { const g = window.__gem; if (!g) return; const tex = new THREE.Texture(im); tex.needsUpdate = true; matcapTex = tex; g.setMatcap(tex); });
   applyLang();
   const t0 = performance.now(); const cdEl = $('#countdown'), doneEl = $('#done'); function tick(now) { const covered = ET.view !== 'home' || cdEl.classList.contains('on') || doneEl.classList.contains('on') || (run.on && !run.minimized); if (!covered) { drawStars(now - t0); if (window.__gem) window.__gem.frame(now); } requestAnimationFrame(tick); } requestAnimationFrame(tick);
   durWheel = wheel($('#durWheel'), DURS, S.min, (v) => { S.min = v; renderSheet(); }, (v) => `${v} ${lang === 'ru' ? 'мин' : 'min'}`);
