@@ -18,9 +18,12 @@ import { applySettings } from './apply.js';
 import { logError } from '../shared/errorlog.js';
 
 import { syncCalendar, armCalendar } from './calendar.js';
+import { syncConnections, armConnections } from './connections.js';
 
 const handlers = {
   'calendar:sync': async () => { await armCalendar(); return syncCalendar(); },
+  'conn:sync': async (m) => { await syncConnections({ only: typeof m.id === 'string' ? m.id : '', force: true }); return { ok: true }; },
+  'conn:arm': async () => { await armConnections(); return { ok: true }; },
   'focus:start': (m) => startFocus(m),
   'focus:stop': async () => {
     const { focus } = await getRaw('focus');
