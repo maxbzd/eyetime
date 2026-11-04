@@ -186,6 +186,34 @@ pub fn loosens(old: &State, new: &State) -> Vec<String> {
     out
 }
 
+/// A frozen block never lasts longer than this (minutes)
+pub const MAX_FROZEN_MIN: u32 = 8 * 60;
+
+/// Can the person always get out? A locked or frozen setup needs at least one emergency key a week, and a frozen one must be short.
+/// Returns the reasons the setup is refused (empty: fine). This runs inside the helper: the window cannot talk its way around it.
+pub fn unsafe_setup(state: &State) -> Vec<String> {
+    let mut out = Vec::new();
+    let keys_ok = state.protect.emerg >= 1 && state.protect.emerg_week >= 1;
+    for r in state.rules.iter().filter(|r| r.on && r.kind == "schedule" && r.level >= 2) {
+        if !keys_ok {
+            out.push(format!("no_escape: {}", r.name));
+        }
+        if r.level >= 3 {
+            let (f, t) = (crate::schedule::parse_hm(&r.from), crate::schedule::parse_hm(&r.to));
+            let len = match (f, t) {
+                (Some(f), Some(t)) if f == t => 1440u32,
+                (Some(f), Some(t)) if t > f => (t - f) as u32,
+                (Some(f), Some(t)) => (1440 - f + t) as u32,
+                _ => 0,
+            };
+            if len > MAX_FROZEN_MIN {
+                out.push(format!("too_long: {}", r.name));
+            }
+        }
+    }
+    out
+}
+
 fn friction_rank(f: &str) -> u8 {
     match f {
         "friend" => 5,
@@ -227,6 +255,27 @@ mod tests {
         assert!(!g.tampered());
         // a new lock takes a new anchor
         assert_eq!(g.trusted_ms(9_000_000, 1_000, true), 9_000_000);
+    }
+
+    #[test]
+    fn locked_setups_always_have_a_way_out() {
+        let mut s = base();
+        assert!(unsafe_setup(&s).is_empty());
+        s.protect.emerg = 0;
+        assert_eq!(unsafe_setup(&s).len(), 1);
+        s.protect.emerg = 3;
+        s.protect.emerg_week = 0;
+        assert_eq!(unsafe_setup(&s).len(), 1);
+        s.protect.emerg_week = 1;
+        s.rules[0].level = 3; // 09:00-17:00 is 8 hours: fine
+        assert!(unsafe_setup(&s).is_empty());
+        s.rules[0].to = "17:01".into();
+        assert!(unsafe_setup(&s)[0].starts_with("too_long"));
+        s.rules[0].from = "00:00".into();
+        s.rules[0].to = "00:00".into(); // all day
+        assert!(unsafe_setup(&s)[0].starts_with("too_long"));
+        s.rules[0].on = false; // a rule that is off cannot trap anyone
+        assert!(unsafe_setup(&s).is_empty());
     }
 
     #[test]

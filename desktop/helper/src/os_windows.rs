@@ -12,7 +12,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use windows_sys::Win32::Foundation::{CloseHandle, INVALID_HANDLE_VALUE};
 use windows_sys::Win32::System::Diagnostics::ToolHelp::{CreateToolhelp32Snapshot, Process32FirstW, Process32NextW, PROCESSENTRY32W, TH32CS_SNAPPROCESS};
 use windows_sys::Win32::System::Power::{SetThreadExecutionState, ES_CONTINUOUS, ES_SYSTEM_REQUIRED};
-use windows_sys::Win32::System::SystemInformation::{GetLocalTime, GetSystemTime, GetTickCount64};
+use windows_sys::Win32::System::SystemInformation::{GetLocalTime, GetSystemTime};
+use windows_sys::Win32::System::WindowsProgramming::QueryInterruptTime;
 use windows_sys::Win32::System::Threading::{OpenProcess, TerminateProcess, PROCESS_TERMINATE};
 use windows_sys::Win32::UI::WindowsAndMessaging::{GetSystemMetrics, SM_CLEANBOOT};
 use windows_sys::Win32::Foundation::SYSTEMTIME;
@@ -59,7 +60,10 @@ impl Os for WinOs {
         SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_millis() as i64).unwrap_or(0)
     }
     fn mono_ms(&self) -> i64 {
-        unsafe { GetTickCount64() as i64 }
+        // interrupt time counts the time the computer slept too, in 100 ns steps; the person cannot set it
+        let mut t = 0u64;
+        unsafe { QueryInterruptTime(&mut t) };
+        (t / 10_000) as i64
     }
     fn tz_offset_ms(&self) -> i64 {
         unsafe {
@@ -79,6 +83,16 @@ impl Os for WinOs {
     }
     fn write_hosts(&self, text: &str) -> io::Result<()> {
         let p = hosts_path();
+        // the original file is kept once, before we ever touch it
+        let backup = data_dir().join("hosts.original");
+        if !backup.exists() {
+            if let Ok(orig) = std::fs::read(&p) {
+                if !String::from_utf8_lossy(&orig).contains(eyetime_core::hosts::BEGIN) {
+                    let _ = std::fs::create_dir_all(data_dir());
+                    let _ = std::fs::write(&backup, orig);
+                }
+            }
+        }
         if let Ok(meta) = std::fs::metadata(&p) {
             let mut perm = meta.permissions();
             if perm.readonly() {
@@ -86,6 +100,12 @@ impl Os for WinOs {
                 let _ = std::fs::set_permissions(&p, perm);
             }
         }
+        // write beside it and swap, so that a failure half way never leaves a broken file; if the swap is refused, write in place
+        let tmp = p.with_file_name("hosts.eyetime-new");
+        if std::fs::write(&tmp, text.as_bytes()).is_ok() && std::fs::rename(&tmp, &p).is_ok() {
+            return Ok(());
+        }
+        let _ = std::fs::remove_file(&tmp);
         std::fs::write(&p, text.as_bytes())
     }
     fn flush_dns(&self) {
@@ -220,4 +240,19 @@ pub fn spawn_agent() -> bool {
         CloseHandle(pi.hThread);
         true
     }
+}
+
+/// Put everything back as it was: no block in the hosts file, task manager and Firefox policies cleared.
+/// The uninstaller runs this after the service is gone; it is also the first thing to try if something ever seems stuck.
+pub fn cleanup_all() {
+    let os = WinOs;
+    if let Ok(cur) = os.read_hosts() {
+        if !eyetime_core::hosts::is_current(&cur, &[]) {
+            let _ = os.write_hosts(&eyetime_core::hosts::render(&cur, &[]));
+            os.flush_dns();
+        }
+    }
+    os.set_taskmgr_locked(false);
+    os.set_firefox_doh_off(false);
+    os.set_keep_awake(false);
 }

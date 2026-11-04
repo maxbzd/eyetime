@@ -32,6 +32,8 @@ pub enum Request {
     Site { #[serde(default)] host: Option<String>, #[serde(default)] incognito: bool, #[serde(default)] browser: String },
     Decision,
     Usage,
+    /// end a break and take back any "unblocked for a while" that was granted
+    Resume,
     /// the installer and the window ask before uninstalling
     Uninstall { #[serde(default)] pin: Option<String> },
     /// the little agent in the person's session: what it sees, every couple of seconds. The answer is what it should do.
@@ -60,6 +62,8 @@ pub struct Orders {
     pub close_private: bool,
     pub mute: bool,
     pub dnd: bool,
+    /// programs that are asked to close politely (so that they can offer to save), before they are closed by force
+    pub close_pids: Vec<u32>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
