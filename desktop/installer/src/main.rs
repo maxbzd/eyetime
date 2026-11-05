@@ -45,6 +45,32 @@ fn main() {
         return;
     }
 
+    // no window: for scripts and for the automatic checks (--silent [--log <file>]). Exit code 0 means it worked.
+    if args.iter().any(|a| a == "--silent") {
+        let log = args.iter().position(|a| a == "--log").and_then(|i| args.get(i + 1)).cloned();
+        let failed = std::sync::atomic::AtomicBool::new(false);
+        let emit = |m: String| {
+            if m.contains("\"type\":\"error\"") || m.contains("\"type\":\"blocked\"") {
+                failed.store(true, std::sync::atomic::Ordering::Relaxed);
+            }
+            if let Some(path) = &log {
+                use std::io::Write;
+                if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(path) {
+                    let _ = writeln!(f, "{m}");
+                }
+            }
+        };
+        if uninstall {
+            steps::uninstall(false, &emit);
+            if !failed.load(std::sync::atomic::Ordering::Relaxed) {
+                steps::remove_self_later();
+            }
+        } else {
+            steps::install(true, &emit);
+        }
+        std::process::exit(if failed.load(std::sync::atomic::Ordering::Relaxed) { 1 } else { 0 });
+    }
+
     let event_loop = EventLoopBuilder::<Ui>::with_user_event().build();
     let proxy = event_loop.create_proxy();
     let window = WindowBuilder::new()
