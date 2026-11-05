@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>EyeTime Desktop</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 
@@ -261,6 +262,7 @@ svg { display: block; }
 /* ------------------------------------------------------------------ right column */
 .shield-ico { width: 52px; height: 52px; border-radius: 18px; display: grid; place-items: center; background: linear-gradient(145deg, rgba(140, 242, 198, .26), rgba(140, 242, 198, .05)); border: 1px solid rgba(140, 242, 198, .35); color: var(--mint); position: relative; flex: none; transition: background .5s, color .5s, border-color .5s; }
 .shield-ico .ico { width: 26px; height: 26px; }
+.shield-ico:has(.ringp) { border-radius: 50%; } /* a round stone inside a round ring: no square corners showing through */
 .shield-ico svg.ringp { position: absolute; inset: -5px; width: calc(100% + 10px); height: calc(100% + 10px); transform: rotate(-90deg); }
 .shield-ico circle { fill: none; stroke-width: 2; }
 .shield-ico circle.bgc { stroke: rgba(140, 242, 198, .14); }
@@ -1045,7 +1047,7 @@ let durWheel, unWheel;
 function renderSheet() {
   $('#durVal').textContent = S.min >= 60 && S.min % 60 === 0 ? `${S.min / 60}${lang === 'ru' ? ' ч' : 'h'}` : `${S.min}${lang === 'ru' ? ' мин' : 'm'}`;
   $('#blockVal').textContent = W().blockedN(S.blocks.size, S.blocks.size * 3 + 4); $('#diffVal').textContent = W().diff[S.diff];
-  const bc = $('#blockChips'); bc.innerHTML = ''; BLOCKABLE.forEach(([n, c]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.setAttribute('aria-pressed', String(S.blocks.has(n))); b.innerHTML = `<span class="app-tile" style="background:${c}">${n.slice(0, 2)}</span>${n}`; b.addEventListener('click', () => { S.blocks.has(n) ? S.blocks.delete(n) : S.blocks.add(n); b.setAttribute('aria-pressed', String(S.blocks.has(n))); $('#blockVal').textContent = W().blockedN(S.blocks.size, S.blocks.size * 3 + 4); }); bc.append(b); });
+  const bc = $('#blockChips'); bc.innerHTML = ''; BLOCKABLE.forEach(([n, c]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.setAttribute('aria-pressed', String(S.blocks.has(n))); b.innerHTML = `<span class="app-tile" data-n="${String(n).replace(/"/g, '&quot;')}" style="background:${c}">${n.slice(0, 2)}</span>${n}`; b.addEventListener('click', () => { S.blocks.has(n) ? S.blocks.delete(n) : S.blocks.add(n); b.setAttribute('aria-pressed', String(S.blocks.has(n))); $('#blockVal').textContent = W().blockedN(S.blocks.size, S.blocks.size * 3 + 4); }); bc.append(b); });
   const labels = W().diff; $$('#seg button').forEach((b, i) => { b.textContent = labels[i]; b.setAttribute('aria-pressed', String(i === S.diff)); }); $('.seg-hi').style.transform = `translateX(${S.diff * 100}%)`; $('#segDesc').textContent = W().diffDesc[S.diff]; $('#infoLine').textContent = W().info[S.diff];
   { const mo = $('#moreList'), names = { close: W().mClose, dnd: W().mDnd, mute: W().mMute, cycles: W().mCycles, breaks: W().mBreaks }; mo.innerHTML = '';
     Object.keys(names).forEach((k) => { const r = document.createElement('div'); r.className = 'mo-row'; r.innerHTML = `<span>${names[k]}</span><button class="sw" role="switch" aria-checked="${S.more[k]}" type="button" aria-label="${names[k]}"></button>`; $('.sw', r).addEventListener('click', (e) => { S.more[k] = !S.more[k]; e.currentTarget.setAttribute('aria-checked', String(S.more[k])); $('#moreVal').textContent = Object.values(S.more).filter(Boolean).length + ' ' + W().on; }); mo.append(r); });
@@ -1251,7 +1253,7 @@ Object.assign(ET, {
   setBlockCard(c) { realCard = c; if (blockedNow) renderBlockCard(); },
   unblockGranted(m) { unMin = m; blockedNow = false; openUntil = Date.now() + m * 60000; renderBlockCard(); clearInterval(openTimer); tickOpen(); openTimer = setInterval(tickOpen, 250); },
   askUnblockMinutes: () => unMin,
-  setHome(d) { if (dayOffset !== 0 || !booted) { DAYS[0] = { ...DAYS[0], ...d.day }; if (d.bars) BARS[0] = d.bars; return; } DAYS[0] = { ...DAYS[0], ...d.day }; state = { ...DAYS[0] }; if (d.bars) { BARS[0] = d.bars; buildChart(BARS[0]); } countBig(state.screen, 600); countTo($('#focusPct'), state.focusPct, 600, (v) => Math.round(v) + '%'); countTo($('#switchNum'), state.switches, 400); countTo($('#scoreVal'), state.score, 600); paintGauges(600); drawOffline(); $('#offlineMeter').style.width = state.offPct + '%'; countTo($('#offlineVal'), state.offline, 600, (v) => W().hm(Math.floor(v / 60), Math.round(v) % 60)); },
+  setHome(d) { const sig = JSON.stringify(d); if (sig === ET._homeSig) return; ET._homeSig = sig; if (dayOffset !== 0 || !booted) { DAYS[0] = { ...DAYS[0], ...d.day }; if (d.bars) BARS[0] = d.bars; return; } DAYS[0] = { ...DAYS[0], ...d.day }; state = { ...DAYS[0] }; if (d.bars) { BARS[0] = d.bars; buildChart(BARS[0]); } countBig(state.screen, 600); countTo($('#focusPct'), state.focusPct, 600, (v) => Math.round(v) + '%'); countTo($('#switchNum'), state.switches, 400); countTo($('#scoreVal'), state.score, 600); paintGauges(600); drawOffline(); $('#offlineMeter').style.width = state.offPct + '%'; countTo($('#offlineVal'), state.offline, 600, (v) => W().hm(Math.floor(v / 60), Math.round(v) % 60)); },
   setStreak(n) { $('#streakNum').textContent = $('#flameNum').textContent = String(n); },
   /* a session that was already running when the window opened: no countdown, straight to the lake */
   resumeRun(ses, leftSec, totalSec) { if (run.on) return; Object.assign(S, { name: ses.name, min: Math.round(totalSec / 60), diff: ses.level, scene: ses.scene || S.scene }); beginRun(); run.total = totalSec; run.left = leftSec; run.startedAt = ses.startedAtMs; $('#tStart').textContent = fmtClock(ses.startedAtMs); $('#tEnd').textContent = fmtClock(ses.endsAtMs); },
@@ -1267,4 +1269,5 @@ document.fonts && document.fonts.ready ? document.fonts.ready.then(boot) : boot(
 <script src="screens/insights.js"></script>
 <script src="screens/profile.js"></script>
 <script src="screens/settings.js"></script>
+<script src="brands.js"></script>
 <script src="bridge.js"></script>

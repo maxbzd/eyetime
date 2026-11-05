@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <title>EyeTime Setup</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="app://localhost/fonts.css">
+<link rel="stylesheet" href="/fonts.css">
 <style>
 :root { --mint: #8cf2c6; --lime: #d4f77c; --text: #eaf2ff; --text-2: #9fb0c8; --rose: #ff6b7d; --amber: #ffb86b; --out: cubic-bezier(.16, 1, .3, 1); }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; color: var(--text); font-family: Figtree, 'Segoe UI', system-ui, sans-serif; -webkit-font-smoothing: antialiased; user-select: none; }
 #win { position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: 22px; background: #05080e; }
 /* the cave, slowly breathing */
-#cave { position: absolute; inset: -4%; background: url(app://localhost/cave.jpg) center / cover; opacity: 0; transform: scale(1.12); transition: opacity 2.2s ease, transform 14s ease-out; filter: saturate(1.05); }
+#cave { position: absolute; inset: -4%; background: url(/cave.jpg) center / cover; opacity: 0; transform: scale(1.12); transition: opacity 2.2s ease, transform 14s ease-out; filter: saturate(1.05); }
 .on #cave { opacity: .9; transform: scale(1.0); }
 #shade { position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 40%, rgba(5, 8, 14, 0) 20%, rgba(5, 8, 14, .55) 70%, rgba(5, 8, 14, .92) 100%), linear-gradient(180deg, rgba(5, 8, 14, .35), rgba(5, 8, 14, .1) 40%, rgba(5, 8, 14, .8)); }
 canvas#sky { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -173,7 +173,7 @@ function size() { const r = sky.getBoundingClientRect(), d = Math.min(2, deviceP
 addEventListener('resize', size); size();
 
 /* the gem: a turntable of 60 frames rendered from the real stone */
-const sprite = new Image(); sprite.src = 'app://localhost/gem-sprite.webp';
+const sprite = new Image(); sprite.src = '/gem-sprite.webp';
 const gem = $('#gem'), gx = gem.getContext('2d'); const FR = 60, COLS = 10, FS = 300;
 let ang = 0, spin = 0.18, pct = 0, shownPct = 0, burst = [], t0 = performance.now();
 function frame(now) {

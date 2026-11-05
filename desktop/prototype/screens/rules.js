@@ -93,7 +93,7 @@
 
   /* ---------------- the screen ---------------- */
   const ico = (n, c = '') => `<svg class="ico ${c}"><use href="#i-${n}"/></svg>`;
-  const tile = (it, cls = '') => `<span class="app-tile ${cls}" style="background:${it.color}">${it.name.slice(0, 2)}</span>`;
+  const tile = (it, cls = '') => `<span class="app-tile ${cls}" data-n="${String(it.name).replace(/"/g, '&quot;')}" style="background:${it.color}">${it.name.slice(0, 2)}</span>`;
   const gcolor = { dis: 'var(--rose)', neu: 'var(--sky)', allow: 'var(--mint)' };
   let root, editing = null;
 
