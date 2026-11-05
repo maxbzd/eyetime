@@ -32,6 +32,12 @@ jobs:
           (./target/debug/eyetime-sim prototype 8131 &) ; sleep 1
           npm i --no-save playwright && npx playwright install --with-deps chromium
           node tests/e2e_real.cjs
+      - name: The browser extension (its rules, then in a real Chromium through a native host)
+        run: |
+          node --test tests/extension_rules.test.mjs
+          pkill -f eyetime-sim || true
+          (./target/debug/eyetime-sim prototype 8131 &) ; sleep 1
+          node tests/ext_e2e.cjs
 
   # The real thing, built on Windows: the helper (service), the window (Tauri), and the installer with both inside.
   windows:

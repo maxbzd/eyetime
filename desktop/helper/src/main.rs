@@ -105,6 +105,8 @@ fn main() {
         "--console" => win::run_console(),
         "--agent" => eyetime_helper::agent::run(),
         "--native-host" => eyetime_helper::agent::native_host(),
+        // a browser starts a native host with the address of the extension as its first argument
+        o if o.starts_with("chrome-extension://") || o.starts_with("moz-extension://") => eyetime_helper::agent::native_host(),
         "--cleanup" => {
             eyetime_helper::os_windows::cleanup_all();
             println!("EyeTime blocks removed from the hosts file and the system policies.");
