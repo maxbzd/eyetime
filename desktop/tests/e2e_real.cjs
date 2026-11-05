@@ -18,6 +18,7 @@ const status = async () => (await post('/req', { op: 'status' })).data;
   });
   const page = await ctx.newPage();
   const errs = []; page.on('pageerror', (e) => errs.push(e.message)); page.on('console', (m) => { if (m.type() === 'error') errs.push(m.text()); });
+  const missing = []; page.on('response', (r) => { if (r.status() >= 400) missing.push(r.status() + ' ' + r.url()); });
   await page.goto(BASE + '/home.html');
   await page.waitForTimeout(5200);
   ok(await page.evaluate(() => document.documentElement.classList.contains('real')), 'real mode is on');
@@ -25,8 +26,8 @@ const status = async () => (await post('/req', { op: 'status' })).data;
 
   // the setup goes to the helper
   await page.evaluate(() => { ET.store.set('et-items', JSON.stringify([{ name: 'YouTube', type: 'site', g: 'dis', color: '#f00', domain: '', exe: '' }, { name: 'Steam', type: 'app', g: 'dis', color: '#00f', domain: '', exe: '' }])); });
-  await page.waitForTimeout(700);
-  let st = await post('/req', { op: 'get_state' });
+  let st = { data: null };
+  for (let i = 0; i < 40 && !(st.data && st.data['et-items'] && st.data['et-items'].length === 2); i++) { await page.waitForTimeout(250); st = await post('/req', { op: 'get_state' }); } // a slow machine needs longer
   ok(st.data && st.data['et-items'] && st.data['et-items'].length === 2, 'items reached the helper');
   await post('/sim', { procs: [['steam.exe', 10], ['notepad.exe', 11]], fg: 'notepad.exe' });
 
@@ -160,7 +161,7 @@ const status = async () => (await post('/req', { op: 'status' })).data;
   ok(/0\.2\.0/.test(await page.textContent('.upd-done')), 'after the update the window says what is new');
   await page.evaluate(() => document.querySelector('.upd-done .go').click()); await page.waitForTimeout(1200);
   ok((await status()).update.updated === null, 'the what-is-new is shown once');
-  ok(errs.length === 0, 'no page errors: ' + errs.slice(0, 3).join(' | '));
+  ok(errs.length === 0, 'no page errors: ' + errs.slice(0, 3).join(' | ') + (missing.length ? ' [' + missing.slice(0, 4).join(' ; ') + ']' : ''));
   await browser.close();
   log(failed ? `${failed} FAILED` : 'ALL OK');
   process.exit(failed ? 1 : 0);
