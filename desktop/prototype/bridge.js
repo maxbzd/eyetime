@@ -273,7 +273,7 @@
       const top = Object.entries(today.secs || {}).sort((x, y) => y[1] - x[1]).slice(0, 3), sig = top.map((t) => t[0]).join();
       if (stack.dataset.sig !== sig) {
         stack.dataset.sig = sig; stack.innerHTML = '';
-        top.forEach(([k]) => { const name = k.replace(/^(exe|site):/, '').replace(/\.(exe|com|org|net|ru)$/, ''); let h = 0; for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) % 360; const t = document.createElement('span'); t.className = 'app-tile'; t.title = name; t.style.background = `hsl(${h} 65% 48%)`; t.textContent = name.slice(0, 2).replace(/^./, (c) => c.toUpperCase()); stack.append(t); });
+        top.forEach(([k]) => { const name = k.replace(/^(exe|site):/, '').replace(/\.(exe|com|org|net|ru)$/, ''); let h = 0; for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) % 360; const t = document.createElement('span'); t.className = 'app-tile'; t.title = name; t.dataset.n = name; t.style.background = `hsl(${h} 65% 48%)`; t.textContent = name.slice(0, 2).replace(/^./, (c) => c.toUpperCase()); stack.append(t); });
       }
     }
   }
