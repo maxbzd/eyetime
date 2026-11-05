@@ -3,6 +3,8 @@
 
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod nudge;
+
 use serde_json::{json, Value};
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, Read, Write};
@@ -71,7 +73,7 @@ fn settings_path() -> PathBuf {
     let base = std::env::var_os("APPDATA").map(PathBuf::from).unwrap_or_else(std::env::temp_dir);
     base.join("EyeTime").join("app.json")
 }
-fn read_settings() -> Value {
+pub(crate) fn read_settings() -> Value {
     std::fs::read_to_string(settings_path()).ok().and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_else(|| json!({"launch": true, "tray": true}))
 }
 fn write_settings(v: &Value) {
@@ -97,6 +99,10 @@ fn apply_setting(app: AppHandle, key: String, value: String) -> Result<(), Strin
             s["launch"] = json!(on);
         }
         "tray" => s["tray"] = json!(on),
+        "notify" => s["notify"] = json!(on),
+        "every" => s["every"] = json!(value.trim().parse::<u64>().unwrap_or(20).clamp(5, 120)),
+        "bed" => s["bed"] = json!(value.trim()),
+        "lang" => s["lang"] = json!(value.trim()),
         _ => return Ok(()),
     }
     write_settings(&s);
@@ -188,6 +194,7 @@ fn main() {
         .manage(Link(Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![helper, apply_setting, window_ctl, open_target, user_name])
         .setup(move |app| {
+            nudge::start();
             let link = app.state::<Link>();
             let script = boot_script(&link);
             // for the automatic checks only: EYETIME_DEBUG_PORT=9222 opens the window's debugging port so that a script can click through it
