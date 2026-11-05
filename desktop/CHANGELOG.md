@@ -7,6 +7,10 @@ Every `## x.y.z` section becomes the release notes of the tag `desktop-vx.y.z`. 
 - The app updates itself: a glowing chip appears when a new version is out, and one click installs it
 - Updates only install at a quiet moment, never in the middle of a session or a locked block
 - Every download is checked against its SHA-256 fingerprint before it is run
+- Insights and Profile show your real numbers: screen time, switches, focus hours, sessions and streaks
+- Over 3 400 app and site logos, and a search that finds them while you add an app or a site
+- A bigger list of well-known sites and programs, so that a name like Pinterest or Epic Games really closes it
+- Automation: when a program comes to the front, a normal session can start by itself
 
 ## 0.1.0
 

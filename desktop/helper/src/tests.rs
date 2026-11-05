@@ -598,3 +598,30 @@ fn an_installer_that_never_finished_is_given_up_on_and_can_be_tried_again() {
     assert_eq!(st.update.state, "available");
     assert!(!s.may_stop() || !s.state.protect.tam.watchdog, "the permission to stop is gone");
 }
+
+#[test]
+fn an_automation_starts_a_normal_session_when_its_program_comes_to_the_front() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    assert!(set(&mut s, json!({"et-auto": [{"id":"a1","when":"app","wv":"VS Code","then":"start","tv":"Deep work, 50 min","on":true}, {"id":"a2","when":"wifi","wv":"Office","then":"rule","tv":"Work","on":true}]})).ok);
+    let look = |s: &mut Supervisor<Fake>, exe: &str| {
+        s.handle(Request::Observe { fg: Some(Fg { exe: exe.into(), title: "x".into(), pid: 5 }), idle_secs: 0, windows: vec![], screen_locked: false });
+    };
+    look(&mut s, "notepad.exe");
+    assert!(status(&mut s).session.is_none(), "another program: nothing");
+    look(&mut s, "code.exe");
+    let st = status(&mut s);
+    let ses = st.session.expect("the program opened: a session starts");
+    assert_eq!((ses.name.as_str(), ses.level), ("Deep work", 0), "a normal one, that can be ended");
+    assert_eq!((ses.ends_at_ms - ses.started_at_ms) / 60_000, 50);
+    assert!(ses.blocks.contains(&"YouTube".to_string()), "it closes what the person called distracting");
+    // it ends by the person's hand, and coming back to the program does not start it again within the hour
+    s.p.session = None;
+    look(&mut s, "notepad.exe");
+    look(&mut s, "code.exe");
+    assert!(status(&mut s).session.is_none(), "not twice within an hour");
+    advance(&f, &mut s, 61 * 60);
+    look(&mut s, "notepad.exe");
+    look(&mut s, "code.exe");
+    assert!(status(&mut s).session.is_some(), "after an hour it can start again");
+}
