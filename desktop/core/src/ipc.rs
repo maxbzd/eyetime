@@ -109,9 +109,22 @@ pub struct Status {
     pub agent_connected: bool,
     pub ext_connected: bool,
     pub emergency_until_ms: i64,
-    /// minutes of focus per day, last two weeks, oldest first
+    /// minutes of focus per day, last five weeks, oldest first (the last one is today)
     pub focus_minutes: Vec<u32>,
+    pub totals: Totals,
     pub update: UpdateView,
+}
+
+/// what the person has done since EyeTime was installed (for the profile and the stones)
+#[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Totals {
+    /// minutes of focus sessions that ran to their end
+    pub focus_min: u64,
+    pub sessions: u32,
+    pub best_streak: u32,
+    /// the first day EyeTime saw (YYYY-MM-DD), empty before the first look
+    pub since_day: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
