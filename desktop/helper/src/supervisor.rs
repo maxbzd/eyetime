@@ -2,7 +2,7 @@
 //! Nothing here knows about Windows: it talks to the computer through `Os`, so all of it is tested with a pretend one.
 
 use crate::os::Os;
-use eyetime_core::catalog::{is_private_title, never_close, BROWSERS, TOOLS_CLOSED_WHEN_FROZEN, VPN_AND_PROXY};
+use eyetime_core::catalog::{is_private_title, item_exes, never_close, BROWSERS, TOOLS_CLOSED_WHEN_FROZEN, VPN_AND_PROXY};
 use eyetime_core::engine::{apply_cools, canonical_key, decide, hour_keys, is_distracting, Decision, Grants};
 use eyetime_core::friction::{days_from_civil, civil_from_days, Challenge, Ledger, Pin, PinResult, Verdict};
 use eyetime_core::hosts;
@@ -10,7 +10,7 @@ use eyetime_core::ipc::{challenge_data, BlockEvent, Fg, Orders, Request, Respons
 use eyetime_core::update::Updated;
 use crate::update::{Phase, Shared};
 use std::sync::{Arc, Mutex};
-use eyetime_core::model::{Now, Session, State, KEYS};
+use eyetime_core::model::{Item, Now, Session, State, KEYS};
 use eyetime_core::tamper::{boot_time, loosens, unsafe_setup, ClockGuard, MAX_FROZEN_MIN};
 use eyetime_core::usage::Usage;
 use serde::{Deserialize, Serialize};
@@ -78,6 +78,10 @@ pub struct Supervisor<O: Os> {
     obs: Option<(Vec<Win>, Option<Fg>, u32, bool, i64)>,
     site: Option<(String, bool, i64)>,
     last_tick: i64,
+    /// the program that was in front at the last look (for "when this program opens")
+    auto_prev: Option<String>,
+    /// when each automation last started something
+    auto_fired: HashMap<String, i64>,
     last_trusted: i64,
     events: VecDeque<BlockEvent>,
     last_event: HashMap<String, i64>,
@@ -111,6 +115,8 @@ impl<O: Os> Supervisor<O> {
             obs: None,
             site: None,
             last_tick: floor,
+            auto_prev: None,
+            auto_fired: HashMap::new(),
             last_trusted: floor,
             events: VecDeque::new(),
             last_event: HashMap::new(),
@@ -404,6 +410,42 @@ impl<O: Os> Supervisor<O> {
         }
     }
 
+    // ---------- automations ----------
+
+    /// "When this program opens, start a session": the only kind of automation that is carried out, and only a normal one
+    /// (it can be paused or ended), so that nothing can lock the person in without their asking for it.
+    fn auto_watch(&mut self, t: i64) {
+        let exe = self.obs.as_ref().and_then(|o| o.1.as_ref()).map(|f| f.exe.to_lowercase());
+        if exe == self.auto_prev {
+            return;
+        }
+        self.auto_prev = exe.clone();
+        let Some(exe) = exe else { return };
+        if self.p.session.as_ref().map(|s| s.ends_at_ms > t).unwrap_or(false) {
+            return;
+        }
+        let todo: Vec<(String, String, u32)> = self
+            .state
+            .auto
+            .iter()
+            .filter(|a| a.on && a.when == "app" && a.then == "start" && !a.wv.trim().is_empty())
+            .filter(|a| item_exes(&Item { name: a.wv.clone(), kind: "app".into(), ..Default::default() }).contains(&exe))
+            .filter(|a| self.auto_fired.get(&a.id).map(|at| t - at > 60 * 60_000).unwrap_or(true))
+            .map(|a| {
+                let minutes = a.tv.split(|c: char| !c.is_ascii_digit()).find(|p| !p.is_empty()).and_then(|p| p.parse::<u32>().ok()).unwrap_or(25).clamp(1, 240);
+                let name = a.tv.split(',').next().map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).unwrap_or_else(|| "Focus".into());
+                (a.id.clone(), name, minutes)
+            })
+            .collect();
+        if let Some((id, name, minutes)) = todo.into_iter().next() {
+            let blocks: Vec<String> = self.state.items.iter().filter(|i| i.g == "dis").map(|i| i.name.clone()).collect();
+            let r = self.handle(Request::StartSession { name, minutes, level: 0, blocks, scene: String::new(), allow_breaks: true, dnd: false, mute: false, close_now: false });
+            if r.ok {
+                self.auto_fired.insert(id, t);
+            }
+        }
+    }
+
     // ---------- updates ----------
 
     /// After a start: did the update that was begun really finish? If so, the window gets to say what is new; if not, it is told.
@@ -569,6 +611,7 @@ impl<O: Os> Supervisor<O> {
 
             Request::Observe { fg, idle_secs, windows, screen_locked } => {
                 self.obs = Some((windows, fg, idle_secs, screen_locked, t));
+                self.auto_watch(t);
                 let mut o = self.orders.clone();
                 if self.p.relaunch_app && self.p.pending_update.is_none() {
                     o.launch_app = true; // once: the window comes back after an update

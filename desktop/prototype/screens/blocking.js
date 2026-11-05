@@ -38,23 +38,26 @@
       lockedNote: 'Жёсткая сессия. Обойти её нельзя, и в этом смысл.', useKey: (n) => `Использовать экстренный ключ (осталось ${n} на неделе)`, keyUsed: 'Ключ использован. Пять минут.', hold: 'Удерживайте, чтобы разблокировать', holding: 'Держите…', waitBtn: (s) => `Ждать ${s} с`, unblockFor: (m) => `Разблокировать на ${m} мин`, typeHint: 'Наберите точно так же. Вставка отключена.', typePh: 'Начните печатать…', mathQ: 'Решите, чтобы продолжить', mathPh: 'Ответ', wrong: 'Не совсем', pinHint: 'Спросите у того, кто хранит PIN', pinWrong: 'Неверный PIN', done: (m) => `Разблокировано на ${m} мин`,
       texts: ['Я выбираю отвлечение вместо дела, которое назвал важным.', 'Я сказал себе, что эта сессия для важного. Сейчас я нарушу это обещание и прекрасно это понимаю.', 'Каждый раз, открывая это, я теряю двадцать минут, которые не вернуть. Запланированная работа никуда не денется и дождётся, пока я закрою вкладку, но день станет короче.'] },
   };
-  const L = () => D[ET.lang()] || D.en;
+  const REAL0 = !!window.__TAURI__;
+  const RTX = { en: { autS: 'When a program comes to the front, EyeTime starts a normal session (one you can pause or end) and closes what you called distracting. Once an hour at most.', w: ['app', 'An app opens', 'VS Code'], th: ['start', 'Start a session', 'Deep work, 50 min'] }, ru: { autS: 'Когда программа выходит на передний план, EyeTime запускает обычную сессию (её можно поставить на паузу или закончить) и закрывает то, что вы отметили как отвлекающее. Не чаще раза в час.', w: ['app', 'Открылось приложение', 'VS Code'], th: ['start', 'Начать сессию', 'Глубокая работа, 50 мин'] } };
+  const L = () => { const d = D[ET.lang()] || D.en; if (!REAL0) return d; const r = RTX[ET.lang()] || RTX.en; return { ...d, autS: r.autS, w: [r.w], th: [r.th] }; };
   const ico = (n, c = '') => `<svg class="ico ${c}"><use href="#i-${n}"/></svg>`;
   const load = (k, d) => { try { const v = JSON.parse(store.get(k)); return v || d; } catch { return d; } };
-  const P = Object.assign({ level: 0, friction: 'hold', waitSec: 30, grow: true, typeLen: 1, pinOn: false, pin: '4821', partner: 'Sam', emerg: 3, emergWeek: 1, daily: 7, len: 5, resetStreak: true, points: false, only: false, tam: { uninstall: true, watchdog: true, hosts: true, private: true, vpn: true, ext: true, clock: true, taskmgr: false, safemode: true, sleep: false } }, load('et-protect', {}));
+  const P = Object.assign({ level: 0, friction: 'hold', waitSec: 30, grow: true, typeLen: 1, pinOn: false, pin: window.__TAURI__ ? '' : '4821', partner: window.__TAURI__ ? '' : 'Sam', emerg: 3, emergWeek: 1, daily: 7, len: 5, resetStreak: true, points: false, only: false, tam: { uninstall: true, watchdog: true, hosts: true, private: true, vpn: true, ext: true, clock: true, taskmgr: false, safemode: true, sleep: false } }, load('et-protect', {}));
   P.tam = Object.assign({ uninstall: true, watchdog: true, hosts: true, private: true, vpn: true, ext: true, clock: true, taskmgr: false, safemode: true, sleep: false }, P.tam);
   const save = () => store.set('et-protect', JSON.stringify(P));
-  let LIM = load('et-limits', [
+  const REAL = !!window.__TAURI__;
+  let LIM = load('et-limits', REAL ? [] : [
     { id: 'l1', name: 'YouTube', color: '#ff3b30', scope: 'site', kind: 'time', amount: 45, per: 'day', used: 31, on: true, act: 'block' },
     { id: 'l2', name: 'Social media', color: '#e1306c', scope: 'cat', kind: 'time', amount: 60, per: 'day', used: 48, on: true, act: 'block' },
     { id: 'l3', name: 'Telegram', color: '#2aa3e4', scope: 'app', kind: 'open', amount: 5, per: 'day', used: 5, on: true, act: 'block' },
     { id: 'l4', name: 'Instagram', color: '#e1306c', scope: 'site', kind: 'cool', amount: 10, cool: 30, used: 4, on: true, act: 'delay' },
     { id: 'l5', name: 'Games', color: '#16d6c8', scope: 'cat', kind: 'time', amount: 120, per: 'week', used: 40, on: false, act: 'warn' }]);
-  let AUT = load('et-auto', [
+  let AUT = load('et-auto', REAL ? [] : [
     { id: 'a1', when: 'app', wv: 'VS Code', then: 'start', tv: 'Deep work, 50 min', on: true }, { id: 'a2', when: 'wifi', wv: 'Office', then: 'rule', tv: 'Work Time', on: true }, { id: 'a3', when: 'cal', wv: 'Focus', then: 'start', tv: 'the length of the event', on: true },
     { id: 'a4', when: 'time', wv: '22:30', then: 'wind', tv: 'Dim, close apps, Late Night on', on: true }, { id: 'a5', when: 'power', wv: 'after 23:00', then: 'rule', tv: 'Late Night', on: false }, { id: 'a6', when: 'idle', wv: '5 min', then: 'pause', tv: '', on: true }]);
-  let CAT = load('et-cats', { 'Social media': true, Video: true, Streaming: false, Messengers: true, News: false, Games: true, Shopping: false, Adult: true, 'AI chats': false, Forums: false, Gambling: true, Email: false });
-  let KW = load('et-kw', ['shorts', 'reels', 'trending', 'for you']), EX = load('et-ex', ['youtube.com/@3blue1brown', 'reddit.com/r/learnprogramming']);
+  let CAT = load('et-cats', REAL ? { 'Social media': false, Video: false, Streaming: false, Messengers: false, News: false, Games: false, Shopping: false, Adult: false, 'AI chats': false, Forums: false, Gambling: false, Email: false } : { 'Social media': true, Video: true, Streaming: false, Messengers: true, News: false, Games: true, Shopping: false, Adult: true, 'AI chats': false, Forums: false, Gambling: true, Email: false });
+  let KW = load('et-kw', REAL ? [] : ['shorts', 'reels', 'trending', 'for you']), EX = load('et-ex', REAL ? [] : ['youtube.com/@3blue1brown', 'reddit.com/r/learnprogramming']);
   const saveAll = () => { store.set('et-limits', JSON.stringify(LIM)); store.set('et-auto', JSON.stringify(AUT)); store.set('et-cats', JSON.stringify(CAT)); store.set('et-kw', JSON.stringify(KW)); store.set('et-ex', JSON.stringify(EX)); };
   const hm = (m) => { const h = Math.floor(m / 60); return h ? `${h}${ET.lang() === 'ru' ? ' ч' : 'h'}${m % 60 ? ' ' + (m % 60) + (ET.lang() === 'ru' ? ' м' : 'm') : ''}` : `${m}${ET.lang() === 'ru' ? ' м' : 'm'}`; };
 
@@ -129,9 +132,22 @@
   };
 
   /* ================================================== LIMITS ================================================== */
+  /* what each limit has used, from the helper's own count (today, or the last seven days) */
+  function refreshUsed() {
+    const B = window.ETB, st = (B && B.getStatus && B.getStatus()) || {}, ud = (B && B.usageDays && B.usageDays()) || {}, cat = window.ETCatalog || [];
+    const days = (n) => { const keys = Object.keys(ud).sort().slice(-n); const arr = keys.map((k) => ud[k]); if (st.today && arr.length) arr[arr.length - 1] = st.today; else if (st.today) arr.push(st.today); return arr; };
+    LIM.forEach((x) => {
+      const e = cat.find((c) => c.n.toLowerCase() === String(x.name).toLowerCase() || c.a.includes(String(x.name).toLowerCase())), keys = [];
+      if (x.scope === 'site') (e ? e.d : [String(x.name).toLowerCase()]).forEach((d) => keys.push('site:' + d)); else if (x.scope === 'app') (e && e.x.length ? e.x : [String(x.name).toLowerCase().replace(/\s/g, '') + '.exe']).forEach((d) => keys.push('exe:' + d));
+      const rows = days(x.per === 'week' ? 7 : 1); let v = 0;
+      rows.forEach((u) => keys.forEach((k) => { v += x.kind === 'open' ? ((u.opens || {})[k] || 0) : ((u.secs || {})[k] || 0) / 60; }));
+      x.used = Math.round(v);
+    });
+  }
   const limits = {
     mount(el) { this.el = el; this.render(); buildLimEditor(); },
     render() {
+      if (REAL) refreshUsed();
       const el = this.el; if (!el) return; const l = L(), used = LIM.filter((x) => x.on && x.kind === 'time').reduce((a, b) => a + b.used, 0), hit = LIM.filter((x) => x.on && x.used >= x.amount && x.kind !== 'cool'), tot = hm(used);
       el.innerHTML = `<div class="sec-head" style="margin-top:4px"><div><h2>${l.limT}</h2><p>${l.limS}</p></div><button class="pill-white" id="limNew" type="button">${ico('plus')}${l.newLim}</button></div>
       <div class="lim-sum"><div class="glass rise" style="--d:40"><b class="num">${tot}</b><span>${l.sumUsed}</span></div><div class="glass rise" style="--d:90"><b class="num">${hit.length}</b><span>${l.sumHit}</span></div><div class="glass rise" style="--d:140"><b class="num" style="font-size:22px;line-height:34px">${hit.map((x) => x.name).join(', ') || '—'}</b><span>${l.sumLeft}</span></div></div><div class="lim-grid" id="limGrid"></div>`;
@@ -243,6 +259,14 @@
     }
   }
 
+  /* a screen with nothing on it says what it is for and shows one example */
+  const EMPTY = {
+    en: { lim: ['No limits yet', 'An allowance for one app, site or category: for example YouTube, 45 minutes a day. When it is used up, it stays closed until midnight.'], aut: ['No automations yet', 'For example: when VS Code opens, start a 50 minute session.'] },
+    ru: { lim: ['Лимитов пока нет', 'Норма для приложения, сайта или категории: например, YouTube, 45 минут в день. Когда она выбрана, закрыто до полуночи.'], aut: ['Автоматизаций пока нет', 'Например: когда открывается VS Code, начать сессию на 50 минут.'] },
+  };
+  const emptyNote = (host, key) => { if (!REAL || !host) return; const t = (EMPTY[ET.lang()] || EMPTY.en)[key]; let n = host.querySelector(':scope > .empty-note'); if (n) n.remove(); n = document.createElement('div'); n.className = 'empty-note glass'; n.style.cssText = 'margin-top:16px;padding:26px 28px;text-align:center'; n.innerHTML = `<b style="display:block;font:500 20px/1.2 var(--font-display)">${t[0]}</b><p style="margin:8px auto 0;max-width:520px;color:var(--text-2);font:500 14px/1.55 var(--font-body)">${t[1]}</p>`; host.append(n); };
+  { const r0 = limits.render; limits.render = function () { r0.call(this); if (!LIM.length) emptyNote(this.el, 'lim'); }; }
+  { const r1 = automation.render; automation.render = function () { r1.call(this); const l = this.el && this.el.querySelector('#auList'); if (l && !AUT.length) { l.style.display = 'none'; emptyNote(this.el, 'aut'); } }; }
   ET.rulePanes = { limits: { mount: (el) => limits.mount(el), render: () => limits.render() }, protect: { mount: (el) => protect.mount(el), render: () => protect.render() }, triggers: { mount: (el) => automation.mount(el), render: () => automation.render() } };
   ET.listsExtra = listsExtra; ET.unblockUI = unblockUI; ET.protect = P;
 })();
