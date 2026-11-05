@@ -11,6 +11,7 @@ Every `## x.y.z` section becomes the release notes of the tag `desktop-vx.y.z`. 
 - Over 3 400 app and site logos, and a search that finds them while you add an app or a site
 - A bigger list of well-known sites and programs, so that a name like Pinterest or Epic Games really closes it
 - Automation: when a program comes to the front, a normal session can start by itself
+- A quiet Windows notification for eye breaks and a note before bedtime
 
 ## 0.1.0
 
