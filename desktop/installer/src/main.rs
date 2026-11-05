@@ -72,7 +72,9 @@ fn main() {
                 steps::remove_self_later();
             }
         } else {
-            steps::install(true, &emit);
+            // an update keeps the choice about the desktop icon that was made at the first install
+            let desktop = !args.iter().any(|a| a == "--update") || steps::desktop_icon_exists();
+            steps::install(desktop, &emit);
         }
         std::process::exit(if failed.load(std::sync::atomic::Ordering::Relaxed) { 1 } else { 0 });
     }

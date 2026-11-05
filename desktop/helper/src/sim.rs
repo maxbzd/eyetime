@@ -18,6 +18,7 @@ pub struct World {
     pub safeboot: bool,
     pub store: Option<String>,
     pub dns_flushes: u32,
+    pub launched: Vec<std::path::PathBuf>,
 }
 
 #[derive(Clone)]
@@ -81,5 +82,9 @@ impl Os for Fake {
         Ok(())
     }
     fn log(&self, _line: &str) {}
+    fn launch_update(&self, installer: &std::path::Path) -> io::Result<()> {
+        self.0.lock().unwrap().launched.push(installer.to_path_buf());
+        Ok(())
+    }
 }
 

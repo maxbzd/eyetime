@@ -191,6 +191,9 @@ impl Os for WinOs {
         std::fs::write(&tmp, text)?;
         std::fs::rename(&tmp, dir.join("helper.json"))
     }
+    fn launch_update(&self, installer: &std::path::Path) -> io::Result<()> {
+        WinOs::start_installer(installer)
+    }
     fn log(&self, line: &str) {
         let dir = data_dir();
         let _ = std::fs::create_dir_all(&dir);
@@ -255,4 +258,106 @@ pub fn cleanup_all() {
     os.set_taskmgr_locked(false);
     os.set_firefox_doh_off(false);
     os.set_keep_awake(false);
+}
+
+// ---------------------------------------------------------------- updates
+
+const BREAKAWAY: u32 = 0x0100_0000;
+const DETACHED: u32 = 0x0000_0008;
+const NEW_GROUP: u32 = 0x0000_0200;
+
+fn curl_path() -> PathBuf {
+    let root = std::env::var_os("SystemRoot").map(PathBuf::from).unwrap_or_else(|| PathBuf::from(r"C:\Windows"));
+    root.join(r"System32\curl.exe")
+}
+
+/// The network, through the curl.exe that Windows ships (10 1803 and later): it knows the computer's proxy and certificates.
+pub struct WinNet;
+
+impl crate::update::Net for WinNet {
+    fn get(&self, url: &str) -> Result<String, String> {
+        if !url.starts_with("https://api.github.com/") {
+            return Err("not an address EyeTime talks to".into());
+        }
+        let out = Command::new(curl_path())
+            .args(["-sS", "--fail", "--location", "--max-time", "30", "--proto", "=https", "-H", "User-Agent: EyeTime-Updater", "-H", "Accept: application/vnd.github+json", url])
+            .creation_flags(NO_WINDOW)
+            .stdin(std::process::Stdio::null())
+            .output()
+            .map_err(|e| format!("curl: {e}"))?;
+        if !out.status.success() {
+            let why = String::from_utf8_lossy(&out.stderr).trim().to_string();
+            return Err(if why.is_empty() { "no connection".to_string() } else { why.lines().next().unwrap_or("no connection").to_string() });
+        }
+        String::from_utf8(out.stdout).map_err(|_| "unreadable answer".to_string())
+    }
+
+    fn download(&self, url: &str, dest: &std::path::Path, progress: &dyn Fn(u64)) -> Result<(), String> {
+        // a local file (the feed override) is simply copied
+        if !url.starts_with("https://") {
+            std::fs::copy(url, dest).map_err(|e| e.to_string())?;
+            progress(std::fs::metadata(dest).map(|m| m.len()).unwrap_or(0));
+            return Ok(());
+        }
+        if !url.starts_with(eyetime_core::update::ALLOWED_PREFIX) {
+            return Err("not an address EyeTime downloads from".into());
+        }
+        let mut child = Command::new(curl_path())
+            .args(["-sS", "--fail", "--location", "--max-redirs", "5", "--max-time", "1800", "--proto", "=https", "--proto-redir", "=https", "-H", "User-Agent: EyeTime-Updater", "-o"])
+            .arg(dest)
+            .arg(url)
+            .creation_flags(NO_WINDOW)
+            .stdin(std::process::Stdio::null())
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+            .map_err(|e| format!("curl: {e}"))?;
+        loop {
+            match child.try_wait() {
+                Ok(Some(status)) => {
+                    if status.success() {
+                        return Ok(());
+                    }
+                    let mut why = String::new();
+                    if let Some(mut e) = child.stderr.take() {
+                        use std::io::Read;
+                        let _ = e.read_to_string(&mut why);
+                    }
+                    return Err(why.lines().next().unwrap_or("the download failed").trim().to_string());
+                }
+                Ok(None) => {
+                    progress(std::fs::metadata(dest).map(|m| m.len()).unwrap_or(0));
+                    std::thread::sleep(std::time::Duration::from_millis(300));
+                }
+                Err(e) => return Err(e.to_string()),
+            }
+        }
+    }
+
+    fn local_feed(&self) -> Option<String> {
+        // for people who run their own releases; only administrators can write in this folder
+        std::fs::read_to_string(data_dir().join("update-feed.json")).ok()
+    }
+
+    fn dir(&self) -> PathBuf {
+        data_dir().join("update")
+    }
+}
+
+impl WinOs {
+    /// run the new installer on its own: it stops this service, replaces the files and starts the new service
+    pub fn start_installer(installer: &std::path::Path) -> io::Result<()> {
+        let log = data_dir().join("update.log");
+        let build = |flags: u32| {
+            let mut c = Command::new(installer);
+            c.args(["--silent", "--update", "--log"]).arg(&log).creation_flags(flags).stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null());
+            c
+        };
+        let _ = std::fs::remove_file(&log);
+        // out of the service's own job if there is one, so that it lives on when the service is stopped
+        match build(NO_WINDOW | DETACHED | NEW_GROUP | BREAKAWAY).spawn() {
+            Ok(_) => Ok(()),
+            Err(_) => build(NO_WINDOW | DETACHED | NEW_GROUP).spawn().map(|_| ()),
+        }
+    }
 }
