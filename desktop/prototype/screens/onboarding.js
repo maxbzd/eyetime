@@ -159,6 +159,7 @@
     root = document.createElement('div'); root.id = 'onb'; root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-label', 'EyeTime');
     root.innerHTML = `<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="onbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8cf2c6"/><stop offset="1" stop-color="#d4f77c"/></linearGradient><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8cf2c6"/><stop offset="1" stop-color="#86d7ff"/></linearGradient></defs></svg>
       ${[...new Set(Object.values(IMG))].map((u) => `<div class="bg" data-u="${u}" style="background-image:url(${u})"></div>`).join('')}
+      <video class="bgv" id="onbLoop" muted loop playsinline preload="auto"></video>
       <video class="bgv" id="onbVid" muted playsinline preload="auto"></video>
       <div class="fog"></div><div class="fog b"></div><div class="vig"></div><canvas class="sp" id="onbSp"></canvas>
       <div class="top"><div class="pips" id="onbPips"></div><button class="skip" id="onbSkip" type="button"></button></div>
@@ -166,7 +167,13 @@
     document.body.append(root);
     $$('.bg', root).forEach((b) => (bgs[b.dataset.u] = b));
   }
-  const setBg = (u, dim) => { Object.entries(bgs).forEach(([k, b]) => { b.classList.toggle('on', k === u); b.classList.toggle('dim', !!dim && k === u); }); };
+  const setBg = (u, dim) => {
+    Object.entries(bgs).forEach(([k, b]) => { b.classList.toggle('on', k === u); b.classList.toggle('dim', !!dim && k === u); });
+    // the night lake can be a living picture (assets/lake-loop.mp4): stars that breathe, water that moves
+    const lv = $('#onbLoop'); if (lv && lv.dataset.ok === '1') { const lake = /lake-night/.test(u); lv.classList.toggle('on', lake); if (lake) lv.play().catch(() => {}); else lv.pause(); }
+    // and the door: a video that closes as you hold (assets/door-close.mp4) shows up only in the last act
+    const dv = $('#onbVid'); if (dv && dv.dataset.ok === '1') dv.classList.toggle('on', u === IMG.seal && cur !== -1 && order[cur] && order[cur][0] === 'seal');
+  };
 
   /* ---------------------------------------------------------------- sparks (small light, for the big moments) */
   function burst(n, y = 0.4) {
@@ -377,7 +384,8 @@
     const stage = $('#onbStage'); acts = order.map(([, f]) => f()); acts.forEach((a) => stage.append(a.el));
     document.addEventListener('keydown', onKey, true);
     // a door that closes as you hold: used when the video is there (assets/door-close.mp4), otherwise a picture that dims
-    const v = $('#onbVid'); v.addEventListener('loadeddata', () => (v.dataset.ok = '1'), { once: true }); v.src = 'assets/door-close.mp4'; v.load();
+    const v = $('#onbVid'); v.addEventListener('loadeddata', () => { v.dataset.ok = '1'; v.currentTime = 0; }, { once: true }); v.src = 'assets/door-close.mp4'; v.load();
+    const lp = $('#onbLoop'); lp.addEventListener('loadeddata', () => { lp.dataset.ok = '1'; if (cur >= 0) setBg(IMG[order[cur][0]]); }, { once: true }); lp.src = 'assets/lake-loop.mp4'; lp.load();
     requestAnimationFrame(() => root.classList.add('on')); cur = -1; setTimeout(() => go(0), 350);
     ET.gem && ET.gem() && ET.gem().glow && ET.gem().glow(0.15);
   }
