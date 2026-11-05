@@ -143,7 +143,6 @@ pub fn run() {
         if h.is_null() || windows_sys::Win32::Foundation::GetLastError() == 183 {
             return;
         }
-        std::mem::forget(h); // held until the process ends
     }
     let mut dnd = false;
     loop {
