@@ -94,7 +94,7 @@
   const stp = (id, v, unit) => `<div class="stp" id="${id}"><button type="button" data-d="-1" aria-label="−">−</button><output>${v}${unit ? ' ' + unit : ''}</output><button type="button" data-d="1" aria-label="+">+</button></div>`;
   const bindStp = (root, id, get, set, min, max, step, unit) => $$(`#${id} button`, root).forEach((b) => b.addEventListener('click', () => { set(clamp(get() + step * +b.dataset.d, min, max)); save(); $(`#${id} output`, root).textContent = get() + (unit ? ' ' + unit : ''); }));
   const bindSw = (root, id, get, set) => { const b = $('#' + id, root); if (b) b.addEventListener('click', () => { set(!get()); b.setAttribute('aria-checked', String(get())); save(); saveAll(); }); };
-  const tile = (name, color) => `<span class="app-tile" style="background:${color}">${name.slice(0, 2)}</span>`;
+  const tile = (name, color) => `<span class="app-tile" data-n="${String(name).replace(/"/g, '&quot;')}" style="background:${color}">${name.slice(0, 2)}</span>`;
 
   /* ================================================== PROTECTION ================================================== */
   const MX = [[1, 1, 0, 0], [1, 1, 0, 0], [1, 1, 0, 0], [0, 0, 1, 1], [0, 0, 2, 2], [0, 0, 0, 1], [0, 0, 0, 1]]; // 1 yes, 0 no, 2 key

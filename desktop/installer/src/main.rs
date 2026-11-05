@@ -17,6 +17,12 @@ use tao::window::WindowBuilder;
 use wry::http::{header::CONTENT_TYPE, Response};
 use wry::WebViewBuilder;
 
+// wry serves a custom protocol as http://<name>.localhost on Windows
+#[cfg(windows)]
+const START_URL: &str = "http://app.localhost/";
+#[cfg(not(windows))]
+const START_URL: &str = "app://localhost/";
+
 #[derive(Debug)]
 enum Ui {
     Js(String),
@@ -85,7 +91,7 @@ fn main() {
     let ipc_proxy = proxy.clone();
     let webview = WebViewBuilder::new()
         .with_transparent(true)
-        .with_url("app://localhost/")
+        .with_url(START_URL)
         .with_custom_protocol("app".into(), |_id, req| {
             let path = req.uri().path().to_string();
             match asset(&path) {
