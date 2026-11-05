@@ -94,7 +94,8 @@
   const ETB = window.ETB = {
     push(k, v) {
       if (KEYS.includes(k)) { const o = cleanForHelper(k, v); if (o !== undefined) { pending[k] = o; clearTimeout(timer); timer = setTimeout(flush, 250); } return; }
-      if (k === 'et-s-launch' || k === 'et-s-tray') invoke('apply_setting', { key: k.slice(5), value: String(v) }).catch(() => {});
+      if (/^et-s-(launch|tray|notify|every|bed)$/.test(k)) invoke('apply_setting', { key: k.slice(5), value: String(v).replace(/^"|"$/g, '') }).catch(() => {});
+      if (k === 'et-lang') invoke('apply_setting', { key: 'lang', value: String(v) }).catch(() => {});
     },
     startSession: async (S) => {
       const every = [...S.blocks].some((b) => /^(everything|all|все|всё|\*)$/i.test(b));
@@ -110,6 +111,11 @@
     refreshUsage: async () => { const u = await req({ op: 'usage' }); if (u.ok) { usageDays = u.data; usageAt = performance.now(); } },
   };
   if (pre && pre.q) pre.q.forEach(([k, v]) => ETB.push(k, v));
+  // the window's own reminders read these in the app process: tell it what the settings say now (the screens show these same defaults)
+  {
+    const g = (k, d) => { try { const v = JSON.parse(localStorage.getItem('et-s-' + k)); return v === null || v === undefined ? d : v; } catch { return d; } };
+    ETB.push('et-s-notify', JSON.stringify(g('notify', true))); ETB.push('et-s-every', JSON.stringify(g('every', 20))); ETB.push('et-s-bed', JSON.stringify(g('bed', '22:30'))); ETB.push('et-lang', lang());
+  }
 
   /* ---------------------------------------------------------------- a small dialog */
   const css = document.createElement('style');

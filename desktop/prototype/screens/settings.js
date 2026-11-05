@@ -76,6 +76,21 @@
     <div class="glass st-group rise" style="--d:320"><h3>${ico('lock')}${l.data}</h3><div class="st-note">${ico('lock')}<div><b>${l.data}</b><span>${l.dataD}</span></div></div>${row(l.export, l.exportD, `<button class="btn-s" id="sExport" type="button">${ico('arrow')}${l.export}</button>`)}${row(l.usage, l.usageD, sw('sUsage', S.usage))}${row(l.wipe, l.wipeD, `<button class="btn-s danger" id="sWipe" type="button">${l.wipe}</button><span class="confirm" id="sConf"><b style="font:600 14px var(--font-body)">${l.wipeAsk}</b><button class="btn-s danger" id="sWipeYes" type="button">${l.wipeYes}</button><button class="btn-s" id="sWipeNo" type="button">${l.wipeNo}</button></span>`)}</div>
     <div class="glass st-group rise" style="--d:380"><h3>${ico('target')}${l.preview}</h3><div class="st-note"><div><span style="margin:0">${l.previewD}</span></div></div>${row(l.pvBlocked, '', `<button class="btn-s" data-pv="blocked" type="button">${ico('shield')}${l.pvBlocked}</button>`)}${row(l.pvLocked, '', `<button class="btn-s" data-pv="locked" type="button">${ico('lock')}${l.pvLocked}</button>`)}${row(l.pvTray, '', `<button class="btn-s" data-pv="tray" type="button">${ico('timer')}${l.pvTray}</button>`)}${row(l.pvTour, '', `<button class="btn-s" data-pv="tour" type="button">${ico('moon')}${l.pvTour}</button>`)}</div>
     <div class="glass st-group rise" style="--d:440"><h3>${ico('user')}${l.about}</h3>${row(l.version, '', `<span style="color:var(--text-2);font:600 14px var(--font-body)">${l.versionV}</span>`)}${row(l.updates, '', `<button class="btn-s" id="sUpd" type="button">${ico('refresh-cw')}${l.updates}</button>`)}</div></div></div>`;
+    if (window.__TAURI__) {
+      // inside the app: what has no effect is not shown, and the export is a real file
+      const hideRow = (id) => { const e = $('#' + id, el); const r = e && (e.closest('.st-row') || e.closest('.st-group')); if (r) r.style.display = 'none'; };
+      const hideGroup = (id) => { const e = $('#' + id, el); const g = e && e.closest('.st-group'); if (g) g.style.display = 'none'; };
+      hideGroup('sShow'); hideRow('sWipe'); hideRow('sUsage'); hideRow('sDim');
+      const say = (id, ru, en) => { const e = $('#' + id, el), r = e && e.closest('.st-row'), sp = r && r.querySelector('.t span'); if (sp) sp.textContent = ET.lang() === 'ru' ? ru : en; };
+      say('sBed', 'Мягкое напоминание перед сном.', 'A soft reminder before bedtime.'); say('sNotify', 'Уведомление Windows, когда вы долго работаете за экраном.', 'A Windows notification after a long time at the screen.');
+      $('#sExport', el).addEventListener('click', async (e) => {
+        e.stopImmediatePropagation();
+        const B = window.ETB, st = await B.req({ op: 'get_state' }), us = await B.req({ op: 'usage' }), sta = B.getStatus() || {};
+        const out = { app: 'EyeTime', exportedAt: new Date().toISOString(), version: sta.version, setup: st.data || {}, usage: us.data || {}, totals: sta.totals || {}, streakDays: sta.streakDays || 0 };
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' })); a.download = `eyetime-${new Date().toISOString().slice(0, 10)}.json`; document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+        toast(l.exported);
+      }, true);
+    }
     const bindSw = (id, key) => { const b = $('#' + id, el); b.addEventListener('click', () => { S[key] = !S[key]; b.setAttribute('aria-checked', String(S[key])); put(key, S[key]); }); };
     [['sLaunch', 'launch'], ['sTray', 'tray'], ['sSound', 'sound'], ['sNotify', 'notify'], ['sDim', 'dim'], ['sUsage', 'usage']].forEach(([i, k]) => bindSw(i, k));
     $$('#sLang button', el).forEach((b) => b.addEventListener('click', () => { if ((+b.dataset.v === 1) !== (ET.lang() === 'ru')) $('#langBtn').click(); }));
