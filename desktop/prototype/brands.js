@@ -9,30 +9,112 @@
   };
   window.ETBrands = { mark };
 })();
-/* the two marks Simple Icons does not carry any more: drawn here, plain */
+/* Marks Simple Icons does not carry (Microsoft, Adobe, Russian services, ...): drawn here as plain, recognisable marks in the brand's colours. */
 (() => {
-  const own = { 'vs code': ['M17 3.2 8.6 11 4.6 8 3 9v6l1.6 1 4-3L17 20.8l4-1.6V4.8zM17 8.4v7.2L11.7 12z', '#007ACC'], terminal: ['M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm3.2 3.3-1.4 1.4L8.1 12l-2.3 2.3 1.4 1.4L10.9 12zM12 14.5v1.8h5v-1.8z', '#4D4D4D'] };
-  const base = window.ETBrands.mark;
-  window.ETBrands.mark = (name) => {
-    const k = String(name || '').trim().toLowerCase(), o = own[k];
-    return o ? { svg: `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="${o[0]}"/></svg>`, hex: o[1] } : base(name);
+  const g = (d) => `<path fill="currentColor" d="${d}"/>`;
+  const t = (txt, size = 15, y = 16.2, ls = 0) => `<text x="12" y="${y}" text-anchor="middle" font-family="Outfit,Figtree,Segoe UI,system-ui,sans-serif" font-weight="800" font-size="${size}" letter-spacing="${ls}" fill="currentColor">${txt}</text>`;
+  // key: [svg inside a 24x24 box, tile colour, glyph colour (default: by brightness)]
+  const OWN = {
+    'vs code': [g('M17 3.2 8.6 11 4.6 8 3 9v6l1.6 1 4-3L17 20.8l4-1.6V4.8zM17 8.4v7.2L11.7 12z'), '#007ACC'],
+    vscode: 'vs code', code: 'vs code', visualstudiocode: 'vs code',
+    terminal: [g('M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm3.2 3.3-1.4 1.4L8.1 12l-2.3 2.3 1.4 1.4L10.9 12zM12 14.5v1.8h5v-1.8z'), '#3A3F47'],
+    windowsterminal: 'terminal', cmd: 'terminal', powershell: 'terminal', pwsh: 'terminal', wsl: 'terminal', bash: 'terminal',
+    word: [t('W', 17), '#2B579A'], winword: 'word', microsoftword: 'word',
+    excel: [t('X', 17), '#217346'], microsoftexcel: 'excel',
+    powerpoint: [t('P', 17), '#C43E1C'], powerpnt: 'powerpoint', microsoftpowerpoint: 'powerpoint',
+    outlook: [t('O', 17), '#0F6CBD'], microsoftoutlook: 'outlook', olk: 'outlook',
+    onenote: [t('N', 17), '#7719AA'], microsoftonenote: 'onenote',
+    teams: [t('T', 17), '#5B5FC7'], msteams: 'teams', mstteams: 'teams', microsoftteams: 'teams',
+    edge: [g('M21.9 12.3c0-4.7-3.5-8.3-8.8-8.3C8 4 4.2 7.8 4.2 12.6c0 4.2 3 7.5 7.1 7.5 2.2 0 4.2-.9 5.6-2.4-.9.3-1.8.5-2.7.4-3-.2-4.8-2.4-4.6-4.9h11.5c.1-.2.8-.1.8-.9zM9.4 11c.4-1.9 2-3 3.8-3 1.9 0 3.3 1.2 3.4 3z'), '#0C8CE9'], msedge: 'edge', microsoftedge: 'edge',
+    skype: [t('S', 17), '#00AFF0'],
+    onedrive: [g('M9.4 8.2a5 5 0 0 1 9 2.1 3.6 3.6 0 0 1-.4 7.2H7a4 4 0 0 1-.9-7.9 4.6 4.6 0 0 1 3.3-1.4z'), '#0F6CBD'], microsoftonedrive: 'onedrive',
+    explorer: [g('M3 6.5A1.5 1.5 0 0 1 4.5 5h4.2l1.8 2H19.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z'), '#F2B632', '#3B2A00'], fileexplorer: 'explorer',
+    notepad: [g('M6 3h9l4 4v14H6zm8 1.5V8h3.5zM8.5 11h7v1.2h-7zm0 3h7v1.2h-7zm0 3h5v1.2h-5z'), '#2F8FD6'],
+    photoshop: [t('Ps', 13, 15.6), '#001E36', '#31A8FF'], adobephotoshop: 'photoshop',
+    illustrator: [t('Ai', 13, 15.6), '#330000', '#FF9A00'], adobeillustrator: 'illustrator',
+    premiere: [t('Pr', 13, 15.6), '#00005B', '#9999FF'], premierepro: 'premiere', adobepremierepro: 'premiere',
+    aftereffects: [t('Ae', 13, 15.6), '#00005B', '#9999FF'], afterfx: 'aftereffects', adobeaftereffects: 'aftereffects',
+    lightroom: [t('Lr', 13, 15.6), '#001E36', '#31A8FF'], adobelightroom: 'lightroom',
+    acrobat: [t('A', 17), '#D3281F'], acrobatreader: 'acrobat', adobeacrobatreader: 'acrobat',
+    canva: [t('C', 17), '#7D2AE8'],
+    minecraft: [g('M4 4h16v16H4zm3 4v3h3V8zm7 0v3h3V8zm-4 4v4h4v-4zM7 14v3h2v-3zm8 0v3h2v-3z'), '#5D8F3A'], javaw: 'minecraft',
+    yandex: [t('Я', 18, 17), '#FC3F1D'], yandexbrowser: 'yandex', ya: 'yandex', яндекс: 'yandex', yandexcom: 'yandex',
+    mailru: [t('@', 17, 17.2), '#005FF9'], mail: 'mailru', vkteams: [t('VK', 11, 15.2), '#0077FF'],
+    ozon: [t('ozon', 8.4, 14.6), '#005BFF'], озон: 'ozon',
+    wildberries: [t('WB', 12, 15.2), '#CB11AB'], wb: 'wildberries', вайлдберриз: 'wildberries',
+    sber: [t('С', 17, 17.2), '#21A038'], sberbank: 'sber', sberbankonline: 'sber', сбер: 'sber', sbermarket: 'sber',
+    tinkoff: [t('T', 17), '#FFDD2D', '#1A1A1A'], tbank: 'tinkoff', тинькофф: 'tinkoff',
+    avito: [t('A', 17), '#0AF', '#fff'], авито: 'avito',
+    rutube: [t('R', 17), '#14191F'],
+    disney: [t('D+', 12, 15.6), '#113CCF'], disneyplus: 'disney',
+    hulu: [t('hulu', 8.6, 14.8), '#1CE783', '#0B1A12'],
+    primevideo: [t('prime', 7.4, 14.4), '#00A8E1'], prime: 'primevideo', amazonprimevideo: 'primevideo',
+    dzen: [t('Д', 17, 17.2), '#1A1A1A'], zen: 'dzen',
+    headhunter: [t('hh', 13, 15.8), '#D6001C'], hh: 'headhunter',
+    gosuslugi: [t('Гу', 12, 15.8), '#0D4CD3'], госуслуги: 'gosuslugi',
+    metamask: [t('M', 17), '#E2761B'],
+    xbox: [t('X', 17), '#107C10'], nintendo: [t('N', 17), '#E60012'], bumble: [t('B', 17), '#FFC629', '#1A1A1A'],
+    temu: [t('T', 17), '#FB7701'],
+    handbrake: [t('HB', 12, 15.6), '#C1272D'],
+    ivi: [t('ivi', 10, 15.2), '#EA003D'],
+    okko: [t('okko', 8, 14.8), '#1A1A1A', '#B7FF00'],
+    qq: [t('QQ', 11, 15.4), '#12B7F5'],
   };
-  /* every tile that carries a name gets the real mark: the brand colour behind it, a light or dark glyph on top */
-  const lum = (h) => { const n = parseInt(h.slice(1), 16), r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255; return (0.299 * r + 0.587 * g + 0.114 * b) / 255; };
+  const nn = (s) => String(s || '').normalize('NFKD').toLowerCase().replace(/\+/g, 'plus').replace(/&/g, 'and').replace(/#/g, 'sharp').replace(/\.js\b/g, 'js').replace(/[^a-z0-9а-яё]/g, '');
+  const ownOf = (k) => { let v = OWN[k], n = 0; while (typeof v === 'string' && n++ < 4) v = OWN[v]; return Array.isArray(v) ? v : null; };
+  const base = window.ETBrands.mark;
+  /** names come in many spellings: "YouTube", "youtube.com", "music.youtube.com", "chrome.exe", "Visual Studio Code" */
+  const keys = (name) => {
+    const raw = String(name || '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/[\/?#].*$/, '').replace(/\.exe$/, '');
+    if (!raw) return [];
+    const out = [nn(raw)];
+    if (/^[^\s]+\.[a-zа-я]{2,}$/.test(raw)) { // looks like an address: the name of the site is the label before the ending
+      const parts = raw.split('.'); const two = parts.length > 2 && /^(co|com|org|net|gov|ac)$/.test(parts[parts.length - 2]); const core = parts.slice(0, parts.length - (two ? 2 : 1)); out.push(nn(core[core.length - 1]));
+    }
+    return out.filter(Boolean);
+  };
+  const lookup = (name) => {
+    const D = window.ETBrandData;
+    for (const k of keys(name)) {
+      const o = ownOf(k); if (o) return { svg: `<svg viewBox="0 0 24 24" aria-hidden="true">${o[0]}</svg>`, hex: o[1], fg: o[2] || null, own: true };
+      if (D) { const i = D.n[k]; if (i !== undefined) { const [, d, hex] = D.p[i]; return { svg: `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="${d}"/></svg>`, hex: '#' + hex }; } }
+    }
+    return null;
+  };
+  window.ETBrands.mark = (name) => lookup(name) || base(name);
+  window.ETBrands.has = (name) => !!window.ETBrands.mark(name);
+
+  /* every tile that carries a name gets the real mark: the brand colour behind it, a light or dark glyph on top;
+     the ones without a mark get a calm gradient and their initials */
+  const lum = (h) => { const n = parseInt(h.slice(1), 16), r = (n >> 16) & 255, g2 = (n >> 8) & 255, b = n & 255; return (0.299 * r + 0.587 * g2 + 0.114 * b) / 255; };
+  const SHEEN = 'linear-gradient(155deg, rgba(255,255,255,.24), rgba(255,255,255,0) 46%, rgba(0,0,0,.18))';
+  const initials = (n) => { const w = String(n).replace(/\.(exe|com|org|net|ru)$/i, '').split(/[\s._-]+/).filter(Boolean); return ((w[0] || '?')[0] + (w.length > 1 ? w[1][0] : '')).toUpperCase(); };
+  const hueOf = (s) => { let h = 0; for (const ch of String(s).toLowerCase()) h = (h * 31 + ch.charCodeAt(0)) % 360; return h; };
   const dress = () => {
     document.querySelectorAll('.app-tile[data-n]:not([data-b])').forEach((t) => {
-      t.dataset.b = '1';
       const m = window.ETBrands.mark(t.dataset.n);
-      if (!m) return;
-      const L = lum(m.hex);
-      t.style.background = L < 0.1 ? '#20242c' : m.hex;
-      t.style.color = L > 0.62 ? '#14161a' : '#fff';
+      t.dataset.b = m ? '1' : window.ETBrandData ? '0' : '';
+      if (!m) {
+        if (!window.ETBrandData) return; // the big set is still coming: look again then
+        const h = hueOf(t.dataset.n);
+        t.style.backgroundColor = `hsl(${h} 46% 34%)`; t.style.backgroundImage = `${SHEEN}, linear-gradient(135deg, hsl(${h} 55% 44%), hsl(${(h + 40) % 360} 55% 28%))`;
+        t.style.boxShadow = 'inset 0 0 0 1px rgba(255,255,255,.1)'; t.style.color = '#fff'; t.style.textShadow = '0 1px 2px rgba(0,0,0,.35)';
+        if (t.textContent !== initials(t.dataset.n)) t.textContent = initials(t.dataset.n);
+        return;
+      }
+      const L = lum(m.hex), dark = L < 0.1;
+      t.style.backgroundColor = dark ? '#262b34' : m.hex; t.style.backgroundImage = SHEEN;
+      t.style.boxShadow = 'inset 0 0 0 1px rgba(255,255,255,.09), inset 0 1px 0 rgba(255,255,255,.2)';
+      t.style.color = m.fg || (L > 0.62 ? '#14161a' : '#fff'); t.style.textShadow = '';
       t.innerHTML = m.svg;
-      const s = t.firstChild; s.style.cssText = 'width:62%;height:62%;display:block';
+      const s = t.firstChild; s.style.cssText = m.own && /<text/.test(m.svg) ? 'width:76%;height:76%;display:block' : 'width:62%;height:62%;display:block';
     });
   };
   let q = 0;
   const later = () => { if (!q) q = requestAnimationFrame(() => { q = 0; dress(); }); };
   new MutationObserver(later).observe(document.documentElement, { childList: true, subtree: true });
   document.addEventListener('DOMContentLoaded', later); later();
+  // the big set (3 400 marks) comes after the first paint
+  const load = () => { const s = document.createElement('script'); s.src = 'brands-all.js'; s.async = true; s.onload = () => { document.querySelectorAll('.app-tile[data-b=""],.app-tile[data-b="0"]').forEach((t) => t.removeAttribute('data-b')); later(); }; document.head.append(s); };
+  if (document.readyState === 'complete') setTimeout(load, 300); else window.addEventListener('load', () => setTimeout(load, 300));
 })();

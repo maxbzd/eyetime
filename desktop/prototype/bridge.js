@@ -106,6 +106,8 @@
     ask: (action, target, minutes) => ask(action, target, minutes),
     getStatus: () => status,
     req,
+    usageDays: () => usageDays,
+    refreshUsage: async () => { const u = await req({ op: 'usage' }); if (u.ok) { usageDays = u.data; usageAt = performance.now(); } },
   };
   if (pre && pre.q) pre.q.forEach(([k, v]) => ETB.push(k, v));
 
@@ -286,8 +288,25 @@
       }
     }
   }
+  /* the "Rules" card of the home screen: the person's own rules, the ones that matter next first */
+  function paintMiniRules() {
+    const box = $('.mini-rules'), A = ET.rulesApi; if (!box || !A) return;
+    const L2 = A.L(), rank = (x) => (x.st.s === 'active' ? 0 : x.st.s === 'next' ? 1 + x.st.in / 1e6 : 5);
+    const list = A.rules().filter((r) => r.kind !== 'timer').map((r) => ({ r, st: A.status(r) })).sort((a, b) => rank(a) - rank(b)).slice(0, 3);
+    const chip = (x) => (x.st.s === 'active' ? L2.active(A.fmt(x.st.end)) : x.st.s === 'next' ? L2.startsIn(A.dur(x.st.in)) : L2.off);
+    const mins = (t) => parseInt(t, 10) * 60 + parseInt(String(t).slice(3), 10);
+    const sig = lang() + JSON.stringify(list.map((x) => [x.r.id, x.r.name, x.r.from, x.r.to, chip(x)]));
+    if (box.dataset.sig === sig) return; box.dataset.sig = sig;
+    const g = (r) => (r.glyph === 'sun' ? 'sun' : r.glyph === 'moon' ? 'moon' : 'cal');
+    const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    box.innerHTML = list.map((x) => `<button class="mini-rule" type="button"><div class="glyphs"><svg class="ico"><use href="#i-${g(x.r)}"/></svg><svg class="ico arrow"><use href="#i-arrow"/></svg><svg class="ico sh"><use href="#i-shield"/></svg></div><span class="chipt">${esc(chip(x))}</span><b>${esc(x.r.name)}</b><span class="s">${esc(A.fmt(mins(x.r.from)) + ' – ' + A.fmt(mins(x.r.to)))}</span></button>`).join('')
+      + `<button class="mini-rule new-rule" type="button"><span class="plus"><svg class="ico"><use href="#i-plus"/></svg></span><span>${esc(L2.newRule)}</span></button>`;
+    $$('.mini-rule', box).forEach((b) => b.addEventListener('click', () => ET.go('rules')));
+  }
   function paintBlock(st) {
     const d = st.decision || {}; const r = (d.reasons || [])[0];
+    const act = $('.block-actions'); if (act) act.style.display = r ? '' : 'none'; // nothing to unblock when nothing is blocked
+    paintMiniRules();
     if (!d.exes) return;
     const apps = d.allowOnly ? '∞' : (d.exes || []).length, sites = d.allowOnly ? '∞' : (d.domains || []).length;
     if (r) ET.setBlockCard({ title: r.name, sub: L().blockedSub(apps, sites, r.minsLeft ? L().until(r.minsLeft) : '') }); else ET.setBlockCard({ title: L().nothing, sub: L().nothingSub });

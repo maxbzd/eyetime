@@ -88,6 +88,9 @@ fn a_session_closes_sites_and_programs_and_ends_by_itself() {
     assert!(status(&mut s).session.is_none());
     assert_eq!(status(&mut s).streak_days, 1);
     assert_eq!(*status(&mut s).focus_minutes.last().unwrap(), 25);
+    let t = status(&mut s).totals;
+    assert_eq!((t.focus_min, t.sessions, t.best_streak), (25, 1, 1), "what was done is counted for the profile");
+    assert!(!t.since_day.is_empty());
 }
 
 #[test]
