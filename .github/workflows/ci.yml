@@ -47,7 +47,7 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-v1
-      - run: npm i --no-save playwright axe-core && npx playwright install --with-deps chromium
+      - run: npm i --no-save playwright@1.56.1 axe-core && npx playwright install --with-deps chromium
       # screenshots of the main screens against scripts-dev/e2e/visual-baseline (CI fonts); after an intended UI change run the suites once, download the `visual-diff-*` artifacts and copy the `*-now.png` files over the baseline
       - run: node scripts-dev/e2e/run.mjs --shard ${{ matrix.shard }}/5 --jobs 2 --retries 1
       - uses: actions/upload-artifact@v4

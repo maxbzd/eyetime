@@ -30,7 +30,7 @@ jobs:
         run: |
           cargo build -p eyetime-helper --bin eyetime-sim
           (./target/debug/eyetime-sim prototype 8131 &) ; sleep 1
-          npm i --no-save playwright && npx playwright install --with-deps chromium
+          npm i --no-save playwright@1.56.1 && npx playwright install --with-deps chromium
           node tests/e2e_real.cjs
       - name: The browser extension (its rules, then in a real Chromium through a native host)
         run: |
