@@ -6,7 +6,7 @@ on:
   workflow_dispatch: # run it by hand on any branch (gh workflow run ci.yml --ref <branch>)
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,7 +22,7 @@ jobs:
       - name: Lint the Firefox package (web-ext)
         run: mkdir /tmp/ff && unzip -q dist/eyetime-firefox.zip -d /tmp/ff && npx --yes web-ext lint -s /tmp/ff --warnings-as-errors=false
   companion:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -32,7 +32,7 @@ jobs:
   # The end-to-end suites are listed in scripts-dev/e2e/suites.json and split into balanced shards by run.mjs (two browsers at a time per machine).
   # A suite that fails once and passes on the retry is reported as a warning (a flaky test) and does not fail the build.
   e2e:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     strategy:
       fail-fast: false
@@ -66,6 +66,6 @@ jobs:
   e2e-ok:
     needs: e2e
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - run: test "${{ needs.e2e.result }}" = success
