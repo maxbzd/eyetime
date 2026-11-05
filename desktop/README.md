@@ -15,6 +15,7 @@ macOS and Linux are not part of this yet.
 | `app/src-tauri/` | `eyetime.exe`: the window (Tauri 2). Frameless, lives in the tray, starts with Windows, one instance. Talks to the service over a named pipe. |
 | `prototype/` | The screens (HTML, CSS, JS). `bridge.js` connects them to the service. Opened in a plain browser they run on demo data. |
 | `installer/` | `eyetime-setup.exe`: the animated installer and uninstaller, with the program files inside. |
+| `extension/` | `EyeTime Bridge`, a small Chrome / Edge / Brave extension. It tells the service which page is in front and closes pages the service says are closed: single pages, words in the address or title, exceptions, and "everything but my list". It decides nothing itself, and closes nothing when the service is not there. Talks to the service through the helper's native host (`eyetime-helper.exe`, started by the browser). |
 | `tests/` | `e2e_real.cjs` drives the screens against the real service logic on a pretend computer. |
 
 ## How a block works
@@ -52,12 +53,14 @@ Frozen closes everything except Windows itself and EyeTime, and also Task Manage
 
 - A person with administrator rights and enough determination can always get around a program that runs on their own computer (boot to recovery, disable the service from outside). The guards raise the effort high enough to stop impulses, not a determined attack.
 - "Block everything except my list" works for programs. For websites it needs the browser extension (the hosts file cannot invert). Without the extension, allow-only closes the browsers that are not on your list.
+- **The extension is loaded by hand, once.** Browsers refuse to install an extension from outside their store on a personal computer. Settings → Browser extension has buttons for the extension's folder and the browser's extensions page: switch on Developer mode, Load unpacked, pick the folder. (Publishing it in the Chrome and Edge stores would remove this step.) Firefox is not supported yet.
 - A browser with its own encrypted DNS, or a site reached by an address that is not on the list, can slip through the hosts file. The keyword and exception features need the extension.
-- Muting sounds is not done yet on Windows. Do Not Disturb turns off pop-up notifications.
+- Muting sounds is not done yet on Windows.
+- Home shows dashes until something has been counted (no invented perfect score). The rule cards under "Rules" on Home are still sample data. Do Not Disturb turns off pop-up notifications.
 - Needs the Microsoft WebView2 runtime (part of Windows 11 and of up-to-date Windows 10; the installer and the window both use it).
 - Some antivirus programs warn when a program edits the hosts file. That is what blocking sites at system level means.
 - The installer is not signed. Windows SmartScreen will warn about an unknown publisher until it is.
-- **Untested on a real Windows machine.** All the logic is tested (81 tests, and the screens against the real logic on a pretend computer). The Windows layer (`os_windows.rs`, the service, the agent, the pipe server, the installer, the Tauri shell) compiles for Windows, but has not been run. Expect first-run problems; try it in a virtual machine first.
+- **Checked on real Windows by the CI.** Each push builds on a Windows machine, installs the installer silently, and checks the service, the pipe, the hosts file, the window (clicked through over its debugging port, with pictures), the native host, and the uninstall. It has not been run on every Windows version or with every antivirus, so try it in a virtual machine first.
 
 ## If you ever get stuck
 
