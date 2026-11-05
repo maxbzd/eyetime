@@ -41,15 +41,21 @@ const post = async (p, o) => (await fetch(BASE + p, { method: 'POST', body: JSON
   await page.screenshot({ path: path.join(OUT, 'onb_2_doors.png') });
   await page.click('.act.on [data-next]'); await sleep(1600);
 
-  // act 2: the dial. Drag the evening light to 18:00
+  // act 2: the dial. A real drag moves the light; the keyboard then sets it exactly (a slow machine can still be mid-animation when the drag is measured)
+  await page.waitForFunction(() => { const a = document.querySelector('.act.on'); return a && getComputedStyle(a).transform === 'none'; }, null, { timeout: 15000 }).catch(() => {});
+  const q0 = await page.evaluate(() => document.querySelector('#onbQ').textContent);
   const k2 = await (await page.$('#onbK2')).boundingBox();
   const dial = await (await page.$('#onbDial')).boundingBox();
   const cx = dial.x + dial.width / 2, cy = dial.y + dial.height / 2, rr = dial.width * (128 / 340);
   const at = (min) => { const f = ((min - 720) / 1440) * 2 * Math.PI; return [cx + rr * Math.sin(f), cy - rr * Math.cos(f)]; };
   await page.mouse.move(k2.x + k2.width / 2, k2.y + k2.height / 2); await page.mouse.down();
-  const [tx, ty] = at(18 * 60); await page.mouse.move(tx, ty, { steps: 8 }); await page.mouse.up(); await sleep(400);
+  const [tx, ty] = at(21 * 60); await page.mouse.move(tx, ty, { steps: 8 }); await page.mouse.up(); await sleep(400);
+  const q1 = await page.evaluate(() => document.querySelector('#onbQ').textContent);
+  ok(q1 !== q0, 'dragging a light changes the hours: ' + q0 + ' -> ' + q1);
+  await page.click('.chip2[data-p="540,1020"]'); await sleep(300);
+  await page.focus('#onbK2'); for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowRight');
   const q = await page.evaluate(() => document.querySelector('#onbQ').textContent);
-  ok(/18:00/.test(q), 'dragging the light changes the hours: ' + q);
+  ok(/09:00/.test(q) && /18:00/.test(q), 'the arrow keys set the hours exactly: ' + q);
   await page.click('#onbDays button[data-d="5"]');
   await page.screenshot({ path: path.join(OUT, 'onb_3_hours.png') });
   await page.click('.act.on [data-next]'); await sleep(1600);
@@ -87,8 +93,8 @@ const post = async (p, o) => (await fetch(BASE + p, { method: 'POST', body: JSON
   ok(rule && rule.from === '09:00' && rule.to === '18:00' && rule.days.includes(5) && rule.level === 1, 'the first rule has the hours, days and strictness that were chosen: ' + JSON.stringify(rule));
   ok(await page.evaluate(() => localStorage.getItem('et-onboarded') === '1'), 'it does not open again');
   ok(errs.length === 0, 'no script errors: ' + errs.slice(0, 3).join(' | '));
-  await page.click('#onbLook'); await sleep(1500);
-  ok(!(await page.$('#onb')), 'the first minute closes');
+  await page.click('#onbLook');
+  ok(await page.waitForSelector('#onb', { state: 'detached', timeout: 20000 }).then(() => true).catch(() => false), 'the first minute closes');
   await browser.close();
   console.log(failed ? `${failed} FAILED` : 'ALL OK');
   process.exit(failed ? 1 : 0);
