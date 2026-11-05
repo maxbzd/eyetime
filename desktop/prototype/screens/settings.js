@@ -89,7 +89,7 @@
     $('#sExport', el).addEventListener('click', () => toast(l.exported)); $('#sUpd', el).addEventListener('click', async (e) => { await wait(reduced ? 50 : 700); toast(l.upToDate); });
     $('#sUnpair', el).addEventListener('click', () => toast(l.saved));
     $('#sWipe', el).addEventListener('click', (e) => { e.currentTarget.style.display = 'none'; $('#sConf', el).classList.add('on'); }); $('#sWipeNo', el).addEventListener('click', () => { $('#sWipe', el).style.display = ''; $('#sConf', el).classList.remove('on'); }); $('#sWipeYes', el).addEventListener('click', () => { $('#sWipe', el).style.display = ''; $('#sConf', el).classList.remove('on'); toast(l.wiped); });
-    $$('[data-pv]', el).forEach((b) => b.addEventListener('click', () => ({ blocked: () => showBlocked(false), locked: () => showBlocked(true), tray: showTray, tour }[b.dataset.pv])()));
+    $$('[data-pv]', el).forEach((b) => b.addEventListener('click', () => ({ blocked: () => showBlocked(false), locked: () => showBlocked(true), tray: showTray, tour: () => ET.tour() }[b.dataset.pv])()));
   }
 
   /* ---------------- the blocked screen ---------------- */
