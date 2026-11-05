@@ -286,7 +286,8 @@
   function paintEngine() {
     const t = $('#engTxt'), dot = $('#engDot'); if (!t) return;
     const bad = !online || (status && !status.hostsOk), warn = online && status && !status.agentConnected;
-    t.textContent = !online ? L().engineOff : status && !status.hostsOk ? L().engineWarnHosts : warn ? L().engineWarnAgent : L().engineOn;
+    const txt = !online ? L().engineOff : status && !status.hostsOk ? L().engineWarnHosts : warn ? L().engineWarnAgent : L().engineOn;
+    if (t.textContent !== txt) t.textContent = txt; // only when it changed: this runs from a mutation observer
     if (dot) dot.style.background = bad ? '#ff6b7d' : warn ? '#ffb86b' : '';
   }
   let sessionMissing = 0;
