@@ -363,6 +363,8 @@
     if (line.textContent !== '\u201c' + w + '\u201d') line.textContent = '\u201c' + w + '\u201d';
   }, 2000);
   ET.engineText = (d) => d;
+  // a language change resets the texts the screens own: paint the real ones again
+  ET.langHooks.push(() => { ET._homeSig = ''; if (status) { paintHome(status); paintBlock(status); } paintEngine(); });
   document.addEventListener('et-settings-shown', paintEngine);
   function uninstallCard() {
     const v = $('#view-settings'); if (!v || $('#etbUninst')) return;
