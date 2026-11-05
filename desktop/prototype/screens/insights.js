@@ -44,6 +44,74 @@
   const APPS = [['VS Code', '#2b7de9', 'pro', 142, 12], ['Figma', '#a259ff', 'pro', 84, 4], ['YouTube', '#ff3b30', 'dis', 61, -22], ['Slack', '#7c3aed', 'neu', 48, 6], ['Telegram', '#2aa3e4', 'dis', 33, -14], ['Chrome', '#4a8af4', 'neu', 29, -3], ['Instagram', '#e1306c', 'dis', 17, -41], ['Notion', '#3a3a3a', 'neu', 14, 9]];
   const catColor = { dis: 'var(--rose)', neu: 'var(--sky)', pro: 'var(--mint)' };
   const fmtMin = (m) => { const h = Math.floor(m / 60); return h ? `${h}${ET.lang() === 'ru' ? ' ч' : 'h'} ${String(m % 60).padStart(2, '0')}${ET.lang() === 'ru' ? ' м' : 'm'}` : `${m}${ET.lang() === 'ru' ? ' м' : 'm'}`; };
+
+  /* ---------------- the real numbers (inside the app): what the helper measured, nothing invented ---------------- */
+  const REAL = !!window.__TAURI__;
+  const RT = {
+    en: { report: 'Screen time', hours: 'Your productive hours', hoursS: 'Minutes on things you did not mark as distracting, by weekday and hour.', none: 'Nothing to show yet.', emptyP: 'EyeTime has just started to watch. Your numbers appear here after the first hours of use, and they never leave this computer.', realP: 'Focus is the share of your screen time spent on things you did not mark as distracting. Rest is how much of the day you were away from the screen. Eyes is the eye breaks you took out of the ones due (one every 20 minutes at the screen).' },
+    ru: { report: 'Время за экраном', hours: 'Продуктивные часы', hoursS: 'Минуты на том, что вы не отметили как отвлекающее, по дням недели и часам.', none: 'Пока показывать нечего.', emptyP: 'EyeTime только начал наблюдать. Ваши цифры появятся здесь после первых часов работы и никогда не покинут этот компьютер.', realP: 'Фокус — доля времени за экраном на том, что вы не отметили как отвлекающее. Отдых — сколько времени за день вы были вдали от экрана. Глаза — перерывы, которые вы сделали из положенных (один каждые 20 минут у экрана).' },
+  };
+  let lastM = null;
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const dayKey = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  const sum = (a) => a.reduce((x, y) => x + y, 0);
+  const secsOf = (u) => sum(Object.values((u && u.secs) || {}));
+  function realModel(range) {
+    const B = window.ETB, st = (B && B.getStatus && B.getStatus()) || {}, ud = (B && B.usageDays && B.usageDays()) || {};
+    const today = new Date(), eyes = (() => { try { return JSON.parse(localStorage.getItem('et-eyes') || '{}'); } catch { return {}; } })();
+    const at = (back) => { const d = new Date(today); d.setDate(d.getDate() - back); const k = dayKey(d); let u = ud[k] || null; if (back === 0 && st.today) u = st.today; return { k, d, u, eyes: eyes[k] || 0, focus: ((st.focusMinutes || [])[(st.focusMinutes || []).length - 1 - back]) || 0 }; };
+    const n = range === 'day' ? 1 : range === 'week' ? 7 : 30;
+    const cur = Array.from({ length: n }, (_, i) => at(n - 1 - i)), prev = Array.from({ length: n }, (_, i) => at(2 * n - 1 - i));
+    const tot = (rows) => { let total = 0, dis = 0, off = 0, sw = 0, eyesN = 0, focus = 0; rows.forEach((r) => { const u = r.u || {}; total += secsOf(u); dis += u.dis_secs || 0; off += u.offline_secs || 0; sw += u.switches || 0; eyesN += r.eyes; focus += r.focus; }); return { total, dis, off, sw, eyesN, focus, days: rows.filter((r) => r.u && secsOf(r.u) > 0).length }; };
+    const c = tot(cur), p = tot(prev), empty = c.total === 0;
+    const focusPct = c.total ? Math.round(100 * (1 - c.dis / c.total)) : 0, offPct = c.total + c.off ? (100 * c.off) / (c.total + c.off) : 0, rest = Math.min(100, Math.round(offPct * 1.3));
+    const due = Math.floor(c.total / 60 / 20), eyesPct = due ? Math.min(100, Math.round((100 * c.eyesN) / due)) : 0;
+    const score = empty ? 0 : Math.round(focusPct * 0.7 + rest * 0.3);
+    const fmtM = (m) => { const h = Math.floor(m / 60); return h ? `${h}${ET.lang() === 'ru' ? ' ч' : 'h'} ${pad2(m % 60)}${ET.lang() === 'ru' ? ' м' : 'm'}` : `${m}${ET.lang() === 'ru' ? ' м' : 'm'}`; };
+    // a habit: the value, where it stands (0..1), where the person's own earlier average stands, a word, and whether that is good
+    const ratio = (a, b) => (b > 0 ? Math.min(1, Math.max(0, a / (2 * b))) : a > 0 ? 0.6 : 0);
+    const hrs = (rows) => { const first = [], last = []; rows.forEach((r) => { const h = ((r.u || {}).hours) || []; const a = h.findIndex((x) => x > 0); let z = -1; h.forEach((x, i) => { if (x > 0) z = i; }); if (a >= 0) { first.push(a); last.push(z); } }); return [first.length ? Math.round(sum(first) / first.length) : null, last.length ? Math.round(sum(last) / last.length) : null]; };
+    const [f1, l1] = hrs(cur);
+    const per = (x, days) => (days ? x / days : 0);
+    const habits = [];
+    habits.push([c.focus ? fmtM(c.focus) : '—', ratio(c.focus, p.focus), 0.5, !c.focus ? 'none' : p.focus && c.focus >= p.focus * 1.15 ? 'great' : p.focus && c.focus < p.focus * 0.85 ? 'short' : 'good', !p.focus || c.focus >= p.focus * 0.85 ? 1 : 0]);
+    const swd = per(c.sw, c.days), swp = per(p.sw, p.days);
+    habits.push([c.days ? (Math.round(swd * 10) / 10).toString().replace('.', ET.lang() === 'ru' ? ',' : '.') + (ET.lang() === 'ru' ? ' / день' : ' / day') : '—', ratio(swd, swp), 0.5, !c.days ? 'none' : swp && swd > swp * 1.2 ? 'many' : swp && swd < swp * 0.8 ? 'few' : 'ok', !swp || swd <= swp * 1.2 ? 1 : 0]);
+    habits.push([f1 === null ? '—' : `${f1}:00`, f1 === null ? 0 : Math.min(1, f1 / 14), 0.5, f1 === null ? 'none' : f1 <= 8 ? 'early' : 'ok', 1]);
+    habits.push([l1 === null ? '—' : `${l1}:00`, l1 === null ? 0 : Math.min(1, l1 / 24), 0.5, l1 === null ? 'none' : l1 >= 23 ? 'late' : l1 <= 20 ? 'early' : 'ok', l1 === null || l1 < 23 ? 1 : 0]);
+    const offM = Math.round(c.off / 60), offP = Math.round(p.off / 60);
+    habits.push([c.off ? fmtM(offM) : '—', ratio(offM, offP), 0.5, !c.off ? 'none' : offP && offM >= offP * 1.15 ? 'great' : offP && offM < offP * 0.85 ? 'short' : 'good', !offP || offM >= offP * 0.85 ? 1 : 0]);
+    habits.push([due ? `${c.eyesN} / ${due}` : '—', due ? Math.min(1, c.eyesN / due) : 0, 0.5, !due ? 'none' : c.eyesN >= due ? 'great' : c.eyesN >= due * 0.6 ? 'good' : 'short', !due || c.eyesN >= due * 0.6 ? 1 : 0]);
+    // bars
+    let bars, labels, xl = null, max;
+    if (range === 'day') {
+      const u = (cur[0].u) || {}, h = u.hours || [], d = u.dis_hours || [];
+      bars = Array.from({ length: 24 }, (_, i) => { const all = (h[i] || 0) / 60, ds = (d[i] || 0) / 60; return [Math.max(0, Math.round(all - ds)), Math.round(ds)]; });
+      labels = bars.map((_, i) => `${i}:00`); max = 60;
+    } else {
+      bars = cur.map((r) => { const t = secsOf(r.u) / 60, ds = ((r.u || {}).dis_secs || 0) / 60; return [Math.max(0, Math.round(t - ds)), Math.round(ds)]; });
+      labels = cur.map((r) => (ET.lang() === 'ru' ? `${r.d.getDate()}.${pad2(r.d.getMonth() + 1)}` : `${r.d.getMonth() + 1}/${r.d.getDate()}`));
+      if (range === 'week') xl = cur.map((r) => L().days[(r.d.getDay() + 6) % 7]);
+      max = Math.max(10, Math.max(...bars.map((b) => b[0] + b[1])) * 1.08);
+    }
+    const totalMin = Math.round(c.total / 60), prevMin = Math.round(p.total / 60);
+    const chg = prevMin > 0 ? Math.round((100 * (totalMin - prevMin)) / prevMin) : null;
+    // the heatmap: the last five weeks, minutes on things that were not distracting, by weekday and hour
+    const cells = Array.from({ length: 7 }, () => Array.from({ length: 24 }, () => [0, 0]));
+    for (let b = 0; b < 35; b++) { const r = at(b), h = ((r.u || {}).hours) || []; if (!h.length) continue; const wd = (r.d.getDay() + 6) % 7, dh = (r.u || {}).dis_hours || []; for (let i = 0; i < 24; i++) { cells[wd][i][0] += Math.max(0, (h[i] || 0) - (dh[i] || 0)) / 60; cells[wd][i][1]++; } }
+    const avgs = cells.map((row) => row.map(([m, k]) => (k ? m / k : 0))), top = Math.max(1, ...avgs.flat());
+    // apps and sites
+    const secs = {}, psecs = {}; cur.forEach((r) => Object.entries((r.u || {}).secs || {}).forEach(([k, v]) => { secs[k] = (secs[k] || 0) + v; })); prev.forEach((r) => Object.entries((r.u || {}).secs || {}).forEach(([k, v]) => { psecs[k] = (psecs[k] || 0) + v; }));
+    let items = []; try { items = JSON.parse(localStorage.getItem('et-items') || '[]'); } catch { /* none */ }
+    const apps = Object.entries(secs).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, v]) => {
+      const raw = k.replace(/^(exe|site):/, ''), base = raw.replace(/\.(exe|com|org|net|ru|io|tv)$/i, ''), low = base.toLowerCase();
+      const it = (ET.rulesApi ? ET.rulesApi.items() : items).find((x) => [x.name, x.exe, x.domain].some((s) => s && String(s).toLowerCase().replace(/\.(exe|com|org|net|ru|io|tv)$/i, '') === low));
+      let h = 0; for (const ch of low) h = (h * 31 + ch.charCodeAt(0)) % 360;
+      const name = it ? it.name : base.charAt(0).toUpperCase() + base.slice(1), m = Math.max(1, Math.round(v / 60)), pv = psecs[k] || 0;
+      return [name, it && it.color ? it.color : `hsl(${h} 55% 42%)`, it ? (it.g === 'dis' ? 'dis' : it.g === 'allow' ? 'pro' : 'neu') : 'neu', m, pv > 0 ? Math.round((100 * (v - pv)) / pv) : null];
+    });
+    return { empty, scores: [score, focusPct, eyesPct, rest], habits, bars, labels, xl, max, goal: 0, total: totalMin, chg, heat: avgs.map((r) => r.map((m) => m / top)), heatMin: avgs.map((r) => r.map((m) => Math.round(m))), apps };
+  }
   let root, range = 'day';
 
   function mount(el) {
@@ -60,33 +128,43 @@
     fill(false); ET.langHooks.push(() => { fill(false); $('#tbTitle').textContent = L().title; });
   }
   function fill(animate) {
-    const l = L(), el = root, ri = ['day', 'week', 'month'].indexOf(range);
+    fill0(animate); if (REAL) realText();
+  }
+  function realText() {
+    const t = RT[ET.lang()] || RT.en, M = lastM, l = L(); if (!M) return;
+    $('#inRepT').textContent = t.report; $('#inHeT').textContent = t.hours; $('#inHeS').textContent = t.hoursS; $('#inWhatP').textContent = M.empty ? t.emptyP : t.realP;
+    $('#inChg').style.display = M.chg === null ? 'none' : ''; $('#inGoal').style.display = 'none';
+    const ap = $('#inApps'); if (M.empty || !M.apps.length) ap.innerHTML = `<p style="margin:10px 4px;color:var(--text-3);font:500 14px/1.5 var(--font-body)">${t.none}</p>`;
+    void l;
+  }
+  function fill0(animate) {
+    const l = L(), el = root, ri = ['day', 'week', 'month'].indexOf(range), M = REAL ? realModel(range) : null; lastM = M;
     $('h1', el).textContent = l.h1; $('.lead', el).textContent = l.lead; $$('#inRng button', el).forEach((b, i) => { b.textContent = l[b.dataset.r]; b.setAttribute('aria-pressed', String(b.dataset.r === range)); }); $('#inRng .hi', el).style.transform = `translateX(${ri * 100}%)`;
     $('#inScoreL').textContent = l.score; $('#inWhatT').textContent = l.whatT; $('#inWhatP').textContent = l.whatP; $('#inHabT').textContent = l.habits; $('#inHabS').textContent = l.habitsS; $('#inRepT').textContent = l.report; $('#inHeT').textContent = l.hours; $('#inHeS').textContent = l.hoursS; $('#inAppT').textContent = l.apps; $('#inAppS').textContent = l.appsS; $('#inLess').textContent = l.less; $('#inMore').textContent = l.more;
     $$('.gauge-label', el).forEach((g) => { g.textContent = { focus: l.gF, eyes: l.gE, rest: l.gR }[g.dataset.k]; });
-    const [sc, f, e, r] = SCORES[range]; const arc = $('#inArc'); arc.style.transition = animate ? 'stroke-dashoffset 1.6s var(--out-expo)' : 'none'; requestAnimationFrame(() => { arc.style.transition = ''; arc.style.strokeDashoffset = String(100 - sc); }); countTo($('#inScore'), sc, animate ? 1300 : 1600);
+    const [sc, f, e, r] = M ? M.scores : SCORES[range]; const arc = $('#inArc'); arc.style.transition = animate ? 'stroke-dashoffset 1.6s var(--out-expo)' : 'none'; requestAnimationFrame(() => { arc.style.transition = ''; arc.style.strokeDashoffset = String(100 - sc); }); countTo($('#inScore'), sc, animate ? 1300 : 1600);
     $$('.gauge', el).forEach((g, i) => { const v = [f, e, r][i]; g.querySelector('rect.fill').style.strokeDashoffset = String(100 - v); countTo(g.querySelector('.gv'), v, 1400); });
     /* habits */
     const hb = $('#inHabits'); hb.innerHTML = '';
-    HABITS[range].forEach(([val, pos, avg, st, good], i) => {
+    (M ? M.habits : HABITS[range]).forEach(([val, pos, avg, st, good], i) => {
       const c = good ? 'var(--mint)' : 'var(--rose)', row = document.createElement('div'); row.className = 'habit rise'; row.style.setProperty('--d', 260 + i * 60);
-      row.innerHTML = `<div class="row"><span class="l">${l.m[i]}<b>${val}</b></span><span class="s" style="color:${c}">${l.st[st]}</span></div><div class="dash">${'<i></i>'.repeat(6)}<span class="avgm" style="left:${avg * 100}%">${l.avg}</span></div>`;
+      row.innerHTML = `<div class="row"><span class="l">${l.m[i]}<b>${val}</b></span><span class="s" style="color:${c}">${l.st[st] || ''}</span></div><div class="dash">${'<i></i>'.repeat(6)}<span class="avgm" style="left:${avg * 100}%">${l.avg}</span></div>`;
       hb.append(row); const segs = $$('.dash i', row), n = Math.round(pos * 6); segs.forEach((s, k) => { s.style.setProperty('--c', c); setTimeout(() => s.classList.toggle('on', k < n), 500 + i * 90 + k * 70); });
     });
     /* bars */
-    const rr = rnd(range === 'day' ? 3 : range === 'week' ? 9 : 17), n = range === 'day' ? 24 : range === 'week' ? 7 : 30, goal = range === 'day' ? 30 : 240, max = range === 'day' ? 30 : 330, bars = $('#inBars');
-    $$('.b', bars).forEach((b) => b.remove()); const data = Array.from({ length: n }, (_, i) => { const work = range === 'day' ? (i >= 8 && i <= 18 ? 14 + rr() * 14 : rr() * 4) : 90 + rr() * 200, dis = range === 'day' ? rr() * 9 : 20 + rr() * 70; return [Math.round(work), Math.round(dis)]; });
-    data.forEach(([fcs, dis], i) => { const b = document.createElement('div'); b.className = 'b'; b.style.setProperty('--i', i); b.innerHTML = `<i class="x" style="height:${(dis / (max + 40)) * 100}%"></i><i class="f" style="height:${Math.max(1, (fcs / (max + 40)) * 100)}%"></i>`; const lab = range === 'day' ? `${i}:00` : range === 'week' ? l.days[i] : `${i + 1}`; b.addEventListener('pointerenter', () => { const t = $('#inTip'), br = b.getBoundingClientRect(), pr = bars.getBoundingClientRect(); t.innerHTML = l.tipD(lab, fcs, dis); t.style.left = clamp(br.left - pr.left + br.width / 2, 60, pr.width - 60) + 'px'; t.style.top = Math.max(30, br.bottom - pr.top - (fcs + dis) / (max + 40) * pr.height * .9) + 'px'; t.classList.add('on'); }); b.addEventListener('pointerleave', () => $('#inTip').classList.remove('on')); bars.append(b); });
-    $('#inGoal').style.bottom = (goal / (max + 40)) * 100 * .96 + '%'; $('#inGoal span').textContent = l.goal;
-    $('#inBx').innerHTML = (range === 'day' ? [0, 6, 12, 18, 23].map((h) => `<span style="flex:${h === 23 ? 1 : 6}">${h}:00</span>`) : range === 'week' ? l.days.map((d) => `<span>${d}</span>`) : [1, 8, 15, 22, 30].map((d) => `<span>${d}</span>`)).join('');
-    const tot = data.reduce((a, b) => a + b[0], 0), chg = range === 'day' ? 12 : range === 'week' ? 8 : -4; $('#inRepBig').innerHTML = fmtMin(tot).replace(/(\D+)(?=\s|$)/g, '<small>$1</small>'); const ch = $('#inChg'); ch.className = 'chg' + (chg < 0 ? ' dn' : ''); ch.innerHTML = `${ico(chg < 0 ? 'down' : 'arrow').replace('<svg class="ico ', '<svg style="width:14px;height:14px;' + (chg >= 0 ? 'transform:rotate(-90deg)' : '') + '" class="ico ')}${l.vs(Math.abs(chg))}`;
+    const rr = rnd(range === 'day' ? 3 : range === 'week' ? 9 : 17), n = range === 'day' ? 24 : range === 'week' ? 7 : 30, goal = M ? M.goal : range === 'day' ? 30 : 240, max = M ? M.max : range === 'day' ? 30 : 330, pad = M ? 0 : 40, bars = $('#inBars');
+    $$('.b', bars).forEach((b) => b.remove()); const data = M ? M.bars : Array.from({ length: n }, (_, i) => { const work = range === 'day' ? (i >= 8 && i <= 18 ? 14 + rr() * 14 : rr() * 4) : 90 + rr() * 200, dis = range === 'day' ? rr() * 9 : 20 + rr() * 70; return [Math.round(work), Math.round(dis)]; });
+    data.forEach(([fcs, dis], i) => { const b = document.createElement('div'); b.className = 'b'; b.style.setProperty('--i', i); b.innerHTML = `<i class="x" style="height:${(dis / (max + pad)) * 100}%"></i><i class="f" style="height:${Math.max(1, (fcs / (max + pad)) * 100)}%"></i>`; const lab = M ? M.labels[i] : range === 'day' ? `${i}:00` : range === 'week' ? l.days[i] : `${i + 1}`; b.addEventListener('pointerenter', () => { const t = $('#inTip'), br = b.getBoundingClientRect(), pr = bars.getBoundingClientRect(); t.innerHTML = l.tipD(lab, fcs, dis); t.style.left = clamp(br.left - pr.left + br.width / 2, 60, pr.width - 60) + 'px'; t.style.top = Math.max(30, br.bottom - pr.top - (fcs + dis) / (max + pad) * pr.height * .9) + 'px'; t.classList.add('on'); }); b.addEventListener('pointerleave', () => $('#inTip').classList.remove('on')); bars.append(b); });
+    $('#inGoal').style.bottom = (goal / (max + pad)) * 100 * .96 + '%'; $('#inGoal span').textContent = l.goal;
+    $('#inBx').innerHTML = (M && M.xl ? M.xl.map((d) => `<span>${d}</span>`) : range === 'day' ? [0, 6, 12, 18, 23].map((h) => `<span style="flex:${h === 23 ? 1 : 6}">${h}:00</span>`) : range === 'week' ? l.days.map((d) => `<span>${d}</span>`) : [1, 8, 15, 22, 30].map((d) => `<span>${d}</span>`)).join('');
+    const tot = M ? M.total : data.reduce((a, b) => a + b[0], 0), chg = M ? (M.chg || 0) : range === 'day' ? 12 : range === 'week' ? 8 : -4; $('#inRepBig').innerHTML = fmtMin(tot).replace(/(\D+)(?=\s|$)/g, '<small>$1</small>'); const ch = $('#inChg'); ch.className = 'chg' + (chg < 0 ? ' dn' : ''); ch.innerHTML = `${ico(chg < 0 ? 'down' : 'arrow').replace('<svg class="ico ', '<svg style="width:14px;height:14px;' + (chg >= 0 ? 'transform:rotate(-90deg)' : '') + '" class="ico ')}${l.vs(Math.abs(chg))}`;
     /* heatmap */
     const hm = $('#inHeat'), hr = rnd(5); hm.innerHTML = ''; const tipH = $('#inHTip');
-    for (let d = 0; d < 7; d++) { const dl = document.createElement('span'); dl.className = 'dl'; dl.textContent = l.days[d]; hm.append(dl); for (let h = 0; h < 24; h++) { const base = h >= 9 && h <= 12 ? .75 : h >= 14 && h <= 17 ? .6 : h >= 7 && h <= 20 ? .25 : .03, wk = d >= 5 ? .35 : 1, v = clamp(base * wk * (.6 + hr() * .7), 0, 1), i = document.createElement('i'); i.style.setProperty('--v', v.toFixed(2)); i.style.setProperty('--r', d); i.style.setProperty('--c', h); i.dataset.m = Math.round(v * 55); i.addEventListener('pointerenter', () => { const cr = i.getBoundingClientRect(), pr = hm.parentElement.getBoundingClientRect(); tipH.innerHTML = l.tip(l.days[d], h, i.dataset.m); tipH.style.left = clamp(cr.left - pr.left + cr.width / 2, 70, pr.width - 70) + 'px'; tipH.style.top = cr.top - pr.top + 'px'; tipH.classList.add('on'); }); i.addEventListener('pointerleave', () => tipH.classList.remove('on')); hm.append(i); } }
+    for (let d = 0; d < 7; d++) { const dl = document.createElement('span'); dl.className = 'dl'; dl.textContent = l.days[d]; hm.append(dl); for (let h = 0; h < 24; h++) { const base = h >= 9 && h <= 12 ? .75 : h >= 14 && h <= 17 ? .6 : h >= 7 && h <= 20 ? .25 : .03, wk = d >= 5 ? .35 : 1, v = M ? M.heat[d][h] : clamp(base * wk * (.6 + hr() * .7), 0, 1), i = document.createElement('i'); i.style.setProperty('--v', v.toFixed(2)); i.style.setProperty('--r', d); i.style.setProperty('--c', h); i.dataset.m = M ? M.heatMin[d][h] : Math.round(v * 55); i.addEventListener('pointerenter', () => { const cr = i.getBoundingClientRect(), pr = hm.parentElement.getBoundingClientRect(); tipH.innerHTML = l.tip(l.days[d], h, i.dataset.m); tipH.style.left = clamp(cr.left - pr.left + cr.width / 2, 70, pr.width - 70) + 'px'; tipH.style.top = cr.top - pr.top + 'px'; tipH.classList.add('on'); }); i.addEventListener('pointerleave', () => tipH.classList.remove('on')); hm.append(i); } }
     $('#inHeX').innerHTML = '<span></span>' + Array.from({ length: 24 }, (_, h) => `<span>${h % 6 === 0 ? h : ''}</span>`).join('');
     /* apps */
-    const ap = $('#inApps'); ap.innerHTML = ''; const mul = range === 'day' ? 1 : range === 'week' ? 6 : 24, mx = Math.max(...APPS.map((a) => a[3] * mul));
-    APPS.forEach(([name, color, cat, m, d], i) => { const row = document.createElement('div'); row.className = 'app-row'; row.style.setProperty('--i', i); row.innerHTML = `<span class="app-tile" data-n="${String(name).replace(/"/g, '&quot;')}" style="background:${color}">${name.slice(0, 2)}</span><div class="mid"><div class="nm">${name}<span class="cat" style="color:${catColor[cat]}">${l.cats[cat]}</span></div><div class="bar"><i style="background:${catColor[cat]}"></i></div></div><div class="tm num">${fmtMin(m * mul)}<small style="color:${(cat === 'dis') === (d < 0) ? 'var(--mint)' : 'var(--rose)'}">${d > 0 ? '▲' : '▼'} ${Math.abs(d)}%</small></div>`; ap.append(row); setTimeout(() => { $('.bar i', row).style.width = (m * mul / mx) * 100 + '%'; }, 500 + i * 60); });
+    const ap = $('#inApps'); ap.innerHTML = ''; const mul = M ? 1 : range === 'day' ? 1 : range === 'week' ? 6 : 24, mx = Math.max(1, ...(M ? M.apps : APPS).map((a) => a[3] * mul));
+    (M ? M.apps : APPS).forEach(([name, color, cat, m, d], i) => { const row = document.createElement('div'); row.className = 'app-row'; row.style.setProperty('--i', i); row.innerHTML = `<span class="app-tile" data-n="${String(name).replace(/"/g, '&quot;')}" style="background:${color}">${name.slice(0, 2)}</span><div class="mid"><div class="nm">${name}<span class="cat" style="color:${catColor[cat]}">${l.cats[cat]}</span></div><div class="bar"><i style="background:${catColor[cat]}"></i></div></div><div class="tm num">${fmtMin(m * mul)}${d === null ? '' : `<small style="color:${(cat === 'dis') === (d < 0) ? 'var(--mint)' : 'var(--rose)'}">${d > 0 ? '▲' : '▼'} ${Math.abs(d)}%</small>`}</div>`; ap.append(row); setTimeout(() => { $('.bar i', row).style.width = (m * mul / mx) * 100 + '%'; }, 500 + i * 60); });
   }
-  ET.screens.insights = { title: () => L().title, mount };
+  ET.screens.insights = { title: () => L().title, mount, show: () => { if (REAL && root) { const B = window.ETB; (B && B.refreshUsage ? B.refreshUsage() : Promise.resolve()).then(() => fill(false)); } } };
 })();

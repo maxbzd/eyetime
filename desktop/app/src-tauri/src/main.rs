@@ -53,6 +53,12 @@ fn ask(link: &Link, req: &Value) -> Result<Value, String> {
     }
 }
 
+/// the name of the Windows account, for the profile
+#[tauri::command]
+fn user_name() -> String {
+    std::env::var("USERNAME").unwrap_or_default()
+}
+
 // async, so that a slow answer from the helper never freezes the window
 #[tauri::command]
 async fn helper(link: State<'_, Link>, req: Value) -> Result<Value, String> {
@@ -180,7 +186,7 @@ fn main() {
         .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| show_main(app)))
         .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, Some(vec!["--hidden"])))
         .manage(Link(Mutex::new(None)))
-        .invoke_handler(tauri::generate_handler![helper, apply_setting, window_ctl, open_target])
+        .invoke_handler(tauri::generate_handler![helper, apply_setting, window_ctl, open_target, user_name])
         .setup(move |app| {
             let link = app.state::<Link>();
             let script = boot_script(&link);
