@@ -8,23 +8,23 @@ jobs:
   check:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 22 }
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: 24 }
       - run: npm run check
       # tests that depend on the calendar (daylight saving, a day of 23 or 25 hours) run in zones that have it
       - run: TZ=Europe/Kiev npm test
       - run: TZ=Pacific/Auckland npm test
       - run: npm run types
       - run: npm run build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with: { name: eyetime-packages, path: dist/*.zip }
       - name: Lint the Firefox package (web-ext)
         run: mkdir /tmp/ff && unzip -q dist/eyetime-firefox.zip -d /tmp/ff && npx --yes web-ext lint -s /tmp/ff --warnings-as-errors=false
   companion:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
       - run: python -m unittest -v test_companion
@@ -40,9 +40,9 @@ jobs:
         shard: [1, 2, 3, 4, 5]
     name: e2e (${{ matrix.shard }}/5)
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 22 }
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: 24 }
       - uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
@@ -50,13 +50,13 @@ jobs:
       - run: npm i --no-save playwright@1.56.1 axe-core && npx playwright install --with-deps chromium
       # screenshots of the main screens against scripts-dev/e2e/visual-baseline (CI fonts); after an intended UI change run the suites once, download the `visual-diff-*` artifacts and copy the `*-now.png` files over the baseline
       - run: node scripts-dev/e2e/run.mjs --shard ${{ matrix.shard }}/5 --jobs 2 --retries 1
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
           name: visual-diff-${{ matrix.shard }}
           path: /tmp/eyetime-visual-diff
           if-no-files-found: ignore
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: e2e-logs-${{ matrix.shard }}

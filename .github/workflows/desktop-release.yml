@@ -16,7 +16,7 @@ jobs:
   release:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: The tag and the version in the code are the same
         shell: pwsh
         run: |
@@ -56,8 +56,17 @@ jobs:
       - name: Try it for real (install, service, hosts file, window, uninstall)
         shell: pwsh
         run: ./tests/smoke.ps1 -Setup (Resolve-Path EyeTime-Setup.exe).Path -Out smoke-out
+      - name: Sign the installer (the apps run an update only if this key signed it)
+        shell: pwsh
+        env:
+          UPDATE_SIGNING_KEY: ${{ secrets.UPDATE_SIGNING_KEY }}
+        run: |
+          if (-not $env:UPDATE_SIGNING_KEY) { throw "The secret UPDATE_SIGNING_KEY is not set. Make a key with: cargo run -p eyetime-core --bin eyetime-sign -- --gen  (on Linux or macOS), put the private part into the repository secrets, and the public part into core/src/update.rs." }
+          $ver = "${{ github.ref_name }}".Replace('desktop-v', '')
+          cargo run --release -p eyetime-core --bin eyetime-sign -- $ver EyeTime-Setup.exe | Set-Content -NoNewline -Encoding ascii EyeTime-Setup.exe.sig
+          if ((Get-Content EyeTime-Setup.exe.sig -Raw).Trim().Length -ne 128) { throw "The signature was not made." }
       - name: Publish
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${{ github.ref_name }}" EyeTime-Setup.exe --title "EyeTime for Windows ${{ github.ref_name }}" --notes-file notes.md
+        run: gh release create "${{ github.ref_name }}" EyeTime-Setup.exe EyeTime-Setup.exe.sig --title "EyeTime for Windows ${{ github.ref_name }}" --notes-file notes.md

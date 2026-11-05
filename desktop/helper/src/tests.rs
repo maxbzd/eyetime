@@ -349,14 +349,14 @@ fn the_extension_is_told_what_is_closed() {
 fn uninstalling_needs_permission_and_not_during_a_lock() {
     let (f, mut s) = world();
     setup(&mut s);
-    assert_eq!(s.handle(Request::Uninstall { pin: None }).code, "challenge");
+    assert_eq!(s.handle(Request::Uninstall).code, "challenge");
     let (id, text) = answer_for(&mut s, "uninstall", None);
     advance(&f, &mut s, 4);
     assert!(s.handle(Request::Complete { challenge_id: id, answer: text, pin: None, partner_code: None }).ok);
-    assert!(s.handle(Request::Uninstall { pin: None }).ok);
+    assert!(s.handle(Request::Uninstall).ok);
     start(&mut s, 30, 2);
     advance(&f, &mut s, 2);
-    assert_eq!(s.handle(Request::Uninstall { pin: None }).code, "locked");
+    assert_eq!(s.handle(Request::Uninstall).code, "locked");
 }
 
 #[test]
@@ -470,7 +470,7 @@ use eyetime_core::update::UpdateInfo;
 fn ready_update(s: &Supervisor<Fake>, wanted: bool, manual: bool) {
     let mut u = s.upd.lock().unwrap();
     u.phase = Phase::Ready;
-    u.info = Some(UpdateInfo { version: "0.2.0".into(), notes: vec!["Faster".into()], url: "x".into(), sha256: "0".repeat(64), size: 5 });
+    u.info = Some(UpdateInfo { version: "0.2.0".into(), notes: vec!["Faster".into()], url: "x".into(), sha256: "0".repeat(64), size: 5, sig_url: String::new() });
     u.path = Some(std::path::PathBuf::from("C:/ProgramData/EyeTime/update/EyeTime-Setup-0.2.0.exe"));
     u.want_install = wanted;
     u.manual = manual;
@@ -624,4 +624,31 @@ fn an_automation_starts_a_normal_session_when_its_program_comes_to_the_front() {
     look(&mut s, "notepad.exe");
     look(&mut s, "code.exe");
     assert!(status(&mut s).session.is_some(), "after an hour it can start again");
+}
+
+#[test]
+fn an_agent_cannot_make_the_service_close_what_it_names() {
+    // "only code" is running; the request names a protected system process under a made-up program name,
+    // another real process under the name of an allowed program, and a process number that does not exist
+    let (f, mut s) = world();
+    setup(&mut s);
+    set(&mut s, json!({"et-items": [{"name":"VS Code","type":"app","g":"allow"}]}));
+    s.handle(Request::StartSession { name: "Only code".into(), minutes: 30, level: 1, blocks: vec!["Everything".into()], scene: "".into(), allow_breaks: false, dnd: false, mute: false, close_now: false });
+    f.0.lock().unwrap().procs = vec![proc(40, "code.exe"), proc(60, "winlogon.exe"), proc(61, "wsc_av.exe"), proc(62, "svchost.exe")];
+    for _ in 0..14 {
+        s.handle(Request::Observe {
+            fg: None,
+            idle_secs: 0,
+            windows: vec![
+                Win { exe: "x.exe".into(), title: "".into(), pid: 60 },        // the real program is winlogon.exe: never closed
+                Win { exe: "code.exe".into(), title: "".into(), pid: 61 },     // claims to be allowed; the real one is not and is closed only if it really is not on the list
+                Win { exe: "x.exe".into(), title: "".into(), pid: 9999 },      // there is no such process
+            ],
+            screen_locked: false,
+        });
+        advance(&f, &mut s, 2);
+    }
+    let killed = f.0.lock().unwrap().killed.clone();
+    assert!(!killed.contains(&60), "a system process is never closed because a request said so");
+    assert!(!killed.contains(&9999));
 }
