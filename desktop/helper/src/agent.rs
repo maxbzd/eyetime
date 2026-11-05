@@ -120,6 +120,15 @@ fn ask_programs_to_close(pids: &[u32]) {
     }
 }
 
+/// the window comes back after an update (this program is in the person's own session, so it opens as them)
+fn open_window() {
+    if let Some(app) = std::env::current_exe().ok().and_then(|p| p.parent().map(|d| d.join("eyetime.exe"))) {
+        if app.exists() {
+            let _ = std::process::Command::new(app).spawn();
+        }
+    }
+}
+
 fn set_dnd(on: bool) {
     // pop-up notifications off while a session asks for quiet
     let key = r"HKCU\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings";
@@ -169,6 +178,9 @@ pub fn run() {
                         }
                     }
                     ask_programs_to_close(&orders.close_pids);
+                    if orders.launch_app && !wins.iter().any(|(_, w)| w.exe.eq_ignore_ascii_case("eyetime.exe")) {
+                        open_window();
+                    }
                     if orders.dnd != dnd {
                         set_dnd(orders.dnd);
                         dnd = orders.dnd;

@@ -1,6 +1,7 @@
 //! The named pipe the window, the agent and the browser extension talk to, and the loop that ticks the supervisor.
 
-use crate::os_windows::{spawn_agent, WinOs};
+use crate::os_windows::{spawn_agent, WinNet, WinOs};
+use crate::update::Updater;
 use crate::supervisor::Supervisor;
 use eyetime_core::ipc::{parse_request, Response, MAX_LINE, PIPE_NAME};
 use std::fs::File;
@@ -45,6 +46,26 @@ pub fn run_ticker(sup: Shared, stop: Arc<AtomicBool>) {
             spawn_agent();
         }
         std::thread::sleep(Duration::from_secs(2));
+    }
+}
+
+/// looks for a newer version now and then, and fetches it when it is wanted (its own thread: the network may be slow)
+pub fn run_updater(sup: Shared, stop: Arc<AtomicBool>) {
+    let shared = lock(&sup).upd.clone();
+    let u = Updater::new(WinNet, shared, crate::supervisor::VERSION);
+    // the first look comes a little after the start, when the network is surely up
+    for _ in 0..45 {
+        if stop.load(Ordering::Relaxed) {
+            return;
+        }
+        std::thread::sleep(Duration::from_secs(1));
+    }
+    while !stop.load(Ordering::Relaxed) {
+        let now = crate::os::Os::mono_ms(&WinOs);
+        if std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| u.step(now))).is_err() {
+            crate::os::Os::log(&WinOs, "update step panicked");
+        }
+        std::thread::sleep(Duration::from_secs(1));
     }
 }
 

@@ -1,0 +1,63 @@
+name: Desktop release
+# A tag like desktop-v0.2.0 builds the installer on Windows, tries it for real, and publishes it as a release.
+# The installed apps find it by themselves (they look at this repository's releases) and offer the update.
+on:
+  push:
+    tags: ['desktop-v*']
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    working-directory: desktop
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: The tag and the version in the code are the same
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}".Replace('desktop-v', '')
+          $ver = (Select-String -Path Cargo.toml -Pattern '^version = "(.+)"').Matches[0].Groups[1].Value
+          if ($tag -ne $ver) { throw "The tag says $tag but Cargo.toml says $ver. Change the version first." }
+      - name: Release notes from CHANGELOG.md
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}".Replace('desktop-v', '')
+          $lines = Get-Content CHANGELOG.md
+          $out = @(); $on = $false
+          foreach ($l in $lines) {
+            if ($l -match '^## ') { if ($on) { break }; if ($l -match [regex]::Escape($tag)) { $on = $true; continue } }
+            elseif ($on) { $out += $l }
+          }
+          if (-not ($out | Where-Object { $_ -match '^\s*[-*] ' })) { throw "CHANGELOG.md has no '## $tag' section with '- ' points." }
+          $out | Set-Content notes.md
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with: { workspaces: desktop }
+      - run: cargo test -p eyetime-core -p eyetime-helper
+      - name: Build the helper and the window
+        run: cargo build --release -p eyetime-helper -p eyetime
+      - name: Gather the files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force payload | Out-Null
+          Copy-Item target/release/eyetime.exe payload/eyetime.exe
+          Copy-Item target/release/eyetime-helper.exe payload/eyetime-helper.exe
+      - name: Build the installer (with the files inside)
+        shell: pwsh
+        run: |
+          $env:EYETIME_PAYLOAD = (Resolve-Path payload).Path
+          cargo build --release -p eyetime-setup
+          Copy-Item target/release/eyetime-setup.exe EyeTime-Setup.exe
+      - name: Try it for real (install, service, hosts file, window, uninstall)
+        shell: pwsh
+        run: ./tests/smoke.ps1 -Setup (Resolve-Path EyeTime-Setup.exe).Path -Out smoke-out
+      - name: Publish
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ github.ref_name }}" EyeTime-Setup.exe --title "EyeTime for Windows ${{ github.ref_name }}" --notes-file notes.md

@@ -91,3 +91,14 @@ cargo build --release -p eyetime-helper -p eyetime
 $env:EYETIME_PAYLOAD = "<folder with eyetime.exe and eyetime-helper.exe>"
 cargo build --release -p eyetime-setup              # EyeTime-Setup.exe with the files inside
 ```
+
+## Updates
+
+The installed app looks at this repository's GitHub releases about every six hours (and when you press *Check now* in Settings), picks the newest `desktop-v*` release that is newer than the running version, and shows a glowing chip in the title bar. Then:
+
+- **What is trusted.** Only the asset `EyeTime-Setup.exe` of a release of `maxbzd/eyetime`, downloaded from `github.com/maxbzd/eyetime/releases/download/`, with the SHA-256 fingerprint GitHub publishes for the asset. A download whose size or fingerprint differs is deleted. A release without a fingerprint is ignored. The installer is not code-signed yet, so Windows may show SmartScreen on a hand-started install; the self-update is started by the helper service and does not show that.
+- **When it installs.** By hand (*Update now*): at once, unless a locked block is running, then it waits and says so. Automatically (on by default, switch in Settings → About): only when no session or block is running. The window comes back by itself and tells what is new, once.
+- **If it fails.** The files are replaced by the same installer as a first install; if it cannot finish, the old service is started again, the app says "The update did not finish" and nothing is lost. The log is `C:\ProgramData\EyeTime\update.log`.
+- **Publishing.** Bump `version` in `desktop/Cargo.toml`, add a `## x.y.z` section with `- ` points to `desktop/CHANGELOG.md`, then push the tag `desktop-vx.y.z`. The workflow `desktop-release.yml` builds, tries the installer on a real Windows runner and publishes the release.
+- **Your own feed.** A file `C:\ProgramData\EyeTime\update-feed.json` (`{version,url,sha256,size,notes}`; only administrators can write there) replaces the network lookup. Used for tests.
+

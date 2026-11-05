@@ -4,6 +4,7 @@
 use crate::engine::{Decision, Grants};
 use crate::friction::Challenge;
 use crate::model::Session;
+use crate::update::{UpdateInfo, Updated};
 use crate::usage::DayUsage;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -34,6 +35,13 @@ pub enum Request {
     Usage,
     /// end a break and take back any "unblocked for a while" that was granted
     Resume,
+    /// look for a newer version now
+    UpdateCheck,
+    /// download the newer version and install it (it waits while a locked block runs)
+    UpdateInstall,
+    UpdateSetAuto { on: bool },
+    /// the "what is new" was shown
+    UpdateAck,
     /// the installer and the window ask before uninstalling
     Uninstall { #[serde(default)] pin: Option<String> },
     /// the little agent in the person's session: what it sees, every couple of seconds. The answer is what it should do.
@@ -64,6 +72,8 @@ pub struct Orders {
     pub dnd: bool,
     /// programs that are asked to close politely (so that they can offer to save), before they are closed by force
     pub close_pids: Vec<u32>,
+    /// open the window again (after an update)
+    pub launch_app: bool,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -101,6 +111,24 @@ pub struct Status {
     pub emergency_until_ms: i64,
     /// minutes of focus per day, last two weeks, oldest first
     pub focus_minutes: Vec<u32>,
+    pub update: UpdateView,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
+#[serde(default, rename_all = "camelCase")]
+pub struct UpdateView {
+    /// "idle" | "checking" | "available" | "downloading" | "ready" | "installing" | "error"
+    pub state: String,
+    pub current: String,
+    pub info: Option<UpdateInfo>,
+    pub pct: u32,
+    pub error: String,
+    /// how long ago the last look at the network was (-1: not yet)
+    pub checked_ago_ms: i64,
+    pub auto: bool,
+    pub waiting_for_lock: bool,
+    /// set once, right after an update was installed
+    pub updated: Option<Updated>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
