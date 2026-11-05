@@ -228,13 +228,18 @@ fn do_install(desktop: bool, upgrade: bool, emit: Emit) -> Result<(), Stop> {
     // 3. protect
     step(emit, 3, 66);
     let data = data_dir();
-    let _ = std::fs::create_dir_all(&data);
-    // everyone may read the state; only the system and administrators may change it
-    let _ = run("icacls", &[&data.display().to_string(), "/inheritance:r", "/grant:r", "SYSTEM:(OI)(CI)F", "Administrators:(OI)(CI)F", "Users:(OI)(CI)RX"]);
+    std::fs::create_dir_all(&data).map_err(|e| format!("{}: {e}", data.display()))?;
+    // Who may do what is set by the well-known SIDs, not by names (the names are different in every language of Windows), and every step is
+    // checked: if a protection cannot be applied, the setup stops instead of leaving a door open.
+    // The data folder holds the PIN hashes and the downloaded updates: only the system and administrators may even read it
+    // (the window gets its state through the helper, never from the files).
+    let _ = run("icacls", &[&data.display().to_string(), "/remove:g", "*S-1-5-32-545"]); // an earlier version let every user read it
+    lock_down(&data, false)?;
     // the service: system and administrators have it all; signed-in people may look at it and start it, never stop or change it
     let sddl = "D:(A;;CCLCSWRPWPDTLOCRRC;;;SY)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;LCRPLOCRRC;;;IU)(A;;LCRPLOCRRC;;;SU)";
-    let _ = run("sc", &["sdset", SERVICE, sddl]);
-    let _ = run("icacls", &[&dir.display().to_string(), "/inheritance:r", "/grant:r", "SYSTEM:(OI)(CI)F", "Administrators:(OI)(CI)F", "Users:(OI)(CI)RX"]);
+    run("sc", &["sdset", SERVICE, sddl]).map_err(|e| format!("the service could not be protected: {e}"))?;
+    // the program folder: everyone may run what is in it, only administrators may change it
+    lock_down(&dir, true)?;
     // the browser extension: its files, and the note that tells browsers where the native host is
     let extdir = dir.join("extension");
     std::fs::create_dir_all(&extdir).map_err(|e| format!("extension: {e}"))?;
@@ -286,6 +291,16 @@ fn do_install(desktop: bool, upgrade: bool, emit: Emit) -> Result<(), Stop> {
         return Err(Stop::Failed("The blocking engine did not start. Windows may have blocked it (check your antivirus).".into()));
     }
     Ok(())
+}
+
+/// system and administrators: everything; with `users_read`, signed-in people may also read and run
+fn lock_down(path: &PathBuf, users_read: bool) -> Result<(), String> {
+    let p = path.display().to_string();
+    let mut args: Vec<&str> = vec![&p, "/inheritance:r", "/grant:r", "*S-1-5-18:(OI)(CI)F", "*S-1-5-32-544:(OI)(CI)F"];
+    if users_read {
+        args.push("*S-1-5-32-545:(OI)(CI)RX");
+    }
+    run("icacls", &args).map(|_| ()).map_err(|e| format!("the folder {p} could not be protected: {e}"))
 }
 
 fn make_shortcut(link: &PathBuf, target: &PathBuf) -> Result<(), String> {
