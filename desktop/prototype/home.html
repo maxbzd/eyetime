@@ -162,7 +162,7 @@ svg { display: block; }
 /* ------------------------------------------------------------------ the hero */
 .hero { position: relative; display: flex; flex-direction: column; align-items: center; min-width: 0; }
 .gem-wrap { position: relative; width: min(100%, 620px); height: clamp(250px, 41vh, 430px); margin-top: -4px; }
-.gem-wrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+.gem-wrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; -webkit-mask-image: linear-gradient(180deg, #000 0, #000 80%, transparent 99%); mask-image: linear-gradient(180deg, #000 0, #000 80%, transparent 99%); }
 .gem-halo { position: absolute; left: 50%; top: 46%; width: 70%; height: 80%; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none; opacity: 0; filter: blur(26px);
   background: radial-gradient(closest-side, hsla(var(--gem-h), 85%, 62%, .34), hsla(var(--gem-h), 85%, 62%, .08) 60%, transparent); animation: halo 1.8s var(--out-expo) .1s forwards, breathe 7s ease-in-out 2s infinite; }
 @keyframes halo { to { opacity: 1; } }
@@ -189,7 +189,7 @@ svg { display: block; }
 .gauge .ico { width: 19px; height: 19px; color: var(--mint); }
 .gauge svg.ring { position: absolute; inset: 0; width: 132px; height: 52px; overflow: visible; }
 .gauge rect { fill: none; stroke-width: 2; }
-.gauge rect.track { stroke: rgba(200, 255, 230, .13); }
+.gauge rect.track { stroke: rgba(200, 255, 230, .13); width: 130px; height: 50px; margin: 0; background: none; border-radius: 0; position: static; }
 .gauge rect.fill { stroke: url(#gGrad); stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset 1.6s var(--out-expo); filter: drop-shadow(0 0 5px rgba(140, 242, 198, .5)); }
 .gauge-label { position: absolute; left: 0; right: 0; top: 60px; text-align: center; font: 600 13px/1 var(--font-body); color: var(--text-2); letter-spacing: .02em; }
 .gauge-wrap { position: relative; padding-bottom: 28px; }
@@ -967,6 +967,49 @@ function gemStill({ hue = 0, seed = 0, lock = 0, size = 360, rot = .5 } = {}) {
     const url = cv.toDataURL('image/png'); r.dispose(); const ext = r.getContext().getExtension('WEBGL_lose_context'); if (ext) ext.loseContext(); return url;
   } catch { return ''; }
 }
+/** Live stones. One WebGL renderer draws every stone that is on the screen into its own 2D canvas, so a whole shelf can turn
+    and shine in 3D without a WebGL context for each. `cv` is a <canvas>; returns { stop, set }. Drag on it to turn the stone. */
+const live = { r: null, sc: null, cam: null, mesh: null, u: null, cv: null, items: new Set(), raf: 0, rr: 0, t0: 0 };
+function liveInit() {
+  if (live.r) return true;
+  try {
+    const cv = document.createElement('canvas'); cv.width = cv.height = 480;
+    const r = new THREE.WebGLRenderer({ canvas: cv, alpha: true, antialias: true }); r.setSize(480, 480, false); r.setClearColor(0x000000, 0);
+    const sc = new THREE.Scene(), cam = new THREE.PerspectiveCamera(28, 1, .1, 50); cam.position.set(0, 0, 5.7);
+    const u = { uTime: { value: 3 }, uIntro: { value: 1 }, uHue: { value: 0 }, uGlow: { value: 0 }, uPulse: { value: 0 }, uSeed: { value: 0 }, uLock: { value: 0 }, uMat: { value: matcapTex }, uMatAmt: { value: matcapTex ? 1 : 0 } };
+    const mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 96, 72), new THREE.ShaderMaterial({ vertexShader: GEM_VERT, fragmentShader: GEM_FRAG, uniforms: u })); sc.add(mesh);
+    Object.assign(live, { r, sc, cam, mesh, u, cv }); live.t0 = performance.now(); return true;
+  } catch { return false; }
+}
+function liveFrame(now) {
+  live.raf = requestAnimationFrame(liveFrame);
+  const list = [...live.items]; if (!list.length) { cancelAnimationFrame(live.raf); live.raf = 0; return; }
+  // the stones that are in view, a few per frame, so that a full shelf never slows the screen down
+  const vis = list.filter((it) => { if (!it.cv.isConnected) return false; const b = it.cv.getBoundingClientRect(); return b.width > 0 && b.bottom > 0 && b.top < innerHeight && b.right > 0 && b.left < innerWidth; });
+  const n = Math.min(vis.length, 5);
+  for (let k = 0; k < n; k++) {
+    const it = vis[(live.rr + k) % vis.length], dt = Math.min(0.1, (now - (it.last || now)) / 1000); it.last = now;
+    if (!it.drag) it.rot += it.spin * dt; else it.rot += it.vel; it.vel *= 0.94;
+    live.u.uHue.value = it.hue; live.u.uSeed.value = it.seed; live.u.uLock.value = it.lock; live.u.uTime.value = 3 + it.seed + now / 9000; live.u.uMat.value = matcapTex; live.u.uMatAmt.value = matcapTex ? 1 : 0;
+    live.mesh.rotation.y = it.rot; live.mesh.rotation.x = it.tilt; live.r.render(live.sc, live.cam);
+    const c = it.cv, x = it.ctx; if (c.width !== it.px) { c.width = c.height = it.px; } x.clearRect(0, 0, c.width, c.height); x.drawImage(live.cv, 0, 0, c.width, c.height);
+  }
+  live.rr = (live.rr + n) % Math.max(1, vis.length);
+}
+function gemLive(cv, o = {}) {
+  if (!liveInit()) return { stop() {}, set() {} };
+  const it = { cv, ctx: cv.getContext('2d'), hue: o.hue || 0, seed: o.seed || 0, lock: o.lock || 0, spin: reduced ? 0 : (o.spin ?? .3), rot: o.rot ?? .5, tilt: o.tilt ?? 0, px: o.px || 300, vel: 0, drag: false, last: 0 };
+  live.items.add(it);
+  if (o.drag) {
+    let sx = 0, lx = 0;
+    cv.style.touchAction = 'none'; cv.style.cursor = 'grab';
+    cv.addEventListener('pointerdown', (e) => { it.drag = true; sx = lx = e.clientX; try { cv.setPointerCapture(e.pointerId); } catch { /* ignore */ } cv.style.cursor = 'grabbing'; });
+    cv.addEventListener('pointermove', (e) => { if (!it.drag) return; it.vel = (e.clientX - lx) * 0.012; lx = e.clientX; });
+    ['pointerup', 'pointercancel'].forEach((ev) => cv.addEventListener(ev, () => { it.drag = false; cv.style.cursor = 'grab'; }));
+  }
+  if (!live.raf) live.raf = requestAnimationFrame(liveFrame);
+  return { stop() { live.items.delete(it); }, set(p) { Object.assign(it, p); } };
+}
 /** A horizontal shelf: fades softly at the edges, scrolls by drag, wheel with Shift, arrows and the keyboard. */
 function hscroll(sc) {
   if (sc.parentNode.classList.contains('hs')) return sc.parentNode;
@@ -1249,7 +1292,7 @@ async function boot() {
   countTo($('#offlineVal'), state.offline, reduced ? 0 : 1500, (v) => W().hm(Math.floor(v / 60), Math.round(v) % 60)); $('#offlineMeter').style.width = state.offPct + '%'; placeSpecPin(state.spec);
   addEventListener('resize', () => { initStars(); drawCave(); window.__gem && window.__gem.resize(); moveDock($('[aria-current=page]', dock), true); if (run.landscape) run.landscape.size(); });
 }
-Object.assign(ET, { hscroll, gemStill, SCENES, $, $$, clamp, lerp, easeOut, easeExpo, tween, wait, raf, reduced, store, go, toast, wheel, countTo, mulberry, ripple, openSheet, closeSheet, openScrim, closeScrim, BLOCKABLE, DURS, S, run, Landscape, W, t: (k, ...a) => { const v = W()[k]; return typeof v === 'function' ? v(...a) : v; }, lang: () => lang, langHooks: [], startSession, gem: () => window.__gem, dpr });
+Object.assign(ET, { hscroll, gemStill, gemLive, SCENES, $, $$, clamp, lerp, easeOut, easeExpo, tween, wait, raf, reduced, store, go, toast, wheel, countTo, mulberry, ripple, openSheet, closeSheet, openScrim, closeScrim, BLOCKABLE, DURS, S, run, Landscape, W, t: (k, ...a) => { const v = W()[k]; return typeof v === 'function' ? v(...a) : v; }, lang: () => lang, langHooks: [], startSession, gem: () => window.__gem, dpr });
 Object.assign(ET, {
   /* the real app: the helper tells the screens what is going on */
   setBlockCard(c) { realCard = c; if (blockedNow) renderBlockCard(); },
@@ -1260,12 +1303,12 @@ Object.assign(ET, {
     if (d.day.empty) { /* nothing has been counted yet: say so instead of showing a perfect score */
       const dash = '—', msg = lang === 'ru' ? 'Данных пока нет. Они появятся, когда вы начнёте работать.' : 'No data yet. It appears as you work.';
       DAYS[0] = { ...DAYS[0], ...d.day }; state = { ...DAYS[0] }; if (d.bars) { BARS[0] = d.bars; buildChart(BARS[0]); }
-      $('#scoreVal').textContent = dash; $('#focusPct').textContent = dash; drawBig(); $('#switchNum').textContent = '0'; drawOffline();
+      $('#scoreVal').textContent = dash; $('#scoreVal').style.opacity = '.3'; $('#focusPct').textContent = dash; drawBig(); $('#switchNum').textContent = '0'; drawOffline();
       $$('.gauge').forEach((g) => { if (g.dataset.g !== 'eyes') { g.querySelector('.gv').textContent = dash; g.querySelector('rect.fill').style.strokeDashoffset = '100'; } });
       $('#scoreDelta').style.visibility = 'hidden'; $('#specHead').textContent = msg; $('#specPin').style.opacity = '0'; $('#offlineMeter').style.width = '0%';
       return;
     }
-    $('#specPin').style.opacity = ''; if (dayOffset !== 0 || !booted) { DAYS[0] = { ...DAYS[0], ...d.day }; if (d.bars) BARS[0] = d.bars; return; } DAYS[0] = { ...DAYS[0], ...d.day }; state = { ...DAYS[0] }; if (d.bars) { BARS[0] = d.bars; buildChart(BARS[0]); } countBig(state.screen, 600); countTo($('#focusPct'), state.focusPct, 600, (v) => Math.round(v) + '%'); countTo($('#switchNum'), state.switches, 400); countTo($('#scoreVal'), state.score, 600); paintGauges(600); drawOffline(); $('#offlineMeter').style.width = state.offPct + '%'; countTo($('#offlineVal'), state.offline, 600, (v) => W().hm(Math.floor(v / 60), Math.round(v) % 60)); },
+    $('#specPin').style.opacity = ''; $('#scoreVal').style.opacity = ''; if (dayOffset !== 0 || !booted) { DAYS[0] = { ...DAYS[0], ...d.day }; if (d.bars) BARS[0] = d.bars; return; } DAYS[0] = { ...DAYS[0], ...d.day }; state = { ...DAYS[0] }; if (d.bars) { BARS[0] = d.bars; buildChart(BARS[0]); } countBig(state.screen, 600); countTo($('#focusPct'), state.focusPct, 600, (v) => Math.round(v) + '%'); countTo($('#switchNum'), state.switches, 400); countTo($('#scoreVal'), state.score, 600); paintGauges(600); drawOffline(); $('#offlineMeter').style.width = state.offPct + '%'; countTo($('#offlineVal'), state.offline, 600, (v) => W().hm(Math.floor(v / 60), Math.round(v) % 60)); },
   setStreak(n) { $('#streakNum').textContent = $('#flameNum').textContent = String(n); },
   /* a session that was already running when the window opened: no countdown, straight to the lake */
   resumeRun(ses, leftSec, totalSec) { if (run.on) return; Object.assign(S, { name: ses.name, min: Math.round(totalSec / 60), diff: ses.level, scene: ses.scene || S.scene }); beginRun(); run.total = totalSec; run.left = leftSec; run.startedAt = ses.startedAtMs; $('#tStart').textContent = fmtClock(ses.startedAtMs); $('#tEnd').textContent = fmtClock(ses.endsAtMs); },
