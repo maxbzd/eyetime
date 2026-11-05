@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "EyeTime Bridge",
+  "version": "0.1.0",
+  "description": "Lets the EyeTime app close pages: whole sites, single pages, and words, while a block runs. Talks only to EyeTime on this computer.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyT6nIS478L4f62M4xBoRsRQd8Y8lLWZAwvF+zzJd9dqwlOq04yy5U3izJpdeFAysMINRB5ntBwgcWqKWDSWRwac+pB8SYrzxktTh9HDXn5JkbqL1ORGs7fkML4b/W8iVnCLizOgovf72V3yIZizqYzrS5zFYDPQ+G0h36EJPN82qriXhmRLOrJutadbdjGhaw4VzxMC4mpvUkjy/JKekD8o/RnKKHFeNvOMoqaZjduiZImbgDSrSLbFjfSViDDUkElRQYOXAU4dlc/O8l5IRhU/JgC5/JYIhcOhPkbU6BQKaNNzkh/kaWFPn+w6j2+J6imBE0EjkMvbumeIKhQdPsQIDAQAB",
+  "minimum_chrome_version": "110",
+  "icons": { "128": "icon128.png" },
+  "permissions": ["tabs", "webNavigation", "nativeMessaging", "alarms"],
+  "background": { "service_worker": "background.js", "type": "module" }
+}

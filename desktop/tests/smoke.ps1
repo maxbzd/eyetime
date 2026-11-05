@@ -71,14 +71,49 @@ try {
 } catch { Check $false "the block test: $_" }
 
 Write-Host "== the window"
+# the window is started with its debugging port open, so that a script can click through it and take pictures
+$env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = "--remote-debugging-port=9222 --remote-allow-origins=*"
 $app = Start-Process -FilePath "$dir\eyetime.exe" -PassThru
-Start-Sleep -Seconds 12
+Start-Sleep -Seconds 10
 $alive = -not $app.HasExited
-Check $alive "eyetime.exe is still running after 12 seconds"
+Check $alive "eyetime.exe is still running after 10 seconds"
 if ($alive) { try { $app.Refresh(); Write-Host "     main window title: '$($app.MainWindowTitle)'" } catch {} }
 Shot "window"
 Get-Process msedgewebview2 -ErrorAction SilentlyContinue | Select-Object -First 1 | ForEach-Object { Write-Host "     WebView2 process present" }
-if ($alive) { Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue }
+if ($alive) {
+  Write-Host "== click through the real window"
+  Push-Location (Split-Path $PSScriptRoot -Parent)
+  npm install --no-save playwright 2>&1 | Select-Object -Last 2
+  $env:OUT = (Resolve-Path $Out).Path
+  node tests/win_ui.cjs 2>&1 | Tee-Object -FilePath "$Out\ui.log"
+  Check ($LASTEXITCODE -eq 0) "the window works when clicked through (see ui.log and ui_*.png)"
+  Pop-Location
+  Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+}
+
+Write-Host "== the native host (what the browser extension talks to)"
+try {
+  $psi = New-Object System.Diagnostics.ProcessStartInfo("$dir\eyetime-helper.exe", "chrome-extension://ohpkalpfhikadmajknogifbcljaennho/")
+  $psi.RedirectStandardInput = $true; $psi.RedirectStandardOutput = $true; $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true
+  $h = [System.Diagnostics.Process]::Start($psi)
+  $msg = [System.Text.Encoding]::UTF8.GetBytes('{"op":"ping"}')
+  $h.StandardInput.BaseStream.Write([BitConverter]::GetBytes([int32]$msg.Length), 0, 4)
+  $h.StandardInput.BaseStream.Write($msg, 0, $msg.Length); $h.StandardInput.BaseStream.Flush()
+  $lenBytes = New-Object byte[] 4; $null = $h.StandardOutput.BaseStream.Read($lenBytes, 0, 4)
+  $n = [BitConverter]::ToInt32($lenBytes, 0); $buf = New-Object byte[] $n; $null = $h.StandardOutput.BaseStream.Read($buf, 0, $n)
+  $reply = [System.Text.Encoding]::UTF8.GetString($buf) | ConvertFrom-Json
+  Check ($reply.ok) "the native host answers a ping from a browser (framed messages)"
+  $evil = [System.Text.Encoding]::UTF8.GetBytes('{"op":"set_state","keys":{}}')
+  $h.StandardInput.BaseStream.Write([BitConverter]::GetBytes([int32]$evil.Length), 0, 4)
+  $h.StandardInput.BaseStream.Write($evil, 0, $evil.Length); $h.StandardInput.BaseStream.Flush()
+  $null = $h.StandardOutput.BaseStream.Read($lenBytes, 0, 4)
+  $n = [BitConverter]::ToInt32($lenBytes, 0); $buf = New-Object byte[] $n; $null = $h.StandardOutput.BaseStream.Read($buf, 0, $n)
+  $reply = [System.Text.Encoding]::UTF8.GetString($buf) | ConvertFrom-Json
+  Check ((-not $reply.ok) -and $reply.code -eq "denied") "the native host refuses anything but site, decision, ping and status"
+  $h.Kill()
+} catch { Check $false "the native host: $_" }
+Check (Test-Path "$dir\extension\manifest.json") "the extension files are installed"
+Check ($null -ne (Get-ItemProperty "HKLM:\SOFTWARE\Google\Chrome\NativeMessagingHosts\com.eyetime.helper" -ErrorAction SilentlyContinue)) "Chrome is told where the native host is"
 
 Write-Host "== uninstall: refused first, then allowed after the challenge"
 try {
@@ -98,6 +133,7 @@ Check (-not (Test-Path "$dir\eyetime.exe")) "the program files are gone"
 $hosts = Get-Content "$env:SystemRoot\System32\drivers\etc\hosts" -Raw
 Check ($hosts -notmatch "EYETIME") "the hosts file is clean"
 Check ($null -eq (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\EyeTime" -ErrorAction SilentlyContinue)) "no longer listed in Apps and features"
+Check ($null -eq (Get-ItemProperty "HKLM:\SOFTWARE\Google\Chrome\NativeMessagingHosts\com.eyetime.helper" -ErrorAction SilentlyContinue)) "the browser registration is removed"
 Get-Content "$env:ProgramData\EyeTime\helper.log" -ErrorAction SilentlyContinue | Select-Object -Last 20 | Out-File "$Out\helper.log"
 
 if ($script:fails -gt 0) { Write-Host "$($script:fails) check(s) FAILED"; exit 1 } else { Write-Host "ALL OK" }
