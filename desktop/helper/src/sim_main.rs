@@ -83,17 +83,7 @@ fn serve(mut conn: TcpStream, sup: &Arc<Mutex<Supervisor<Fake>>>, world: &Arc<Mu
         },
         ("POST", "/sim") => {
             let v: Value = serde_json::from_str(&body).unwrap_or(Value::Null);
-            let mut w = world.lock().unwrap();
-            if let Some(ps) = v["procs"].as_array() {
-                w.procs = ps.iter().map(|p| Proc { exe: p[0].as_str().unwrap_or("").into(), pid: p[1].as_u64().unwrap_or(0) as u32 }).collect();
-                w.killed.clear();
-            }
-            if let Some(j) = v["jump"].as_i64() {
-                w.wall += j * 1000;
-            }
-            if let Some(h) = v["hosts"].as_str() {
-                w.hosts = h.into();
-            }
+            let mono = world.lock().unwrap().mono;
             // the update, as the screens should see it: {"update":{"phase":"downloading","pct":40,"version":"0.2.0","notes":[..],"size":6500000,"error":"","ago":60000}}
             if let Some(u) = v.get("update") {
                 let sup = sup.lock().unwrap();
@@ -120,7 +110,7 @@ fn serve(mut conn: TcpStream, sup: &Arc<Mutex<Supervisor<Fake>>>, world: &Arc<Mu
                     s.error = e.into();
                 }
                 if let Some(a) = u["ago"].as_i64() {
-                    s.checked_ms = w.mono - a;
+                    s.checked_ms = mono - a;
                 }
                 if let Some(ver) = u["version"].as_str() {
                     s.info = Some(eyetime_core::update::UpdateInfo {
@@ -141,6 +131,19 @@ fn serve(mut conn: TcpStream, sup: &Arc<Mutex<Supervisor<Fake>>>, world: &Arc<Mu
             if let Some(u) = v.get("updated") {
                 let mut sup = sup.lock().unwrap();
                 sup.p.updated = serde_json::from_value(u.clone()).ok();
+            }
+            {
+                let mut w = world.lock().unwrap();
+                if let Some(ps) = v["procs"].as_array() {
+                    w.procs = ps.iter().map(|p| Proc { exe: p[0].as_str().unwrap_or("").into(), pid: p[1].as_u64().unwrap_or(0) as u32 }).collect();
+                    w.killed.clear();
+                }
+                if let Some(j) = v["jump"].as_i64() {
+                    w.wall += j * 1000;
+                }
+                if let Some(h) = v["hosts"].as_str() {
+                    w.hosts = h.into();
+                }
             }
             let mut sc = scene.lock().unwrap();
             if v.get("fg").is_some() {
