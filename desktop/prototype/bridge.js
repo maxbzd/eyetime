@@ -104,6 +104,7 @@
       status = r.data; expectSession = true; return true;
     },
     ask: (action, target, minutes) => ask(action, target, minutes),
+    getStatus: () => status,
   };
   if (pre && pre.q) pre.q.forEach(([k, v]) => ETB.push(k, v));
 
@@ -345,6 +346,22 @@
   /* first start after an update: if the helper has no setup yet but this window does, hand it over */
   req({ op: 'get_state' }).then((r) => { if (r.ok && r.data && !Object.keys(r.data).length) KEYS.forEach((k) => { const v = localStorage.getItem(k); if (v) ETB.push(k, v); }); });
   setInterval(refresh, 2000); refresh();
+  /* the first run: a new person gets the first minute, not an empty app */
+  setTimeout(async () => {
+    if (!ET.onboarding || !ET.onboarding.shouldRun()) return;
+    const r = await req({ op: 'get_state' });
+    const empty = !(r.ok && r.data && (r.data['et-items'] || []).length + (r.data['et-rules'] || []).length > 0);
+    if (empty) ET.onboarding.open(); else { try { localStorage.setItem('et-onboarded', '1'); } catch { /* ignore */ } }
+  }, 6500);
+  /* the person's own reason, under the name of the running session */
+  setInterval(() => {
+    const n = $('#sName'); if (!n || !ET.run.on) return;
+    let w = ''; try { w = JSON.parse(localStorage.getItem('et-s-why') || '""'); } catch { /* none */ }
+    let line = $('#whyLine');
+    if (!w) { if (line) line.remove(); return; }
+    if (!line) { line = document.createElement('div'); line.id = 'whyLine'; line.style.cssText = 'margin:2px 0 10px;font:italic 300 16px Outfit,system-ui;color:#cfe3f5;text-shadow:0 1px 14px rgba(0,0,0,.6);max-width:640px'; n.after(line); }
+    if (line.textContent !== '\u201c' + w + '\u201d') line.textContent = '\u201c' + w + '\u201d';
+  }, 2000);
   ET.engineText = (d) => d;
   document.addEventListener('et-settings-shown', paintEngine);
   function uninstallCard() {

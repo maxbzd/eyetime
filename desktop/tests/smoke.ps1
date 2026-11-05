@@ -72,7 +72,7 @@ try {
 
 Write-Host "== the window"
 # the window is started with its debugging port open, so that a script can click through it and take pictures
-$env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = "--remote-debugging-port=9222 --remote-allow-origins=*"
+$env:EYETIME_DEBUG_PORT = "9222"
 $app = Start-Process -FilePath "$dir\eyetime.exe" -PassThru
 Start-Sleep -Seconds 10
 $alive = -not $app.HasExited
