@@ -109,7 +109,8 @@ svg { display: block; }
 @keyframes viewin { from { opacity: 0; transform: translateY(26px) scale(.985); filter: blur(12px); } }
 @keyframes viewout { to { opacity: 0; transform: translateY(-10px) scale(.99); filter: blur(8px); } }
 #cave { transition: opacity .8s; } .app:not([data-view="home"]) #cave { opacity: 0; } .app:not([data-view="home"]) .aurora { opacity: .8; }
-.view, .stage { -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 26px); mask-image: linear-gradient(180deg, transparent 0, #000 26px); }
+/* the content fades out under the floating dock instead of running into it */
+.view, .stage { -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 26px, #000 calc(100% - 118px), transparent calc(100% - 52px)); mask-image: linear-gradient(180deg, transparent 0, #000 26px, #000 calc(100% - 118px), transparent calc(100% - 52px)); }
 .vw { max-width: 1240px; margin: 0 auto; padding: 8px var(--gutter-r) 0 var(--gutter); }
 .vw h1 { margin: 6px 0 4px; font: 300 clamp(34px, 5vw, 48px)/1.05 var(--font-display); letter-spacing: -.02em; }
 .vw .lead { margin: 0 0 22px; color: var(--text-2); font: 500 15px/1.5 var(--font-body); max-width: 56ch; }
@@ -544,7 +545,7 @@ svg { display: block; }
             <div class="stat"><span class="kicker" data-i18n="switches">Switches</span><span class="v num" id="switchNum">0</span></div>
           </div>
           <div class="chart" id="chart" role="img" aria-label="Focus and distraction by half hour"><div class="chart-tip" id="chartTip"></div></div>
-          <div class="chart-axis" aria-hidden="true"><span>8 AM</span><span>12 PM</span><span>4 PM</span><span>8 PM</span></div>
+          <div class="chart-axis" aria-hidden="true"><span data-i18n="ax1">8 AM</span><span data-i18n="ax2">12 PM</span><span data-i18n="ax3">4 PM</span><span data-i18n="ax4">8 PM</span></div>
         </article>
         <article class="glass rise tilt" style="--d:320">
           <div class="offline">
@@ -714,7 +715,7 @@ const store = { get(k) { try { return localStorage.getItem(k); } catch { return 
 /* ============================================================ words (English and Russian; the product ships in 11) */
 const WORDS = {
   en: { demo: 'Demo data', screenTime: 'Screen time', today: 'Today', screenToday: 'Total on screen', mostUsed: 'Most used', focusScore: 'Focus', switches: 'Switches', offline: 'Time away from screen', score: 'Score', gFocus: 'Focus', gEyes: 'Eyes', gRest: 'Rest',
-    eyeNext: 'Next eye break', eyeHow: 'Look 20 feet away for 20 seconds', eyeRest: 'Rest my eyes now', eyeLook: 'Look far away', moreOpts: 'Options', mClose: 'Close distracting apps now', mDnd: 'Do Not Disturb', mMute: 'Mute notification sounds', mCycles: 'Pomodoro cycles (25 / 5, a long break after 4)', mBreaks: 'Allow short breaks', frozenTag: 'Frozen · only allowed apps', on: 'on', tipFocus: 'Focus minutes against your daily goal.', tipEyes: 'Eye breaks you took out of the ones due.', tipRest: 'Evenings without a screen and a steady bedtime.', focusNow: 'Start focus', ctaHint: 'starts a session with your last settings',
+    ax1: '8 AM', ax2: '12 PM', ax3: '4 PM', ax4: '8 PM', eyeNext: 'Next eye break', eyeHow: 'Look 20 feet away for 20 seconds', eyeRest: 'Rest my eyes now', eyeLook: 'Look far away', moreOpts: 'Options', mClose: 'Close distracting apps now', mDnd: 'Do Not Disturb', mMute: 'Mute notification sounds', mCycles: 'Pomodoro cycles (25 / 5, a long break after 4)', mBreaks: 'Allow short breaks', frozenTag: 'Frozen · only allowed apps', on: 'on', tipFocus: 'Focus minutes against your daily goal.', tipEyes: 'Eye breaks you took out of the ones due.', tipRest: 'Evenings without a screen and a steady bedtime.', focusNow: 'Start focus', ctaHint: 'starts a session with your last settings',
     myApps: 'My apps', manage: 'Manage', unblock: 'Unblock', rules: 'Rules', upcoming: 'Up next', startsIn12: 'Starts in 12h', every20: 'Every 20 min', startsIn108: 'Starts in 108h', workTime: 'Work Time', workTimeS: 'Weekdays, 9–17', eyeRule: 'Eye breaks', eyeRuleS: '20-20-20, 20 s', weekendZen: 'Weekend Zen', weekendS: 'Sat–Sun, 9–11', newRule: 'New rule',
     you: 'You', average: 'Average', strongStart: 'Strong start', strongStartP: 'Five days of showing up. You are doing what most people don’t.', focusing: 'Focus in progress', open: 'Open',
     tHome: 'Home', tRules: 'Rules', tTimer: 'Timer', tInsights: 'Insights', tProfile: 'Profile', duration: 'Duration', blocked: 'Blocked', difficulty: 'Difficulty', later: 'Schedule for later', startSession: 'Start session',
@@ -727,7 +728,7 @@ const WORDS = {
     toastRules: 'Rules arrive in the next step', toastTab: 'This tab comes in the next step', toastLater: 'Scheduling comes with Rules', unblocked: 'Unblocked', blockAgain: 'Block again', blockSub: '3 apps and 12 sites are blocked until 5:00 PM', blockedAgainT: 'Blocked again', unblockedSub: 'Apps are open for a few minutes. Then the rule blocks them again.',
     doneP: (n, m) => `${m} minutes of focus. Everything you blocked stayed blocked.`, gain: (s) => `Score +${s}`, breakOn: 'Break started. Back in 5 minutes.', lockedNote: (t) => `Locked until ${t}. Nothing to do but the work.`, holdLeave: 'Hold to leave', leftToast: 'Session ended early' },
   ru: { demo: 'Пример данных', screenTime: 'Время за экраном', today: 'Сегодня', screenToday: 'Всего за экраном', mostUsed: 'Чаще всего', focusScore: 'Фокус', switches: 'Переключения', offline: 'Время вдали от экрана', score: 'Счёт', gFocus: 'Фокус', gEyes: 'Глаза', gRest: 'Отдых',
-    eyeNext: 'Следующий перерыв для глаз', eyeHow: 'Посмотрите вдаль на 6 метров на 20 секунд', eyeRest: 'Дать глазам отдохнуть', eyeLook: 'Смотрите вдаль', moreOpts: 'Параметры', mClose: 'Закрыть отвлекающие приложения сейчас', mDnd: 'Не беспокоить', mMute: 'Выключить звуки уведомлений', mCycles: 'Циклы помодоро (25 / 5, длинный перерыв после 4)', mBreaks: 'Разрешить короткие перерывы', frozenTag: 'Заморозка · только разрешённые приложения', on: 'вкл', tipFocus: 'Минуты фокуса относительно цели на день.', tipEyes: 'Сколько перерывов для глаз вы сделали из положенных.', tipRest: 'Вечера без экрана и ровное время сна.', focusNow: 'Начать фокус', ctaHint: 'запускает сессию с прошлыми настройками',
+    ax1: '8:00', ax2: '12:00', ax3: '16:00', ax4: '20:00', eyeNext: 'Следующий перерыв для глаз', eyeHow: 'Посмотрите вдаль на 6 метров на 20 секунд', eyeRest: 'Дать глазам отдохнуть', eyeLook: 'Смотрите вдаль', moreOpts: 'Параметры', mClose: 'Закрыть отвлекающие приложения сейчас', mDnd: 'Не беспокоить', mMute: 'Выключить звуки уведомлений', mCycles: 'Циклы помодоро (25 / 5, длинный перерыв после 4)', mBreaks: 'Разрешить короткие перерывы', frozenTag: 'Заморозка · только разрешённые приложения', on: 'вкл', tipFocus: 'Минуты фокуса относительно цели на день.', tipEyes: 'Сколько перерывов для глаз вы сделали из положенных.', tipRest: 'Вечера без экрана и ровное время сна.', focusNow: 'Начать фокус', ctaHint: 'запускает сессию с прошлыми настройками',
     myApps: 'Мои приложения', manage: 'Управлять', unblock: 'Разблокировать', rules: 'Правила', upcoming: 'Скоро', startsIn12: 'Через 12 ч', every20: 'Каждые 20 мин', startsIn108: 'Через 108 ч', workTime: 'Рабочее время', workTimeS: 'Будни, 9–17', eyeRule: 'Перерывы для глаз', eyeRuleS: '20-20-20, 20 с', weekendZen: 'Тихие выходные', weekendS: 'Сб–Вс, 9–11', newRule: 'Новое правило',
     you: 'Вы', average: 'В среднем', strongStart: 'Сильное начало', strongStartP: 'Пять дней подряд. Вы делаете то, что делают немногие.', focusing: 'Идёт фокус', open: 'Открыть',
     tHome: 'Главная', tRules: 'Правила', tTimer: 'Таймер', tInsights: 'Итоги', tProfile: 'Профиль', duration: 'Длительность', blocked: 'Блокировка', difficulty: 'Сложность', later: 'Запланировать', startSession: 'Начать сессию',
@@ -1260,7 +1261,7 @@ function burst() {
   const card = $('#eyeCard'); let left = 8 * 60 + 12, total = 20 * 60, resting = false, sec = 20;
   const paint = () => { $('#eyeClock').textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`; $('#eyeRing').style.strokeDashoffset = String(100 - (1 - left / total) * 100); };
   paint(); setInterval(() => { if (resting) return; left = Math.max(0, left - 1); if (left === 0) left = total; paint(); }, 1000);
-  async function rest() { if (resting) return; resting = true; card.classList.add('is-resting'); window.__gem && window.__gem.glow(.3); for (sec = 20; sec > 0; sec--) { $('#eyeSec').textContent = sec; await wait(reduced ? 80 : 1000); } card.classList.remove('is-resting'); resting = false; left = total; paint(); window.__gem && window.__gem.glow(0); window.__gem && window.__gem.pulse(.7); state.eyes = Math.min(100, state.eyes + 2); const g = $('[data-g=eyes]'); g.querySelector('rect.fill').style.strokeDashoffset = String(100 - state.eyes); countTo(g.querySelector('.gv'), state.eyes, 900); toast(lang === 'ru' ? 'Глаза отдохнули. Eyes +2' : 'Eyes rested. Eyes +2'); }
+  async function rest() { if (resting) return; resting = true; card.classList.add('is-resting'); window.__gem && window.__gem.glow(.3); for (sec = 20; sec > 0; sec--) { $('#eyeSec').textContent = sec; await wait(reduced ? 80 : 1000); } card.classList.remove('is-resting'); resting = false; left = total; paint(); window.__gem && window.__gem.glow(0); window.__gem && window.__gem.pulse(.7); state.eyes = Math.min(100, state.eyes + 2); try { const k = 'et-eyes', o = JSON.parse(localStorage.getItem(k) || '{}'), t = new Date(), d = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); o[d] = (o[d] || 0) + 1; localStorage.setItem(k, JSON.stringify(o)); } catch { /* counted only for the screens */ } const g = $('[data-g=eyes]'); g.querySelector('rect.fill').style.strokeDashoffset = String(100 - state.eyes); countTo(g.querySelector('.gv'), state.eyes, 900); toast(lang === 'ru' ? 'Глаза отдохнули. Eyes +2' : 'Eyes rested. Eyes +2'); }
   $('#eyeNow').addEventListener('click', rest);
 })();
 
@@ -1325,6 +1326,7 @@ document.fonts && document.fonts.ready ? document.fonts.ready.then(boot) : boot(
 <script src="screens/profile.js"></script>
 <script src="screens/settings.js"></script>
 <script src="screens/onboarding.js"></script>
+<script src="catalog.js"></script>
 <script src="brands.js"></script>
 <script src="bridge.js"></script>
 <script src="update-ui.js"></script>

@@ -3,31 +3,23 @@
 
 use crate::model::Item;
 
-/// (name as the interface writes it, addresses, programs)
-const BRANDS: &[(&str, &[&str], &[&str])] = &[
-    ("instagram", &["instagram.com", "cdninstagram.com"], &[]),
-    ("youtube", &["youtube.com", "youtu.be", "youtube-nocookie.com", "m.youtube.com"], &[]),
-    ("x", &["x.com", "twitter.com", "t.co"], &[]),
-    ("twitter", &["x.com", "twitter.com", "t.co"], &[]),
-    ("tiktok", &["tiktok.com", "tiktokcdn.com"], &[]),
-    ("reddit", &["reddit.com", "redd.it", "redditstatic.com"], &[]),
-    ("netflix", &["netflix.com", "nflxvideo.net"], &["netflix.exe"]),
-    ("facebook", &["facebook.com", "fb.com", "fbcdn.net"], &[]),
-    ("telegram", &["telegram.org", "web.telegram.org", "t.me"], &["telegram.exe"]),
-    ("discord", &["discord.com", "discordapp.com", "discord.gg"], &["discord.exe"]),
-    ("steam", &["steampowered.com", "steamcommunity.com"], &["steam.exe", "steamwebhelper.exe"]),
-    ("whatsapp", &["whatsapp.com", "web.whatsapp.com"], &["whatsapp.exe"]),
-    ("twitch", &["twitch.tv"], &[]),
-    ("slack", &["slack.com"], &["slack.exe"]),
-    ("notion", &["notion.so"], &["notion.exe"]),
-    ("spotify", &["spotify.com", "open.spotify.com"], &["spotify.exe"]),
-    ("vk", &["vk.com", "vkvideo.ru"], &[]),
-    ("vs code", &[], &["code.exe"]),
-    ("figma", &["figma.com"], &["figma.exe"]),
-    ("terminal", &[], &["windowsterminal.exe", "cmd.exe", "powershell.exe"]),
-    ("chrome", &[], &["chrome.exe"]),
-    ("calendar", &["calendar.google.com", "outlook.live.com"], &[]),
-];
+/// A well-known site or program: what it is called, which addresses and programs it stands for.
+#[derive(serde::Deserialize)]
+struct Entry {
+    n: String,
+    #[serde(default)]
+    d: Vec<String>,
+    #[serde(default)]
+    x: Vec<String>,
+    #[serde(default)]
+    a: Vec<String>,
+}
+
+/// The list is one file (catalog.json) that the window's suggestions read as well.
+fn brands() -> &'static [Entry] {
+    static B: std::sync::OnceLock<Vec<Entry>> = std::sync::OnceLock::new();
+    B.get_or_init(|| serde_json::from_str(include_str!("../catalog.json")).unwrap_or_default())
+}
 
 /// the 12 categories of the interface
 pub const CATEGORY_NAMES: [&str; 12] = ["Social media", "Video", "Streaming", "Messengers", "News", "Games", "Shopping", "Adult", "AI chats", "Forums", "Gambling", "Email"];
@@ -59,9 +51,9 @@ pub fn category_exes(name: &str) -> &'static [&'static str] {
     }
 }
 
-fn brand(name: &str) -> Option<&'static (&'static str, &'static [&'static str], &'static [&'static str])> {
+fn brand(name: &str) -> Option<&'static Entry> {
     let n = name.trim().to_lowercase();
-    BRANDS.iter().find(|b| b.0 == n)
+    brands().iter().find(|b| b.n.to_lowercase() == n || b.a.iter().any(|a| *a == n))
 }
 
 /// A name or an address in the interface's list becomes the addresses it stands for.
@@ -71,7 +63,7 @@ pub fn item_domains(it: &Item) -> Vec<String> {
         v.push(it.domain.trim().to_lowercase());
     }
     if let Some(b) = brand(&it.name) {
-        v.extend(b.1.iter().map(|d| d.to_string()));
+        v.extend(b.d.iter().cloned());
     }
     let n = it.name.trim().to_lowercase();
     if n.contains('.') && !n.contains(' ') && !n.ends_with(".exe") {
@@ -89,7 +81,7 @@ pub fn item_exes(it: &Item) -> Vec<String> {
         v.push(it.exe.trim().to_lowercase());
     }
     if let Some(b) = brand(&it.name) {
-        v.extend(b.2.iter().map(|d| d.to_string()));
+        v.extend(b.x.iter().cloned());
     }
     let n = it.name.trim().to_lowercase();
     if n.ends_with(".exe") {
@@ -129,6 +121,18 @@ pub fn is_private_title(title: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn the_catalog_knows_the_well_known_by_any_of_their_names() {
+        let it = |n: &str| Item { name: n.into(), ..Default::default() };
+        assert!(item_domains(&it("Pinterest")).contains(&"pinterest.com".to_string()));
+        assert!(item_domains(&it("Twitter")).contains(&"x.com".to_string()), "another name of the same thing");
+        assert!(item_domains(&it("пикабу")).contains(&"pikabu.ru".to_string()));
+        assert!(item_exes(&it("Epic Games")).contains(&"epicgameslauncher.exe".to_string()));
+        assert!(item_exes(&it("google chrome")).contains(&"chrome.exe".to_string()));
+        assert!(brands().len() > 100, "the list was read");
+        assert!(brands().iter().all(|b| b.x.iter().all(|e| e.ends_with(".exe") && !never_close(e))), "no program of the list is one the system needs");
+    }
+
     #[test]
     fn private_windows_are_recognised() {
         assert!(is_private_title("New Tab - Google Chrome (Incognito)"));
