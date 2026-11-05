@@ -143,7 +143,24 @@ pub struct Pin {
     pub locked_until_ms: i64,
 }
 
+/// Argon2id (memory-hard), with the settings the OWASP guide names as the minimum (19 MiB, 2 passes). The hash is marked "a2:" so that
+/// a PIN saved by an earlier version (plain stretched SHA-256) is still recognised, and is saved again in the new form the first time it is typed.
 fn hash_pin(salt: &str, pin: &str) -> String {
+    use argon2::{Algorithm, Argon2, Params, Version};
+    // the tests use a small memory so that they stay quick; the real thing never does
+    let (m, t) = if cfg!(test) { (256, 1) } else { (19 * 1024, 2) };
+    let params = Params::new(m, t, 1, Some(32)).expect("argon2 settings");
+    let mut out = [0u8; 32];
+    let mut salt_bytes = b"eyetime-pin-v2:".to_vec();
+    salt_bytes.extend_from_slice(salt.as_bytes());
+    if Argon2::new(Algorithm::Argon2id, Version::V0x13, params).hash_password_into(pin.as_bytes(), &salt_bytes, &mut out).is_err() {
+        return String::new(); // never matches
+    }
+    format!("a2:{}", out.iter().map(|b| format!("{b:02x}")).collect::<String>())
+}
+
+/// the form of an earlier version
+fn hash_pin_v1(salt: &str, pin: &str) -> String {
     let mut h = Sha256::new();
     h.update(b"eyetime-pin-v1");
     h.update(salt.as_bytes());
@@ -187,7 +204,15 @@ impl Pin {
         if self.locked_until_ms > now_ms {
             return PinResult::Locked(self.locked_until_ms - now_ms);
         }
-        if constant_eq(&hash_pin(&self.salt, pin), &self.hash) {
+        let right = if self.hash.starts_with("a2:") {
+            constant_eq(&hash_pin(&self.salt, pin), &self.hash)
+        } else if constant_eq(&hash_pin_v1(&self.salt, pin), &self.hash) {
+            self.hash = hash_pin(&self.salt, pin); // an old PIN is kept in the new form from now on
+            true
+        } else {
+            false
+        };
+        if right {
             self.fails = 0;
             return PinResult::Ok;
         }
@@ -388,5 +413,22 @@ mod tests {
             let (y, m, dd) = civil_from_days(days_from_civil(d).unwrap());
             assert_eq!(format!("{y:04}-{m:02}-{dd:02}"), d);
         }
+    }
+
+    #[test]
+    fn a_pin_from_an_earlier_version_still_works_and_is_kept_in_the_new_form() {
+        let salt = "00112233445566ff".to_string();
+        let mut old = Pin { salt: salt.clone(), hash: hash_pin_v1(&salt, "4821"), fails: 0, locked_until_ms: 0 };
+        assert!(!old.hash.starts_with("a2:"));
+        assert_eq!(old.verify("4821", 0), PinResult::Ok);
+        assert!(old.hash.starts_with("a2:"), "saved again as Argon2id");
+        assert_eq!(old.verify("4821", 0), PinResult::Ok);
+        assert!(matches!(old.verify("0000", 0), PinResult::Wrong { .. }));
+    }
+
+    #[test]
+    fn a_new_pin_is_argon2id() {
+        let p = Pin::set("4821", 7).unwrap();
+        assert!(p.hash.starts_with("a2:") && p.hash.len() == 3 + 64);
     }
 }

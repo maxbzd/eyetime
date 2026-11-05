@@ -8,7 +8,8 @@ import { FRAME_IDS } from '../src/shared/frames.js';
 import { ACCENTS, LOOK_IDS, RADII, DENSITY, CARD_STYLES } from '../src/shared/looks.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const skip = new Set(['.git', 'node_modules', 'scripts-dev', '.github', 'dist', 'store', 'companion', 'docs']);
+// desktop/ is the Windows app: it has its own words and its own tests (see the Desktop workflow); only its scripts are checked for syntax below
+const skip = new Set(['.git', 'node_modules', 'scripts-dev', '.github', 'dist', 'store', 'companion', 'docs', 'desktop', 'target']);
 cp.execFileSync(process.execPath, [path.join(root, 'scripts-dev/build-site.mjs')], { stdio: 'ignore' }); // site/assets is generated, not committed
 let errors = 0;
 const fail = (m) => { console.error('✗ ' + m); errors++; };
@@ -27,6 +28,18 @@ for (const p of files) {
   if (p.endsWith('.js') || p.endsWith('.mjs')) { try { cp.execFileSync('node', ['--check', p], { stdio: 'pipe' }); } catch { fail('syntax: ' + rel(p)); } }
   else if (p.endsWith('.json')) { try { JSON.parse(fs.readFileSync(p, 'utf8')); } catch { fail('json: ' + rel(p)); } }
 }
+
+// 1b) the desktop app's own scripts and data files (not the vendored libraries)
+(function walkDesktop(d) {
+  if (!fs.existsSync(d)) return;
+  for (const f of fs.readdirSync(d)) {
+    const p = path.join(d, f);
+    if (fs.statSync(p).isDirectory()) { if (f !== 'vendor' && f !== 'target' && f !== 'node_modules') walkDesktop(p); continue; }
+    if ((p.endsWith('.js') && !p.endsWith('brands-all.js')) || p.endsWith('.mjs') || p.endsWith('.cjs')) { try { cp.execFileSync('node', ['--check', p], { stdio: 'pipe' }); } catch { fail('syntax: ' + rel(p)); } }
+    else if (p.endsWith('.json') && !p.includes('tauri.conf')) { try { JSON.parse(fs.readFileSync(p, 'utf8')); } catch { fail('json: ' + rel(p)); } }
+  }
+})(path.join(root, 'desktop', 'prototype'));
+for (const f of ['tests', 'extension']) (function w(d) { if (!fs.existsSync(d)) return; for (const n of fs.readdirSync(d)) { const p = path.join(d, n); if (fs.statSync(p).isDirectory()) w(p); else if (/\.(c?js|mjs)$/.test(p)) { try { cp.execFileSync('node', ['--check', p], { stdio: 'pipe' }); } catch { fail('syntax: ' + rel(p)); } } } })(path.join(root, 'desktop', f));
 
 // 2) manifest references
 const m = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));

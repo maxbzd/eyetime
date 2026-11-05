@@ -1,9 +1,9 @@
 //! The named pipe the window, the agent and the browser extension talk to, and the loop that ticks the supervisor.
 
-use crate::os_windows::{spawn_agent, WinNet, WinOs};
+use crate::os_windows::{pipe_client_role, spawn_agent, WinNet, WinOs};
 use crate::update::Updater;
 use crate::supervisor::Supervisor;
-use eyetime_core::ipc::{parse_request, Response, MAX_LINE, PIPE_NAME};
+use eyetime_core::ipc::{parse_request, Response, Role, MAX_LINE, PIPE_NAME};
 use std::fs::File;
 use std::io::{BufRead, BufReader, Read, Write};
 use std::os::windows::io::FromRawHandle;
@@ -96,14 +96,16 @@ pub fn run_pipe_server(sup: Shared, stop: Arc<AtomicBool>) {
                 drop(File::from_raw_handle(h as _));
                 continue;
             }
+            // who is there is read from the system now, while the connection is fresh
+            let role = pipe_client_role(h);
             let file = File::from_raw_handle(h as _);
             let sup = sup.clone();
-            std::thread::spawn(move || serve(file, sup));
+            std::thread::spawn(move || serve(file, sup, role));
         }
     }
 }
 
-fn serve(file: File, sup: Shared) {
+fn serve(file: File, sup: Shared, role: Role) {
     let Ok(mut out) = file.try_clone() else { return };
     let mut reader = BufReader::new(file);
     loop {
@@ -113,6 +115,7 @@ fn serve(file: File, sup: Shared) {
             Ok(_) => {}
         }
         let resp = match parse_request(&line) {
+            Ok(req) if !role.allows(&req) => Response::err("denied", "This program may not ask for that"),
             Ok(req) => {
                 let mut s = lock(&sup);
                 std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| s.handle(req))).unwrap_or_else(|_| Response::err("internal", "internal error"))
