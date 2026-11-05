@@ -115,6 +115,37 @@ try {
 Check (Test-Path "$dir\extension\manifest.json") "the extension files are installed"
 Check ($null -ne (Get-ItemProperty "HKLM:\SOFTWARE\Google\Chrome\NativeMessagingHosts\com.eyetime.helper" -ErrorAction SilentlyContinue)) "Chrome is told where the native host is"
 
+Write-Host "== update (a local feed file stands in for GitHub, and the very same installer is the 'new version')"
+try {
+  $svcPid = { (Get-CimInstance Win32_Service -Filter "Name='EyeTimeHelper'").ProcessId }
+  $pid0 = & $svcPid
+  $feed = @{ version = "9.9.9"; url = (Resolve-Path $Setup).Path; sha256 = (Get-FileHash $Setup -Algorithm SHA256).Hash.ToLower(); size = (Get-Item $Setup).Length; notes = @("Smoke update") } | ConvertTo-Json -Compress
+  Set-Content -Path "$env:ProgramData\EyeTime\update-feed.json" -Value $feed -Encoding ascii
+  $state = ""
+  for ($i = 0; $i -lt 60 -and $state -ne "available"; $i++) { $null = Ask @{ op = "update_check" }; Start-Sleep -Seconds 2; $state = (Ask @{ op = "status" }).data.update.state }
+  Check ($state -eq "available") "the feed is seen as a newer version (state: $state)"
+  $badBefore = (Ask @{ op = "status" }).data.update.info.version
+  Check ($badBefore -eq "9.9.9") "it names the version it found ($badBefore)"
+  $r = Ask @{ op = "update_install" }
+  Check ($r.ok) "update_install accepted ($($r.code))"
+  # the service is stopped by the installer and comes back as the new one: a new process id, answering again
+  $pid1 = $pid0
+  for ($i = 0; $i -lt 90 -and ($pid1 -eq $pid0 -or $pid1 -eq 0); $i++) { Start-Sleep -Seconds 2; $pid1 = & $svcPid }
+  Check ($pid1 -ne $pid0 -and $pid1 -ne 0) "the service was replaced by the installer (pid $pid0 -> $pid1)"
+  $up = $false
+  for ($i = 0; $i -lt 30 -and -not $up; $i++) { try { $up = (Ask @{ op = "ping" }).ok } catch { Start-Sleep -Seconds 2 } }
+  Check $up "the new service answers"
+  Copy-Item "$env:ProgramData\EyeTime\update.log" "$Out\update.log" -ErrorAction SilentlyContinue
+  Check ((Get-Content "$env:ProgramData\EyeTime\update.log" -Raw -ErrorAction SilentlyContinue) -match '"type":"done"') "the installer log says done"
+  # this installer is not really 9.9.9, so the helper must say that the update did not take: it checks, it does not assume
+  $after = (Ask @{ op = "status" }).data.update
+  Check ($after.error -match "did not finish") "an update whose version does not arrive is reported ($($after.error))"
+  Check ((Get-Service EyeTimeHelper).Status -eq "Running") "the service is running after the update"
+  $u2 = Ask @{ op = "uninstall" }
+  Check ((-not $u2.ok) -and $u2.code -eq "challenge") "the permission to stop the service did not outlive the update"
+} catch { Check $false "the update: $_" }
+Remove-Item "$env:ProgramData\EyeTime\update-feed.json" -ErrorAction SilentlyContinue
+
 Write-Host "== uninstall: refused first, then allowed after the challenge"
 try {
   $u = Ask @{ op = "uninstall" }

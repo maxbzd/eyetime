@@ -34,4 +34,6 @@ pub trait Os: Send {
     fn read_store(&self) -> Option<String>;
     fn write_store(&self, text: &str) -> io::Result<()>;
     fn log(&self, line: &str);
+    /// start the downloaded installer, detached (it stops this service and starts the new one)
+    fn launch_update(&self, installer: &std::path::Path) -> io::Result<()>;
 }
