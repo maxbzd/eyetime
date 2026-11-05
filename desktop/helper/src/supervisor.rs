@@ -302,7 +302,8 @@ impl<O: Os> Supervisor<O> {
         let mut doomed: Vec<(u32, String, &str)> = Vec::new();
         if d.active() || d.block_vpn || d.close_tools {
             let own = self.os.own_pid();
-            for pr in self.os.processes() {
+            let table = self.os.processes();
+            for pr in &table {
                 let e = lower(&pr.exe);
                 if pr.pid == own || pr.pid == 0 || never_close(&e) {
                     continue;
@@ -318,9 +319,12 @@ impl<O: Os> Supervisor<O> {
             if d.allow_only {
                 if let Some((wins, _, _, _, at)) = &self.obs {
                     if t - at <= FRESH_MS {
+                        // the agent only says which windows are open; what each process really is, is read from the system's own table,
+                        // never from the agent's words (a request can name any program and any process number)
                         for w in wins {
-                            let e = lower(&w.exe);
-                            if w.pid != own && w.pid != 0 && !e.is_empty() && d.blocks_exe(&e) && !doomed.iter().any(|x| x.0 == w.pid) {
+                            let Some(real) = table.iter().find(|p| p.pid == w.pid) else { continue };
+                            let e = lower(&real.exe);
+                            if w.pid != own && w.pid != 0 && !e.is_empty() && !never_close(&e) && d.blocks_exe(&e) && !doomed.iter().any(|x| x.0 == w.pid) {
                                 doomed.push((w.pid, e, "app"));
                             }
                         }
@@ -715,7 +719,7 @@ impl<O: Os> Supervisor<O> {
             Request::SetPin { old, new } => self.set_pin(false, old, new, t),
             Request::SetPartnerPin { old, new } => self.set_pin(true, old, new, t),
 
-            Request::Uninstall { pin: _ } => {
+            Request::Uninstall => {
                 if self.locked_now(t) {
                     return Response::err("locked", "A locked block is running");
                 }

@@ -1,7 +1,7 @@
 //! The network half of updates: look for a newer version now and then, and fetch it when the person (or the automatic setting) asks.
 //! It only talks; whether and when the new installer runs is decided by the supervisor, with the same care as everything else.
 
-use eyetime_core::update::{from_feed, newest, same_hash, sha256_file, UpdateInfo, MAX_BYTES, RELEASES_URL};
+use eyetime_core::update::{builtin_pubkey, from_feed, newest, same_hash, sha256_file, verify_update, UpdateInfo, MAX_BYTES, RELEASES_URL};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
@@ -60,6 +60,8 @@ pub struct Updater<N: Net> {
     pub net: N,
     pub shared: Arc<Mutex<Shared>>,
     pub current: String,
+    /// the key whose signature an update must carry
+    pub key: [u8; 32],
 }
 
 fn lock(s: &Arc<Mutex<Shared>>) -> std::sync::MutexGuard<'_, Shared> {
@@ -69,7 +71,7 @@ fn lock(s: &Arc<Mutex<Shared>>) -> std::sync::MutexGuard<'_, Shared> {
 impl<N: Net> Updater<N> {
     pub fn new(net: N, shared: Arc<Mutex<Shared>>, current: &str) -> Updater<N> {
         { let mut g = lock(&shared); if g.checked_ms == 0 { g.checked_ms = i64::MIN / 4; } } // never looked yet: look at the first turn
-        Updater { net, shared, current: current.to_string() }
+        Updater { net, shared, current: current.to_string(), key: builtin_pubkey() }
     }
 
     /// One turn of the work: look, or fetch, if something asks for it. The server calls this about once a second.
@@ -144,6 +146,15 @@ impl<N: Net> Updater<N> {
             if !same_hash(&got, &info.sha256) {
                 return Err("the download does not match its checksum, so it was thrown away".to_string());
             }
+            // a release is run only if the signing key said so about this version and this very file (the administrator's own feed file is the one exception)
+            if !info.sig_url.is_empty() {
+                let sig = self.net.get(&info.sig_url).map_err(|e| format!("the signature could not be fetched: {e}"))?;
+                if !verify_update(&self.key, &info.version, &got, &sig) {
+                    return Err("the download is not signed by EyeTime, so it was thrown away".to_string());
+                }
+            } else if self.net.local_feed().is_none() {
+                return Err("the download has no signature, so it was thrown away".to_string());
+            }
             let _ = std::fs::remove_file(&done);
             std::fs::rename(&part, &done).map_err(|e| e.to_string())
         });
@@ -175,9 +186,14 @@ mod tests {
         pub feed: Mutex<Option<String>>,
         pub dir: PathBuf,
         pub gets: AtomicUsize,
+        /// what the signature file says
+        pub sig: Mutex<String>,
     }
     impl Net for FakeNet {
-        fn get(&self, _url: &str) -> Result<String, String> {
+        fn get(&self, url: &str) -> Result<String, String> {
+            if url.ends_with(".sig") {
+                return Ok(self.sig.lock().unwrap().clone());
+            }
             self.gets.fetch_add(1, Ordering::SeqCst);
             self.list.lock().unwrap().clone()
         }
@@ -197,16 +213,49 @@ mod tests {
     fn release_list(bytes: &[u8]) -> String {
         let sha = eyetime_core::update::sha256_hex(bytes);
         format!(
-            r#"[{{"tag_name":"desktop-v0.2.0","draft":false,"prerelease":false,"body":"- One\n- Two","assets":[{{"name":"EyeTime-Setup.exe","browser_download_url":"{}desktop-v0.2.0/EyeTime-Setup.exe","size":{},"digest":"sha256:{sha}"}}]}}]"#,
+            r#"[{{"tag_name":"desktop-v0.2.0","draft":false,"prerelease":false,"body":"- One\n- Two","assets":[{{"name":"EyeTime-Setup.exe","browser_download_url":"{}desktop-v0.2.0/EyeTime-Setup.exe","size":{},"digest":"sha256:{sha}"}},{{"name":"EyeTime-Setup.exe.sig","browser_download_url":"{}desktop-v0.2.0/EyeTime-Setup.exe.sig","size":128}}]}}]"#,
             eyetime_core::update::ALLOWED_PREFIX,
-            bytes.len()
+            bytes.len(),
+            eyetime_core::update::ALLOWED_PREFIX
         )
     }
     fn setup(bytes: &[u8], list: Result<String, String>) -> (Updater<FakeNet>, PathBuf) {
         let dir = std::env::temp_dir().join(format!("eyetime-upd-{}-{:?}", std::process::id(), std::thread::current().id()));
         let _ = std::fs::remove_dir_all(&dir);
-        let net = FakeNet { list: Mutex::new(list), bytes: Mutex::new(bytes.to_vec()), feed: Mutex::new(None), dir: dir.clone(), gets: AtomicUsize::new(0) };
-        (Updater::new(net, Arc::new(Mutex::new(Shared::default())), "0.1.0"), dir)
+        // the release job's key is a test key here; the file that is offered is signed with it
+        let seed = [9u8; 32];
+        let sig = eyetime_core::update::sign_update(&seed, "0.2.0", &eyetime_core::update::sha256_hex(bytes));
+        let net = FakeNet { list: Mutex::new(list), bytes: Mutex::new(bytes.to_vec()), feed: Mutex::new(None), dir: dir.clone(), gets: AtomicUsize::new(0), sig: Mutex::new(sig) };
+        let mut u = Updater::new(net, Arc::new(Mutex::new(Shared::default())), "0.1.0");
+        u.key = ed25519_dalek_pub(&seed);
+        (u, dir)
+    }
+
+    fn ed25519_dalek_pub(seed: &[u8; 32]) -> [u8; 32] {
+        let hex = eyetime_core::update::UPDATE_PUBKEY_HEX; // (only to make sure the real key parses; the test key is derived below)
+        assert_eq!(hex.len(), 64);
+        eyetime_core::update::pubkey_of(seed)
+    }
+
+    #[test]
+    fn an_update_that_the_key_did_not_sign_is_thrown_away() {
+        let b = b"installer bytes".to_vec();
+        let (u, dir) = setup(&b, Ok(release_list(&b)));
+        u.step(1);
+        // a file that has the right checksum, signed by somebody else (a release made by a thief)
+        *u.net.sig.lock().unwrap() = eyetime_core::update::sign_update(&[1u8; 32], "0.2.0", &eyetime_core::update::sha256_hex(&b));
+        lock(&u.shared).want_install = true;
+        u.step(2);
+        let s = lock(&u.shared);
+        assert_eq!(s.phase, Phase::Available);
+        assert!(s.error.contains("not signed"), "{}", s.error);
+        assert!(!dir.join("EyeTime-Setup-0.2.0.exe").exists(), "it is not even kept");
+        drop(s);
+        // no signature at all
+        *u.net.sig.lock().unwrap() = String::new();
+        lock(&u.shared).want_install = true;
+        u.step(3);
+        assert!(lock(&u.shared).error.contains("not signed"));
     }
 
     #[test]

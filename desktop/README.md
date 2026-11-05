@@ -10,10 +10,10 @@ macOS and Linux are not part of this yet.
 
 | Folder | What it is |
 |---|---|
-| `core/` | Pure logic, no Windows in it: the rules engine, schedules, usage and limits, the hosts file writer, the unblock challenges, the PIN, emergency keys, tamper guards, the message format. 59 unit tests. |
-| `helper/` | `eyetime-helper.exe`. **The service** (`--service`) decides and carries out blocks; **the agent** (`--agent`, started by the service inside your own session) sees the foreground window and asks programs to close; **the native host** (`--native-host`) is the end of the browser extension's channel. `src/supervisor.rs` is the brain and is tested against a pretend computer (22 tests); `src/os_windows.rs` is the real one. |
+| `core/` | Pure logic, no Windows in it: the rules engine, schedules, usage and limits, the hosts file writer, the unblock challenges, the PIN, emergency keys, tamper guards, the message format, the update check and its signature, the catalog of well-known sites and programs. About 70 unit tests. |
+| `helper/` | `eyetime-helper.exe`. **The service** (`--service`) decides and carries out blocks; **the agent** (`--agent`, started by the service inside your own session) sees the foreground window and asks programs to close; **the native host** (`--native-host`) is the end of the browser extension's channel. `src/supervisor.rs` is the brain and is tested against a pretend computer (about 40 tests, among them the ones for who may ask what over the pipe); `src/os_windows.rs` is the real one. |
 | `app/src-tauri/` | `eyetime.exe`: the window (Tauri 2). Frameless, lives in the tray, starts with Windows, one instance. Talks to the service over a named pipe. |
-| `prototype/` | The screens (HTML, CSS, JS). `bridge.js` connects them to the service. Opened in a plain browser they run on demo data. |
+| `prototype/` | The screens (HTML, CSS, JS). `bridge.js` connects them to the service. Opened in a plain browser they run on sample data; inside the app nothing is sample: what is shown is what the service measured or what you made. |
 | `installer/` | `eyetime-setup.exe`: the animated installer and uninstaller, with the program files inside. |
 | `extension/` | `EyeTime Bridge`, a small Chrome / Edge / Brave extension. It tells the service which page is in front and closes pages the service says are closed: single pages, words in the address or title, exceptions, and "everything but my list". It decides nothing itself, and closes nothing when the service is not there. Talks to the service through the helper's native host (`eyetime-helper.exe`, started by the browser). |
 | `tests/` | `e2e_real.cjs` drives the screens against the real service logic on a pretend computer. |
@@ -41,7 +41,7 @@ Frozen closes everything except Windows itself and EyeTime, and also Task Manage
 - **Always a way out.** The service refuses a locked session or rule unless at least one emergency key a week exists, and refuses a frozen rule longer than 8 hours. Emergency keys are counted by the service (per week and per month), never by the window. Using one lifts everything for 30 minutes and resets your streak.
 - **Warnings before anything that cannot be undone.** Starting a locked or frozen session, and keeping a locked rule, explains in plain words what will happen, how many keys are left, that unsaved work can be lost, and needs an explicit tick.
 - **Closing is polite first.** Programs are asked to close like a click on their X, so they can offer to save.
-- **App PIN** (4 to 12 digits, salted and stretched, three tries then a growing lockout). Asked before anything is loosened.
+- **App PIN** (4 to 12 digits, kept as an Argon2id hash with a salt, in a folder that only the system and administrators can read; three tries then a growing lockout). Asked before anything is loosened.
 - **Clock cheating.** While a locked block runs, time is counted by the computer's own interrupt clock, which counts sleep and cannot be set. Moving the system clock changes nothing and is shown as a warning.
 - **Restarts.** A running session survives a restart. The clock cannot be rolled back across one.
 - **Hosts file watch.** Edits to the block are undone within two seconds.
@@ -56,7 +56,7 @@ Frozen closes everything except Windows itself and EyeTime, and also Task Manage
 - **The extension is loaded by hand, once.** Browsers refuse to install an extension from outside their store on a personal computer. Settings → Browser extension has buttons for the extension's folder and the browser's extensions page: switch on Developer mode, Load unpacked, pick the folder. (Publishing it in the Chrome and Edge stores would remove this step.) Firefox is not supported yet.
 - A browser with its own encrypted DNS, or a site reached by an address that is not on the list, can slip through the hosts file. The keyword and exception features need the extension.
 - Muting sounds is not done yet on Windows.
-- Home shows dashes until something has been counted (no invented perfect score). The rule cards under "Rules" on Home are still sample data. Do Not Disturb turns off pop-up notifications.
+- Home shows dashes until something has been counted (no invented perfect score). Do Not Disturb turns off pop-up notifications.
 - Needs the Microsoft WebView2 runtime (part of Windows 11 and of up-to-date Windows 10; the installer and the window both use it).
 - Some antivirus programs warn when a program edits the hosts file. That is what blocking sites at system level means.
 - The installer is not signed. Windows SmartScreen will warn about an unknown publisher until it is.
@@ -96,9 +96,21 @@ cargo build --release -p eyetime-setup              # EyeTime-Setup.exe with the
 
 The installed app looks at this repository's GitHub releases about every six hours (and when you press *Check now* in Settings), picks the newest `desktop-v*` release that is newer than the running version, and shows a glowing chip in the title bar. Then:
 
-- **What is trusted.** Only the asset `EyeTime-Setup.exe` of a release of `maxbzd/eyetime`, downloaded from `github.com/maxbzd/eyetime/releases/download/`, with the SHA-256 fingerprint GitHub publishes for the asset. A download whose size or fingerprint differs is deleted. A release without a fingerprint is ignored. The installer is not code-signed yet, so Windows may show SmartScreen on a hand-started install; the self-update is started by the helper service and does not show that.
+- **What is trusted.** An update is run only if all of this holds: the asset `EyeTime-Setup.exe` is from a release of `maxbzd/eyetime` and is downloaded from `github.com/maxbzd/eyetime/releases/download/`; its size and SHA-256 are the announced ones; and the file `EyeTime-Setup.exe.sig` carries an **Ed25519 signature over this version and this exact file, made with the release key**. The public half of the key is built into the app (`core/src/update.rs`); the private half is only in the repository secret `UPDATE_SIGNING_KEY` and is used only by the release job. So a stolen release account is not enough to get a program run on every computer. What is still true: whoever can change the release workflow can read that secret, and the installer is not code-signed with a certificate (Windows SmartScreen may warn on a hand-started install).
 - **When it installs.** By hand (*Update now*): at once, unless a locked block is running, then it waits and says so. Automatically (on by default, switch in Settings → About): only when no session or block is running. The window comes back by itself and tells what is new, once.
 - **If it fails.** The files are replaced by the same installer as a first install; if it cannot finish, the old service is started again, the app says "The update did not finish" and nothing is lost. The log is `C:\ProgramData\EyeTime\update.log`.
-- **Publishing.** Bump `version` in `desktop/Cargo.toml`, add a `## x.y.z` section with `- ` points to `desktop/CHANGELOG.md`, then push the tag `desktop-vx.y.z`. The workflow `desktop-release.yml` builds, tries the installer on a real Windows runner and publishes the release.
+- **Publishing.** Bump `version` in `desktop/Cargo.toml`, add a `## x.y.z` section with `- ` points to `desktop/CHANGELOG.md`, then push the tag `desktop-vx.y.z`. The repository needs the secret `UPDATE_SIGNING_KEY` (the private key, made once with `cargo run -p eyetime-core --bin eyetime-sign -- --gen`; the public key goes into `core/src/update.rs`). The workflow `desktop-release.yml` builds, tries the installer on a real Windows runner and publishes the release.
 - **Your own feed.** A file `C:\ProgramData\EyeTime\update-feed.json` (`{version,url,sha256,size,notes}`; only administrators can write there) replaces the network lookup. Used for tests.
 
+## Who may ask the service for what
+
+The service listens on a named pipe that every signed-in person can open, so it decides by itself, per connection, who is on the other end: it reads the real file of the connecting program and whether it runs elevated (never what the request says).
+
+| Client | May ask |
+|---|---|
+| the installed window (`eyetime.exe`) | everything except speaking for the agent |
+| the installed helper in a session (the screen agent, the browser's native host) | `observe`, `site`, `decision`, `ping`, `status` |
+| the system or a program started as an administrator (the installer, the checks) | everything |
+| any other program of a signed-in person | `ping`, `status` |
+
+Programs to close are always taken from the system's own process table; what an agent says about a process (its name or number) is never trusted. The folder `C:\ProgramData\EyeTime` (state, PIN hashes, downloaded updates) is readable only by the system and administrators. Setup applies these rights by well-known SIDs and stops if one of them cannot be applied.

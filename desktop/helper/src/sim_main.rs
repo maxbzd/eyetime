@@ -129,6 +129,7 @@ fn serve(mut conn: TcpStream, sup: &Arc<Mutex<Supervisor<Fake>>>, world: &Arc<Mu
                         url: "x".into(),
                         sha256: "0".repeat(64),
                         size: u["size"].as_u64().unwrap_or(0),
+                        sig_url: String::new(),
                     });
                 } else if u["none"].as_bool().unwrap_or(false) {
                     s.info = None;

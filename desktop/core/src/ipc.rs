@@ -43,9 +43,34 @@ pub enum Request {
     /// the "what is new" was shown
     UpdateAck,
     /// the installer and the window ask before uninstalling
-    Uninstall { #[serde(default)] pin: Option<String> },
+    Uninstall,
     /// the little agent in the person's session: what it sees, every couple of seconds. The answer is what it should do.
     Observe { #[serde(default)] fg: Option<Fg>, #[serde(default)] idle_secs: u32, #[serde(default)] windows: Vec<Win>, #[serde(default)] screen_locked: bool },
+}
+
+/// Who is on the other end of the pipe, as the service itself finds out (the program's real file and whether it runs elevated), never as the
+/// request says. The pipe is open to every signed-in person, so what each kind of client may ask is decided here.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Role {
+    /// the installed window (eyetime.exe)
+    Window,
+    /// the installed helper program run in a person's session: the screen agent and the browser's native host
+    Agent,
+    /// the system, or a program started as an administrator (the installer, the checks)
+    Admin,
+    /// anything else that a signed-in person runs
+    Other,
+}
+
+impl Role {
+    pub fn allows(self, req: &Request) -> bool {
+        match self {
+            Role::Admin => true,
+            Role::Window => !matches!(req, Request::Observe { .. }),
+            Role::Agent => matches!(req, Request::Observe { .. } | Request::Site { .. } | Request::Decision | Request::Ping | Request::Status),
+            Role::Other => matches!(req, Request::Ping | Request::Status),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]

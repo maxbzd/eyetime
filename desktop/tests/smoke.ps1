@@ -47,6 +47,14 @@ try {
   Write-Host "     agent connected: $($st.agentConnected)   hosts ok: $($st.hostsOk)"
 } catch { Check $false "the pipe: $_" }
 
+Write-Host "== the rights on the folders (set by SIDs, so that they hold in every language of Windows)"
+function Sids($path) { (Get-Acl $path).Access | ForEach-Object { [pscustomobject]@{ Sid = $_.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value; Rights = "$($_.FileSystemRights)" } } }
+$dataAcl = Sids "$env:ProgramData\EyeTime"
+Check (-not ($dataAcl | Where-Object { $_.Sid -in @("S-1-5-32-545", "S-1-1-0", "S-1-5-11") })) "the data folder (PIN hashes, updates) is not readable by users, everyone or authenticated users"
+Check ($null -ne ($dataAcl | Where-Object { $_.Sid -eq "S-1-5-18" })) "the system has the data folder"
+$progAcl = Sids $dir
+Check (-not ($progAcl | Where-Object { $_.Sid -in @("S-1-5-32-545", "S-1-1-0", "S-1-5-11") -and $_.Rights -match "Write|Modify|FullControl|Delete" })) "the program folder cannot be changed by users"
+
 Write-Host "== a real block: the hosts file"
 try {
   $items = @(@{ name = "YouTube"; type = "site"; g = "dis"; color = ""; domain = ""; exe = "" })
