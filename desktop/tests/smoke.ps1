@@ -136,7 +136,11 @@ try {
   for ($i = 0; $i -lt 30 -and -not $up; $i++) { try { $up = (Ask @{ op = "ping" }).ok } catch { Start-Sleep -Seconds 2 } }
   Check $up "the new service answers"
   Copy-Item "$env:ProgramData\EyeTime\update.log" "$Out\update.log" -ErrorAction SilentlyContinue
-  Check ((Get-Content "$env:ProgramData\EyeTime\update.log" -Raw -ErrorAction SilentlyContinue) -match '"type":"done"') "the installer log says done"
+  # the installer writes its last line after the service answers: give it a moment
+  $logged = $false
+  for ($i = 0; $i -lt 30 -and -not $logged; $i++) { $logged = ((Get-Content "$env:ProgramData\EyeTime\update.log" -Raw -ErrorAction SilentlyContinue) -match '"type":"done"'); if (-not $logged) { Start-Sleep -Seconds 1 } }
+  Copy-Item "$env:ProgramData\EyeTime\update.log" "$Out\update.log" -ErrorAction SilentlyContinue
+  Check $logged "the installer log says done"
   # this installer is not really 9.9.9, so the helper must say that the update did not take: it checks, it does not assume
   $after = (Ask @{ op = "status" }).data.update
   Check ($after.error -match "did not finish") "an update whose version does not arrive is reported ($($after.error))"
