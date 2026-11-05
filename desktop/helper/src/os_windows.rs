@@ -276,11 +276,11 @@ pub struct WinNet;
 
 impl crate::update::Net for WinNet {
     fn get(&self, url: &str) -> Result<String, String> {
-        if !url.starts_with("https://api.github.com/") {
+        if !url.starts_with("https://api.github.com/") && !url.starts_with(eyetime_core::update::ALLOWED_PREFIX) {
             return Err("not an address EyeTime talks to".into());
         }
         let out = Command::new(curl_path())
-            .args(["-sS", "--fail", "--location", "--max-time", "30", "--proto", "=https", "-H", "User-Agent: EyeTime-Updater", "-H", "Accept: application/vnd.github+json", url])
+            .args(["-sS", "--fail", "--location", "--max-time", "30", "--max-filesize", "4000000", "--proto", "=https", "--proto-redir", "=https", "-H", "User-Agent: EyeTime-Updater", "-H", "Accept: application/vnd.github+json", url])
             .creation_flags(NO_WINDOW)
             .stdin(std::process::Stdio::null())
             .output()
@@ -358,6 +358,54 @@ impl WinOs {
         match build(NO_WINDOW | DETACHED | NEW_GROUP | BREAKAWAY).spawn() {
             Ok(_) => Ok(()),
             Err(_) => build(NO_WINDOW | DETACHED | NEW_GROUP).spawn().map(|_| ()),
+        }
+    }
+}
+
+// ---------------------------------------------------------------- who is on the other end of the pipe
+
+/// What the service itself can tell about the program that connected: its real file, and whether it runs elevated.
+/// The request is never asked who it is.
+pub fn pipe_client_role(pipe: windows_sys::Win32::Foundation::HANDLE) -> eyetime_core::ipc::Role {
+    use eyetime_core::ipc::Role;
+    use windows_sys::Win32::Foundation::HANDLE;
+    use windows_sys::Win32::Security::{GetTokenInformation, TokenElevation, TOKEN_ELEVATION, TOKEN_QUERY};
+    use windows_sys::Win32::System::Pipes::GetNamedPipeClientProcessId;
+    use windows_sys::Win32::System::Threading::{OpenProcessToken, QueryFullProcessImageNameW, PROCESS_QUERY_LIMITED_INFORMATION};
+    unsafe {
+        let mut pid = 0u32;
+        if GetNamedPipeClientProcessId(pipe, &mut pid) == 0 || pid == 0 {
+            return Role::Other;
+        }
+        let ph = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, pid);
+        if ph.is_null() {
+            return Role::Other;
+        }
+        let mut buf = [0u16; 1040];
+        let mut n = buf.len() as u32;
+        let ok = QueryFullProcessImageNameW(ph, 0, buf.as_mut_ptr(), &mut n);
+        let image = if ok != 0 { wide_to_string(&buf[..n as usize]).to_lowercase() } else { String::new() };
+        let mut elevated = false;
+        let mut tok: HANDLE = std::ptr::null_mut();
+        if OpenProcessToken(ph, TOKEN_QUERY, &mut tok) != 0 {
+            let mut e = TOKEN_ELEVATION { TokenIsElevated: 0 };
+            let mut got = 0u32;
+            if GetTokenInformation(tok, TokenElevation, &mut e as *mut _ as *mut _, std::mem::size_of::<TOKEN_ELEVATION>() as u32, &mut got) != 0 {
+                elevated = e.TokenIsElevated != 0;
+            }
+            CloseHandle(tok);
+        }
+        CloseHandle(ph);
+        let dir = std::env::current_exe().ok().and_then(|p| p.parent().map(|d| d.to_string_lossy().to_lowercase().trim_start_matches(r"\\?\").to_string())).unwrap_or_default();
+        let is = |name: &str| !dir.is_empty() && image.trim_start_matches(r"\\?\") == format!("{dir}\\{name}");
+        if elevated {
+            Role::Admin
+        } else if is("eyetime.exe") {
+            Role::Window
+        } else if is("eyetime-helper.exe") {
+            Role::Agent
+        } else {
+            Role::Other
         }
     }
 }

@@ -9,3 +9,9 @@ description = "Rules, schedules, limits, friction and the decision engine of Eye
 serde.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
+argon2.workspace = true
+ed25519-dalek.workspace = true
+
+[[bin]]
+name = "eyetime-sign"
+path = "src/bin/eyetime-sign.rs"
