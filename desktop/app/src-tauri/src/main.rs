@@ -119,6 +119,33 @@ fn window_ctl(app: AppHandle, action: String) {
     }
 }
 
+/// open the browser extension's folder, or a browser's extensions page (the person turns on Developer mode and loads the folder once)
+#[tauri::command]
+fn open_target(kind: String) -> Result<(), String> {
+    use std::os::windows::process::CommandExt;
+    let exe = std::env::current_exe().map_err(|e| e.to_string())?;
+    let dir = exe.parent().ok_or("no folder")?.to_path_buf();
+    let mut c = match kind.as_str() {
+        "extension_folder" => {
+            let mut c = std::process::Command::new("explorer.exe");
+            c.arg(dir.join("extension"));
+            c
+        }
+        "chrome_extensions" => {
+            let mut c = std::process::Command::new("cmd");
+            c.args(["/c", "start", "", "chrome", "chrome://extensions"]);
+            c
+        }
+        "edge_extensions" => {
+            let mut c = std::process::Command::new("cmd");
+            c.args(["/c", "start", "", "msedge", "edge://extensions"]);
+            c
+        }
+        _ => return Ok(()),
+    };
+    c.creation_flags(0x0800_0000).spawn().map(|_| ()).map_err(|e| e.to_string())
+}
+
 fn show_main(app: &AppHandle) {
     if let Some(w) = app.get_webview_window("main") {
         let _ = w.show();
@@ -153,7 +180,7 @@ fn main() {
         .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| show_main(app)))
         .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, Some(vec!["--hidden"])))
         .manage(Link(Mutex::new(None)))
-        .invoke_handler(tauri::generate_handler![helper, apply_setting, window_ctl])
+        .invoke_handler(tauri::generate_handler![helper, apply_setting, window_ctl, open_target])
         .setup(move |app| {
             let link = app.state::<Link>();
             let script = boot_script(&link);

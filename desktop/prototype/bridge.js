@@ -19,7 +19,8 @@
       pinTitle: 'Enter your PIN', pinWrong: 'Wrong PIN', pinLocked: (s) => `Too many tries. Wait ${s} s`, cancel: 'Cancel', ok: 'Continue', hold: 'Hold', holding: 'Keep holding…', wait: (s) => `Wait ${s} s`, ready: 'Continue', type: 'Type this text exactly. Pasting is off.', mathQ: 'Solve it', wrong: 'Not right', friendQ: 'Ask your partner for the code', pinFor: 'PIN',
       ttEnd: 'Leave the session', ttBreak: 'Take a break', ttUnblock: 'Unblock for a while', ttEmerg: 'Emergency key', ttUninstall: 'Allow uninstalling', emergBtn: (n) => `Emergency key (${n} left)`, noKeys: 'No emergency keys left this week',
       pinCard: 'App PIN', pinCardD: 'Asked before anything can be loosened', pinSet: 'Set PIN', pinChange: 'Change', pinRemove: 'Remove', pinNew: 'New PIN (4 to 12 digits)', pinOld: 'Current PIN', pinSaved: 'PIN saved', pinGone: 'PIN removed', partnerSaved: 'Partner code saved',
-      streak: 'days', uninT: 'Updating or removing EyeTime', uninD: 'While EyeTime protects you, setup cannot change or remove it. This permission lasts 10 minutes.', uninBtn: 'Allow uninstalling', uninOk: 'Allowed for 10 minutes. Run setup now.',
+      extT: 'Browser extension', extOn: 'Connected: pages, words and exceptions are closed in your browser.', extOff: 'Not connected. Without it EyeTime closes whole sites only (through the hosts file), not single pages or words.', extHow: 'Once: open the extensions page, switch on Developer mode, choose Load unpacked, and pick the folder below.', extFolder: 'Open the extension folder', extChrome: 'Chrome extensions', extEdge: 'Edge extensions',
+      streakT: (n) => `${n} ${n === 1 ? 'day' : 'days'} in a row`, streakP: 'A finished focus session counts for the day.', streakNone: 'No streak yet', streakNoneP: 'Finish a focus session today to start one.', streak: 'days', uninT: 'Updating or removing EyeTime', uninD: 'While EyeTime protects you, setup cannot change or remove it. This permission lasts 10 minutes.', uninBtn: 'Allow uninstalling', uninOk: 'Allowed for 10 minutes. Run setup now.',
       dTitleEvery: 'Block everything', dTitleLocked: 'Locked session', dTitleFrozen: 'Frozen session', dTitleRule: 'Locked rule',
       dLockedA: (m, t) => `${m} min, until ${t}. It cannot be ended, paused or changed once it starts.`,
       dFrozenA: (m, t) => `${m} min, until ${t}. Everything except Windows itself and EyeTime is closed: no browser, no games, no other apps. Task Manager and Settings are closed too.`,
@@ -38,7 +39,8 @@
       pinTitle: 'Введите PIN', pinWrong: 'Неверный PIN', pinLocked: (s) => `Слишком много попыток. Подождите ${s} с`, cancel: 'Отмена', ok: 'Продолжить', hold: 'Удерживайте', holding: 'Держите…', wait: (s) => `Подождите ${s} с`, ready: 'Продолжить', type: 'Введите текст точно как написано. Вставка отключена.', mathQ: 'Решите пример', wrong: 'Неверно', friendQ: 'Попросите у напарника код', pinFor: 'PIN',
       ttEnd: 'Выйти из сессии', ttBreak: 'Сделать перерыв', ttUnblock: 'Разблокировать на время', ttEmerg: 'Аварийный ключ', ttUninstall: 'Разрешить удаление', emergBtn: (n) => `Аварийный ключ (осталось ${n})`, noKeys: 'На этой неделе аварийных ключей не осталось',
       pinCard: 'PIN приложения', pinCardD: 'Спрашивается, прежде чем что-то ослабить', pinSet: 'Задать PIN', pinChange: 'Изменить', pinRemove: 'Убрать', pinNew: 'Новый PIN (от 4 до 12 цифр)', pinOld: 'Текущий PIN', pinSaved: 'PIN сохранён', pinGone: 'PIN убран', partnerSaved: 'Код напарника сохранён',
-      streak: 'дн.', uninT: 'Обновление и удаление EyeTime', uninD: 'Пока EyeTime вас защищает, программа установки не может его изменить или удалить. Разрешение действует 10 минут.', uninBtn: 'Разрешить удаление', uninOk: 'Разрешено на 10 минут. Запускайте установку.',
+      extT: 'Расширение для браузера', extOn: 'Подключено: страницы, слова и исключения закрываются в браузере.', extOff: 'Не подключено. Без него EyeTime закрывает сайты целиком (через файл hosts), но не отдельные страницы и не слова.', extHow: 'Один раз: откройте страницу расширений, включите «Режим разработчика», нажмите «Загрузить распакованное» и выберите папку ниже.', extFolder: 'Открыть папку расширения', extChrome: 'Расширения Chrome', extEdge: 'Расширения Edge',
+      streakT: (n) => `${n} дн. подряд`, streakP: 'День засчитывается, если завершена сессия фокуса.', streakNone: 'Серии пока нет', streakNoneP: 'Завершите сессию фокуса сегодня, чтобы начать.', streak: 'дн.', uninT: 'Обновление и удаление EyeTime', uninD: 'Пока EyeTime вас защищает, программа установки не может его изменить или удалить. Разрешение действует 10 минут.', uninBtn: 'Разрешить удаление', uninOk: 'Разрешено на 10 минут. Запускайте установку.',
       dTitleEvery: 'Закрыть всё', dTitleLocked: 'Строгая сессия', dTitleFrozen: 'Замороженная сессия', dTitleRule: 'Строгое правило',
       dLockedA: (m, t) => `${m} мин, до ${t}. После старта её нельзя закончить, поставить на паузу или изменить.`,
       dFrozenA: (m, t) => `${m} мин, до ${t}. Закрыто всё, кроме самой Windows и EyeTime: ни браузера, ни игр, ни других программ. Диспетчер задач и Параметры тоже закрываются.`,
@@ -249,7 +251,7 @@
     const screen = Math.round(total / 60), offline = Math.round(off / 60);
     const focusPct = total ? Math.round(100 * (1 - dis / total)) : 100, offPct = total + off ? Math.round((100 * off) / (total + off)) : 0;
     const rest = Math.min(100, Math.round(offPct * 1.3)), score = total + off === 0 ? 0 : Math.round(focusPct * 0.7 + rest * 0.3);
-    return { score, focus: focusPct, rest, screen, focusPct, switches: u.switches || 0, offline, offPct, total };
+    return { score, focus: focusPct, rest, screen, focusPct, switches: u.switches || 0, offline, offPct, total, empty: total === 0 };
   }
   function bars(u) {
     const rows = [];
@@ -268,6 +270,11 @@
     const spec = avg > 0 && m.screen < avg ? Math.round((1 - m.screen / avg) * 100) : 0;
     ET.setHome({ day: { ...m, delta: prev && prev.total > 0 ? m.score - prev.score : 0, spec }, bars: bars(today) });
     ET.setStreak(st.streakDays || 0);
+    // the small texts that used to be demo: real numbers or an honest dash
+    const hm = (m) => (m >= 60 ? `${Math.floor(m / 60)}${lang() === 'ru' ? '\u0447' : 'h'} ${String(m % 60).padStart(2, '0')}${lang() === 'ru' ? '\u043c' : 'm'}` : `${m}${lang() === 'ru' ? '\u043c' : 'm'}`);
+    const lab = $$('.spec-labels b'); if (lab.length === 2) { lab[0].textContent = m.empty ? '\u2014' : hm(m.screen); lab[1].textContent = avg > 0 ? hm(Math.round(avg)) : '\u2014'; }
+    const sh = $('.streak h4'), sp = $('.streak p');
+    if (sh && sp) { const n = st.streakDays || 0; sh.textContent = n > 0 ? L().streakT(n) : L().streakNone; sp.textContent = n > 0 ? L().streakP : L().streakNoneP; }
     // the three most used things, as tiles
     const stack = $('.stat .app-stack'); if (stack) {
       const top = Object.entries(today.secs || {}).sort((x, y) => y[1] - x[1]).slice(0, 3), sig = top.map((t) => t[0]).join();
@@ -284,6 +291,7 @@
     if (r) ET.setBlockCard({ title: r.name, sub: L().blockedSub(apps, sites, r.minsLeft ? L().until(r.minsLeft) : '') }); else ET.setBlockCard({ title: L().nothing, sub: L().nothingSub });
   }
   function paintEngine() {
+    extensionCard();
     const t = $('#engTxt'), dot = $('#engDot'); if (!t) return;
     const bad = !online || (status && !status.hostsOk), warn = online && status && !status.agentConnected;
     const txt = !online ? L().engineOff : status && !status.hostsOk ? L().engineWarnHosts : warn ? L().engineWarnAgent : L().engineOn;
@@ -346,7 +354,20 @@
     $('button', card).onclick = async () => { const r = await ask('uninstall'); if (r) ET.toast(L().uninOk); };
     v.append(card);
   }
-  new MutationObserver(() => { paintEngine(); uninstallCard(); }).observe(document.body, { childList: true, subtree: true });
+  function extensionCard() {
+    const v = $('#view-settings'); if (!v) return;
+    let card = $('#etbExt');
+    const on = !!(status && status.extConnected);
+    if (!card) {
+      card = document.createElement('div'); card.id = 'etbExt'; card.className = 'glass st-group'; card.style.marginTop = '16px';
+      card.innerHTML = `<div class="etb-pincard" style="padding:6px 4px;align-items:flex-start"><div><h3 style="margin:0">${L().extT}</h3><p class="s" id="etbExtS" style="margin:4px 0 0;max-width:520px"></p><p class="s" style="margin:8px 0 0;max-width:520px;opacity:.8">${L().extHow}</p></div><div class="b" style="flex-wrap:wrap;justify-content:flex-end"><button type="button" data-k="extension_folder">${L().extFolder}</button><button type="button" data-k="chrome_extensions">${L().extChrome}</button><button type="button" data-k="edge_extensions">${L().extEdge}</button></div></div>`;
+      $$('button', card).forEach((b) => (b.onclick = () => invoke('open_target', { kind: b.dataset.k }).catch(() => {})));
+      v.append(card);
+    }
+    const t = $('#etbExtS', card), txt = on ? L().extOn : L().extOff;
+    if (t.textContent !== txt) t.textContent = txt;
+  }
+  new MutationObserver(() => { paintEngine(); uninstallCard(); extensionCard(); }).observe(document.body, { childList: true, subtree: true });
 
   /* ---------------------------------------------------------------- the buttons that used to pretend */
   const stop = (e) => { e.stopImmediatePropagation(); e.preventDefault(); };
