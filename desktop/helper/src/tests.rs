@@ -458,3 +458,140 @@ fn a_program_that_closes_by_itself_is_left_alone() {
     advance(&f, &mut s, 30);
     assert!(f.0.lock().unwrap().killed.is_empty());
 }
+
+// ---------------------------------------------------------------- updates
+
+use crate::update::Phase;
+use eyetime_core::update::UpdateInfo;
+
+fn ready_update(s: &Supervisor<Fake>, wanted: bool, manual: bool) {
+    let mut u = s.upd.lock().unwrap();
+    u.phase = Phase::Ready;
+    u.info = Some(UpdateInfo { version: "0.2.0".into(), notes: vec!["Faster".into()], url: "x".into(), sha256: "0".repeat(64), size: 5 });
+    u.path = Some(std::path::PathBuf::from("C:/ProgramData/EyeTime/update/EyeTime-Setup-0.2.0.exe"));
+    u.want_install = wanted;
+    u.manual = manual;
+}
+
+#[test]
+fn an_automatic_update_waits_for_a_quiet_moment_and_a_manual_one_does_not() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    start(&mut s, 30, 1);
+    advance(&f, &mut s, 4);
+    ready_update(&s, true, false);
+    advance(&f, &mut s, 4);
+    assert!(f.0.lock().unwrap().launched.is_empty(), "not in the middle of a session");
+    ready_update(&s, true, true);
+    advance(&f, &mut s, 2);
+    assert_eq!(f.0.lock().unwrap().launched.len(), 1, "asked for by hand: now");
+    assert_eq!(s.upd.lock().unwrap().phase, Phase::Installing);
+    // the service may be stopped by the installer, and keeps its blocks while it is
+    assert!(s.may_stop() && s.stopping_for_update());
+}
+
+#[test]
+fn a_locked_block_is_never_interrupted_by_an_update_and_the_update_waits() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    start(&mut s, 30, 2);
+    advance(&f, &mut s, 4);
+    ready_update(&s, true, true);
+    advance(&f, &mut s, 6);
+    assert!(f.0.lock().unwrap().launched.is_empty());
+    let st = status(&mut s);
+    assert!(st.update.waiting_for_lock);
+    assert!(!s.stopping_for_update());
+}
+
+#[test]
+fn when_nothing_is_running_an_update_that_is_ready_installs_by_itself_unless_it_is_turned_off() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    assert!(s.handle(Request::UpdateSetAuto { on: false }).ok);
+    ready_update(&s, false, false);
+    advance(&f, &mut s, 6);
+    assert!(f.0.lock().unwrap().launched.is_empty(), "automatic updates are off: nothing happens without a click");
+    assert!(s.handle(Request::UpdateSetAuto { on: true }).ok);
+    ready_update(&s, true, false);
+    advance(&f, &mut s, 4);
+    assert_eq!(f.0.lock().unwrap().launched.len(), 1);
+}
+
+#[test]
+fn a_click_on_update_needs_something_to_update() {
+    let (_f, mut s) = world();
+    assert_eq!(s.handle(Request::UpdateInstall).code, "none");
+    s.upd.lock().unwrap().phase = Phase::Available;
+    assert!(s.handle(Request::UpdateInstall).ok);
+    assert!(s.upd.lock().unwrap().want_install && s.upd.lock().unwrap().manual);
+}
+
+#[test]
+fn after_the_update_the_window_is_reopened_once_and_told_what_is_new_until_it_has_shown_it() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    ready_update(&s, true, true);
+    advance(&f, &mut s, 2);
+    s.shutdown(true);
+    let store = f.0.lock().unwrap().store.clone();
+    // the new version starts (here the same code is "the new version": its number is the one that was announced)
+    let mut p: crate::supervisor::Persist = serde_json::from_str(store.as_ref().unwrap()).unwrap();
+    p.pending_update.as_mut().unwrap().to = crate::supervisor::VERSION.into();
+    let f2 = Fake(Arc::new(Mutex::new(World { wall: T0 + 60_000, mono: 5000, store: Some(serde_json::to_string(&p).unwrap()), hosts_writable: true, ..Default::default() })));
+    let mut s2 = Supervisor::new(f2.clone());
+    let o = s2.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![], screen_locked: false });
+    assert_eq!(o.data["launchApp"], true);
+    assert_eq!(s2.p.uninstall_ok_until_ms, 0, "the permission to stop the service does not outlive the update");
+    let o = s2.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![], screen_locked: false });
+    assert_eq!(o.data["launchApp"], false, "only once");
+    assert_eq!(status(&mut s2).update.updated.as_ref().unwrap().to, crate::supervisor::VERSION);
+    assert!(status(&mut s2).update.updated.is_some(), "stays until acknowledged");
+    s2.handle(Request::UpdateAck);
+    assert!(status(&mut s2).update.updated.is_none());
+}
+
+#[test]
+fn an_update_that_did_not_finish_is_reported_and_nothing_is_opened() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    ready_update(&s, true, true);
+    advance(&f, &mut s, 2);
+    s.shutdown(true);
+    let store = f.0.lock().unwrap().store.clone(); // the announced version differs from the running one: it did not take
+    let f2 = Fake(Arc::new(Mutex::new(World { wall: T0 + 60_000, mono: 5000, store, hosts_writable: true, ..Default::default() })));
+    let mut s2 = Supervisor::new(f2);
+    let o = s2.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![], screen_locked: false });
+    assert_eq!(o.data["launchApp"], false);
+    assert!(status(&mut s2).update.error.contains("did not finish"));
+}
+
+#[test]
+fn an_automatic_update_brings_the_window_back_only_if_it_was_open() {
+    for (open, expect) in [(false, false), (true, true)] {
+        let (f, mut s) = world();
+        setup(&mut s);
+        if open {
+            s.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![eyetime_core::ipc::Win { exe: "eyetime.exe".into(), title: "EyeTime".into(), pid: 7 }], screen_locked: false });
+        }
+        ready_update(&s, true, false);
+        advance(&f, &mut s, 4);
+        assert_eq!(f.0.lock().unwrap().launched.len(), 1);
+        assert_eq!(s.p.relaunch_app, expect);
+    }
+}
+
+#[test]
+fn an_installer_that_never_finished_is_given_up_on_and_can_be_tried_again() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    ready_update(&s, true, true);
+    advance(&f, &mut s, 2);
+    assert!(s.stopping_for_update());
+    advance(&f, &mut s, 11 * 60);
+    assert!(!s.stopping_for_update());
+    let st = status(&mut s);
+    assert!(st.update.error.contains("did not finish"));
+    assert_eq!(st.update.state, "available");
+    assert!(!s.may_stop() || !s.state.protect.tam.watchdog, "the permission to stop is gone");
+}

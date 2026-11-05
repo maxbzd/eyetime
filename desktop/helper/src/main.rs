@@ -9,7 +9,7 @@
 mod win {
     use eyetime_helper::os::Os;
     use eyetime_helper::os_windows::WinOs;
-    use eyetime_helper::server::{lock, poke, run_pipe_server, run_ticker, Shared};
+    use eyetime_helper::server::{lock, poke, run_pipe_server, run_ticker, run_updater, Shared};
     use eyetime_helper::supervisor::Supervisor;
     use std::ffi::OsString;
     use std::sync::atomic::{AtomicBool, Ordering};
@@ -38,6 +38,8 @@ mod win {
         std::thread::spawn(move || run_ticker(a, b));
         let (a, b) = (sup.clone(), stop.clone());
         std::thread::spawn(move || run_pipe_server(a, b));
+        let (a, b) = (sup.clone(), stop.clone());
+        std::thread::spawn(move || run_updater(a, b));
     }
 
     fn service_body() -> windows_service::Result<()> {
@@ -67,9 +69,12 @@ mod win {
             match rx.recv() {
                 Ok(ServiceControl::Stop) => {
                     // a locked block, or the watchdog, say no: the service just keeps running
-                    if lock(&sup).may_stop() {
-                        break false;
+                    // for an update the blocks stay where they are: the new service takes them over
+                    let s = lock(&sup);
+                    if s.may_stop() {
+                        break s.stopping_for_update();
                     }
+                    drop(s);
                     WinOs.log("stop refused");
                 }
                 Ok(_) => break true, // the computer is shutting down: leave the blocks in place for the next start

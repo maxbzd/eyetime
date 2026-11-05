@@ -105,6 +105,7 @@
     },
     ask: (action, target, minutes) => ask(action, target, minutes),
     getStatus: () => status,
+    req,
   };
   if (pre && pre.q) pre.q.forEach(([k, v]) => ETB.push(k, v));
 
@@ -331,6 +332,7 @@
       syncSession(status); paintBlock(status); news(status);
       if (!usageDays || performance.now() - usageAt > 30000) { const u = await req({ op: 'usage' }); if (u.ok) { usageDays = u.data; usageAt = performance.now(); } }
       paintHome(status);
+      document.dispatchEvent(new CustomEvent('et-status', { detail: status }));
     }
     paintEngine();
   }
@@ -371,7 +373,7 @@
     const card = document.createElement('div'); card.id = 'etbUninst'; card.className = 'glass st-group'; card.style.marginTop = '16px';
     card.innerHTML = `<div class="etb-pincard" style="padding:6px 4px"><div><h3 style="margin:0">${L().uninT}</h3><p class="s" style="margin:4px 0 0;max-width:480px">${L().uninD}</p></div><div class="b"><button type="button">${L().uninBtn}</button></div></div>`;
     $('button', card).onclick = async () => { const r = await ask('uninstall'); if (r) ET.toast(L().uninOk); };
-    v.append(card);
+    ($('.st-wrap', v) || v).append(card);
   }
   function extensionCard() {
     const v = $('#view-settings'); if (!v) return;
@@ -381,7 +383,7 @@
       card = document.createElement('div'); card.id = 'etbExt'; card.className = 'glass st-group'; card.style.marginTop = '16px';
       card.innerHTML = `<div class="etb-pincard" style="padding:6px 4px;align-items:flex-start"><div><h3 style="margin:0">${L().extT}</h3><p class="s" id="etbExtS" style="margin:4px 0 0;max-width:520px"></p><p class="s" style="margin:8px 0 0;max-width:520px;opacity:.8">${L().extHow}</p></div><div class="b" style="flex-wrap:wrap;justify-content:flex-end"><button type="button" data-k="extension_folder">${L().extFolder}</button><button type="button" data-k="chrome_extensions">${L().extChrome}</button><button type="button" data-k="edge_extensions">${L().extEdge}</button></div></div>`;
       $$('button', card).forEach((b) => (b.onclick = () => invoke('open_target', { kind: b.dataset.k }).catch(() => {})));
-      v.append(card);
+      ($('.st-wrap', v) || v).append(card);
     }
     const t = $('#etbExtS', card), txt = on ? L().extOn : L().extOff;
     if (t.textContent !== txt) t.textContent = txt;

@@ -28,6 +28,9 @@ fn program_data() -> PathBuf {
 fn data_dir() -> PathBuf {
     program_data().join("EyeTime")
 }
+pub fn desktop_icon_exists() -> bool {
+    desktop_link().exists()
+}
 fn start_menu_link() -> PathBuf {
     program_data().join(r"Microsoft\Windows\Start Menu\Programs\EyeTime.lnk")
 }
@@ -157,6 +160,9 @@ pub fn install(desktop: bool, emit: Emit) {
         Err(Stop::Failed(msg)) => {
             if !upgrade {
                 rollback();
+            } else {
+                // an upgrade that failed must not leave the person without protection: start what is there again
+                let _ = run("sc", &["start", SERVICE]);
             }
             emit(json!({"type": "error", "message": msg}).to_string());
         }
@@ -189,6 +195,8 @@ fn do_install(desktop: bool, upgrade: bool, emit: Emit) -> Result<(), Stop> {
             return Err(Stop::Blocked("challenge"));
         }
         let _ = run("taskkill", &["/f", "/im", "eyetime.exe"]);
+        // the little program in the person's session and the browsers' native hosts use the helper's file: let go of it
+        let _ = run("taskkill", &["/f", "/im", "eyetime-helper.exe"]);
         std::thread::sleep(std::time::Duration::from_millis(600));
     }
     // 1. files
@@ -330,6 +338,7 @@ fn do_uninstall(delete_data: bool, emit: Emit) -> Result<(), Stop> {
         return Err(Stop::Blocked("challenge"));
     }
     let _ = run("taskkill", &["/f", "/im", "eyetime.exe"]);
+    let _ = run("taskkill", &["/f", "/im", "eyetime-helper.exe"]);
     let dir = install_dir();
     // lift every trace of a block: the hosts file, the policies, the safe-mode entry
     step(emit, 2, 45);

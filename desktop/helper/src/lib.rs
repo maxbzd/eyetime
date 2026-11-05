@@ -4,6 +4,7 @@
 pub mod os;
 pub mod sim;
 pub mod supervisor;
+pub mod update;
 
 #[cfg(windows)]
 pub mod agent;

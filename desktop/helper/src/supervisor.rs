@@ -6,7 +6,10 @@ use eyetime_core::catalog::{is_private_title, never_close, BROWSERS, TOOLS_CLOSE
 use eyetime_core::engine::{apply_cools, canonical_key, decide, hour_keys, is_distracting, Decision, Grants};
 use eyetime_core::friction::{days_from_civil, civil_from_days, Challenge, Ledger, Pin, PinResult, Verdict};
 use eyetime_core::hosts;
-use eyetime_core::ipc::{challenge_data, BlockEvent, Fg, Orders, Request, Response, Status, Win};
+use eyetime_core::ipc::{challenge_data, BlockEvent, Fg, Orders, Request, Response, Status, UpdateView, Win};
+use eyetime_core::update::Updated;
+use crate::update::{Phase, Shared};
+use std::sync::{Arc, Mutex};
 use eyetime_core::model::{Now, Session, State, KEYS};
 use eyetime_core::tamper::{boot_time, loosens, unsafe_setup, ClockGuard, MAX_FROZEN_MIN};
 use eyetime_core::usage::Usage;
@@ -40,6 +43,13 @@ pub struct Persist {
     /// minutes of focus sessions finished, by day
     pub focus: BTreeMap<String, u32>,
     pub last_seen_ms: i64,
+    /// automatic updates are on unless this is set
+    pub auto_off: bool,
+    /// the update that was started and has not been seen to finish
+    pub pending_update: Option<Updated>,
+    pub relaunch_app: bool,
+    /// an update that was just installed, until the window has shown what is new
+    pub updated: Option<Updated>,
 }
 
 struct Pending {
@@ -72,6 +82,7 @@ pub struct Supervisor<O: Os> {
     last_event: HashMap<String, i64>,
     applied: Applied,
     hosts_ok: bool,
+    pub upd: Arc<Mutex<Shared>>,
     closing: HashMap<u32, i64>,
     dirty: bool,
     last_save: i64,
@@ -104,6 +115,7 @@ impl<O: Os> Supervisor<O> {
             last_event: HashMap::new(),
             applied: Applied::default(),
             hosts_ok: true,
+            upd: Arc::new(Mutex::new(Shared::default())),
             closing: HashMap::new(),
             dirty: false,
             last_save: 0,
@@ -117,6 +129,7 @@ impl<O: Os> Supervisor<O> {
         s.tz = s.os.tz_offset_ms();
         let now = Now::from_local(floor, s.tz);
         s.recompute(floor, &now);
+        s.settle_update();
         s
     }
 
@@ -168,6 +181,7 @@ impl<O: Os> Supervisor<O> {
 
         self.recompute(t, &now);
         self.enforce(t, &now);
+        self.update_tick(t);
 
         if self.dirty || t - self.last_save > 30_000 {
             self.save(t);
@@ -225,7 +239,7 @@ impl<O: Os> Supervisor<O> {
         };
         let ses = self.p.session.as_ref().filter(|s| s.ends_at_ms > t && self.p.emergency_until_ms <= t);
         let close_pids = std::mem::take(&mut self.orders.close_pids);
-        self.orders = Orders { close_private: self.decision.close_private, mute: ses.map(|s| s.mute).unwrap_or(false), dnd: ses.map(|s| s.dnd).unwrap_or(false), close_pids };
+        self.orders = Orders { close_private: self.decision.close_private, mute: ses.map(|s| s.mute).unwrap_or(false), dnd: ses.map(|s| s.dnd).unwrap_or(false), close_pids, launch_app: false };
     }
 
     // ---------- carrying it out ----------
@@ -382,6 +396,95 @@ impl<O: Os> Supervisor<O> {
         }
     }
 
+    // ---------- updates ----------
+
+    /// After a start: did the update that was begun really finish? If so, the window gets to say what is new; if not, it is told.
+    fn settle_update(&mut self) {
+        if let Some(p) = self.p.pending_update.take() {
+            self.p.uninstall_ok_until_ms = 0; // the permission was only for the installer that has now run
+            if p.to == VERSION {
+                self.p.updated = Some(p);
+            } else {
+                self.p.relaunch_app = false;
+                let mut s = self.upd.lock().unwrap_or_else(|e| e.into_inner());
+                s.error = "The update did not finish. Nothing was changed.".into();
+            }
+            self.dirty = true;
+        }
+    }
+
+    pub fn stopping_for_update(&self) -> bool {
+        self.p.pending_update.is_some()
+    }
+
+    fn update_view(&self, t: i64) -> UpdateView {
+        let s = self.upd.lock().unwrap_or_else(|e| e.into_inner());
+        UpdateView {
+            state: s.phase.name().into(),
+            current: VERSION.into(),
+            info: s.info.clone(),
+            pct: s.pct,
+            error: s.error.clone(),
+            checked_ago_ms: if s.checked_ms > 0 { (self.os.mono_ms() - s.checked_ms).max(0) } else { -1 },
+            auto: !self.p.auto_off,
+            waiting_for_lock: s.want_install && s.phase != Phase::Installing && self.locked_now(t),
+            updated: self.p.updated.clone(),
+        }
+    }
+
+    /// The new installer is run when it is there, wanted, and nothing locked is running. Manually asked: whenever that is.
+    /// By itself: only when nothing is being blocked, so that it never lands in the middle of work.
+    fn update_tick(&mut self, t: i64) {
+        // an installer that was started and never finished (the service is still here after the permission ran out): say so, and allow a new try
+        if self.p.pending_update.is_some() && t > self.p.uninstall_ok_until_ms {
+            self.p.pending_update = None;
+            self.p.relaunch_app = false;
+            self.dirty = true;
+            let mut s = self.upd.lock().unwrap_or_else(|e| e.into_inner());
+            s.error = "The update did not finish. Nothing was changed.".into();
+            s.want_install = false;
+            s.manual = false;
+            s.phase = Phase::Available;
+        }
+        if self.p.pending_update.is_some() {
+            return;
+        }
+        let (phase, want, manual, info, path) = {
+            let mut s = self.upd.lock().unwrap_or_else(|e| e.into_inner());
+            if s.phase == Phase::Available && !self.p.auto_off && !s.want_install {
+                s.want_install = true; // fetch in the background
+            }
+            (s.phase, s.want_install, s.manual, s.info.clone(), s.path.clone())
+        };
+        if phase != Phase::Ready || !want || self.locked_now(t) {
+            return;
+        }
+        let idle = self.p.session.as_ref().map(|s| s.ends_at_ms <= t).unwrap_or(true) && !self.decision.active();
+        if !manual && !idle {
+            return;
+        }
+        let (Some(info), Some(path)) = (info, path) else { return };
+        self.p.pending_update = Some(Updated { from: VERSION.into(), to: info.version.clone(), notes: info.notes.clone() });
+        // the window comes back after the update if the person asked for it, or if it was open
+        let window_open = self.obs.as_ref().map(|o| o.0.iter().any(|w| w.exe.eq_ignore_ascii_case("eyetime.exe"))).unwrap_or(false);
+        self.p.relaunch_app = manual || window_open;
+        self.p.uninstall_ok_until_ms = t + 10 * 60_000; // the service is allowed to be stopped by the installer it is starting
+        self.save(t);
+        match self.os.launch_update(&path) {
+            Ok(()) => self.upd.lock().unwrap_or_else(|e| e.into_inner()).phase = Phase::Installing,
+            Err(e) => {
+                self.p.pending_update = None;
+                self.p.relaunch_app = false;
+                self.p.uninstall_ok_until_ms = 0;
+                let mut s = self.upd.lock().unwrap_or_else(|e| e.into_inner());
+                s.error = format!("The installer could not be started: {e}");
+                s.want_install = false;
+                s.manual = false;
+                s.phase = Phase::Available;
+            }
+        }
+    }
+
     // ---------- requests ----------
 
     fn status(&mut self) -> Status {
@@ -415,6 +518,7 @@ impl<O: Os> Supervisor<O> {
             ext_connected: self.site.as_ref().map(|s| t - s.2 <= 30_000).unwrap_or(false),
             emergency_until_ms: self.p.emergency_until_ms,
             focus_minutes: focus,
+            update: self.update_view(t),
         }
     }
 
@@ -456,7 +560,39 @@ impl<O: Os> Supervisor<O> {
 
             Request::Observe { fg, idle_secs, windows, screen_locked } => {
                 self.obs = Some((windows, fg, idle_secs, screen_locked, t));
-                Response::ok(&self.orders)
+                let mut o = self.orders.clone();
+                if self.p.relaunch_app && self.p.pending_update.is_none() {
+                    o.launch_app = true; // once: the window comes back after an update
+                    self.p.relaunch_app = false;
+                    self.dirty = true;
+                }
+                Response::ok(&o)
+            }
+            Request::UpdateCheck => {
+                self.upd.lock().unwrap_or_else(|e| e.into_inner()).want_check = true;
+                Response::ok(self.update_view(t))
+            }
+            Request::UpdateInstall => {
+                {
+                    let mut s = self.upd.lock().unwrap_or_else(|e| e.into_inner());
+                    if !matches!(s.phase, Phase::Available | Phase::Ready | Phase::Downloading | Phase::Installing) {
+                        return Response::err("none", "There is no update to install");
+                    }
+                    s.want_install = true;
+                    s.manual = true;
+                }
+                self.update_tick(t);
+                Response::ok(self.update_view(t))
+            }
+            Request::UpdateSetAuto { on } => {
+                self.p.auto_off = !on;
+                self.dirty = true;
+                Response::ok(self.update_view(t))
+            }
+            Request::UpdateAck => {
+                self.p.updated = None;
+                self.dirty = true;
+                Response::done()
             }
             Request::Site { host, incognito, browser: _ } => {
                 let h = host.as_deref().map(lower).unwrap_or_default();
