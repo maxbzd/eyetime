@@ -123,7 +123,7 @@
   .upd-conf i{position:absolute;top:96px;left:50%;width:6px;height:6px;border-radius:50%;opacity:0;animation:updConf 1.8s var(--out-expo,ease) forwards}
   @keyframes updConf{0%{opacity:1;transform:translate(0,0) scale(.4)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1)}}
   #updAutoRow .c{display:flex;align-items:center}
-  #updSeeRow[hidden]{display:none}
+  .upd-see[hidden]{display:none}
   @media (prefers-reduced-motion:reduce){.upd-chip,.upd-chip::after,.upd-orb .arrow,.upd-eye::before,.upd-eye .pupil,.upd-ver svg,.upd-bar i::after,.upd-card.installing .upd-eye .sparks,.upd-card.installing .upd-eye .pg,.upd-conf i{animation:none!important}}
   `;
   document.head.append(css);
@@ -240,11 +240,10 @@
       grp.dataset.upd = '1'; grp.id = 'etbUpdGroup';
       const row = old.closest('.st-row'), nb = old.cloneNode(true); old.replaceWith(nb); nb.id = 'sUpd'; nb.onclick = () => send('update_check');
       if (!$('.t span', row)) $('.t', row).append(document.createElement('span'));
-      row.insertAdjacentHTML('afterend', `<div class="st-row" id="updAutoRow"><div class="t"><b></b><span></span></div><div class="c"><button class="upd-sw" type="button" role="switch" aria-checked="false"></button></div></div>
-        <div class="st-row" id="updSeeRow" hidden><div class="t"><b></b></div><div class="c"><button class="btn-s" type="button"></button></div></div>`);
+      row.insertAdjacentHTML('afterend', `<div class="st-row" id="updAutoRow"><div class="t"><b></b><span></span></div><div class="c"><button class="upd-sw" type="button" role="switch" aria-checked="false"></button></div></div>`);
+      const seeBtn = document.createElement('button'); seeBtn.type = 'button'; seeBtn.className = 'btn-s upd-see'; seeBtn.hidden = true; nb.before(seeBtn); seeBtn.onclick = () => openSheet();
       const sw = $('#updAutoRow .upd-sw', grp); const flip = async () => { const on = sw.getAttribute('aria-checked') !== 'true'; sw.setAttribute('aria-checked', String(on)); await send('update_set_auto', { on }); };
       sw.onclick = (e) => { e.stopPropagation(); flip(); }; $('#updAutoRow', grp).onclick = (e) => { if (e.target !== sw) flip(); };
-      $('#updSeeRow button', grp).onclick = () => openSheet();
     }
     if (!u) return;
     const rows = grp.querySelectorAll('.st-row'), verRow = rows[0], chkRow = rows[1];
@@ -255,8 +254,8 @@
     chk.disabled = u.state === 'checking' || u.state === 'downloading' || u.state === 'installing';
     const [a, ad] = $('#updAutoRow', grp).querySelectorAll('b,span'); set(a, L().auto); set(ad, L().autoD);
     $('#updAutoRow .upd-sw', grp).setAttribute('aria-checked', String(!!u.auto));
-    const see = $('#updSeeRow', grp), show = !!(u.info && ['available', 'downloading', 'ready'].includes(u.state));
-    see.hidden = !show; set($('.t b', see), L().setNew(u.info ? u.info.version : '')); set($('button', see), L().open);
+    const see = $('.upd-see', grp), show = !!(u.info && ['available', 'downloading', 'ready'].includes(u.state));
+    see.hidden = !show; set(see, L().open);
   }
   new MutationObserver(settingsCard).observe(document.body, { childList: true, subtree: true });
   document.addEventListener('et-settings-shown', settingsCard);
