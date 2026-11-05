@@ -2,7 +2,7 @@
 //! Nothing is hidden and nothing outside these paths is touched. Windows commands are run through the tools Windows ships with
 //! (sc, reg, icacls, powershell), so that what happens is easy to read and to check by hand.
 
-use crate::payload::FILES;
+use crate::payload::{EXTENSION, FILES};
 use serde_json::json;
 use std::io::{BufRead, BufReader, Write};
 use std::path::PathBuf;
@@ -11,6 +11,9 @@ use std::process::{Command, Stdio};
 pub const SERVICE: &str = "EyeTimeHelper";
 const PIPE: &str = r"\\.\pipe\eyetime-helper";
 const VERSION: &str = env!("CARGO_PKG_VERSION");
+/// the fixed id of the browser extension (its manifest carries the key this comes from)
+const EXT_ID: &str = "ohpkalpfhikadmajknogifbcljaennho";
+const NATIVE_KEYS: [&str; 3] = [r"HKLM\SOFTWARE\Google\Chrome\NativeMessagingHosts\com.eyetime.helper", r"HKLM\SOFTWARE\Microsoft\Edge\NativeMessagingHosts\com.eyetime.helper", r"HKLM\SOFTWARE\BraveSoftware\Brave-Browser\NativeMessagingHosts\com.eyetime.helper"];
 const UNINSTALL_KEY: &str = r"HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\EyeTime";
 
 fn program_files() -> PathBuf {
@@ -224,6 +227,20 @@ fn do_install(desktop: bool, upgrade: bool, emit: Emit) -> Result<(), Stop> {
     let sddl = "D:(A;;CCLCSWRPWPDTLOCRRC;;;SY)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;LCRPLOCRRC;;;IU)(A;;LCRPLOCRRC;;;SU)";
     let _ = run("sc", &["sdset", SERVICE, sddl]);
     let _ = run("icacls", &[&dir.display().to_string(), "/inheritance:r", "/grant:r", "SYSTEM:(OI)(CI)F", "Administrators:(OI)(CI)F", "Users:(OI)(CI)RX"]);
+    // the browser extension: its files, and the note that tells browsers where the native host is
+    let extdir = dir.join("extension");
+    std::fs::create_dir_all(&extdir).map_err(|e| format!("extension: {e}"))?;
+    for (name, bytes) in EXTENSION {
+        std::fs::write(extdir.join(name), bytes).map_err(|e| format!("extension\\{name}: {e}"))?;
+    }
+    let manifest = json!({"name": "com.eyetime.helper", "description": "EyeTime helper", "path": helper.display().to_string(), "type": "stdio", "allowed_origins": [format!("chrome-extension://{EXT_ID}/")]});
+    let mpath = dir.join("native-host.json");
+    std::fs::write(&mpath, serde_json::to_string_pretty(&manifest).unwrap_or_default()).map_err(|e| format!("native-host.json: {e}"))?;
+    for key in NATIVE_KEYS {
+        for view in ["/reg:64", "/reg:32"] {
+            let _ = run("reg", &["add", key, "/ve", "/t", "REG_SZ", "/d", &mpath.display().to_string(), "/f", view]);
+        }
+    }
     // 4. shortcuts and the entry in "Apps & features"
     step(emit, 4, 80);
     let app = dir.join("eyetime.exe");
@@ -324,6 +341,13 @@ fn do_uninstall(delete_data: bool, emit: Emit) -> Result<(), Stop> {
         let _ = run("reg", &["delete", &format!(r"HKLM\SYSTEM\CurrentControlSet\Control\SafeBoot\{net}\{SERVICE}"), "/f"]);
     }
     let _ = run("sc", &["delete", SERVICE]);
+    for key in NATIVE_KEYS {
+        for view in ["/reg:64", "/reg:32"] {
+            let _ = run("reg", &["delete", key, "/f", view]);
+        }
+    }
+    let _ = std::fs::remove_dir_all(dir.join("extension"));
+    let _ = std::fs::remove_file(dir.join("native-host.json"));
     // files
     step(emit, 3, 70);
     let _ = std::fs::remove_file(start_menu_link());

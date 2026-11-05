@@ -760,6 +760,8 @@ const DAYS = [
 const NOW_BAR = 13; // 2:30 PM of 24 half-hours from 8:00 to 20:00
 function barData(seed) { let s = seed * 9301 + 49297; const r = () => (s = (s * 9301 + 49297) % 233280) / 233280; return Array.from({ length: 24 }, (_, i) => { const lunch = i >= 8 && i <= 10, focusy = i < 8 || (i > 11 && i < 22); const f = Math.round((focusy ? 14 + r() * 14 : 4 + r() * 8)), d = Math.round((lunch ? 12 + r() * 12 : 1 + r() * 9)); return [clamp(f, 0, 30), clamp(d, 0, 30 - 0)]; }); }
 const BARS = [barData(3), barData(8), barData(5)];
+/* the real app starts from nothing, not from the demo numbers; the helper fills this in */
+if (window.__TAURI__) { DAYS.length = 1; DAYS[0] = { score: 0, focus: 0, eyes: 0, rest: 0, delta: 0, screen: 0, focusPct: 0, switches: 0, offline: 0, offPct: 0, spec: 0 }; BARS.length = 1; BARS[0] = Array.from({ length: 24 }, () => [0, 0]); }
 let dayOffset = 0, state = { ...DAYS[0] }, booted = false;
 
 /* ============================================================ count-up numbers */
@@ -1253,7 +1255,17 @@ Object.assign(ET, {
   setBlockCard(c) { realCard = c; if (blockedNow) renderBlockCard(); },
   unblockGranted(m) { unMin = m; blockedNow = false; openUntil = Date.now() + m * 60000; renderBlockCard(); clearInterval(openTimer); tickOpen(); openTimer = setInterval(tickOpen, 250); },
   askUnblockMinutes: () => unMin,
-  setHome(d) { const sig = JSON.stringify(d); if (sig === ET._homeSig) return; ET._homeSig = sig; if (dayOffset !== 0 || !booted) { DAYS[0] = { ...DAYS[0], ...d.day }; if (d.bars) BARS[0] = d.bars; return; } DAYS[0] = { ...DAYS[0], ...d.day }; state = { ...DAYS[0] }; if (d.bars) { BARS[0] = d.bars; buildChart(BARS[0]); } countBig(state.screen, 600); countTo($('#focusPct'), state.focusPct, 600, (v) => Math.round(v) + '%'); countTo($('#switchNum'), state.switches, 400); countTo($('#scoreVal'), state.score, 600); paintGauges(600); drawOffline(); $('#offlineMeter').style.width = state.offPct + '%'; countTo($('#offlineVal'), state.offline, 600, (v) => W().hm(Math.floor(v / 60), Math.round(v) % 60)); },
+  setHome(d) { const sig = JSON.stringify(d); if (sig === ET._homeSig) return; ET._homeSig = sig;
+    ET._noData = !!d.day.empty;
+    if (d.day.empty) { /* nothing has been counted yet: say so instead of showing a perfect score */
+      const dash = '—', msg = lang === 'ru' ? 'Данных пока нет. Они появятся, когда вы начнёте работать.' : 'No data yet. It appears as you work.';
+      DAYS[0] = { ...DAYS[0], ...d.day }; state = { ...DAYS[0] }; if (d.bars) { BARS[0] = d.bars; buildChart(BARS[0]); }
+      $('#scoreVal').textContent = dash; $('#focusPct').textContent = dash; drawBig(); $('#switchNum').textContent = '0'; drawOffline();
+      $$('.gauge').forEach((g) => { if (g.dataset.g !== 'eyes') { g.querySelector('.gv').textContent = dash; g.querySelector('rect.fill').style.strokeDashoffset = '100'; } });
+      $('#scoreDelta').style.visibility = 'hidden'; $('#specHead').textContent = msg; $('#specPin').style.opacity = '0'; $('#offlineMeter').style.width = '0%';
+      return;
+    }
+    $('#specPin').style.opacity = ''; if (dayOffset !== 0 || !booted) { DAYS[0] = { ...DAYS[0], ...d.day }; if (d.bars) BARS[0] = d.bars; return; } DAYS[0] = { ...DAYS[0], ...d.day }; state = { ...DAYS[0] }; if (d.bars) { BARS[0] = d.bars; buildChart(BARS[0]); } countBig(state.screen, 600); countTo($('#focusPct'), state.focusPct, 600, (v) => Math.round(v) + '%'); countTo($('#switchNum'), state.switches, 400); countTo($('#scoreVal'), state.score, 600); paintGauges(600); drawOffline(); $('#offlineMeter').style.width = state.offPct + '%'; countTo($('#offlineVal'), state.offline, 600, (v) => W().hm(Math.floor(v / 60), Math.round(v) % 60)); },
   setStreak(n) { $('#streakNum').textContent = $('#flameNum').textContent = String(n); },
   /* a session that was already running when the window opened: no countdown, straight to the lake */
   resumeRun(ses, leftSec, totalSec) { if (run.on) return; Object.assign(S, { name: ses.name, min: Math.round(totalSec / 60), diff: ses.level, scene: ses.scene || S.scene }); beginRun(); run.total = totalSec; run.left = leftSec; run.startedAt = ses.startedAtMs; $('#tStart').textContent = fmtClock(ses.startedAtMs); $('#tEnd').textContent = fmtClock(ses.endsAtMs); },

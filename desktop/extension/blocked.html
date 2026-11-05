@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>EyeTime</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; }
+  body { min-height: 100vh; display: grid; place-items: center; background: radial-gradient(120% 90% at 50% 20%, #12332e 0%, #070d14 60%); color: #eaf2ff; font: 16px/1.5 'Segoe UI', system-ui, sans-serif; }
+  main { text-align: center; padding: 32px; max-width: 520px; }
+  .ring { width: 84px; height: 84px; margin: 0 auto 26px; border-radius: 50%; display: grid; place-items: center; background: rgba(140, 242, 198, .08); border: 1px solid rgba(140, 242, 198, .35); box-shadow: 0 0 60px rgba(140, 242, 198, .25); }
+  svg { width: 38px; height: 38px; stroke: #8cf2c6; fill: none; stroke-width: 1.7; }
+  h1 { font-weight: 400; font-size: 30px; letter-spacing: .2px; }
+  p { color: #9fb0c8; margin-top: 10px; }
+  .host { color: #eaf2ff; font-weight: 600; word-break: break-all; }
+  small { display: block; margin-top: 28px; color: #6c7d95; }
+</style>
+</head>
+<body>
+<main>
+  <div class="ring"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg></div>
+  <h1 id="t"></h1>
+  <p id="s"></p>
+  <small id="f"></small>
+</main>
+<script src="blocked.js"></script>
+</body>
+</html>

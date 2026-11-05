@@ -17,4 +17,17 @@ fn main() {
         }
     }
     writeln!(f, "];").unwrap();
+    // the browser extension (a folder of small files), written next to the program
+    writeln!(f, "pub const EXTENSION: &[(&str, &[u8])] = &[").unwrap();
+    let ext = std::path::Path::new(&std::env::var("CARGO_MANIFEST_DIR").unwrap()).join("../extension");
+    println!("cargo:rerun-if-changed={}", ext.display());
+    if let Ok(rd) = std::fs::read_dir(&ext) {
+        for e in rd.flatten() {
+            let name = e.file_name().to_string_lossy().to_string();
+            if e.path().is_file() && !name.ends_with(".test.js") && !name.ends_with(".md") {
+                writeln!(f, "    ({:?}, include_bytes!({:?})),", name, e.path().canonicalize().unwrap().to_string_lossy().replace('\\', "/")).unwrap();
+            }
+        }
+    }
+    writeln!(f, "];").unwrap();
 }
