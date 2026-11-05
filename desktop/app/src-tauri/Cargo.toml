@@ -14,3 +14,6 @@ tauri-plugin-single-instance = "2"
 tauri-plugin-autostart = "2"
 serde = { workspace = true }
 serde_json = { workspace = true }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_SystemInformation", "Win32_UI_Input_KeyboardAndMouse"] }
