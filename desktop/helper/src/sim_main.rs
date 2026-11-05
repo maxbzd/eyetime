@@ -94,6 +94,53 @@ fn serve(mut conn: TcpStream, sup: &Arc<Mutex<Supervisor<Fake>>>, world: &Arc<Mu
             if let Some(h) = v["hosts"].as_str() {
                 w.hosts = h.into();
             }
+            // the update, as the screens should see it: {"update":{"phase":"downloading","pct":40,"version":"0.2.0","notes":[..],"size":6500000,"error":"","ago":60000}}
+            if let Some(u) = v.get("update") {
+                let sup = sup.lock().unwrap();
+                let mut s = sup.upd.lock().unwrap();
+                use eyetime_helper::update::Phase;
+                if let Some(p) = u["phase"].as_str() {
+                    s.phase = match p {
+                        "checking" => Phase::Checking,
+                        "available" => Phase::Available,
+                        "downloading" => Phase::Downloading,
+                        "ready" => Phase::Ready,
+                        "installing" => Phase::Installing,
+                        "error" => Phase::Error,
+                        _ => Phase::Idle,
+                    };
+                }
+                if matches!(s.phase, Phase::Ready | Phase::Installing) {
+                    s.path = Some(std::path::PathBuf::from("C:/ProgramData/EyeTime/update/EyeTime-Setup.exe"));
+                }
+                if let Some(p) = u["pct"].as_u64() {
+                    s.pct = p as u32;
+                }
+                if let Some(e) = u["error"].as_str() {
+                    s.error = e.into();
+                }
+                if let Some(a) = u["ago"].as_i64() {
+                    s.checked_ms = w.mono - a;
+                }
+                if let Some(ver) = u["version"].as_str() {
+                    s.info = Some(eyetime_core::update::UpdateInfo {
+                        version: ver.into(),
+                        notes: u["notes"].as_array().map(|n| n.iter().filter_map(|x| x.as_str().map(String::from)).collect()).unwrap_or_default(),
+                        url: "x".into(),
+                        sha256: "0".repeat(64),
+                        size: u["size"].as_u64().unwrap_or(0),
+                    });
+                } else if u["none"].as_bool().unwrap_or(false) {
+                    s.info = None;
+                }
+                if let Some(wl) = u["want_install"].as_bool() {
+                    s.want_install = wl;
+                }
+            }
+            if let Some(u) = v.get("updated") {
+                let mut sup = sup.lock().unwrap();
+                sup.p.updated = serde_json::from_value(u.clone()).ok();
+            }
             let mut sc = scene.lock().unwrap();
             if v.get("fg").is_some() {
                 sc.fg = v["fg"].as_str().map(|s| s.to_string());
@@ -108,7 +155,7 @@ fn serve(mut conn: TcpStream, sup: &Arc<Mutex<Supervisor<Fake>>>, world: &Arc<Mu
         }
         ("GET", "/world") => {
             let w = world.lock().unwrap();
-            (200, "application/json", serde_json::to_vec(&json!({"hosts": w.hosts, "killed": w.killed, "taskmgr": w.taskmgr, "awake": w.awake, "doh": w.doh, "safeboot": w.safeboot})).unwrap())
+            (200, "application/json", serde_json::to_vec(&json!({"hosts": w.hosts, "killed": w.killed, "taskmgr": w.taskmgr, "awake": w.awake, "doh": w.doh, "safeboot": w.safeboot, "launched": w.launched.len()})).unwrap())
         }
         ("GET", p) => {
             let rel = p.split('?').next().unwrap_or("/").trim_start_matches('/');
