@@ -83,7 +83,7 @@ Get-Process msedgewebview2 -ErrorAction SilentlyContinue | Select-Object -First 
 if ($alive) {
   Write-Host "== click through the real window"
   Push-Location (Split-Path $PSScriptRoot -Parent)
-  npm install --no-save playwright 2>&1 | Select-Object -Last 2
+  npm install --no-save playwright@1.56.1 2>&1 | Select-Object -Last 2
   $env:OUT = (Resolve-Path $Out).Path
   node tests/win_ui.cjs 2>&1 | Tee-Object -FilePath "$Out\ui.log"
   Check ($LASTEXITCODE -eq 0) "the window works when clicked through (see ui.log and ui_*.png)"
