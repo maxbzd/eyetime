@@ -2,12 +2,37 @@
 (() => {
   const ET = window.ET, { $, $$, clamp, wait, reduced, toast, store, countTo } = ET;
   const D = {
-    en: { title: 'Profile', name: 'Alex', since: 'Focusing since November 2026', hours: 'Focus hours', streak: 'Day streak', sessions: 'Sessions', gems: 'Gemstones', gemsS: 'Earned by habits, never by time spent in the app. Tap a stone to see how.', owned: 'Owned', locked: 'Locked', progress: (a, b, u) => `${a} / ${b} ${u}`, apply: 'Use as the app colour', applied: 'This is your app colour', lockedBtn: 'Keep going', week: 'Your week', weekS: 'Screen time against your own average.', saved: 'Time saved', savedS: 'Compared with your average week.', lower: (p) => `${p}% lower`, close: 'Close', settings: 'Settings', theme: (n) => `${n} is now the colour of EyeTime`, days: ['M', 'T', 'W', 'T', 'F', 'S', 'S'], reached: 'Reached', how: 'How to get it',
+    en: { title: 'Profile', name: 'Alex', since: 'Focusing since November 2026', sinceP: 'With EyeTime since', hours: 'Focus hours', streak: 'Day streak', sessions: 'Sessions', gems: 'Gemstones', gemsS: 'Earned by habits, never by time spent in the app. Tap a stone to see how.', owned: 'Owned', locked: 'Locked', progress: (a, b, u) => `${a} / ${b} ${u}`, apply: 'Use as the app colour', applied: 'This is your app colour', lockedBtn: 'Keep going', week: 'Your week', weekS: 'Screen time against your own average.', saved: 'Time saved', savedS: 'Compared with your average week.', lower: (p) => `${p}% lower`, close: 'Close', settings: 'Settings', theme: (n) => `${n} is now the colour of EyeTime`, days: ['M', 'T', 'W', 'T', 'F', 'S', 'S'], reached: 'Reached', how: 'How to get it',
       list: [['First Light', 'Finish your first focus session.', 1, 1, 'sessions', .0, 1], ['Spark', 'Focus on two days in a row.', 2, 2, 'days', .55, 2], ['Invested', 'Collect 10 hours of focus.', 10, 10, 'hours', .2, 3], ['Calm Eyes', 'Take 50 eye breaks.', 41, 50, 'breaks', -.32, 5], ['Unwavering', 'Focus on seven days in a row.', 5, 7, 'days', -.12, 4], ['Night Guard', 'Stay off screen after 22:00 for seven nights.', 3, 7, 'nights', .72, 6], ['Deep Diver', 'Collect 100 hours of focus.', 64, 100, 'hours', .38, 8], ['Radiant', 'Focus on thirty days in a row.', 5, 30, 'days', .95, 7]] },
-    ru: { title: 'Профиль', name: 'Алекс', since: 'Фокусируется с ноября 2026', hours: 'Часов фокуса', streak: 'Дней подряд', sessions: 'Сессий', gems: 'Камни', gemsS: 'Их дают за привычки, а не за время в приложении. Нажмите на камень, чтобы узнать как.', owned: 'Получен', locked: 'Закрыт', progress: (a, b, u) => `${a} / ${b} ${u}`, apply: 'Сделать цветом приложения', applied: 'Это цвет вашего приложения', lockedBtn: 'Продолжайте', week: 'Ваша неделя', weekS: 'Время за экраном против вашего среднего.', saved: 'Сэкономлено времени', savedS: 'В сравнении с вашей средней неделей.', lower: (p) => `на ${p}% меньше`, close: 'Закрыть', settings: 'Настройки', theme: (n) => `«${n}» теперь цвет EyeTime`, days: ['П', 'В', 'С', 'Ч', 'П', 'С', 'В'], reached: 'Получен', how: 'Как получить',
+    ru: { title: 'Профиль', name: 'Алекс', since: 'Фокусируется с ноября 2026', sinceP: 'С EyeTime с', hours: 'Часов фокуса', streak: 'Дней подряд', sessions: 'Сессий', gems: 'Камни', gemsS: 'Их дают за привычки, а не за время в приложении. Нажмите на камень, чтобы узнать как.', owned: 'Получен', locked: 'Закрыт', progress: (a, b, u) => `${a} / ${b} ${u}`, apply: 'Сделать цветом приложения', applied: 'Это цвет вашего приложения', lockedBtn: 'Продолжайте', week: 'Ваша неделя', weekS: 'Время за экраном против вашего среднего.', saved: 'Сэкономлено времени', savedS: 'В сравнении с вашей средней неделей.', lower: (p) => `на ${p}% меньше`, close: 'Закрыть', settings: 'Настройки', theme: (n) => `«${n}» теперь цвет EyeTime`, days: ['П', 'В', 'С', 'Ч', 'П', 'С', 'В'], reached: 'Получен', how: 'Как получить',
       list: [['Первый свет', 'Завершите первую сессию фокуса.', 1, 1, 'сессий', .0, 1], ['Искра', 'Фокусируйтесь два дня подряд.', 2, 2, 'дн.', .55, 2], ['Вложение', 'Наберите 10 часов фокуса.', 10, 10, 'ч', .2, 3], ['Спокойные глаза', 'Сделайте 50 перерывов для глаз.', 41, 50, 'перерывов', -.32, 5], ['Несгибаемый', 'Фокусируйтесь семь дней подряд.', 5, 7, 'дн.', -.12, 4], ['Ночной страж', 'Не садитесь за экран после 22:00 семь ночей.', 3, 7, 'ночей', .72, 6], ['Глубокое погружение', 'Наберите 100 часов фокуса.', 64, 100, 'ч', .38, 8], ['Сияющий', 'Фокусируйтесь тридцать дней подряд.', 5, 30, 'дн.', .95, 7]] },
   };
-  const L = () => D[ET.lang()] || D.en;
+  const base = () => D[ET.lang()] || D.en;
+
+  /* ---------------- the real numbers (inside the app) ---------------- */
+  const REAL = !!window.__TAURI__;
+  let realName = '';
+  if (REAL) { try { window.__TAURI__.core.invoke('user_name').then((n) => { realName = n || ''; if (root) { const e = $('#pfName'); if (e) e.textContent = realName || L().name; } }).catch(() => {}); } catch { /* the generic name stays */ } }
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const dayKey = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  function realStats() {
+    const B = window.ETB, st = (B && B.getStatus && B.getStatus()) || {}, ud = (B && B.usageDays && B.usageDays()) || {}, t = st.totals || {};
+    let eyes = {}; try { eyes = JSON.parse(localStorage.getItem('et-eyes') || '{}'); } catch { /* none */ }
+    const at = (back) => { const d = new Date(); d.setDate(d.getDate() - back); const k = dayKey(d); return { d, u: back === 0 && st.today ? st.today : ud[k] || null }; };
+    const secs = (u) => Object.values((u && u.secs) || {}).reduce((a, b) => a + b, 0);
+    let nights = 0; for (let b = 0; b < 35; b++) { const u = at(b).u; if (u && secs(u) > 0 && !(((u.hours || [])[22] || 0) + ((u.hours || [])[23] || 0))) nights++; }
+    const week = Array.from({ length: 7 }, (_, i) => { const r = at(6 - i); return { d: r.d, min: Math.round(secs(r.u) / 60), off: (r.u && r.u.offline_secs) || 0 }; });
+    const rest = []; for (let b = 7; b < 35; b++) { const u = at(b).u; if (u && secs(u) > 0) rest.push(secs(u) / 60); }
+    const avgDay = rest.length >= 3 ? rest.reduce((a, b) => a + b, 0) / rest.length : 0, thisWeek = week.reduce((a, b) => a + b.min, 0);
+    return { hours: (t.focusMin || 0) / 60, streak: st.streakDays || 0, sessions: t.sessions || 0, best: Math.max(t.bestStreak || 0, st.streakDays || 0), eyes: Object.values(eyes).reduce((a, b) => a + b, 0), nights, week, since: t.sinceDay || '', saved: avgDay ? Math.max(0, Math.round(avgDay * 7 - thisWeek)) : null, avgWeek: avgDay * 7 };
+  }
+  const fmtH = (h) => (h >= 10 ? String(Math.floor(h)) : (Math.round(h * 10) / 10).toString().replace('.', ET.lang() === 'ru' ? ',' : '.'));
+  function withReal(l) {
+    const R = realStats(), have = [R.sessions, R.best, Math.floor(R.hours), R.eyes, R.best, R.nights, Math.floor(R.hours), R.best];
+    const since = (() => { if (!R.since) return ''; const d = new Date(R.since + 'T12:00:00'); return `${l.sinceP} ${d.toLocaleDateString(ET.lang() === 'ru' ? 'ru-RU' : 'en-US', { month: 'long', year: 'numeric' })}`; })();
+    return { ...l, name: realName || 'EyeTime', since, list: l.list.map((x, i) => [x[0], x[1], Math.min(have[i], x[3]), x[3], x[4], x[5], x[6]]), R };
+  }
+  const L = () => (REAL ? withReal(base()) : base());
   const ico = (n, c = '') => `<svg class="ico ${c}"><use href="#i-${n}"/></svg>`;
   const css = document.createElement('style'); css.textContent = `
   .pf-top { position: relative; text-align: center; padding: 18px 0 8px; }
@@ -48,7 +73,9 @@
   }
   function render() {
     const l = L(), el = root; $('#pfName').textContent = l.name; $('#pfSince').textContent = l.since; $('#pfHl').textContent = l.hours; $('#pfSl').textContent = l.streak; $('#pfNl').textContent = l.sessions; $('#pfG').textContent = l.gems; $('#pfGs').textContent = l.gemsS; $('#pfW').textContent = l.week; $('#pfWs').textContent = l.weekS; $('#pfSv').textContent = l.saved; $('#pfSvs').textContent = l.savedS; $('#pfGear').setAttribute('aria-label', l.settings); $('#gdClose').setAttribute('aria-label', l.close);
-    countTo($('#pfH'), 128, 1500); countTo($('#pfS'), 5, 900); countTo($('#pfN'), 214, 1500);
+    const V = REAL ? { h: l.R.hours, s: l.R.streak, n: l.R.sessions } : { h: 128, s: 5, n: 214 };
+    if (REAL && V.h < 10) { $('#pfH').textContent = fmtH(V.h); } else countTo($('#pfH'), Math.floor(V.h), 1500);
+    countTo($('#pfS'), V.s, 900); countTo($('#pfN'), V.n, 1500);
     const shelf = $('#pfShelf'); shelf.innerHTML = '';
     l.list.forEach(([name, desc, have, need, unit, hue, seed], i) => {
       const own = have >= need, g = document.createElement('button'); g.className = 'gm rise' + (own ? '' : ' lk'); g.style.setProperty('--d', 120 + i * 60); g.style.setProperty('--i', i); g.type = 'button'; g.setAttribute('aria-label', `${name}: ${own ? l.owned : l.progress(have, need, unit)}`);
@@ -56,8 +83,9 @@
       g.addEventListener('click', () => openGem(i)); shelf.append(g); const bar = $('.pbar i', g); if (bar) setTimeout(() => { bar.style.width = bar.dataset.w + '%'; }, 80);
     });
     makeStills();
-    const days = [210, 190, 240, 175, 205, 90, 120], mx = 260; $('#pfBars').innerHTML = days.map((v, i) => `<div class="${i === 2 ? 'today' : ''}"><i style="--i:${i};height:${(v / mx) * 100}%"></i>${l.days[i]}</div>`).join('');
-    $('#pfSvv').textContent = ET.lang() === 'ru' ? '6 ч 20 м' : '6h 20m'; setTimeout(() => { $('#pfRing').style.strokeDashoffset = '30'; }, 50);
+    const wk = REAL ? l.R.week : null, days = REAL ? wk.map((x) => x.min) : [210, 190, 240, 175, 205, 90, 120], mx = REAL ? Math.max(60, ...days) * 1.1 : 260; $('#pfBars').innerHTML = days.map((v, i) => `<div class="${(REAL ? i === 6 : i === 2) ? 'today' : ''}"><i style="--i:${i};height:${Math.max(2, (v / mx) * 100)}%"></i>${REAL ? l.days[(wk[i].d.getDay() + 6) % 7] : l.days[i]}</div>`).join('');
+    if (REAL) { const sv = l.R.saved, ru = ET.lang() === 'ru'; $('#pfSvv').textContent = sv === null ? '—' : `${Math.floor(sv / 60)}${ru ? ' ч ' : 'h '}${sv % 60}${ru ? ' м' : 'm'}`; $('#pfSvs').textContent = sv === null ? (ru ? 'Нужно несколько дней, чтобы сравнить.' : 'It needs a few days to compare.') : l.savedS; setTimeout(() => { $('#pfRing').style.strokeDashoffset = String(sv === null || !l.R.avgWeek ? 100 : Math.max(2, 100 - (100 * sv) / l.R.avgWeek)); }, 50); }
+    else { $('#pfSvv').textContent = ET.lang() === 'ru' ? '6 ч 20 м' : '6h 20m'; setTimeout(() => { $('#pfRing').style.strokeDashoffset = '30'; }, 50); }
   }
   let making = false, shelf = [], bigLive = null;
   async function makeStills() {
@@ -78,5 +106,5 @@
     $('#gd').style.setProperty('--gd-rgb', own ? '30,80,70' : '30,40,44'); $('#gd').classList.add('on'); $('#gdClose').focus({ preventScroll: true });
   }
   function closeGem() { $('#gd').classList.remove('on'); bigLive && bigLive.stop(); bigLive = null; }
-  ET.screens.profile = { title: () => L().title, mount, show: () => { if (root) { countTo($('#pfH'), 128, 1500, undefined, 0); countTo($('#pfN'), 214, 1500, undefined, 0); } } };
+  ET.screens.profile = { title: () => L().title, mount, show: () => { if (!root) return; if (REAL) { const B = window.ETB; (B && B.refreshUsage ? B.refreshUsage() : Promise.resolve()).then(() => render()); } else { countTo($('#pfH'), 128, 1500, undefined, 0); countTo($('#pfN'), 214, 1500, undefined, 0); } } };
 })();

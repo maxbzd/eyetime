@@ -6,7 +6,7 @@ use eyetime_core::catalog::{is_private_title, never_close, BROWSERS, TOOLS_CLOSE
 use eyetime_core::engine::{apply_cools, canonical_key, decide, hour_keys, is_distracting, Decision, Grants};
 use eyetime_core::friction::{days_from_civil, civil_from_days, Challenge, Ledger, Pin, PinResult, Verdict};
 use eyetime_core::hosts;
-use eyetime_core::ipc::{challenge_data, BlockEvent, Fg, Orders, Request, Response, Status, UpdateView, Win};
+use eyetime_core::ipc::{challenge_data, BlockEvent, Fg, Orders, Request, Response, Status, Totals, UpdateView, Win};
 use eyetime_core::update::Updated;
 use crate::update::{Phase, Shared};
 use std::sync::{Arc, Mutex};
@@ -42,6 +42,7 @@ pub struct Persist {
     pub streak_day: String,
     /// minutes of focus sessions finished, by day
     pub focus: BTreeMap<String, u32>,
+    pub totals: Totals,
     pub last_seen_ms: i64,
     /// automatic updates are on unless this is set
     pub auto_off: bool,
@@ -160,6 +161,10 @@ impl<O: Os> Supervisor<O> {
     pub fn tick(&mut self) {
         self.tz = self.os.tz_offset_ms();
         let (t, now) = self.time();
+        if self.p.totals.since_day.is_empty() {
+            self.p.totals.since_day = now.day.clone();
+            self.dirty = true;
+        }
         let dt_ms = (t - self.last_tick).clamp(0, 30_000);
         self.last_tick = t;
 
@@ -219,6 +224,8 @@ impl<O: Os> Supervisor<O> {
         // finished by itself: counts for the streak and the focus minutes
         let mins = ((s.ends_at_ms - s.started_at_ms) / 60_000).max(0) as u32;
         *self.p.focus.entry(now.day.clone()).or_insert(0) += mins;
+        self.p.totals.focus_min += mins as u64;
+        self.p.totals.sessions += 1;
         while self.p.focus.len() > 35 {
             let first = self.p.focus.keys().next().cloned().unwrap();
             self.p.focus.remove(&first);
@@ -227,6 +234,7 @@ impl<O: Os> Supervisor<O> {
             self.p.streak = if self.p.streak_day == Self::yesterday(&now.day) { self.p.streak + 1 } else { 1 };
             self.p.streak_day = now.day.clone();
         }
+        self.p.totals.best_streak = self.p.totals.best_streak.max(self.p.streak);
         self.p.session = None;
         self.dirty = true;
     }
@@ -492,7 +500,7 @@ impl<O: Os> Supervisor<O> {
         let emergency_left = self.p.ledger.clone().left(&self.state.protect, &now.day);
         let mut focus: Vec<u32> = Vec::new();
         if let Some(today) = days_from_civil(&now.day) {
-            for i in (0..14).rev() {
+            for i in (0..35).rev() {
                 let (y, m, d) = civil_from_days(today - i);
                 focus.push(self.p.focus.get(&format!("{y:04}-{m:02}-{d:02}")).copied().unwrap_or(0));
             }
@@ -518,6 +526,7 @@ impl<O: Os> Supervisor<O> {
             ext_connected: self.site.as_ref().map(|s| t - s.2 <= 30_000).unwrap_or(false),
             emergency_until_ms: self.p.emergency_until_ms,
             focus_minutes: focus,
+            totals: self.p.totals.clone(),
             update: self.update_view(t),
         }
     }

@@ -25,7 +25,8 @@
     { id: 'r4', name: 'Late Night', kind: 'schedule', from: '23:00', to: '06:00', days: [0, 1, 2, 3, 4, 5, 6], block: 'all', breaks: true, on: false, glyph: 'moon', level: 2 },
   ];
   const load = (k, d) => { try { const v = JSON.parse(store.get(k)); return v || d; } catch { return d; } };
-  let rules = load('et-rules', DEFAULT_RULES), items = load('et-items', ITEMS);
+  // inside the app nothing is invented: the rules are the ones the person made (the sample rules are for the design preview)
+  let rules = load('et-rules', window.__TAURI__ ? [] : DEFAULT_RULES), items = load('et-items', ITEMS);
   const save = () => { store.set('et-rules', JSON.stringify(rules)); store.set('et-items', JSON.stringify(items)); };
   const tm = (s) => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
   const fmt = (min) => { const m = ((min % 1440) + 1440) % 1440; return ET.lang() === 'ru' ? `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}` : (() => { const h = Math.floor(m / 60); return `${((h + 11) % 12) + 1}:${String(m % 60).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`; })(); };
@@ -73,6 +74,7 @@
   .li .n { flex: 1; min-width: 0; } .li .n b { display: block; font: 600 14px/1.2 var(--font-body); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .li .n span { color: var(--text-3); font: 500 12px/1.2 var(--font-body); }
   .li .mv { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex: none; transition: transform .35s var(--spring), background .2s; } .li .mv:hover { background: rgba(255,255,255,.1); transform: scale(1.15); } .li .mv i { width: 10px; height: 10px; border-radius: 50%; }
   .li-empty { padding: 22px 8px; text-align: center; color: var(--text-3); font: 500 13px/1.3 var(--font-body); border: 1px dashed var(--edge); border-radius: 16px; }
+  .sug { position: absolute; left: 0; width: min(560px, calc(100% - 170px)); top: 52px; z-index: 30; display: none; padding: 6px; border-radius: 20px; background: rgba(12,18,16,.96); border: 1px solid var(--edge-hi); backdrop-filter: blur(24px); box-shadow: 0 24px 60px rgba(0,0,0,.6); } .sug.open { display: block; } .sug button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px 10px; border-radius: 14px; color: var(--text); text-align: left; transition: background .15s; } .sug button:hover, .sug button.on { background: rgba(255,255,255,.08); } .sug .app-tile { margin: 0; width: 34px; height: 34px; border: 0; border-radius: 10px; flex: none; font-size: 12px; } .sug b { font: 600 15px/1.2 var(--font-body); } .sug i { margin-left: auto; font: 500 12px/1 var(--font-body); color: var(--text-3); font-style: normal; }
   .add-row { display: flex; gap: 10px; margin-bottom: 14px; } .add-row input { flex: 1; min-width: 0; height: 46px; padding: 0 18px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid var(--edge); color: var(--text); font: 500 14px/1 var(--font-body); outline: 0; transition: border-color .25s, background .25s; user-select: text; } .add-row input:focus { border-color: rgba(140,242,198,.6); background: rgba(255,255,255,.09); } .add-row input::placeholder { color: var(--text-3); }
   /* editor */
   .sheet.editor { width: min(100%, 500px); padding: 0; max-height: calc(100% - 8px); overflow-y: auto; overflow-x: hidden; border-radius: 36px; } .editor .hero-img { position: relative; height: 188px; background: linear-gradient(180deg, #1c3a4a, #0a1a22); overflow: hidden; } .editor .hero-img canvas { position: absolute; inset: 0; width: 100%; height: 100%; } .editor .hero-img::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.15), rgba(9,13,12,.96)); }
@@ -106,7 +108,7 @@
     $$('#rlTabs button', el).forEach((b) => b.addEventListener('click', () => showTab(b.dataset.t)));
     if (ET.listsExtra) ET.listsExtra($('#rlExtra', el));
     buildEditor(); render(); ET.langHooks.push(() => { render(); $('#tbTitle').textContent = L().title; renderEditor(); });
-    $('#rlAddBtn', el).addEventListener('click', addItem); $('#rlAdd', el).addEventListener('keydown', (e) => { if (e.key === 'Enter') addItem(); });
+    $('#rlAddBtn', el).addEventListener('click', () => addItem()); wireSuggest(el); $('#rlAdd', el).addEventListener('keydown', (e) => { if (e.key === 'Enter') addItem(); });
     setInterval(() => { if (ET.view === 'rules') renderNow(); }, 30000);
   }
   function render() {
@@ -161,10 +163,48 @@
     });
   }
   function move(name, g) { const it = items.find((x) => x.name === name); if (!it || it.g === g) return; it.g = g; save(); renderLists(); renderRules(); toast(L().moved(name, L().list[g])); }
-  function addItem() {
-    const inp = $('#rlAdd'), v = inp.value.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, ''); if (!v) { inp.focus(); return; }
-    if (items.some((x) => x.name.toLowerCase() === v.toLowerCase())) { toast(L().dup); return; }
-    const site = /\./.test(v), hue = [...v].reduce((a, c) => a + c.charCodeAt(0), 0) % 360; items.unshift({ name: v, type: site ? 'site' : 'app', color: `hsl(${hue} 55% 42%)`, g: 'dis' }); save(); inp.value = ''; renderLists(); toast(L().added(v));
+
+  /* ---------------- suggestions while typing: the well-known ones (with their addresses and programs), then every brand we have a mark for ---------------- */
+  const nrm = (s) => String(s || '').normalize('NFKD').toLowerCase().replace(/\+/g, 'plus').replace(/[^a-z0-9а-яё]/g, '');
+  const catalogFind = (name) => { const n = String(name || '').trim().toLowerCase(), k = nrm(name); return (window.ETCatalog || []).find((e) => e.n.toLowerCase() === n || nrm(e.n) === k || e.a.some((a) => a === n || nrm(a) === k)) || null; };
+  function suggest(q) {
+    const k = nrm(q); if (k.length < 1) return [];
+    const out = [], seen = new Set(), score = (names) => { let best = 9; names.forEach((n) => { const m = nrm(n); if (m === k) best = Math.min(best, 0); else if (m.startsWith(k)) best = Math.min(best, 1); else if (m.includes(k) && k.length > 1) best = Math.min(best, 3); }); return best; };
+    (window.ETCatalog || []).forEach((e) => { const s = score([e.n, ...e.a]); if (s < 9) out.push({ s, name: e.n, e, hint: e.d[0] || e.x[0] || '' }); seen.add(nrm(e.n)); });
+    const D = window.ETBrandData;
+    if (D) D.p.forEach(([, , , title]) => { if (seen.has(nrm(title))) return; const s = score([title]); if (s < 9) out.push({ s: s + 1.5, name: title, e: null, hint: '' }); });
+    return out.sort((a, b) => a.s - b.s || a.name.length - b.name.length).slice(0, 8);
+  }
+  function newItem(pick, typed) {
+    const e = pick ? pick.e : catalogFind(typed), name = pick ? pick.name : e ? e.n : typed;
+    const m = window.ETBrands && window.ETBrands.mark(name), hue = [...name].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
+    const site = /\./.test(name);
+    return { name, type: e ? (e.k === 'app' ? 'app' : 'site') : site ? 'site' : 'app', color: m ? m.hex : `hsl(${hue} 55% 42%)`, g: 'dis', domain: e && e.d[0] ? e.d[0] : '', exe: e && e.x[0] ? e.x[0] : '' };
+  }
+  function wireSuggest(el) {
+    const inp = $('#rlAdd', el); if (!inp || inp.dataset.sug) return; inp.dataset.sug = '1';
+    const box = document.createElement('div'); box.className = 'sug'; box.setAttribute('role', 'listbox'); inp.parentElement.style.position = 'relative'; inp.parentElement.append(box);
+    let list = [], at = -1;
+    const paint = () => {
+      box.innerHTML = list.map((x, i) => `<button type="button" role="option" class="${i === at ? 'on' : ''}" data-i="${i}"><span class="app-tile" data-n="${String(x.name).replace(/"/g, '&quot;')}">${x.name.slice(0, 2)}</span><b>${x.name}</b><i>${x.hint || ''}</i></button>`).join('');
+      box.classList.toggle('open', list.length > 0);
+    };
+    const pickAt = (i) => { const x = list[i]; if (!x) return false; addItem(x); list = []; paint(); return true; };
+    inp.addEventListener('input', () => { list = suggest(inp.value); at = -1; paint(); });
+    inp.addEventListener('keydown', (e) => {
+      if (!list.length) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); at = (at + 1) % list.length; paint(); } else if (e.key === 'ArrowUp') { e.preventDefault(); at = (at - 1 + list.length) % list.length; paint(); }
+      else if (e.key === 'Enter' && at >= 0) { e.preventDefault(); e.stopImmediatePropagation(); pickAt(at); } else if (e.key === 'Escape') { list = []; paint(); }
+    }, true);
+    box.addEventListener('mousedown', (e) => { const b = e.target.closest('button'); if (b) { e.preventDefault(); pickAt(+b.dataset.i); } });
+    inp.addEventListener('blur', () => setTimeout(() => { list = []; paint(); }, 120));
+  }
+  ET.suggestApps = suggest;
+  function addItem(pick) {
+    const inp = $('#rlAdd'), v = pick && pick.name ? pick.name : inp.value.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, ''); if (!v) { inp.focus(); return; }
+    const it = newItem(pick && pick.name ? pick : null, v);
+    if (items.some((x) => x.name.toLowerCase() === it.name.toLowerCase())) { toast(L().dup); return; }
+    items.unshift(it); save(); inp.value = ''; renderLists(); toast(L().added(it.name));
   }
 
   /* ---------------- the editor ---------------- */
@@ -221,5 +261,6 @@
   function saveRule() { const { isNew, ...r } = E; if (!r.name.trim()) { $('#edName', scrim).focus(); sheetEl.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-8px)' }, { transform: 'translateX(8px)' }, { transform: 'translateX(0)' }], { duration: 300 }); return; } const i = rules.findIndex((x) => x.id === r.id); if (i >= 0) rules[i] = r; else rules.push(r); save(); closeEditor(); render(); toast(L().saved); }
   function delRule() { rules = rules.filter((x) => x.id !== E.id); save(); closeEditor(); render(); toast(L().deleted); }
 
+  ET.rulesApi = { items: () => items, rules: () => rules, status, fmt, dur, dayLabel, L };
   ET.screens.rules = { title: () => L().title, mount, show: () => { if (root) placeTabHi(false); } };
 })();

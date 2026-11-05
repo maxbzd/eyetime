@@ -23,7 +23,7 @@ struct Scene {
 fn main() {
     let dir = std::env::args().nth(1).unwrap_or_else(|| ".".into());
     let port: u16 = std::env::args().nth(2).and_then(|p| p.parse().ok()).unwrap_or(8131);
-    let world = Arc::new(Mutex::new(World { wall: 1_793_786_400_000, mono: 1_000_000, hosts: "127.0.0.1 localhost\r\n".into(), hosts_writable: true, ..Default::default() }));
+    let world = Arc::new(Mutex::new(World { wall: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis() as i64).unwrap_or(1_793_786_400_000), mono: 1_000_000, hosts: "127.0.0.1 localhost\r\n".into(), hosts_writable: true, ..Default::default() }));
     let fake = Fake(world.clone());
     let sup = Arc::new(Mutex::new(Supervisor::new(fake.clone())));
     let scene = Arc::new(Mutex::new(Scene { fg: None, windows: vec![], idle: 0 }));
