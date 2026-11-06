@@ -11,7 +11,7 @@ const fakePage = (host, p) => `<!doctype html><title>${host}</title><body style=
 
 async function launch(opts = {}) {
   const ctx = await chromium.launchPersistentContext('/tmp/pw-profile-' + Date.now() + Math.random().toString(36).slice(2), {
-    channel: 'chromium', headless: true,
+    ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : { channel: 'chromium' }), headless: true, // CHROME_PATH: another Chrome for Testing (beta, dev, canary: the nightly run)
     args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`, '--no-proxy-server'],
     viewport: opts.viewport || { width: 1280, height: 800 }, ...(opts.deviceScaleFactor ? { deviceScaleFactor: opts.deviceScaleFactor } : {}), colorScheme: opts.colorScheme || 'light', ...(opts.recordVideo ? { recordVideo: opts.recordVideo } : {}),
   });

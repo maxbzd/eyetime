@@ -1,0 +1,39 @@
+name: Nightly
+# The browser changes under the extension every four weeks, and a beta or canary shows what will break before the people who use the stable one see it.
+# Every night (and by hand) the main end-to-end suites run on Chrome for Testing: stable, beta, dev and canary. (Branded Chrome 137 and later no longer loads an unpacked
+# extension from the command line, which is why this is Chrome for Testing, the build made for automation.) A failure on beta, dev or canary is a warning of a change to come;
+# the stable one failing is a bug today.
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browsers:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        channel: [stable, beta, dev, canary]
+    name: Chrome ${{ matrix.channel }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 24 }
+      - run: npm ci --ignore-scripts
+      - run: npm i --no-save playwright@1.56.1 axe-core@4.14.0 && npx playwright install-deps chromium
+      - name: Chrome for Testing ${{ matrix.channel }}
+        run: |
+          npx --yes @puppeteer/browsers@2.10.13 install chrome@${{ matrix.channel }} --path "$RUNNER_TEMP/cft" | tee install.log
+          echo "CHROME_PATH=$(tail -n1 install.log | sed 's/^[^ ]* //')" >> "$GITHUB_ENV"
+      - run: node -e "console.log(process.env.CHROME_PATH)" && "$CHROME_PATH" --version
+      - run: node scripts-dev/e2e/run.mjs --only e2e,blocking,keyboard,storage,usage,network,vault,essentials --jobs 2 --retries 1
+      - run: npm run build && EXT=$PWD/dist/chrome node scripts-dev/e2e/dist.cjs
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        if: failure()
+        with:
+          name: nightly-logs-${{ matrix.channel }}
+          path: /tmp/eyetime-e2e
+          if-no-files-found: ignore

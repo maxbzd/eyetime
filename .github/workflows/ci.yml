@@ -27,6 +27,8 @@ jobs:
       - run: TZ=Europe/Kiev npm test
       - run: TZ=Pacific/Auckland npm test
       - run: npm run build
+      # where the translations look wrong (hints for a human, never a failure)
+      - run: node scripts-dev/i18n-report.mjs | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with: { name: eyetime-packages, path: dist/*.zip }
       - name: Lint the Firefox package (web-ext)
