@@ -4,8 +4,6 @@ name: Nightly
 # extension from the command line, which is why this is Chrome for Testing, the build made for automation.) A failure on beta, dev or canary is a warning of a change to come;
 # the stable one failing is a bug today.
 on:
-  push:
-    branches: ['ccr-*'] # TEMPORARY: one run on the work branch to see the four browsers work; removed in the next commit
   schedule:
     - cron: '17 3 * * *'
   workflow_dispatch:
