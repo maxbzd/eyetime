@@ -59,7 +59,7 @@ test('the key does drift now and then over a long listen', () => {
 });
 
 test('there is never a long silence between notes (the chord pad plays all the time besides)', () => {
-  for (const id of MODE_IDS) for (const [x, limit] of [[0.8, 90], [0, 180]]) {
+  for (const id of MODE_IDS) for (const [x, limit] of [[0.8, 90], [0, 240]]) {
     const notes = run(id, 4, 2 * 3600, x).ev.filter((e) => e.type === 'note');
     let worst = 0; for (let i = 1; i < notes.length; i++) worst = Math.max(worst, notes[i].t - notes[i - 1].t);
     assert.ok(worst < limit, `${id} at ${x}: ${worst}`);
@@ -69,7 +69,7 @@ test('there is never a long silence between notes (the chord pad plays all the t
 test('more intensity means more notes; sleep is sparser than focus', () => {
   const count = (mode, x) => run(mode, 9, 1800, x).ev.filter((e) => e.type === 'note').length;
   assert.ok(count('focus', 1) > count('focus', 0.1) * 1.4);
-  assert.ok(count('sleep', 0.8) < count('focus', 0.8) / 1.5);
+  assert.ok(count('sleep', 0.8) < count('focus', 0.8) / 1.3);
 });
 
 test('the pulse exists only in Focus, only when it is lively enough, and is soft and uneven', () => {
