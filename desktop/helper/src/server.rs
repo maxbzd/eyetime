@@ -1,8 +1,8 @@
 //! The named pipe the window, the agent and the browser extension talk to, and the loop that ticks the supervisor.
 
 use crate::os_windows::{pipe_client_role, spawn_agent, WinNet, WinOs};
-use crate::update::Updater;
 use crate::supervisor::Supervisor;
+use crate::update::Updater;
 use eyetime_core::ipc::{parse_request, Response, Role, MAX_LINE, PIPE_NAME};
 use std::fs::File;
 use std::io::{BufRead, BufReader, Read, Write};
@@ -12,10 +12,15 @@ use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::Duration;
 
 use windows_sys::Win32::Foundation::{LocalFree, INVALID_HANDLE_VALUE};
-use windows_sys::Win32::Security::Authorization::{ConvertStringSecurityDescriptorToSecurityDescriptorW, SDDL_REVISION_1};
+use windows_sys::Win32::Security::Authorization::{
+    ConvertStringSecurityDescriptorToSecurityDescriptorW, SDDL_REVISION_1,
+};
 use windows_sys::Win32::Security::SECURITY_ATTRIBUTES;
 use windows_sys::Win32::Storage::FileSystem::{FILE_FLAG_FIRST_PIPE_INSTANCE, PIPE_ACCESS_DUPLEX};
-use windows_sys::Win32::System::Pipes::{ConnectNamedPipe, CreateNamedPipeW, PIPE_READMODE_BYTE, PIPE_REJECT_REMOTE_CLIENTS, PIPE_TYPE_BYTE, PIPE_UNLIMITED_INSTANCES, PIPE_WAIT};
+use windows_sys::Win32::System::Pipes::{
+    ConnectNamedPipe, CreateNamedPipeW, PIPE_READMODE_BYTE, PIPE_REJECT_REMOTE_CLIENTS,
+    PIPE_TYPE_BYTE, PIPE_UNLIMITED_INSTANCES, PIPE_WAIT,
+};
 
 pub type Shared = Arc<Mutex<Supervisor<WinOs>>>;
 
@@ -76,14 +81,38 @@ pub fn run_pipe_server(sup: Shared, stop: Arc<AtomicBool>) {
     while !stop.load(Ordering::Relaxed) {
         unsafe {
             let mut sd: *mut core::ffi::c_void = std::ptr::null_mut();
-            if ConvertStringSecurityDescriptorToSecurityDescriptorW(sddl.as_ptr(), SDDL_REVISION_1, &mut sd, std::ptr::null_mut()) == 0 {
+            if ConvertStringSecurityDescriptorToSecurityDescriptorW(
+                sddl.as_ptr(),
+                SDDL_REVISION_1,
+                &mut sd,
+                std::ptr::null_mut(),
+            ) == 0
+            {
                 std::thread::sleep(Duration::from_secs(2));
                 continue;
             }
-            let sa = SECURITY_ATTRIBUTES { nLength: std::mem::size_of::<SECURITY_ATTRIBUTES>() as u32, lpSecurityDescriptor: sd, bInheritHandle: 0 };
+            let sa = SECURITY_ATTRIBUTES {
+                nLength: std::mem::size_of::<SECURITY_ATTRIBUTES>() as u32,
+                lpSecurityDescriptor: sd,
+                bInheritHandle: 0,
+            };
             // the first instance is created with FIRST_PIPE_INSTANCE so that nobody can squat on the name before us
-            let mode = PIPE_ACCESS_DUPLEX | if first { FILE_FLAG_FIRST_PIPE_INSTANCE } else { 0 };
-            let h = CreateNamedPipeW(name.as_ptr(), mode, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS, PIPE_UNLIMITED_INSTANCES, 64 * 1024, 64 * 1024, 0, &sa);
+            let mode = PIPE_ACCESS_DUPLEX
+                | if first {
+                    FILE_FLAG_FIRST_PIPE_INSTANCE
+                } else {
+                    0
+                };
+            let h = CreateNamedPipeW(
+                name.as_ptr(),
+                mode,
+                PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS,
+                PIPE_UNLIMITED_INSTANCES,
+                64 * 1024,
+                64 * 1024,
+                0,
+                &sa,
+            );
             LocalFree(sd);
             if h == INVALID_HANDLE_VALUE {
                 std::thread::sleep(Duration::from_secs(2));
@@ -91,7 +120,8 @@ pub fn run_pipe_server(sup: Shared, stop: Arc<AtomicBool>) {
             }
             first = false;
             // ERROR_PIPE_CONNECTED (a client connected between create and connect) also counts as connected
-            let connected = ConnectNamedPipe(h, std::ptr::null_mut()) != 0 || windows_sys::Win32::Foundation::GetLastError() == 535;
+            let connected = ConnectNamedPipe(h, std::ptr::null_mut()) != 0
+                || windows_sys::Win32::Foundation::GetLastError() == 535;
             if !connected || stop.load(Ordering::Relaxed) {
                 drop(File::from_raw_handle(h as _));
                 continue;
@@ -106,23 +136,33 @@ pub fn run_pipe_server(sup: Shared, stop: Arc<AtomicBool>) {
 }
 
 fn serve(file: File, sup: Shared, role: Role) {
-    let Ok(mut out) = file.try_clone() else { return };
+    let Ok(mut out) = file.try_clone() else {
+        return;
+    };
     let mut reader = BufReader::new(file);
     loop {
         let mut line = String::new();
-        match reader.by_ref().take(MAX_LINE as u64 + 1).read_line(&mut line) {
+        match reader
+            .by_ref()
+            .take(MAX_LINE as u64 + 1)
+            .read_line(&mut line)
+        {
             Ok(0) | Err(_) => return,
             Ok(_) => {}
         }
         let resp = match parse_request(&line) {
-            Ok(req) if !role.allows(&req) => Response::err("denied", "This program may not ask for that"),
+            Ok(req) if !role.allows(&req) => {
+                Response::err("denied", "This program may not ask for that")
+            }
             Ok(req) => {
                 let mut s = lock(&sup);
-                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| s.handle(req))).unwrap_or_else(|_| Response::err("internal", "internal error"))
+                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| s.handle(req)))
+                    .unwrap_or_else(|_| Response::err("internal", "internal error"))
             }
             Err(e) => Response::err("bad_request", e),
         };
-        let mut text = serde_json::to_string(&resp).unwrap_or_else(|_| "{\"ok\":false,\"code\":\"internal\"}".into());
+        let mut text = serde_json::to_string(&resp)
+            .unwrap_or_else(|_| "{\"ok\":false,\"code\":\"internal\"}".into());
         text.push('\n');
         if out.write_all(text.as_bytes()).is_err() || out.flush().is_err() {
             return;
@@ -132,5 +172,8 @@ fn serve(file: File, sup: Shared, role: Role) {
 
 /// wake the accept loop so that it can see the stop flag
 pub fn poke() {
-    let _ = std::fs::OpenOptions::new().read(true).write(true).open(PIPE_NAME);
+    let _ = std::fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(PIPE_NAME);
 }

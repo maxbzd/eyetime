@@ -31,14 +31,29 @@ enum Ui {
 
 fn asset(path: &str) -> Option<(&'static str, &'static [u8])> {
     Some(match path {
-        "/" | "/index.html" => ("text/html; charset=utf-8", include_bytes!("../ui/index.html")),
+        "/" | "/index.html" => (
+            "text/html; charset=utf-8",
+            include_bytes!("../ui/index.html"),
+        ),
         "/fonts.css" => ("text/css", include_bytes!("../ui/fonts.css")),
         "/cave.jpg" => ("image/jpeg", include_bytes!("../ui/cave.jpg")),
         "/gem-sprite.webp" => ("image/webp", include_bytes!("../ui/gem-sprite.webp")),
-        "/fonts/figtree-v9-_Xms-HUzqDCFdgfMm4S9DQ.woff2" => ("font/woff2", include_bytes!("../ui/fonts/figtree-v9-_Xms-HUzqDCFdgfMm4S9DQ.woff2")),
-        "/fonts/figtree-v9-_Xms-HUzqDCFdgfMm4q9DbZs.woff2" => ("font/woff2", include_bytes!("../ui/fonts/figtree-v9-_Xms-HUzqDCFdgfMm4q9DbZs.woff2")),
-        "/fonts/outfit-v15-QGYvz_MVcBeNP4NJtEtq.woff2" => ("font/woff2", include_bytes!("../ui/fonts/outfit-v15-QGYvz_MVcBeNP4NJtEtq.woff2")),
-        "/fonts/outfit-v15-QGYvz_MVcBeNP4NJuktqQ4E.woff2" => ("font/woff2", include_bytes!("../ui/fonts/outfit-v15-QGYvz_MVcBeNP4NJuktqQ4E.woff2")),
+        "/fonts/figtree-v9-_Xms-HUzqDCFdgfMm4S9DQ.woff2" => (
+            "font/woff2",
+            include_bytes!("../ui/fonts/figtree-v9-_Xms-HUzqDCFdgfMm4S9DQ.woff2"),
+        ),
+        "/fonts/figtree-v9-_Xms-HUzqDCFdgfMm4q9DbZs.woff2" => (
+            "font/woff2",
+            include_bytes!("../ui/fonts/figtree-v9-_Xms-HUzqDCFdgfMm4q9DbZs.woff2"),
+        ),
+        "/fonts/outfit-v15-QGYvz_MVcBeNP4NJtEtq.woff2" => (
+            "font/woff2",
+            include_bytes!("../ui/fonts/outfit-v15-QGYvz_MVcBeNP4NJtEtq.woff2"),
+        ),
+        "/fonts/outfit-v15-QGYvz_MVcBeNP4NJuktqQ4E.woff2" => (
+            "font/woff2",
+            include_bytes!("../ui/fonts/outfit-v15-QGYvz_MVcBeNP4NJuktqQ4E.woff2"),
+        ),
         _ => return None,
     })
 }
@@ -53,7 +68,11 @@ fn main() {
 
     // no window: for scripts and for the automatic checks (--silent [--log <file>]). Exit code 0 means it worked.
     if args.iter().any(|a| a == "--silent") {
-        let log = args.iter().position(|a| a == "--log").and_then(|i| args.get(i + 1)).cloned();
+        let log = args
+            .iter()
+            .position(|a| a == "--log")
+            .and_then(|i| args.get(i + 1))
+            .cloned();
         let failed = std::sync::atomic::AtomicBool::new(false);
         let emit = |m: String| {
             if m.contains("\"type\":\"error\"") || m.contains("\"type\":\"blocked\"") {
@@ -61,7 +80,11 @@ fn main() {
             }
             if let Some(path) = &log {
                 use std::io::Write;
-                if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(path) {
+                if let Ok(mut f) = std::fs::OpenOptions::new()
+                    .create(true)
+                    .append(true)
+                    .open(path)
+                {
                     let _ = writeln!(f, "{m}");
                 }
             }
@@ -76,7 +99,11 @@ fn main() {
             let desktop = !args.iter().any(|a| a == "--update") || steps::desktop_icon_exists();
             steps::install(desktop, &emit);
         }
-        std::process::exit(if failed.load(std::sync::atomic::Ordering::Relaxed) { 1 } else { 0 });
+        std::process::exit(if failed.load(std::sync::atomic::Ordering::Relaxed) {
+            1
+        } else {
+            0
+        });
     }
 
     let event_loop = EventLoopBuilder::<Ui>::with_user_event().build();
@@ -100,8 +127,14 @@ fn main() {
         .with_custom_protocol("app".into(), |_id, req| {
             let path = req.uri().path().to_string();
             match asset(&path) {
-                Some((ct, bytes)) => Response::builder().header(CONTENT_TYPE, ct).body(Cow::Borrowed(bytes)).unwrap(),
-                None => Response::builder().status(404).body(Cow::Borrowed(&b"not found"[..])).unwrap(),
+                Some((ct, bytes)) => Response::builder()
+                    .header(CONTENT_TYPE, ct)
+                    .body(Cow::Borrowed(bytes))
+                    .unwrap(),
+                None => Response::builder()
+                    .status(404)
+                    .body(Cow::Borrowed(&b"not found"[..]))
+                    .unwrap(),
             }
         })
         .with_ipc_handler(move |req| {

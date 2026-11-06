@@ -12,9 +12,15 @@ use windows_sys::Win32::Foundation::{CloseHandle, HWND, LPARAM};
 const TRUE: BOOL = 1;
 use windows_sys::Win32::Graphics::Dwm::{DwmGetWindowAttribute, DWMWA_CLOAKED};
 use windows_sys::Win32::System::SystemInformation::GetTickCount;
-use windows_sys::Win32::System::Threading::{OpenProcess, QueryFullProcessImageNameW, PROCESS_QUERY_LIMITED_INFORMATION};
+use windows_sys::Win32::System::Threading::{
+    OpenProcess, QueryFullProcessImageNameW, PROCESS_QUERY_LIMITED_INFORMATION,
+};
 use windows_sys::Win32::UI::Input::KeyboardAndMouse::{GetLastInputInfo, LASTINPUTINFO};
-use windows_sys::Win32::UI::WindowsAndMessaging::{EnumWindows, GetForegroundWindow, GetWindow, GetWindowLongW, GetWindowTextW, GetWindowThreadProcessId, IsWindowVisible, PostMessageW, GWL_EXSTYLE, GW_OWNER, WM_CLOSE, WS_EX_TOOLWINDOW};
+use windows_sys::Win32::UI::WindowsAndMessaging::{
+    EnumWindows, GetForegroundWindow, GetWindow, GetWindowLongW, GetWindowTextW,
+    GetWindowThreadProcessId, IsWindowVisible, PostMessageW, GWL_EXSTYLE, GW_OWNER, WM_CLOSE,
+    WS_EX_TOOLWINDOW,
+};
 
 fn exe_of(pid: u32) -> String {
     unsafe {
@@ -50,13 +56,20 @@ fn foreground() -> Option<Fg> {
         }
         let mut pid = 0u32;
         GetWindowThreadProcessId(hwnd, &mut pid);
-        Some(Fg { exe: exe_of(pid), title: title_of(hwnd), pid })
+        Some(Fg {
+            exe: exe_of(pid),
+            title: title_of(hwnd),
+            pid,
+        })
     }
 }
 
 fn idle_secs() -> u32 {
     unsafe {
-        let mut li = LASTINPUTINFO { cbSize: std::mem::size_of::<LASTINPUTINFO>() as u32, dwTime: 0 };
+        let mut li = LASTINPUTINFO {
+            cbSize: std::mem::size_of::<LASTINPUTINFO>() as u32,
+            dwTime: 0,
+        };
         if GetLastInputInfo(&mut li) == 0 {
             return 0;
         }
@@ -73,7 +86,12 @@ unsafe extern "system" fn collect(hwnd: HWND, lparam: LPARAM) -> BOOL {
         return TRUE;
     }
     let mut cloaked = 0u32;
-    DwmGetWindowAttribute(hwnd, DWMWA_CLOAKED as u32, &mut cloaked as *mut u32 as *mut _, 4);
+    DwmGetWindowAttribute(
+        hwnd,
+        DWMWA_CLOAKED as u32,
+        &mut cloaked as *mut u32 as *mut _,
+        4,
+    );
     if cloaked != 0 {
         return TRUE;
     }
@@ -83,7 +101,14 @@ unsafe extern "system" fn collect(hwnd: HWND, lparam: LPARAM) -> BOOL {
     }
     let mut pid = 0u32;
     GetWindowThreadProcessId(hwnd, &mut pid);
-    list.push((hwnd as usize, Win { exe: exe_of(pid), title, pid }));
+    list.push((
+        hwnd as usize,
+        Win {
+            exe: exe_of(pid),
+            title,
+            pid,
+        },
+    ));
     TRUE
 }
 
@@ -122,7 +147,10 @@ fn ask_programs_to_close(pids: &[u32]) {
 
 /// the window comes back after an update (this program is in the person's own session, so it opens as them)
 fn open_window() {
-    if let Some(app) = std::env::current_exe().ok().and_then(|p| p.parent().map(|d| d.join("eyetime.exe"))) {
+    if let Some(app) = std::env::current_exe()
+        .ok()
+        .and_then(|p| p.parent().map(|d| d.join("eyetime.exe")))
+    {
         if app.exists() {
             let _ = std::process::Command::new(app).spawn();
         }
@@ -132,30 +160,57 @@ fn open_window() {
 fn set_dnd(on: bool) {
     // pop-up notifications off while a session asks for quiet
     let key = r"HKCU\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings";
-    run_quiet("reg", &["add", key, "/v", "NOC_GLOBAL_SETTING_TOASTS_ENABLED", "/t", "REG_DWORD", "/d", if on { "0" } else { "1" }, "/f"]);
+    run_quiet(
+        "reg",
+        &[
+            "add",
+            key,
+            "/v",
+            "NOC_GLOBAL_SETTING_TOASTS_ENABLED",
+            "/t",
+            "REG_DWORD",
+            "/d",
+            if on { "0" } else { "1" },
+            "/f",
+        ],
+    );
 }
 
 pub fn run() {
     // only one agent per session: a second one finds the name taken and leaves
-    let name: Vec<u16> = "Local\\EyeTimeAgent".encode_utf16().chain(std::iter::once(0)).collect();
+    let name: Vec<u16> = "Local\\EyeTimeAgent"
+        .encode_utf16()
+        .chain(std::iter::once(0))
+        .collect();
     unsafe {
-        let h = windows_sys::Win32::System::Threading::CreateMutexW(std::ptr::null(), 0, name.as_ptr());
+        let h =
+            windows_sys::Win32::System::Threading::CreateMutexW(std::ptr::null(), 0, name.as_ptr());
         if h.is_null() || windows_sys::Win32::Foundation::GetLastError() == 183 {
             return;
         }
     }
     let mut dnd = false;
     loop {
-        let result = std::fs::OpenOptions::new().read(true).write(true).open(PIPE_NAME);
+        let result = std::fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(PIPE_NAME);
         let Ok(pipe) = result else {
             std::thread::sleep(Duration::from_secs(3));
             continue;
         };
-        let Ok(mut out) = pipe.try_clone() else { continue };
+        let Ok(mut out) = pipe.try_clone() else {
+            continue;
+        };
         let mut reader = BufReader::new(pipe);
         loop {
             let wins = windows();
-            let req = Request::Observe { fg: foreground(), idle_secs: idle_secs(), windows: wins.iter().map(|w| w.1.clone()).collect(), screen_locked: false };
+            let req = Request::Observe {
+                fg: foreground(),
+                idle_secs: idle_secs(),
+                windows: wins.iter().map(|w| w.1.clone()).collect(),
+                screen_locked: false,
+            };
             let mut text = serde_json::to_string(&req).unwrap_or_default();
             text.push('\n');
             if out.write_all(text.as_bytes()).is_err() {
@@ -177,7 +232,11 @@ pub fn run() {
                         }
                     }
                     ask_programs_to_close(&orders.close_pids);
-                    if orders.launch_app && !wins.iter().any(|(_, w)| w.exe.eq_ignore_ascii_case("eyetime.exe")) {
+                    if orders.launch_app
+                        && !wins
+                            .iter()
+                            .any(|(_, w)| w.exe.eq_ignore_ascii_case("eyetime.exe"))
+                    {
                         open_window();
                     }
                     if orders.dnd != dnd {
@@ -216,11 +275,21 @@ pub fn native_host() {
             // anything the extension sends has to be a request we know
             let req: Request = serde_json::from_slice(&buf).ok()?;
             // the extension only reports what is in front and asks what is closed
-            if !matches!(req, Request::Site { .. } | Request::Decision | Request::Ping | Request::Status) {
-                return Some(serde_json::to_string(&Response::err("denied", "not for the extension")).ok()?);
+            if !matches!(
+                req,
+                Request::Site { .. } | Request::Decision | Request::Ping | Request::Status
+            ) {
+                return Some(
+                    serde_json::to_string(&Response::err("denied", "not for the extension"))
+                        .ok()?,
+                );
             }
             if pipe.is_none() {
-                let f = std::fs::OpenOptions::new().read(true).write(true).open(PIPE_NAME).ok()?;
+                let f = std::fs::OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .open(PIPE_NAME)
+                    .ok()?;
                 pipe = Some((f.try_clone().ok()?, BufReader::new(f)));
             }
             let (w, r) = pipe.as_mut()?;
@@ -237,9 +306,17 @@ pub fn native_host() {
             }
             Some(line.trim().to_string())
         })()
-        .unwrap_or_else(|| serde_json::to_string(&Response::err("offline", "EyeTime is not running")).unwrap_or_default());
+        .unwrap_or_else(|| {
+            serde_json::to_string(&Response::err("offline", "EyeTime is not running"))
+                .unwrap_or_default()
+        });
         let bytes = reply.as_bytes();
-        if output.write_all(&(bytes.len() as u32).to_le_bytes()).is_err() || output.write_all(bytes).is_err() || output.flush().is_err() {
+        if output
+            .write_all(&(bytes.len() as u32).to_le_bytes())
+            .is_err()
+            || output.write_all(bytes).is_err()
+            || output.flush().is_err()
+        {
             return;
         }
     }
