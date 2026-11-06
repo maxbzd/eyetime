@@ -34,7 +34,7 @@ export async function checkMeetings() {
     const wid = m.id + '#' + m.start; // a meeting moved to another time the same day is a new heads-up
     if (warned.includes(wid)) return;
     await setRaw({ meetingWarned: [...warned, wid].slice(-20) });
-    setLocale(resolveLocale(settings.language));
+    await setLocale(resolveLocale(settings.language));
     const left = Math.max(1, Math.round((focus.endsAt - Date.now()) / 60_000));
     await chrome.notifications.create('meeting-soon', { type: 'basic', iconUrl: ICON, priority: 1, title: t('meet.soonTitle', { time: m.start }), message: t('meet.soonBody', { title: m.title || t('meet.untitled'), n: left }) });
   } catch { /* a heads-up is a nicety, never an error */ }

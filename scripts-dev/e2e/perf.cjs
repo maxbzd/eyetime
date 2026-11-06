@@ -1,9 +1,9 @@
 // Load checks: a year of heavy data and a crowded browser. Prints the numbers and fails when one passes its budget.
 //   node scripts-dev/e2e/perf.cjs
-// Budgets are generous on purpose (CI machines are slow); they exist to catch an accidental 10× regression, not a 10 % one.
+// Budgets leave room for slow CI machines (about 3× a developer machine). What a page loads at start is counted exactly, without a browser, in scripts-dev/tests/weight.test.mjs.
 const { launch } = require('./lib.cjs');
 
-const BUDGET = { homeMs: 3500, insightsMs: 5000, optionsMs: 3000, storageMB: 6, workerMs: 2500, tabsOpen: 60 };
+const BUDGET = { homeMs: 1500, insightsMs: 2500, optionsMs: 1500, storageMB: 6, workerMs: 1000, tabsOpen: 60 }; // about three times what a developer machine measures (Nov 2026: home 560, insights 250, settings 240, worker 5): a new tab is the most opened page there is
 
 (async () => {
   const app = await launch({ viewport: { width: 1280, height: 900 } });

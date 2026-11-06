@@ -50,3 +50,23 @@ export function splitAtMidnight(from, to) {
   if (mid > from && mid < to && dayKey(new Date(from)) !== dayKey(new Date(to))) return [{ from, to: mid }, { from: mid, to }];
   return [{ from, to }];
 }
+
+/**
+ * Whole seconds to credit for each piece of a span, without losing the fractions: what does not make a whole second is carried to the next
+ * piece (and, through `rem`, to the next span), so that the seconds credited over a day add up to the time that really passed. Rounding every
+ * span on its own would drop each span shorter than half a second (flicking through tabs) and the total would run behind.
+ * @param {{ from: number, to: number }[]} parts the pieces from `splitAtMidnight`
+ * @param {number} [rem] ms left over from the previous span (0..999)
+ * @returns {{ credits: { from: number, to: number, sec: number }[], rem: number }}
+ */
+export function creditSeconds(parts, rem = 0) {
+  let carry = Number.isFinite(rem) && rem > 0 && rem < 1000 ? Math.floor(rem) : 0;
+  const credits = [];
+  for (const p of parts) {
+    const ms = Math.max(0, p.to - p.from) + carry;
+    const sec = Math.floor(ms / 1000);
+    carry = ms - sec * 1000;
+    if (sec > 0) credits.push({ from: p.from, to: p.to, sec });
+  }
+  return { credits, rem: carry };
+}

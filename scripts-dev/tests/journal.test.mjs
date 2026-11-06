@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { setLocale } from '../../src/shared/i18n.js';
 import { buildJournal } from '../../src/shared/journal.js';
 
-setLocale('en');
+await setLocale('en');
 const t = (h, m) => new Date(2026, 9, 20, h, m).getTime();
 
 test('journal lists days newest first with sessions and wins, no hosts', () => {

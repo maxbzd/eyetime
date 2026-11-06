@@ -2,32 +2,64 @@
 //   t('focus.start')                       -> "Start focus"
 //   t('time.minutes', { n: 5 })            -> plural-aware: value may be { one, few, many, other }
 //   <span data-i18n="focus.start"></span>  <input data-i18n-attr="placeholder:search.ph;aria-label:search.label">
-// Add a language: create locales/xx.js (copy en.js), register it in locales/index.js. Missing keys fall back to English.
+// Add a language: create locales/xx.js (copy en.js), register it in locales/index.js and locales/languages.js, run `node scripts-dev/build-locales.mjs`.
+// Missing keys fall back to English.
+//
+// Only the language in use is loaded: English is code (it is the fallback), every other language is a JSON file in locales/data/ that is
+// read once (a page needs one language, and the service worker cannot `import()`, so data is the one way that works in all of them).
+// `await setLocale(code)` before the first `t()` of a page or of a worker task.
 
-import { LOCALES, LANGUAGES } from './locales/index.js';
+import { en } from './locales/en.js';
+import { LANGUAGES } from './locales/languages.js';
 
+/** @type {Record<string, Record<string, any>>} */
+const loaded = { en };
+/** @type {Map<string, Promise<Record<string, any> | null>>} */
+const loading = new Map();
 let lang = 'en';
-let dict = LOCALES.en;
+/** @type {Record<string, any>} */
+let dict = en;
 let plural = new Intl.PluralRules('en');
 
 export { LANGUAGES };
 
+const supported = (/** @type {any} */ code) => typeof code === 'string' && Object.hasOwn(LANGUAGES, code);
+
 /** 'auto' | 'en' | 'ru' | … -> a supported language code. */
 export function resolveLocale(pref, uiLang) {
-  if (pref && pref !== 'auto' && LOCALES[pref]) return pref;
+  if (pref && pref !== 'auto' && supported(pref)) return pref;
   let ui = uiLang || '';
   if (!ui) {
     try { ui = chrome.i18n.getUILanguage(); } catch { ui = (typeof navigator !== 'undefined' && navigator.language) || 'en'; }
   }
   const base = ui.toLowerCase().split(/[-_]/)[0]; // zh-TW / zh-HK get Simplified Chinese too: closer to them than English
-  if (LOCALES[base]) return base;
-  if (['be', 'kk'].includes(base) && LOCALES.ru) return 'ru';
+  if (supported(base)) return base;
+  if (['be', 'kk'].includes(base) && supported('ru')) return 'ru';
   return 'en';
 }
 
-export function setLocale(code) {
-  lang = LOCALES[code] ? code : 'en';
-  dict = LOCALES[lang];
+/** The words of one language, read once: from the extension's own file in a browser, from the module in Node (the tests). null if it cannot be read. */
+async function readLocale(/** @type {string} */ code) {
+  try {
+    if (typeof chrome !== 'undefined' && chrome.runtime && typeof chrome.runtime.getURL === 'function') {
+      const res = await fetch(chrome.runtime.getURL(`src/shared/locales/data/${code}.json`));
+      return res.ok ? await res.json() : null;
+    }
+    return (await import('./locales/index.js')).LOCALES[code] || null;
+  } catch { return null; }
+}
+
+/** Makes `code` the language of `t()` and the formatters. Resolves when its words are in; if they cannot be read, English stays. */
+export async function setLocale(code) {
+  let next = supported(code) ? code : 'en';
+  if (!loaded[next]) {
+    if (!loading.has(next)) loading.set(next, readLocale(next));
+    const words = await loading.get(next);
+    loading.delete(next);
+    if (words) loaded[next] = words; else next = 'en';
+  }
+  lang = next;
+  dict = loaded[next];
   plural = new Intl.PluralRules(lang);
   if (typeof document !== 'undefined' && document.documentElement) document.documentElement.lang = lang;
 }
@@ -39,7 +71,7 @@ function interpolate(str, params) {
 }
 
 export function t(key, params) {
-  let v = dict[key] ?? LOCALES.en[key];
+  let v = dict[key] ?? en[key];
   if (v === undefined) return key;
   if (typeof v === 'object') v = v[plural.select(params?.n ?? 0)] ?? v.other ?? '';
   return interpolate(v, params);

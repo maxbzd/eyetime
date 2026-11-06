@@ -23,7 +23,7 @@ async function fire() {
   if (!due || due.at > Date.now() + 90_000) return;
   const { focus } = await getRaw('focus');
   if (isFocusLive(focus)) return;
-  setLocale(resolveLocale(settings.language));
+  await setLocale(resolveLocale(settings.language));
   const r = due.reminder;
   const opts = { type: 'basic', iconUrl: ICON, priority: 1, title: t('remind.title'), message: t('remind.body', { time: fmtDuration(r.minutes * 60) }), buttons: [{ title: t('focus.start', { time: fmtDuration(r.minutes * 60) }) }] };
   try { await chrome.notifications.create('focus-reminder:' + r.id, opts); } catch { delete opts.buttons; await chrome.notifications.create('focus-reminder:' + r.id, opts); }
@@ -56,7 +56,7 @@ async function fireSlot() {
   if (!due || due.at > Date.now() + 90_000) return;
   const { focus } = await getRaw('focus');
   const settings = await getSettings();
-  setLocale(resolveLocale(settings.language));
+  await setLocale(resolveLocale(settings.language));
   const x = due.task;
   if (isFocusLive(focus)) return;
   const opts = { type: 'basic', iconUrl: ICON, priority: 1, title: t('remind.taskTitle'), message: x.resume ? t('remind.taskResume', { task: x.text, resume: x.resume }) : x.text, buttons: [{ title: t('focus.start', { time: fmtDuration(settings.focus.minutes * 60) }) }] };

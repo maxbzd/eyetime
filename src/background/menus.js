@@ -15,7 +15,7 @@ const ICON = 'icons/icon128.png';
 export async function buildMenus() {
   if (!chrome.contextMenus) return;
   const s = await getSettings();
-  setLocale(resolveLocale(s.language));
+  await setLocale(resolveLocale(s.language));
   await chrome.contextMenus.removeAll();
   const mk = (o) => chrome.contextMenus.create({ contexts: ['page'], ...o });
   mk({ id: 'root', title: 'EyeTime', contexts: ['page', 'action', 'link'] }); // 'link': only "Save to topic" shows there
@@ -42,7 +42,7 @@ chrome.contextMenus?.onClicked.addListener(async (info, tab) => {
   await sweepTabs();
   const s = await getSettings();
   await updateBadge(s);
-  setLocale(resolveLocale(s.language));
+  await setLocale(resolveLocale(s.language));
   chrome.notifications.create('menu-' + Date.now(), { type: 'basic', iconUrl: ICON, title: 'EyeTime', message: t(result.key, { host, cls: result.cls ? t('class.' + result.cls).toLowerCase() : '' }), priority: 0 });
 });
 

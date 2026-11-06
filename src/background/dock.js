@@ -36,7 +36,7 @@ export async function buildTopicMenu() {
   if (!chrome.contextMenus) return;
   const s = await getSettings();
   if (!s.dock.enabled) return;
-  setLocale(resolveLocale(s.language));
+  await setLocale(resolveLocale(s.language));
   const topics = ensureInbox(await getCollection('topics', []), t('topic.inbox')).slice(0, 12);
   const ctx = ['page', 'link'];
   chrome.contextMenus.create({ id: 'dock:root', parentId: 'root', title: t('menu.saveTo'), contexts: ctx });
@@ -50,7 +50,7 @@ chrome.contextMenus?.onClicked.addListener(async (info, tab) => {
   const url = info.linkUrl || info.pageUrl || (tab && tab.url) || '';
   const title = info.linkUrl ? '' : (tab && tab.title) || '';
   const s = await getSettings();
-  setLocale(resolveLocale(s.language));
+  await setLocale(resolveLocale(s.language));
   let res = null, name = '';
   await updateCollection('topics', [], (cur) => {
     const list = ensureInbox(cur, t('topic.inbox'));

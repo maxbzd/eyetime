@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 let DatabaseSync = null;
 try { ({ DatabaseSync } = await import('node:sqlite')); } catch { /* Node before 22.5: the D1 part of the collector is not tested here */ }
-import { handle, MIN_GAP_MS } from '../../server/usage/handler.js';
+import { handle, MIN_GAP_MS, MAX_NEW_PER_HOUR, isExtensionOrigin } from '../../server/usage/handler.js';
 import { MemoryStore } from '../../server/usage/memory-store.js';
 import { D1Store } from '../../server/usage/d1-store.js';
 import { emptyUsage, record, buildReport, dayNumber } from '../../src/shared/usage.js';
@@ -29,7 +29,7 @@ test('collector: a valid report is stored, anything else is refused', async () =
   assert.equal((await handle(post(null, { method: 'GET' }), store, T0)).status, 405);
   assert.equal((await handle(post(r, { path: '/other' }), store, T0)).status, 404);
   const pre = await handle(post(null, { method: 'OPTIONS' }), store, T0);
-  assert.equal(pre.status, 204); assert.equal(pre.headers.get('access-control-allow-origin'), '*');
+  assert.equal(pre.status, 204); assert.equal(pre.headers.get('access-control-allow-origin'), null, 'no origin, no CORS header');
 });
 
 test('collector: one report per six hours per install; the history adds up; forgetting removes everything', async () => {
@@ -83,6 +83,8 @@ test('collector: the D1 store and the memory store agree, and the questions in q
   const rowsD = db.prepare('SELECT id, age, act FROM installs ORDER BY id').all();
   assert.equal(rowsD.length, 40); assert.equal(rowsD.length, mstore.installs.size);
   for (const r of rowsD) assert.deepEqual(JSON.parse(r.act), mstore.installs.get(r.id).act, 'the same active days');
+  assert.equal(await dstore.newSince(0), 40); assert.equal(await dstore.newSince(0), await mstore.newSince(0), 'both count the installs of the hour alike');
+  assert.equal(await dstore.newSince(now + DAY), 0); assert.equal(await mstore.newSince(now + DAY), 0);
 
   const sql = readFileSync(new URL('../../server/usage/queries.sql', import.meta.url), 'utf8');
   const queries = Object.fromEntries(sql.split(/^-- name: /m).slice(1).map((q) => [q.split(/\s/)[0], q.split('\n').filter((l, i) => i > 0 && !l.startsWith('--')).join('\n')]));
@@ -101,4 +103,42 @@ test('collector: the D1 store and the memory store agree, and the questions in q
   assert.equal(db.prepare('SELECT COUNT(*) c FROM installs').get().c, 39);
   assert.equal(db.prepare("SELECT COUNT(*) c FROM firsts WHERE id = ?").get('0'.repeat(31) + '1').c, 0);
   assert.ok(dayNumber(now) > 0);
+});
+
+test('collector: only an extension origin may call it, and the answer names that origin, not everyone', async () => {
+  const store = new MemoryStore();
+  const from = (origin, body = sample()) => new Request('https://usage.example/v1/usage', { method: 'POST', headers: { 'content-type': 'application/json', origin }, body: JSON.stringify(body) });
+  const ok = await handle(from('chrome-extension://abcdefghijklmnopabcdefghijklmnop'), store, T0);
+  assert.equal(ok.status, 204);
+  assert.equal(ok.headers.get('access-control-allow-origin'), 'chrome-extension://abcdefghijklmnopabcdefghijklmnop');
+  assert.equal(ok.headers.get('vary'), 'Origin');
+  assert.equal((await handle(from('moz-extension://12345678-aaaa-bbbb-cccc-1234567890ab', sample(T0, 'b'.repeat(32))), store, T0)).status, 204, 'Firefox');
+  for (const web of ['https://evil.example', 'http://localhost:8080', 'null', 'chrome-extension://', 'chrome-extension://x/y']) {
+    const r = await handle(from(web, sample(T0, 'c'.repeat(32))), new MemoryStore(), T0);
+    assert.equal(r.status, 403, web);
+    assert.equal(r.headers.get('access-control-allow-origin'), null, 'a refused origin is not echoed back');
+  }
+  assert.equal(isExtensionOrigin('chrome-extension://abcdefghijklmnopabcdefghijklmnop'), true);
+  assert.equal(isExtensionOrigin(''), false);
+});
+
+test('collector: a flood of new made-up ids stops at the hourly budget while installs that are known keep reporting', async () => {
+  const store = new MemoryStore();
+  const id = (i) => i.toString(16).padStart(32, '0');
+  assert.equal((await handle(post(sample(T0, id(1))), store, T0)).status, 204);
+  for (let i = 2; i <= MAX_NEW_PER_HOUR; i++) store.installs.set(id(i), { id: id(i), first_report: T0, last_report: T0, act: [] }); // the hour is full
+  const refused = await handle(post(sample(T0, id(99999))), store, T0 + 1000);
+  assert.equal(refused.status, 429); assert.equal(refused.headers.get('retry-after'), '3600');
+  assert.equal(store.installs.has(id(99999)), false, 'nothing was stored');
+  assert.equal((await handle(post(sample(T0 + MIN_GAP_MS, id(1))), store, T0 + MIN_GAP_MS)).status, 204, 'a known install still reports (and a new hour has begun anyway)');
+  const later = T0 + 61 * 60_000;
+  assert.equal((await handle(post(sample(later, id(99999))), store, later)).status, 204, 'an hour later there is room again');
+});
+
+test('collector: a body that announces itself as too big is refused before it is read', async () => {
+  const store = new MemoryStore();
+  const req = new Request('https://usage.example/v1/usage', { method: 'POST', headers: { 'content-type': 'application/json', 'content-length': '999999' }, body: '{}' });
+  let read = false; const real = req.text.bind(req); req.text = () => { read = true; return real(); };
+  assert.equal((await handle(req, store, T0)).status, 413);
+  assert.equal(read, false);
 });
