@@ -77,7 +77,7 @@ const { launch } = require('./lib.cjs');
   // a photo: drops show it (no errors), and the hash preview works without the weather
   await sp.evaluate(async () => {
     const c = document.createElement('canvas'); c.width = 640; c.height = 400; const g = c.getContext('2d'); const gr = g.createLinearGradient(0, 0, 640, 400); gr.addColorStop(0, '#254a6b'); gr.addColorStop(1, '#d9a35b'); g.fillStyle = gr; g.fillRect(0, 0, 640, 400);
-    const st = await import('/src/shared/storage.js'); await st.setRaw({ newtabBg: c.toDataURL('image/jpeg', .8) }); await st.updateSettings((s) => { s.newtab.background = 'photo'; });
+    const st = await import('/src/shared/storage.js'); await (await import('/src/shared/photos.js')).setPhoto('bg', c.toDataURL('image/jpeg', .8)); await st.updateSettings((s) => { s.newtab.background = 'photo'; });
   });
   await open(); ok((await painted()) > 30, 'rain over a photo draws');
   await cfg({ on: false }); await open('#fx=snow'); ok((await painted()) > 30, '#fx=snow previews snow without the weather');
