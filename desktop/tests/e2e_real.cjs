@@ -161,7 +161,11 @@ const status = async () => (await post('/req', { op: 'status' })).data;
   ok(/0\.2\.0/.test(await page.textContent('.upd-done')), 'after the update the window says what is new');
   await page.evaluate(() => document.querySelector('.upd-done .go').click()); await page.waitForTimeout(1200);
   ok((await status()).update.updated === null, 'the what-is-new is shown once');
-  ok(errs.length === 0, 'no page errors: ' + errs.slice(0, 3).join(' | ') + (missing.length ? ' [' + missing.slice(0, 4).join(' ; ') + ']' : ''));
+  // the two films of the first minute are optional (the app uses them when they are in assets/): their absence is not an error, any other missing file is
+  const OPTIONAL = /\/assets\/(door-close|lake-loop|fog-loop)\.mp4$/;
+  const lost = missing.filter((m) => !OPTIONAL.test(m));
+  const real = errs.filter((e) => !/^Failed to load resource/.test(e));
+  ok(real.length === 0 && lost.length === 0, 'no page errors: ' + real.slice(0, 3).join(' | ') + (lost.length ? ' [' + lost.slice(0, 4).join(' ; ') + ']' : ''));
   await browser.close();
   log(failed ? `${failed} FAILED` : 'ALL OK');
   process.exit(failed ? 1 : 0);
