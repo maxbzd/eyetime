@@ -91,7 +91,10 @@ fn main() {
         .expect("window");
 
     let ipc_proxy = proxy.clone();
-    let webview = WebViewBuilder::new()
+    // The window keeps its browser data in a folder of its own in the temporary files, never next to this program: the uninstaller runs from
+    // C:\Program Files, where the browser engine is not given a place to write, and the folder would also stay behind after the uninstall.
+    let mut web_context = wry::WebContext::new(Some(steps::webview_dir()));
+    let webview = WebViewBuilder::new_with_web_context(&mut web_context)
         .with_transparent(true)
         .with_url(START_URL)
         .with_custom_protocol("app".into(), |_id, req| {
@@ -112,6 +115,7 @@ fn main() {
     let mut finished_uninstall = false;
     let existing = steps::service_exists();
     event_loop.run(move |event, _, flow| {
+        let _keep = &web_context; // lives as long as the window
         *flow = ControlFlow::Wait;
         match event {
             Event::UserEvent(Ui::Js(code)) => {
@@ -141,17 +145,22 @@ fn main() {
                 }
                 "open_app" => {
                     steps::open_app();
+                    steps::forget_webview_dir();
                     *flow = ControlFlow::Exit;
                 }
                 "close" => {
                     if uninstall && finished_uninstall {
                         steps::remove_self_later();
                     }
+                    steps::forget_webview_dir();
                     *flow = ControlFlow::Exit;
                 }
                 _ => {}
             },
-            Event::WindowEvent { event: WindowEvent::CloseRequested, .. } => *flow = ControlFlow::Exit,
+            Event::WindowEvent { event: WindowEvent::CloseRequested, .. } => {
+                steps::forget_webview_dir();
+                *flow = ControlFlow::Exit;
+            }
             _ => {}
         }
     });

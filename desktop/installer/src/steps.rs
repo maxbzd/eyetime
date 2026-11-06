@@ -402,6 +402,19 @@ fn remove_with_retries(p: &PathBuf) {
     }
 }
 
+/// where the setup window keeps its browser data (a folder of its own, in the temporary files)
+pub fn webview_dir() -> PathBuf {
+    std::env::temp_dir().join(format!("EyeTime-Setup-WebView2-{}", std::process::id()))
+}
+
+/// ... and takes it away once this program has exited (the browser engine still holds it until then)
+pub fn forget_webview_dir() {
+    let cmd = format!("ping -n 4 127.0.0.1 >nul & rmdir /s /q \"{}\"", webview_dir().display());
+    let mut c = Command::new("cmd");
+    hide(c.args(["/c", &cmd]).stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null()));
+    let _ = c.spawn();
+}
+
 /// this program removes its own folder after it has exited
 pub fn remove_self_later() {
     let dir = install_dir();
