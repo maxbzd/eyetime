@@ -56,8 +56,17 @@ impl Os for Fake {
             .cloned()
             .collect()
     }
-    fn terminate(&self, pid: u32) -> bool {
-        self.0.lock().unwrap().killed.push(pid);
+    fn terminate(&self, pid: u32, exe: &str) -> bool {
+        let mut w = self.0.lock().unwrap();
+        // like the real one: only if the process number still belongs to that program
+        if !w
+            .procs
+            .iter()
+            .any(|p| p.pid == pid && p.exe.eq_ignore_ascii_case(exe))
+        {
+            return false;
+        }
+        w.killed.push(pid);
         true
     }
     fn own_pid(&self) -> u32 {

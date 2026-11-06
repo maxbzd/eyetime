@@ -1,5 +1,6 @@
 //! The named pipe the window, the agent and the browser extension talk to, and the loop that ticks the supervisor.
 
+use crate::limits::Limiter;
 use crate::os_windows::{pipe_client_role, spawn_agent, WinNet, WinOs};
 use crate::supervisor::Supervisor;
 use crate::update::Updater;
@@ -21,6 +22,7 @@ use windows_sys::Win32::System::Pipes::{
     ConnectNamedPipe, CreateNamedPipeW, PIPE_READMODE_BYTE, PIPE_REJECT_REMOTE_CLIENTS,
     PIPE_TYPE_BYTE, PIPE_UNLIMITED_INSTANCES, PIPE_WAIT,
 };
+use windows_sys::Win32::System::IO::CancelIoEx;
 
 pub type Shared = Arc<Mutex<Supervisor<WinOs>>>;
 
@@ -78,6 +80,11 @@ pub fn run_pipe_server(sup: Shared, stop: Arc<AtomicBool>) {
     let name = wide(PIPE_NAME);
     let sddl = wide(SDDL);
     let mut first = true;
+    let limiter = Arc::new(Limiter::default());
+    {
+        let (limiter, stop) = (limiter.clone(), stop.clone());
+        std::thread::spawn(move || run_reaper(limiter, stop));
+    }
     while !stop.load(Ordering::Relaxed) {
         unsafe {
             let mut sd: *mut core::ffi::c_void = std::ptr::null_mut();
@@ -128,14 +135,39 @@ pub fn run_pipe_server(sup: Shared, stop: Arc<AtomicBool>) {
             }
             // who is there is read from the system now, while the connection is fresh
             let role = pipe_client_role(h);
+            // a kind of client that already holds all the room it may have is turned away at once
+            let Some(id) = limiter.admit(role, h as usize, now_ms()) else {
+                drop(File::from_raw_handle(h as _));
+                continue;
+            };
             let file = File::from_raw_handle(h as _);
-            let sup = sup.clone();
-            std::thread::spawn(move || serve(file, sup, role));
+            let (sup, limiter) = (sup.clone(), limiter.clone());
+            std::thread::spawn(move || serve(file, sup, role, limiter, id));
         }
     }
 }
 
-fn serve(file: File, sup: Shared, role: Role) {
+fn now_ms() -> i64 {
+    crate::os::Os::mono_ms(&WinOs)
+}
+
+/// Cuts the connections of unknown programs that hold the pipe without asking for anything (a read that is waiting is cancelled and ends).
+fn run_reaper(limiter: Arc<Limiter>, stop: Arc<AtomicBool>) {
+    while !stop.load(Ordering::Relaxed) {
+        std::thread::sleep(Duration::from_secs(2));
+        limiter.cancel_overdue(now_ms(), |token| unsafe {
+            CancelIoEx(token as _, std::ptr::null());
+        });
+    }
+}
+
+fn serve(file: File, sup: Shared, role: Role, limiter: Arc<Limiter>, id: u64) {
+    serve_requests(&file, &sup, role, &limiter, id);
+    // before the handle is closed (when `file` goes out of scope), so that the reaper can never use a number that is gone
+    limiter.release(id);
+}
+
+fn serve_requests(file: &File, sup: &Shared, role: Role, limiter: &Limiter, id: u64) {
     let Ok(mut out) = file.try_clone() else {
         return;
     };
@@ -155,7 +187,7 @@ fn serve(file: File, sup: Shared, role: Role) {
                 Response::err("denied", "This program may not ask for that")
             }
             Ok(req) => {
-                let mut s = lock(&sup);
+                let mut s = lock(sup);
                 std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| s.handle(req)))
                     .unwrap_or_else(|_| Response::err("internal", "internal error"))
             }
@@ -167,6 +199,7 @@ fn serve(file: File, sup: Shared, role: Role) {
         if out.write_all(text.as_bytes()).is_err() || out.flush().is_err() {
             return;
         }
+        limiter.touch(id, now_ms());
     }
 }
 

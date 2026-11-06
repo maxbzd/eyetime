@@ -365,7 +365,8 @@ mod tests {
     #[test]
     fn every_way_out_is_caught() {
         let a = base();
-        let cases: Vec<(&str, Box<dyn Fn(&mut State)>)> = vec![
+        type Edit = Box<dyn Fn(&mut State)>;
+        let cases: Vec<(&str, Edit)> = vec![
             ("remove rule", Box::new(|s| s.rules.clear())),
             ("rule off", Box::new(|s| s.rules[0].on = false)),
             (

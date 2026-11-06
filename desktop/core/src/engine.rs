@@ -357,28 +357,28 @@ pub fn decide(
     }
 
     // the focus session
-    if let Some(s) = session {
-        if s.ends_at_ms > now.ms {
-            let hard = s.level >= 2;
-            let on_break =
-                !hard && s.allow_breaks && s.snooze_until_ms.map(|u| u > now.ms).unwrap_or(false);
-            if !on_break && !grants.covers(&s.id, now.ms) {
-                if s.blocks.is_empty() {
-                    block.add(dis.clone());
-                } else if is_everything(&s.blocks) {
-                    allow_only = true;
-                } else {
-                    for n in &s.blocks {
-                        block.add(resolve_name(state, n, ""));
-                    }
+    if let Some(s) = session
+        && s.ends_at_ms > now.ms
+    {
+        let hard = s.level >= 2;
+        let on_break =
+            !hard && s.allow_breaks && s.snooze_until_ms.map(|u| u > now.ms).unwrap_or(false);
+        if !on_break && !grants.covers(&s.id, now.ms) {
+            if s.blocks.is_empty() {
+                block.add(dis.clone());
+            } else if is_everything(&s.blocks) {
+                allow_only = true;
+            } else {
+                for n in &s.blocks {
+                    block.add(resolve_name(state, n, ""));
                 }
-                d.level = d.level.max(s.level.min(3));
-                d.reasons.push(Reason {
-                    kind: "session".into(),
-                    name: s.name.clone(),
-                    mins_left: Some(((s.ends_at_ms - now.ms) / 60_000 + 1) as u32),
-                });
             }
+            d.level = d.level.max(s.level.min(3));
+            d.reasons.push(Reason {
+                kind: "session".into(),
+                name: s.name.clone(),
+                mins_left: Some(((s.ends_at_ms - now.ms) / 60_000 + 1) as u32),
+            });
         }
     }
 

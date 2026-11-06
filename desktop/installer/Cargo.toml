@@ -8,6 +8,7 @@ build = "build.rs"
 [dependencies]
 serde = { workspace = true }
 serde_json = { workspace = true }
+eyetime-core = { path = "../core" }
 tao = "0.34"
 wry = "0.53"
 
