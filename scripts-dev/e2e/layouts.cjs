@@ -121,7 +121,7 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   await p.locator('#drawerBody input[accept*="json"]').setInputFiles(evil2);
   await p.waitForSelector('dialog[open]', { timeout: 3000 });
   await p.locator('dialog[open] button[value="yes"]').click(); await p.waitForTimeout(900);
-  const after = await sp.evaluate(async () => { const st = await import('/src/shared/storage.js'); return { s: await st.getSettings(), bg: (await st.getRaw('newtabBg')).newtabBg }; });
+  const after = await sp.evaluate(async () => { const st = await import('/src/shared/storage.js'); return { s: await st.getSettings(), bg: await (await import('/src/shared/photos.js')).getPhoto('bg') }; });
   ok(after.s.appearance.look !== '<img src=x onerror=alert(1)>' && !/javascript/.test(JSON.stringify(after.s.newtab)), 'hostile values never reach the settings');
   ok(!after.bg || after.bg.startsWith('data:image/'), 'a non-image "photo" is never stored');
   const bogus = path.join('/tmp', 'eyetime-bogus-' + Date.now() + '.json'); fs.writeFileSync(bogus, 'not json at all');

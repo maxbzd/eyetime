@@ -3,7 +3,7 @@
 
 import { $, h, icon, clear } from '../../ui/dom.js';
 import { t } from '../../shared/i18n.js';
-import { getRaw } from '../../shared/storage.js';
+import { getPhoto } from '../../shared/photos.js';
 import { dayKey } from '../../shared/time.js';
 import { LOOKS } from '../../shared/looks.js';
 import { luminance, normalizeHex } from '../../shared/color.js';
@@ -41,12 +41,12 @@ export async function applyBackground() {
   let scene = bg, photoTone = null, wxSrc = '', flatScene = bg, depthMap = '';
   if (bg === 'photo') {
     let frame = n.frame === DAILY || (today && n.background !== 'photo') ? dailyFrame(new Date(), wallSkip()) : normalizeFrame(n.frame); // a photo that ships with EyeTime, or the person's own
-    if (today && !frame && !(await getRaw('newtabBg')).newtabBg) frame = dailyFrame(new Date(), wallSkip()); // asked for their own photo but has none (yet)
+    if (today && !frame && !(await getPhoto('bg'))) frame = dailyFrame(new Date(), wallSkip()); // asked for their own photo but has none (yet)
     const paths = frame ? framePaths(frame) : null;
     paintCredit(today ? frame : '');
     const setVeil = ([vc, vt, vb]) => { const st = document.documentElement.style; st.setProperty('--vc', String(vc)); st.setProperty('--vt', String(vt)); st.setProperty('--vb', String(vb)); };
     setVeil(today && frame ? wallVeil(frame) : [0, 0, 0]);
-    const newtabBg = paths ? chrome.runtime.getURL(paths.photo) : (await getRaw('newtabBg')).newtabBg;
+    const newtabBg = paths ? chrome.runtime.getURL(paths.photo) : await getPhoto('bg');
     document.documentElement.style.setProperty('--photo-shade', String(frame ? FRAMES[frame].shade : 1));
     if (newtabBg) {
       const info = await getPhotoInfo(newtabBg);
@@ -56,12 +56,12 @@ export async function applyBackground() {
       photoTone = n.photoText === 'light' || n.photoText === 'dark' ? n.photoText : frame ? FRAMES[frame].tone : info.tone;
       wxSrc = newtabBg;
     } else bg = 'look';
-    const newtabFg = bg !== 'photo' ? '' : paths ? (paths.mask ? chrome.runtime.getURL(paths.mask) : '') : (await getRaw('newtabFg')).newtabFg;
+    const newtabFg = bg !== 'photo' ? '' : paths ? (paths.mask ? chrome.runtime.getURL(paths.mask) : '') : await getPhoto('fg');
     if (newtabFg) { document.documentElement.style.setProperty('--photo-mask', `url(${newtabFg})`); scene = 'photo-cut'; } // the cut-out subject: a masked copy of the photo goes in front of the clock
     flatScene = scene;
     const d3 = normalizeDepth(n.depth);
     if (bg === 'photo' && wxSrc && d3.on && d3.volume) { // a 3D photo: its depth map was made for this very photo
-      const { newtabDepth } = await getRaw('newtabDepth');
+      const newtabDepth = await getPhoto('depth');
       if (newtabDepth && newtabDepth.key === photoKey(wxSrc)) { depthMap = newtabDepth.png; scene = 'photo-3d'; }
     }
   }

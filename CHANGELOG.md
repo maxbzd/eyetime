@@ -6,6 +6,9 @@
 - **One language per page.** The translations are read as data, and only the language in use: the popup now reads 363 KB of script at start instead of 1 387 KB, the new tab 804 KB instead of 1 828 KB, and the background worker no longer loads eleven languages every time it wakes. (`src/shared/locales/data/*.json` are written from the `.js` files by `npm run locales`; `npm run check` fails if they are out of date.)
 - A test now counts what each page and the worker load at start, and fails when a page starts to carry translations as code or grows past its budget (`scripts-dev/tests/weight.test.mjs`). The load-time budgets of the browser suite were tightened from 3.5 s to 1.5 s for Home.
 
+### Lighter on the browser
+- **Your own photo, its cut-out and its depth map live in IndexedDB**, not in the 10 MB of `chrome.storage.local` that the history shares: the photo is no longer copied into a change event for every open page whenever it is written, and no longer read again by every backup and daily clean-up. A photo from an earlier version is moved the first time it is needed (nothing is lost, tested in a real browser).
+
 ### More exact
 - **Tracking keeps the fractions of a second.** Flicking through tabs used to drop every stay shorter than half a second; now what does not make a whole second is carried to the next one, so a day adds up to the time that really passed (`creditSeconds`, tested over thousands of random spans).
 
