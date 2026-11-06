@@ -4,7 +4,10 @@
 
 import { getRaw, setRaw, updateCollection, UNCHANGED } from '../shared/storage.js';
 import { errorText } from '../shared/errorlog.js';
-import { packTasks, unpackTasks, staleTaskKeys, remoteTasksVersion, mergeTasks, samePayload, syncable, stable, T_META, T_VERSION } from '../shared/tasksync.js';
+import { packTasks, packTasksSealed, unpackTasks, unpackTasksSealed, staleTaskKeys, remoteTasksVersion, mergeTasks, samePayload, syncable, stable, T_META, T_MAX_VERSION } from '../shared/tasksync.js';
+import { cloudMeta } from '../shared/syncpack.js';
+import { chooseMode, declaredEnc, sameEnc } from '../shared/syncseal.js';
+import { loadSyncKey } from '../shared/syncvault.js';
 
 const ALARM = 'tasks-sync';
 const remote = () => (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) || null;
@@ -16,14 +19,29 @@ async function setStatus(status) {
 }
 
 async function run(source) {
-  const { syncTasks, tasksBase, tasksTomb } = await getRaw(['syncTasks', 'tasksBase', 'tasksTomb']);
+  const { syncTasks, tasksBase, tasksTomb, syncEnc = null, syncEncOff = 0 } = await getRaw(['syncTasks', 'tasksBase', 'tasksTomb', 'syncEnc', 'syncEncOff']);
   if (!syncTasks) return { ok: true, off: true };
   const area = remote();
   if (!area) { await setStatus({ ok: false, error: 'unsupported' }); return { ok: false }; }
   try {
     const all = await area.get(null);
-    if (remoteTasksVersion(all) > T_VERSION) { await setStatus({ ok: false, error: 'incompatible' }); return { ok: false }; } // written by a newer EyeTime: never overwrite it
-    const rem = unpackTasks(all);
+    if (remoteTasksVersion(all) > T_MAX_VERSION) { await setStatus({ ok: false, error: 'incompatible' }); return { ok: false }; } // written by a newer EyeTime: never overwrite it
+    // Encryption first (see shared/syncseal.js chooseMode): the tasks are the most personal text there is, so nothing is uploaded in the clear while a passphrase is in force
+    const plan = chooseMode({ enc: syncEnc, off: syncEncOff, remoteMeta: cloudMeta(all) });
+    if (plan.clearLocal) await setRaw({ syncEnc: null, syncEncOff: Math.max(syncEncOff, syncEnc ? syncEnc.rot : 0) }); // turned off on another device: follow it
+    const info = /** @type {any} */ (plan).info;
+    let key = null;
+    if (plan.mode === 'unlock') { await setRaw({ syncNeeds: info }); await setStatus({ ok: false, error: 'locked' }); return { ok: false }; }
+    if (plan.mode === 'sealed') {
+      key = await loadSyncKey(info);
+      if (!key) { await setStatus({ ok: false, error: 'locked' }); return { ok: false }; } // after a restart: the passphrase is asked for; nothing is lost
+    }
+    const rEnc = declaredEnc(all[T_META]);
+    const sameSeal = plan.mode === 'sealed' && sameEnc(rEnc, info);
+    let rem;
+    try { rem = sameSeal ? await unpackTasksSealed(all, key) : (rEnc ? null : unpackTasks(all)); }
+    catch { await setStatus({ ok: false, error: 'tampered' }); return { ok: false }; } // does not open with the right key: changed, or put back with another time
+    const reseal = plan.mode === 'sealed' && !sameSeal; // a plain or older copy is in the cloud: the sealed one has to go up
     let merged = null;
     // no usable cloud copy = an empty one: a task is only ever deleted by a tombstone, never because a copy lacks it
     const apply = (cur) => {
@@ -33,8 +51,9 @@ async function run(source) {
     await updateCollection('tasks', [], apply);
     const del = Object.fromEntries(Object.entries(merged.tomb).map(([id, t]) => [id, t.at]));
     const mine = { tasks: merged.tasks.filter((x) => syncable(x)), del };
-    if (!rem || !samePayload(mine, rem)) {
-      const p = packTasks(merged.tasks, Date.now(), del);
+    if (!rem || reseal || !samePayload(mine, rem)) {
+      const off = Math.max(syncEncOff, rem && rem.off ? rem.off : 0);
+      const p = plan.mode === 'sealed' ? await packTasksSealed(merged.tasks, Date.now(), key, info, del) : packTasks(merged.tasks, Date.now(), del, Date.now(), off);
       if (!p) { await setStatus({ ok: false, error: 'too_big' }); return { ok: false }; }
       await area.set(p.items); // write the new copy first; only then drop leftover chunks
       const stale = staleTaskKeys(all, p.count);

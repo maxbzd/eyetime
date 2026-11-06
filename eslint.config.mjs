@@ -3,7 +3,7 @@
 
 const browser = ['chrome', 'indexedDB', 'window', 'document', 'location', 'localStorage', 'sessionStorage', 'navigator', 'console', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
   'URL', 'URLSearchParams', 'Blob', 'Image', 'Intl', 'CSS', 'fetch', 'AbortController', 'TextDecoder', 'TextEncoder', 'MutationObserver', 'history', 'IntersectionObserver',
-  'AudioContext', 'self', 'process', 'crypto', 'Response', 'Request', 'structuredClone', 'DOMParser', 'btoa', 'atob'];
+  'AudioContext', 'self', 'process', 'crypto', 'Response', 'Request', 'structuredClone', 'DOMParser', 'btoa', 'atob', 'CompressionStream', 'DecompressionStream'];
 
 // what the desktop window's screens use on top of that (plain scripts that share `window.ET`; the extension of the desktop app is a module)
 const desktop = [...browser, 'matchMedia', 'requestAnimationFrame', 'cancelAnimationFrame', 'getComputedStyle', 'performance', 'ResizeObserver', 'HTMLElement', 'Event', 'KeyboardEvent',
