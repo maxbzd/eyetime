@@ -57,7 +57,10 @@ npm i --no-save lucide-static && npm run icons
 | `node scripts-dev/e2e/visual.cjs [--update]` | screenshots of the main screens against `visual-baseline/`; `--update` after a change you meant to make |
 | `node scripts-dev/e2e/perf.cjs`, `a11y.cjs --strict`, `blocking.cjs`, `calendar.cjs` | load budgets, accessibility (axe), real blocking scenarios, calendar subscription |
 | `cd companion && python -m unittest -v test_companion` | desktop companion |
-| `npm run build` | store packages in `dist/` |
+| `npm run build` | store packages in `dist/` (production build: bundled, minified, reproducible; see [docs/BUILDING.md](docs/BUILDING.md)) |
+| `EXT=$PWD/dist/chrome node scripts-dev/e2e/dist.cjs` | the built package loaded into Chromium and used |
+| `node scripts-dev/verify-build.mjs [--against file.zip]` | the build is reproducible, and equals a published package |
+| `npm run mutation` | mutation testing of the pure logic (about ten minutes; not part of CI) |
 
 Please run `npm run check` before opening a PR, and the e2e when you touch the worker, blocking or storage.
 

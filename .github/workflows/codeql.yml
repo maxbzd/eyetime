@@ -17,11 +17,11 @@ jobs:
       matrix:
         language: [javascript-typescript, python, rust]
     steps:
-      - uses: actions/checkout@v5
-      - uses: github/codeql-action/init@v3
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: github/codeql-action/init@9418214df1f2c4b8128c770156c409013b07d6b9 # v3
         with:
           languages: ${{ matrix.language }}
           build-mode: none
-      - uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/analyze@9418214df1f2c4b8128c770156c409013b07d6b9 # v3
         with:
           category: /language:${{ matrix.language }}

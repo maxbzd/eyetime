@@ -3,6 +3,7 @@
 ## Unreleased — Lighter, stricter, easier to trust
 
 ### Faster to open
+- **A production build.** The packages hold one bundle per page instead of a tree of modules: the new tab loads 2 scripts and 18 files instead of 131 and 148, the popup 11 files instead of 55, the options page 12 instead of 106; time to the end of loading (median of 14 loads) falls from about 230 ms to about 90 ms on the new tab and from about 142 ms to 65 ms in the popup. Source and development are unchanged (load the folder as it is). The build is reproducible (two builds, same bytes; `scripts-dev/verify-build.mjs`), each release has an SBOM and a signed provenance statement, and the shipped package is loaded into a browser and used by a test of its own. See `docs/BUILDING.md`.
 - **One language per page.** The translations are read as data, and only the language in use: the popup now reads 363 KB of script at start instead of 1 387 KB, the new tab 804 KB instead of 1 828 KB, and the background worker no longer loads eleven languages every time it wakes. (`src/shared/locales/data/*.json` are written from the `.js` files by `npm run locales`; `npm run check` fails if they are out of date.)
 - A test now counts what each page and the worker load at start, and fails when a page starts to carry translations as code or grows past its budget (`scripts-dev/tests/weight.test.mjs`). The load-time budgets of the browser suite were tightened from 3.5 s to 1.5 s for Home.
 
