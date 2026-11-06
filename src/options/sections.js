@@ -7,6 +7,7 @@ import { t, LANGUAGES, weekdayName, fmtDuration } from '../shared/i18n.js';
 import { PRESETS, PRESET_IDS } from '../shared/catalog.js';
 import { parseUserDomain } from '../shared/domains.js';
 import { dockGroup } from './dock-group.js';
+import { instantRow } from './instant-row.js';
 import { weatherGroup } from './weather-group.js';
 import { siteAiGroup } from './siteai-group.js';
 
@@ -191,6 +192,7 @@ export function blocking({ s, save, refresh }) {
 
     group(t('opt.groupFriction'),
       row({ title: t('opt.friction'), desc: t('opt.frictionDesc'), control: toggle(fr.enabled, (v) => save((x) => { x.blocking.friction.enabled = v; }, true), t('opt.friction')) }),
+      instantRow(s, save, refresh),
       fr.enabled ? row({ adv: 'friction', title: t('opt.frictionSeconds'), control: select([5, 8, 10, 15, 30].map((n) => [n, t('opt.seconds', { n })]), fr.seconds, (v) => save((x) => { x.blocking.friction.seconds = Number(v); }), { label: t('opt.frictionSeconds') }) }) : null,
       row({ adv: 'friction', title: t('opt.passMinutes'), desc: t('opt.passMinutesDesc'), control: select(mins([5, 10, 15, 30]), fr.passMinutes, (v) => save((x) => { x.blocking.friction.passMinutes = Number(v); }), { label: t('opt.passMinutes') }) }),
       row({ adv: 'friction', title: t('opt.budget'), desc: t('opt.budgetDesc'), control: h('div', { class: 'row gap-2' }, b.budget.enabled ? select([15, 30, 45, 60, 90, 120].map((m) => [m, fmtDuration(m * 60)]), b.budget.minutes, (v) => save((x) => { x.blocking.budget.minutes = Number(v); }), { label: t('opt.budget') }) : null, toggle(b.budget.enabled, (v) => save((x) => { x.blocking.budget.enabled = v; }, true), t('opt.budget'))) }),

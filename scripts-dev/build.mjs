@@ -32,7 +32,7 @@ export async function buildInto({ stage, root, target = ['chrome120', 'firefox14
   // 2) classic scripts
   const classic = await Promise.all(CLASSIC_ENTRIES.map((e) => esbuild.build({ ...common, entryPoints: [abs(e)], bundle: true, format: 'iife', outfile: path.join(stage, e), write: true })));
   // 3) style sheets, one for one (no bundling: the pages still link each of them)
-  const css = await esbuild.build({ ...common, entryPoints: cssFiles(abs('src')), bundle: false, outdir: stage, outbase: root, write: true, loader: { '.css': 'css' } });
+  await esbuild.build({ ...common, entryPoints: cssFiles(abs('src')), bundle: false, outdir: stage, outbase: root, write: true, loader: { '.css': 'css' } });
 
   // 4) the source modules that went into a bundle are not shipped a second time
   const entries = new Set([...MODULE_ENTRIES, ...CLASSIC_ENTRIES].map((e) => path.normalize(e)));

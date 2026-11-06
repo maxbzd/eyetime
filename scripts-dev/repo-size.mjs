@@ -12,4 +12,4 @@ const MB = (n) => (n / 1048576).toFixed(1).padStart(6) + ' MB';
 console.log(`${blobs.length} files in the history, ${MB(blobs.reduce((a, b) => a + b.size, 0))} before compression (the clone is smaller: git stores versions as deltas)\n`);
 for (const [g, e] of [...by].sort((a, b) => b[1].size - a[1].size)) console.log(`${MB(e.size)}  ${String(e.n).padStart(5)} files  ${g}`);
 console.log('\nthe biggest single versions:');
-for (const b of blobs.sort((a, b) => b.size - a.size).slice(0, 8)) console.log(`${MB(b.size)}  ${b.path}`);
+for (const blob of blobs.sort((a, b) => b.size - a.size).slice(0, 8)) console.log(`${MB(blob.size)}  ${blob.path}`);

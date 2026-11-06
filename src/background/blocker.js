@@ -10,6 +10,7 @@ import { logError } from '../shared/errorlog.js';
 import { getRaw, setRaw, updateDay } from '../shared/storage.js';
 import { dayKey } from '../shared/time.js';
 import { track } from '../shared/usage-store.js';
+import { instantOn, syncInstant, blockedBase } from './instant.js';
 
 /** If the stored policy cannot be read at all, the factory rules apply (a pause page on distracting sites) rather than letting everything through. */
 function failClosed(url) {
@@ -39,8 +40,17 @@ export async function checkTab(tabId, url) {
   if (d.action === 'allow') return;
   logAttempt(tabId, url, d).catch(() => {});
   track('block_page');
+  // With instant blocking the browser has already sent this tab to the block page (no request left): give it a moment, and only step in if it did not
+  // (a rule that was not there yet, an address the rules do not say, a decision they cannot make).
+  if (COVERED.has(d.reason || '') && d.scope !== 'only-mine' && (await instantOn())) {
+    await new Promise((r) => setTimeout(r, 350));
+    try { const tab = await chrome.tabs.get(tabId); if ((tab.url || tab.pendingUrl || '').startsWith(blockedBase())) return; } catch { return; }
+  }
   try { await chrome.tabs.update(tabId, { url: blockedPageUrl(url, d) }); } catch { /* tab closed */ }
 }
+
+/** The reasons the browser's rules can say (limits and the budget depend on usage, which only the blocker reads). */
+const COVERED = new Set(['always', 'focus', 'schedule', 'friction']);
 
 /** Re-check every open tab (after a focus session starts or the schedule / lists change). Loads policy context once. */
 export async function sweepTabs() {
@@ -64,6 +74,7 @@ export async function grantPass(rule, minutes, tabId = null) {
   passes[rule] = now + Math.max(1, minutes) * 60_000;
   if (tabId != null) passes[redirectGraceKey(tabId)] = now + REDIRECT_GRACE_MS;
   await setRaw({ passes });
+  await syncInstant(); // the rule of this site must be gone before the page goes back to it, or the browser would send it here again
 }
 
 chrome.webNavigation.onBeforeNavigate.addListener((d) => { if (d.frameId === 0) checkTab(d.tabId, d.url); });

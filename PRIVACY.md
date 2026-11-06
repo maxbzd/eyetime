@@ -61,6 +61,7 @@ Fonts and icons are bundled inside the extension; no content is loaded from the 
 | `notifications` | Eye-break and session-complete reminders |
 | `offscreen` | Play the soft session start/end sound |
 | `favicon` | Show site icons from the browser's own cache (nothing is downloaded) |
+| `declarativeNetRequestWithHostAccess` | Instant blocking (off by default): lets the browser itself send a distracting site to the pause page before a request is made. It does nothing until you switch that setting on and allow access to websites; it cannot read pages or requests, and the browser shows no warning for it. Chrome only |
 | `scripting` | Lets the dock's page script be registered on demand, and only after you have granted access to websites (it does nothing on its own; the browser shows no warning for it) |
 | Sites: youtube.com, instagram.com, tiktok.com, vk.com, vkvideo.ru | Only to limit short-video scrolling and hide YouTube feeds |
 | Optional: `127.0.0.1:8765` | Only when you enable the desktop companion |

@@ -29,6 +29,7 @@ export const ADV = {
   focusExtras: { paths: ['focus.sound', 'focus.openUrl', 'focus.suggestBreak'] },
   // Blocking
   friction: { paths: ['blocking.friction', 'blocking.budget', 'blocking.plans'] },
+  instant: { paths: ['blocking.instant'] },
   schedule: { paths: ['blocking.schedule'] },
   limits: { paths: ['blocking.limits'] },
   feed: { paths: ['blocking.feed'] },

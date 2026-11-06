@@ -58,6 +58,19 @@ export function installFakeChrome({ extensionId = 'fakeextensionidfakeextensioni
   const alarmTable = new Map();
   const tabsState = { nextId: 1, list: [] };
   const win = { id: 1, focused: true, incognito: false };
+  const granted = new Set(), permissionsAdded = event(), permissionsRemoved = event();
+  const dnrDynamic = new Map(), dnrSession = new Map();
+  function dnrUpdate(table, { removeRuleIds = [], addRules = [] }, maxRegex) {
+    const next = new Map(table);
+    for (const id of removeRuleIds) next.delete(id);
+    for (const r of addRules) {
+      if (!Number.isInteger(r.id) || r.id < 1) throw new Error('Rule with id ' + r.id + ' does not have a valid id.');
+      if (next.has(r.id)) throw new Error('Rule with id ' + r.id + ' does not have a unique ID.');
+      next.set(r.id, clone(r));
+    }
+    if ([...next.values()].filter((r) => r.condition && r.condition.regexFilter).length > maxRegex) throw new Error('Rule count exceeded: too many rules with a regular expression');
+    table.clear(); for (const [k, v] of next) table.set(k, v); // all or nothing, like the browser
+  }
   const calls = []; // what the worker asked of the browser, in order: [api, ...args]
   const log = (api, ...args) => calls.push([api, ...args]);
 
@@ -119,11 +132,26 @@ export function installFakeChrome({ extensionId = 'fakeextensionidfakeextensioni
     contextMenus: { create: (o) => { log('contextMenus.create', o); return o.id; }, removeAll: async () => log('contextMenus.removeAll'), onClicked: event() },
     commands: { onCommand: event() },
     i18n: { getMessage: (k) => k, getUILanguage: () => 'en' },
-    permissions: { contains: async () => false, request: async () => false, remove: async () => true, onAdded: event(), onRemoved: event() },
+    permissions: {
+      // origins the test has granted with chrome._grant(...); nothing is granted at first
+      contains: async (q = {}) => (q.origins || []).every((o) => granted.has(o)),
+      request: async () => false,
+      remove: async (q = {}) => { for (const o of q.origins || []) granted.delete(o); permissionsRemoved.fire(q); return true; },
+      onAdded: permissionsAdded, onRemoved: permissionsRemoved,
+    },
+    // the request rules: kept as the browser keeps them, with the limits that matter (unique ids, 1000 rules with an expression)
+    declarativeNetRequest: {
+      getDynamicRules: async () => clone([...dnrDynamic.values()]),
+      getSessionRules: async () => clone([...dnrSession.values()]),
+      updateDynamicRules: async (o = {}) => { log('dnr.updateDynamicRules', { removed: (o.removeRuleIds || []).length, added: (o.addRules || []).length }); dnrUpdate(dnrDynamic, o, 1000); },
+      updateSessionRules: async (o = {}) => { log('dnr.updateSessionRules', { removed: (o.removeRuleIds || []).length, added: (o.addRules || []).length }); dnrUpdate(dnrSession, o, Infinity); },
+    },
     scripting: { registerContentScripts: async () => {}, unregisterContentScripts: async () => {}, getRegisteredContentScripts: async () => [], updateContentScripts: async () => {} },
     offscreen: { createDocument: async (o) => log('offscreen.createDocument', o), closeDocument: async () => {}, Reason: { AUDIO_PLAYBACK: 'AUDIO_PLAYBACK' } },
 
     // ---- what a test does to the pretend browser ----
+    /** give the extension access to these origins (the way the person does in the browser's prompt) */
+    _grant(origins) { for (const o of [].concat(origins)) granted.add(o); permissionsAdded.fire({ origins: [].concat(origins) }); },
     _window: win,
     /** open a tab (active by default) and return it */
     _openTab(url, props = {}) {
