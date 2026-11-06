@@ -250,8 +250,8 @@
         <text x="${C}" y="${C - R - 30}">12</text><text x="${C}" y="${C + R + 42}">00</text><text x="${C - R - 34}" y="${C + 4}">06</text><text x="${C + R + 34}" y="${C + 4}">18</text>
         <g id="onbSun" opacity=".9" transform="translate(${C - 12} ${C - 46})"><circle cx="12" cy="12" r="6" fill="#ffd27a"/><g stroke="#ffd27a" stroke-width="1.6" stroke-linecap="round"><path d="M12 1v3M12 20v3M1 12h3M20 12h3M4.2 4.2l2 2M17.8 17.8l2 2M4.2 19.8l2-2M17.8 6.2l2-2"/></g></g>
         <g transform="translate(${C - 10} ${C + 22})"><path d="M18 14.5A8 8 0 1 1 9.5 3a6.5 6.5 0 0 0 8.5 11.5z" fill="#bcd0ff"/></g>
-        <g class="knob" id="onbK1" tabindex="0" role="slider" aria-label="from"><circle r="17" fill="#8cf2c6"/><circle r="7" fill="#07120d" opacity=".25"/></g>
-        <g class="knob" id="onbK2" tabindex="0" role="slider" aria-label="to"><circle r="17" fill="#86d7ff"/><circle r="7" fill="#07120d" opacity=".25"/></g></svg></div>
+        <g class="knob" id="onbK1" tabindex="0" role="slider" aria-label="from" aria-valuemin="0" aria-valuemax="1439" aria-valuenow="0"><circle r="17" fill="#8cf2c6"/><circle r="7" fill="#07120d" opacity=".25"/></g>
+        <g class="knob" id="onbK2" tabindex="0" role="slider" aria-label="to" aria-valuemin="0" aria-valuemax="1439" aria-valuenow="0"><circle r="17" fill="#86d7ff"/><circle r="7" fill="#07120d" opacity=".25"/></g></svg></div>
         <div class="dialside"><div class="qtext" id="onbQ"></div><div class="days" id="onbDays">${T().days.map((d, i) => `<button type="button" data-d="${i}" aria-pressed="${choice.days.includes(i)}">${d}</button>`).join('')}</div>
         <div class="chips" style="justify-content:flex-start;margin:0"><button class="chip2" data-p="540,1020" type="button">${T().pw}</button><button class="chip2" data-p="1200,1380" type="button">${T().pe}</button><button class="chip2" data-p="1380,360" type="button">${T().pn}</button></div></div></div>
       <div class="row"><button class="ghost" data-back type="button">${T().back}</button><button class="cta" data-next type="button">${T().next}</button></div>`;
@@ -260,6 +260,7 @@
       const [x1, y1] = pt(choice.from), [x2, y2] = pt(choice.to), s = span();
       arc.setAttribute('d', s >= 1440 ? `M ${C} ${C - R} A ${R} ${R} 0 1 1 ${C - 0.01} ${C - R}` : `M ${x1} ${y1} A ${R} ${R} 0 ${s > 720 ? 1 : 0} 1 ${x2} ${y2}`);
       k1.setAttribute('transform', `translate(${x1} ${y1})`); k2.setAttribute('transform', `translate(${x2} ${y2})`);
+      k1.setAttribute('aria-valuenow', String(choice.from)); k2.setAttribute('aria-valuenow', String(choice.to));
       k1.setAttribute('aria-valuetext', hm(choice.from)); k2.setAttribute('aria-valuetext', hm(choice.to));
       $('#onbQ', a).innerHTML = s >= 1440 ? `<b>${T().allDay}</b>` : T().quiet(`<b>${hm(choice.from)}</b>`, `<b>${hm(choice.to)}</b>`, fmtSpan(s));
     };

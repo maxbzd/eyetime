@@ -243,6 +243,7 @@
       row.insertAdjacentHTML('afterend', `<div class="st-row" id="updAutoRow"><div class="t"><b></b><span></span></div><div class="c"><button class="upd-sw" type="button" role="switch" aria-checked="false"></button></div></div>`);
       const seeBtn = document.createElement('button'); seeBtn.type = 'button'; seeBtn.className = 'btn-s upd-see'; seeBtn.hidden = true; nb.before(seeBtn); seeBtn.onclick = () => openSheet();
       const sw = $('#updAutoRow .upd-sw', grp); const flip = async () => { const on = sw.getAttribute('aria-checked') !== 'true'; sw.setAttribute('aria-checked', String(on)); await send('update_set_auto', { on }); };
+      sw.setAttribute('aria-label', L().auto); // the row's own title is filled in later, from the same words
       sw.onclick = (e) => { e.stopPropagation(); flip(); }; $('#updAutoRow', grp).onclick = (e) => { if (e.target !== sw) flip(); };
     }
     if (!u) return;

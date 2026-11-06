@@ -40,10 +40,15 @@ const WORDS = {
 };
 let lang = store.get('et-lang') || ((navigator.language || 'en').toLowerCase().startsWith('ru') ? 'ru' : 'en');
 const W = () => WORDS[lang];
+/** the streak chip shows only a number: its name is that number and what it counts (the name must contain the visible text) */
+function syncStreakName() { const chip = $('#streakChip'); if (chip) chip.setAttribute('aria-label', `${$('#streakNum').textContent} — ${lang === 'ru' ? 'дней подряд' : 'day streak'}`); }
+
 let applyLang = function applyLang() {
   document.documentElement.lang = lang;
   $$('[data-i18n]').forEach((el) => { const v = W()[el.dataset.i18n]; if (typeof v === 'string') el.textContent = v; });
   $('#langBtn').textContent = lang === 'ru' ? 'EN' : 'RU';
+  $('#langBtn').setAttribute('aria-label', `${$('#langBtn').textContent} — ${lang === 'ru' ? 'сменить язык' : 'change language'}`); // the name holds the visible text
+  syncStreakName();
   $('#specHead').innerHTML = W().specHead(19);
   $('#sheetName').value = lang === 'ru' ? 'Фокус' : 'Focus'; $('#sName').textContent = $('#sheetName').value;
   renderBlockCard(); renderSheet(); setDay(dayOffset, false); if (booted) { drawOffline(); drawBig(); }
@@ -592,6 +597,29 @@ async function boot() {
 }
 /* every value that came from a person or from the computer (a name they typed, the name of a program in front) goes through esc() before it is placed in markup */
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* A switch is a button with no text: its name is the title of the row or card it sits in. Done here once, for every screen, whenever one appears (axe: "button-name"). */
+const nameSwitches = (root) => (root.querySelectorAll ? root : document).querySelectorAll('button.sw:not([aria-label]):not([aria-labelledby]), button.upd-sw:not([aria-label]):not([aria-labelledby])').forEach((b) => {
+  const host = b.closest('.st-row, .au, .lim, .catc, .rule, .li, .row, .glass');
+  const title = host && host.querySelector('.t > b, b, h3, .nm');
+  const text = title && title.textContent.trim();
+  if (text) b.setAttribute('aria-label', text);
+});
+/* Headings: a screen has one h1, and its groups were written as h3. Where a heading jumps more than one level, its level is the next one down (the look does not change). */
+const fixHeadings = (root) => {
+  let prev = 0;
+  for (const h of root.querySelectorAll('h1, h2, h3, h4')) {
+    const given = h.getAttribute('aria-level');
+    if (given) { prev = Number(given); continue; }
+    const level = Number(h.tagName[1]);
+    if (prev && level > prev + 1) { h.setAttribute('role', 'heading'); h.setAttribute('aria-level', String(prev + 1)); prev += 1; } else prev = level;
+  }
+};
+new MutationObserver((list) => {
+  const views = new Set();
+  for (const m of list) for (const n of m.addedNodes) if (n.nodeType === 1) { nameSwitches(n.matches && n.matches('button.sw, .upd-sw') ? n.parentNode || document : n); views.add(n.closest ? n.closest('.vw') || n : n); }
+  views.forEach((v) => fixHeadings(v));
+}).observe(document.body, { childList: true, subtree: true });
+nameSwitches(document);
 Object.assign(ET, { esc, hscroll, gemStill, gemLive, SCENES, $, $$, clamp, lerp, easeOut, easeExpo, tween, wait, raf, reduced, store, go, toast, wheel, countTo, mulberry, ripple, openSheet, closeSheet, openScrim, closeScrim, BLOCKABLE, DURS, S, run, Landscape, W, t: (k, ...a) => { const v = W()[k]; return typeof v === 'function' ? v(...a) : v; }, lang: () => lang, langHooks: [], startSession, gem: () => window.__gem, dpr });
 Object.assign(ET, {
   /* the real app: the helper tells the screens what is going on */
@@ -609,7 +637,7 @@ Object.assign(ET, {
       return;
     }
     $('#specPin').style.opacity = ''; $('#scoreVal').style.opacity = ''; if (dayOffset !== 0 || !booted) { DAYS[0] = { ...DAYS[0], ...d.day }; if (d.bars) BARS[0] = d.bars; return; } DAYS[0] = { ...DAYS[0], ...d.day }; state = { ...DAYS[0] }; if (d.bars) { BARS[0] = d.bars; buildChart(BARS[0]); } countBig(state.screen, 600); countTo($('#focusPct'), state.focusPct, 600, (v) => Math.round(v) + '%'); countTo($('#switchNum'), state.switches, 400); countTo($('#scoreVal'), state.score, 600); paintGauges(600); drawOffline(); $('#offlineMeter').style.width = state.offPct + '%'; countTo($('#offlineVal'), state.offline, 600, (v) => W().hm(Math.floor(v / 60), Math.round(v) % 60)); },
-  setStreak(n) { $('#streakNum').textContent = $('#flameNum').textContent = String(n); },
+  setStreak(n) { $('#streakNum').textContent = $('#flameNum').textContent = String(n); syncStreakName(); },
   /* a session that was already running when the window opened: no countdown, straight to the lake */
   resumeRun(ses, leftSec, totalSec) { if (run.on) return; Object.assign(S, { name: ses.name, min: Math.round(totalSec / 60), diff: ses.level, scene: ses.scene || S.scene }); beginRun(); run.total = totalSec; run.left = leftSec; run.startedAt = ses.startedAtMs; $('#tStart').textContent = fmtClock(ses.startedAtMs); $('#tEnd').textContent = fmtClock(ses.endsAtMs); },
   endRunExternal(completed) { finish(completed); },
