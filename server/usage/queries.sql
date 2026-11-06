@@ -1,6 +1,8 @@
 -- The questions the report is for. Every query is plain SQLite (D1): paste it into `wrangler d1 execute eyetime-usage --command "…"` or any SQL console.
 -- "install day" = the day of the last report minus `age`. "Active" = EyeTime was opened or used that day (an entry in `act`). Numbers describe the people who agreed to share:
 -- read them as a direction, not as a census (see docs/MEASUREMENT.md).
+-- These are the quick questions for a console. The dashboard (server/usage/stats.js) is the reference: it counts people who left as NOT retained (here `age >= …` keeps only the
+-- installs that kept reporting, which flatters retention) and it answers for any period. Where the two differ, believe the dashboard.
 
 -- name: overview
 SELECT COUNT(*) AS installs,

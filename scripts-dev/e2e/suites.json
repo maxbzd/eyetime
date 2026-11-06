@@ -37,6 +37,8 @@
     {"id": "essentials", "file": "essentials.cjs", "weight": 40},
     {"id": "ritual", "file": "ritual.cjs", "weight": 45},
     {"id": "usage", "file": "usage.cjs", "weight": 25},
+
+    {"id": "dashboard", "file": "dashboard.cjs", "weight": 30},
     {"id": "connections", "file": "connections.cjs", "weight": 30},
     {"id": "perf", "file": "perf.cjs", "weight": 11},
     {"id": "network", "file": "network.cjs", "weight": 20},

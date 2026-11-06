@@ -5,11 +5,13 @@
 // and forgets an id on request.
 
 import { validateReport, validateForget, LIMITS } from '../../src/shared/usage-schema.js';
+import { computeStats, publicStats } from './stats.js';
 
 export const MIN_GAP_MS = 6 * 3_600_000; // one report per install per six hours: a faulty client cannot flood the tables
 export const MAX_NEW_PER_HOUR = 1000; // installs that report for the first time, in all, per hour: a flood of made-up ids (the six-hour rule only holds for an id seen before) fills nothing past this
 const HOUR_MS = 3_600_000;
-const MAX_BODY = 4096;
+const DAY_MS = 86_400_000;
+const MAX_BODY = 8192;
 
 /** Only EyeTime itself (an extension page or its worker) is a browser origin that may call this. A web page is refused, so a page cannot be made to send reports. */
 export const isExtensionOrigin = (origin) => /^(chrome|moz)-extension:\/\/[a-z0-9-]{8,64}$/i.test(origin || '');
@@ -22,15 +24,73 @@ const headersFor = (origin) => ({
   'cache-control': 'no-store',
 });
 
+/** Compare two secrets in time that does not depend on where they differ. */
+export function sameSecret(/** @type {string} */ a, /** @type {string} */ b) {
+  let diff = a.length ^ b.length;
+  for (let i = 0; i < Math.max(a.length, b.length); i++) diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
+  return diff === 0;
+}
+
+/**
+ * The period a dashboard asks for: ?range=all, or ?days=N (1–3650, counted back from today), or ?from=YYYY-MM-DD&to=YYYY-MM-DD (either may be left out). Nothing given: the default.
+ * Anything malformed is null (a 400), so a typo is never silently answered with another period.
+ * @param {URL} url
+ */
+export function parsePeriod(url) {
+  const q = url.searchParams;
+  const day = (/** @type {string} */ v) => { if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return null; const ms = Date.parse(v + 'T00:00:00Z'); return Number.isNaN(ms) || new Date(ms).toISOString().slice(0, 10) !== v ? null : Math.floor(ms / DAY_MS); };
+  if (q.get('range') === 'all') return { all: true };
+  const days = q.get('days');
+  if (days !== null) return /^\d{1,4}$/.test(days) && +days >= 1 && +days <= 3650 ? { recentDays: +days } : null;
+  const f = q.get('from'), t = q.get('to');
+  if (f === null && t === null) return {};
+  const from = f === null ? undefined : day(f), to = t === null ? undefined : day(t);
+  if (from === null || to === null) return null;
+  if (from !== undefined && to !== undefined && (from > to || to - from > 3650)) return null;
+  return { from, to };
+}
+
+const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8', 'x-content-type-options': 'nosniff' };
+const PAGE_HEADERS = {
+  'content-type': 'text/html; charset=utf-8', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer', 'x-frame-options': 'DENY',
+  // the page is one file with its own script and style and fetches only this origin
+  'content-security-policy': "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+};
+
 /**
  * @param {Request} req
- * @param {{ lastReceived(id: string): Promise<number | null>, newSince(since: number): Promise<number>, save(report: any, now: number): Promise<void>, forget(id: string): Promise<void> }} store
+ * @param {{ lastReceived(id: string): Promise<number | null>, newSince(since: number): Promise<number>, save(report: any, now: number): Promise<void>, forget(id: string): Promise<void>, snapshot?(): Promise<any> }} store
  * @param {number} now
+ * @param {{ dashToken?: string, publicStats?: boolean, dashboardHtml?: string, demo?: (now: number) => any }} [opts]
+ *   dashToken: the secret that opens the owner's dashboard (GET /v1/stats); without it the dashboard does not exist.
+ *   publicStats: also answer GET /v1/public-stats (totals over many installs only, see stats.js publicStats) to anyone.
+ *   dashboardHtml: the page served at / (the dashboard).
+ *   demo: makes a made-up snapshot, answered at GET /v1/demo-stats (a local preview; the Worker does not pass it).
  */
-export async function handle(req, store, now = Date.now()) {
+export async function handle(req, store, now = Date.now(), opts = {}) {
   const origin = req.headers.get('origin');
   const reply = (status, body = null, extra = {}) => new Response(body, { status, headers: { ...headersFor(origin && isExtensionOrigin(origin) ? origin : ''), ...extra } });
   const url = new URL(req.url);
+  // the owner's side: a page, and the numbers behind it (behind a secret). Nothing here is reachable without the token, except the page itself, which holds no data.
+  if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/dashboard') && opts.dashboardHtml) return new Response(opts.dashboardHtml, { status: 200, headers: { ...PAGE_HEADERS, 'cache-control': 'no-store' } });
+  if (req.method === 'GET' && url.pathname === '/v1/stats') {
+    if (!opts.dashToken || opts.dashToken.length < 16 || !store.snapshot) return new Response(null, { status: 404 });
+    const given = /^Bearer (.+)$/.exec(req.headers.get('authorization') || '')?.[1] || '';
+    if (!sameSecret(given, opts.dashToken)) return new Response(null, { status: 401, headers: { 'cache-control': 'no-store', 'www-authenticate': 'Bearer' } });
+    const period = parsePeriod(url);
+    if (!period) return new Response('bad period', { status: 400, headers: { 'cache-control': 'no-store' } });
+    return new Response(JSON.stringify(computeStats(await store.snapshot(), now, period)), { status: 200, headers: { ...JSON_HEADERS, 'cache-control': 'no-store' } });
+  }
+  // made-up figures for looking at the page before the first real report (the page asks for them with ?demo); only where the host passes a generator (a local preview), never in the Worker
+  if (req.method === 'GET' && url.pathname === '/v1/demo-stats' && opts.demo) {
+    const period = parsePeriod(url);
+    if (!period) return new Response('bad period', { status: 400 });
+    return new Response(JSON.stringify(computeStats(opts.demo(now), now, period)), { status: 200, headers: { ...JSON_HEADERS, 'cache-control': 'no-store' } });
+  }
+  if (req.method === 'GET' && url.pathname === '/v1/public-stats') {
+    if (!opts.publicStats || !store.snapshot) return new Response(null, { status: 404 });
+    return new Response(JSON.stringify(publicStats(computeStats(await store.snapshot(), now, { compare: false }))), { status: 200, headers: { ...JSON_HEADERS, 'cache-control': 'public, max-age=300', 'access-control-allow-origin': '*' } });
+  }
   if (url.pathname !== '/v1/usage') return reply(404);
   if (origin && !isExtensionOrigin(origin)) return reply(403); // a browser says where the request comes from; a web page is not EyeTime
   if (req.method === 'OPTIONS') return reply(204);

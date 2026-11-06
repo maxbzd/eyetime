@@ -8,6 +8,15 @@ compatibility_date = "2025-01-01"
 [observability]
 enabled = false
 
+# dashboard.html is shipped inside the Worker as text
+[[rules]]
+type = "Text"
+globs = ["**/*.html"]
+fallthrough = true
+
+# Secrets (never in this file): `wrangler secret put DASH_TOKEN` (the key that opens the dashboard; 32+ random characters).
+# Optional, public totals for anyone: `wrangler secret put PUBLIC_STATS` and enter 1.
+
 [[d1_databases]]
 binding = "DB"
 database_name = "eyetime-usage"

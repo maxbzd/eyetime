@@ -30,3 +30,9 @@ CREATE TABLE IF NOT EXISTS usage_weeks (
   PRIMARY KEY (id, week, feature)
 );
 CREATE INDEX IF NOT EXISTS usage_weeks_feature ON usage_weeks (feature, week);
+-- What is switched on, as of the last report (a state, replaced by every report that carries it): the names are from the fixed list FLAGS in src/shared/usage-schema.js.
+CREATE TABLE IF NOT EXISTS flags (
+  id   TEXT NOT NULL,
+  flag TEXT NOT NULL,
+  PRIMARY KEY (id, flag)
+);

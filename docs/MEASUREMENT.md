@@ -21,6 +21,8 @@ Two things only: **on which days EyeTime was used**, and **how often each featur
 - *First use*: the age at which a feature was first used. This is what makes the activation funnel possible.
 - *Counters*: per feature, the uses since the last report (a week).
 - The setup: look, layout, language, light / dark / auto, browser family and operating-system family. The things we choose defaults for.
+- **What stays switched on** (`fl`, a state and not a count): which optional features are on (morning ritual, dock, weather, calendar, sync and its encryption, instant blocking, schedule, limits, friction, eye reminders, bedtime, standby, companion app, …) and, in steps, how many tasks, habits and blocked sites there are (0 / 1–5 / 6–20 / 21+). A feature that people try and then switch off shows here and nowhere else.
+- **How things went**, in fixed buckets and never as a time or a title: the length of a finished session (under 15 / 15–25 / 25–35 / 35–50 / 50–75 / 75+ min), a session stopped in its first five minutes, why a page was stopped (always, session, schedule, limit, budget, friction), how fast the new tab was ready (under 100 / 250 / 500 / 1000 ms / slower), whether the welcome was finished, and errors by *place* only (background, pages, blocker, sync, other; never the text).
 
 ## The questions, and the queries that answer them
 
@@ -32,6 +34,28 @@ All in `server/usage/queries.sql` (plain SQLite; run against D1 with `wrangler d
 | **Retention D1 / D7 / D30** | Share of installs that were active **the next day (D1)**, **on any day 7–13 (D7)** or **30–36 (D30)** after the install. An install is counted only when its window has been observed (age ≥ 13 for D7, ≥ 36 for D30). A window is used instead of one exact day because EyeTime is used a few days a week, not every day. | `retention` |
 | **Which features are real** | Of the installs that reported in the last four weeks, the share that used each feature at all, and how many uses in total. A feature that few use is a candidate to simplify or to cut. | `feature_adoption` |
 | **What people choose** | Look, layout, language, system among active installs. Defaults that nobody keeps are a design question. | `setup` |
+| **Does a session reach its end** | Finished ÷ started, the share stopped in the first five minutes, and the length of the finished ones. Decides the default length and what stopping looks like. | dashboard: *Focus sessions* |
+| **Does blocking work, and is it gentle** | Why pages are stopped, and the share of pause pages that end in *Continue*. Many *Continue* means too little friction or the wrong reason. | dashboard: *Blocking* |
+| **Is the new tab fast on real machines** | Histogram of the time until ready; the bucket the median and the 90th percentile fall in. Budget: 90 % of opens under 500 ms. | dashboard: *New tab speed* |
+| **Does something break** | Installs with at least one error, and errors per 1000 installs by place. | dashboard: *Health* |
+
+The queries in `queries.sql` are the quick ones for a console. **The dashboard is the reference**; where they differ, believe the dashboard. Its rules, which `scripts-dev/tests/usage-stats.test.mjs` checks against populations that can be counted by hand:
+
+- **People who left count as not retained.** A window (D1, D7, D30, a cohort week) is counted for an install only when the calendar says the window is over and a week more has passed for the weekly report to arrive (installed at least `window + 7` days ago). Never because the install happened to keep reporting: that would drop everyone who left and flatter every figure.
+- **The period scopes everything.** *Active* = a day of activity or the last report in it; the weekly counters are rounded outward to whole weeks (they are stored by week); the funnel, activation and retention follow the installs **made in the period** for as long as they have been around; the weekly chart and the cohort table always end at the end of the period (12 weeks at least, 26 at most). Default 90 days, so that the 30-day return of people who came in the period can be seen; a 7- or 28-day period has no D30 yet and says so.
+- **Every figure is `k of n`**, and one that rests on fewer than 50 installs (30 sessions, 100 tab opens) is dimmed and hatched. A feature is a *candidate to cut* only with at least 50 active installs and under 5 % of them using it.
+- **Comparison.** Against the period of the same length right before (not for *all time*, and not when it would end before the first install). Rates are compared in percentage points, counts in percent, and nothing is compared when either side is a small sample.
+
+## The dashboard
+
+`server/usage/dashboard.html`, served by the collector at `/` and drawn from `GET /v1/stats` (behind the secret `DASH_TOKEN`). One file, no library, nothing requested except its own origin; Russian and English, light and dark, usable on a phone and by keyboard.
+
+- **Period** (one row above everything): 7 / 28 / 90 days, all time, or any two dates; the period is in the address, so a link opens the same view. **Compare with the previous period** is on by default.
+- **At a glance**, then *what stands out* (rules written in plain words: the sharpest drop of the funnel, early stops, features nobody uses, the place most errors come from), growth by week, the new person's path, retention with the cohort heat-map, what is used (by group, with the uses and who tried it), sessions, blocking, speed, health, setup and what people keep on, and a short *how to read this*.
+- **Every section says which question it answers and which decision it feeds**, and which people it counts (active in the period, installs of the period, weeks of the period).
+- **Export** (the same menu on the public view): *CSV* of every figure (long format `section,id,metric,label,value,k,n`, a BOM for Excel, labels in the language of the page, cells that start like a formula are neutralised), *JSON* (the collector's full answer), a *Markdown report* (file, or copied) and *print / PDF*. File names carry the period.
+- **Public statistics**: with `PUBLIC_STATS=1` the collector also answers `GET /v1/public-stats`, and `/?public` shows it: only totals over at least 50 installs, small categories folded into "other", no cohorts, errors or versions. Below 50 it says it is still collecting.
+- **Look at it before there is data**: `node scripts-dev/dashboard-preview.mjs` serves the real handler with a made-up population of 500 installs (`/?demo`); nothing leaves the machine.
 
 ## Targets for the first quarter
 

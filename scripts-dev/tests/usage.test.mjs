@@ -95,3 +95,53 @@ test('usage: an id is 128 random bits and nothing else', () => {
   assert.match(a, /^[0-9a-f]{32}$/); assert.notEqual(a, b);
   assert.equal(newId((arr) => arr.fill(255)), 'f'.repeat(32));
 });
+
+// ---- the second version of the report: what is switched on, how sessions go, how fast the new tab is, how many errors ----
+import { flagsOf, lengthFeature, blockFeature, speedFeature, errorFeature } from '../../src/shared/usage.js';
+import { FLAGS } from '../../src/shared/usage-schema.js';
+import { DEFAULT_SETTINGS, clone } from '../../src/shared/defaults.js';
+
+test('usage v2: the buckets put every number in exactly one named counter, and all of those names are on the list', () => {
+  for (const m of [1, 14, 15, 24, 25, 34, 35, 49, 50, 74, 75, 180]) assert.ok(FEATURES.includes(lengthFeature(m)), 'length ' + m);
+  assert.deepEqual([14, 15, 24, 25, 34, 35, 49, 50, 74, 75].map(lengthFeature), ['fl_u15', 'fl_u25', 'fl_u25', 'fl_u35', 'fl_u35', 'fl_u50', 'fl_u50', 'fl_u75', 'fl_u75', 'fl_75p']);
+  for (const r of ['always', 'focus', 'schedule', 'limit', 'budget', 'friction']) assert.ok(FEATURES.includes(blockFeature(r)), r);
+  assert.equal(blockFeature('something else'), null); assert.equal(blockFeature(''), null);
+  for (const ms of [0, 99, 100, 249, 250, 499, 500, 999, 1000, 60_000]) assert.ok(FEATURES.includes(speedFeature(ms)), 'speed ' + ms);
+  assert.deepEqual([99, 100, 249, 250, 499, 500, 999, 1000].map(speedFeature), ['nt_u100', 'nt_u250', 'nt_u250', 'nt_u500', 'nt_u500', 'nt_u1000', 'nt_u1000', 'nt_slow']);
+  for (const s of ['blocker:evaluate', 'instant:sync', 'sync:now', 'tasksync', 'conn:run', 'boot:syncNow', 'boot:armConnections', 'worker', 'worker:message', 'newtab', 'popup:x', 'options', 'weird', '', undefined]) assert.ok(FEATURES.includes(errorFeature(s)), String(s));
+  assert.equal(errorFeature('blocker:evaluate'), 'err_blocker'); assert.equal(errorFeature('boot:syncNow'), 'err_sync'); assert.equal(errorFeature('weird'), 'err_other');
+});
+
+test('usage v2: the setup flags say what is on and nothing a person typed', () => {
+  const s = clone(DEFAULT_SETTINGS);
+  const base = flagsOf(s, {});
+  assert.ok(base.includes('friction') && base.includes('tasks_0') && base.includes('habits_0') && base.includes('sites_0'));
+  assert.ok(!base.includes('dock') && !base.includes('instant_block') && !base.includes('sync_encrypted'));
+  s.dock.enabled = true; s.blocking.instant = true; s.blocking.custom = ['one.example', 'two.example']; s.blocking.limits = { 'x.example': 30 }; s.appearance.customCss = 'body{}';
+  const f = flagsOf(s, { syncTasks: true, syncEnc: { meta: {}, rot: 1 }, tasks: [{ done: false }, { done: false }, { done: true }], habits: { items: [{}, {}, {}] }, conns: { c1: {} }, calendarSubs: [{}] });
+  for (const x of ['dock', 'instant_block', 'limits', 'custom_css', 'tasks_sync', 'sync_encrypted', 'connections', 'calendar', 'tasks_1_5', 'habits_3p', 'sites_1_5']) assert.ok(f.includes(x), x);
+  assert.ok(!f.includes('settings_sync'));
+  assert.equal(new Set(f).size, f.length); assert.ok(f.every((x) => FLAGS.includes(x)));
+  assert.deepEqual(f, FLAGS.filter((x) => f.includes(x)), 'in the order of the list: the same setup is always the same text');
+  // one size per group, always
+  for (const g of [['tasks_0', 'tasks_1_5', 'tasks_6_20', 'tasks_21p'], ['habits_0', 'habits_1_2', 'habits_3p'], ['sites_0', 'sites_1_5', 'sites_6p']]) assert.equal(g.filter((x) => f.includes(x)).length, 1);
+  assert.deepEqual(flagsOf(s, { tasks: [] }).filter((x) => x.startsWith('tasks_')), ['tasks_0']);
+  assert.deepEqual(flagsOf(s, { tasks: Array.from({ length: 21 }, () => ({ done: false })) }).filter((x) => x.startsWith('tasks_')), ['tasks_21p']);
+  assert.doesNotThrow(() => flagsOf({}, {})); assert.doesNotThrow(() => flagsOf({}, { tasks: 'x', habits: null, conns: 5 }));
+});
+
+test('usage v2: a report with flags is valid, one without is valid too (an earlier EyeTime), and a made-up flag is not', () => {
+  const u = emptyUsage(T0 - 3 * DAY); record(u, 'fl_u35', T0); record(u, 'nt_u250', T0); record(u, 'err_sync', T0);
+  const withFlags = buildReport(u, { ...ctx, flags: ['dock', 'tasks_1_5'] }, T0);
+  assert.deepEqual(withFlags.fl, ['dock', 'tasks_1_5']); assert.equal(validateReport(withFlags).ok, true);
+  assert.deepEqual(Object.keys(withFlags), REPORT_KEYS, 'the keys come in the order of REPORT_KEYS');
+  const without = buildReport(u, ctx, T0); assert.ok(!('fl' in without)); assert.equal(validateReport(without).ok, true);
+  for (const bad of [['dock', 'dock'], ['github.com'], 'dock', ['dock', 5], [...FLAGS, 'x']]) assert.equal(validateReport({ ...withFlags, fl: bad }).ok, false, JSON.stringify(bad));
+});
+
+test('usage v2: the heaviest report there could be still fits the limit, flags and all', () => {
+  const u = emptyUsage(T0 - 400 * DAY);
+  for (let d = 0; d < 200; d++) for (const f of FEATURES) record(u, f, T0 - (200 - d) * DAY);
+  const r = buildReport(u, { ...ctx, flags: [...FLAGS] }, T0);
+  assert.equal(validateReport(r).ok, true); assert.ok(JSON.stringify(r).length <= LIMITS.bytes, `${JSON.stringify(r).length} bytes`);
+});

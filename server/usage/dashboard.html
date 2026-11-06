@@ -1,0 +1,801 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: FSL-1.1-ALv2 -->
+<!-- Copyright 2026 maxbzd -->
+<!-- The owner's dashboard: one file, no libraries, no requests except to its own origin (GET /v1/stats with the secret, or /v1/public-stats, or /v1/demo-stats with ?demo).
+     Every number comes from stats.js; this page only draws them. Text from the server is put in with textContent, never as HTML. -->
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<title>EyeTime — панель</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e; --muted: #6f6d67; --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,.10);
+  --s1: #2a78d6; --s2: #eb6834; --seq-lo: #e6f0fc; --seq-hi: #184f95; --on-seq: #fff; --soft: #eaf2fd; --soft-ink: #184f95;
+  --good: #006300; --warn-bg: #fff3d6; --warn-ink: #6b4a00; --bad: #d03b3b; --bad-bg: #fde8e8; --bad-ink: #8f1f1f; --shadow: 0 1px 2px rgba(11,11,11,.05);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #a09e97; --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,.10);
+    --s1: #3987e5; --s2: #d95926; --seq-lo: #1f2a3a; --seq-hi: #3987e5; --on-seq: #fff; --soft: #1d2a3d; --soft-ink: #9ec5f4;
+    --good: #0ca30c; --warn-bg: #3a2e0c; --warn-ink: #fab219; --bad: #ec6a6a; --bad-bg: #3a1a1a; --bad-ink: #f2a0a0; --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #a09e97; --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,.10);
+  --s1: #3987e5; --s2: #d95926; --seq-lo: #1f2a3a; --seq-hi: #3987e5; --on-seq: #fff; --soft: #1d2a3d; --soft-ink: #9ec5f4;
+  --good: #0ca30c; --warn-bg: #3a2e0c; --warn-ink: #fab219; --bad: #ec6a6a; --bad-bg: #3a1a1a; --bad-ink: #f2a0a0; --shadow: none;
+}
+* { box-sizing: border-box; }
+html { background: var(--page); }
+body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; border-radius: 4px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px 64px; }
+
+/* top bar */
+header.top { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--page) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--grid); }
+.top .in { max-width: 1120px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand { font-weight: 650; letter-spacing: -.01em; display: flex; align-items: center; gap: 8px; }
+.brand i { width: 10px; height: 10px; border-radius: 50%; background: var(--s1); display: inline-block; }
+.fresh { color: var(--ink2); font-size: 13px; }
+.sp { flex: 1; }
+.btn { background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 5px 10px; font-size: 13px; color: var(--ink2); }
+.btn:hover { color: var(--ink); border-color: var(--axis); }
+nav.toc { max-width: 1120px; margin: 0 auto; padding: 0 16px 8px; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+nav.toc a { color: var(--ink2); text-decoration: none; font-size: 13px; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+nav.toc a:hover { background: var(--soft); color: var(--soft-ink); }
+
+/* generic */
+h1 { font-size: 26px; letter-spacing: -.02em; margin: 28px 0 4px; }
+h2 { font-size: 19px; letter-spacing: -.01em; margin: 0; }
+h3 { font-size: 13px; font-weight: 600; text-transform: none; color: var(--ink2); margin: 0 0 8px; }
+p { margin: 0; }
+.lead { color: var(--ink2); max-width: 70ch; }
+section { margin-top: 40px; scroll-margin-top: 90px; }
+.sechead { margin-bottom: 14px; }
+.sechead .q { color: var(--ink2); font-size: 14px; margin-top: 2px; max-width: 78ch; }
+.sechead .act { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.sechead .act b { color: var(--ink2); font-weight: 600; }
+.card { background: var(--surface); border: 1px solid var(--ring); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); min-width: 0; }
+.grid { display: grid; gap: 12px; }
+.g2 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); }
+.g3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); }
+.g4 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+.note { font-size: 12.5px; color: var(--muted); margin-top: 10px; max-width: 80ch; }
+.tag { display: inline-block; font-size: 11.5px; line-height: 1; padding: 3px 7px; border-radius: 999px; background: var(--soft); color: var(--soft-ink); white-space: nowrap; }
+.tag.warn { background: var(--warn-bg); color: var(--warn-ink); }
+.tag.bad { background: var(--bad-bg); color: var(--bad-ink); }
+.tag.dim { background: transparent; border: 1px dashed var(--axis); color: var(--muted); }
+
+/* banners */
+.banner { margin-top: 16px; padding: 12px 14px; border-radius: 12px; font-size: 14px; display: flex; gap: 10px; align-items: flex-start; }
+.banner.warn { background: var(--warn-bg); color: var(--warn-ink); }
+.banner.info { background: var(--soft); color: var(--soft-ink); }
+.banner b { font-weight: 650; }
+
+/* KPI */
+.kpi { display: flex; flex-direction: column; gap: 2px; }
+.kpi .lab { font-size: 13px; color: var(--ink2); }
+.kpi .val { font-size: 34px; font-weight: 650; letter-spacing: -.03em; line-height: 1.1; }
+.kpi .sub { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.kpi .hint { font-size: 12.5px; color: var(--ink2); margin-top: 6px; }
+.kpi.low .val { color: var(--muted); }
+.kpi .bar { height: 6px; background: var(--grid); border-radius: 3px; margin-top: 8px; overflow: hidden; }
+.kpi .bar i { display: block; height: 100%; background: var(--s1); border-radius: 3px; }
+.kpi.low .bar i { background: repeating-linear-gradient(45deg, var(--axis) 0 4px, transparent 4px 7px); }
+
+/* insights */
+.insights { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.insights li { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--ring); font-size: 14px; }
+.insights .ic { flex: none; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; margin-top: 1px; }
+.ic.good { background: var(--soft); color: var(--good); }
+.ic.warn { background: var(--warn-bg); color: var(--warn-ink); }
+.ic.info { background: var(--soft); color: var(--soft-ink); }
+
+/* horizontal bars */
+.hlist { display: grid; gap: 4px; }
+.hrow { display: grid; grid-template-columns: minmax(110px, 36%) 1fr 132px; gap: 10px; align-items: center; padding: 4px 6px; margin: 0 -6px; border-radius: 8px; min-height: 30px; }
+.hrow:hover, .hrow:focus-visible { background: var(--soft); }
+.hrow .nm { font-size: 13.5px; overflow-wrap: anywhere; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.hrow .tr { height: 10px; background: var(--grid); border-radius: 0 5px 5px 0; position: relative; }
+.hrow .tr i { position: absolute; inset: 0 auto 0 0; background: var(--s1); border-radius: 0 4px 4px 0; min-width: 2px; }
+.hrow .vl { font-size: 13px; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.hrow .vl small { color: var(--muted); font-size: 12px; margin-left: 4px; }
+.hrow.low .tr i { background: repeating-linear-gradient(45deg, var(--axis) 0 4px, color-mix(in srgb, var(--axis) 40%, transparent) 4px 7px); }
+.hrow.cut .tr i { background: var(--s2); }
+.hrow.step .tr i { background: var(--s1); }
+.fhead { display: grid; grid-template-columns: minmax(110px, 36%) 1fr 132px; gap: 10px; font-size: 12px; color: var(--muted); padding: 0 0 4px; border-bottom: 1px solid var(--grid); margin-bottom: 4px; }
+.fhead span:last-child { text-align: right; }
+.conv { color: var(--muted); font-size: 12px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.chip { border: 1px solid var(--ring); background: var(--surface); border-radius: 999px; padding: 4px 11px; font-size: 13px; color: var(--ink2); }
+.chip[aria-pressed="true"] { background: var(--soft); color: var(--soft-ink); border-color: transparent; font-weight: 600; }
+
+/* svg charts */
+svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
+svg.chart text { fill: var(--muted); font: 11.5px system-ui, -apple-system, "Segoe UI", sans-serif; }
+svg.chart .grid line { stroke: var(--grid); stroke-width: 1; }
+svg.chart .axis { stroke: var(--axis); stroke-width: 1; }
+svg.chart .bar { fill: var(--s1); }
+svg.chart .bar.part { fill: color-mix(in srgb, var(--s1) 45%, var(--surface)); }
+svg.chart .hit { fill: transparent; }
+svg.chart .hit:hover + .bar, svg.chart g.col:focus-within .bar, svg.chart g.col:hover .bar { filter: brightness(1.12); }
+svg.chart .cross { stroke: var(--ink2); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0; pointer-events: none; }
+svg.chart g.col:hover .cross, svg.chart g.col:focus-within .cross { opacity: .7; }
+svg.chart .val { fill: var(--ink2); font-weight: 600; }
+svg.chart .med { stroke: var(--ink2); stroke-width: 1.5; stroke-dasharray: 4 3; }
+
+/* heatmap */
+.heat { overflow-x: auto; }
+table.hm { border-collapse: separate; border-spacing: 2px; font-size: 12.5px; min-width: 560px; width: 100%; }
+table.hm th { font-weight: 500; color: var(--muted); text-align: center; padding: 2px 4px; white-space: nowrap; }
+table.hm th.rw { text-align: left; color: var(--ink2); padding-right: 10px; }
+table.hm th.rw small { color: var(--muted); }
+table.hm td { height: 30px; text-align: center; border-radius: 5px; font-variant-numeric: tabular-nums; min-width: 44px; background: var(--grid); color: var(--muted); }
+table.hm td.c { background: color-mix(in srgb, var(--seq-hi) calc(var(--p) * 100%), var(--seq-lo)); color: var(--ink); }
+table.hm td.c.hi { color: var(--on-seq); }
+table.hm td.c.low { opacity: .5; }
+table.hm td.empty { background: transparent; }
+table.hm td:focus-visible { outline-offset: 0; }
+
+/* details with the data as a table */
+details.data { margin-top: 12px; font-size: 13px; }
+details.data summary { cursor: pointer; color: var(--ink2); width: max-content; }
+details.data table { border-collapse: collapse; margin-top: 8px; width: 100%; font-variant-numeric: tabular-nums; }
+details.data th, details.data td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--grid); }
+details.data th { color: var(--muted); font-weight: 500; }
+details.data td:not(:first-child), details.data th:not(:first-child) { text-align: right; }
+details.data .scroll { overflow-x: auto; }
+
+/* the period bar, the comparison, the export menu */
+.bar2 { margin-top: 16px; display: grid; gap: 10px; }
+.bar2 .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.seg { display: inline-flex; background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 2px; gap: 2px; flex-wrap: wrap; }
+.seg button { border: 0; background: transparent; border-radius: 8px; padding: 5px 12px; font-size: 13.5px; color: var(--ink2); }
+.seg button:hover { background: var(--soft); }
+.seg button[aria-pressed="true"] { background: var(--soft); color: var(--soft-ink); font-weight: 650; }
+.custom { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--ink2); }
+.custom input[type=date] { background: var(--surface); border: 1px solid var(--axis); border-radius: 8px; padding: 5px 8px; color-scheme: inherit; }
+.custom .btn.primary, .btn.primary { background: var(--s1); color: #fff; border-color: transparent; }
+.rangetxt { font-size: 13px; color: var(--ink2); }
+.rangetxt b { color: var(--ink); font-weight: 600; }
+.switch { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; color: var(--ink2); cursor: pointer; }
+.switch input { accent-color: var(--s1); width: 16px; height: 16px; }
+details.menu { position: relative; }
+details.menu > summary { list-style: none; cursor: pointer; }
+details.menu > summary::-webkit-details-marker { display: none; }
+details.menu .pop { position: absolute; right: 0; top: calc(100% + 6px); z-index: 8; min-width: 250px; background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 6px; box-shadow: 0 10px 30px rgba(0,0,0,.18); display: grid; gap: 2px; }
+details.menu .pop button { text-align: left; border: 0; background: transparent; padding: 8px 10px; border-radius: 8px; font-size: 13.5px; display: grid; gap: 1px; }
+details.menu .pop button:hover, details.menu .pop button:focus-visible { background: var(--soft); }
+details.menu .pop small { color: var(--muted); font-size: 12px; }
+.dl { font-size: 12.5px; margin-top: 2px; font-variant-numeric: tabular-nums; color: var(--muted); }
+.dl.up { color: var(--good); } .dl.down { color: var(--bad-ink); }
+.dl.flat { color: var(--muted); }
+.scope { font-weight: 400; font-size: 12px; color: var(--muted); margin-left: 8px; padding: 2px 8px; border: 1px solid var(--grid); border-radius: 999px; vertical-align: middle; }
+.toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--ink); color: var(--page); padding: 8px 14px; border-radius: 10px; font-size: 13px; z-index: 30; }
+
+/* tooltip */
+#tip { position: fixed; z-index: 20; pointer-events: none; background: var(--ink); color: var(--page); border-radius: 8px; padding: 7px 10px; font-size: 12.5px; max-width: 280px; box-shadow: 0 6px 20px rgba(0,0,0,.25); opacity: 0; transition: opacity .08s; }
+#tip.on { opacity: 1; }
+#tip .t { font-weight: 650; display: block; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+#tip .r { display: block; opacity: .85; }
+
+/* gate and states */
+.gate { max-width: 420px; margin: 18vh auto 0; padding: 24px; }
+.gate h1 { margin-top: 0; font-size: 22px; }
+.gate form { display: flex; gap: 8px; margin-top: 16px; }
+.gate input { flex: 1; min-width: 0; background: var(--surface); border: 1px solid var(--axis); border-radius: 8px; padding: 8px 10px; }
+.gate .btn.primary { background: var(--s1); color: #fff; border-color: transparent; }
+.err { color: var(--bad-ink); background: var(--bad-bg); padding: 8px 10px; border-radius: 8px; margin-top: 12px; font-size: 13.5px; }
+.loading #app { opacity: .55; transition: opacity .15s; }
+footer.foot { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid); color: var(--muted); font-size: 12.5px; display: grid; gap: 6px; max-width: 80ch; }
+
+@media (max-width: 560px) {
+  .hrow { grid-template-columns: 1fr auto; }
+  .hrow .tr { grid-column: 1 / -1; order: 3; }
+  .fhead { display: none; }
+  h1 { font-size: 22px; }
+  .kpi .val { font-size: 30px; }
+}
+@media (forced-colors: active) { .hrow .tr i, svg.chart .bar { forced-color-adjust: none; } }
+@media print { header.top, nav.toc, .chips, .btn, .bar2 .seg, .bar2 .custom, .switch, details.menu, details.data, #tip, .toast { display: none !important; } body { background: #fff; } section, .card { break-inside: avoid; } .hrow:hover { background: none; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="in">
+    <div class="brand"><i aria-hidden="true"></i><span id="ttl">EyeTime</span></div>
+    <div class="fresh" id="fresh" aria-live="polite"></div>
+    <div class="sp"></div>
+    <button class="btn" id="bLang" type="button"></button>
+    <button class="btn" id="bTheme" type="button"></button>
+    <button class="btn" id="bRefresh" type="button"></button>
+    <button class="btn" id="bOut" type="button" hidden></button>
+  </div>
+  <nav class="toc" id="toc" aria-label="sections"></nav>
+</header>
+<div class="wrap"><main id="app"></main></div>
+<div id="tip" role="tooltip"></div>
+
+<script>
+'use strict';
+// ───────────────────────── texts ─────────────────────────
+const L = {
+ru: {
+  title: 'Панель EyeTime', demo: 'Демо-данные', pub: 'Публичная статистика', asof: 'Данные на', installs_n: 'установок', refresh: 'Обновить', signout: 'Выйти', theme_auto: 'Тема: авто', theme_light: 'Тема: светлая', theme_dark: 'Тема: тёмная', lang: 'EN',
+  gate_h: 'Панель EyeTime', gate_p: 'Введите ключ доступа (секрет DASH_TOKEN из настроек коллектора). Он хранится только в этой вкладке и уходит только на этот адрес.', gate_ph: 'Ключ доступа', gate_go: 'Открыть',
+  e401: 'Ключ не подошёл.', e404: 'Панель не настроена: в коллекторе нет секрета DASH_TOKEN (не короче 16 знаков) или база не поддерживает статистику.', enet: 'Не удалось получить данные. Проверьте адрес и сеть.', e_demo: 'Демо недоступно на этом адресе: оно есть только в локальном просмотре.',
+  caveat_h: 'Это поведение тех, кто согласился поделиться', caveat_p: 'Не перепись: тот, кто включил отчёты, обычно активнее среднего пользователя. Читайте цифры как направление и сравнивайте их с самими собой по неделям.',
+  low_h: 'Пока мало данных', low_p: 'За последние {w} дней отчёты прислали {n} установок. Меньше {k} — цифры шатаются от одного человека, они приглушены на странице. Решения по ним не принимайте, ищите закономерности и задавайте вопросы живым людям.',
+  pub_note: 'Публичная версия: только итоги по многим установкам, без когорт, версий и ошибок.', collecting: 'Статистика ещё собирается: нужно хотя бы {k} установок, чтобы показывать итоги публично.',
+  demo_note: 'Это выдуманная популяция, чтобы посмотреть страницу до первых настоящих отчётов. Реальных людей за этими цифрами нет.',
+  s_now: 'Главное', s_now_q: 'Растёт ли проект, и остаются ли люди?', s_insights: 'Что бросается в глаза', s_growth: 'Рост и активность', s_funnel: 'Путь нового человека', s_ret: 'Удержание', s_feat: 'Чем пользуются', s_sess: 'Сессии фокуса', s_block: 'Блокировка', s_eyes: 'Перерывы для глаз', s_speed: 'Скорость новой вкладки', s_health: 'Здоровье', s_setup: 'Как настроено', s_how: 'Как читать',
+  nav_now: 'Главное', nav_growth: 'Рост', nav_funnel: 'Путь', nav_ret: 'Удержание', nav_feat: 'Функции', nav_sess: 'Сессии', nav_block: 'Блокировка', nav_speed: 'Скорость', nav_health: 'Здоровье', nav_setup: 'Настройки', nav_how: 'Методика',
+  q_growth: 'Сколько установок были активны каждую неделю?', a_growth: 'Решение: работает ли то, что вы делаете для привлечения (статья, пост, релиз) — смотрите на неделю после события.',
+  q_funnel: 'Где новые люди отваливаются на пути к первой законченной сессии?', a_funnel: 'Решение: что чинить в первом запуске. Самый короткий столбец после самого длинного — слабое место.',
+  q_ret: 'Возвращаются ли люди через день, через неделю, через месяц?', a_ret: 'Решение: это главная цифра продукта. Растёт от версии к версии — вы на верном пути.',
+  q_feat: 'Какие функции живые, а какие никто не трогает?', a_feat: 'Решение: что развивать, что прятать, что убирать. «Кандидат на удаление» — меньше 5% при выборке от 50.',
+  q_sess: 'Доходят ли сессии до конца и какой они длины?', a_sess: 'Решение: длина по умолчанию, текст вокруг остановки, ценность функции «пауза».',
+  q_block: 'Почему останавливают страницы, и сколько раз человек всё равно идёт дальше?', a_block: 'Решение: насколько жёсткой делать блокировку. Много «Продолжить» — трения мало или причина неверна.',
+  q_eyes: 'Делают ли люди перерывы, когда о них напоминают?', a_eyes: 'Решение: когда напоминать и как.',
+  q_speed: 'Насколько быстро открывается новая вкладка у людей?', a_speed: 'Решение: бюджет скорости. Новая вкладка открывается десятки раз в день, медленная вкладка — потерянное доверие.',
+  q_health: 'Ломается ли что-то у людей?', a_health: 'Решение: куда смотреть в первую очередь. Показывается только «где», без текста ошибок.',
+  q_setup: 'Какие внешности, раскладки и языки выбирают, и что оставляют включённым?', a_setup: 'Решение: что делать по умолчанию, что переводить, что выпускать следующим.',
+  k_installs: 'Установок прислали отчёт', k_installs_s: 'за всё время', k_recent: 'Активны за {w} дней', k_new7: 'Новых за 7 дней', k_wau: 'Активны за последнюю полную неделю', k_d1: 'Вернулись на следующий день', k_d7: 'Вернулись на 2-й неделе', k_d30: 'Вернулись на 5-й неделе', k_act: 'Дошли до первой сессии за неделю', k_fin: 'Довели сессию до конца',
+  h_d1: 'Из тех, кто установил вчера или раньше', h_d7: 'Активны в днях 7–13 после установки', h_d30: 'Активны в днях 30–36', h_act: 'Запустили фокус-сессию в первые 7 дней', h_fin: 'Из запущенных сессий — завершённых',
+  of: 'из', people: 'чел.', wait: 'ещё рано', none: 'нет данных', low: 'мало данных', cut: 'кандидат на удаление', n_inst: 'установок',
+  w_active: 'Активны', w_installed: 'Установок на тот момент', w_share: 'Доля активных', w_open: 'неделя ещё не закончилась: отчёты приходят раз в неделю, число вырастет', w_note: 'Бледные столбцы — недели, которые ещё не закончились или не успели прислать отчёты. Не считайте их падением.', w_range: 'Неделя',
+  f_reported: 'Прислали первый отчёт', f_newtab: 'Открыли новую вкладку', f_started: 'Запустили фокус-сессию', f_finished: 'Довели сессию до конца', f_days3: 'Активны 3 дня и больше', f_days7: 'Активны 7 дней и больше', f_conv: '{p} от предыдущего шага', f_note: 'Шаги идут в порядке, но не обязательно строго друг за другом: человек мог сразу закончить сессию и не открывать вкладку. Ориентируйтесь на ширину падения, а не на точную цифру.',
+  a_onb: 'Прошли приветствие до конца', a_med: 'Первая сессия — через', a_med_u: 'дн. (медиана)', a_note: 'Приветствие считается среди установок, которые прислали настройки (с версии 3.8.1), так что это нижняя граница.',
+  r_cohorts: 'Когорты по неделе установки', r_cohorts_q: 'Строка — установки одной недели, столбец — неделя жизни (неделя 1 — дни 7–13, нулевую неделю не показываем: в день установки активны все). Цвет — доля активных. Светлеть вправо — норма; важно, чтобы новые строки были не бледнее старых. Пустые клетки — окно ещё не прошло.', r_wk: 'нед. {n}', r_row: 'с {d}', r_cell: 'Неделя {w}: {k} из {n} активны', r_small: 'выборка мала', r_note: 'Люди, которые ушли (удалили или перестали открывать), считаются как не вернувшиеся. Окно считается, только когда оно уже прошло.',
+  feat_all: 'Все', g_focus: 'Фокус', g_blocking: 'Блокировка', g_eyes: 'Глаза', g_planning: 'Планирование', g_home: 'Интерфейс', fh_name: 'Функция', fh_users: 'Пользуются за {w} дн.', fh_uses: 'использований', feat_per: 'в среднем {n} на человека', feat_ever: 'Когда-либо пробовали: {p}', feat_first: 'Первый раз — медиана {n} дн. после установки', feat_note: 'Доля считается от установок, приславших отчёт за последние {w} дней (у кого есть данные за последние 4 недели).',
+  s_started: 'Запущено', s_finished: 'Завершено', s_stopped: 'Остановлено', s_early: 'Остановлено в первые 5 минут', s_fin_rate: 'Доля завершённых', s_early_rate: 'Бросили в первые 5 минут', s_len: 'Длина завершённых сессий', s_len_note: 'Если пик на «≤15 минут» или «15–25», подумайте о коротком режиме по умолчанию; если на «75+» — о перерывах внутри сессии.',
+  len_fl_u15: 'до 15', len_fl_u25: '15–25', len_fl_u35: '25–35', len_fl_u50: '35–50', len_fl_u75: '50–75', len_fl_75p: '75+', min: 'мин',
+  b_pages: 'Показано страниц паузы', b_cont: 'Нажали «Продолжить»', b_cont_rate: 'Доля продолживших', b_reasons: 'Почему страница остановлена',
+  br_bp_always: 'Всегда закрыт сайт', br_bp_focus: 'Идёт фокус-сессия', br_bp_schedule: 'По расписанию', br_bp_limit: 'Лимит времени исчерпан', br_bp_budget: 'Бюджет отвлечений', br_bp_friction: 'Мягкая пауза (трение)',
+  e_done: 'Сделали перерыв', e_skip: 'Пропустили', e_rate: 'Сделано перерывов для глаз',
+  sp_opens: 'Измерено открытий', sp_u250: 'Открылись быстрее 250 мс', sp_p50: 'Типичное время', sp_p90: 'Почти всегда быстрее', sp_hist: 'Как быстро готова новая вкладка', sp_note: 'Корзины: до 100, 250, 500, 1000 мс и дольше. Столбец показывает долю открытий; точное время не хранится. Цель: «почти всегда быстрее» не выше 500 мс.', sp_lt: 'до {n} мс', sp_gt: 'дольше {n} мс', sp_b_nt_u100: 'до 100 мс', sp_b_nt_u250: '100–250', sp_b_nt_u500: '250–500', sp_b_nt_u1000: '500–1000', sp_b_nt_slow: '1000+', sp_unit: 'мс',
+  h_with: 'Установок с ошибкой', h_place: 'Ошибок на 1000 установок', h_note: 'Хранится только место ошибки (фон, страница, блокировка, синхронизация, другое), без текста и адресов. Для разбора — «Написать автору» и отчёт человека.', he_err_worker: 'Фоновый процесс', he_err_page: 'Страницы', he_err_blocker: 'Блокировщик', he_err_sync: 'Синхронизация', he_err_other: 'Другое',
+  st_look: 'Внешность', st_layout: 'Раскладка', st_lang: 'Язык', st_mode: 'Режим', st_browser: 'Браузер', st_os: 'Система', st_flags: 'Что включено у людей', st_flags_n: 'Из {n} установок, приславших настройки', st_other: 'другое', st_versions: 'Версии',
+  m_auto: 'авто', m_dark: 'тёмная', m_light: 'светлая',
+  how: ['Каждый человек — случайный идентификатор. Больше о человеке коллектор не знает: ни адреса, ни имени, ни сайтов.', 'Отчёт — счётчики и «когда впервые», раз в неделю, только у тех, кто включил. Точный состав — в PRIVACY.md и в окне «Показать, что отправляется» в настройках.', 'Серым и штрихом отмечено всё, что стоит на выборке меньше {k} установок: это шум, а не вывод.', 'Удержание считает ушедших как не вернувшихся и не считает окно, пока оно не прошло. Поэтому цифры скромнее, чем у привычных счётчиков, и честнее.', 'Все формулы — в docs/MEASUREMENT.md и в server/usage/stats.js; к ним есть тесты на данных, посчитанных вручную.'],
+  ins: { few: 'Мало данных ({n} установок за {w} дн.). Смотрите на направление и общайтесь с людьми.', weak: 'Самый резкий провал в пути: «{from}» → «{to}» — дошли {p}. Начните с него.', early: '{p} запущенных сессий бросают в первые 5 минут. Проверьте длину по умолчанию и то, что видит человек в начале.', cont: 'После страницы паузы {p} людей нажимают «Продолжить». Если это нужно — норма; если нет, усильте трение.', slow: 'Новая вкладка у 10% открытий дольше {n} мс. Профилируйте.', cut: '{n} функций почти не используют ({list}). Подумайте, убирать или объяснять лучше.', err: 'У {p} установок есть ошибки, чаще всего — «{place}». Посмотрите туда первым.', ret: 'Возвращаются на следующий день {d1}, на второй неделе — {d7}.', good: 'Сессии доходят до конца у {p}. Это хорошая основа.', new0: 'За 7 дней новых установок нет — самое время что-то опубликовать.' },
+  ft: 'Данные только от тех, кто включил отчёты. Страница ничего не отправляет, кроме запроса цифр на этот же адрес.', ft2: 'Как это считается: docs/MEASUREMENT.md · что отправляется: PRIVACY.md', ftm: 'Сгенерировано', tbl: 'Данные таблицей',
+  fn: { newtab_view: 'Новая вкладка', popup_open: 'Окно расширения', insights_view: 'Аналитика', settings_view: 'Настройки', focus_start: 'Старт фокуса', focus_done: 'Фокус завершён', focus_stop: 'Фокус остановлен', focus_pause: 'Пауза фокуса', eye_break_done: 'Перерыв для глаз сделан', eye_break_skip: 'Перерыв пропущен', block_page: 'Страница паузы показана', block_continue: 'Нажато «Продолжить»', task_add: 'Задача добавлена', task_done: 'Задача сделана', habit_check: 'Отметка привычки', shutdown_done: 'Вечернее закрытие дня', plan_done: 'План дня составлен', ritual_plan: 'Утренний ритуал: план', ritual_skip: 'Утренний ритуал пропущен', connection_add: 'Подключение добавлено', palette_open: 'Палитра команд', drawer_open: 'Боковая панель', editor_open: 'Редактор вида', starter_apply: 'Готовый набор применён', wall_next: 'Следующая обложка', standby_open: 'Режим ожидания' },
+  fg: { ritual: 'Утренний ритуал', dock: 'Док на сайтах', weather: 'Погода', calendar: 'Календарь', tasks_sync: 'Синхронизация задач', settings_sync: 'Синхронизация настроек', sync_encrypted: 'Шифрование синхронизации', instant_block: 'Мгновенная блокировка', smart_sites: 'Умные сайты', connections: 'Подключения', schedule: 'Расписание блокировки', limits: 'Лимиты по сайтам', budget: 'Бюджет отвлечений', friction: 'Трение (пауза)', eye_notify: 'Напоминания о глазах', bedtime: 'Режим сна', standby: 'Режим ожидания', custom_css: 'Свой CSS', companion: 'Приложение для Windows', daily_goal: 'Цель на день', focus_sound: 'Звук фокуса', review: 'Итоги недели', tasks_0: 'Задач: 0', tasks_1_5: 'Задач: 1–5', tasks_6_20: 'Задач: 6–20', tasks_21p: 'Задач: 21+', habits_0: 'Привычек: 0', habits_1_2: 'Привычек: 1–2', habits_3p: 'Привычек: 3+', sites_0: 'Блок-сайтов: 0', sites_1_5: 'Блок-сайтов: 1–5', sites_6p: 'Блок-сайтов: 6+' },
+},
+en: {
+  title: 'EyeTime dashboard', demo: 'Demo data', pub: 'Public statistics', asof: 'Data as of', installs_n: 'installs', refresh: 'Refresh', signout: 'Sign out', theme_auto: 'Theme: auto', theme_light: 'Theme: light', theme_dark: 'Theme: dark', lang: 'RU',
+  gate_h: 'EyeTime dashboard', gate_p: 'Enter the access key (the DASH_TOKEN secret of the collector). It stays in this tab and goes only to this address.', gate_ph: 'Access key', gate_go: 'Open',
+  e401: 'That key was not accepted.', e404: 'The dashboard is not set up: the collector has no DASH_TOKEN secret (at least 16 characters), or the database cannot give statistics.', enet: 'Could not get the data. Check the address and the network.', e_demo: 'The demo is not available at this address: it exists only in the local preview.',
+  caveat_h: 'This is the behaviour of people who agreed to share', caveat_p: 'Not a census: someone who turned reports on is usually more active than the average user. Read the numbers as a direction and compare them with themselves week by week.',
+  low_h: 'Not enough data yet', low_p: '{n} installs reported in the last {w} days. Below {k}, one person can move a figure, so they are dimmed on the page. Do not decide on them; look for patterns and talk to real people.',
+  pub_note: 'Public version: totals over many installs only, no cohorts, versions or errors.', collecting: 'Statistics are still being collected: at least {k} installs are needed before totals are shown publicly.',
+  demo_note: 'A made-up population, to look at the page before the first real reports. No real people stand behind these figures.',
+  s_now: 'At a glance', s_now_q: 'Is the project growing, and do people stay?', s_insights: 'What stands out', s_growth: 'Growth and activity', s_funnel: 'A new person’s path', s_ret: 'Retention', s_feat: 'What is used', s_sess: 'Focus sessions', s_block: 'Blocking', s_eyes: 'Eye breaks', s_speed: 'New tab speed', s_health: 'Health', s_setup: 'How it is set up', s_how: 'How to read this',
+  nav_now: 'Glance', nav_growth: 'Growth', nav_funnel: 'Path', nav_ret: 'Retention', nav_feat: 'Features', nav_sess: 'Sessions', nav_block: 'Blocking', nav_speed: 'Speed', nav_health: 'Health', nav_setup: 'Setup', nav_how: 'Method',
+  q_growth: 'How many installs were active each week?', a_growth: 'Decision: did what you did to reach people (an article, a post, a release) work — look at the week after.',
+  q_funnel: 'Where do new people drop off on the way to a first finished session?', a_funnel: 'Decision: what to fix in the first run. The sharpest step down is the weak spot.',
+  q_ret: 'Do people come back after a day, a week, a month?', a_ret: 'Decision: this is the product’s main number. If it grows from version to version, you are on the right track.',
+  q_feat: 'Which features are alive, which does nobody touch?', a_feat: 'Decision: what to grow, hide or remove. “Candidate to cut” means under 5% with a sample of 50 or more.',
+  q_sess: 'Do sessions reach the end, and how long are they?', a_sess: 'Decision: the default length, the wording around stopping, the worth of “pause”.',
+  q_block: 'Why are pages stopped, and how often does the person go on anyway?', a_block: 'Decision: how strict blocking should be. Many “Continue” clicks mean too little friction or the wrong reason.',
+  q_eyes: 'Do people take a break when reminded?', a_eyes: 'Decision: when and how to remind.',
+  q_speed: 'How fast does the new tab open on real machines?', a_speed: 'Decision: the speed budget. The new tab opens dozens of times a day; a slow one costs trust.',
+  q_health: 'Does something break for people?', a_health: 'Decision: where to look first. Only “where” is kept, never the text of an error.',
+  q_setup: 'Which looks, layouts and languages are chosen, and what stays switched on?', a_setup: 'Decision: defaults, what to translate, what to ship next.',
+  k_installs: 'Installs that reported', k_installs_s: 'all time', k_recent: 'Active in {w} days', k_new7: 'New in 7 days', k_wau: 'Active in the last full week', k_d1: 'Back the next day', k_d7: 'Back in week 2', k_d30: 'Back in week 5', k_act: 'Reached a first session within a week', k_fin: 'Sessions finished',
+  h_d1: 'Of those who installed yesterday or earlier', h_d7: 'Active on days 7–13 after install', h_d30: 'Active on days 30–36', h_act: 'Started a focus session in the first 7 days', h_fin: 'Of the sessions started, finished',
+  of: 'of', people: 'ppl', wait: 'too early', none: 'no data', low: 'low data', cut: 'candidate to cut', n_inst: 'installs',
+  w_active: 'Active', w_installed: 'Installs at that time', w_share: 'Share active', w_open: 'the week is not over: reports arrive weekly, the number will grow', w_note: 'Pale bars are weeks that are still open or have not had time to report. Do not read them as a fall.', w_range: 'Week',
+  f_reported: 'Sent a first report', f_newtab: 'Opened the new tab', f_started: 'Started a focus session', f_finished: 'Finished a session', f_days3: 'Active 3 days or more', f_days7: 'Active 7 days or more', f_conv: '{p} of the previous step', f_note: 'The steps are in order but not strictly one after another: someone may finish a session without ever opening the tab. Look at the size of the drop, not the exact number.',
+  a_onb: 'Finished the welcome', a_med: 'First session after', a_med_u: 'days (median)', a_note: 'The welcome is counted among installs that sent their setup (from 3.8.1), so it is a floor.',
+  r_cohorts: 'Cohorts by week of install', r_cohorts_q: 'A row is the installs of one week, a column is a week of life (week 1 is days 7–13; week 0 is left out, everyone is active on the day of install). The colour is the share active. Fading to the right is normal; newer rows should not be paler than older ones. Empty cells: the window has not passed yet.', r_wk: 'wk {n}', r_row: 'from {d}', r_cell: 'Week {w}: {k} of {n} active', r_small: 'small sample', r_note: 'People who left (uninstalled or stopped opening) count as not returned. A window is counted only once it has passed.',
+  feat_all: 'All', g_focus: 'Focus', g_blocking: 'Blocking', g_eyes: 'Eyes', g_planning: 'Planning', g_home: 'Interface', fh_name: 'Feature', fh_users: 'Used in the last {w} days', fh_uses: 'uses', feat_per: 'on average {n} per person', feat_ever: 'Ever tried: {p}', feat_first: 'First use — median {n} days after install', feat_note: 'The share is of installs that reported in the last {w} days (those with data from the last 4 weeks).',
+  s_started: 'Started', s_finished: 'Finished', s_stopped: 'Stopped', s_early: 'Stopped in the first 5 minutes', s_fin_rate: 'Finish rate', s_early_rate: 'Gave up in 5 minutes', s_len: 'Length of finished sessions', s_len_note: 'If the peak is at “up to 15” or “15–25”, consider a short default; if at “75+”, breaks inside a session.',
+  len_fl_u15: 'under 15', len_fl_u25: '15–25', len_fl_u35: '25–35', len_fl_u50: '35–50', len_fl_u75: '50–75', len_fl_75p: '75+', min: 'min',
+  b_pages: 'Pause pages shown', b_cont: 'Pressed “Continue”', b_cont_rate: 'Continue rate', b_reasons: 'Why the page was stopped',
+  br_bp_always: 'Site always blocked', br_bp_focus: 'A focus session is on', br_bp_schedule: 'By schedule', br_bp_limit: 'Time limit used up', br_bp_budget: 'Distraction budget', br_bp_friction: 'Soft pause (friction)',
+  e_done: 'Took the break', e_skip: 'Skipped', e_rate: 'Eye breaks taken',
+  sp_opens: 'Opens measured', sp_u250: 'Opened faster than 250 ms', sp_p50: 'Typical time', sp_p90: 'Almost always faster than', sp_hist: 'How fast the new tab is ready', sp_note: 'Buckets: under 100, 250, 500, 1000 ms and slower. The bar is the share of opens; the exact time is not kept. Aim for “almost always faster than” at or below 500 ms.', sp_lt: 'under {n} ms', sp_gt: 'over {n} ms', sp_b_nt_u100: 'under 100 ms', sp_b_nt_u250: '100–250', sp_b_nt_u500: '250–500', sp_b_nt_u1000: '500–1000', sp_b_nt_slow: '1000+', sp_unit: 'ms',
+  h_with: 'Installs with an error', h_place: 'Errors per 1000 installs', h_note: 'Only the place of an error is kept (background, pages, blocker, sync, other), never its text or addresses. To dig in, use “Write to the author” and the person’s report.', he_err_worker: 'Background worker', he_err_page: 'Pages', he_err_blocker: 'Blocker', he_err_sync: 'Sync', he_err_other: 'Other',
+  st_look: 'Look', st_layout: 'Layout', st_lang: 'Language', st_mode: 'Mode', st_browser: 'Browser', st_os: 'System', st_flags: 'What people keep on', st_flags_n: 'Of {n} installs that sent their setup', st_other: 'other', st_versions: 'Versions',
+  m_auto: 'auto', m_dark: 'dark', m_light: 'light',
+  how: ['Each person is a random identifier. The collector knows nothing more: no address, no name, no sites.', 'A report is counters and “first used when”, once a week, only from people who turned it on. The exact content is in PRIVACY.md and in “Show what is sent” in Settings.', 'Grey and hatched marks anything resting on fewer than {k} installs: that is noise, not a finding.', 'Retention counts people who left as not returned and does not count a window before it has passed. So the numbers are more modest than usual counters, and more honest.', 'Every formula is in docs/MEASUREMENT.md and server/usage/stats.js, with tests on hand-counted data.'],
+  ins: { few: 'Little data ({n} installs in {w} days). Look at the direction and talk to people.', weak: 'The sharpest drop on the path: “{from}” → “{to}” — {p} got through. Start there.', early: '{p} of the sessions started are dropped within 5 minutes. Check the default length and what the person sees at the start.', cont: 'After a pause page {p} of people press “Continue”. If that is intended, fine; if not, add friction.', slow: '10% of new tab opens take longer than {n} ms. Profile it.', cut: '{n} features are hardly used ({list}). Decide whether to cut them or explain them better.', err: '{p} of installs have errors, most often “{place}”. Look there first.', ret: 'Back the next day: {d1}; in the second week: {d7}.', good: 'Sessions reach the end for {p}. A good base.', new0: 'No new installs in 7 days — a good moment to publish something.' },
+  ft: 'Data only from people who turned reports on. The page sends nothing except the request for the figures to this same address.', ft2: 'How it is counted: docs/MEASUREMENT.md · what is sent: PRIVACY.md', ftm: 'Generated', tbl: 'Data as a table',
+  fn: { newtab_view: 'New tab', popup_open: 'Extension popup', insights_view: 'Insights', settings_view: 'Settings', focus_start: 'Focus started', focus_done: 'Focus finished', focus_stop: 'Focus stopped', focus_pause: 'Focus paused', eye_break_done: 'Eye break taken', eye_break_skip: 'Eye break skipped', block_page: 'Pause page shown', block_continue: '“Continue” pressed', task_add: 'Task added', task_done: 'Task done', habit_check: 'Habit checked', shutdown_done: 'Evening shutdown', plan_done: 'Day planned', ritual_plan: 'Morning ritual: plan', ritual_skip: 'Morning ritual skipped', connection_add: 'Connection added', palette_open: 'Command palette', drawer_open: 'Side drawer', editor_open: 'Look editor', starter_apply: 'Starter pack applied', wall_next: 'Next wallpaper', standby_open: 'Standby mode' },
+  fg: { ritual: 'Morning ritual', dock: 'Dock on sites', weather: 'Weather', calendar: 'Calendar', tasks_sync: 'Task sync', settings_sync: 'Settings sync', sync_encrypted: 'Encrypted sync', instant_block: 'Instant blocking', smart_sites: 'Smart sites', connections: 'Connections', schedule: 'Block schedule', limits: 'Per-site limits', budget: 'Distraction budget', friction: 'Friction (pause)', eye_notify: 'Eye reminders', bedtime: 'Bedtime mode', standby: 'Standby mode', custom_css: 'Custom CSS', companion: 'Windows app', daily_goal: 'Daily goal', focus_sound: 'Focus sound', review: 'Weekly review', tasks_0: 'Tasks: 0', tasks_1_5: 'Tasks: 1–5', tasks_6_20: 'Tasks: 6–20', tasks_21p: 'Tasks: 21+', habits_0: 'Habits: 0', habits_1_2: 'Habits: 1–2', habits_3p: 'Habits: 3+', sites_0: 'Blocked sites: 0', sites_1_5: 'Blocked sites: 1–5', sites_6p: 'Blocked sites: 6+' },
+},
+};
+
+Object.assign(L.ru, {
+  k_recent: 'Активны в периоде', fh_users: 'Пользуются в периоде', low_p: 'В периоде ({w} дн.) отчёты прислали {n} установок. Меньше {k} — цифры шатаются от одного человека, они приглушены на странице. Решения по ним не принимайте, ищите закономерности и задавайте вопросы живым людям.',
+  feat_note: 'Доля — от установок, активных в периоде ({w} дн.). Счётчики хранятся по неделям, поэтому период округляется наружу до целых недель.', a_funnel: 'Решение: что чинить в первом запуске. Самый резкий шаг вниз — слабое место.',
+  r_note: 'Люди, которые ушли (удалили или перестали открывать), считаются как не вернувшиеся. Окно считается, только когда оно уже прошло, плюс неделя на отчёт.',
+  r_scope: 'Удержание считается по установкам периода ({n}). Окно «5-я неделя» закрывается через 6 недель после установки, поэтому в коротком периоде оно пустое: возьмите 90 дней или «всё время».',
+  p_label: 'Период', p_7: '7 дн.', p_28: '28 дн.', p_90: '90 дн.', p_all: 'Всё время', p_custom: 'Свой период', p_from: 'С', p_to: 'По', p_apply: 'Применить', p_bad: 'Период задан неверно: дата «С» должна быть не позже даты «По».', p_srv: 'Сервер не принял период.',
+  p_range: 'Период: {a} — {b} ({n} дн.)', p_weeks: 'счётчики считаются по неделям: {a} — {b}', p_prev: 'Сравнение с предыдущим периодом: {a} — {b}', p_noprev: 'Сравнивать не с чем: до этого периода данных нет.', cmp: 'Сравнивать с предыдущим периодом',
+  vs: 'к пред. периоду', vs_was: 'было {v}', pp: 'п.п.',
+  x_btn: 'Выгрузить', x_csv: 'Таблица CSV', x_csv_s: 'Все цифры текущего периода: Excel, Google Таблицы', x_json: 'Данные JSON', x_json_s: 'Полный ответ коллектора за период', x_md: 'Отчёт Markdown', x_md_s: 'Главное текстом: для заметок и постов', x_copy: 'Скопировать отчёт', x_copy_s: 'Тот же текст в буфер обмена', x_print: 'Печать / PDF', x_print_s: 'Страница без лишних кнопок', x_done: 'Скопировано', x_fail: 'Не удалось скопировать',
+  scope_active: 'активные в периоде', scope_made: 'установки периода', scope_weeks: 'недели периода', scope_all: 'всё время',
+  rp_h: 'Отчёт EyeTime', rp_period: 'Период', rp_gen: 'Выгружено', rp_sample: 'Только те, кто включил отчёты; это направление, а не перепись.', rp_glance: 'Главное', rp_funnel: 'Путь нового человека', rp_ret: 'Удержание', rp_feat: 'Функции (топ-10)', rp_sess: 'Сессии, блокировка, скорость', rp_set: 'Настройки (топ-5)', rp_ins: 'Что бросается в глаза',
+  k_newp: 'Новых установок в периоде', upto: 'на {d}',
+  csv_cols: ['раздел', 'код', 'показатель', 'название', 'значение', 'k', 'n'],
+});
+Object.assign(L.en, {
+  k_recent: 'Active in the period', fh_users: 'Used in the period', low_p: '{n} installs reported in the period ({w} days). Below {k}, one person can move a figure, so they are dimmed on the page. Do not decide on them; look for patterns and talk to real people.',
+  feat_note: 'The share is of installs active in the period ({w} days). Counters are stored by week, so the period is rounded outward to whole weeks.', a_funnel: 'Decision: what to fix in the first run. The sharpest step down is the weak spot.',
+  r_note: 'People who left (uninstalled or stopped opening) count as not returned. A window is counted only once it has passed, plus a week for the report to arrive.',
+  r_scope: 'Retention is of the installs made in the period ({n}). The “week 5” window closes six weeks after install, so in a short period it is empty: take 90 days or “all time”.',
+  p_label: 'Period', p_7: '7 days', p_28: '28 days', p_90: '90 days', p_all: 'All time', p_custom: 'Custom', p_from: 'From', p_to: 'To', p_apply: 'Apply', p_bad: 'The period is wrong: “From” must not be later than “To”.', p_srv: 'The server did not accept the period.',
+  p_range: 'Period: {a} — {b} ({n} days)', p_weeks: 'counters are by week: {a} — {b}', p_prev: 'Compared with the period before: {a} — {b}', p_noprev: 'Nothing to compare with: there is no data before this period.', cmp: 'Compare with the previous period',
+  vs: 'vs previous period', vs_was: 'was {v}', pp: 'pp',
+  x_btn: 'Export', x_csv: 'CSV table', x_csv_s: 'Every figure of the period: Excel, Google Sheets', x_json: 'JSON data', x_json_s: 'The collector’s full answer for the period', x_md: 'Markdown report', x_md_s: 'The essentials as text: for notes and posts', x_copy: 'Copy the report', x_copy_s: 'The same text to the clipboard', x_print: 'Print / PDF', x_print_s: 'The page without the buttons', x_done: 'Copied', x_fail: 'Could not copy',
+  scope_active: 'active in the period', scope_made: 'installs of the period', scope_weeks: 'weeks of the period', scope_all: 'all time',
+  rp_h: 'EyeTime report', rp_period: 'Period', rp_gen: 'Exported', rp_sample: 'Only people who turned reports on; a direction, not a census.', rp_glance: 'At a glance', rp_funnel: 'A new person’s path', rp_ret: 'Retention', rp_feat: 'Features (top 10)', rp_sess: 'Sessions, blocking, speed', rp_set: 'Setup (top 5)', rp_ins: 'What stands out',
+  k_newp: 'New installs in the period', upto: 'as of {d}',
+  csv_cols: ['section', 'id', 'metric', 'label', 'value', 'k', 'n'],
+});
+
+// ───────────────────────── small helpers ─────────────────────────
+const $ = (s, r = document) => r.querySelector(s);
+const NS = 'http://www.w3.org/2000/svg';
+const OPEN_END = 100000; // stats.js: the bound of the slowest bucket means "no bound"
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch { /* private window */ } } };
+const tab = { get(k) { try { return sessionStorage.getItem(k); } catch { return null; } }, set(k, v) { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch { /* private window */ } } };
+const params = new URLSearchParams(location.search);
+const DEFAULT_DAYS = 90, ISO = /^\d{4}-\d{2}-\d{2}$/;
+const rangeFromUrl = () => {
+  const f = params.get('from'), t2 = params.get('to'), d = params.get('days');
+  if (params.get('range') === 'all') return { kind: 'all' };
+  if (f && t2 && ISO.test(f) && ISO.test(t2) && f <= t2) return { kind: 'custom', from: f, to: t2 };
+  if (d && ['7', '28', '90'].includes(d)) return { kind: d };
+  return { kind: String(DEFAULT_DAYS) };
+};
+const state = { range: rangeFromUrl(), compare: store.get('et-compare') !== '0', rangeErr: '', lang: store.get('et-lang') || (/^ru|^uk|^be/i.test(navigator.language || '') ? 'ru' : 'en'), theme: store.get('et-theme') || 'auto', s: null, mode: params.has('demo') ? 'demo' : params.has('public') ? 'public' : 'owner', group: 'all', err: '', first: true };
+const t = (key, vars) => { let s = key.split('.').reduce((o, k) => (o == null ? o : o[k]), L[state.lang]); if (s == null) s = key.split('.').reduce((o, k) => (o == null ? o : o[k]), L.en); if (s == null) return key; if (typeof s === 'string' && vars) for (const k in vars) s = s.split('{' + k + '}').join(String(vars[k])); return s; };
+const nf = () => new Intl.NumberFormat(state.lang === 'ru' ? 'ru-RU' : 'en-US');
+const num = (n) => nf().format(Math.round(n));
+const pct = (x, d = null) => (x == null || Number.isNaN(x) ? '—' : (x * 100).toFixed(d ?? (x > 0 && x < 0.1 ? 1 : 0)).replace('.', state.lang === 'ru' ? ',' : '.') + '%');
+const dec = (x) => (x == null ? '—' : (Math.round(x * 10) / 10).toString().replace('.', state.lang === 'ru' ? ',' : '.'));
+const dateShort = (iso) => iso.slice(5).replace('-', '.');
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) { if (v == null || v === false) continue; if (k === 'class') el.className = v; else if (k.startsWith('on')) el.addEventListener(k.slice(2), v); else el.setAttribute(k, v === true ? '' : v); }
+  for (const c of kids.flat()) if (c != null && c !== false) el.append(c.nodeType ? c : document.createTextNode(String(c)));
+  return el;
+}
+function svg(tag, attrs, ...kids) { const el = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs || {})) if (v != null) el.setAttribute(k, String(v)); for (const c of kids.flat()) if (c != null) el.append(c.nodeType ? c : document.createTextNode(String(c))); return el; }
+
+// ───────────────────────── tooltip (text only) ─────────────────────────
+const tip = $('#tip');
+function showTip(lines, x, y) {
+  tip.replaceChildren(...lines.map(([a, b], i) => h('span', { class: i === 0 ? 't' : 'r' }, a, b ? ' ' + b : '')));
+  tip.classList.add('on');
+  const w = tip.offsetWidth, hgt = tip.offsetHeight;
+  tip.style.left = Math.max(8, Math.min(innerWidth - w - 8, x + 12)) + 'px';
+  tip.style.top = Math.max(8, Math.min(innerHeight - hgt - 8, y - hgt - 10 < 8 ? y + 16 : y - hgt - 10)) + 'px';
+}
+const hideTip = () => tip.classList.remove('on');
+function tipOn(el, lines) {
+  el.addEventListener('pointermove', (e) => showTip(lines, e.clientX, e.clientY));
+  el.addEventListener('pointerleave', hideTip);
+  el.addEventListener('focus', () => { const r = el.getBoundingClientRect(); showTip(lines, r.left + Math.min(r.width, 200) / 2, r.top); });
+  el.addEventListener('blur', hideTip);
+  return el;
+}
+
+// ───────────────────────── building blocks ─────────────────────────
+const SCOPE = { now: 'active', growth: 'weeks', funnel: 'made', ret: 'made', feat: 'active', sess: 'active', block: 'active', speed: 'active', health: 'active', setup: 'active' };
+const LOW = () => (state.s && state.s.low_sample) || 50;
+function section(id, title, q, act, ...body) {
+  const scope = SCOPE[id];
+  return h('section', { id }, h('div', { class: 'sechead' }, h('h2', null, title, scope && h('span', { class: 'scope' }, t('scope_' + scope))), q && h('p', { class: 'q' }, q), act && h('p', { class: 'act' }, act)), ...body);
+}
+/** A change against the period before: counts as a relative share, rates in percentage points; tone says whether up is good. Nothing when there is nothing sound to compare with. */
+function delta(cur, prev, { rate = false, good = 'up', minN = 0 } = {}) {
+  if (!state.compare || !state.s || !state.s.prev || cur == null || prev == null || Number.isNaN(cur) || Number.isNaN(prev)) return null;
+  if (minN && (cur.n != null ? cur.n < minN : false)) return null;
+  const a = cur.pct !== undefined ? cur.pct : cur, b = prev.pct !== undefined ? prev.pct : prev;
+  if (a == null || b == null || (prev.n !== undefined && prev.n < minN)) return null;
+  const diff = rate ? (a - b) * 100 : (b ? ((a - b) / b) * 100 : null);
+  if (diff == null) return null;
+  const flat = Math.abs(diff) < (rate ? 0.5 : 1), up = diff > 0;
+  const tone = flat || good === 'neutral' ? 'flat' : (up === (good === 'up') ? 'up' : 'down');
+  const txt = (up ? '+' : diff < 0 ? '−' : '') + dec(Math.abs(diff)) + (rate ? ' ' + t('pp') : '%');
+  const was = rate ? pct(b) : num(b);
+  return h('div', { class: 'dl ' + tone, title: t('vs') }, (flat ? '→ ' : up ? '▲ ' : '▼ ') + txt + ' · ' + t('vs_was', { v: was }));
+}
+function kpi({ lab, val, sub, hint, frac, low, d }) {
+  return h('div', { class: 'card kpi' + (low ? ' low' : '') }, h('div', { class: 'lab' }, lab), h('div', { class: 'val' }, val), sub && h('div', { class: 'sub' }, sub), d, frac != null && h('div', { class: 'bar', 'aria-hidden': 'true' }, h('i', { style: 'width:' + Math.max(0, Math.min(100, frac * 100)) + '%' })), hint && h('div', { class: 'hint' }, hint));
+}
+const frac = (p) => p && p.n > 0 ? p : null;
+function pairKpi(lab, p, hint, prevPair, good = 'up') {
+  const ok = frac(p); const low = !ok || p.n < LOW();
+  return kpi({ lab, val: ok ? pct(p.pct) : '—', sub: ok ? `${num(p.k)} ${t('of')} ${num(p.n)}` + (low ? ' · ' + t('low') : '') : t('wait'), frac: ok ? p.pct : null, hint, low, d: ok && !low ? delta(p, prevPair, { rate: true, good, minN: 20 }) : null });
+}
+/** rows: [{ label, badge, value (0..1 of max), text, small, tip: [[a,b],…], cls }] */
+function hlist(rows, { head, max: fixedMax } = {}) {
+  const max = fixedMax || Math.max(1e-9, ...rows.map((r) => r.value));
+  return h('div', { class: 'hlist', role: 'list' },
+    head && h('div', { class: 'fhead', 'aria-hidden': 'true' }, h('span', null, head[0]), h('span', null, head[1]), h('span', null, head[2])),
+    rows.map((r) => tipOn(h('div', { class: 'hrow ' + (r.cls || ''), role: 'listitem', tabindex: '0' },
+      h('div', { class: 'nm' }, r.label, r.badge),
+      h('div', { class: 'tr', 'aria-hidden': 'true' }, h('i', { style: 'width:' + (r.value / max * 100).toFixed(1) + '%' })),
+      h('div', { class: 'vl' }, r.text, r.small && h('small', null, r.small))), r.tip || [])));
+}
+function dataTable(head, rows) {
+  return h('details', { class: 'data' }, h('summary', null, t('tbl')), h('div', { class: 'scroll' }, h('table', null, h('thead', null, h('tr', null, head.map((x) => h('th', { scope: 'col' }, x)))), h('tbody', null, rows.map((r) => h('tr', null, r.map((c, i) => i ? h('td', null, c) : h('th', { scope: 'row' }, c))))))));
+}
+/** A column chart. cols: [{ label, v, part, tip, top }] */
+function columns(cols, { height = 200, fmt = num, yMax, tickEvery = 1, caption } = {}) {
+  const W = 720, mL = 40, mR = 8, mT = 14, mB = 26, H = height, iw = W - mL - mR, ih = H - mT - mB;
+  const max = yMax ?? Math.max(1, ...cols.map((c) => c.v));
+  const nice = (m) => { const p = Math.pow(10, Math.floor(Math.log10(m))), f = m / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p; };
+  const top = yMax ?? nice(max), ticks = [0, 0.5, 1].map((f) => top * f);
+  const el = svg('svg', { class: 'chart', viewBox: `0 0 ${W} ${H}`, role: 'group', 'aria-label': caption || '' });
+  const g = svg('g', { class: 'grid' }); for (const v of ticks) { const y = mT + ih - (v / top) * ih; g.append(svg('line', { x1: mL, x2: W - mR, y1: y, y2: y }), svg('text', { x: mL - 6, y: y + 4, 'text-anchor': 'end' }, fmt(v))); }
+  el.append(g, svg('line', { class: 'axis', x1: mL, x2: W - mR, y1: mT + ih, y2: mT + ih }));
+  const bw = iw / cols.length, gap = Math.min(10, bw * 0.25);
+  cols.forEach((c, i) => {
+    const x = mL + i * bw, bh = Math.max(c.v > 0 ? 2 : 0, (c.v / top) * ih), y = mT + ih - bh;
+    const col = svg('g', { class: 'col', tabindex: '0', role: 'img', 'aria-label': `${c.label}: ${fmt(c.v)}` });
+    col.append(svg('rect', { class: 'hit', x, y: mT, width: bw, height: ih + mB - 4 }), svg('line', { class: 'cross', x1: x + bw / 2, x2: x + bw / 2, y1: mT, y2: mT + ih }));
+    if (bh > 0) col.append(svg('path', { class: 'bar' + (c.part ? ' part' : ''), d: `M${x + gap / 2},${y + bh} V${y + 4} Q${x + gap / 2},${y} ${x + gap / 2 + 4},${y} H${x + bw - gap / 2 - 4} Q${x + bw - gap / 2},${y} ${x + bw - gap / 2},${y + 4} V${y + bh} Z` }));
+    if (c.top) col.append(svg('text', { class: 'val', x: x + bw / 2, y: y - 4, 'text-anchor': 'middle' }, c.top));
+    if (i % tickEvery === 0) col.append(svg('text', { x: x + bw / 2, y: H - 8, 'text-anchor': 'middle' }, c.label));
+    tipOn(col, c.tip || [[fmt(c.v), c.label]]);
+    el.append(col);
+  });
+  return el;
+}
+
+// ───────────────────────── insights ─────────────────────────
+function insights(s) {
+  const out = [], P = (x) => pct(x), I = (kind, text) => out.push({ kind, text });
+  const recent = s.overview.recent;
+  if (recent < LOW()) I('info', t('ins.few', { n: recent, w: s.window_days }));
+  if (s.overview.new_7d === 0 && s.overview.installs) I('warn', t('ins.new0'));
+  if (s.funnel) {
+    let worst = null;
+    for (let i = 1; i < 4; i++) { const prev = s.funnel[i - 1].n, cur = s.funnel[i].n; if (prev >= 10 && (!worst || cur / prev < worst.r)) worst = { r: cur / prev, from: s.funnel[i - 1].id, to: s.funnel[i].id }; }
+    if (worst && worst.r < 0.8) I('warn', t('ins.weak', { from: t('f_' + worst.from), to: t('f_' + worst.to), p: P(worst.r) }));
+  }
+  if (s.retention && s.retention.d1.n >= 10 && s.retention.d7.n >= 10) I('info', t('ins.ret', { d1: P(s.retention.d1.pct), d7: P(s.retention.d7.pct) }));
+  if (s.sessions && s.sessions.started >= 30) {
+    if (s.sessions.early_stop_rate > 0.2) I('warn', t('ins.early', { p: P(s.sessions.early_stop_rate) }));
+    else if (s.sessions.finish_rate > 0.7) I('good', t('ins.good', { p: P(s.sessions.finish_rate) }));
+  }
+  if (s.blocking && s.blocking.continue_rate != null && s.blocking.pages >= 30 && s.blocking.continue_rate > 0.35) I('info', t('ins.cont', { p: P(s.blocking.continue_rate) }));
+  if (s.speed && s.speed.opens >= 100 && s.speed.p90_upper >= 1000) I('warn', t('ins.slow', { n: s.speed.p90_upper >= OPEN_END ? 1000 : s.speed.p90_upper }));
+  const cut = s.features.filter((f) => f.cut_candidate); if (cut.length) I('info', t('ins.cut', { n: cut.length, list: cut.slice(0, 4).map((f) => t('fn.' + f.id)).join(', ') + (cut.length > 4 ? '…' : '') }));
+  if (s.health && s.health.installs_with_error.n >= 20 && s.health.installs_with_error.pct > 0.05) { const top = [...s.health.by_place].sort((a, b) => b.k - a.k)[0]; I('warn', t('ins.err', { p: P(s.health.installs_with_error.pct), place: t('he_' + top.id) })); }
+  return out;
+}
+
+// ───────────────────────── sections ─────────────────────────
+function render() {
+  document.documentElement.lang = state.lang;
+  document.title = t('title');
+  const s = state.s, app = $('#app'), ttl = $('#ttl');
+  ttl.textContent = 'EyeTime' + (state.mode === 'demo' ? ' · ' + t('demo') : state.mode === 'public' ? ' · ' + t('pub') : '');
+  $('#bLang').textContent = t('lang'); $('#bTheme').textContent = t('theme_' + state.theme); $('#bRefresh').textContent = t('refresh'); $('#bOut').textContent = t('signout'); $('#bOut').hidden = !(state.mode === 'owner' && tab.get('et-token'));
+  $('#bRefresh').hidden = !s && !state.err;
+  if (!s) { $('#fresh').textContent = ''; $('#toc').replaceChildren(); app.replaceChildren(...(state.first ? [] : [gate()])); return; }
+  $('#fresh').textContent = s.overview && s.overview.asOf ? `${t('asof')} ${s.overview.asOf}` : (s.generated_at ? `${t('ftm')} ${new Date(s.generated_at).toISOString().slice(0, 16).replace('T', ' ')} UTC` : '');
+  const nodes = [h('h1', null, state.mode === 'public' ? t('pub') : t('title')), toolbar(s)];
+  if (state.mode === 'demo') nodes.push(h('div', { class: 'banner info' }, h('span', null, t('demo_note'))));
+  if (s.public) nodes.push(h('div', { class: 'banner info' }, h('span', null, t('pub_note'))));
+  if (s.collecting) { nodes.splice(1, 1); nodes.push(h('div', { class: 'banner warn' }, h('span', null, t('collecting', { k: s.k })))); app.replaceChildren(...nodes, footer()); $('#toc').replaceChildren(); return; }
+  const low = s.overview.recent < LOW();
+  nodes.push(low ? h('div', { class: 'banner warn' }, h('span', null, h('b', null, t('low_h') + '. '), t('low_p', { n: s.overview.recent, w: s.window_days, k: LOW() }))) : h('div', { class: 'banner info' }, h('span', null, h('b', null, t('caveat_h') + '. '), t('caveat_p'))));
+  const sections = [];
+  const add = (id, nav, node) => { if (node) { sections.push([id, nav]); nodes.push(node); } };
+  add('now', 'nav_now', secNow(s));
+  add('growth', 'nav_growth', secGrowth(s));
+  add('funnel', 'nav_funnel', secFunnel(s));
+  add('ret', 'nav_ret', secRet(s));
+  add('feat', 'nav_feat', secFeat(s));
+  add('sess', 'nav_sess', secSess(s));
+  add('block', 'nav_block', secBlock(s));
+  add('speed', 'nav_speed', secSpeed(s));
+  add('health', 'nav_health', secHealth(s));
+  add('setup', 'nav_setup', secSetup(s));
+  add('how', 'nav_how', secHow(s));
+  nodes.push(footer());
+  app.replaceChildren(...nodes);
+  $('#toc').replaceChildren(...sections.map(([id, nav]) => h('a', { href: '#' + id }, t(nav))));
+}
+function gate() {
+  const input = h('input', { type: 'password', autocomplete: 'off', placeholder: t('gate_ph'), 'aria-label': t('gate_ph'), required: true, spellcheck: 'false' });
+  return h('div', { class: 'gate card' }, h('h1', null, t('gate_h')), h('p', { class: 'lead' }, t('gate_p')),
+    h('form', { onsubmit: (e) => { e.preventDefault(); tab.set('et-token', input.value.trim()); load(); } }, input, h('button', { class: 'btn primary', type: 'submit' }, t('gate_go'))),
+    state.err && h('div', { class: 'err', role: 'alert' }, state.err));
+}
+function secNow(s) {
+  const o = s.overview, a = s.activation, w = s.weekly && s.weekly.at(-3);
+  const cards = [];
+  const pv = s.prev;
+  if (o.installs != null) cards.push(kpi({ lab: t('k_installs'), val: num(o.installs), sub: s.range && !s.range.all ? t('upto', { d: s.range.to }) : t('k_installs_s') }));
+  cards.push(kpi({ lab: t('k_recent'), val: num(o.recent), sub: o.installs ? pct(o.recent / o.installs) + ' ' + t('of') + ' ' + num(o.installs) : '', d: pv && delta(o.recent, pv.installs_active) }));
+  if (o.new_in_range != null) cards.push(kpi({ lab: t('k_newp'), val: num(o.new_in_range), d: pv && delta(o.new_in_range, pv.installs_new) }));
+  else if (o.new_7d != null) cards.push(kpi({ lab: t('k_new7'), val: num(o.new_7d) }));
+  if (w) cards.push(kpi({ lab: t('k_wau'), val: num(w.active), sub: w.from + ' – ' + w.to }));
+  const ret = s.retention ? [pairKpi(t('k_d1'), s.retention.d1, t('h_d1'), pv && pv.d1), pairKpi(t('k_d7'), s.retention.d7, t('h_d7'), pv && pv.d7), pairKpi(t('k_d30'), s.retention.d30, t('h_d30'), pv && pv.d30)] : [];
+  const fin = s.sessions && s.sessions.finish_rate != null ? kpi({ lab: t('k_fin'), val: pct(s.sessions.finish_rate), sub: `${num(s.sessions.finished)} ${t('of')} ${num(s.sessions.started)}`, frac: s.sessions.finish_rate, hint: t('h_fin'), low: s.sessions.started < 30, d: s.sessions.started >= 30 && pv && pv.started >= 30 ? delta(s.sessions.finish_rate, pv.finish_rate, { rate: true }) : null }) : null;
+  const ins = s.features && s.funnel ? insights(s) : [];
+  return section('now', t('s_now'), t('s_now_q'), null,
+    h('div', { class: 'grid g4' }, cards), (ret.length || fin) && h('div', { class: 'grid g4', style: 'margin-top:12px' }, ret, fin),
+    ins.length && h('div', { style: 'margin-top:20px' }, h('h3', null, t('s_insights')), h('ul', { class: 'insights' }, ins.map((i) => h('li', null, h('span', { class: 'ic ' + i.kind, 'aria-hidden': 'true' }, i.kind === 'good' ? '✓' : i.kind === 'warn' ? '!' : 'i'), h('span', null, i.text))))));
+}
+function secGrowth(s) {
+  if (!s.weekly) return null;
+  const cols = s.weekly.map((w) => ({ label: dateShort(w.to), v: w.active, part: w.partial, top: w.active ? num(w.active) : '', tip: [[num(w.active), t('w_active')], [t('w_range') + ' ' + w.from + ' – ' + w.to], w.installed ? [pct(w.active / w.installed), t('w_share') + ' (' + num(w.installed) + ' ' + t('n_inst') + ')'] : ['', ''], w.partial ? ['', t('w_open')] : null].filter((x) => x && (x[0] || x[1])) }));
+  return section('growth', t('s_growth'), t('q_growth'), t('a_growth'), h('div', { class: 'card' }, columns(cols, { height: 230, caption: t('s_growth'), tickEvery: 1 }), h('p', { class: 'note' }, t('w_note')), dataTable([t('w_range'), t('w_active'), t('w_installed')], s.weekly.map((w) => [w.from + ' – ' + w.to + (w.partial ? ' *' : ''), num(w.active), num(w.installed)]))));
+}
+function secFunnel(s) {
+  if (!s.funnel) return null;
+  const f = s.funnel, base = f[0].n || 1;
+  const of = state.lang === 'ru' ? 'от всех установок' : 'of all installs';
+  const rows = f.map((x, i) => {
+    const tipLines = [[num(x.n), t('f_' + x.id)], [pct(x.n / base), of]];
+    if (i) tipLines.push([pct(f[i - 1].n ? x.n / f[i - 1].n : null), t('f_conv', { p: '' }).trim()]);
+    return { label: t('f_' + x.id), value: x.n, text: num(x.n), small: pct(x.n / base), cls: 'step' + (x.n < LOW() ? ' low' : ''), tip: tipLines };
+  });
+  const a = s.activation;
+  const side = a ? h('div', { class: 'grid g3', style: 'margin-top:12px' }, pairKpi(t('k_act'), a.session_week1, t('h_act'), s.prev && s.prev.session_week1), a.onboarding_done && pairKpi(t('a_onb'), a.onboarding_done, t('a_note')), a.median_days_to_first_session != null && kpi({ lab: t('a_med'), val: dec(a.median_days_to_first_session), sub: t('a_med_u') })) : null;
+  return section('funnel', t('s_funnel'), t('q_funnel'), t('a_funnel'), h('div', { class: 'card' }, hlist(rows), h('p', { class: 'note' }, t('f_note')), dataTable([t('s_funnel'), t('n_inst'), '%'], f.map((x) => [t('f_' + x.id), num(x.n), pct(x.n / base)]))), side);
+}
+function secRet(s) {
+  if (!s.retention) return null;
+  const pv = s.prev, r = s.retention, trio = h('div', { class: 'grid g3' }, pairKpi(t('k_d1'), r.d1, t('h_d1'), pv && pv.d1), pairKpi(t('k_d7'), r.d7, t('h_d7'), pv && pv.d7), pairKpi(t('k_d30'), r.d30, t('h_d30'), pv && pv.d30));
+  let heat = null;
+  if (s.cohorts && s.cohorts.length) {
+    const head = h('tr', null, h('th', { scope: 'col' }), Array.from({ length: 8 }, (_, i) => h('th', { scope: 'col' }, t('r_wk', { n: i + 1 }))));
+    const body = s.cohorts.map((c) => h('tr', null, h('th', { class: 'rw', scope: 'row' }, t('r_row', { d: dateShort(c.from) }), ' ', h('small', null, 'n=' + c.n)),
+      c.weeks.slice(1).map((w, j) => {
+        const i = j + 1;
+        if (!w.n) return h('td', { class: 'empty' });
+        const p = w.pct, sc = Math.min(1, p / 0.7), lowCell = w.n < 10, td = h('td', { class: 'c' + (sc > 0.55 ? ' hi' : '') + (lowCell ? ' low' : ''), style: '--p:' + sc.toFixed(3), tabindex: '0', 'aria-label': t('r_cell', { w: i, k: w.k, n: w.n }) }, Math.round(p * 100) + '%');
+        return tipOn(td, [[Math.round(p * 100) + '%', t('r_cell', { w: i, k: w.k, n: w.n })], lowCell ? ['', t('r_small')] : null].filter(Boolean));
+      })));
+    heat = h('div', { class: 'card', style: 'margin-top:12px' }, h('h3', null, t('r_cohorts')), h('p', { class: 'note', style: 'margin:0 0 10px' }, t('r_cohorts_q')), h('div', { class: 'heat' }, h('table', { class: 'hm' }, h('thead', null, head), h('tbody', null, body))), h('p', { class: 'note' }, t('r_note')));
+  }
+  return section('ret', t('s_ret'), t('q_ret'), t('a_ret'), trio, s.overview.new_in_range != null && h('p', { class: 'note' }, t('r_scope', { n: num(s.overview.new_in_range) })), heat);
+}
+function secFeat(s) {
+  if (!s.features) return null;
+  const groups = Object.keys(s.groups || {}), list = s.features.filter((f) => state.group === 'all' || f.group === state.group);
+  const rows = list.map((f) => {
+    const u = f.users, lowRow = u.n < LOW(), pctv = u.pct ?? 0;
+    const lines = [[pct(u.pct) + ' · ' + num(u.k) + ' ' + t('of') + ' ' + num(u.n), t('fn.' + f.id)]];
+    if (f.uses != null) lines.push([num(f.uses), t('fh_uses')]);
+    if (f.per_user != null) lines.push(['', t('feat_per', { n: dec(f.per_user) })]);
+    if (f.ever) lines.push(['', t('feat_ever', { p: pct(f.ever.pct) })]);
+    if (f.median_days_to_first != null) lines.push(['', t('feat_first', { n: dec(f.median_days_to_first) })]);
+    return { label: t('fn.' + f.id), badge: f.cut_candidate ? h('span', { class: 'tag warn' }, t('cut')) : null, value: pctv, text: pct(u.pct), small: f.uses != null ? num(f.uses) : '', cls: (lowRow ? 'low ' : '') + (f.cut_candidate ? 'cut' : ''), tip: lines };
+  });
+  const chips = h('div', { class: 'chips', role: 'group' }, ['all', ...groups].map((g) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(state.group === g), onclick: () => { state.group = g; render(); location.hash = '#feat'; } }, g === 'all' ? t('feat_all') : t('g_' + g))));
+  return section('feat', t('s_feat'), t('q_feat'), t('a_feat'), h('div', { class: 'card' }, chips, hlist(rows, { max: 1, head: [t('fh_name'), t('fh_users', { w: s.window_days }), t('fh_uses')] }), h('p', { class: 'note' }, t('feat_note', { w: s.window_days }))));
+}
+function secSess(s) {
+  if (!s.sessions) return null;
+  const x = s.sessions, total = x.length.reduce((a, b) => a + b.k, 0);
+  const cols = x.length.map((b) => ({ label: t('len_' + b.id), v: b.k, part: total < 30, top: total ? pct(b.k / total) : '', tip: [[num(b.k), t('len_' + b.id) + ' ' + t('min')], total ? [pct(b.k / total), t('s_len')] : null].filter(Boolean) }));
+  return section('sess', t('s_sess'), t('q_sess'), t('a_sess'),
+    h('div', { class: 'grid g4' }, kpi({ lab: t('s_started'), val: num(x.started), sub: `${s.window_days} ${state.lang === 'ru' ? 'дн.' : 'd'}` }), kpi({ lab: t('s_fin_rate'), val: pct(x.finish_rate), frac: x.finish_rate, low: x.started < 30, d: s.prev && x.started >= 30 && s.prev.started >= 30 ? delta(x.finish_rate, s.prev.finish_rate, { rate: true }) : null, sub: `${num(x.finished)} ${t('of')} ${num(x.started)}` }), kpi({ lab: t('s_early_rate'), val: pct(x.early_stop_rate), frac: x.early_stop_rate, low: x.started < 30, d: s.prev && x.started >= 30 && s.prev.started >= 30 ? delta(x.early_stop_rate, s.prev.early_stop_rate, { rate: true, good: 'down' }) : null, sub: `${num(x.early_stop)} ${t('of')} ${num(x.started)}` }), x.stopped != null && kpi({ lab: t('s_stopped'), val: num(x.stopped) })),
+    h('div', { class: 'card', style: 'margin-top:12px' }, h('h3', null, t('s_len') + ', ' + t('min')), columns(cols, { height: 200, caption: t('s_len'), fmt: num }), h('p', { class: 'note' }, t('s_len_note')), dataTable([t('s_len'), '#', '%'], x.length.map((b) => [t('len_' + b.id) + ' ' + t('min'), num(b.k), total ? pct(b.k / total) : '—']))));
+}
+function secBlock(s) {
+  if (!s.blocking) return null;
+  const b = s.blocking, tot = b.reasons.reduce((a, r) => a + r.k, 0);
+  const rows = b.reasons.map((r) => ({ label: t('br_' + r.id), value: tot ? r.k / tot : 0, text: tot ? pct(r.k / tot) : '—', small: num(r.k), cls: tot < 30 ? 'low' : '', tip: [[num(r.k), t('br_' + r.id)], tot ? [pct(r.k / tot), t('b_reasons')] : null].filter(Boolean) })).sort((a, c) => c.value - a.value);
+  const eyes = s.eyes && s.eyes.rate != null ? kpi({ lab: t('e_rate'), val: pct(s.eyes.rate), frac: s.eyes.rate, sub: s.eyes.done != null ? `${num(s.eyes.done)} ${t('of')} ${num(s.eyes.done + s.eyes.skipped)}` : '', hint: t('q_eyes'), low: s.eyes.done != null && s.eyes.done + s.eyes.skipped < 30 }) : null;
+  return section('block', t('s_block'), t('q_block'), t('a_block'),
+    h('div', { class: 'grid g3' }, b.pages != null && kpi({ lab: t('b_pages'), val: num(b.pages) }), b.continue_rate != null && kpi({ lab: t('b_cont_rate'), val: pct(b.continue_rate), frac: b.continue_rate, low: b.pages < 30, d: s.prev && b.pages >= 30 && s.prev.continue_rate != null ? delta(b.continue_rate, s.prev.continue_rate, { rate: true, good: 'neutral' }) : null, sub: b.continued != null ? `${num(b.continued)} ${t('of')} ${num(b.pages)}` : '' }), eyes),
+    h('div', { class: 'card', style: 'margin-top:12px' }, h('h3', null, t('b_reasons')), hlist(rows, { max: 1 })));
+}
+function secSpeed(s) {
+  if (!s.speed) return null;
+  const x = s.speed, total = x.hist.reduce((a, b) => a + b.k, 0);
+  const cols = x.hist.map((b) => ({ label: t('sp_b_' + b.id), v: b.k, part: total < 100, top: total ? pct(b.k / total) : '', tip: [[num(b.k), t('sp_b_' + b.id)], total ? [pct(b.k / total), t('sp_hist')] : null].filter(Boolean) }));
+  const fmtU = (u) => (u == null ? '—' : u >= OPEN_END ? '> 1000 ' + t('sp_unit') : '< ' + u + ' ' + t('sp_unit'));
+  return section('speed', t('s_speed'), t('q_speed'), t('a_speed'),
+    h('div', { class: 'grid g4' }, kpi({ lab: t('sp_opens'), val: num(x.opens) }), kpi({ lab: t('sp_u250'), val: pct(x.under250), frac: x.under250, low: x.opens < 100, d: x.opens >= 100 && s.prev && s.prev.under250 != null ? delta(x.under250, s.prev.under250, { rate: true }) : null }), kpi({ lab: t('sp_p50'), val: fmtU(x.p50_upper) }), kpi({ lab: t('sp_p90'), val: fmtU(x.p90_upper) })),
+    h('div', { class: 'card', style: 'margin-top:12px' }, h('h3', null, t('sp_hist')), columns(cols, { height: 200, caption: t('sp_hist') }), h('p', { class: 'note' }, t('sp_note')), dataTable([t('sp_hist'), '#', '%'], x.hist.map((b) => [t('sp_b_' + b.id), num(b.k), total ? pct(b.k / total) : '—']))));
+}
+function secHealth(s) {
+  if (!s.health) return null;
+  const x = s.health, rows = x.by_place.map((p) => ({ label: t('he_' + p.id), value: p.per_1000 ?? 0, text: dec(p.per_1000), small: num(p.k), tip: [[dec(p.per_1000), t('h_place') + ' · ' + t('he_' + p.id)], [num(p.k), state.lang === 'ru' ? 'всего ошибок' : 'errors in all']] })).sort((a, b) => b.value - a.value);
+  return section('health', t('s_health'), t('q_health'), t('a_health'), h('div', { class: 'grid g2' }, h('div', { class: 'grid' }, pairKpi(t('h_with'), x.installs_with_error, t('h_note'))), h('div', { class: 'card' }, h('h3', null, t('h_place')), hlist(rows))));
+}
+function secSetup(s) {
+  if (!s.setup) return null;
+  const cat = (title, list, nameOf) => {
+    if (!list || !list.length) return null;
+    const tot = list.reduce((a, x) => a + x.k, 0);
+    return h('div', { class: 'card' }, h('h3', null, title), hlist(list.slice(0, 8).map((x) => ({ label: nameOf(x.value), value: tot ? x.k / tot : 0, text: tot ? pct(x.k / tot) : '—', small: num(x.k), cls: tot < LOW() ? 'low' : '', tip: [[num(x.k), nameOf(x.value)], [tot ? pct(x.k / tot) : '', title]] })), { max: 1 }));
+  };
+  const cap = (v) => (v === 'other' ? t('st_other') : v);
+  const grids = [cat(t('st_look'), s.setup.look, (v) => cap(v)), cat(t('st_layout'), s.setup.layout, cap), cat(t('st_lang'), s.setup.lang, (v) => (v === 'other' ? t('st_other') : v.toUpperCase())), cat(t('st_mode'), s.setup.mode, (v) => (L[state.lang]['m_' + v] || cap(v))), cat(t('st_browser'), s.setup.browser, cap), cat(t('st_os'), s.setup.os, cap)].filter(Boolean);
+  const fl = s.setup.flags;
+  let flags = null;
+  if (fl && fl.of) {
+    const rows = fl.items.slice().sort((a, b) => b.k - a.k).map((x) => ({ label: t('fg.' + x.id), value: x.k / fl.of, text: pct(x.k / fl.of), small: num(x.k), cls: fl.of < LOW() ? 'low' : '', tip: [[num(x.k) + ' ' + t('of') + ' ' + num(fl.of), t('fg.' + x.id)]] }));
+    flags = h('div', { class: 'card', style: 'margin-top:12px' }, h('h3', null, t('st_flags')), h('p', { class: 'note', style: 'margin:0 0 10px' }, t('st_flags_n', { n: num(fl.of) })), hlist(rows, { max: 1 }));
+  }
+  const ver = s.overview && s.overview.versions && s.overview.versions.length ? h('div', { class: 'card', style: 'margin-top:12px' }, h('h3', null, t('st_versions')), hlist(s.overview.versions.slice(0, 6).map((x) => ({ label: x.value, value: x.k / s.overview.recent, text: pct(x.k / s.overview.recent), small: num(x.k) })), { max: 1 })) : null;
+  return section('setup', t('s_setup'), t('q_setup'), t('a_setup'), h('div', { class: 'grid g2' }, grids), flags, ver);
+}
+function secHow() {
+  return section('how', t('s_how'), null, null, h('div', { class: 'card' }, h('ul', { style: 'margin:0;padding-left:18px;display:grid;gap:6px' }, t('how').map((x) => h('li', null, x.split('{k}').join(String(LOW())))))));
+}
+function footer() { return h('footer', { class: 'foot' }, h('div', null, t('ft')), h('div', null, t('ft2'))); }
+
+
+// ───────────────────────── the period bar ─────────────────────────
+const fmtDay = (iso) => new Intl.DateTimeFormat(state.lang === 'ru' ? 'ru-RU' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(iso + 'T00:00:00Z'));
+const periodQuery = () => { const r = state.range; return r.kind === 'all' ? 'range=all' : r.kind === 'custom' ? `from=${r.from}&to=${r.to}` : `days=${r.kind}`; };
+function pick(kind) {
+  if (kind === 'custom') { const r = state.s && state.s.range; state.range = { kind: 'custom', from: r ? r.from : '', to: r ? r.to : '' }; state.rangeErr = ''; render(); return; }
+  state.range = { kind }; state.rangeErr = ''; load();
+}
+function toolbar(s) {
+  const owner = state.mode !== 'public';
+  const kinds = [['7', 'p_7'], ['28', 'p_28'], ['90', 'p_90'], ['all', 'p_all'], ['custom', 'p_custom']];
+  const first = h('div', { class: 'row' });
+  if (owner) {
+    first.append(h('div', { class: 'seg', role: 'group', 'aria-label': t('p_label') }, kinds.map(([k, key]) => h('button', { type: 'button', 'aria-pressed': String(state.range.kind === k), onclick: () => pick(k) }, t(key)))));
+    if (state.range.kind === 'custom') {
+      const max = new Date(s.generated_at).toISOString().slice(0, 10), min = s.overview && s.overview.first_day;
+      const a = h('input', { type: 'date', value: state.range.from, min, max, 'aria-label': t('p_from') }), b = h('input', { type: 'date', value: state.range.to, min, max, 'aria-label': t('p_to') });
+      first.append(h('div', { class: 'custom' }, h('label', null, t('p_from') + ' ', a), h('label', null, t('p_to') + ' ', b), h('button', { class: 'btn primary', type: 'button', onclick: () => {
+        if (!ISO.test(a.value) || !ISO.test(b.value) || a.value > b.value) { state.rangeErr = t('p_bad'); render(); return; }
+        state.range = { kind: 'custom', from: a.value, to: b.value }; state.rangeErr = ''; load();
+      } }, t('p_apply'))));
+    }
+  }
+  first.append(h('div', { class: 'sp' }));
+  if (owner && state.range.kind !== 'all') first.append(h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: state.compare, onchange: (e) => { state.compare = e.target.checked; store.set('et-compare', state.compare ? '1' : '0'); render(); } }), t('cmp')));
+  first.append(exportMenu());
+  const info = h('div', { class: 'rangetxt', 'aria-live': 'polite' });
+  if (s.range) {
+    info.append(h('b', null, t('p_range', { a: fmtDay(s.range.from), b: fmtDay(s.range.to), n: s.range.days })), ' · ', t('p_weeks', { a: fmtDay(s.range.weeks_from), b: fmtDay(s.range.weeks_to) }));
+    if (owner && state.compare && !s.range.all) info.append(' · ', s.prev ? t('p_prev', { a: fmtDay(s.prev.range.from), b: fmtDay(s.prev.range.to) }) : t('p_noprev'));
+  }
+  return h('div', { class: 'bar2' }, first, info, state.rangeErr && h('div', { class: 'err', role: 'alert' }, state.rangeErr));
+}
+function exportMenu() {
+  const items = [['x_csv', 'x_csv_s', exportCsv], ['x_json', 'x_json_s', exportJson], ['x_md', 'x_md_s', exportMd], ['x_copy', 'x_copy_s', copyReport], ['x_print', 'x_print_s', () => window.print()]];
+  const d = h('details', { class: 'menu' }, h('summary', { class: 'btn primary', role: 'button' }, t('x_btn') + ' ▾'),
+    h('div', { class: 'pop' }, items.map(([a, b, fn]) => h('button', { type: 'button', onclick: () => { d.open = false; fn(); } }, h('span', null, t(a)), h('small', null, t(b))))));
+  d.addEventListener('focusout', (e) => { if (!d.contains(e.relatedTarget)) d.open = false; });
+  return d;
+}
+
+// ───────────────────────── export ─────────────────────────
+const stamp = () => { const r = state.s && state.s.range; return (state.mode === 'public' ? 'public' : state.mode === 'demo' ? 'demo' : 'stats') + (r ? `_${r.from}_${r.to}` : ''); };
+function download(name, text, type) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = h('a', { href: url, download: name }); document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+function toast(msg) { const el = h('div', { class: 'toast', role: 'status' }, msg); document.body.append(el); setTimeout(() => el.remove(), 2200); }
+/** Every figure on the page as rows: [section, id, metric, label, value, k, n]. Rates are ratios (0..1); the labels are in the language of the page. */
+function exportRows(s) {
+  const rows = [], R = (sec, id, metric, label, value, k, n) => rows.push([sec, id, metric, label ?? '', value ?? '', k ?? '', n ?? '']);
+  const P = (sec, id, label, p) => { if (p) R(sec, id, 'share', label, p.pct, p.k, p.n); };
+  if (s.range) { R('period', 'from', 'date', t('p_from'), s.range.from); R('period', 'to', 'date', t('p_to'), s.range.to); R('period', 'days', 'count', '', s.range.days); R('period', 'weeks_from', 'date', '', s.range.weeks_from); R('period', 'weeks_to', 'date', '', s.range.weeks_to); }
+  R('period', 'generated_at', 'time', t('ftm'), new Date(s.generated_at).toISOString()); R('period', 'low_sample', 'count', '', s.low_sample);
+  const o = s.overview || {};
+  for (const [k, v] of [['installs', o.installs], ['active', o.recent], ['new_in_period', o.new_in_range]]) if (v != null) R('overview', k, 'count', '', v);
+  (o.versions || []).forEach((x) => R('versions', x.value, 'installs', x.value, '', x.k, o.recent));
+  (s.weekly || []).forEach((w) => { R('weekly', w.to, 'active', w.from + ' – ' + w.to + (w.partial ? ' *' : ''), w.installed ? w.active / w.installed : '', w.active, w.installed); });
+  (s.funnel || []).forEach((f) => R('funnel', f.id, 'installs', t('f_' + f.id), s.funnel[0].n ? f.n / s.funnel[0].n : '', f.n, s.funnel[0].n));
+  if (s.activation) { for (const k of ['newtab_day1', 'session_day1', 'session_week1', 'finished_week1', 'onboarding_done']) P('activation', k, k, s.activation[k]); if (s.activation.median_days_to_first_session != null) R('activation', 'median_days_to_first_session', 'days', t('a_med'), s.activation.median_days_to_first_session); }
+  if (s.retention) for (const k of ['d1', 'd7', 'd30']) P('retention', k, t('k_' + k), s.retention[k]);
+  (s.cohorts || []).forEach((c) => c.weeks.forEach((w, i) => { if (w.n) R('cohorts', c.from + ':w' + i, 'share', t('r_row', { d: c.from }) + ' · ' + t('r_wk', { n: i }), w.pct, w.k, w.n); }));
+  (s.features || []).forEach((f) => {
+    const l = t('fn.' + f.id); R('features', f.id, 'users_share', l, f.users.pct, f.users.k, f.users.n);
+    if (f.uses != null) R('features', f.id, 'uses', l, f.uses);
+    if (f.per_user != null) R('features', f.id, 'uses_per_user_median', l, f.per_user);
+    if (f.ever) R('features', f.id, 'ever_share', l, f.ever.pct, f.ever.k, f.ever.n);
+    if (f.median_days_to_first != null) R('features', f.id, 'first_use_median_days', l, f.median_days_to_first);
+    if (f.cut_candidate != null) R('features', f.id, 'cut_candidate', l, f.cut_candidate ? 1 : 0);
+  });
+  if (s.sessions) { const x = s.sessions; for (const k of ['started', 'finished', 'stopped', 'early_stop']) if (x[k] != null) R('sessions', k, 'count', '', x[k]); R('sessions', 'finish_rate', 'ratio', t('s_fin_rate'), x.finish_rate); R('sessions', 'early_stop_rate', 'ratio', t('s_early_rate'), x.early_stop_rate); const tot = x.length.reduce((a, b) => a + b.k, 0); x.length.forEach((b) => R('session_length', b.id, 'sessions', t('len_' + b.id) + ' ' + t('min'), tot ? b.k / tot : '', b.k, tot)); }
+  if (s.blocking) { const b = s.blocking; for (const k of ['pages', 'continued']) if (b[k] != null) R('blocking', k, 'count', '', b[k]); R('blocking', 'continue_rate', 'ratio', t('b_cont_rate'), b.continue_rate); const tot = b.reasons.reduce((a, r) => a + r.k, 0); b.reasons.forEach((r) => R('block_reasons', r.id, 'pages', t('br_' + r.id), tot ? r.k / tot : '', r.k, tot)); }
+  if (s.eyes) { R('eyes', 'break_rate', 'ratio', t('e_rate'), s.eyes.rate); if (s.eyes.done != null) { R('eyes', 'done', 'count', t('e_done'), s.eyes.done); R('eyes', 'skipped', 'count', t('e_skip'), s.eyes.skipped); } }
+  if (s.speed) { const x = s.speed; R('speed', 'opens', 'count', t('sp_opens'), x.opens); R('speed', 'under250', 'ratio', t('sp_u250'), x.under250); R('speed', 'p50_upper_ms', 'ms', t('sp_p50'), x.p50_upper >= OPEN_END ? '>1000' : x.p50_upper); R('speed', 'p90_upper_ms', 'ms', t('sp_p90'), x.p90_upper >= OPEN_END ? '>1000' : x.p90_upper); x.hist.forEach((b) => R('speed_hist', b.id, 'opens', t('sp_b_' + b.id), x.opens ? b.k / x.opens : '', b.k, x.opens)); }
+  if (s.health) { P('health', 'installs_with_error', t('h_with'), s.health.installs_with_error); s.health.by_place.forEach((p) => R('errors', p.id, 'per_1000_installs', t('he_' + p.id), p.per_1000, p.k)); }
+  if (s.setup) {
+    for (const cat of ['look', 'layout', 'lang', 'mode', 'browser', 'os']) { const list = s.setup[cat] || []; const tot = list.reduce((a, x) => a + x.k, 0); list.forEach((x) => R('setup_' + cat, x.value, 'share', x.value, tot ? x.k / tot : '', x.k, tot)); }
+    if (s.setup.flags) s.setup.flags.items.forEach((x) => R('flags', x.id, 'share', t('fg.' + x.id), s.setup.flags.of ? x.k / s.setup.flags.of : '', x.k, s.setup.flags.of));
+  }
+  if (s.prev) {
+    const q = s.prev; R('previous', 'from', 'date', '', q.range.from); R('previous', 'to', 'date', '', q.range.to);
+    R('previous', 'active', 'count', t('k_recent'), q.installs_active); R('previous', 'new_in_period', 'count', t('k_newp'), q.installs_new);
+    for (const k of ['d1', 'd7', 'd30', 'session_week1']) P('previous', k, k, q[k]);
+    R('previous', 'finish_rate', 'ratio', t('s_fin_rate'), q.finish_rate); R('previous', 'early_stop_rate', 'ratio', t('s_early_rate'), q.early_stop_rate); R('previous', 'continue_rate', 'ratio', t('b_cont_rate'), q.continue_rate); R('previous', 'eye_rate', 'ratio', t('e_rate'), q.eye_rate); R('previous', 'under250', 'ratio', t('sp_u250'), q.under250);
+  }
+  return rows;
+}
+const csvCell = (v) => { let x = v == null ? '' : String(v); if (typeof v === 'string' && /^[=+\-@\t\r]/.test(x)) x = "'" + x; return /[",\r\n;]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; };
+function exportCsv() { if (!state.s) return; download(`eyetime-${stamp()}.csv`, '﻿' + [t('csv_cols'), ...exportRows(state.s)].map((r) => r.map(csvCell).join(',')).join('\r\n') + '\r\n', 'text/csv;charset=utf-8'); }
+function exportJson() { if (!state.s) return; download(`eyetime-${stamp()}.json`, JSON.stringify({ exported_at: new Date().toISOString(), mode: state.mode, ...state.s }, null, 2) + '\n', 'application/json'); }
+function reportText(s) {
+  const o = s.overview || {}, L2 = [], row = (...c) => '| ' + c.join(' | ') + ' |', P = (p) => (p && p.n ? `${pct(p.pct)} (${num(p.k)}/${num(p.n)})` : '—');
+  L2.push('# ' + t('rp_h'), '');
+  if (s.range) L2.push(`**${t('rp_period')}:** ${fmtDay(s.range.from)} — ${fmtDay(s.range.to)} (${s.range.days} ${state.lang === 'ru' ? 'дн.' : 'days'})`);
+  L2.push(`**${t('rp_gen')}:** ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC`, '', '_' + t('rp_sample') + '_', '');
+  L2.push('## ' + t('rp_glance'), '');
+  if (o.installs != null) L2.push(`- ${t('k_installs')}: **${num(o.installs)}**`);
+  L2.push(`- ${t('k_recent')}: **${num(o.recent)}**`); if (o.new_in_range != null) L2.push(`- ${t('k_newp')}: **${num(o.new_in_range)}**`);
+  if (s.retention) L2.push(`- ${t('k_d1')}: **${P(s.retention.d1)}**`, `- ${t('k_d7')}: **${P(s.retention.d7)}**`, `- ${t('k_d30')}: **${P(s.retention.d30)}**`);
+  if (s.sessions && s.sessions.finish_rate != null) L2.push(`- ${t('k_fin')}: **${pct(s.sessions.finish_rate)}**`);
+  const ins = s.features && s.funnel ? insights(s) : [];
+  if (ins.length) L2.push('', '## ' + t('rp_ins'), '', ...ins.map((i) => '- ' + i.text));
+  if (s.funnel) L2.push('', '## ' + t('rp_funnel'), '', row(t('s_funnel'), t('n_inst'), '%'), row('---', '---:', '---:'), ...s.funnel.map((f) => row(t('f_' + f.id), num(f.n), pct(f.n / (s.funnel[0].n || 1)))));
+  if (s.features) L2.push('', '## ' + t('rp_feat'), '', row(t('fh_name'), t('fh_users', { w: s.window_days }), t('fh_uses')), row('---', '---:', '---:'), ...s.features.slice(0, 10).map((f) => row(t('fn.' + f.id), P(f.users), f.uses != null ? num(f.uses) : '—')));
+  const mini = [];
+  if (s.sessions && s.sessions.finish_rate != null) mini.push(`- ${t('s_fin_rate')}: ${pct(s.sessions.finish_rate)}; ${t('s_early_rate')}: ${pct(s.sessions.early_stop_rate)}`);
+  if (s.blocking && s.blocking.continue_rate != null) mini.push(`- ${t('b_cont_rate')}: ${pct(s.blocking.continue_rate)}`);
+  if (s.speed && s.speed.opens) mini.push(`- ${t('sp_u250')}: ${pct(s.speed.under250)}`);
+  if (mini.length) L2.push('', '## ' + t('rp_sess'), '', ...mini);
+  if (s.setup) { const top = (list, name) => list && list.length ? `- ${name}: ` + list.slice(0, 5).map((x) => `${x.value} ${pct(x.k / (list.reduce((a, b) => a + b.k, 0) || 1))}`).join(', ') : null; const lines = [top(s.setup.look, t('st_look')), top(s.setup.lang, t('st_lang')), top(s.setup.browser, t('st_browser')), top(s.setup.os, t('st_os'))].filter(Boolean); if (lines.length) L2.push('', '## ' + t('rp_set'), '', ...lines); }
+  return L2.join('\n') + '\n';
+}
+function exportMd() { if (state.s) download(`eyetime-${stamp()}.md`, reportText(state.s), 'text/markdown;charset=utf-8'); }
+async function copyReport() { if (!state.s) return; try { await navigator.clipboard.writeText(reportText(state.s)); toast(t('x_done')); } catch { toast(t('x_fail')); } }
+let printTheme = null;
+window.addEventListener('beforeprint', () => { printTheme = document.documentElement.getAttribute('data-theme'); document.documentElement.setAttribute('data-theme', 'light'); });
+window.addEventListener('afterprint', () => { if (printTheme) document.documentElement.setAttribute('data-theme', printTheme); else document.documentElement.removeAttribute('data-theme'); });
+
+// ───────────────────────── data ─────────────────────────
+function syncUrl() {
+  const q = new URLSearchParams(); for (const k of ['demo', 'public']) if (params.has(k)) q.set(k, '');
+  const r = state.range; if (state.mode !== 'public') { if (r.kind === 'all') q.set('range', 'all'); else if (r.kind === 'custom') { q.set('from', r.from); q.set('to', r.to); } else if (r.kind !== String(DEFAULT_DAYS)) q.set('days', r.kind); }
+  const qs = q.toString().replace(/(demo|public)=(&|$)/g, '$1$2');
+  try { history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash); } catch { /* not allowed here */ }
+}
+let busy = false;
+async function load() {
+  if (busy) return; busy = true; document.body.classList.add('loading'); state.err = '';
+  const token = tab.get('et-token') || '';
+  const path = state.mode === 'demo' ? '/v1/demo-stats' : state.mode === 'public' ? '/v1/public-stats' : '/v1/stats';
+  try {
+    if (state.mode === 'owner' && !token) { state.s = null; return; }
+    const r = await fetch(path + (state.mode === 'public' ? '' : '?' + periodQuery()), { headers: state.mode === 'owner' ? { authorization: 'Bearer ' + token } : {}, cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer' });
+    if (r.status === 401) { tab.set('et-token', null); state.s = null; state.err = t('e401'); }
+    else if (r.status === 404) { state.s = null; state.err = state.mode === 'demo' ? t('e_demo') : t('e404'); }
+    else if (r.status === 400 && state.s) state.rangeErr = t('p_srv');
+    else if (!r.ok) { state.s = null; state.err = t('enet'); }
+    else { state.s = await r.json(); state.rangeErr = ''; syncUrl(); }
+  } catch { state.s = state.s || null; state.err = t('enet'); }
+  finally { busy = false; state.first = false; document.body.classList.remove('loading'); render(); if (state.err && state.s) $('#fresh').textContent = state.err; }
+}
+
+// ───────────────────────── wiring ─────────────────────────
+function applyTheme() { if (state.theme === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', state.theme); }
+$('#bLang').addEventListener('click', () => { state.lang = state.lang === 'ru' ? 'en' : 'ru'; store.set('et-lang', state.lang); render(); });
+$('#bTheme').addEventListener('click', () => { state.theme = { auto: 'light', light: 'dark', dark: 'auto' }[state.theme] || 'auto'; store.set('et-theme', state.theme); applyTheme(); render(); });
+$('#bRefresh').addEventListener('click', load);
+$('#bOut').addEventListener('click', () => { tab.set('et-token', null); state.s = null; state.err = ''; render(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideTip(); });
+// a key given in the address fragment (#t=…) is taken into this tab and removed from the address bar at once
+const frag = /^#t=(.+)$/.exec(location.hash);
+if (frag) { tab.set('et-token', decodeURIComponent(frag[1])); history.replaceState(null, '', location.pathname + location.search); }
+applyTheme();
+render();
+load();
+</script>
+</body>
+</html>

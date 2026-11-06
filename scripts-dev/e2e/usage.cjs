@@ -43,6 +43,10 @@ const { launch } = require('./lib.cjs');
   const u = await get('usage');
   ok(u && u.total.newtab_view >= 1, 'opening Home is counted: ' + JSON.stringify(u && u.total));
   ok(u && u.total.focus_start === 1 && u.total.focus_stop === 1, 'a session started and stopped is counted: ' + JSON.stringify(u && u.total));
+  ok(u && u.total.fl_early_stop === 1, 'a session stopped in the first minutes is counted as an early stop: ' + JSON.stringify(u && u.total));
+  ok(u && Object.keys(u.total).some((k) => /^nt_/.test(k)), 'how fast Home was ready is counted in a bucket: ' + JSON.stringify(u && u.total));
+  const site = await app.ctx.newPage(); await site.goto('http://www.youtube.com:8099/').catch(() => {}); await site.waitForTimeout(1500); await site.close();
+  const u2 = await get('usage'); ok(u2 && u2.total.block_page >= 1 && u2.total.bp_friction >= 1, 'a page stopped by the pause is counted with its reason: ' + JSON.stringify(u2 && u2.total));
   ok(u && u.days.includes(0), 'today is an active day');
   ok(!(await get('usageShare')) || (await get('usageShare')).on !== true, 'sharing is off by default');
   ok(!JSON.stringify(u).match(/private|Secret|bank/i), 'no text of the person is in the counters');
@@ -58,6 +62,7 @@ const { launch } = require('./lib.cjs');
   let rep = null; try { rep = JSON.parse(text); } catch { /* reported below */ }
   ok(rep && rep.v === 1 && /^0{32}$/.test(rep.id), 'the preview is the report, with a placeholder id while off: ' + text.slice(0, 80));
   ok(rep && rep.ft.focus_start === 1 && rep.first.focus_start === 0, 'and holds the real counters');
+  ok(rep && Array.isArray(rep.fl) && rep.fl.includes('friction') && rep.fl.filter((f) => /^tasks_/.test(f)).length === 1 && !JSON.stringify(rep).match(/private|youtube/i), 'and says what is switched on, from the fixed list: ' + JSON.stringify(rep && rep.fl));
   ok(rep && (await o.evaluate(async (r) => (await import('/src/shared/usage-schema.js')).validateReport(r).ok, rep)), 'and the schema accepts it');
   ok(!/private|Secret|bank/i.test(text), 'and nothing of what the person wrote');
   ok(hits.length === 0, 'nothing has been sent');

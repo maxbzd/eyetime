@@ -8,7 +8,7 @@
 //
 // Time is counted in whole local days since the install ("age"), never as a clock time, so a report cannot tell when in the day anything happened.
 
-import { FEATURES, LIMITS, LANGS, MODES } from './usage-schema.js';
+import { FEATURES, FLAGS, LIMITS, LANGS, MODES } from './usage-schema.js';
 
 export const WEEK_MS = 7 * 86_400_000;
 const FIRST_REPORT_AFTER_MS = 20 * 3_600_000; // the day after turning sharing on: the first report carries the first day
@@ -51,7 +51,7 @@ export function record(/** @type {Usage} */ u, /** @type {string} */ feature, /*
   return u;
 }
 
-/** @typedef {{ id: string, app: string, br: string, os: string, lang: string, look: string, layout: string, mode: string }} ReportContext */
+/** @typedef {{ id: string, app: string, br: string, os: string, lang: string, look: string, layout: string, mode: string, flags?: string[] }} ReportContext */
 
 /** The report as it would be sent now. The caller checks it with validateReport before sending. */
 export function buildReport(/** @type {Usage} */ u, /** @type {ReportContext} */ ctx, /** @type {number} */ now) {
@@ -65,6 +65,7 @@ export function buildReport(/** @type {Usage} */ u, /** @type {ReportContext} */
     act: u.days.filter((d) => d <= age).slice(-LIMITS.days),
     first: { ...u.first },
     ft: { ...u.period },
+    ...(ctx.flags ? { fl: FLAGS.filter((f) => ctx.flags?.includes(f)) } : {}), // in the order of the list: the same setup is always the same text
   };
 }
 
@@ -111,4 +112,45 @@ export function detectEnv(/** @type {string} */ ua = '', /** @type {string} */ p
 /** A random identifier with no meaning: 128 random bits as 32 hex characters. */
 export function newId(/** @type {(a: Uint8Array<ArrayBuffer>) => Uint8Array} */ fill = (a) => { crypto.getRandomValues(a); return a; }) {
   return [...fill(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/** Finished-session length (minutes) → the counter that records it. */
+export const lengthFeature = (/** @type {number} */ minutes) => (minutes < 15 ? 'fl_u15' : minutes < 25 ? 'fl_u25' : minutes < 35 ? 'fl_u35' : minutes < 50 ? 'fl_u50' : minutes < 75 ? 'fl_u75' : 'fl_75p');
+
+/** Why a page was stopped → the counter that records it (null for a reason that is not one of the six). */
+export const blockFeature = (/** @type {string} */ reason) => ({ always: 'bp_always', focus: 'bp_focus', schedule: 'bp_schedule', limit: 'bp_limit', budget: 'bp_budget', friction: 'bp_friction' }[reason] || null);
+
+/** Milliseconds until the new tab was ready → the counter that records it. */
+export const speedFeature = (/** @type {number} */ ms) => (ms < 100 ? 'nt_u100' : ms < 250 ? 'nt_u250' : ms < 500 ? 'nt_u500' : ms < 1000 ? 'nt_u1000' : 'nt_slow');
+
+/** Where an error came from (the first word of the place it was logged) → the counter that records it. Nothing of the error itself is kept. */
+export function errorFeature(/** @type {string} */ src) {
+  const s = String(src || '');
+  if (/^(blocker|instant)/.test(s)) return 'err_blocker';
+  if (/^(sync|tasksync|conn|boot:(sync|armConn))/.test(s)) return 'err_sync';
+  if (/^worker/.test(s)) return 'err_worker';
+  if (/^(page|newtab|popup|options|insights|blocked|break|onboarding|dock|ui)/.test(s)) return 'err_page';
+  return 'err_other';
+}
+
+const bucket = (/** @type {number} */ n, /** @type {number[]} */ edges, /** @type {string[]} */ names) => { for (let i = 0; i < edges.length; i++) if (n <= edges[i]) return names[i]; return names[names.length - 1]; };
+
+/**
+ * What is switched on, from the settings and a few stored lists. `raw` holds what lives next to the settings: { syncSettings, syncTasks, syncEnc, tasks, habits, conns, calendarSubs }.
+ * @param {any} s settings @param {any} raw @returns {string[]}
+ */
+export function flagsOf(s, raw = {}) {
+  const on = new Set();
+  const add = (/** @type {any} */ c, /** @type {string} */ f) => { if (c) on.add(f); };
+  const len = (/** @type {any} */ x) => (Array.isArray(x) ? x.length : x && typeof x === 'object' ? Object.keys(x).length : 0);
+  add(s.ritual?.on, 'ritual'); add(s.dock?.enabled, 'dock'); add(s.weather?.on, 'weather'); add(len(raw.calendarSubs) > 0 || s.calendar?.url, 'calendar');
+  add(raw.syncTasks, 'tasks_sync'); add(raw.syncSettings, 'settings_sync'); add(raw.syncEnc, 'sync_encrypted'); add(s.blocking?.instant, 'instant_block'); add(s.smartSites?.on, 'smart_sites');
+  add(len(raw.conns) > 0, 'connections'); add(s.blocking?.schedule?.enabled, 'schedule'); add(len(s.blocking?.limits) > 0, 'limits'); add(s.blocking?.budget?.enabled, 'budget');
+  add(s.blocking?.friction?.enabled, 'friction'); add(s.eye?.notify, 'eye_notify'); add(s.eye?.bedtime?.enabled, 'bedtime'); add(s.standby?.on, 'standby');
+  add(String(s.appearance?.customCss || '').trim(), 'custom_css'); add(s.companion?.enabled, 'companion'); add(s.focus?.dailyGoal > 0, 'daily_goal'); add(s.focus?.sound, 'focus_sound'); add(s.focus?.review, 'review');
+  const tasks = Array.isArray(raw.tasks) ? raw.tasks.filter((/** @type {any} */ t) => t && !t.done).length : 0;
+  on.add(bucket(tasks, [0, 5, 20], ['tasks_0', 'tasks_1_5', 'tasks_6_20', 'tasks_21p']));
+  on.add(bucket(len(raw.habits?.items), [0, 2], ['habits_0', 'habits_1_2', 'habits_3p']));
+  on.add(bucket(len(s.blocking?.custom), [0, 5], ['sites_0', 'sites_1_5', 'sites_6p']));
+  return FLAGS.filter((f) => on.has(f));
 }

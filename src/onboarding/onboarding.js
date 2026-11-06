@@ -6,6 +6,7 @@ import { $, h, icon, clear } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { t, LANGUAGES, fmtDuration } from '../shared/i18n.js';
 import { updateSettings } from '../shared/storage.js';
+import { track } from '../shared/usage-store.js';
 import { PRESETS, PRESET_IDS } from '../shared/catalog.js';
 import { parseUserDomain } from '../shared/domains.js';
 import { looksGallery, accentPicker } from '../ui/appearance.js';
@@ -30,6 +31,7 @@ async function finish(startFocus) {
     x.blocking.friction.enabled = pick.friction;
     x.blocking.schedule.enabled = pick.schedule; x.blocking.schedule.start = pick.start; x.blocking.schedule.end = pick.end;
   });
+  await track('onboarding_done');
   await send('settings:changed');
   if (startFocus) await send('focus:start', { minutes: pick.minutes, goal: '', strict: false });
   location.href = chrome.runtime.getURL('src/newtab/newtab.html');

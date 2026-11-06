@@ -13,6 +13,7 @@ import { sweepTabs } from './blocker.js';
 import { updateBadge } from './badge.js';
 import { playChime, setAmbient } from './audio.js';
 import { track } from '../shared/usage-store.js';
+import { lengthFeature } from '../shared/usage.js';
 
 const ICON = 'icons/icon128.png';
 const MIN_CREDIT_SEC = 120; // an early stop counts as focus time only after 2 minutes
@@ -113,6 +114,7 @@ export async function stopFocus() {
   track('focus_stop');
   setAmbient('off');
   const sec = Math.round(elapsedMs(focus) / 1000);
+  if (sec < 300) track('fl_early_stop'); // stopped in the first five minutes
   const settings = await getSettings();
   if (sec >= MIN_CREDIT_SEC) {
     await updateDay(sessionDay(focus), (d) => { d.fs = (d.fs || 0) + sec; addSession(d, makeSessionEntry(focus, { sec, completed: false })); });
@@ -158,7 +160,7 @@ export async function finishFocus() {
   const { focus } = await getRaw('focus');
   if (!focus || isFocusLive(focus)) return; // still running, or paused (a paused session waits for its resume)
   await setRaw({ focus: null });
-  track('focus_done');
+  track('focus_done'); track(lengthFeature(focus.minutes));
   setAmbient('off');
   let sessionsToday = 0;
   await updateDay(sessionDay(focus), (d) => { d.fs = (d.fs || 0) + focus.minutes * 60; d.fc = (d.fc || 0) + 1; sessionsToday = d.fc; addSession(d, makeSessionEntry(focus, { sec: focus.minutes * 60, completed: true })); });

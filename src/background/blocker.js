@@ -12,6 +12,7 @@ import { logError } from '../shared/errorlog.js';
 import { getRaw, setRaw, updateDay } from '../shared/storage.js';
 import { dayKey } from '../shared/time.js';
 import { track } from '../shared/usage-store.js';
+import { blockFeature } from '../shared/usage.js';
 import { instantOn, syncInstant, blockedBase } from './instant.js';
 
 /** If the stored policy cannot be read at all, the factory rules apply (a pause page on distracting sites) rather than letting everything through. */
@@ -41,7 +42,7 @@ export async function checkTab(tabId, url) {
   try { d = await evaluate(url, Date.now(), tabId); } catch (e) { logError('blocker:evaluate', e); d = failClosed(url); } // damaged settings must not open the gates
   if (d.action === 'allow') return;
   logAttempt(tabId, url, d).catch(() => {});
-  track('block_page');
+  track('block_page'); const why = blockFeature(d.reason || ''); if (why) track(why);
   // With instant blocking the browser has already sent this tab to the block page (no request left): give it a moment, and only step in if it did not
   // (a rule that was not there yet, an address the rules do not say, a decision they cannot make).
   if (COVERED.has(d.reason || '') && d.scope !== 'only-mine' && (await instantOn())) {

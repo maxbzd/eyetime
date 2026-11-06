@@ -31,6 +31,7 @@ import { installShortcuts } from './home/shortcuts.js';
 import { installHomePalette } from './home/palette.js';
 import { watchFocus } from './home/focus-watch.js';
 import { track } from '../shared/usage-store.js';
+import { speedFeature } from '../shared/usage.js';
 
 let homeOff; // whether this page was opened with the home page switched off
 
@@ -64,6 +65,7 @@ function renderOff() {
     h('button', { class: 'btn btn-primary', type: 'button', onclick: async () => { await updateSettings((x) => { x.newtab.enabled = true; }); location.reload(); } }, icon('check'), t('home.turnOn'))));
 }
 
+const visibleAtStart = typeof document !== 'undefined' && document.visibilityState === 'visible';
 (async function main() {
   const s0 = await bootPage({ onSettings: (s) => applySettings(s) });
   state.raw = s0; state.settings = resolveSettings(s0);
@@ -90,4 +92,6 @@ function renderOff() {
   onChange(['photoRev'], applyBackground); // the photo and what is made from it are in IndexedDB (shared/photos.js); every write bumps this key
   window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', () => setTimeout(applyBackground, 0));
   watchFocus();
+  // how long until the page was ready for a person (two frames after everything is mounted), counted only when the tab was in front the whole time: a background tab is throttled and says nothing about speed
+  window.requestAnimationFrame(() => window.requestAnimationFrame(() => { if (visibleAtStart && document.visibilityState === 'visible') track(speedFeature(Math.round(window.performance.now()))); }));
 })();
