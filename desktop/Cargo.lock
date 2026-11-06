@@ -1145,7 +1145,7 @@ dependencies = [
 
 [[package]]
 name = "eyetime"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "serde",
  "serde_json",
@@ -1158,7 +1158,7 @@ dependencies = [
 
 [[package]]
 name = "eyetime-core"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "argon2",
  "ed25519-dalek",
@@ -1169,7 +1169,7 @@ dependencies = [
 
 [[package]]
 name = "eyetime-helper"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "eyetime-core",
  "serde",
@@ -1180,7 +1180,7 @@ dependencies = [
 
 [[package]]
 name = "eyetime-setup"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "serde",
  "serde_json",

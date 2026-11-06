@@ -2,6 +2,10 @@
 
 Every `## x.y.z` section becomes the release notes of the tag `desktop-vx.y.z`. Only the lines that start with `- ` are shown in the app, so keep each point short.
 
+## 0.2.1
+
+- Fixed: the window of the uninstaller and of the setup did not open when EyeTime sat in Program Files (it showed a white window and a WebView2 data folder error)
+
 ## 0.2.0
 
 - The app updates itself: a glowing chip appears when a new version is out, and one click installs it
