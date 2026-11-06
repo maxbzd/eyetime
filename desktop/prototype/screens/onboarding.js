@@ -230,7 +230,7 @@
       <div class="row"><button class="ghost" data-back type="button">${T().back}</button><button class="cta" data-next type="button" id="onbDoorsNext" disabled>${T().next}</button></div>`;
     const count = () => { const n = choice.doors.size; $('#onbCount', a).textContent = T().doorsN(n); $('#onbDoorsNext', a).disabled = n === 0; };
     const paint = () => $$('.dtile', a).forEach((b) => b.setAttribute('aria-pressed', String(choice.doors.has(b.dataset.n))));
-    const addTile = (n) => { if ($(`.dtile[data-n="${CSS.escape(n)}"]`, a)) return; const b = document.createElement('button'); b.className = 'dtile'; b.type = 'button'; b.dataset.n = n; b.setAttribute('aria-pressed', 'true'); b.innerHTML = `<span class="app-tile" data-n="${String(n).replace(/"/g, '&quot;')}" style="background:${colorOf(n)}">${n.slice(0, 2)}</span>${n.replace(/</g, '&lt;')}<span class="lock">${ICO('lock')}</span>`; b.onclick = () => toggle(n); $('#onbDoors', a).append(b); };
+    const addTile = (n) => { if ($(`.dtile[data-n="${CSS.escape(n)}"]`, a)) return; const b = document.createElement('button'); b.className = 'dtile'; b.type = 'button'; b.dataset.n = n; b.setAttribute('aria-pressed', 'true'); b.innerHTML = `<span class="app-tile" data-n="${ET.esc(n)}" style="background:${colorOf(n)}">${ET.esc(String(n).slice(0, 2))}</span>${ET.esc(n)}<span class="lock">${ICO('lock')}</span>`; b.onclick = () => toggle(n); $('#onbDoors', a).append(b); };
     const toggle = (n) => { choice.doors.has(n) ? choice.doors.delete(n) : choice.doors.add(n); paint(); count(); };
     $$('.dtile', a).forEach((b) => (b.onclick = () => toggle(b.dataset.n)));
     $$('#onbPre .chip2', a).forEach((b) => (b.onclick = () => { const names = T().presets[+b.dataset.i][1]; const all = names.every((n) => choice.doors.has(n)); names.forEach((n) => (all ? choice.doors.delete(n) : choice.doors.add(n))); b.setAttribute('aria-pressed', String(!all)); paint(); count(); }));
@@ -310,7 +310,7 @@
 
   function actSeal() {
     const a = document.createElement('section'); a.className = 'act'; a.dataset.id = 'seal';
-    a.innerHTML = `<h2>${T().sealH}</h2><p class="sub" id="onbSealS">${choice.why ? '“' + choice.why.replace(/</g, '&lt;') + '”' : T().sealS}</p>
+    a.innerHTML = `<h2>${T().sealH}</h2><p class="sub" id="onbSealS">${choice.why ? '“' + ET.esc(choice.why) + '”' : T().sealS}</p>
       <button class="sealbtn" id="onbSeal" type="button" aria-label="${T().sealH}"><svg class="r" viewBox="0 0 100 100"><circle class="bgc" cx="50" cy="50" r="48.6" pathLength="100" style="fill:none;stroke:rgba(255,255,255,.14);stroke-width:2"/><circle id="onbSealRing" cx="50" cy="50" r="48.6" pathLength="100" style="fill:none;stroke:url(#onbg);stroke-width:2.4;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;filter:drop-shadow(0 0 6px rgba(140,242,198,.8))"/></svg>${ICO('lock')}</button>
       <div class="row" style="margin-top:20px"><button class="ghost" data-back type="button">${T().back}</button></div>`;
     return { el: a, enter() {

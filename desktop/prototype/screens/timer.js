@@ -84,14 +84,14 @@
     anims.length = 0; const dx = $('#tmDetox'); dx.innerHTML = '';
     l.detoxCards.forEach(([name, min, scene], i) => {
       const b = document.createElement('button'); b.className = 'detox rise'; b.style.setProperty('--d', 100 + i * 80); b.type = 'button'; b.setAttribute('aria-label', `${name} ${lenTxt(min)}`);
-      b.innerHTML = `<canvas></canvas><div class="t"><h3>${name}</h3><p>${l.noDis}</p><span class="go">${ico('timer')}${lenTxt(min)}</span></div>`; dx.append(b);
+      b.innerHTML = `<canvas></canvas><div class="t"><h3>${ET.esc(name)}</h3><p>${l.noDis}</p><span class="go">${ico('timer')}${lenTxt(min)}</span></div>`; dx.append(b);
       requestAnimationFrame(() => { const cv = $('canvas', b); const land = new ET.Landscape(cv, scene); land.draw(3); if (window.ResizeObserver) new ResizeObserver(() => { land.size(); land.draw(3); }).observe(cv); let raf = 0, t0 = 0; const loop = (n) => { land.draw(3 + n / 1000); raf = requestAnimationFrame(loop); }; b.addEventListener('pointerenter', () => { if (!reduced) raf = requestAnimationFrame(loop); }); b.addEventListener('pointerleave', () => cancelAnimationFrame(raf)); });
       b.addEventListener('click', () => { ET.S.min = min; ET.S.name = name.slice(0, 14); ET.S.scene = scene; ET.S.diff = 0; ET.startSession(); });
     });
     const mx = $('#tmMixes'); mx.innerHTML = '';
     l.mixList.forEach((name, i) => {
       const [h, s] = ART[i], m = document.createElement('div'); m.className = 'mix rise' + (mixOn === i ? ' on' : ''); m.style.setProperty('--d', 100 + i * 70); m.tabIndex = 0; m.setAttribute('role', 'button'); m.setAttribute('aria-pressed', String(mixOn === i)); m.setAttribute('aria-label', name);
-      m.innerHTML = `<div class="disc"><i style="background:conic-gradient(from ${i * 60}deg, hsl(${h} ${s + 20}% 55%), hsl(${h + 70} 60% 45%), hsl(${h - 50} 70% 62%), hsl(${h} ${s + 20}% 55%))"></i><span class="play">${ico('timer')}<span class="eq"><b></b><b></b><b></b><b></b></span></span></div><span>${name}</span>`;
+      m.innerHTML = `<div class="disc"><i style="background:conic-gradient(from ${i * 60}deg, hsl(${h} ${s + 20}% 55%), hsl(${h + 70} 60% 45%), hsl(${h - 50} 70% 62%), hsl(${h} ${s + 20}% 55%))"></i><span class="play">${ico('timer')}<span class="eq"><b></b><b></b><b></b><b></b></span></span></div><span>${ET.esc(name)}</span>`;
       const toggle = () => { if (mixOn === i) { stopMix(); mixOn = -1; } else if (playMix(i, vol)) mixOn = i; $$('.mix', mx).forEach((x, k) => { x.classList.toggle('on', k === mixOn); x.setAttribute('aria-pressed', String(k === mixOn)); }); };
       m.addEventListener('click', toggle); m.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } }); mx.append(m);
     });
