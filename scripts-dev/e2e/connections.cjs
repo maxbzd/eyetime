@@ -99,7 +99,11 @@ const { launch } = require('./lib.cjs');
 
   // 7. disconnecting forgets everything of it and touches nothing on either side
   await o.getByRole('button', { name: /^Disconnect/ }).first().click(); await o.waitForTimeout(300);
-  await o.locator('dialog[open]').getByRole('button', { name: 'Disconnect' }).click(); await o.waitForFunction(async () => !Object.keys((await chrome.storage.local.get('conns')).conns || {}).length, null, { timeout: 8000 }).catch(() => {}); await o.waitForTimeout(500);
+  await o.locator('dialog[open]').getByRole('button', { name: 'Disconnect' }).click(); for (let i = 0; i < 40; i++) { // until everything of the connection is gone (the page removes it in steps; polling here, not an async predicate in waitForFunction, which not every Playwright version waits for)
+    const gone = await o.evaluate(async () => { const a = await chrome.storage.local.get(null); return !Object.keys(a.conns || {}).length && !Object.keys(a.connSecrets || {}).length && !Object.keys(a).some((k) => k.startsWith('cl:')); });
+    if (gone) break; await o.waitForTimeout(250);
+  }
+  await o.waitForTimeout(500);
   const left = await o.evaluate(async () => { const a = await chrome.storage.local.get(null); return { conns: Object.keys(a.conns || {}).length, secrets: Object.keys(a.connSecrets || {}).length, links: Object.keys(a).filter((k) => k.startsWith('cl:')) }; });
   ok(left.conns === 0 && left.secrets === 0 && !left.links.length, 'nothing of the connection is left: ' + JSON.stringify(left));
   ok((await tasks()).length === 2 && svc.state.tasks.size === 2, 'tasks on both sides stay as they are');
