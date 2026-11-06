@@ -41,6 +41,18 @@ for (const p of files) {
 })(path.join(root, 'desktop', 'prototype'));
 for (const f of ['tests', 'extension']) (function w(d) { if (!fs.existsSync(d)) return; for (const n of fs.readdirSync(d)) { const p = path.join(d, n); if (fs.statSync(p).isDirectory()) w(p); else if (/\.(c?js|mjs)$/.test(p)) { try { cp.execFileSync('node', ['--check', p], { stdio: 'pipe' }); } catch { fail('syntax: ' + rel(p)); } } } })(path.join(root, 'desktop', f));
 
+// 1c) the desktop window runs with the person's rights: its page may carry no inline script and its policy must not allow one
+{
+  const conf = JSON.parse(fs.readFileSync(path.join(root, 'desktop/app/src-tauri/tauri.conf.json'), 'utf8'));
+  const csp = String(conf.app?.security?.csp || '');
+  const scriptSrc = (csp.match(/script-src([^;]*)/) || [])[1] || '';
+  if (!scriptSrc || /unsafe-inline|unsafe-eval|\*|https?:/.test(scriptSrc)) fail(`desktop CSP: script-src must be 'self' only (is "${scriptSrc.trim()}")`);
+  for (const d of ["object-src 'none'", "base-uri 'none'", "frame-ancestors 'none'"]) if (!csp.includes(d)) fail(`desktop CSP is missing ${d}`);
+  const home = fs.readFileSync(path.join(root, 'desktop/prototype/home.html'), 'utf8');
+  if (/<script(?![^>]*\bsrc=)[^>]*>/i.test(home)) fail('desktop/prototype/home.html has an inline <script>: move it to a file');
+  if (/\son[a-z]+\s*=\s*["']/i.test(home)) fail('desktop/prototype/home.html has an inline event handler');
+}
+
 // 2) manifest references
 const m = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
 const refs = [m.background?.service_worker, m.chrome_url_overrides?.newtab, m.action?.default_popup, m.options_page,
