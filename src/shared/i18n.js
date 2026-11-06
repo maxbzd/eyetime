@@ -80,7 +80,8 @@ export function t(key, params) {
 /** Translate every [data-i18n] / [data-i18n-attr] under `root`. */
 export function applyI18n(root = document) {
   root.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(/** @type {HTMLElement} */ (el).dataset.i18n); });
-  root.querySelectorAll('[data-i18n-attr]').forEach((/** @type {HTMLElement} */ el) => {
+  root.querySelectorAll('[data-i18n-attr]').forEach((/** @type {Element} */ node) => {
+    const el = /** @type {HTMLElement} */ (node);
     for (const pair of el.dataset.i18nAttr.split(';')) {
       const [attr, key] = pair.split(':').map((s) => s.trim());
       if (attr && key) el.setAttribute(attr, t(key));

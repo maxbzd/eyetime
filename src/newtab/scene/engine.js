@@ -253,7 +253,8 @@ function runtime(host, def, opts, isUi) {
   for (const { when } of stateDefs) (when && when.vars || []).forEach((v) => ctx.vars.add(v));
   const source = opts.source || createSource(), pointer = createPointer(), ownSource = !opts.source;
   const env = new Map();
-  let H = isUi ? 1000 * def.size[1] / def.size[0] : 600, px = 1, t0 = window.performance.now(), last = t0, raf = 0, timer = 0, alive = true;
+  let H = isUi ? 1000 * def.size[1] / def.size[0] : 600, px = 1, last = 0, raf = 0, timer = 0, alive = true;
+  const t0 = window.performance.now(); last = t0;
   const UW = isUi ? def.size[0] : 1000;
   const size = () => {
     const r = root.getBoundingClientRect(); if (!r.width || !r.height) return;

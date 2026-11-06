@@ -266,10 +266,10 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
     syncTray(); say(name + ': ' + t('wg.delete')); $('.cv-bar .dd', layer)?.focus();
   }
   /** Add a widget card (new from the gallery, or a copy of one on the page) and select it. */
-  async function createWidget(kind, cfg, item) {
+  async function createWidget(kind, widgetCfg, item) {
     const id = newWidgetId((await effectiveNow()).newtab.widgets);
     items[id] = normalizeCanvas({ on: true, items: { [id]: item } }).items[id];
-    await updateSettings((s) => { const hv = home(s); hv.widgets = [...(hv.widgets || []), { id, kind, cfg }]; hv.canvas = { on: true, items: clone(items) }; });
+    await updateSettings((s) => { const hv = home(s); hv.widgets = [...(hv.widgets || []), { id, kind, cfg: widgetCfg }]; hv.canvas = { on: true, items: clone(items) }; });
     for (let i = 0; i < 40 && !blockEl(id); i++) await new Promise((r) => setTimeout(r, 50)); // the page builds the card when the settings arrive
     if (!blockEl(id) || !active) return;
     present = presentBlocks(); placeBlock(id, items[id]); clampItem(id); placeBlock(id, items[id]);

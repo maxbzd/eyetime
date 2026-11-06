@@ -10,8 +10,21 @@
     "test": "node --test scripts-dev/tests/*.test.mjs",
     "e2e": "node scripts-dev/e2e/run.mjs --jobs 3",
     "icons": "node scripts-dev/build-icons.mjs",
-    "lint": "npx --yes eslint src server scripts-dev/*.mjs scripts-dev/e2e/*.mjs scripts-dev/research/*.mjs",
-    "types": "npx --yes -p typescript tsc -p tsconfig.json",
-    "build": "node scripts-dev/check.mjs && node scripts-dev/pack.mjs"
+    "lint": "eslint src server desktop/prototype desktop/extension scripts-dev/*.mjs scripts-dev/e2e/*.mjs scripts-dev/research/*.mjs",
+    "types": "tsc -p tsconfig.json",
+    "build": "node scripts-dev/check.mjs && node scripts-dev/pack.mjs",
+    "locales": "node scripts-dev/build-locales.mjs",
+    "coverage": "node scripts-dev/coverage.mjs",
+    "verify": "npm run check && npm run lint && npm run types"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "eslint": "10.14.0",
+    "typescript": "7.0.2"
+  },
+  "overrides": {
+    "minimatch": "11.0.5"
   }
 }

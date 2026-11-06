@@ -7,7 +7,7 @@ const FRESH_MS = 30000; // a decision older than this is not trusted: no helper,
 let port = null;
 let decision = null;
 let decisionAt = 0;
-let waiting = [];
+const waiting = [];
 let chain = Promise.resolve();
 
 function connect() {

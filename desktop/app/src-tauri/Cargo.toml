@@ -2,6 +2,8 @@
 name = "eyetime"
 version.workspace = true
 edition = "2021"
+license.workspace = true
+publish = false
 description = "EyeTime desktop: the window"
 build = "build.rs"
 

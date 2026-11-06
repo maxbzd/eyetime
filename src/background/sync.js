@@ -5,6 +5,7 @@
 // adopt the configuration you already made, not overwrite it with its onboarding defaults).
 
 import { getRaw, setRaw } from '../shared/storage.js';
+import { errorText } from '../shared/errorlog.js';
 import { pack, unpack, staleKeys, decide, remoteVersion, SYNC_VERSION } from '../shared/syncpack.js';
 import { applySettings } from './apply.js';
 
@@ -48,7 +49,7 @@ export async function syncNow() {
     await setStatus({ ok: true, action });
     return { ok: true, action };
   } catch (e) {
-    await setStatus({ ok: false, error: String((e && e.message) || e).slice(0, 120) });
+    await setStatus({ ok: false, error: errorText(e).slice(0, 120) });
     return { ok: false };
   }
 }

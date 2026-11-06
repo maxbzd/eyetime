@@ -82,9 +82,9 @@ export function parseTasksText(text, { now = new Date(), existing = [] } = {}) {
     const rows = parseCsv(src, delim).slice(1);
     const dc = col('done', 'completed', 'status'), pc = col('priority', 'starred'), ec = col('estimate_min', 'estimate', 'est'), gc = col('tags', 'tag', 'project'), rc = col('repeat'), uc = col('due', 'date'), ac = col('time', 'at');
     for (const r of rows) {
-      const text = String(r[tc] || '').replace(/\s+/g, ' ').trim().slice(0, 300);
-      if (!text) continue;
-      const task = { id: newTaskId(), text, done: false, starred: pc >= 0 && yes(r[pc]), createdAt: now.getTime() };
+      const title = String(r[tc] || '').replace(/\s+/g, ' ').trim().slice(0, 300);
+      if (!title) continue;
+      const task = { id: newTaskId(), text: title, done: false, starred: pc >= 0 && yes(r[pc]), createdAt: now.getTime() };
       const est = ec >= 0 ? Math.round(Number(r[ec])) : 0; if (est >= 1 && est <= 720) task.est = est;
       const tags = gc >= 0 ? String(r[gc] || '').split(/[\s,;]+/).map((g) => g.replace(/^#/, '').toLowerCase()).filter((g) => /^[\p{L}\p{N}_-]{1,24}$/u.test(g)).slice(0, 5) : []; if (tags.length) task.tags = tags;
       const rep = rc >= 0 ? norm(r[rc]) : ''; if (REPEAT_PHRASE[rep]) task.repeat = rep;

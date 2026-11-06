@@ -126,7 +126,7 @@ export function parse(src) {
     const ast = expr(0, 0);
     if (p !== toks.length) return { ok: false, error: 'syntax' };
     return { ok: true, ast, vars: [...vars] };
-  } catch (e) { return { ok: false, error: e.message || 'syntax' }; }
+  } catch (e) { return { ok: false, error: (e instanceof Error && e.message) || 'syntax' }; }
 }
 
 /* ---------- compile ---------- */

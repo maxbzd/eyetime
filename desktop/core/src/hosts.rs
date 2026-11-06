@@ -251,7 +251,11 @@ mod tests {
         ];
         let mut g = Gen(0x9E37_79B9_7F4A_7C15);
         for _ in 0..400 {
-            let nl = if g.next() % 2 == 0 { "\r\n" } else { "\n" };
+            let nl = if g.next().is_multiple_of(2) {
+                "\r\n"
+            } else {
+                "\n"
+            };
             let existing: String = (0..g.next() % 12)
                 .map(|_| format!("{}{nl}", g.pick(&pieces)))
                 .collect();

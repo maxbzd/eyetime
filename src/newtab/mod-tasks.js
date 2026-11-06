@@ -70,17 +70,17 @@ export function tasksModule() {
     };
     /** "When" is half of an if-then plan: a task with a time gets a notification that starts the session. */
     const askTime = (x) => {
-      const input = h('input', { class: 'input', type: 'time', value: x.atDay === dayKey() ? x.at || '' : '', 'aria-label': t('tasks.schedule') });
+      const timeInput = h('input', { class: 'input', type: 'time', value: x.atDay === dayKey() ? x.at || '' : '', 'aria-label': t('tasks.schedule') });
       const dlg = h('dialog', { class: 'dialog' }, h('form', { method: 'dialog' },
-        h('div', { class: 'dialog-body stack gap-3' }, h('h3', { text: t('tasks.scheduleTitle') }), h('p', { class: 'muted-2', text: x.text }), input, h('p', { class: 'hint', text: t('tasks.scheduleHint') })),
+        h('div', { class: 'dialog-body stack gap-3' }, h('h3', { text: t('tasks.scheduleTitle') }), h('p', { class: 'muted-2', text: x.text }), timeInput, h('p', { class: 'hint', text: t('tasks.scheduleHint') })),
         h('div', { class: 'dialog-actions' },
           x.at ? h('button', { class: 'btn btn-ghost', value: 'clear', text: t('tasks.unschedule') }) : h('button', { class: 'btn btn-ghost', value: 'no', text: t('common.cancel') }),
           h('button', { class: 'btn btn-primary', value: 'yes', text: t('common.save'), autofocus: true }))));
       dlg.addEventListener('close', () => {
-        if (dlg.returnValue === 'yes' && input.value) {
-          const [hh, mm] = input.value.split(':').map(Number), now = new Date();
+        if (dlg.returnValue === 'yes' && timeInput.value) {
+          const [hh, mm] = timeInput.value.split(':').map(Number), now = new Date();
           const when = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm);
-          x.at = input.value; x.atDay = dayKey(when <= now ? addDays(now, 1) : now); save(); render();
+          x.at = timeInput.value; x.atDay = dayKey(when <= now ? addDays(now, 1) : now); save(); render();
         } else if (dlg.returnValue === 'clear') { delete x.at; delete x.atDay; save(); render(); }
         dlg.remove();
       });

@@ -12,6 +12,9 @@ export function scrub(text) {
     .slice(0, 400);
 }
 
+/** The text of whatever was thrown (an Error, a string, anything): its message if it has one. */
+export const errorText = (/** @type {unknown} */ e) => String((e && /** @type {any} */ (e).message) || e);
+
 /** Pure: new list after adding an entry (newest first, identical consecutive messages are merged into a counter). */
 export function addEntry(list, entry) {
   const cur = Array.isArray(list) ? list : [];

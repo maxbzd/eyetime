@@ -1,0 +1,14 @@
+# Who must look at a change before it is merged (GitHub asks them automatically). The parts that decide what runs with system rights, what is trusted to update,
+# what the extension may do, and what leaves the device have a named owner.
+*                                  @maxbzd
+/desktop/helper/                   @maxbzd
+/desktop/core/src/update.rs        @maxbzd
+/desktop/core/src/tamper.rs        @maxbzd
+/desktop/installer/                @maxbzd
+/desktop/app/src-tauri/tauri.conf.json @maxbzd
+/manifest.json                     @maxbzd
+/src/background/messages.js        @maxbzd
+/server/usage/                     @maxbzd
+/PRIVACY.md                        @maxbzd
+/SECURITY.md                       @maxbzd
+/.github/                          @maxbzd

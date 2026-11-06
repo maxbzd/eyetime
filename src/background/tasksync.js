@@ -3,6 +3,7 @@
 // Merged three ways (src/shared/tasksync.js); a missing or unreadable cloud copy never deletes anything here. Event-driven, a 30 s alarm batches bursts.
 
 import { getRaw, setRaw, updateCollection, UNCHANGED } from '../shared/storage.js';
+import { errorText } from '../shared/errorlog.js';
 import { packTasks, unpackTasks, staleTaskKeys, remoteTasksVersion, mergeTasks, samePayload, syncable, stable, T_META, T_VERSION } from '../shared/tasksync.js';
 
 const ALARM = 'tasks-sync';
@@ -43,7 +44,7 @@ async function run(source) {
     await setStatus({ ok: true });
     return { ok: true };
   } catch (e) {
-    const msg = String((e && e.message) || e);
+    const msg = errorText(e);
     await setStatus({ ok: false, error: /quota/i.test(msg) ? 'too_big' : msg.slice(0, 120) });
     return { ok: false };
   }
