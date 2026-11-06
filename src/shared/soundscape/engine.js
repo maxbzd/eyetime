@@ -9,14 +9,16 @@
 //   room     a generated reverb and a dark echo shared by everything
 
 import { createConductor } from './conductor.js';
+import { MODES } from './modes.js';
 import { mtof, between, lerp, clamp } from './theory.js';
 
 const LOOKAHEAD_S = 5;      // events are scheduled this far ahead of the audio clock
 const TICK_MS = 1000;
 const TIMBRES = {
   // [partial ratio, level, decay share]
-  felt: { att: 0.02, inharm: 0.0004, partials: [[1, 1, 1], [2, 0.38, 0.6], [3, 0.14, 0.4], [4, 0.07, 0.3], [5, 0.03, 0.2]], bright: 3200 },
-  glass: { att: 0.006, inharm: 0, partials: [[1, 1, 1], [2.76, 0.26, 0.55], [5.4, 0.11, 0.3], [8.93, 0.04, 0.2]], bright: 6000 },
+  // soft on purpose: a slow attack (no click), few partials, and a low ceiling, so a note arrives like a breath and not like a ping
+  felt: { att: 0.09, inharm: 0.0003, partials: [[1, 1, 1], [2, 0.22, 0.6], [3, 0.06, 0.4]], bright: 1500 },
+  glass: { att: 0.07, inharm: 0, partials: [[1, 1, 1], [2.76, 0.12, 0.5], [5.4, 0.03, 0.3]], bright: 2200 },
 };
 
 /** A room: a decaying stereo noise that gets darker as it fades, like air absorbing the highs. */
@@ -80,9 +82,11 @@ export function createEngine(ctx, opts = {}) {
     input.connect(d); d.connect(master); input.connect(w); w.connect(roomIn); if (ech) { input.connect(e); e.connect(echo); }
     return input;
   }
-  const padBus = bus(0.8, 0.55, 0);
-  const noteBus = bus(0.7, 0.8, 0.4);
-  const pulseBus = bus(0.8, 0.3, 0);
+  // each layer has its own level (0..1.5) that the listener can set; the mood gives the starting point
+  const layers = { ...MODES[opts.mode || 'focus'].mix, ...(opts.layers || {}) };
+  const padLayer = gain(layers.pad), noteLayer = gain(layers.notes), pulseLayer = gain(layers.pulse);
+  const padBus = bus(0.8, 0.55, 0), noteBus = bus(0.7, 0.8, 0.4), pulseBus = bus(0.8, 0.3, 0);
+  padLayer.connect(padBus); noteLayer.connect(noteBus); pulseLayer.connect(pulseBus);
 
   // ---- slow movers: two LFOs for the pad filters, one for the air ----
   const lfoA = node(ctx.createOscillator()), lfoB = node(ctx.createOscillator());
@@ -90,8 +94,8 @@ export function createEngine(ctx, opts = {}) {
 
   // ---- the air ----
   const airSrc = node(ctx.createBufferSource()); airSrc.buffer = brownNoise(ctx, rng); airSrc.loop = true;
-  const airBand = node(ctx.createBiquadFilter()); airBand.type = 'bandpass'; airBand.frequency.value = 480; airBand.Q.value = 0.4;
-  const airLfo = node(ctx.createOscillator()), airDepth = gain(240); airLfo.frequency.value = 0.021;
+  const airBand = node(ctx.createBiquadFilter()); airBand.type = 'lowpass'; airBand.frequency.value = 700; airBand.Q.value = 0.3;
+  const airLfo = node(ctx.createOscillator()), airDepth = gain(160); airLfo.frequency.value = 0.021;
   const airGain = gain(0);
   airLfo.connect(airDepth); airDepth.connect(airBand.frequency);
   airSrc.connect(airBand); airBand.connect(airGain); airGain.connect(master);
@@ -99,7 +103,7 @@ export function createEngine(ctx, opts = {}) {
 
   function applyMood(at, ramp) {
     const m = conductor.mood();
-    for (const [param, v] of [[roomOut.gain, m.wet], [echoOut.gain, m.echo], [airGain.gain, m.texture * (0.6 + 0.4 * level)]]) {
+    for (const [param, v] of [[roomOut.gain, m.wet * layers.room], [echoOut.gain, m.echo], [airGain.gain, m.texture * (0.6 + 0.4 * level) * layers.air]]) {
       param.cancelScheduledValues(at); param.setTargetAtTime(v, at, ramp);
     }
   }
@@ -121,17 +125,17 @@ export function createEngine(ctx, opts = {}) {
       const lp = node(ctx.createBiquadFilter()); lp.type = 'lowpass'; lp.Q.value = 0.5;
       const f0 = Math.max(hz * 1.6, cutoff() * (hz < 160 ? 0.8 : 1));
       lp.frequency.value = f0;
-      const depth = gain(f0 * 0.3); (i % 2 ? lfoA : lfoB).connect(depth); depth.connect(lp.frequency);
+      const depth = gain(f0 * 0.18); (i % 2 ? lfoA : lfoB).connect(depth); depth.connect(lp.frequency);
       const env = gain(0), peak = (0.1 / Math.sqrt(n)) * m.padLevel * (i === 0 ? 1.1 : 1);
       env.gain.setValueAtTime(0.0001, t); env.gain.linearRampToValueAtTime(peak, t + att); env.gain.setValueAtTime(peak, Math.max(t + att, end - att)); env.gain.linearRampToValueAtTime(0.0001, end);
-      for (const [type, cents, lv, mul] of [['sawtooth', -6, 0.26, 1], ['sawtooth', 7, 0.26, 1], ['triangle', 0, 0.5, 1], ['sine', 0, i === 0 ? 0.4 : 0, 0.5]]) {
+      for (const [type, cents, lv, mul] of [['triangle', -3, 0.42, 1], ['triangle', 3, 0.42, 1], ['sine', 0, 0.5, 1], ['sawtooth', 0, 0.07, 1], ['sine', 0, i === 0 ? 0.4 : 0, 0.5]]) {
         if (!lv) continue;
         const o = node(ctx.createOscillator()), g = gain(lv);
         o.type = type; o.frequency.value = hz * mul; o.detune.value = cents + between(rng, -2, 2);
         o.connect(g); g.connect(lp); o.start(t); o.stop(end + 0.1);
         o.onended = () => { live.delete(o); try { o.disconnect(); g.disconnect(); } catch { /* gone */ } };
       }
-      lp.connect(env); env.connect(pan || padBus); if (pan) pan.connect(padBus);
+      lp.connect(env); env.connect(pan || padLayer); if (pan) pan.connect(padLayer);
       group.gains.push(env);
     });
     pads = pads.filter((p) => p.end > t); pads.push(group);
@@ -139,9 +143,9 @@ export function createEngine(ctx, opts = {}) {
 
   function struck(e) {
     const m = conductor.mood(), tim = TIMBRES[m.timbre] || TIMBRES.felt, t = Math.max(e.t, ctx.currentTime), hz = mtof(e.midi);
-    const pan = ctx.createStereoPanner ? node(ctx.createStereoPanner()) : null; if (pan) { pan.pan.value = e.pan; pan.connect(noteBus); }
-    const tone = node(ctx.createBiquadFilter()); tone.type = 'lowpass'; tone.frequency.value = Math.min(tim.bright, hz * 7) * (0.6 + 0.4 * level); tone.Q.value = 0.3;
-    tone.connect(pan || noteBus);
+    const pan = ctx.createStereoPanner ? node(ctx.createStereoPanner()) : null; if (pan) { pan.pan.value = e.pan * 0.6; pan.connect(noteLayer); }
+    const tone = node(ctx.createBiquadFilter()); tone.type = 'lowpass'; tone.frequency.value = Math.min(tim.bright, hz * 4) * (0.6 + 0.4 * level); tone.Q.value = 0.3;
+    tone.connect(pan || noteLayer);
     for (const [ratio, lv, share] of tim.partials) {
       const f = hz * ratio * (1 + tim.inharm * ratio * ratio); if (f > 12000) continue;
       const o = node(ctx.createOscillator()), g = gain(0.0001), len = e.dur * share, top = Math.max(0.0002, lv * e.vel * 0.16);
@@ -156,7 +160,7 @@ export function createEngine(ctx, opts = {}) {
     const t = Math.max(e.t, ctx.currentTime), o = node(ctx.createOscillator()), g = gain(0.0001), lp = node(ctx.createBiquadFilter());
     o.type = 'sine'; o.frequency.value = mtof(e.midi); lp.type = 'lowpass'; lp.frequency.value = 520;
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(Math.max(0.0002, e.vel * 0.15), t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
-    o.connect(lp); lp.connect(g); g.connect(pulseBus); o.start(t); o.stop(t + 1);
+    o.connect(lp); lp.connect(g); g.connect(pulseLayer); o.start(t); o.stop(t + 1);
     o.onended = () => { live.delete(o); try { o.disconnect(); lp.disconnect(); g.disconnect(); } catch { /* gone */ } };
   }
 
@@ -182,6 +186,12 @@ export function createEngine(ctx, opts = {}) {
   return {
     scheduleTo,
     setIntensity(x) { level = clamp(x, 0, 1); conductor.setIntensity(level); applyLevel(ctx.currentTime); applyMood(ctx.currentTime, 6); },
+    /** Levels of the layers: { pad, notes, pulse, air, room }, each 0..1.5. */
+    setLayers(l) {
+      Object.assign(layers, l); const now = ctx.currentTime;
+      padLayer.gain.setTargetAtTime(layers.pad, now, 0.3); noteLayer.gain.setTargetAtTime(layers.notes, now, 0.3); pulseLayer.gain.setTargetAtTime(layers.pulse, now, 0.3); applyMood(now, 0.5);
+    },
+    layers: () => ({ ...layers }),
     setVolume(v) { volume = clamp(v, 0, 1); applyLevel(ctx.currentTime); },
     /** Change mood: the chord that sounds now fades over a few seconds and the next one is in the new mood. */
     setMode(id) {
