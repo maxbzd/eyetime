@@ -103,6 +103,38 @@
    "file": "harp-A6.ogg"
   }
  ],
+ "violin": [
+  {
+   "note": "G2",
+   "midi": 43,
+   "file": "violin-G2.ogg"
+  },
+  {
+   "note": "D3",
+   "midi": 50,
+   "file": "violin-D3.ogg"
+  },
+  {
+   "note": "A3",
+   "midi": 57,
+   "file": "violin-A3.ogg"
+  },
+  {
+   "note": "C4",
+   "midi": 60,
+   "file": "violin-C4.ogg"
+  },
+  {
+   "note": "G4",
+   "midi": 67,
+   "file": "violin-G4.ogg"
+  },
+  {
+   "note": "D5",
+   "midi": 74,
+   "file": "violin-D5.ogg"
+  }
+ ],
  "cello": [
   {
    "note": "D2",
