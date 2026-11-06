@@ -38,6 +38,10 @@ pub trait Os: Send {
     fn read_store(&self) -> Option<String>;
     fn write_store(&self, text: &str) -> io::Result<()>;
     fn log(&self, line: &str);
+    /// the Windows build number (22000 and later is Windows 11); 0 when it cannot be told
+    fn windows_build(&self) -> u32 {
+        0
+    }
     /// start the downloaded installer, detached (it stops this service and starts the new one)
     fn launch_update(&self, installer: &std::path::Path) -> io::Result<()>;
 }

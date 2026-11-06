@@ -95,6 +95,14 @@ pub enum Request {
     },
     /// the "what is new" was shown
     UpdateAck,
+    /// the anonymous numbers: whether sharing is on, whether to ask, and the exact next report
+    TelemetryGet,
+    /// switch sharing on or off (it is never on unless the window asks, and only the window may)
+    TelemetrySet {
+        on: bool,
+    },
+    /// "no thank you" to the one-time question: it is not asked again
+    TelemetryDecline,
     /// the installer and the window ask before uninstalling
     Uninstall,
     /// the little agent in the person's session: what it sees, every couple of seconds. The answer is what it should do.

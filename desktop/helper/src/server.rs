@@ -78,6 +78,30 @@ pub fn run_updater(sup: Shared, stop: Arc<AtomicBool>) {
     }
 }
 
+/// Sends the weekly anonymous numbers when one is due: only after a yes, only to the collector's address, and never in a build that has none (its own thread: the network may be slow).
+pub fn run_telemetry(sup: Shared, stop: Arc<AtomicBool>) {
+    for _ in 0..120 {
+        if stop.load(Ordering::Relaxed) {
+            return;
+        }
+        std::thread::sleep(Duration::from_secs(1));
+    }
+    while !stop.load(Ordering::Relaxed) {
+        let tried = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            crate::telemetry_send::step(&sup, &WinNet, eyetime_core::telemetry::COLLECTOR)
+        }));
+        if tried.is_err() {
+            crate::os::Os::log(&WinOs, "telemetry step panicked");
+        }
+        for _ in 0..60 {
+            if stop.load(Ordering::Relaxed) {
+                return;
+            }
+            std::thread::sleep(Duration::from_secs(1));
+        }
+    }
+}
+
 pub fn run_pipe_server(sup: Shared, stop: Arc<AtomicBool>) {
     let name = wide(PIPE_NAME);
     let sddl = wide(SDDL);
