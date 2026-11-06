@@ -68,6 +68,7 @@ The queries in `queries.sql` are the quick ones for a console. **The dashboard i
 | Quality | Fast, healthy, up to date? | new-tab speed and its weekly trend, errors by place and per 1000, **versions in use** with finish rate and errors per version |
 | Method | How is each figure counted? | a glossary of every figure and how to read it |
 
+- **Look and feel**: a quiet tracker-style shell (grey sidebar with icons, one white panel, breadcrumb and actions on top, hairlines instead of shadows, 13px type, one accent colour, light and dark). The keys **1–9** open the pages in the order of the sidebar; on a phone the sidebar becomes a row of tabs.
 - **Period** (one row above everything): 7 / 28 / 90 days, all time, or any two dates; **filters** narrow the whole dashboard to a segment (version, browser, system, language, look, layout, mode), and the comparison with the previous period is narrowed the same way. Period and filters are in the address, so a link opens the same view. **Compare with the previous period** is on by default.
 - **Export** (the same menu on the public view): *CSV* of every figure of every page (long format `section,id,metric,label,value,k,n`, a BOM for Excel, labels in the language of the page, cells that start like a formula are neutralised), *JSON* (the collector's full answer), a *Markdown report* (file, or copied) and *print / PDF*. File names carry the period.
 - **Every page says which question it answers and which people it counts** (active in the period, installs of the period, weeks of the period).
