@@ -112,7 +112,12 @@ Pure function from a raw 1.x storage snapshot to the 2.0 layout (settings mappin
 | Connected services in Settings (Todoist mock: connect, first sync, edits, refused token, backup without secrets, disconnect) | `connections.cjs` |
 | Essentials / All settings, "Make it calm again"; anonymous usage (counting, preview, consent, report, forget) | `essentials.cjs`, `usage.cjs` |
 | The collector for the usage report, against an in-memory SQLite | `scripts-dev/tests/usage-server.test.mjs` |
-| Types from JSDoc (`src/shared`, `src/background`) | `npm run types` |
+| Types from JSDoc (all of `src/` but the third-party engine; five strict flags on) | `npm run types` |
+| What every page and the worker load at start, counted from the code (no browser): budgets per page, no translations as code | `weight.test.mjs` |
+| Damaged input to every parser of what people paste or import (`.ics`, XML, tasks, themes, dates in words), seeded | `fuzz.test.mjs`; Rust: property tests in `core/src/hosts.rs` and `ipc.rs` |
+| Seconds credited by the tracker add up to the time that passed (fractions carried) | `credit.test.mjs` |
+| Coverage of `src/` with a floor; every module of `src/shared` counted | `npm run coverage`, `load-all.test.mjs` |
+| The desktop window with hostile names, under the window's own policy; the pipe limits | `desktop/tests/xss_real.cjs`, `helper/src/limits.rs` tests |
 
 ## Why these permissions
 
