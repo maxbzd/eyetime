@@ -21,7 +21,9 @@ pub trait Os: Send {
     fn flush_dns(&self);
 
     fn processes(&self) -> Vec<Proc>;
-    fn terminate(&self, pid: u32) -> bool;
+    /// Closes process `pid` by force, but only if it still is the program called `exe`: a process number can be handed to another program between
+    /// the moment the list was read and the moment of closing, and that one must never be closed.
+    fn terminate(&self, pid: u32, exe: &str) -> bool;
     fn own_pid(&self) -> u32;
 
     fn set_taskmgr_locked(&self, on: bool);
@@ -36,4 +38,52 @@ pub trait Os: Send {
     fn log(&self, line: &str);
     /// start the downloaded installer, detached (it stops this service and starts the new one)
     fn launch_update(&self, installer: &std::path::Path) -> io::Result<()>;
+}
+
+/// Writes `bytes` to `tmp`, forces them to the disk, then moves the file over `target`: a power cut leaves the old file or the new one,
+/// never a half-written one and never a new name with nothing behind it (the setup, the emergency keys and the clock anchor live in such files).
+pub fn write_durably(
+    tmp: &std::path::Path,
+    target: &std::path::Path,
+    bytes: &[u8],
+) -> io::Result<()> {
+    use std::io::Write;
+    let mut f = std::fs::File::create(tmp)?;
+    f.write_all(bytes)?;
+    f.sync_all()?;
+    drop(f);
+    std::fs::rename(tmp, target)
+}
+
+/// `C:\Program Files\App\app.exe` -> `app.exe` (the name a process is listed by)
+pub fn image_file_name(path: &str) -> &str {
+    path.rsplit(['\\', '/']).next().unwrap_or(path)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{image_file_name, write_durably};
+
+    #[test]
+    fn a_durable_write_replaces_the_file_and_leaves_no_temporary_behind() {
+        let dir = std::env::temp_dir().join(format!("eyetime-durable-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let (tmp, target) = (dir.join("x.json.tmp"), dir.join("x.json"));
+        write_durably(&tmp, &target, b"one").unwrap();
+        write_durably(&tmp, &target, b"two").unwrap();
+        assert_eq!(std::fs::read(&target).unwrap(), b"two");
+        assert!(!tmp.exists());
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn the_file_name_is_what_follows_the_last_separator() {
+        assert_eq!(
+            image_file_name(r"C:\Program Files\Steam\steam.exe"),
+            "steam.exe"
+        );
+        assert_eq!(image_file_name("steam.exe"), "steam.exe");
+        assert_eq!(image_file_name("C:/x/y.exe"), "y.exe");
+        assert_eq!(image_file_name(""), "");
+    }
 }

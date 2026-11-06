@@ -279,10 +279,8 @@ pub fn native_host() {
                 req,
                 Request::Site { .. } | Request::Decision | Request::Ping | Request::Status
             ) {
-                return Some(
-                    serde_json::to_string(&Response::err("denied", "not for the extension"))
-                        .ok()?,
-                );
+                return serde_json::to_string(&Response::err("denied", "not for the extension"))
+                    .ok();
             }
             if pipe.is_none() {
                 let f = std::fs::OpenOptions::new()

@@ -161,17 +161,17 @@ fn open_target(kind: String) -> Result<(), String> {
     let dir = exe.parent().ok_or("no folder")?.to_path_buf();
     let mut c = match kind.as_str() {
         "extension_folder" => {
-            let mut c = std::process::Command::new("explorer.exe");
+            let mut c = std::process::Command::new(eyetime_core::sys::windows_dir("explorer"));
             c.arg(dir.join("extension"));
             c
         }
         "chrome_extensions" => {
-            let mut c = std::process::Command::new("cmd");
+            let mut c = std::process::Command::new(eyetime_core::sys::system32("cmd"));
             c.args(["/c", "start", "", "chrome", "chrome://extensions"]);
             c
         }
         "edge_extensions" => {
-            let mut c = std::process::Command::new("cmd");
+            let mut c = std::process::Command::new(eyetime_core::sys::system32("cmd"));
             c.args(["/c", "start", "", "msedge", "edge://extensions"]);
             c
         }
