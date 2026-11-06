@@ -22,6 +22,9 @@
 - `SECURITY.md`: how to report a problem privately, what is in and out of scope, the threat model, what is stored unencrypted and why, and how the update signing key is rotated (or replaced if stolen).
 
 ### Under the hood
+- **Tests that check the tests.** Mutation testing (Stryker, `npm run mutation`) changes the logic a little and asks whether any test notices: 75 % did at first, against 97 % line coverage. Five modules were brought up with new edge tests (stats 49 → 92 %, dayplan 65 → 87 %, domains 68 → 88 %). The service worker now has tests against a strict pretend browser (tracker, breaks, focus, blocker, messages: 28 tests), and the new-tab-to-session path has one that plays a whole session and fails on any request that leaves the extension (with a control that proves the monitor sees the worker).
+- **One statement for two implementations.** `conformance/schedule.json` says when a work-hours rule is running (19 110 cases); the Rust engine writes it and the extension's tests read it, so the two cannot drift apart.
+- `node scripts-dev/i18n-report.mjs` hints (`scripts-dev/i18n-report.mjs`): where the machine-translated languages look wrong; a nightly run on Chrome stable, beta, dev and canary (`nightly.yml`); the visual suite in a CI-like container (`visual-docker.sh`); `docs/REPO-SIZE.md` (where the 111 MB of history is, and the two ways to lighten it).
 - Tools are at fixed versions (`package-lock.json`; `npm audit` finds nothing); ESLint's rules are all errors and cover the desktop screens too; the type check covers every folder of `src/` (all but the third-party engine) with five more strict flags; unit tests have a coverage floor; parsers of what people paste or import (`.ics`, XML from a calendar server, task lists, themes, dates in words) are fuzzed with damaged input.
 - CI: lint, types, coverage, `npm audit`, pinned versions of web-ext and axe-core, least-privilege tokens, CodeQL (JavaScript, Python, Rust), Dependabot.
 
