@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Dates in plain words for quick add: "tomorrow", "friday", "in 3 days", "next week" — in English, Russian, Spanish, German, French, Portuguese, Italian, Polish, Ukrainian, Chinese and Japanese.
 // Pure: findDateWord(text, now) → { day: 'YYYY-MM-DD', raw, index } | null, where `raw` is the matched text at `index` (the caller removes it from the task title).
 // Only unambiguous words count: no 3-letter weekday abbreviations ("sat", "sun", "mon" are ordinary words), no bare "segunda" / "quarta" (also "second", "fourth").

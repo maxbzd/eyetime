@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Everything the worker must redo when settings change: context menus, bedtime/reminder alarms, open tabs, tracking.
 // Used after the page sends `settings:changed` and after a sync pull brings in settings from another browser.
 

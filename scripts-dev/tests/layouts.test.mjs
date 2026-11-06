@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { HOME_KEYS, normalizeLayouts, pickLayout, inRange, effectiveHome, homeView, copyHome, newLayoutId, MAX_LAYOUTS } from '../../src/shared/layouts.js';

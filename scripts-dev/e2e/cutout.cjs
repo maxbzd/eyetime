@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The photo cut-out end to end: the model runs on this device (WebAssembly in a worker), the mask is stored beside the photo,
 // the page puts a masked copy of the photo in front of the clock, the cut-out can be removed, and a new photo drops the old mask.
 //   node scripts-dev/e2e/cutout.cjs

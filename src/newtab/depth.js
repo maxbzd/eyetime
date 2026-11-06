@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The depth effect on Home: puts the scene's front layers over the clock and slides every layer against the pointer.
 // The layers come from shared/depth.js; the movement is CSS (--px / --py in -1..1, --str the strength), this file only feeds it.
 

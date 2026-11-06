@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 /* The first minute: "The Door". Not slides: you wake the stone by holding it, choose the doors that pull you away,
    paint your quiet hours on a day dial, pick how hard the door is to open, say why, and close the door by holding it shut.
    What you choose becomes the first rule and the first list. Works in the app and in the plain browser prototype. */

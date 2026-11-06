@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // What answers "what is your focus": on Today a line under the clock and two tiles in the corners, on the other arrangements the focus card.
 // The arrangement can change while the page is open (a ready theme, the editor), so the parts are mounted and taken down here without a reload.
 

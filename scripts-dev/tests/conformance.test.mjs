@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The extension and the Windows program are two implementations of a few small ideas. Here the extension is held to the statements in conformance/ (see its README);
 // the Rust side reads the same files in desktop/core.
 import test from 'node:test';

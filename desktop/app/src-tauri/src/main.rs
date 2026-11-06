@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! EyeTime, the window. It shows what the helper (the Windows service) knows and asks it to do things; it closes nothing itself.
 //! Closing this window, or quitting it, never ends a block: the helper runs on.
 

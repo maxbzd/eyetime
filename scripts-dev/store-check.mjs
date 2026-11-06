@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // What the stores reject or complain about, checked before anyone uploads: the limits of the Chrome Web Store, Edge Add-ons and AMO that have bitten extensions before.
 //   node scripts-dev/store-check.mjs          (also part of `npm run check`)
 // Manifest: the description is at most 132 characters in every language (the Chrome Web Store refuses a longer one), the name at most 75, every __MSG_x__ exists in every language,

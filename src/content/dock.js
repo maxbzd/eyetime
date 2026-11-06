@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // EyeTime dock — page script (registered only after the person turned the dock on and allowed access to websites; see src/background/dock.js).
 // It draws one small black "notch" that grows out of the window edge with soft curves, holding three little progress rings (focus, tasks, learning);
 // a click opens an extension iframe (src/dock/dock.html) with the panel. From the page it reads nothing but its address and title, and only hands

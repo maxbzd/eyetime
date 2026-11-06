@@ -5,9 +5,9 @@
 # EyeTime
 
 **Focus, screen time and eye care for your browser.**<br>
-Free, open source and 100% local — no account, no servers, no tracking.
+Free, with source code you can read and check, and 100% local — no account, no servers, no tracking.
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-orange.svg)](LICENSE)
+[![License: FSL-1.1-ALv2](https://img.shields.io/badge/license-FSL--1.1--ALv2-orange.svg)](LICENSE)
 [![CI](https://github.com/maxbzd/eyetime/actions/workflows/ci.yml/badge.svg)](https://github.com/maxbzd/eyetime/actions/workflows/ci.yml)
 [![Privacy: local-first](https://img.shields.io/badge/privacy-local--first-2d6cdf.svg)](PRIVACY.md)
 [![Manifest V3](https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4.svg)]()
@@ -43,7 +43,7 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 | 📊 **Insights** | Today / 7 / 30 days: screen time, focus time, distraction share, breaks. Stacked charts by day and hour, a calendar heatmap, a site table where one tap re-classifies a site (productive / neutral / distracting), highlights like "your most distracting day was Sunday", a **weekly review with a one-click limit suggestion**, CSV export, table view for accessibility. |
 | ⏱ **Break timer** | After a session a rest countdown starts on its own (Pomodoro-style, configurable). Distracting sites stay open during the break. |
 | 👁 **Eye care** | 20-20-20 reminders based on *active* screen time, a guided 20-second break page, break counter, bedtime nudge. |
-| 🏠 **Home (new tab)** | A calm wallpaper that changes every day (14 photographs, or your own), a large thin clock, a serif hello and **one line: what is your focus?** — press Enter and the session starts, the clock becomes the countdown. Today's focus against your goal and the next eye break sit in the corners; tasks with priorities, habits with streaks, notes and quick links open in a glass panel (`N`). Three other arrangements (centered, split, minimal) and a free-form editor remain. Can be switched off. |
+| 🏠 **Home (new tab)** | A ​​‌​​‌​‌‌‌​‌​​​‌calm wallpaper that changes every day (14 photographs, or your own), a large thin clock, a serif hello and **one line: what is your focus?** — press Enter and the session starts, the clock becomes the countdown. Today's focus against your goal and the next eye break sit in the corners; tasks with priorities, habits with streaks, notes and quick links open in a glass panel (`N`). Three other arrangements (centered, split, minimal) and a free-form editor remain. Can be switched off. |
 | 🪄 **Arrange Home** | A free-form editor: drag, resize and stretch every block, a type designer (glass and photo-filled digits), 46 widgets in three sizes (clocks, moon, goal ring, heat map, to-do, habit, breathing, water, mood …), card styles from glass to **liquid glass**, eleven ready themes (real photographs with a glass or hairline clock between the photo and its foreground, a goal ring and a Focus pill or today's tasks as quiet typography) with a *Surprise me* button, and smart stacks (plan in the morning, recap in the evening), layouts that switch by focus session or hour, theme files, **3D photo** with real depth (made on your device), subject cut-out, night clock, optional weather with rain on glass, and quotes. |
 | 🎨 **Make it yours** | Sixteen looks (Calm — bone paper, soft ink and a lime signal — Obsidian, Void, Noir, Pearl, Bento, Paper, Midnight, Terminal, Sakura, Forest, Aurora, Mono, Sunset, Nord, Ocean), any accent colour, fonts, corners, density, card style, light/dark/schedule, custom CSS and shareable looks. Contrast stays accessible. [Details](docs/THEMES.md). |
 | 🧠 **Research-driven** | If-then plans on the pause page, ready-to-resume notes, a two-minute *Close the day* ritual, break ideas, your own best session length — each tied to published research (and honest about how strong it is): [docs/RESEARCH.md](docs/RESEARCH.md). |
@@ -165,7 +165,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the architecture tour, adding a langu
 
 ## License
 
-[MIT](LICENSE). Fonts: Inter (SIL OFL 1.1). Icons: Lucide (ISC). Both are bundled locally — EyeTime loads nothing from the internet.
+[FSL-1.1-ALv2](LICENSE) (the Functional Source License: you may read, run, change and share the code for any purpose except building a competing commercial product; every version becomes Apache 2.0 after two years; the name and logo are not licensed; see [NOTICE](NOTICE)). Fonts: Inter (SIL OFL 1.1). Icons: Lucide (ISC). Both are bundled locally — EyeTime loads nothing from the internet.
 
 ## Contact
 

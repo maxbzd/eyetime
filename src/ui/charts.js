@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Small HTML/CSS chart toolkit (no dependencies). Marks follow docs/DESIGN.md:
 // thin bars (≤24px) with a 4px rounded data-end, 2px surface gaps, hairline grid, one shared tooltip,
 // every mark focusable, and a table fallback is provided by the pages that use these.

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Linen — a study desk in the morning light. Paper, ink and a terracotta stamp; a window of sun that crosses the desk during the day.
 
 import { text, rect, group, full, grad, radial, customWidget } from '../kit.js';

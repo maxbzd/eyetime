@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: FSL-1.1-ALv2
+# Copyright 2026 maxbzd
 # The compiler every build uses, on every machine: a new stable release changes nothing until this line is changed on purpose (and the tests pass with it).
 [toolchain]
 channel = "1.97.0"

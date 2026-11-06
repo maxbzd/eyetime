@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // "Get started" checklist on Home for the first days: four small steps that make the product click (a first session, teaching it what
 // distracts you, a task, the command palette). Steps tick themselves from real state; the card disappears when done or dismissed.
 

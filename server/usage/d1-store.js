@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The store of handler.js on Cloudflare D1 (SQLite). Same behaviour as memory-store.js.
 
 const WEEK_MS = 7 * 86_400_000;

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Abyss — deep water. Light that sways down from the surface, marine snow, a jellyfish drifting by; sunlit shallows in light looks.
 
 import { text, rect, ellipse, group, full, grad, radial, customWidget } from '../kit.js';

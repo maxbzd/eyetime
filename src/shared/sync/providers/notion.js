@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Notion, tasks only: one database becomes the task list. The person makes an "internal integration" (notion.so/profile/integrations), copies its secret, and shares the
 // database with it (⋯ → Connections); then pastes the database's link here. Speaks Notion's API (version 2022-06-28); everything that depends on its shape is in this file.
 //

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The screens against the real helper logic on a pretend computer (target/debug/eyetime-sim prototype 8131 must be running).
 // Run: node desktop/tests/e2e_real.cjs   (needs playwright)
 const { chromium } = require('playwright');

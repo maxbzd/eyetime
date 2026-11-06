@@ -1,6 +1,10 @@
 # Contributing to EyeTime
 
-Thanks for helping make EyeTime better for everyone! It is free, open source and local-first — please keep it that way: **no analytics, no remote code, no accounts, minimal permissions.**
+Thanks for helping make EyeTime better for everyone! It is free, source-available (FSL-1.1-ALv2) and local-first — please keep it that way: **no analytics, no remote code, no accounts, minimal permissions.**
+
+## Licence of what you send
+
+EyeTime is licensed under the Functional Source License, FSL-1.1-ALv2 (`LICENSE`). By sending a change (a pull request, a patch) you confirm that you wrote it or may send it, that it is licensed under the same terms, and that the author of EyeTime may also relicense it (for example for a commercial licence). If that does not suit you, open an issue to talk first. Every source file keeps its two header lines.
 
 ## Quick start
 

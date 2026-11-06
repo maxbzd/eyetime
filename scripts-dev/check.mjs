@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Dependency-free sanity checks:  JS syntax · JSON validity · manifest references · icons · i18n completeness
 //   node scripts-dev/check.mjs
 import fs from 'node:fs';
@@ -114,6 +116,7 @@ for (const [code, dict] of Object.entries(LOCALES)) {
     else if (typeof en[k] === 'string' && typeof dict[k] === 'string' && ph(en[k]) !== ph(dict[k])) fail(`i18n: placeholder mismatch in ${code}:${k}`);
   }
 }
+try { cp.execFileSync(process.execPath, [path.join(root, 'scripts-dev/license-check.mjs')], { stdio: 'pipe' }); } catch (e) { fail('licence: ' + (String(e.stderr || e.stdout || '').trim().replace(/\n/g, ' | ') || 'licence-check failed')); }
 try { cp.execFileSync(process.execPath, [path.join(root, 'scripts-dev/store-check.mjs')], { stdio: 'pipe' }); } catch (e) { fail('store: ' + (String(e.stderr || e.stdout || '').trim().replace(/\n/g, ' | ') || 'store-check failed')); }
 try { cp.execFileSync(process.execPath, [path.join(root, 'scripts-dev/build-locales.mjs'), '--check'], { stdio: 'pipe' }); } catch (e) { fail('i18n: ' + (String(e.stderr || '').trim() || 'locales/data is out of date: run  node scripts-dev/build-locales.mjs')); }
 const unusedKeys = Object.keys(en).filter((k) => !used.has(k));

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 /* Updates, as the person sees them: a glowing chip in the title bar when a new version is there, a sheet that says what is new,
    progress while it is fetched and installed, a "what is new" after the app came back, and a card in Settings.
    Everything is decided by the helper (it checks, downloads, verifies and installs); this file only shows it and sends the clicks. */

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Understanding sites that are in no list, with the model that Chrome runs on this computer (the Prompt API, Gemini Nano). Opt-in and experimental.
 // It is asked about the address and the title of an open tab, never the page; the answer only shapes reports (see shared/siteguess.js).
 // Chrome decides whether the model exists on this computer; a download (a couple of GB) starts only when the person presses the button in Settings.

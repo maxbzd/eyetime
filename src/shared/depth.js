@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The depth effect of the Home scenes (pure): which scenes have layers that sit in front of the clock, and how a saved depth setting is validated.
 // Back layers (the far ridges) are drawn by the scene's own CSS; the layers listed here are the ones in FRONT of the clock.
 // `k` is how far (px at full strength) a layer slides against the pointer: the nearer the layer, the more it moves.

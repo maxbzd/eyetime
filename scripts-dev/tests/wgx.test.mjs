@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { moonInfo, moonPath, sunTimes, sunProgress, handAngles, zonedParts, monthGrid, yearInfo, heatGrid, hourBars, breathAt, MOON_PHASES } from '../../src/shared/wgx.js';

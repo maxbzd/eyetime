@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Tasks as the sync sees them: a small normalised item (text, done, due, starred, estimate), and how a change that came from a service is written back into a task.
 // Repeating tasks are left out (every service has its own idea of recurrence); long-finished tasks are not sent (the same three days as the browser sync).
 

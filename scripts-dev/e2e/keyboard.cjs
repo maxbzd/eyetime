@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Keyboard-only pass over every surface, plus the system accessibility modes (more contrast, forced colours, reduced motion).
 //   node scripts-dev/e2e/keyboard.cjs [--shots]
 // For each page: Tab through the whole page; every stop must have an accessible name and a visible focus mark, nothing may trap the keyboard,

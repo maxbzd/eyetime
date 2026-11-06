@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The three manifest files that winget-pkgs wants for EyeTime for Windows, made from the numbers of a release.
 //   node desktop/packaging/winget/make.mjs <version> <sha256-of-EyeTime-Setup.exe> <outdir> [owner/repo]
 // The release workflow runs it, validates the result with `winget validate`, and attaches it to the release; submitting it to https://github.com/microsoft/winget-pkgs
@@ -21,7 +23,7 @@ PrivacyUrl: https://maxbzd.github.io/eyetime/privacy.html
 Author: EyeTime contributors
 PackageName: EyeTime
 PackageUrl: https://github.com/${repo}
-License: MIT
+License: FSL-1.1-ALv2
 LicenseUrl: https://github.com/${repo}/blob/main/LICENSE
 ShortDescription: Closes distracting sites and programs on a schedule, in sessions and by limits; local, no account.
 Description: A Windows program that really closes things. A protected service blocks sites (the hosts file) and programs on a schedule, in focus sessions and by limits; the window is only a view. Free, open source, no account, nothing leaves the computer.

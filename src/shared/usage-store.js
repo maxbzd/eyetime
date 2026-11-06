@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Usage measurement, the part that touches the browser: the counters on the device, the person's consent, the preview, and the one weekly request.
 // The rules (what may be counted and sent, when a report is due) are in usage.js and usage-schema.js; the promise is in PRIVACY.md and docs/MEASUREMENT.md.
 //

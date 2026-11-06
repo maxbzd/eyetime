@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // A soft light that follows the pointer over cards (the Obsidian look paints it; every other look ignores the two variables).
 // One delegated listener, one frame at a time, nothing while the pointer is still.
 

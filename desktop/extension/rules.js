@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // What is closed, decided from the helper's answer. Pure: no browser in here, so it is tested with plain Node.
 // The helper (the Windows service) makes the decision; this only applies it to one address.
 

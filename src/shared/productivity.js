@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Pure productivity logic: the plan → focus → review loop. No browser APIs, unit-tested.
 //
 // Day records gain two optional fields:

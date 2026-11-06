@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! Where the programs that ship with Windows live.
 //!
 //! Asking for `sc` or `reg` by bare name makes Windows look in the folder the program was started from first. For the installer that

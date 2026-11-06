@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Optional task sync across the person's browsers (chrome.storage.sync). Off by default and separate from settings sync: tasks are
 // personal text, so it is its own switch. Only the task list travels (open tasks and ones finished in the last three days).
 // Merged three ways (src/shared/tasksync.js); a missing or unreadable cloud copy never deletes anything here. Event-driven, a 30 s alarm batches bursts.

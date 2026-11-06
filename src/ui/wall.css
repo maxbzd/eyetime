@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
 /* White-on-photo for the pause page, the eye break and onboarding (see wall.js). Nothing here applies until the photo has loaded. */
 body.has-wall { color: #fff; color-scheme: dark; background: #14121a;
   --text: #fff; --text-2: rgba(255, 255, 255, .82); --text-3: rgba(255, 255, 255, .64); --surface: rgba(255, 255, 255, .1); --surface-2: rgba(255, 255, 255, .12); --surface-3: rgba(255, 255, 255, .2);

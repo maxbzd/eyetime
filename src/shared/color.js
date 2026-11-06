@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Small colour toolkit (pure): hex <-> RGB/HSL, mixing and WCAG contrast. Used by the theme engine so that
 // *any* look or user-picked accent ends up with readable text — contrast is computed, not hoped for.
 

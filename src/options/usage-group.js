@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Settings → Data & privacy → Anonymous usage: off until the person says yes. Shows exactly what would be sent, when the last report went, and lets the person start over with a new id.
 
 import { h, icon, toast } from '../ui/dom.js';

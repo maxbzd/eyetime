@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Task sync via chrome.storage.sync (opt-in, separate from settings sync). Pure functions only — the worker does the I/O (src/background/tasksync.js).
 //
 // A task is only ever deleted by an explicit tombstone (`del: { id: deletedAt }`, kept 30 days), never because it is merely absent from a copy:

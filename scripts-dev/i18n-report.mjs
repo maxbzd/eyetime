@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // What a translation reader would want before trusting nine machine-translated languages: not whether the keys exist (npm run check does that) but where the words look wrong.
 //   node scripts-dev/i18n-report.mjs [--lang ru] [--json]       a summary per language and the strings to look at first
 // Signals (each is a hint for a human, never a verdict):

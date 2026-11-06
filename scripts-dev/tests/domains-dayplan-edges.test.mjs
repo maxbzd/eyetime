@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The edges of the host helpers and of "Plan my day", found by mutation testing (domains.js 68 %, dayplan.js 65 % of changes noticed before these).
 import test from 'node:test';
 import assert from 'node:assert/strict';

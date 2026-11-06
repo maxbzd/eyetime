@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The numbers of a research round, from the filled observation sheet (docs/research/observation-sheet.csv).
 //   node scripts-dev/research/summarize.mjs docs/research/observation-sheet.csv
 // The thresholds are the ones in docs/research/analysis.md.

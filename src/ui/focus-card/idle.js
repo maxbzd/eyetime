@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The idle view: the day so far, the goal field, the length, the options and the start button.
 
 import { dropdown } from '../dropdown.js';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The photographs that ship with EyeTime ("Frames"): each is a photo, optionally a mask of its foreground (so the clock can sit between them), and a few facts about it (pure).
 // The files live in src/newtab/frames/<id>.webp and <id>-fg.webp. The photos are from Unsplash (Unsplash License: free to use, no attribution required); the credits are in docs/PHOTO-CREDITS.md.
 

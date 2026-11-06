@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Tells the person once a week when the history is close to the browser's storage limit (Chrome keeps 10 MB per extension).
 // Nothing is deleted without them: the notice points to Settings → Data & privacy, where "Free up space" and a backup live.
 

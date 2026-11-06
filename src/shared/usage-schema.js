@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // What the optional, anonymous usage report may contain — and nothing else. This one file is read by the extension (to build and to check a report before it
 // leaves) and by the reference server (to refuse anything that is not exactly this), so the two cannot drift apart. It has no browser or storage code.
 //

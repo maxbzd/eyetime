@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Writes src/shared/locales/data/<code>.json from the translations in src/shared/locales/<code>.js.
 //   node scripts-dev/build-locales.mjs            write the files
 //   node scripts-dev/build-locales.mjs --check    fail if a file is missing or out of date (npm run check does this)

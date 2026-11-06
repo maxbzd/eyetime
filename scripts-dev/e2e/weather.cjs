@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Optional weather end to end: nothing is requested while it is off; with a city it shows the temperature, rain or snow is drawn over the background, errors are told plainly,
 // the settings find a city. The extension runs from a copy whose manifest already holds the host permission (a real user grants it in the browser's prompt).
 //   node scripts-dev/e2e/weather.cjs

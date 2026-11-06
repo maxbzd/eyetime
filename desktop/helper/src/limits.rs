@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! Who may hold how many connections to the pipe, and for how long.
 //!
 //! The pipe is open to every signed-in person (the window and the agent run in their session), so any program they start can connect.

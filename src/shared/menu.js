@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Context-menu actions as pure settings mutations (the worker only wires them to the browser menu).
 
 export const MENU_IDS = ['cls:productive', 'cls:neutral', 'cls:distracting', 'block:always'];

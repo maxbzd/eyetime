@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Can this release be rebuilt from the source? Builds the packages twice, in two empty folders, and says whether the bytes are the same;
 // with `--against <file.zip>` it also compares the build with a published package.
 //   node scripts-dev/verify-build.mjs                                        the build is reproducible on this machine

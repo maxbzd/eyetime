@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // End-to-end encryption of the synced settings and tasks: the format (what an older EyeTime, the cloud, or someone who can write to it can and cannot do) and the rules for
 // when to seal, when to ask for the passphrase and when to follow another device.
 import test from 'node:test';

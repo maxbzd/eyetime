@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The scene engine: a scene is the world behind Home and follows the clock, a custom widget is drawn from nodes and data, clicks run only whitelisted actions,
 // a hostile scene file becomes a harmless one, and nothing throws.
 //   node scripts-dev/e2e/scene.cjs

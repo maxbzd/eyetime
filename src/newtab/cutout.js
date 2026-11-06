@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Cuts the subject out of the background photo, on this device: picture -> 320 px model input -> saliency map -> a clean alpha mask (PNG).
 // The mask is stored next to the photo (newtabFg); the page shows the photo again, masked, in front of the clock (see depth.js / newtab.css).
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Swiss — a strict grid. Huge numerals, a red sun that crosses the page, the day as a bar along the bottom edge.
 
 import { text, rect, ellipse, group, full, customWidget } from '../kit.js';

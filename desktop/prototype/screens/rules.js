@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 /* Rules: what is blocked, when, and the three lists every app and site lives in (distracting, neutral, always allowed).
    Cards for the rules, an editor sheet (schedule or timer, days, time wheels, breaks), drag and drop between the lists. */
 (() => {

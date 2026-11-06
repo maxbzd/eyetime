@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Applies the user's type design to the clock and the greeting: inline declarations, only for what was changed, removed again when reset.
 
 import { $ } from '../ui/dom.js';

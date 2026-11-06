@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Hostile names must stay text. The window runs with the rights of the person (it can talk to the service), so a name that arrives from the
 // computer (the name of a program in front: on NTFS a file may be called `<img src=x onerror=...>.exe`) or that someone typed (a rule, a site,
 // a keyword) must never become markup. Two layers are checked: the screens escape what they show, and the page is served with the same

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: FSL-1.1-ALv2
+# Copyright 2026 maxbzd
 # The visual suite against the baseline, in the same kind of machine as CI (Ubuntu 24.04 with the fonts Playwright installs for Chromium), so that a developer on a Mac or on another
 # Linux sees the same pixels as CI instead of "39 screens changed" that are only fonts.
 #   scripts-dev/e2e/visual-docker.sh                 compare with scripts-dev/e2e/visual-baseline/

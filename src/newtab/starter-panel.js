@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // "Ready themes": a picture of each starter and a Surprise me button. One tap changes the look, the background, the clock type, the card style and the widgets of Home
 // (the person's photo, links, tasks and data stay); a toast takes it back.
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Puts a skin (shared/skins.js) on a card: sets its CSS variables, and for liquid glass gives it its own refraction filter.
 // Liquid glass = the page behind the card is blurred a little and bent at the rim, like a thick pane of glass. The bend is an SVG displacement map drawn
 // for the card's own size (so every corner is right) and used as `backdrop-filter: url(#…)`. Only Chromium can do that; elsewhere the card is plain frosted glass.

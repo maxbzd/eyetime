@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
 .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-4); }
 .kpi { padding: var(--s-5); display: flex; flex-direction: column; gap: var(--s-1); min-width: 0; }
 .kpi .label { color: var(--text-2); font-size: var(--fs-sm); font-weight: 560; display: flex; align-items: center; gap: 8px; }

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Key-based i18n. Strings live in locales/<lang>.js as flat { "area.key": "text" } maps.
 //   t('focus.start')                       -> "Start focus"
 //   t('time.minutes', { n: 5 })            -> plural-aware: value may be { one, few, many, other }

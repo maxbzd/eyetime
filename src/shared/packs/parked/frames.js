@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Frames — minimal themes built on real photographs: a huge narrow clock that sits between the photo and its foreground, the date, a signature and one quiet focus control.
 // Each pack is data (see packs/kit.js); the photos are in src/newtab/frames and listed in shared/frames.js.
 

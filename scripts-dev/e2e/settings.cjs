@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The settings page shows one section at a time: the side list switches sections and lists the groups of the current one, a search looks through all of them,
 // a link with #section opens that section, and the layout holds on a narrow window.
 //   node scripts-dev/e2e/settings.cjs

@@ -1,0 +1,19 @@
+EyeTime
+Copyright 2026 maxbzd <maxbzd1600@gmail.com>
+
+This repository is licensed under the Functional Source License, Version 1.1, ALv2 Future License (SPDX: FSL-1.1-ALv2); the text is in the file LICENSE.
+
+In plain words (the text of LICENSE is what counts):
+  * You may read, run, change and share the code for any purpose except a Competing Use: making it available to others in a commercial product or service that
+    substitutes for EyeTime or offers the same or substantially similar functionality.
+  * When you share a copy, a modification or a derivative, keep the copyright notices and include LICENSE (or a link to it).
+  * Each version becomes available under the Apache License 2.0 on the second anniversary of the day it was made available.
+  * The name "EyeTime", the logo and the look of the brand are not licensed to you (the "Trademarks" clause of LICENSE).
+
+Third-party files that are bundled keep their own licenses, next to them:
+  src/ui/fonts/LICENSE-*          fonts (SIL Open Font License and similar)
+  src/ui/LICENSE-Lucide.txt       Lucide icons (ISC)
+  src/newtab/ml/LICENSE-*         ONNX Runtime Web, U2-Netp and Depth Anything V2 Small
+  desktop/prototype/vendor/       three.min.js (MIT, header inside the file)
+  docs/PHOTO-CREDITS.md           photographs and their authors
+The software bill of materials (CycloneDX) of every release lists them with their licenses.

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! What the person sets up. The interface keeps these as JSON under a handful of keys, the helper reads the same JSON, so the shapes here are
 //! the ones the screens write (names and all). Parsing is forgiving: a missing or damaged key becomes its default and never stops the helper.
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Connected services end to end, with Todoist answered by an in-memory mock (the same one the adapter's unit tests use): the group in Settings, the dialog
 // (pick → token → choose → save), the first sync both ways, an edit on each side, an error that asks to sign in again, a backup that holds no secret, and disconnecting.
 // The extension runs from a copy whose manifest already holds the host permission (a real person grants it in the browser's prompt).

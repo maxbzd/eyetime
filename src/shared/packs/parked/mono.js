@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Mono — three black-and-white themes drawn with the scene language, in the spirit of the Frames: a white page with one word, a carbon surface with a thin clock, torn paper.
 // They have no photo; everything is shapes, gradients and lines. The widgets are small and quiet, like the Frames'.
 

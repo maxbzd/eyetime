@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Home-page modules: tasks, habits, notes, quick links. Each returns a card element and manages its own storage.
 // One file per module (mod-*.js); this barrel keeps the import path stable.
 
