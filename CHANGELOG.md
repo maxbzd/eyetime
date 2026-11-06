@@ -10,6 +10,7 @@
 - **Tracking keeps the fractions of a second.** Flicking through tabs used to drop every stay shorter than half a second; now what does not make a whole second is carried to the next one, so a day adds up to the time that really passed (`creditSeconds`, tested over thousands of random spans).
 
 ### Safer
+- Background work started when the worker boots (sync, calendar, connections, usage) can no longer fail unseen: a rejection goes to the local error log instead of an "Uncaught (in promise)" on the extensions page.
 - Messages from pages to the worker are bounded: a "continue" lasts 1 minute to 8 hours, a tracking pause up to a day, and a malformed value is refused (`src/shared/validate.js`).
 - The optional usage collector now answers only extension origins (a web page gets 403, and CORS names the extension instead of everyone), refuses an oversized body before reading it, and takes at most 1 000 new installs per hour, so a script cannot fill its database with made-up ids.
 - `SECURITY.md`: how to report a problem privately, what is in and out of scope, the threat model, what is stored unencrypted and why, and how the update signing key is rotated (or replaced if stolen).

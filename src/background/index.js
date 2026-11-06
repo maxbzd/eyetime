@@ -1,7 +1,7 @@
 // EyeTime service worker (ES module). Event-driven: every listener is registered synchronously at load;
 // there are no setInterval / setTimeout loops — only chrome.alarms and browser events.
 
-import { captureErrors } from '../shared/errorlog.js';
+import { captureErrors, logError } from '../shared/errorlog.js';
 import { ensureSchema, getSettings, updateSettings, getRaw, setRaw, pruneOldDays } from '../shared/storage.js';
 import { isMinorUpdate } from '../shared/whatsnew.js';
 import { isFocusActive } from '../shared/blocking.js';
@@ -48,13 +48,11 @@ async function boot() {
   await scheduleReminders();
   await scheduleTaskSlot();
   await updateBadge(await getSettings());
-  syncNow();
-  syncTasksNow();
-  syncDock();
-  rolloverTasks();
-  armCalendar({ refresh: true });
-  armUsage();
-  armConnections();
+  // started and not waited for (the worker is ready as soon as the state is consistent), but never left to fail unseen: a rejection here would be an
+  // "Uncaught (in promise)" on the extensions page and nothing in our own error log
+  /** @type {Record<string, () => Promise<unknown>>} */
+  const tasks = { syncNow: () => syncNow(), syncTasksNow: () => syncTasksNow(), syncDock: () => syncDock(), rolloverTasks: () => rolloverTasks(), armCalendar: () => armCalendar({ refresh: true }), armUsage: () => armUsage(), armConnections: () => armConnections() };
+  for (const [name, task] of Object.entries(tasks)) Promise.resolve().then(task).catch((e) => logError('boot:' + name, e));
   return migrated;
 }
 
