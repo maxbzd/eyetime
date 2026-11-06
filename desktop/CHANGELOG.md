@@ -4,6 +4,7 @@ Every `## x.y.z` section becomes the release notes of the tag `desktop-vx.y.z`. 
 
 ## Unreleased
 
+- Ready for `winget install maxbzd.EyeTime`: each release now carries the manifests that winget-pkgs asks for, already checked by winget
 - Accessibility: the first test of the window with axe found, and this fixes, sliders without a value (the quiet-hours dial), switches without a name, a language button and a streak chip whose name did not contain the text they show, an achievement button likewise, and headings that skipped a level; the window now passes axe (WCAG 2.1 A and AA) in both languages on every screen
 - The window can no longer be made to run script by a name it shows: no inline script is allowed, and names of programs, rules and sites are escaped before they are shown
 - The service limits what an unknown program can do with its pipe: a few connections, a few seconds
