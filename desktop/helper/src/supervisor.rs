@@ -20,6 +20,7 @@ use eyetime_core::ipc::{
 };
 use eyetime_core::model::{Item, Now, Session, State, KEYS};
 use eyetime_core::tamper::{boot_time, loosens, unsafe_setup, ClockGuard, MAX_FROZEN_MIN};
+use eyetime_core::telemetry::{self, Telemetry};
 use eyetime_core::update::Updated;
 use eyetime_core::usage::Usage;
 use serde::{Deserialize, Serialize};
@@ -61,6 +62,12 @@ pub struct Persist {
     pub relaunch_app: bool,
     /// an update that was just installed, until the window has shown what is new
     pub updated: Option<Updated>,
+    /// the optional anonymous numbers: the switch, the counters (kept here whether or not anything is shared), the identifier
+    pub tele: Telemetry,
+    /// true while the service runs and false after it stopped on purpose: still true at the next start means it did not stop cleanly
+    pub running: bool,
+    /// the newest version that was announced and already counted, so that one version is one "found"
+    pub update_seen: String,
 }
 
 struct Pending {
@@ -114,6 +121,55 @@ pub struct Supervisor<O: Os> {
     orders: Orders,
 }
 
+/// One thing for the thread that talks to the collector: a report to send, or the request to forget an identifier.
+#[derive(Debug, Clone, PartialEq)]
+pub struct TeleJob {
+    pub url: String,
+    pub body: String,
+    /// what was in the report (taken away from the counters once it is accepted); empty for the request to forget
+    pub sent: BTreeMap<String, u32>,
+    pub forget: bool,
+}
+
+/// 128 random bits for the identifier: the operating system's own randomness (std's hasher keys), nothing taken from the computer or the person.
+fn random_bits() -> [u8; 16] {
+    use std::hash::{BuildHasher, Hasher};
+    let mut out = [0u8; 16];
+    for (i, chunk) in out.chunks_mut(8).enumerate() {
+        let mut h = std::collections::hash_map::RandomState::new().build_hasher();
+        h.write_u64(i as u64);
+        chunk.copy_from_slice(&h.finish().to_le_bytes());
+    }
+    out
+}
+
+fn challenge_kind_counter(kind: &str) -> Option<&'static str> {
+    Some(match kind {
+        "hold" => "ch_hold",
+        "wait" => "ch_wait",
+        "type" => "ch_type",
+        "math" => "ch_math",
+        "pin" => "ch_pin",
+        "friend" => "ch_friend",
+        _ => return None,
+    })
+}
+
+fn challenge_purpose_counter(action: &str) -> Option<&'static str> {
+    Some(match action {
+        "end_session" => "ch_for_end",
+        "break" => "ch_for_break",
+        "unblock" => "ch_for_unblock",
+        "edit" => "ch_for_edit",
+        "emergency" => "ch_for_emergency",
+        _ => return None,
+    })
+}
+
+fn wall_now<O: Os>(os: &O) -> i64 {
+    os.wall_ms()
+}
+
 fn lower(s: &str) -> String {
     s.trim().to_lowercase()
 }
@@ -156,6 +212,12 @@ impl<O: Os> Supervisor<O> {
             s.clock.set_anchor(s.p.last_seen_ms - mono);
         }
         s.tz = s.os.tz_offset_ms();
+        // counting is local; a service that was running and did not stop on purpose (a crash, a power cut) is counted when it starts again
+        if s.p.running {
+            s.count("svc_unclean");
+        }
+        s.p.running = true;
+        s.count("svc_start");
         let now = Now::from_local(floor, s.tz);
         s.recompute(floor, &now);
         s.settle_update();
@@ -264,6 +326,7 @@ impl<O: Os> Supervisor<O> {
         *self.p.focus.entry(now.day.clone()).or_insert(0) += mins;
         self.p.totals.focus_min += mins as u64;
         self.p.totals.sessions += 1;
+        self.count("ses_done");
         while self.p.focus.len() > 35 {
             let first = self.p.focus.keys().next().cloned().unwrap();
             self.p.focus.remove(&first);
@@ -321,6 +384,16 @@ impl<O: Os> Supervisor<O> {
             return;
         }
         self.last_event.insert(k, t);
+        if kind == "closing" {
+            // a program was asked to close: counted by the kind of reason (never which program, never which rule)
+            let c = match self.decision.reasons.first().map(|r| r.kind.as_str()) {
+                Some("session") => "blk_session",
+                Some("limit") => "blk_limit",
+                Some("cool") => "blk_cool",
+                _ => "blk_rule",
+            };
+            self.count(c);
+        }
         self.events.push_back(BlockEvent {
             at_ms: t,
             kind: kind.into(),
@@ -485,6 +558,7 @@ impl<O: Os> Supervisor<O> {
 
     /// The service is stopping: put the computer back as it was, so that nothing stays closed by accident.
     pub fn shutdown(&mut self, keep_blocks: bool) {
+        self.p.running = false;
         let t = self.last_trusted;
         self.save(t);
         if !keep_blocks {
@@ -591,7 +665,9 @@ impl<O: Os> Supervisor<O> {
             self.p.uninstall_ok_until_ms = 0; // the permission was only for the installer that has now run
             if p.to == VERSION {
                 self.p.updated = Some(p);
+                self.count("upd_applied");
             } else {
+                self.count("upd_failed");
                 self.p.relaunch_app = false;
                 let mut s = self.upd.lock().unwrap_or_else(|e| e.into_inner());
                 s.error = "The update did not finish. Nothing was changed.".into();
@@ -602,6 +678,134 @@ impl<O: Os> Supervisor<O> {
 
     pub fn stopping_for_update(&self) -> bool {
         self.p.pending_update.is_some()
+    }
+
+    /// Count one kind of event, on this computer only.
+    fn count(&mut self, name: &str) {
+        let (wall, tz) = (self.os.wall_ms(), self.tz);
+        self.p.tele.record(name, wall, tz);
+        self.dirty = true;
+    }
+
+    /// What is set up, as names from the fixed list (a state, nothing that was typed).
+    fn tele_flags(&self) -> Vec<&'static str> {
+        let st = &self.state;
+        let mut f = Vec::new();
+        if self.p.pin.is_set() {
+            f.push("pin");
+        }
+        if self.p.partner.is_set() {
+            f.push("partner_pin");
+        }
+        if !self.p.auto_off {
+            f.push("auto_update");
+        }
+        if self.site.is_some() {
+            f.push("browser_ext");
+        }
+        if st.rules.iter().any(|r| r.on && r.level >= 2) {
+            f.push("locked_rules");
+        }
+        if st.limits.iter().any(|l| l.on) {
+            f.push("limits");
+        }
+        if st.rules.iter().any(|r| r.on && r.kind == "schedule") {
+            f.push("schedule");
+        }
+        if self.p.totals.sessions > 0 || self.p.session.is_some() {
+            f.push("sessions_used");
+        }
+        let tam = &st.protect.tam;
+        if tam.uninstall && tam.watchdog && tam.hosts {
+            f.push("strict");
+        }
+        match self.os.windows_build() {
+            0 => {}
+            b if b >= 22_000 => f.push("w11"),
+            _ => f.push("w10"),
+        }
+        f
+    }
+
+    fn tele_lang(&self) -> String {
+        self.p
+            .keys
+            .get("et-lang")
+            .and_then(|v| v.as_str())
+            .unwrap_or("en")
+            .to_string()
+    }
+
+    /// What the window shows: the switch, whether to ask now, and the exact next report (the same text that would be sent).
+    fn telemetry_view(&self, _t: i64) -> Value {
+        let have = !telemetry::COLLECTOR.is_empty();
+        let flags = self.tele_flags();
+        let report = self.p.tele.report(
+            self.os.wall_ms(),
+            self.tz,
+            VERSION,
+            &self.tele_lang(),
+            &flags,
+        );
+        serde_json::json!({
+            "on": self.p.tele.on,
+            "configured": have,
+            "ask": self.p.tele.should_ask(have),
+            "asked": self.p.tele.asked_ms > 0,
+            "report": report,
+            "lastReportMs": self.p.tele.last_report_ms,
+        })
+    }
+
+    /// The next thing to send to the collector, if there is one: first the request to forget an identifier that was switched off, then the weekly report.
+    /// `endpoint` is the collector's address (empty in a build without one: nothing is ever due then).
+    pub fn telemetry_job(&mut self, endpoint: &str) -> Option<TeleJob> {
+        let have = endpoint.starts_with("https://");
+        let now = self.os.wall_ms();
+        if self.p.tele.forget_due(now, have) {
+            self.p.tele.tried(now);
+            self.dirty = true;
+            return Some(TeleJob {
+                url: endpoint.into(),
+                body: telemetry::forget_body(&self.p.tele.forget),
+                sent: BTreeMap::new(),
+                forget: true,
+            });
+        }
+        if !self.p.tele.due(now, have) {
+            return None;
+        }
+        let flags = self.tele_flags();
+        let body = self
+            .p
+            .tele
+            .report(now, self.tz, VERSION, &self.tele_lang(), &flags);
+        if telemetry::validate(&body).is_err() {
+            return None; // never send what the collector would refuse
+        }
+        self.p.tele.tried(now);
+        self.dirty = true;
+        Some(TeleJob {
+            url: endpoint.into(),
+            body,
+            sent: self.p.tele.period.clone(),
+            forget: false,
+        })
+    }
+
+    /// The sender says how it went. A refusal because the report came too soon (429) counts as delivered: the collector has this week's already.
+    pub fn telemetry_done(&mut self, job: &TeleJob, status: Option<u16>) {
+        let ok = matches!(status, Some(200..=299) | Some(429));
+        if !ok {
+            return; // the next try waits six hours
+        }
+        if job.forget {
+            self.p.tele.forgotten();
+        } else {
+            let now = self.os.wall_ms();
+            self.p.tele.after_sent(&job.sent, now);
+        }
+        self.dirty = true;
     }
 
     fn update_view(&self, t: i64) -> UpdateView {
@@ -631,6 +835,7 @@ impl<O: Os> Supervisor<O> {
             self.p.pending_update = None;
             self.p.relaunch_app = false;
             self.dirty = true;
+            self.count("upd_failed");
             let mut s = self.upd.lock().unwrap_or_else(|e| e.into_inner());
             s.error = "The update did not finish. Nothing was changed.".into();
             s.want_install = false;
@@ -653,6 +858,14 @@ impl<O: Os> Supervisor<O> {
                 s.path.clone(),
             )
         };
+        if let Some(i) = &info {
+            if matches!(phase, Phase::Available | Phase::Downloading | Phase::Ready)
+                && self.p.update_seen != i.version
+            {
+                self.p.update_seen = i.version.clone();
+                self.count("upd_found");
+            }
+        }
         if phase != Phase::Ready || !want || self.locked_now(t) {
             return;
         }
@@ -690,6 +903,7 @@ impl<O: Os> Supervisor<O> {
         match self.os.launch_update(&path) {
             Ok(()) => self.upd.lock().unwrap_or_else(|e| e.into_inner()).phase = Phase::Installing,
             Err(e) => {
+                self.count("upd_failed");
                 self.p.pending_update = None;
                 self.p.relaunch_app = false;
                 self.p.uninstall_ok_until_ms = 0;
@@ -817,7 +1031,10 @@ impl<O: Os> Supervisor<O> {
                 self.recompute(t, &now);
                 Response::ok(self.status())
             }
-            Request::GetState => Response::ok(&self.p.keys),
+            Request::GetState => {
+                self.count("ui_open");
+                Response::ok(&self.p.keys)
+            }
 
             Request::Observe {
                 fg,
@@ -867,6 +1084,23 @@ impl<O: Os> Supervisor<O> {
                 self.p.auto_off = !on;
                 self.dirty = true;
                 Response::ok(self.update_view(t))
+            }
+            Request::TelemetryGet => Response::ok(self.telemetry_view(t)),
+            Request::TelemetrySet { on } => {
+                if on {
+                    if !self.p.tele.on {
+                        self.p.tele.enable(wall_now(&self.os), random_bits());
+                    }
+                } else {
+                    self.p.tele.disable(wall_now(&self.os));
+                }
+                self.dirty = true;
+                Response::ok(self.telemetry_view(t))
+            }
+            Request::TelemetryDecline => {
+                self.p.tele.decline(wall_now(&self.os));
+                self.dirty = true;
+                Response::ok(self.telemetry_view(t))
             }
             Request::UpdateAck => {
                 self.p.updated = None;
@@ -985,6 +1219,7 @@ impl<O: Os> Supervisor<O> {
                     mute,
                 };
                 self.p.session = Some(s);
+                self.count("ses_start");
                 self.p.emergency_until_ms = 0;
                 self.dirty = true;
                 self.recompute(t, &now);
@@ -1108,7 +1343,11 @@ impl<O: Os> Supervisor<O> {
             }
             _ => return Response::err("bad_request", "Unknown action"),
         }
+        let before = self.pending.len();
         self.pending.retain(|p| p.ch.expires_ms > t);
+        for _ in self.pending.len()..before {
+            self.count("ch_expired"); // asked for and never answered: the person gave up
+        }
         self.pending
             .retain(|p| p.ch.action != action || p.target != target);
         if self.pending.len() >= 8 {
@@ -1133,6 +1372,13 @@ impl<O: Os> Supervisor<O> {
             protect.pin_on = false;
         }
         let ch = Challenge::new(&protect, action, t, seed, used);
+        self.count("ch_shown");
+        if let Some(c) = challenge_kind_counter(&ch.kind) {
+            self.count(c);
+        }
+        if let Some(c) = challenge_purpose_counter(action) {
+            self.count(c);
+        }
         let data = challenge_data(&ch);
         self.pending.push(Pending {
             ch,
@@ -1157,9 +1403,13 @@ impl<O: Os> Supervisor<O> {
         match self.pending[idx].ch.check(answer, t) {
             Verdict::Ok => {}
             Verdict::TooEarly(ms) => return Response::err_with("early", "Not yet", ms),
-            Verdict::Wrong => return Response::err("wrong", "Not right"),
+            Verdict::Wrong => {
+                self.count("ch_wrong");
+                return Response::err("wrong", "Not right");
+            }
             Verdict::Expired => {
                 self.pending.remove(idx);
+                self.count("ch_expired");
                 return Response::err("expired", "Ask again");
             }
         }
@@ -1177,12 +1427,16 @@ impl<O: Os> Supervisor<O> {
             }
         }
         let p = self.pending.remove(idx);
+        self.count("ch_done");
         let action = p.ch.action.clone();
         let mins = p.minutes as i64;
         match action.as_str() {
             "end_session" => {
                 if self.state.protect.reset_streak {
                     self.p.streak = 0;
+                }
+                if self.p.session.is_some() {
+                    self.count("ses_stop");
                 }
                 self.p.session = None;
             }
@@ -1209,6 +1463,9 @@ impl<O: Os> Supervisor<O> {
                 self.p.emergency_until_ms = t + mins * 60_000;
                 if self.state.protect.reset_streak {
                     self.p.streak = 0;
+                }
+                if self.p.session.is_some() {
+                    self.count("ses_stop");
                 }
                 self.p.session = None;
             }

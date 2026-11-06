@@ -98,6 +98,8 @@ pub struct Telemetry {
     pub first: BTreeMap<String, u32>,
     /// uses since the last report that went out
     pub period: BTreeMap<String, u32>,
+    /// an identifier that was switched off and that the collector has not yet been asked to forget
+    pub forget: String,
 }
 
 impl Telemetry {
@@ -149,11 +151,26 @@ impl Telemetry {
     /// Switch sharing off. Returns the identifier the collector should be asked to forget (None if there was none).
     pub fn disable(&mut self, now_ms: i64) -> Option<String> {
         let old = (!self.id.is_empty()).then(|| std::mem::take(&mut self.id));
+        if let Some(id) = &old {
+            self.forget = id.clone();
+        }
         self.on = false;
         self.asked_ms = self.asked_ms.max(now_ms);
         self.last_report_ms = 0;
         self.last_try_ms = 0;
         old
+    }
+
+    /// Is the collector still to be asked to forget an identifier? (retried every six hours)
+    pub fn forget_due(&self, now_ms: i64, have_collector: bool) -> bool {
+        have_collector
+            && self.forget.len() == 32
+            && (self.last_try_ms == 0 || now_ms - self.last_try_ms >= RETRY_AFTER_MS)
+    }
+
+    /// The collector was told (or answered that it has nothing).
+    pub fn forgotten(&mut self) {
+        self.forget.clear();
     }
 
     /// "No, thank you" to the one-time question: it is not asked again.

@@ -1111,3 +1111,259 @@ fn closing_by_force_names_the_program_and_refuses_another_one_under_the_same_num
     );
     assert_eq!(f.0.lock().unwrap().killed, vec![10]);
 }
+
+// ---------- the optional anonymous numbers ----------
+
+const COLLECTOR: &str = "https://collector.example/v1/usage";
+
+fn tele(s: &mut Supervisor<Fake>) -> Value {
+    s.handle(Request::TelemetryGet).data
+}
+
+#[test]
+fn what_happens_is_counted_as_kinds_and_never_as_names() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    f.0.lock().unwrap().procs = vec![proc(10, "steam.exe"), proc(12, "explorer.exe")];
+    assert!(start(&mut s, 25, 1).ok);
+    advance(&f, &mut s, 24);
+    advance(&f, &mut s, 25 * 60);
+    s.handle(Request::GetState);
+    let c = s.handle(Request::Challenge {
+        action: "end_session".into(),
+        target: None,
+        minutes: None,
+    });
+    assert!(c.ok || !c.ok); // (no session is running any more: whatever it answers, it is a challenge or a refusal)
+    let t = &s.p.tele;
+    for name in [
+        "ses_start",
+        "ses_done",
+        "ui_open",
+        "svc_start",
+        "blk_session",
+    ] {
+        assert!(
+            t.period.get(name).copied().unwrap_or(0) >= 1,
+            "{name} was counted: {:?}",
+            t.period
+        );
+    }
+    assert!(!t.period.contains_key("svc_unclean"));
+    let text = serde_json::to_string(&s.p.tele).unwrap();
+    assert!(
+        !text.contains("steam") && !text.contains("youtube") && !text.contains("Deep work"),
+        "no name of a program, a site or a session: {text}"
+    );
+    assert!(!s.p.tele.on, "counting never switches anything on");
+}
+
+#[test]
+fn a_service_that_did_not_stop_on_purpose_is_counted_when_it_comes_back() {
+    let (f, mut s) = world();
+    advance(&f, &mut s, 4); // the first save: the store says the service is running
+    let store = f.0.lock().unwrap().store.clone();
+    assert!(
+        store.as_deref().unwrap_or("").contains("\"running\":true"),
+        "{store:?}"
+    );
+    // a clean stop: the next start is a plain start
+    s.shutdown(false);
+    let s2 = Supervisor::new(f.clone());
+    assert!(
+        !s2.p.tele.period.contains_key("svc_unclean"),
+        "{:?}",
+        s2.p.tele.period
+    );
+    // a stop that was never announced (the store still says "running")
+    f.0.lock().unwrap().store = store;
+    let s3 = Supervisor::new(f.clone());
+    assert_eq!(
+        s3.p.tele.period.get("svc_unclean"),
+        Some(&1),
+        "{:?}",
+        s3.p.tele.period
+    );
+}
+
+#[test]
+fn nothing_is_asked_shown_as_due_or_sent_without_a_yes_and_a_collector() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    f.0.lock().unwrap().procs = vec![proc(10, "steam.exe")];
+    for _ in 0..4 {
+        assert!(start(&mut s, 5, 1).ok);
+        advance(&f, &mut s, 6 * 60);
+        f.0.lock().unwrap().wall += 86_400_000;
+        f.0.lock().unwrap().mono += 86_400_000;
+    }
+    let v = tele(&mut s);
+    assert_eq!(v["configured"], false, "this build has no collector");
+    assert_eq!(v["ask"], false, "so the app asks nothing");
+    assert_eq!(v["on"], false);
+    assert!(
+        s.telemetry_job("").is_none() && s.telemetry_job(COLLECTOR).is_none(),
+        "nobody said yes: nothing is due, even with a collector"
+    );
+    let r = v["report"].as_str().unwrap();
+    assert!(
+        r.contains(&"0".repeat(32)) && r.contains("\"pr\":\"win\""),
+        "the preview before a yes holds no identifier: {r}"
+    );
+}
+
+#[test]
+fn a_yes_makes_a_weekly_report_that_the_collector_accepts_and_a_no_asks_it_to_forget() {
+    let (f, mut s) = world();
+    setup(&mut s);
+    f.0.lock().unwrap().procs = vec![proc(10, "steam.exe")];
+    assert!(start(&mut s, 5, 1).ok);
+    advance(&f, &mut s, 6 * 60);
+    let v = s.handle(Request::TelemetrySet { on: true }).data;
+    assert_eq!(v["on"], true);
+    assert!(
+        s.telemetry_job(COLLECTOR).is_none(),
+        "the first report comes the day after"
+    );
+    {
+        let mut w = f.0.lock().unwrap();
+        w.wall += 21 * 3_600_000;
+        w.mono += 21 * 3_600_000;
+    }
+    assert!(
+        s.telemetry_job("http://collector.example/v1/usage")
+            .is_none(),
+        "only over https"
+    );
+    let job = s.telemetry_job(COLLECTOR).expect("due");
+    assert!(
+        !job.forget && eyetime_core::telemetry::validate(&job.body).is_ok(),
+        "{}",
+        job.body
+    );
+    assert!(
+        job.body.contains("\"ses_start\":1")
+            && !job.body.contains("steam")
+            && !job.body.contains("Deep"),
+        "{}",
+        job.body
+    );
+    assert!(s.telemetry_job(COLLECTOR).is_none(), "one try at a time");
+    // it did not get through: the next try waits six hours, and the counters stay
+    s.telemetry_done(&job, None);
+    assert!(!s.p.tele.period.is_empty());
+    {
+        let mut w = f.0.lock().unwrap();
+        w.wall += 7 * 3_600_000;
+    }
+    let again = s.telemetry_job(COLLECTOR).expect("six hours later");
+    s.telemetry_done(&again, Some(204));
+    assert!(
+        !s.p.tele.period.contains_key("ses_start"),
+        "what was sent is taken away"
+    );
+    assert!(
+        s.telemetry_job(COLLECTOR).is_none(),
+        "and the next one is a week away"
+    );
+    // a no: the collector is asked to forget, until it has been told
+    let id = s.p.tele.id.clone();
+    assert_eq!(id.len(), 32);
+    let off = s.handle(Request::TelemetrySet { on: false }).data;
+    assert_eq!(off["on"], false);
+    let forget = s.telemetry_job(COLLECTOR).expect("forget");
+    assert!(
+        forget.forget && forget.body.contains(&id),
+        "{}",
+        forget.body
+    );
+    s.telemetry_done(&forget, Some(503));
+    assert!(s.telemetry_job(COLLECTOR).is_none(), "retried in six hours");
+    f.0.lock().unwrap().wall += 7 * 3_600_000;
+    let forget = s.telemetry_job(COLLECTOR).expect("forget again");
+    s.telemetry_done(&forget, Some(204));
+    f.0.lock().unwrap().wall += 30 * 86_400_000;
+    assert!(
+        s.telemetry_job(COLLECTOR).is_none(),
+        "nothing more is ever sent"
+    );
+}
+
+#[test]
+fn only_the_window_may_touch_the_switch_and_a_no_is_final() {
+    use eyetime_core::ipc::Role;
+    for req in [
+        Request::TelemetryGet,
+        Request::TelemetrySet { on: true },
+        Request::TelemetryDecline,
+    ] {
+        assert!(Role::Window.allows(&req) && Role::Admin.allows(&req));
+        assert!(
+            !Role::Agent.allows(&req) && !Role::Other.allows(&req),
+            "{req:?}"
+        );
+    }
+    let (_f, mut s) = world();
+    s.handle(Request::TelemetryDecline);
+    assert!(tele(&mut s)["asked"] == true && s.p.tele.asked_ms > 0 && !s.p.tele.on);
+}
+
+struct FakePost {
+    sent: Mutex<Vec<(String, String)>>,
+    answer: Mutex<Result<u16, String>>,
+}
+impl crate::telemetry_send::Post for FakePost {
+    fn post_json(&self, url: &str, body: &str) -> Result<u16, String> {
+        self.sent.lock().unwrap().push((url.into(), body.into()));
+        self.answer.lock().unwrap().clone()
+    }
+}
+
+#[test]
+fn the_sender_posts_what_is_due_once_and_only_after_a_yes() {
+    use crate::telemetry_send::step;
+    let (f, s) = world();
+    let post = FakePost {
+        sent: Mutex::new(vec![]),
+        answer: Mutex::new(Ok(204)),
+    };
+    let sup = Mutex::new(s);
+    {
+        let mut s = sup.lock().unwrap();
+        s.handle(Request::GetState);
+    }
+    f.0.lock().unwrap().wall += 40 * 3_600_000;
+    assert!(!step(&sup, &post, COLLECTOR), "no yes, nothing is posted");
+    sup.lock()
+        .unwrap()
+        .handle(Request::TelemetrySet { on: true });
+    assert!(
+        !step(&sup, &post, COLLECTOR),
+        "the first report waits a day"
+    );
+    f.0.lock().unwrap().wall += 21 * 3_600_000;
+    assert!(
+        !step(&sup, &post, ""),
+        "a build with no collector posts nothing"
+    );
+    assert!(step(&sup, &post, COLLECTOR));
+    assert!(!step(&sup, &post, COLLECTOR), "once");
+    let sent = post.sent.lock().unwrap();
+    assert_eq!(sent.len(), 1);
+    assert_eq!(sent[0].0, COLLECTOR);
+    assert!(
+        sent[0].1.contains("\"pr\":\"win\"") && sent[0].1.contains("\"ui_open\":1"),
+        "{}",
+        sent[0].1
+    );
+    drop(sent);
+    // the network is down: tried, kept, and tried again in six hours
+    f.0.lock().unwrap().wall += 8 * 86_400_000;
+    *post.answer.lock().unwrap() = Err("no connection".into());
+    assert!(step(&sup, &post, COLLECTOR));
+    assert!(!step(&sup, &post, COLLECTOR));
+    f.0.lock().unwrap().wall += 7 * 3_600_000;
+    *post.answer.lock().unwrap() = Ok(204);
+    assert!(step(&sup, &post, COLLECTOR));
+    assert_eq!(post.sent.lock().unwrap().len(), 3);
+}

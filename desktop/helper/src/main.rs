@@ -11,7 +11,9 @@
 mod win {
     use eyetime_helper::os::Os;
     use eyetime_helper::os_windows::WinOs;
-    use eyetime_helper::server::{lock, poke, run_pipe_server, run_ticker, run_updater, Shared};
+    use eyetime_helper::server::{
+        lock, poke, run_pipe_server, run_telemetry, run_ticker, run_updater, Shared,
+    };
     use eyetime_helper::supervisor::Supervisor;
     use std::ffi::OsString;
     use std::sync::atomic::{AtomicBool, Ordering};
@@ -45,6 +47,8 @@ mod win {
         std::thread::spawn(move || run_pipe_server(a, b));
         let (a, b) = (sup.clone(), stop.clone());
         std::thread::spawn(move || run_updater(a, b));
+        let (a, b) = (sup.clone(), stop.clone());
+        std::thread::spawn(move || run_telemetry(a, b));
     }
 
     fn service_body() -> windows_service::Result<()> {

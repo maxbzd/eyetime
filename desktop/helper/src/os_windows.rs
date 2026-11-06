@@ -281,6 +281,29 @@ impl Os for WinOs {
     fn launch_update(&self, installer: &std::path::Path) -> io::Result<()> {
         WinOs::start_installer(installer)
     }
+    fn windows_build(&self) -> u32 {
+        // "Microsoft Windows [Version 10.0.22631.4460]": the third number is the build (22000 and later is Windows 11)
+        let Ok(out) = Command::new(eyetime_core::sys::system32("cmd.exe"))
+            .args(["/c", "ver"])
+            .creation_flags(NO_WINDOW)
+            .stdin(std::process::Stdio::null())
+            .output()
+        else {
+            return 0;
+        };
+        let text = String::from_utf8_lossy(&out.stdout);
+        text.split("Version")
+            .nth(1)
+            .and_then(|v| {
+                v.trim()
+                    .trim_end_matches(']')
+                    .split('.')
+                    .nth(2)
+                    .map(str::to_string)
+            })
+            .and_then(|b| b.trim().parse().ok())
+            .unwrap_or(0)
+    }
     fn log(&self, line: &str) {
         let dir = data_dir();
         let _ = std::fs::create_dir_all(&dir);
@@ -396,6 +419,55 @@ fn curl_path() -> PathBuf {
 
 /// The network, through the curl.exe that Windows ships (10 1803 and later): it knows the computer's proxy and certificates.
 pub struct WinNet;
+
+/// The optional anonymous numbers, to the one address in `eyetime_core::telemetry::COLLECTOR` and no other: over https, no redirect, no cookie, no referrer,
+/// nothing in the headers but the type of the body and the name "EyeTime".
+impl crate::telemetry_send::Post for WinNet {
+    fn post_json(&self, url: &str, body: &str) -> Result<u16, String> {
+        if url.is_empty() || url != eyetime_core::telemetry::COLLECTOR {
+            return Err("not an address EyeTime talks to".into());
+        }
+        let mut child = Command::new(curl_path())
+            .args([
+                "-sS",
+                "--max-time",
+                "30",
+                "--max-redirs",
+                "0",
+                "--proto",
+                "=https",
+                "-A",
+                "EyeTime",
+                "-X",
+                "POST",
+                "-H",
+                "content-type: application/json",
+                "--data-binary",
+                "@-",
+                "-o",
+                "NUL",
+                "-w",
+                "%{http_code}",
+                url,
+            ])
+            .creation_flags(NO_WINDOW)
+            .stdin(std::process::Stdio::piped())
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::null())
+            .spawn()
+            .map_err(|e| format!("curl: {e}"))?;
+        if let Some(mut stdin) = child.stdin.take() {
+            stdin
+                .write_all(body.as_bytes())
+                .map_err(|e| e.to_string())?;
+        }
+        let out = child.wait_with_output().map_err(|e| e.to_string())?;
+        String::from_utf8_lossy(&out.stdout)
+            .trim()
+            .parse::<u16>()
+            .map_err(|_| "no answer".to_string())
+    }
+}
 
 impl crate::update::Net for WinNet {
     fn get(&self, url: &str) -> Result<String, String> {
