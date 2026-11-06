@@ -42,6 +42,37 @@ pub fn boot_time(wall: i64, last_seen: i64) -> i64 {
     wall.max(last_seen)
 }
 
+/// Every minute of the week in which the rule is running: an overnight rule runs into the morning of the next day, a rule with the same time twice is all day
+/// on its own days. Written out by ranges (this runs on every edit while a block is locked); the test `week_cover_is_what_active_for_says` checks it against
+/// `active_for`, the function the engine uses, minute by minute.
+fn week_cover(r: &Rule) -> Vec<bool> {
+    let mut v = vec![false; 7 * 1440];
+    if !r.on || r.kind == "timer" {
+        return v;
+    }
+    let (Some(a), Some(b)) = (
+        crate::schedule::parse_hm(&r.from),
+        crate::schedule::parse_hm(&r.to),
+    ) else {
+        return v;
+    };
+    let (a, b) = (a as usize, b as usize);
+    let mut fill =
+        |day: usize, from: usize, to: usize| v[day * 1440 + from..day * 1440 + to].fill(true);
+    for &d in r.days.iter().filter(|d| **d < 7) {
+        let d = d as usize;
+        if a == b {
+            fill(d, 0, 1440);
+        } else if b > a {
+            fill(d, a, b);
+        } else {
+            fill(d, a, 1440);
+            fill((d + 1) % 7, 0, b);
+        }
+    }
+    v
+}
+
 fn rule_loosened(a: &Rule, b: &Rule) -> bool {
     // a is the rule before, b after
     if !b.on && a.on {
@@ -56,31 +87,11 @@ fn rule_loosened(a: &Rule, b: &Rule) -> bool {
     if b.kind == "timer" {
         return b.dur < a.dur;
     }
-    if a.days.iter().any(|d| !b.days.contains(d)) {
+    if a.block != b.block && b.block != "all" {
         return true;
     }
-    if a.block != b.block && !(b.block == "all") {
-        return true;
-    }
-    // some minute of the day that was covered is not any more
-    let covered = |r: &Rule| -> Vec<bool> {
-        let mut v = vec![false; 1440];
-        if let (Some(f), Some(t)) = (
-            crate::schedule::parse_hm(&r.from),
-            crate::schedule::parse_hm(&r.to),
-        ) {
-            let mut m = f as usize;
-            loop {
-                v[m] = true;
-                m = (m + 1) % 1440;
-                if m == t as usize {
-                    break;
-                }
-            }
-        }
-        v
-    };
-    let (ca, cb) = (covered(a), covered(b));
+    // some minute of the week that was closed is not any more
+    let (ca, cb) = (week_cover(a), week_cover(b));
     ca.iter().zip(cb.iter()).any(|(x, y)| *x && !*y)
 }
 
@@ -255,7 +266,7 @@ fn friction_rank(f: &str) -> u8 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::model::{Item, Tamper};
+    use crate::model::{Item, Now, Tamper};
 
     #[test]
     fn moving_the_clock_forward_does_not_end_a_locked_block() {
@@ -437,5 +448,200 @@ mod tests {
         let mut b = a.clone();
         b.cats.insert("Games".into(), false);
         assert!(!loosens(&a, &b).is_empty());
+    }
+
+    // ---- the promise of "Locked": an edit that `loosens` lets through never lets less through the block ----
+
+    struct Gen(u64);
+    impl Gen {
+        fn next(&mut self) -> u64 {
+            self.0 ^= self.0 << 13;
+            self.0 ^= self.0 >> 7;
+            self.0 ^= self.0 << 17;
+            self.0
+        }
+        fn below(&mut self, n: u64) -> u64 {
+            self.next() % n
+        }
+    }
+
+    fn random_rule(g: &mut Gen, id: &str) -> Rule {
+        // times that make the interesting cases: ordinary, overnight, the same twice (all day), the edges of the day
+        const T: [&str; 8] = [
+            "00:00", "06:00", "09:00", "12:00", "17:00", "22:00", "23:59", "bad",
+        ];
+        let mut days = Vec::new();
+        for d in 0..7u8 {
+            if g.below(2) == 0 {
+                days.push(d);
+            }
+        }
+        Rule {
+            id: id.into(),
+            name: id.into(),
+            kind: if g.below(10) == 0 {
+                "timer".into()
+            } else {
+                "schedule".into()
+            },
+            from: T[g.below(T.len() as u64) as usize].into(),
+            to: T[g.below(T.len() as u64) as usize].into(),
+            days,
+            block: ["dis", "all", "pick"][g.below(3) as usize].into(),
+            breaks: g.below(2) == 0,
+            on: g.below(5) != 0,
+            glyph: "cal".into(),
+            level: g.below(4) as u8,
+            dur: 5 + g.below(120) as u32,
+        }
+    }
+
+    fn at(weekday: u8, minute: u16) -> Now {
+        Now {
+            ms: 0,
+            weekday,
+            minute,
+            day: "2026-11-02".into(),
+        }
+    }
+
+    /// what a rule closes at a moment, as the engine sees it: (running, the hardest level, closes everything but the allowed list)
+    fn effect(r: &Rule, now: &Now) -> (bool, u8, bool) {
+        let state = State {
+            rules: vec![r.clone()],
+            ..Default::default()
+        };
+        let d = crate::engine::decide(
+            &state,
+            now,
+            &crate::usage::Usage::default(),
+            None,
+            &crate::engine::Grants::default(),
+        );
+        (!d.reasons.is_empty(), d.level, d.allow_only)
+    }
+
+    #[test]
+    fn an_edit_that_loosens_nothing_never_closes_less_at_any_moment_of_the_week() {
+        let mut g = Gen(0x2545_F491_4F6C_DD1D);
+        let (mut pairs, mut checked_pairs) = (0u32, 0u32);
+        for _ in 0..40_000 {
+            let a = random_rule(&mut g, "r");
+            // half of the time b is a small change of a (one field), half of the time a different rule: the first is where mistakes hide
+            let mut b = if g.below(2) == 0 {
+                random_rule(&mut g, "r")
+            } else {
+                a.clone()
+            };
+            if g.below(2) == 0 {
+                let other = random_rule(&mut g, "r");
+                match g.below(7) {
+                    0 => b.from = other.from,
+                    1 => b.to = other.to,
+                    2 => b.days = other.days,
+                    3 => b.level = other.level,
+                    4 => b.block = other.block,
+                    5 => b.breaks = other.breaks,
+                    _ => b.on = other.on,
+                }
+            }
+            pairs += 1;
+            let old = State {
+                rules: vec![a.clone()],
+                ..Default::default()
+            };
+            let new = State {
+                rules: vec![b.clone()],
+                ..Default::default()
+            };
+            if !loosens(&old, &new).is_empty() {
+                continue; // refused while locked: nothing to prove
+            }
+            checked_pairs += 1;
+            // the moments: the edges of both rules on every day, and a spread of others
+            let mut minutes: Vec<u16> = vec![0, 1, 719, 720, 1438, 1439];
+            for r in [&a, &b] {
+                for t in [&r.from, &r.to] {
+                    if let Some(m) = crate::schedule::parse_hm(t) {
+                        minutes.extend([m.saturating_sub(1), m, (m + 1).min(1439)]);
+                    }
+                }
+            }
+            for _ in 0..8 {
+                minutes.push(g.below(1440) as u16);
+            }
+            for day in 0..7u8 {
+                for &m in &minutes {
+                    let (ra, la, aa) = effect(&a, &at(day, m));
+                    let (rb, lb, ab) = effect(&b, &at(day, m));
+                    assert!(
+                        !ra || rb,
+                        "the new rule is not running at day {day} minute {m} where the old one was:\n old {a:?}\n new {b:?}"
+                    );
+                    assert!(
+                        !ra || lb >= la,
+                        "the level fell at day {day} minute {m}:\n old {a:?}\n new {b:?}"
+                    );
+                    assert!(
+                        !(ra && aa) || ab,
+                        "the old rule closed everything but the allowed list at day {day} minute {m}, the new one does not:\n old {a:?}\n new {b:?}"
+                    );
+                }
+            }
+        }
+        // the test must really have tested something
+        assert!(
+            checked_pairs > 2_000,
+            "only {checked_pairs} of {pairs} edits were allowed: the generator is too wild to prove anything"
+        );
+    }
+
+    #[test]
+    fn week_cover_is_what_active_for_says() {
+        let mut g = Gen(0x9E37_79B9_7F4A_7C15);
+        for _ in 0..400 {
+            let r = random_rule(&mut g, "r");
+            let cover = super::week_cover(&r);
+            for day in 0..7u8 {
+                for minute in 0..1440u16 {
+                    assert_eq!(
+                        cover[day as usize * 1440 + minute as usize],
+                        crate::schedule::active_for(&r, &at(day, minute)).is_some(),
+                        "{r:?} day {day} minute {minute}"
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn turning_an_overnight_rule_into_an_all_day_one_on_the_same_days_is_refused() {
+        // found by the test above: the old check compared times of day and the list of days apart, and let this through (it opens Tuesday 00:00-09:00)
+        let rule = |from: &str, to: &str| Rule {
+            id: "r".into(),
+            from: from.into(),
+            to: to.into(),
+            days: vec![0, 2, 3],
+            block: "all".into(),
+            level: 2,
+            ..Default::default()
+        };
+        let (old, new) = (
+            State {
+                rules: vec![rule("17:00", "09:00")],
+                ..Default::default()
+            },
+            State {
+                rules: vec![rule("09:00", "09:00")],
+                ..Default::default()
+            },
+        );
+        assert!(!loosens(&old, &new).is_empty());
+        assert!(
+            loosens(&new, &old)
+                .iter()
+                .all(|m| !m.contains("rule weakened"))
+                || !loosens(&new, &old).is_empty()
+        );
     }
 }
