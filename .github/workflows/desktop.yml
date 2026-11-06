@@ -1,7 +1,7 @@
 name: Desktop
 on:
   push:
-    branches: [main, 'claude/eyetime-v2-redesign']
+    branches: [main, 'claude/eyetime-v2-redesign', 'ccr-*']
     paths: ['desktop/**', '.github/workflows/desktop.yml']
   pull_request:
     paths: ['desktop/**', '.github/workflows/desktop.yml']

@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [main]
+    branches: [main, 'ccr-*']
   pull_request:
   workflow_dispatch: # run it by hand on any branch (gh workflow run ci.yml --ref <branch>)
 permissions:
