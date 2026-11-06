@@ -2,11 +2,11 @@
 //   npm run coverage
 // Only the logic that is plain JavaScript (src/shared) is reached by these tests; pages, the service worker and the content scripts are covered by the browser
 // suites (scripts-dev/e2e), which this report cannot see. `load-all.test.mjs` makes every module of src/shared count, so the percentage is not flattered by files
-// no test imports. The floor sits just under the current numbers (Nov 2026: lines 96.6, branches 86.2, functions 87.6): raise it when the numbers rise.
+// no test imports. The floor sits just under the current numbers (Nov 2026: lines 94.1, branches 86.5, functions 82.2, with the worker modules counted since they have tests against a pretend browser): raise it when the numbers rise.
 import { spawnSync } from 'node:child_process';
 import { readdirSync } from 'node:fs';
 
-const FLOOR = { lines: 95, branches: 85, functions: 86 };
+const FLOOR = { lines: 93, branches: 85, functions: 80 };
 const r = spawnSync(process.execPath, [
   '--experimental-test-coverage',
   '--test-coverage-include=src/**',
