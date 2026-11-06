@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! The small obstacles in front of "let me out": waiting, typing a long text, doing a sum, holding, a PIN, a friend's code.
 //! The helper makes the challenge and checks the answer itself, so the window cannot talk its way past it.
 

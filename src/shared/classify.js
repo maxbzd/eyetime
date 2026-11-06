@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 import { PRESETS, PRESET_IDS, PRODUCTIVE_DEFAULTS } from './catalog.js';
 import { matches, matchesAny } from './domains.js';
 import { guessRules } from './siteguess.js';

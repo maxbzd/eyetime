@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Makes the depth map of the background photo, on this device: picture -> model input -> depth -> an 8-bit picture (bright = near, a PNG).
 // It is stored next to the photo (newtabDepth, with the photo's key so a map never outlives its photo); the page then draws the photo in 3D (gl3d.js).
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // A styled dropdown in place of the browser's own <select> list (the grey system menu does not follow the look, the dark mode or the dock).
 // A button (the ARIA "select-only combobox") opens a listbox in the top layer, so it is never clipped by a card or a dialog.
 // Keyboard: ↓ ↑ Enter Space open; inside: ↑ ↓ Home End move, Enter / Space choose, Esc closes, typing jumps to a match, Tab closes.

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Backup file download shared by Settings and the Home reminder; remembers when it last happened.
 
 import { h } from './dom.js';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Shows a quote in a <figure class="quote"> (with <blockquote class="q-text"> and <figcaption class="q-by">), or hides the figure when quotes are off for that place.
 
 import { getLocale } from '../shared/i18n.js';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Full end-to-end run:  node scripts-dev/e2e/e2e.cjs     (EXT=dist/chrome to test the packaged build)
 const { launch } = require('./lib.cjs');
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));

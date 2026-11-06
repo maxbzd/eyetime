@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // A pretend browser for the tests of the service worker: the parts of the `chrome.*` API that EyeTime's worker uses, with the behaviour that matters
 // (storage that notifies, alarms that can be fired, tabs and windows that can be set up, events that can be raised) and nothing else.
 //   import { installFakeChrome } from './helpers/fake-chrome.mjs';

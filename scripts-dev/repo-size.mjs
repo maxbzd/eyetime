@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Where the weight of the repository's history is, by group, and the biggest files ever committed.  Reads only; changes nothing.
 //   node scripts-dev/repo-size.mjs
 import cp from 'node:child_process';

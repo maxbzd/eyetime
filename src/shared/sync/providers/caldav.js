@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // CalDAV (RFC 4791): Apple iCloud, Fastmail, Nextcloud, Radicale, Synology, Yandex and the many others that speak it. Two things from one connection:
 //   • a task list (VTODO: the "Reminders" of iCloud, the tasks of Nextcloud or Fastmail)  ⇄ EyeTime's tasks
 //   • a calendar (VEVENT): its events become busy times for the planner; the focus blocks EyeTime plans become events in it (and a block moved there moves the task)

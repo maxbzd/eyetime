@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Blocking scenarios that real browsing produces but a simple test misses: a second window, same-page (SPA) navigation,
 // the service worker being stopped and woken by the browser, a session that ended while the browser was closed.
 //   node scripts-dev/e2e/blocking.cjs

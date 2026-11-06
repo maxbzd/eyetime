@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 /* Blocking in depth: limits (time, opens, cooldown), categories and keywords, the four levels of strictness, what stands in the way of leaving
    (hold, wait, type, math, a friend's PIN), protection against going around it, and automation. Panes of the Rules screen. */
 (() => {

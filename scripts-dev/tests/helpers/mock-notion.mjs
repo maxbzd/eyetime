@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // A small Notion for the adapter's tests: databases, pages and the properties the adapter reads and writes.
 export function mockNotion({ token = 'ntn_secret', dbId = 'a'.repeat(32), titleProp = 'Name', doneProp = 'Done', dueProp = 'Due', status = false } = {}) {
   const state = { pages: new Map(), seq: 0, calls: [], tick: 1, failNext: null, pageSize: 100 };

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The page that stands in for a closed one. It opens the original again as soon as the block is over.
 const q = new URLSearchParams(location.search);
 const url = q.get('u') || '', why = q.get('w') || 'site', rule = q.get('r') || '', word = q.get('k') || '';

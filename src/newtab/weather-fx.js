@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Rain and snow over the background, only when the person asked for it and the weather where they are says so.
 // Rain is "rain on glass": beads of water on a pane that show the photo upside down (like real drops), a few of them run down and leave a wet line.
 // Snow is soft flakes at three depths. Everything is drawn on one canvas behind the page; it stops when the tab is hidden and stays still for reduced motion.

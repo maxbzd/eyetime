@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The editor's helpers: the first-run guide, the strip for the selected block (exact numbers, alignment, layers, duplicate), shortcuts and the help panel.
 //   node scripts-dev/e2e/inspector.cjs
 const fs = require('fs');

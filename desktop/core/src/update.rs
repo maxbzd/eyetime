@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! Updates: how a new version is recognised, and what the window is told about it. No network in here, only decisions.
 //! The releases are the ones of the project's GitHub page: a tag "desktop-v0.2.0" with the installer attached.
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Side panels of the Home editor for what is behind and around the blocks: the scene ("Background": scenery, photo and its cut-out, depth)
 // and the look ("Look": the look gallery, accent, clock format, greeting). They use the same controls as the customize drawer.
 

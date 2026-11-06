@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Synthwave — a neon horizon. A striped sun, mountains with a magenta rim, and a grid that rolls toward you; a pastel sunrise version in light looks.
 
 import { text, rect, ellipse, group, full, grad, radial, customWidget } from '../kit.js';

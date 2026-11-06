@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The background of Home: a bundled wallpaper, the person's own photo (with its cut-out and depth), a scene, a gradient or a colour; the credit of the wallpaper of the day;
 // rain and snow over it. Everything here reads `state.settings` and paints on the page, nothing else.
 

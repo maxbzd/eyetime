@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Ready themes in the customize drawer: eight pictures, one tap applies everything, the toast undoes it, Surprise me works, and the person's own data stays.
 //   node scripts-dev/e2e/starters.cjs
 const { launch } = require('./lib.cjs');

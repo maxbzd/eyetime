@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The state and the actions of one focus control: what is chosen (the draft), what is running, what the storage says, and the things a click does.
 // The views (idle.js, running.js) only read this and draw; index.js decides which one to show.
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Which layout of Home is on, and the helpers every part of the page shares: reading the settings the way the page should see them (the active
 // layout over the default) and writing to the right place (the layout being edited, else the active one, else the default).
 

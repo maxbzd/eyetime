@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // What the dock needs from the browser: access to web pages (an optional permission, asked only when the person turns the dock on).
 export const DOCK_ORIGINS = ['http://*/*', 'https://*/*'];
 

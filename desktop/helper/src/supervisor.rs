@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! The helper's brain. It owns the session, the PIN, the keys, the grants and the usage; the window can only ask.
 //! Nothing here knows about Windows: it talks to the computer through `Os`, so all of it is tested with a pretend one.
 

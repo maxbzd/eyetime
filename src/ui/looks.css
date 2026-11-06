@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
 /* Character of the looks that are more than a palette: html[data-look="…"] (set by theme-init.js). Colours, radii, fonts and shadows
    come from the theme engine (shared/looks.js); this file adds what tokens cannot: surfaces, controls and type details.
    Everything here reads tokens, so a custom accent, radius or font chosen in Settings still applies. */
@@ -459,9 +461,9 @@ html[data-look="ledger"] .focus-idle:not(.large) .durations .chip[aria-pressed="
 html[data-look="obsidian"][data-scheme="dark"] { --ob-1: #ffb48a; --ob-2: #ff6a3d; --ob-3: #b794ff; --hair: rgba(255, 255, 255, .11); --hair-hi: rgba(255, 255, 255, .34); }
 html[data-look="obsidian"][data-scheme="dark"] .card { position: relative; background: #050506; background-image: none; border-color: var(--hair); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 30px 80px -40px rgba(0, 0, 0, .9); -webkit-backdrop-filter: none; backdrop-filter: none; }
 /* the pointer's light: a faint wash inside the card and a brighter rim near the cursor */
-html[data-look="obsidian"][data-scheme="dark"] .card::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .35s var(--ease);
+html[data-look="obsidian"][data-scheme="dark"] .card::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .359s var(--ease);
   background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 255, 255, .07), transparent 62%); }
-html[data-look="obsidian"][data-scheme="dark"] .card::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1.5px; pointer-events: none; opacity: 0; transition: opacity .35s var(--ease);
+html[data-look="obsidian"][data-scheme="dark"] .card::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1.5px; pointer-events: none; opacity: 0; transition: opacity .352s var(--ease);
   background: radial-gradient(440px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 196, 160, .95), rgba(183, 148, 255, .5) 38%, transparent 72%);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
 html[data-look="obsidian"][data-scheme="dark"] .card:hover::before, html[data-look="obsidian"][data-scheme="dark"] .card:hover::after { opacity: 1; }
@@ -597,7 +599,7 @@ html[data-look="tide"] body[data-layout="canvas"] .greet-block h1 { font-weight:
 :is(html, .lp)[data-look="brutal"] .card { border: 3px solid var(--text); box-shadow: 5px 5px 0 var(--text); -webkit-backdrop-filter: none; backdrop-filter: none; border-radius: var(--r-md) }
 :is(html, .lp)[data-look="brutal"] .clock { font-weight: 800; letter-spacing: -.05em; -webkit-text-stroke: 0; text-shadow: 4px 4px 0 var(--accent) }
 :is(html, .lp)[data-look="brutal"] h1, :is(html, .lp)[data-look="brutal"] h2, :is(html, .lp)[data-look="brutal"] .hero h1, :is(html, .lp)[data-look="brutal"] .kpi .value, :is(html, .lp)[data-look="brutal"] .today-total { font-weight: 800; letter-spacing: -.03em; text-transform: uppercase }
-:is(html, .lp)[data-look="brutal"] .btn { border: 3px solid var(--text); border-radius: var(--r-sm); box-shadow: 3px 3px 0 var(--text); font-weight: 700; text-transform: uppercase; letter-spacing: .02em; transition: transform .08s, box-shadow .08s }
+:is(html, .lp)[data-look="brutal"] .btn { border: 3px solid var(--text); border-radius: var(--r-sm); box-shadow: 3px 3px 0 var(--text); font-weight: 700; text-transform: uppercase; letter-spacing: .02em; transition: transform .086s, box-shadow .081s }
 :is(html, .lp)[data-look="brutal"] .btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--text) }
 :is(html, .lp)[data-look="brutal"] .btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--text) }
 :is(html, .lp)[data-look="brutal"] .btn-primary { background: var(--accent); color: var(--accent-fg) }
@@ -697,7 +699,7 @@ html[data-look="tide"] body[data-layout="canvas"] .greet-block h1 { font-weight:
 :is(html, .lp)[data-look="candy"] .card { border: 2px solid var(--border); box-shadow: 0 8px 0 -2px color-mix(in srgb, var(--accent) 22%, transparent), var(--card-shadow) }
 :is(html, .lp)[data-look="candy"] .clock { font-family: var(--font-display); font-weight: 600; letter-spacing: -.04em; text-shadow: 3px 3px 0 color-mix(in srgb, var(--accent) 35%, transparent) }
 :is(html, .lp)[data-look="candy"] h1, :is(html, .lp)[data-look="candy"] h2, :is(html, .lp)[data-look="candy"] .hero h1, :is(html, .lp)[data-look="candy"] .kpi .value, :is(html, .lp)[data-look="candy"] .today-total { font-family: var(--font-display); font-weight: 700; letter-spacing: -.02em; font-size: .92em }
-:is(html, .lp)[data-look="candy"] .btn { border-radius: var(--r-full); font-weight: 800; border-width: 2px; box-shadow: 0 4px 0 -1px var(--border-strong); transition: transform .12s, box-shadow .12s }
+:is(html, .lp)[data-look="candy"] .btn { border-radius: var(--r-full); font-weight: 800; border-width: 2px; box-shadow: 0 4px 0 -1px var(--border-strong); transition: transform .123s, box-shadow .125s }
 :is(html, .lp)[data-look="candy"] .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 -1px var(--border-strong) }
 :is(html, .lp)[data-look="candy"] .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 -1px var(--border-strong) }
 :is(html, .lp)[data-look="candy"] .btn-primary { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 75%, #fff), var(--accent)); color: var(--accent-fg); box-shadow: 0 4px 0 -1px color-mix(in srgb, var(--accent) 65%, #000) }

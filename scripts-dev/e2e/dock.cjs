@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The dock end to end: turn it on (the test build declares the website permission a real user grants in the browser's prompt), see the tab on a page,
 // open the panel, save the page into a topic, work with topics / links / thoughts, move the tab, hide the dock on a site, turn it off.
 //   node scripts-dev/e2e/dock.cjs

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Widgets about focus and numbers: the running session, the daily goal, the streak, a heat map, best hours, today's sessions, screen time, top sites, the distraction budget, today against yesterday.
 
 import { icon, favicon } from '../ui/dom.js';

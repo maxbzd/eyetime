@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The package that is shipped, not the source: the production build (bundled, minified) is loaded into Chromium and used.
 //   npm run build && EXT=$PWD/dist/chrome node scripts-dev/e2e/dist.cjs
 // The other suites reach into the source tree (`import('/src/shared/storage.js')`), which does not exist in a bundle, so this one only uses what a person or the browser can:

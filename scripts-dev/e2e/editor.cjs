@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The Home arrangement editor end to end: open it from the drawer, drag, resize, move with the keyboard, remove and add a block, undo, reset,
 // see it survive a reload, fall back to the stacked layout on a narrow window, switch back to the look's own layout.
 //   node scripts-dev/e2e/editor.cjs

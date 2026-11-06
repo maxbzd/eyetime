@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Pure aggregation over per-day records. No browser APIs, so everything here is unit-tested.
 //
 // A day record:  { d: {host: sec}, h: {hour: {host: sec}}, a: {app: sec}, fs: focusSec, fc: focusSessions, b: breaks }

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Settings → General → Dock: the edge tab on web pages. Turning it on asks the browser for access to websites (an optional permission, never at install).
 
 import { h, toast } from '../ui/dom.js';

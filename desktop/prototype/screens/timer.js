@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 /* Timer: longer resets with a world of their own (Digital Detox), soundscapes, quick starts and a guided breath. */
 (() => {
   const ET = window.ET, { $, $$, clamp, wait, reduced, toast } = ET;

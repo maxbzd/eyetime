@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Automated accessibility audit (axe-core, WCAG 2.1 A/AA + best practices) over every surface, in a light and a dark look, EN and RU.
 //   npm i --no-save axe-core playwright && node scripts-dev/e2e/a11y.cjs [--strict]
 // Prints violations grouped by rule; exits 1 with --strict when any "serious" or "critical" one remains.

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // A small Todoist (API v1) for the adapter's tests: the same paths, methods and fields the adapter uses, with the same rules (a closed task leaves the active list).
 export function mockTodoist({ token = 'secret-token' } = {}) {
   const state = { tasks: new Map(), done: new Map(), seq: 0, calls: [], projects: [{ id: 'p1', name: 'Inbox' }, { id: 'p2', name: 'Work' }], failNext: null, tick: 1 };

@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
 /* Chart marks. Colours come from tokens: --productive / --neutral / --distracting, --grid, --accent. */
 .chart { --axis-w: 44px; display: flex; flex-direction: column; gap: var(--s-2); }
 .chart .plot { position: relative; height: var(--chart-h, 220px); margin-left: var(--axis-w); }

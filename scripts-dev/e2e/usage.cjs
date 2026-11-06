@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Anonymous usage end to end, in a copy of the build that has a collector address (https://collector.test, answered by the test): counting on the device, the settings
 // group and its preview, the one-time question on Home, switching on and off, the report itself, and the request that makes the collector forget.
 //   node scripts-dev/e2e/usage.cjs

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Save the look of Home as a theme file, or load one. Validation lives in shared/themefile.js: a file is never trusted.
 
 import { h, icon, toast, confirmDialog } from '../ui/dom.js';

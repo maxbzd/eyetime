@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // "Nothing leaves the device unless the person switches it on": the claim of the README and of PRIVACY.md, made checkable.
 //   node scripts-dev/e2e/network.cjs
 // Every request that EyeTime's own pages and its service worker make is recorded while a whole session is played: the pages are opened, a task is added, a focus

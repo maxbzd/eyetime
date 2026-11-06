@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Test helper: launches Chromium with the extension and answers EVERY http(s) request itself (context.route), so youtube.com,
 // github.com … "load" offline — no DNS, no TLS, no HSTS upgrades, no proxy — and the real block/track flows can be exercised.
 // Requires Playwright (npm i -D playwright, or set PLAYWRIGHT_PATH) and Chromium (channel 'chromium').

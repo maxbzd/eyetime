@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildPrompt, parseVerdict, verdictCode, normalizeGuess, guessRules, pickUnknown, GUESS_MAX, GUESS_TTL, GUESS_SYSTEM } from '../../src/shared/siteguess.js';

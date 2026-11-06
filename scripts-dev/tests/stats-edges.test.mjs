@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The numbers of Insights, at their edges. Found by mutation testing (stats.js: only 49 % of changes to the code were noticed by a test): every threshold, every sum,
 // every sort order below is a statement the screens rely on.
 import test from 'node:test';

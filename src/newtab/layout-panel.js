@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The layouts panel of the Home editor: the default plus named layouts that switch on by themselves (during focus, or at certain hours).
 // Choosing "Edit" makes the editor work on that layout; "Show now" pins one until it is unpinned.
 

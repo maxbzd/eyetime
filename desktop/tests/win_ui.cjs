@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Drives the real EyeTime window on Windows (WebView2) through its debugging port, clicks through the screens, takes pictures.
 // Started by smoke.ps1 after it launched eyetime.exe with WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9222.
 const { chromium } = require('playwright');

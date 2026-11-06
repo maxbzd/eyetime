@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Eye breaks and focus sessions in the service worker, against a pretend browser: the notifications, the alarms, what is stored.
 import test, { mock, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';

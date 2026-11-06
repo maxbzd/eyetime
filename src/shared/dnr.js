@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // "Instant" blocking: the same decisions as the blocker, written as rules the BROWSER applies before a request is sent (declarativeNetRequest), so that not even the
 // first request of a page reaches a distracting site (without this one request leaves in the 15–40 ms between the navigation starting and the worker answering).
 //

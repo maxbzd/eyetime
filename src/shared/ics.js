@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Minimal, dependency-free iCalendar (.ics) reader: events for a date window, with the common recurrence rules.
 // Local-only: the file is read in the browser and only { day, start, end, title } of the next two weeks is kept.
 

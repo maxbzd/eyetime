@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Two families of themes on the bundled photographs (shared/frames.js):
 //   Glass     — a big, slightly stretched clock of frosted glass, a row of glass cards under it (goal ring, streak, a Focus pill).
 //   Editorial — a tall hairline clock with the small typography of a poster: today's tasks as numbered lines, a handwritten word, a mark and a Focus countdown.

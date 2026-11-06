@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Planned focus blocks as the sync sees them: a task with a time today or later (`at` + `atDay` + its estimate) is an event in a calendar, and a moved event moves the task.
 // Only events EyeTime made are touched; it never creates a task from an event and never edits an event it did not make.
 

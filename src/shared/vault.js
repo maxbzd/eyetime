@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The vault for the sign-in details of connected services (Todoist and Notion tokens, CalDAV passwords): an optional passphrase that turns them into ciphertext.
 //
 // What it protects, and what it does not (the whole threat model is in SECURITY.md):

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Reads storage and answers "what should happen if the user opens this URL right now?".
 // Used by the service worker (to redirect) and by the block page (to stay in sync / auto-release).
 

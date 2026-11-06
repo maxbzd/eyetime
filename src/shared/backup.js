@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // When Home should gently suggest saving a backup file. Pure.
 
 const DAY = 86_400_000;

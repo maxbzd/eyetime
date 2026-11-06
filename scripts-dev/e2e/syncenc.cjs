@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The passphrase for the synced data, in Settings → Data & privacy → Sync: set it (and see that the cloud holds only ciphertext), "restart the browser" (the key is dropped), meet
 // the locked state, fail and then succeed to unlock, change it, and turn it off (plain copies again). The cloud here is chrome.storage.sync of the test profile.
 //   node scripts-dev/e2e/syncenc.cjs

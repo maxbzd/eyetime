@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // "What pulls you": for each distracting site, when in the day it takes your time and what to do about it.
 // Needs hourly data (days older than 120 days may have lost it), so every claim is made only when enough of the time is covered.
 

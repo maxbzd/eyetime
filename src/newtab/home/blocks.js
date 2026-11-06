@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The blocks of Home: the modules (today, tasks, habits, notes, links), the widgets, and the skin of every card.
 
 import { $, h, clear } from '../../ui/dom.js';

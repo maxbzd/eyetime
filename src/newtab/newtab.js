@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Home (the new tab page): boots the page and keeps it in step with the settings. The parts live in ./home/:
 //   state · hero (clock, date, greeting, quote) · background · blocks (modules, widgets, skins) · parts (the focus line or card) · nudges · drawer (customize + editor)
 //   focus-watch (tab title, focus layout) · layout-watch · shortcuts · palette. This file only decides what to do when the settings change.

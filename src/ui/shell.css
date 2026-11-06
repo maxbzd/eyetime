@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
 /* App shell for full-page surfaces (Insights, Settings): a quiet bar with the mark, one pill of navigation and search. */
 .app-header { position: sticky; top: 0; z-index: 20; background: linear-gradient(180deg, var(--bg) 40%, color-mix(in srgb, var(--bg) 0%, transparent)); }
 .app-header-in { max-width: 1200px; margin: 0 auto; padding: 0 var(--s-8); height: 72px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--s-6); }

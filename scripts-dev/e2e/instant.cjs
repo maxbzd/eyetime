@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Instant blocking in a real browser, against a real server: how many requests reach the distracting site before the pause page is up.
 //   node scripts-dev/e2e/instant.cjs
 // (the other suites answer every request themselves, which hides exactly this: the request that leaves before the extension can say no)

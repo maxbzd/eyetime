@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Settings → General → Unknown sites (experimental): turn on the on-device model for sites that are in no list; shows whether this browser can run it.
 
 import { h, icon } from '../ui/dom.js';

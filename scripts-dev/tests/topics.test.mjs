@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sanitizeTopics, cleanUrl, newTopic, ensureInbox, addLink, updateLink, removeLink, removeTopic, moveLink, progress, topicSeconds, topicsToMarkdown, INBOX_ID, MAX_LINKS } from '../../src/shared/topics.js';

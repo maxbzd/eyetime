@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Instant blocking in the worker: when the browser's rules are put in place, when they are taken away, and that the tab blocker still catches what the rules did not.
 import test, { mock, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';

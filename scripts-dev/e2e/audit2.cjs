@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Exhaustive visual audit: every surface × state × width, for one "context" (profile + language + look).
 //   node scripts-dev/e2e/audit2.cjs <outDir> <ctx>
 //   ctx: fresh-en-light | fresh-ru-dark | data-en-light | data-ru-dark | stress-en-light | stress-ru-dark-125

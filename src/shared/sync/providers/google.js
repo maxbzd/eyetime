@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Google: Calendar (busy times in, planned focus blocks out) and Tasks (a task list), through the person's own Google sign-in.
 // Needs the OAuth client of EyeTime (oauth-config.js, docs/CONNECTIONS.md); without it this connection says it is not available in this build.
 //

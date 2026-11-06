@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Shared bits of the Home modules: the card frame, the calm empty state, ids.
 
 import { h, icon } from '../ui/dom.js';

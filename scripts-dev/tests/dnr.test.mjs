@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // "Instant" blocking: the rules for the browser must never send a page to the block page when the blocker would let it through (soundness: otherwise the block page
 // sends the person back to the site and the rule sends them to the block page again), and must say the same thing as the blocker for the sites that are in a list.
 import test from 'node:test';

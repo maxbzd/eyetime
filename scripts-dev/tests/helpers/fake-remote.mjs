@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // An in-memory service and an in-memory device, to run the real synchronisation against.
 import { SyncError } from '../../../src/shared/sync/run.js';
 

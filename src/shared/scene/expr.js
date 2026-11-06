@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The expression language of scenes (pure). A scene is DATA: its numbers, colours and texts may be small formulas such as
 //   sin(t * 0.5) * 20      mixc("#10142a", "#ffb37a", dayFrac)      focus > 0.5 ? 1 : 0.3      "{pad(hour, 2)}:{pad(minute, 2)}"
 // They are parsed here and run by closures — never by eval or `new Function`. The language is deliberately small and cannot loop,

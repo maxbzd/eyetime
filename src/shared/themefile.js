@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // A theme file: the look of Home (and the appearance options) as one small JSON file to keep or share (pure).
 // What goes in: the appearance options, the Home settings (arrangement, widgets, type, background, depth …), the other layouts, and — only if the
 // person asks — their background photo and its cut-out. What never goes in: tasks, history, links, any data about the person.

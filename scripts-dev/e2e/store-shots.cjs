@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The Chrome Web Store screenshots: five scenes, 1280×800 exactly (the store refuses any other size), in each of the eleven languages, as JPEG without transparency.
 //   node scripts-dev/e2e/store-shots.cjs [en ru es de fr pt it pl uk zh ja]
 // Output: store/screenshots/<lang>/{1-home,2-focus,3-insights,4-pause,5-looks}.jpg — the same story in every language, with sample data in that language (seed.cjs):

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Settings → Appearance: looks gallery, colour mode, accent, type, shape, density, custom CSS, share/import/reset.
 
 import { h, icon, toast, confirmDialog } from '../ui/dom.js';

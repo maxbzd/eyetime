@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The day as one story on Home (Today): the morning card, the quiet line while working, a session never interrupted by a card, the evening card, the closed day, "not today", "in an hour".
 // Time is fixed with the browser's clock so the parts of the day are the same on every run.
 //   node scripts-dev/e2e/ritual.cjs

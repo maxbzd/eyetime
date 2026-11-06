@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Calendar subscriptions: downloads the user's own .ics addresses (up to three; Settings → Data & privacy) every hour and keeps the events
 // of the next two weeks locally. An address is a secret, so it lives in `calendarSubs` (local storage only: never synced, never in a backup).
 // Nothing else is contacted and nothing is sent: a plain GET with no cookies, to that one site, no redirects followed.

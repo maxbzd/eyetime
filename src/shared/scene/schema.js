@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Scenes and scene widgets as data (pure): what a theme author may write, and the validation that every file passes before anything is drawn.
 // Nothing here is trusted: unknown node types and properties are dropped, numbers are clamped, formulas must parse and may only read the names the
 // engine provides, and the size of everything is capped. A damaged or hostile file turns into a smaller, harmless scene — never into an error.

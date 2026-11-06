@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The settings fields of the newer widgets, as data (the older ones are written out in widget-panel.js). Each field: { key, type, label, … }.
 //   choice: options [values]; labels come from t('wg.v.' + value) unless `labels` says otherwise · toggle · number: min, max · text: max · zone
 import { t } from '../shared/i18n.js';

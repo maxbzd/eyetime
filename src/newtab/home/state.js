@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // What the parts of the Home page share. They read and write it through `state`, never through each other, so no module has to import the one that boots the page.
 
 import { canvasActive } from '../canvas.js';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // "Instant" blocking: keeps the browser's own request rules (declarativeNetRequest) equal to what the blocker would decide, so a distracting page is sent to the pause page
 // before a single request is made. The rules are built by shared/dnr.js (pure, tested); this file is the glue: when to rebuild, and how to put them in place.
 //

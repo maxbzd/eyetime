@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
 dialog.palette { border: 1px solid var(--border-strong); border-radius: var(--r-xl); background: var(--surface); color: var(--text); padding: 0; width: min(640px, calc(100vw - 32px)); max-height: min(560px, 80vh); box-shadow: var(--shadow-3, 0 24px 80px rgba(0,0,0,.28)); margin: 12vh auto auto; overflow: hidden; }
 dialog.palette[open] { display: flex; flex-direction: column; animation: pal-in var(--t-med) var(--ease); }
 dialog.palette::backdrop { background: color-mix(in srgb, #000 38%, transparent); backdrop-filter: blur(3px); }
