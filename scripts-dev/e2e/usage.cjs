@@ -97,17 +97,22 @@ const { launch } = require('./lib.cjs');
   // 6. the one-time question on Home (it only speaks when the day-loop nudge has nothing to say: no open tasks here)
   await o.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.setCollection('tasks', []); await chrome.storage.local.remove('usageShare'); const { usage } = await chrome.storage.local.get('usage'); usage.total.focus_done = 1; usage.days = [0, 1]; await chrome.storage.local.set({ usage }); });
   await home.reload(); await home.waitForTimeout(2200);
-  const ask = home.locator('#nudge:not([hidden])');
-  ok(await ask.count() === 1 && /anonymous usage numbers/.test(await ask.innerText()), 'the question is on Home after a finished session and a second day: ' + (await home.locator('#nudge').innerText()));
-  ok(await ask.getByRole('link', { name: 'What is sent' }).count() === 1, 'with a way to read what is sent');
-  await ask.getByRole('button', { name: 'No thanks' }).click(); await home.waitForTimeout(500);
+  const ask = home.locator('#usageAsk');
+  ok(await ask.count() === 1 && /small favour/.test(await ask.innerText()), 'the question is on Home after a finished session and a second day: ' + (await ask.innerText()).slice(0, 60));
+  ok(/Never sold/.test(await ask.innerText()) && /Never used for money/.test(await ask.innerText()) && /Nothing personal/.test(await ask.innerText()), 'it says in plain words that nothing is sold, nothing is used for money, nothing is personal');
+  ok(await home.locator('#nudge:not([hidden])').count() === 0, 'and it is a card of its own, not the nudge strip');
+  await ask.getByRole('button', { name: /Show exactly what is sent/ }).click(); await home.waitForTimeout(400);
+  const shownText = await ask.locator('.ask-preview').innerText();
+  ok(/"v": 1/.test(shownText) && !/private|youtube|bank/i.test(shownText), 'one click shows the exact report');
+  await ask.getByRole('button', { name: 'No, thanks' }).click(); await home.waitForTimeout(600);
+  ok(await home.locator('#usageAsk').count() === 0, 'a "no" closes it');
   await home.reload(); await home.waitForTimeout(2200);
-  ok(await home.locator('#nudge:not([hidden])').count() === 0 || !/anonymous usage/.test(await home.locator('#nudge').innerText()), 'after "No thanks" it does not come back');
+  ok(await home.locator('#usageAsk').count() === 0, 'after "No, thanks" it does not come back');
   ok((await get('usageShare')).askedAt > 0 && (await get('usageShare')).on === false, 'and nothing is on');
   await o.evaluate(async () => { await chrome.storage.local.remove('usageShare'); });
   await home.reload(); await home.waitForTimeout(2200);
-  await home.locator('#nudge').getByRole('button', { name: 'Share' }).click(); await home.waitForTimeout(800);
-  ok((await get('usageShare')).on === true, '"Share" switches it on');
+  await home.locator('#usageAsk').getByRole('button', { name: "Yes, I'll help" }).click(); await home.waitForTimeout(800);
+  ok((await get('usageShare')).on === true, '"Yes" switches it on');
 
   // 7. delete-all ends it, with a request to forget
   const before = hits.length;
