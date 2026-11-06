@@ -55,7 +55,7 @@ export function makeDemoSnapshot(now, { installs: count = 520, seed = 11 } = {})
       look: weighted(r, [['calm', 46], ['obsidian', 12], ['void', 8], ['noir', 6], ['pearl', 5], ['paper', 5], ['midnight', 5], ['terminal', 4], ['sakura', 3], ['aurora', 3], ['nord', 3]]),
       layout: weighted(r, [['today', 62], ['center', 22], ['canvas', 10], ['minimal', 6]]), mode: weighted(r, [['auto', 48], ['dark', 34], ['light', 18]]), age, act: acts,
     });
-    // first uses and the weekly counters of the last four weeks
+    // first uses and the weekly counters of the last thirteen weeks
     const heavy = kind === 'daily' ? 1 : kind === 'casual' ? 0 : -1; // -1: leaves
     const usesEarly = kind === 'leaves';
     const intensity = (/** @type {string} */ f) => (heavy < 0 ? RATE[/** @type {keyof typeof RATE} */ (f)][0] * 0.6 : RATE[/** @type {keyof typeof RATE} */ (f)][heavy]);
@@ -69,7 +69,7 @@ export function makeDemoSnapshot(now, { installs: count = 520, seed = 11 } = {})
     }
     if (r() < 0.88) out.firsts.push({ id, feature: 'onboarding_done', age: 0 });
     const weekNow = Math.floor(now / WEEK);
-    for (let w = 0; w < 4; w++) {
+    for (let w = 0; w < 13; w++) {
       const from = Math.floor(lastReport / DAY) - age, activeThisWeek = acts.filter((a) => Math.floor((day0 + a) / 7) === weekNow - w).length;
       if (!activeThisWeek || from > today) continue;
       const row = (/** @type {string} */ f, /** @type {number} */ v) => { const k = Math.max(0, Math.round(v * (0.7 + r() * 0.6))); if (k) out.weeks.push({ id, week: weekNow - w, feature: f, n: k }); };

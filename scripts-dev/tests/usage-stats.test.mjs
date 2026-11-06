@@ -217,3 +217,57 @@ test('collector: the dashboard numbers answer for a period, and a malformed one 
   assert.equal((await get('?days=0')).status, 400);
   assert.equal((await get('?days=28', 'Bearer wrong')).status, 401, 'the secret is checked before the period');
 });
+
+test('stats v2: who came, stayed, came back and left, week by week', () => {
+  const l = snapOf([
+    inst('N', 2, 2, [0, 1, 2]),          // made this week
+    inst('R', 30, 27, [0, 20, 27]),      // active last week and this week
+    inst('Z', 40, 35, [0, 35]),          // quiet for a month, back this week
+    inst('C', 30, 20, [0, 20]),          // active last week, not this week
+  ]);
+  const s = computeStats(l, NOW, { recentDays: 28 });
+  const last = s.lifecycle.at(-1), before = s.lifecycle.at(-2);
+  assert.deepEqual([last.new, last.retained, last.resurrected, last.churned, last.quick_ratio], [1, 1, 1, 1, 2]);
+  assert.deepEqual([before.new, before.retained, before.resurrected, before.churned, before.quick_ratio], [0, 0, 2, 0, null], 'no churn, so no ratio');
+  assert.ok(last.partial);
+  // 28 fully reported days (ending a week ago): R and C were active on two of them
+  assert.equal(s.engagement.mau, 2); assert.equal(s.engagement.avg_active_days, 2); assert.ok(Math.abs(s.engagement.dau_mau - 4 / 56) < 1e-9);
+  assert.equal(s.engagement.depth.find((d) => d.id === 'd2').k, 2); assert.equal(s.engagement.dau.length, 35); assert.ok(s.engagement.dau.slice(28).every((d) => d.partial));
+});
+
+test('stats v2: what the people who stayed did in their first week', () => {
+  const installs = [], firsts = [];
+  for (let n = 0; n < 80; n++) {
+    const did = n < 40, back = did ? n < 30 : n < 50;                  // 30 of 40 who used it came back; 10 of 40 who did not
+    installs.push(inst('p' + n, 30, 29, back ? [0, 8] : [0]));
+    if (did) firsts.push({ id: 'p' + n, feature: 'focus_done', age: 2 });
+  }
+  const f = computeStats(snapOf(installs, firsts), NOW).aha.find((x) => x.id === 'focus_done');
+  assert.deepEqual([f.did.k, f.did.n, f.not.k, f.not.n], [30, 40, 10, 40]);
+  assert.ok(Math.abs(f.lift - 0.5) < 1e-9); assert.ok(f.reliable);
+  const small = computeStats(snapOf(installs.slice(0, 20), firsts.slice(0, 20)), NOW).aha.find((x) => x.id === 'focus_done');
+  assert.ok(!small || !small.reliable, 'a few installs do not make a finding');
+});
+
+test('stats v2: counters by week, releases, segments and filters', () => {
+  const two = snapOf([inst('A', 30, 29, [0, 1, 2, 8, 9, 15, 22, 29], { app: '3.9.0' }), inst('B', 30, 3, [0, 1], { br: 'firefox' }), inst('C', 10, 10, [0, 3, 7, 9])],
+    [], [{ id: 'A', week: WEEKN, feature: 'focus_start', n: 5 }, { id: 'C', week: WEEKN, feature: 'focus_start', n: 1 }, { id: 'A', week: WEEKN - 1, feature: 'focus_start', n: 2 }, { id: 'A', week: WEEKN, feature: 'focus_done', n: 4 }]);
+  const s = computeStats(two, NOW, { recentDays: 28 });
+  assert.equal(s.trends.weeks.length, s.trends.uses.focus_start.length); assert.equal(s.trends.uses.focus_start.at(-1), 6); assert.equal(s.trends.users.focus_start.at(-1), 2); assert.equal(s.trends.uses.focus_start.at(-2), 2);
+  assert.equal(s.releases.latest, '3.9.0'); assert.deepEqual([s.releases.on_latest.k, s.releases.on_latest.n], [1, 3]);
+  const v = s.releases.versions.find((x) => x.value === '3.9.0'); assert.equal(v.installs, 1); assert.ok(v.latest); assert.ok(Math.abs(v.finish_rate - 4 / 7) < 1e-9, 'A started 5 + 2 and finished 4');
+  assert.deepEqual(s.segments.br.map((x) => [x.value, x.installs]), [['chrome', 2], ['firefox', 1]]);
+  assert.deepEqual(s.facets.br.map((x) => [x.value, x.k]), [['chrome', 2], ['firefox', 1]]);
+  // narrowed to Firefox, everything is about B alone, while the choices to narrow by stay what they were
+  const ff = computeStats(two, NOW, { recentDays: 28, filter: { br: 'firefox' } });
+  assert.equal(ff.overview.installs, 1); assert.deepEqual(ff.filter, { br: 'firefox' }); assert.deepEqual(ff.facets.br.map((x) => x.k), [2, 1]); assert.equal(ff.prev.installs_active, 1, 'the period before is narrowed too: B was active then');
+  assert.equal(computeStats(two, NOW, { filter: { br: 'safari' } }).overview.installs, 0, 'a value nobody has gives an empty, not an error');
+});
+
+test('collector: the narrowing of the dashboard is read strictly', () => {
+  const q = (s) => parsePeriod(new URL('https://x.test/v1/stats' + s));
+  assert.deepEqual(q('?days=28&br=chrome&lang=ru'), { recentDays: 28, filter: { br: 'chrome', lang: 'ru' } });
+  assert.deepEqual(q('?br=edge'), { filter: { br: 'edge' } });
+  for (const bad of ['?br=Chrome!', '?lang=', '?os=' + 'x'.repeat(30), '?app=3.8.1;drop']) assert.equal(q(bad), null, bad);
+  assert.deepEqual(q('?app=3.8.1'), { filter: { app: '3.8.1' } });
+});

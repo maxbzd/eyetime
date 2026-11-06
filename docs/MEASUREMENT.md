@@ -43,6 +43,10 @@ The queries in `queries.sql` are the quick ones for a console. **The dashboard i
 
 - **People who left count as not retained.** A window (D1, D7, D30, a cohort week) is counted for an install only when the calendar says the window is over and a week more has passed for the weekly report to arrive (installed at least `window + 7` days ago). Never because the install happened to keep reporting: that would drop everyone who left and flatter every figure.
 - **The period scopes everything.** *Active* = a day of activity or the last report in it; the weekly counters are rounded outward to whole weeks (they are stored by week); the funnel, activation and retention follow the installs **made in the period** for as long as they have been around; the weekly chart and the cohort table always end at the end of the period (12 weeks at least, 26 at most). Default 90 days, so that the 30-day return of people who came in the period can be seen; a 7- or 28-day period has no D30 yet and says so.
+- **Stayed, returned, lapsed.** A week's active installs are split into *new* (made that week), *stayed* (active the week before too), *returned* (quiet for a week or more, back now) and *lapsed* (active the week before, not now); quick ratio = (new + returned) ÷ lapsed. The last two weeks are marked incomplete (reports arrive weekly), so lapsing is overstated there.
+- **DAU / MAU** is measured on 28 days that have been fully reported (ending a week ago), as the average number active per day ÷ the number active in the 28 days.
+- **First-week habits** compare coming back in week 2 between people who used something in their first week and people who did not, among installs three weeks old. A link, not a cause; a group under 30 is shown but marked *not a finding*, and the unreliable rows sort last.
+- **Segments** show, for each value of a setting (the six biggest, the rest as *other*), the active installs, return in week 2, a first session within a week, finish rate, active days of 28 and errors per 1000. Best and worst are marked only among segments of at least 30 installs.
 - **Every figure is `k of n`**, and one that rests on fewer than 50 installs (30 sessions, 100 tab opens) is dimmed and hatched. A feature is a *candidate to cut* only with at least 50 active installs and under 5 % of them using it.
 - **Comparison.** Against the period of the same length right before (not for *all time*, and not when it would end before the first install). Rates are compared in percentage points, counts in percent, and nothing is compared when either side is a small sample.
 
@@ -50,12 +54,43 @@ The queries in `queries.sql` are the quick ones for a console. **The dashboard i
 
 `server/usage/dashboard.html`, served by the collector at `/` and drawn from `GET /v1/stats` (behind the secret `DASH_TOKEN`). One file, no library, nothing requested except its own origin; Russian and English, light and dark, usable on a phone and by keyboard.
 
-- **Period** (one row above everything): 7 / 28 / 90 days, all time, or any two dates; the period is in the address, so a link opens the same view. **Compare with the previous period** is on by default.
-- **At a glance**, then *what stands out* (rules written in plain words: the sharpest drop of the funnel, early stops, features nobody uses, the place most errors come from), growth by week, the new person's path, retention with the cohort heat-map, what is used (by group, with the uses and who tried it), sessions, blocking, speed, health, setup and what people keep on, and a short *how to read this*.
-- **Every section says which question it answers and which decision it feeds**, and which people it counts (active in the period, installs of the period, weeks of the period).
-- **Export** (the same menu on the public view): *CSV* of every figure (long format `section,id,metric,label,value,k,n`, a BOM for Excel, labels in the language of the page, cells that start like a formula are neutralised), *JSON* (the collector's full answer), a *Markdown report* (file, or copied) and *print / PDF*. File names carry the period.
+**Nine pages**, in a side navigation (tabs on a phone) that follows the address (`#growth`, `#retention`, …); a dot beside a page means something on it needs a look:
+
+| Page | Answers | What is on it |
+|---|---|---|
+| Overview | How is the product doing? | the figures that matter, a *product health* scorecard (green / amber / red against our own targets), what stands out in plain words with a link to the page, weekly active |
+| Growth | Who comes, stays, returns, leaves? | weekly active, **lifecycle** (new / stayed / returned / lapsed and the *quick ratio*), new installs by week, active per day |
+| Activation | Does a new person reach a first finished session? | the funnel, *when* the first session starts, the welcome, and the **first-week habits** table (what the people who stayed did that the others did not) |
+| Retention | Do people come back, and how deeply? | D1 / D7 / D30, the **retention curve**, the cohort heat-map, **engagement**: days active of 28, DAU / MAU |
+| Audience | Who are they? | the setup distributions, and the **segment comparison** (the same figures for each language, browser, system, version, look, layout, mode), what people keep switched on |
+| Features | What is alive? | every feature with its share, uses and a weekly trend line; a click opens the feature: trend, uses by week, ever tried, time to first use, link with coming back |
+| Sessions & blocking | Do sessions reach the end, why are pages stopped, are breaks taken? | length, weekly trends, reasons, continue rate, eye breaks |
+| Quality | Fast, healthy, up to date? | new-tab speed and its weekly trend, errors by place and per 1000, **versions in use** with finish rate and errors per version |
+| Method | How is each figure counted? | a glossary of every figure and how to read it |
+
+- **Period** (one row above everything): 7 / 28 / 90 days, all time, or any two dates; **filters** narrow the whole dashboard to a segment (version, browser, system, language, look, layout, mode), and the comparison with the previous period is narrowed the same way. Period and filters are in the address, so a link opens the same view. **Compare with the previous period** is on by default.
+- **Export** (the same menu on the public view): *CSV* of every figure of every page (long format `section,id,metric,label,value,k,n`, a BOM for Excel, labels in the language of the page, cells that start like a formula are neutralised), *JSON* (the collector's full answer), a *Markdown report* (file, or copied) and *print / PDF*. File names carry the period.
+- **Every page says which question it answers and which people it counts** (active in the period, installs of the period, weeks of the period).
 - **Public statistics**: with `PUBLIC_STATS=1` the collector also answers `GET /v1/public-stats`, and `/?public` shows it: only totals over at least 50 installs, small categories folded into "other", no cohorts, errors or versions. Below 50 it says it is still collecting.
-- **Look at it before there is data**: `node scripts-dev/dashboard-preview.mjs` serves the real handler with a made-up population of 500 installs (`/?demo`); nothing leaves the machine.
+- **Look at it before there is data**: `node scripts-dev/dashboard-preview.mjs` serves the real handler with a made-up population of 500 installs (`/?demo`); `node scripts-dev/dashboard-demo.mjs out.html` makes one self-contained file of it (the formulas run in the browser).
+
+### Scorecard targets (ours, not an industry standard)
+
+| Figure | Green | Amber |
+|---|---|---|
+| New tab: 9 of 10 opens under | ≤ 500 ms | ≤ 1000 ms |
+| Sessions finished | ≥ 70 % | ≥ 50 % |
+| Stopped in the first 5 minutes | ≤ 10 % | ≤ 20 % |
+| Installs with an error | ≤ 5 % | ≤ 10 % |
+| Quick ratio, last full week | ≥ 1 | ≥ 0.8 |
+| People on the newest version | ≥ 80 % | ≥ 50 % |
+| DAU / MAU | ≥ 20 % | ≥ 10 % |
+
+A row with too little data (under 50 installs, 30 sessions, 100 tab opens) shows *low data* and is neither green nor red. Change the numbers in `scorecard()` in the page once real figures say what is normal here.
+
+### What the dashboard does not cover
+
+The numbers come from **the browser extension only**. The Windows app (`desktop/`) sends nothing: its only network use is the update check. Reporting from it would need its own opt-in, its own list of counters (blocks by kind, programs closed, unlock attempts, service restarts) and a decision about the promise made to the people who pay for it; see the end of this page. Nothing outside the app is measured either (the site, the store page, downloads): the Chrome Web Store dashboard and the GitHub release counts already answer *how many came*, and this dashboard answers *what they did*.
 
 ## Targets for the first quarter
 
@@ -83,3 +118,12 @@ Targets are a way to notice, not a verdict. They are proposals to replace with t
 4. Firefox: the manifest already declares the data as an optional permission (`technicalAndInteraction`); the extension asks for it when the person switches sharing on.
 5. `PRIVACY.md` and the site's privacy page already describe it. Keep them in step with `usage-schema.js`: a unit test fails when a field exists in one and not the other.
 6. **Wording elsewhere that says "no analytics"** is true while the address is empty and stops being exact once it is filled in. Change it in the same release: `store/listing/*.md` (line 34 of each language: "No account. No servers. No analytics."), the line in `site/index.html`, `README.md` / `README_RU.md` if they say it, and the store screenshots' captions if any do. Say what is true: *"No account, no ads, nothing leaves your device unless you switch it on. The one optional thing is anonymous usage numbers, which you can read before they are sent."*
+
+## The Windows app (not measured yet, and it is the owner's call)
+
+Today the Windows app sends nothing but an update check to GitHub. Measuring it is possible with the same design, but it changes a promise made to the people who will pay for it, so it is a decision before it is code:
+
+- **Same rules**: off by default, an ask after the first useful result, the exact report shown before it is sent, a random identifier that is not derived from the machine, counters from fixed lists, no program names, no site names, no paths, no window titles, a "forget me" request.
+- **What would be counted** (proposal): blocks by kind (site, program, schedule, session, limit), how often the unlock challenge is shown and how it ends (waited, gave up, used the emergency key), sessions started and finished, service restarts and crashes, update check results, the Windows version family. Nothing about *which* program or site.
+- **Where it would live**: a `product` field in the report (`ext` | `win`), a filter on the dashboard, and its own list of counters; the Rust side builds and validates the report from a shared list, the collector accepts both.
+- **What it needs from the owner**: a yes, and the wording of the disclosure in the installer and on the site, because "the app that closes things never phones home" is a strong sentence that this would replace with "unless you allow anonymous counters".
