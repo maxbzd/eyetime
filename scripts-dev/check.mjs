@@ -53,6 +53,18 @@ for (const f of ['tests', 'extension']) (function w(d) { if (!fs.existsSync(d)) 
   if (/\son[a-z]+\s*=\s*["']/i.test(home)) fail('desktop/prototype/home.html has an inline event handler');
 }
 
+// 1d) `import.meta.url` is the address of the *bundle* in the production build, not of the file that says it: only the workers of the on-device models (shipped as they are) may use it
+for (const p of files.filter((f) => f.endsWith('.js') && f.includes(`${path.sep}src${path.sep}`) && !f.includes(`${path.sep}ml${path.sep}`))) {
+  if (/import\.meta\.url/.test(fs.readFileSync(p, 'utf8').replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, ''))) fail(`${rel(p)} uses import.meta.url, which means something else in the production build: use chrome.runtime.getURL('src/...')`);
+}
+
+// 1e) every GitHub Action is pinned to the commit it was reviewed at (a tag such as @v5 can be moved by whoever controls that repository)
+for (const f of fs.readdirSync(path.join(root, '.github/workflows')).filter((n) => n.endsWith('.yml'))) {
+  for (const m of fs.readFileSync(path.join(root, '.github/workflows', f), 'utf8').matchAll(/^\s*(?:-\s*)?uses:\s*([^\s#]+)/gm)) {
+    if (!/@[0-9a-f]{40}$/.test(m[1]) && !m[1].startsWith('./')) fail(`.github/workflows/${f}: ${m[1]} is not pinned to a commit (use the 40-character SHA, with the version in a comment)`);
+  }
+}
+
 // 2) manifest references
 const m = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
 const refs = [m.background?.service_worker, m.chrome_url_overrides?.newtab, m.action?.default_popup, m.options_page,

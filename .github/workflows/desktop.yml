@@ -22,10 +22,10 @@ jobs:
   logic:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       # the compiler named in desktop/rust-toolchain.toml (not "whatever is stable today")
       - run: rustup toolchain install && rustup target add x86_64-pc-windows-gnu
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
         with: { workspaces: desktop }
       - run: cargo fmt --all --check
       - name: Clippy (a warning is an error), for this machine and for Windows
@@ -58,9 +58,9 @@ jobs:
     runs-on: windows-latest
     needs: logic
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - run: rustup toolchain install
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
         with: { workspaces: desktop }
       - name: Build the helper and the window
         run: cargo build --locked --release -p eyetime-helper -p eyetime
@@ -79,12 +79,12 @@ jobs:
       - name: Try it for real (install, service, hosts file, window, uninstall)
         shell: pwsh
         run: ./tests/smoke.ps1 -Setup (Resolve-Path EyeTime-Setup.exe).Path -Out smoke-out
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         if: always()
         with:
           name: eyetime-smoke
           path: desktop/smoke-out
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: eyetime-windows
           path: |

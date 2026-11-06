@@ -42,5 +42,7 @@ test('e2e runner: CI runs the suites through the runner', async () => {
   const { readFileSync } = await import('node:fs');
   const ci = readFileSync(join(HERE, '../../.github/workflows/ci.yml'), 'utf8');
   assert.match(ci, /scripts-dev\/e2e\/run\.mjs/);
-  assert.ok(!/node scripts-dev\/e2e\/[a-z0-9-]+\.cjs/.test(ci), 'no suite is run by hand: it would be missing from the shards');
+  // dist.cjs is not a suite of the shards: it needs the built package (suites.json lists it under "tools"), and the `package` job runs it
+  const byHand = [...ci.matchAll(/node scripts-dev\/e2e\/([a-z0-9-]+)\.cjs/g)].map((m) => m[1]).filter((n) => n !== 'dist');
+  assert.deepEqual(byHand, [], 'no suite is run by hand: it would be missing from the shards');
 });
