@@ -6,7 +6,7 @@ so this page says how to report one, what is in scope, what we defend against (a
 ## Reporting a vulnerability
 
 **Do not open a public issue.** Use GitHub's private reporting: *Security → Report a vulnerability* in this repository
-(<https://github.com/maxbzd/eyetime/security/advisories/new>). Say what you found, how to repeat it, and what you think it allows.
+(<https://github.com/maxbzd/eyetime/security/advisories/new>), or write privately to <maxbzd1600@gmail.com> or Telegram [@maxbzd](https://t.me/maxbzd) (a direct message, not a group). Say what you found, how to repeat it, and what you think it allows.
 
 What to expect: an answer within **7 days**, a fix or a clear plan within **30 days** for anything that lets a program or a web page do something the person did not
 allow, and credit in the release notes if you want it. Please give us the time to ship a fix before you publish.

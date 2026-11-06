@@ -166,3 +166,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the architecture tour, adding a langu
 ## License
 
 [MIT](LICENSE). Fonts: Inter (SIL OFL 1.1). Icons: Lucide (ISC). Both are bundled locally — EyeTime loads nothing from the internet.
+
+## Contact
+
+Questions, ideas, problems: [issues](https://github.com/maxbzd/eyetime/issues), <maxbzd1600@gmail.com> or Telegram [@maxbzd](https://t.me/maxbzd). A vulnerability: see [SECURITY.md](SECURITY.md).
