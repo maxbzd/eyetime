@@ -67,17 +67,15 @@ footer a { color: var(--muted); }
   <header>
     <p class="eyebrow">EyeTime · пробы звука</p>
     <h1>Звук для фокуса</h1>
-    <p class="lede">Шестнадцать способов собрать музыку, которой нет в записи. Все звуки создаются прямо здесь, каждый запуск немного другой. Громкость выровнена, так что сравнивать честно. Слушайте в наушниках, и отмечайте «нравится» или «не то». Внизу соберётся список, который можно скопировать и прислать.</p>
+    <p class="lede">Вторая серия, после ваших оценок. Раньше у всех звуков был один и тот же ровный гул и повторяющийся рисунок. Теперь постоянного пэда нет: голоса и инструменты приходят и уходят сами, а каждые одну-две минуты меняется «сцена» (кто играет, как высоко, как плотно, сколько воздуха). Слушайте минут пять каждый: смысл в том, чтобы оно не надоедало. Настоящие инструменты играют из коротких CC0-записей, а что и когда играть, решается заново.</p>
   </header>
 
-  <section id="g1" aria-labelledby="h1a"><h2 id="h1a">A · Пульс и пэд, по вашим записям Endel</h2>
-    <p class="group-note">Тональность, яркость, ширина стерео и ритм (мягкий низкий пульс) подогнаны под измерения ваших двух записей. Начните с «Ночи» и «Триолей».</p><div class="list" id="listA"></div></section>
-  <section id="g2" aria-labelledby="h2a"><h2 id="h2a">B · Совсем другие методы</h2>
-    <p class="group-note">Разные идеи о том, из чего вообще состоит звук: шум, струны, голоса, плёночные петли.</p><div class="list" id="listB"></div></section>
-  <section id="g3" aria-labelledby="h3a"><h2 id="h3a">C · Первая версия</h2>
-    <p class="group-note">То, что раздражало вас раньше: редкие ноты на пэде. Для сравнения.</p><div class="list" id="listC"></div></section>
+  <section id="g1" aria-labelledby="h1a"><h2 id="h1a">A · Звук, который меняется</h2>
+    <p class="group-note">Хор есть везде, потому что он был единственным, что вам подошло. Остальное добавлено вокруг него. Начните с 1 и 2.</p><div class="list" id="listA"></div></section>
+  <section id="g2" aria-labelledby="h2a"><h2 id="h2a">B · Для сравнения</h2>
+    <p class="group-note">Тот самый «Хор» из прошлой серии, который вам понравился.</p><div class="list" id="listB"></div></section>
 
-  <footer>Принцип петель разной длины и нот со своими периодами взят у <a href="https://github.com/generative-music/pieces-alex-bainter" target="_blank" rel="noopener">generative.fm</a> (MIT, Alex Bainter) и Брайана Ино. Звук Endel здесь не копируется: по записям измерены только общие свойства (тональность, спектр, темп и ширина).</footer>
+  <footer>Инструменты: пианино, арфа и виолончельная секция из <a href="https://github.com/sgossner/VSCO-2-CE" target="_blank" rel="noopener">VS Chamber Orchestra: Community Edition</a> (Versilian Studios, CC0). Идея независимых голосов взята у <a href="https://github.com/generative-music/pieces-alex-bainter" target="_blank" rel="noopener">generative.fm</a> (MIT, Alex Bainter) и Брайана Ино. Звук Endel здесь не копируется: по записям измерены только общие свойства (тональность, спектр, темп и ширина).</footer>
 </main>
 
 <div class="bar" role="region" aria-label="Плеер">
@@ -91,23 +89,23 @@ footer a { color: var(--muted); }
 <script type="module">
 /*ENGINE*/
 
-const { createEngine } = M_engine, { seeded } = M_theory, { createRhythmEngine, VARIANTS } = M_rhythm, { createMethod, METHODS } = M_methods;
+const { seeded } = M_theory, { createMethod } = M_methods, { PRESETS } = M_evolve, { loadSamples } = M_rhythm, { createEvolvingEngine } = M_evolve;
 const $ = (id) => document.getElementById(id);
 
-// Loudness trim per sound, measured so that all play at about the same level (-19 LUFS).
-const TRIM = { triplet: 0.82, eighth: 0.84, pump: 0.85, night: 0.92, drone: 0.8, pulse: 0.91, glass: 0.85, felt: 0.93, deep: 0.73, noise: 1.72, strings: 0.73, choir: 1.22, tape: 0.5, shimmer: 0.94, masking: 1.24, first: 2.6 };
+// Loudness trim, measured so that everything plays at about the same level.
+const TRIM = { voices: 1, cello: 1, harp: 1, piano: 1, night: 1, dark: 1, all: 1, choirOld: 1.22 };
 
-const ORDER_A = ['night', 'triplet', 'eighth', 'pump', 'pulse', 'deep', 'felt', 'glass', 'drone'];
 const entries = [];
-for (const id of ORDER_A) { const v = VARIANTS.find((x) => x.id === id); entries.push({ kind: 'rhythm', id, name: v.name, note: v.note, group: 'A' }); }
-const TAG = { noise: 'шум', strings: 'физмодель', choir: 'голоса', tape: 'петли', shimmer: 'обратные ноты', masking: 'маскировка' };
-for (const m of METHODS) entries.push({ kind: 'method', id: m.id, name: m.name, note: m.note, group: 'B', tag: TAG[m.id] });
-entries.push({ kind: 'mood', id: 'first', name: 'Редкие ноты', note: 'Первая версия: мягкий пэд и одиночные ноты раз в 10–30 секунд, как у Ино.', group: 'C' });
+for (const pr of PRESETS.filter((x) => !x.id.startsWith('cal-'))) entries.push({ kind: 'evolve', id: pr.id, name: pr.name, note: pr.note, sampled: !!pr.sampled, group: 'A' });
+entries.push({ kind: 'method', id: 'choir', key: 'choirOld', name: 'Хор (прошлая серия)', note: 'Тот, что вам понравился: аккорды хором на «у-о», без смены сцен.', sampled: false, group: 'B' });
 entries.forEach((e, i) => { e.n = i + 1; });
 
+let samples = null, loading = null;
+function ensureSamples() { if (samples) return Promise.resolve(samples); loading ||= loadSamples(ctx, 'samples/').then((x) => { samples = x; return x; }); return loading; }
+
 let ctx = null, out = null, engine = null, current = null, startedAt = 0, volume = 0.55, ratings = {};
-try { ratings = JSON.parse(localStorage.getItem('et-sound-ratings') || '{}'); } catch { /* storage may be unavailable */ }
-const saveRatings = () => { try { localStorage.setItem('et-sound-ratings', JSON.stringify(ratings)); } catch { /* ignore */ } };
+try { ratings = JSON.parse(localStorage.getItem('et-sound-ratings-2') || '{}'); } catch { /* storage may be unavailable */ }
+const saveRatings = () => { try { localStorage.setItem('et-sound-ratings-2', JSON.stringify(ratings)); } catch { /* ignore */ } };
 
 const ICON_PLAY = '<svg class="p1" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6a1 1 0 0 0 1.5.86l11-6.8a1 1 0 0 0 0-1.72l-11-6.8A1 1 0 0 0 8 5.2z"/></svg><svg class="p2" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4.2" height="14" rx="1.2"/><rect x="13.8" y="5" width="4.2" height="14" rx="1.2"/></svg>';
 for (const e of entries) {
@@ -123,18 +121,18 @@ for (const e of entries) {
 
 function make(e, seed) {
   const rng = seeded(seed), o = { rng, destination: out, volume: 0.8 };
-  if (e.kind === 'rhythm') return createRhythmEngine(ctx, { ...o, variant: e.id });
-  if (e.kind === 'method') return createMethod(ctx, e.id, o);
-  return createEngine(ctx, { ...o, mode: 'focus', intensity: 0.8 });
+  if (e.kind === 'evolve') return createEvolvingEngine(ctx, { ...o, preset: e.id, samples: samples || undefined });
+  return createMethod(ctx, e.id, o);
 }
-function applyVolume() { if (out) out.gain.setTargetAtTime(volume * (current ? TRIM[current.id] || 1 : 1), ctx.currentTime, 0.1); }
+function applyVolume() { if (out) out.gain.setTargetAtTime(volume * (current ? TRIM[current.key || current.id] || 1 : 1), ctx.currentTime, 0.1); }
 function stopCurrent() { if (engine) { engine.stop(1.6); engine = null; } if (current) current.el.dataset.on = 'false'; current = null; }
-function toggle(e) {
+async function toggle(e) {
   if (!ctx) { ctx = new (window.AudioContext || window.webkitAudioContext)(); out = ctx.createGain(); out.connect(ctx.destination); }
   ctx.resume();
   if (current === e) { stopCurrent(); $('status').textContent = 'Остановлено'; return; }
-  stopCurrent();
-  const seed = Math.floor(Math.random() * 1e6); current = e; e.el.dataset.on = 'true';
+  stopCurrent(); current = e; e.el.dataset.on = 'true';
+  if (e.sampled && !samples) { $('status').textContent = 'Загружаю инструменты…'; try { await ensureSamples(); } catch { $('status').textContent = 'Не удалось загрузить инструменты'; e.el.dataset.on = 'false'; current = null; return; } if (current !== e) return; }
+  const seed = Math.floor(Math.random() * 1e6);
   engine = make(e, seed); startedAt = ctx.currentTime; applyVolume();
   $('status').innerHTML = `Играет <b>${e.n}. ${e.name}</b> · вариация ${seed}`;
 }

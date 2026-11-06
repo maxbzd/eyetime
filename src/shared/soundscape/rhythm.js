@@ -6,6 +6,9 @@
 //   - very wide stereo (the two sides are almost unrelated)
 // The variants differ in how much of each part there is and what it is made of. Everything is synthesised, the order of the
 // notes is random every time (the motif is mutated as it repeats), so it never loops. Works on a live or an offline context.
+// A variant may play real instruments instead of oscillators: the arpeggio (`inst`: piano or harp) and a sustained bed (`padInst`: cello
+// section) come from a few short CC0 samples (src/audio/samples, see CREDITS.txt) that are stretched in pitch to any note; what is
+// played and when is still generated, so the music is never a recording.
 
 import { mtof, between, pick, weighted, clamp, lerp } from './theory.js';
 
@@ -19,7 +22,7 @@ export const CHORDS = {
 
 /**
  * @typedef {{ id:string, name:string, note:string, bpm:number, grid:number, motif:number, rest:number, mutate:number, pluck:'soft'|'marimba'|'glass'|'felt'|'none', pluckCut:number, pluckLevel:number, octave:number,
- *   pulse:number, duck:number, padLevel:number, padCut:number, swell:number, swellHz:number, air:number, wet:number, echo:number, chordSec:[number,number], shimmer:number, sparkle:number, lowPump?:number, start?:string, fadeIn?:number, trim?:number }} Variant
+ *   pulse:number, duck:number, padLevel:number, padCut:number, swell:number, swellHz:number, air:number, wet:number, echo:number, chordSec:[number,number], shimmer:number, sparkle:number, lowPump?:number, start?:string, fadeIn?:number, trim?:number, inst?:'piano'|'harp', padInst?:'cello', padMix?:number, padSample?:number, sampled?:boolean }} Variant
  */
 
 /** @type {Variant[]} */
@@ -33,6 +36,12 @@ export const VARIANTS = [
   { id: 'glass', name: 'Стекло', note: 'Редкие высокие стеклянные ноты над тёмным пэдом, медленнее', bpm: 60, grid: 2, motif: 8, rest: 0.55, mutate: 0.2, pluck: 'glass', pluckCut: 2400, pluckLevel: 0.55, octave: 12, pulse: 0.35, duck: 0.1, padLevel: 1, padCut: 900, swell: 0.3, swellHz: 0.1, air: 0.55, wet: 0.7, echo: 0.4, chordSec: [90, 160], shimmer: 0.2, sparkle: 0.5 },
   { id: 'felt', name: 'Мягкое пианино', note: 'Арпеджио войлочным тоном, как приглушённое пианино', bpm: 66, grid: 2, motif: 8, rest: 0.25, mutate: 0.15, pluck: 'felt', pluckCut: 2400, pluckLevel: 0.9, octave: 0, pulse: 0.5, duck: 0.12, padLevel: 0.9, padCut: 1050, swell: 0.2, swellHz: 0.12, air: 0.4, wet: 0.6, echo: 0.3, lowPump: 0.4, chordSec: [100, 170], shimmer: 0, sparkle: 0 },
   { id: 'deep', name: 'Глубокий', note: 'Самый тёмный: низкий пэд, пульс и очень мягкое арпеджио', bpm: 66, grid: 3, motif: 6, rest: 0.3, mutate: 0.1, pluck: 'soft', pluckCut: 800, pluckLevel: 0.7, octave: -12, pulse: 0.9, duck: 0.25, padLevel: 1.2, padCut: 450, swell: 0.25, swellHz: 0.13, air: 0.7, wet: 0.6, echo: 0.2, lowPump: 0.5, chordSec: [160, 260], shimmer: 0, sparkle: 0 },
+  // ---- real instruments (CC0 samples of VS Chamber Orchestra: Community Edition), same generative structure ----
+  { id: 'piano', name: 'Пианино и виолончели', note: 'Настоящее пианино играет мягкое арпеджио триолями, под ним живой смычковый пэд, внизу пульс', sampled: true, inst: 'piano', padInst: 'cello', padMix: 0.25, padSample: 1, bpm: 72, grid: 3, motif: 6, rest: 0.3, mutate: 0.12, pluck: 'none', pluckCut: 2600, pluckLevel: 1, octave: 0, pulse: 0.9, duck: 0.15, padLevel: 1, padCut: 1200, swell: 0.12, swellHz: 0.1, air: 0.4, wet: 0.55, echo: 0.22, lowPump: 0.4, chordSec: [120, 200], shimmer: 0, sparkle: 0 },
+  { id: 'harp', name: 'Арфа и виолончели', note: 'Арфа восьмыми над смычковым пэдом, чуть светлее и воздушнее', sampled: true, inst: 'harp', padInst: 'cello', padMix: 0.25, padSample: 1, bpm: 66, grid: 2, motif: 8, rest: 0.35, mutate: 0.15, pluck: 'none', pluckCut: 3000, pluckLevel: 0.9, octave: 0, pulse: 0.7, duck: 0.12, padLevel: 1, padCut: 1300, swell: 0.12, swellHz: 0.1, air: 0.35, wet: 0.6, echo: 0.3, lowPump: 0.3, chordSec: [110, 190], shimmer: 0, sparkle: 0 },
+  { id: 'strings', name: 'Только виолончели', note: 'Живой смычковый пэд, воздух и очень редкие ноты пианино. Почти без ритма', sampled: true, inst: 'piano', padInst: 'cello', padMix: 0.15, padSample: 1.3, bpm: 60, grid: 2, motif: 8, rest: 0.88, mutate: 0.2, pluck: 'none', pluckCut: 2000, pluckLevel: 0.8, octave: 0, pulse: 0.25, duck: 0, padLevel: 1, padCut: 1000, swell: 0.2, swellHz: 0.08, air: 0.5, wet: 0.65, echo: 0.2, lowPump: 0, chordSec: [130, 220], shimmer: 0, sparkle: 0 },
+  { id: 'pianonight', name: 'Пианино, «Ночь»', note: 'Структура «Ночи» (пульс 60, звук нарастает больше минуты), но играет настоящее пианино', sampled: true, inst: 'piano', padInst: 'cello', padMix: 0.2, padSample: 1, bpm: 60, grid: 2, motif: 8, rest: 0.55, mutate: 0.15, pluck: 'none', pluckCut: 2400, pluckLevel: 0.9, octave: 0, pulse: 1.2, duck: 0.15, padLevel: 1, padCut: 1500, swell: 0.1, swellHz: 0.06, air: 0.35, wet: 0.5, echo: 0.25, lowPump: 0.5, start: 'Am7', fadeIn: 70, chordSec: [120, 220], shimmer: 0, sparkle: 0 },
+  { id: 'harpglass', name: 'Арфа, высокая', note: 'Редкие высокие ноты арфы, как капли, над тёмным пэдом и виолончелями', sampled: true, inst: 'harp', padInst: 'cello', padMix: 0.2, padSample: 1.1, bpm: 60, grid: 2, motif: 8, rest: 0.6, mutate: 0.25, pluck: 'none', pluckCut: 3200, pluckLevel: 0.75, octave: 12, pulse: 0.3, duck: 0.08, padLevel: 1, padCut: 1000, swell: 0.2, swellHz: 0.09, air: 0.4, wet: 0.7, echo: 0.4, lowPump: 0.2, chordSec: [100, 170], shimmer: 0, sparkle: 0 },
 ];
 
 const PLUCKS = {
@@ -57,9 +66,17 @@ export function brown(ctx, rng, seconds = 12) {
   return buf;
 }
 
+/** Decode the instrument samples listed in `<base>manifest.json` into { piano: [{ midi, buffer }], harp: [...], cello: [...] }. */
+export async function loadSamples(ctx, base) {
+  const man = await (await fetch(base + 'manifest.json')).json(), out = {};
+  for (const [id, list] of Object.entries(man)) out[id] = await Promise.all(list.map(async (e) => ({ midi: e.midi, buffer: await ctx.decodeAudioData(await (await fetch(base + e.file)).arrayBuffer()) })));
+  return out;
+}
+const nearest = (set, midi) => { let best = set[0]; for (const x of set) if (Math.abs(x.midi - midi) < Math.abs(best.midi - midi)) best = x; return { buf: best.buffer, rate: 2 ** ((midi - best.midi) / 12) }; };
+
 /**
  * @param {BaseAudioContext} ctx
- * @param {{ variant?:string, rng?:()=>number, destination?:AudioNode, volume?:number, onEvent?:(e:object)=>void }} [opts]
+ * @param {{ samples?:Record<string,{midi:number,buffer:AudioBuffer}[]>, variant?:string, rng?:()=>number, destination?:AudioNode, volume?:number, onEvent?:(e:object)=>void }} [opts]
  */
 export function createRhythmEngine(ctx, opts = {}) {
   const v = VARIANTS.find((x) => x.id === opts.variant) || VARIANTS[0];
@@ -69,7 +86,7 @@ export function createRhythmEngine(ctx, opts = {}) {
   const node = (n) => { live.add(n); return n; };
   const gain = (x = 1) => { const g = node(ctx.createGain()); g.gain.value = x; return g; };
   const beat = 60 / v.bpm, step = beat / v.grid;
-  const T0 = ctx.currentTime + 0.4;
+  const T0 = ctx.currentTime + 0.4, samples = opts.samples || {};
 
   // ---- graph ----
   const master = gain(0);
@@ -116,7 +133,7 @@ export function createRhythmEngine(ctx, opts = {}) {
         o.type = 'triangle'; o2.type = 'sine'; o.frequency.value = hz; o2.frequency.value = hz * (i === 0 ? 0.5 : 1); o.detune.value = side * between(rng, 5, 10); o2.detune.value = -side * between(rng, 3, 7);
         lp.type = 'lowpass'; lp.frequency.value = Math.max(hz * 1.4, v.padCut) * (hz < 100 ? 0.85 : 1); lp.Q.value = 0.4;
         pan.pan.value = side * between(rng, 0.55, 0.95);
-        const peak = (0.1 / Math.sqrt(def.pad.length)) * v.padLevel * (i === 0 ? 1.15 : 1);
+        const peak = (0.1 / Math.sqrt(def.pad.length)) * v.padLevel * (v.padMix ?? 1) * (i === 0 ? 1.15 : 1);
         g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(peak, t + Math.max(2, over)); g.gain.setValueAtTime(peak, Math.max(t + over, end - over)); g.gain.linearRampToValueAtTime(0.0001, end);
         o.connect(lp); o2.connect(lp); lp.connect(g); g.connect(pan); pan.connect(midi < 56 ? lowDuck : padSwell);
         o.start(t); o2.start(t); o.stop(end + 0.1); o2.stop(end + 0.1); done(o, lp, g, pan); done(o2);
@@ -127,12 +144,35 @@ export function createRhythmEngine(ctx, opts = {}) {
         }
       }
     });
+    if (v.padInst && samples[v.padInst]) samplePad(t, len, def);
     padGroup = group; opts.onEvent?.({ t, type: 'chord', name: chordName, notes: def.pad, dur: len });
+  }
+
+  /** The sustained bed from real strings: each note re-bowed every few seconds, the repeats overlapping so that it never stops. */
+  function samplePad(t, len, def) {
+    const set = samples[v.padInst], over = Math.min(14, len * 0.2), end = t + len + over;
+    def.pad.filter((m) => m >= 38 && m <= 67).slice(0, 4).forEach((midi, i) => {
+      const { buf, rate } = nearest(set, midi), skip = 0.25, span = (buf.duration - skip) / rate, period = Math.max(3, span - 2.6), side = i % 2 ? 1 : -1;
+      for (let at = t + i * 1.9; at < end; at += period) {
+        const edge = clamp(Math.min((at - t) / over, (end - at) / over) + 0.15, 0.05, 1), peak = 0.42 * (v.padSample ?? 1) * edge;
+        const s = node(ctx.createBufferSource()), g = gain(0.0001), pan = node(ctx.createStereoPanner());
+        s.buffer = buf; s.playbackRate.value = rate; pan.pan.value = side * between(rng, 0.2, 0.7);
+        g.gain.setValueAtTime(0.0001, at); g.gain.linearRampToValueAtTime(peak, at + 2.4);
+        s.connect(g); g.connect(pan); pan.connect(midi < 56 ? lowDuck : padSwell); s.start(at, skip); done(s, g, pan);
+      }
+    });
+  }
+
+  function samplePluck(t, midi, accent) {
+    const { buf, rate } = nearest(samples[v.inst], midi + v.octave), s = node(ctx.createBufferSource()), g = gain(0.35 + 0.4 * accent), pan = node(ctx.createStereoPanner());
+    s.buffer = buf; s.playbackRate.value = rate; pan.pan.value = (stepN % 2 ? 1 : -1) * between(rng, 0.25, 0.7);
+    s.connect(g); g.connect(pan); pan.connect(pluckBus); s.start(t); done(s, g, pan);
+    opts.onEvent?.({ t, type: 'note', midi: midi + v.octave, vel: 0.4 + 0.4 * accent, pan: pan.pan.value, dur: 2 });
   }
 
   function newMotif() {
     const pool = CHORDS[chordName].arp, m = [];
-    for (let i = 0; i < v.motif; i++) m.push(i === 0 && v.pluck !== 'none' ? pool[0] : rng() < v.rest ? null : weighted(rng, pool.map((n) => [n, (n < 58 ? 5 : n % 12 === 0 || n % 12 === 7 || n % 12 === 4 ? 3 : 1)])));
+    for (let i = 0; i < v.motif; i++) m.push(i === 0 && (v.pluck !== 'none' || v.inst) ? pool[0] : rng() < v.rest ? null : weighted(rng, pool.map((n) => [n, (n < 58 ? 5 : n % 12 === 0 || n % 12 === 7 || n % 12 === 4 ? 3 : 1)])));
     return m;
   }
   function mutate() { // the pattern repeats with small changes, so it feels like a pattern but never loops exactly
@@ -141,6 +181,7 @@ export function createRhythmEngine(ctx, opts = {}) {
   }
 
   function pluck(t, midi, accent) {
+    if (v.inst && samples[v.inst]) return samplePluck(t, midi, accent);
     const def = PLUCKS[v.pluck]; if (!def) return;
     const hz = mtof(midi + v.octave), pan = node(ctx.createStereoPanner()), lp = node(ctx.createBiquadFilter());
     pan.pan.value = (stepN % 2 ? 1 : -1) * between(rng, 0.35, 0.8); lp.type = 'lowpass'; lp.frequency.value = v.pluckCut * (0.8 + 0.4 * accent); lp.Q.value = 0.4;
@@ -186,7 +227,7 @@ export function createRhythmEngine(ctx, opts = {}) {
       else {
         const i = stepN % motif.length;
         if (i === 0 && stepN > 0) { bar++; mutate(); if (bar % 6 === 0) motif = newMotif(); }
-        const midi = motif[i]; if (midi != null && v.pluck !== 'none') pluck(stepAt, midi, (stepN % v.grid === 0) ? 1 : 0.55);
+        const midi = motif[i]; if (midi != null && (v.pluck !== 'none' || v.inst)) pluck(stepAt, midi, (stepN % v.grid === 0) ? 1 : 0.55);
         stepN++; stepAt += step * between(rng, 0.997, 1.003);
       }
     }

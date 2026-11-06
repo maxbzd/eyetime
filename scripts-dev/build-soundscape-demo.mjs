@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const out = process.argv[2] || path.join(root, 'soundscape-demo.html');
-const names = ['theory', 'modes', 'session', 'conductor', 'engine', 'rhythm', 'methods'];
+const names = ['theory', 'modes', 'session', 'conductor', 'engine', 'rhythm', 'methods', 'evolve'];
 const parts = names.map((n) => {
   let src = fs.readFileSync(path.join(root, 'src/shared/soundscape', n + '.js'), 'utf8');
   const exported = [];

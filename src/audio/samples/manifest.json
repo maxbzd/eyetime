@@ -1,0 +1,143 @@
+{
+ "piano": [
+  {
+   "note": "C2",
+   "midi": 36,
+   "file": "piano-C2.ogg"
+  },
+  {
+   "note": "G2",
+   "midi": 43,
+   "file": "piano-G2.ogg"
+  },
+  {
+   "note": "C3",
+   "midi": 48,
+   "file": "piano-C3.ogg"
+  },
+  {
+   "note": "G3",
+   "midi": 55,
+   "file": "piano-G3.ogg"
+  },
+  {
+   "note": "C4",
+   "midi": 60,
+   "file": "piano-C4.ogg"
+  },
+  {
+   "note": "G4",
+   "midi": 67,
+   "file": "piano-G4.ogg"
+  },
+  {
+   "note": "C5",
+   "midi": 72,
+   "file": "piano-C5.ogg"
+  },
+  {
+   "note": "G5",
+   "midi": 79,
+   "file": "piano-G5.ogg"
+  }
+ ],
+ "harp": [
+  {
+   "note": "A2",
+   "midi": 45,
+   "file": "harp-A2.ogg"
+  },
+  {
+   "note": "C3",
+   "midi": 48,
+   "file": "harp-C3.ogg"
+  },
+  {
+   "note": "E3",
+   "midi": 52,
+   "file": "harp-E3.ogg"
+  },
+  {
+   "note": "G3",
+   "midi": 55,
+   "file": "harp-G3.ogg"
+  },
+  {
+   "note": "B3",
+   "midi": 59,
+   "file": "harp-B3.ogg"
+  },
+  {
+   "note": "D4",
+   "midi": 62,
+   "file": "harp-D4.ogg"
+  },
+  {
+   "note": "A4",
+   "midi": 69,
+   "file": "harp-A4.ogg"
+  },
+  {
+   "note": "C5",
+   "midi": 72,
+   "file": "harp-C5.ogg"
+  },
+  {
+   "note": "E5",
+   "midi": 76,
+   "file": "harp-E5.ogg"
+  },
+  {
+   "note": "G5",
+   "midi": 79,
+   "file": "harp-G5.ogg"
+  },
+  {
+   "note": "D6",
+   "midi": 86,
+   "file": "harp-D6.ogg"
+  },
+  {
+   "note": "A6",
+   "midi": 93,
+   "file": "harp-A6.ogg"
+  }
+ ],
+ "cello": [
+  {
+   "note": "D2",
+   "midi": 38,
+   "file": "cello-D2.ogg"
+  },
+  {
+   "note": "F2",
+   "midi": 41,
+   "file": "cello-F2.ogg"
+  },
+  {
+   "note": "A2",
+   "midi": 45,
+   "file": "cello-A2.ogg"
+  },
+  {
+   "note": "C3",
+   "midi": 48,
+   "file": "cello-C3.ogg"
+  },
+  {
+   "note": "E3",
+   "midi": 52,
+   "file": "cello-E3.ogg"
+  },
+  {
+   "note": "G3",
+   "midi": 55,
+   "file": "cello-G3.ogg"
+  },
+  {
+   "note": "D4",
+   "midi": 62,
+   "file": "cello-D4.ogg"
+  }
+ ]
+}
