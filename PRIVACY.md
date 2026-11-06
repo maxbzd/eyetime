@@ -34,7 +34,7 @@ EyeTime is **local-first**. It has no account, no ads and no remote code. It has
   |---|---|
   | `v` | the version of the report format |
   | `id` | a random identifier made when you switch sharing on (128 random bits, not derived from anything on your device or in your browser). It is replaced when you press *New anonymous ID*, and deleted when you switch sharing off |
-  | `app` | the EyeTime version, e.g. 3.7.0 |
+  | `app` | the EyeTime version, e.g. 3.8.0 |
   | `br`, `os` | the browser family (Chrome, Edge, Firefox) and the operating-system family (Mac, Windows, Linux, ChromeOS): nothing finer, no version, no model |
   | `lang`, `look`, `layout`, `mode` | your interface language, the look and the arrangement of Home you chose, and light / dark / automatic |
   | `age` | whole days since you installed EyeTime |
