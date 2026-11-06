@@ -2,6 +2,7 @@
 // (sign-in refused → 'auth', too many requests → 'rate' with the wait, unreachable → 'network', anything else → 'other').
 
 import { SyncError } from './run.js';
+import { errorText } from '../errorlog.js';
 
 export const sleep = (/** @type {number} */ ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -15,7 +16,7 @@ export async function http(url, { method = 'GET', headers = {}, body = null, tim
   const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), timeoutMs);
   let res;
   try { res = await fetchImpl(url, { method, headers, body, credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store', redirect: 'follow', signal: ctl.signal }); }
-  catch (e) { throw new SyncError(ctl.signal.aborted ? 'timeout' : 'network: ' + String((e && e.message) || e).slice(0, 80), 'network'); }
+  catch (e) { throw new SyncError(ctl.signal.aborted ? 'timeout' : 'network: ' + errorText(e).slice(0, 80), 'network'); }
   finally { clearTimeout(timer); }
   if (res.ok || accept.includes(res.status)) return res;
   if (res.status === 401 || res.status === 403) throw new SyncError('sign-in refused (' + res.status + ')', 'auth', { status: res.status });

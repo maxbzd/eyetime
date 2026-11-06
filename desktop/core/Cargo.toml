@@ -3,6 +3,7 @@ name = "eyetime-core"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+publish = false
 description = "Rules, schedules, limits, friction and the decision engine of EyeTime. No operating system calls: everything here is testable anywhere."
 
 [dependencies]

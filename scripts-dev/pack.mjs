@@ -12,6 +12,8 @@ const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'u
 const INCLUDE = ['src', '_locales', 'icons', 'LICENSE'];
 const SKIP = /(\.md$|\.d\.ts$|icon512\.png$)/;
 // the translations are read as data at run time (locales/data/*.json); only English (the fallback) and the list of names are code there, the other .js files are for the tools and the tests
+// earlier experiments kept for reference (nothing imports them): they are not part of what is shipped
+const PARKED = /[\\/]shared[\\/]packs[\\/]parked[\\/]/;
 const LOCALE_CODE = /[\\/]shared[\\/]locales[\\/](?!en\.js$|languages\.js$)[^\\/]+\.js$/; // docs and store-only assets stay out of the package; the LICENSE-*.txt notices of fonts, icons and the cut-out model ship with them
 
 fs.rmSync(dist, { recursive: true, force: true });
@@ -21,7 +23,7 @@ function copyTree(from, to) {
   for (const f of fs.readdirSync(from)) {
     const a = path.join(from, f), b = path.join(to, f);
     if (fs.statSync(a).isDirectory()) copyTree(a, b);
-    else if (!SKIP.test(f) && !LOCALE_CODE.test(a)) fs.copyFileSync(a, b);
+    else if (!SKIP.test(f) && !LOCALE_CODE.test(a) && !PARKED.test(a)) fs.copyFileSync(a, b);
   }
 }
 

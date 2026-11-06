@@ -7,6 +7,12 @@ on:
     paths: ['desktop/**', '.github/workflows/desktop.yml']
   workflow_dispatch:
 
+permissions:
+  contents: read
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: true
+
 defaults:
   run:
     working-directory: desktop
@@ -17,21 +23,29 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
-      - uses: dtolnay/rust-toolchain@stable
-        with: { targets: x86_64-pc-windows-gnu }
+      # the compiler named in desktop/rust-toolchain.toml (not "whatever is stable today")
+      - run: rustup toolchain install && rustup target add x86_64-pc-windows-gnu
       - uses: Swatinem/rust-cache@v2
         with: { workspaces: desktop }
-      - run: cargo test -p eyetime-core -p eyetime-helper
-      - name: The Windows code compiles (checked, not run)
+      - run: cargo fmt --all --check
+      - name: Clippy (a warning is an error), for this machine and for Windows
         run: |
-          sudo apt-get update && sudo apt-get install -y gcc-mingw-w64-x86-64
-          cargo check -p eyetime-helper --target x86_64-pc-windows-gnu
+          cargo clippy --locked -p eyetime-core -p eyetime-helper --all-targets -- -D warnings
+          cargo clippy --locked -p eyetime-helper --all-targets --target x86_64-pc-windows-gnu -- -D warnings
+      - run: cargo test --locked -p eyetime-core -p eyetime-helper
+      - name: The Windows code compiles (checked, not run)
+        run: cargo check --locked -p eyetime-helper -p eyetime-setup --target x86_64-pc-windows-gnu
+      - name: Dependencies (known vulnerabilities, licences, sources)
+        run: |
+          cargo install --locked cargo-deny@0.20.2
+          cargo deny --locked check
       - name: The screens against the real logic
         run: |
           cargo build -p eyetime-helper --bin eyetime-sim
           (./target/debug/eyetime-sim prototype 8131 &) ; sleep 1
           npm i --no-save playwright@1.56.1 && npx playwright install --with-deps chromium
           node tests/e2e_real.cjs
+          node tests/xss_real.cjs
       - name: The browser extension (its rules, then in a real Chromium through a native host)
         run: |
           node --test tests/extension_rules.test.mjs
@@ -45,11 +59,11 @@ jobs:
     needs: logic
     steps:
       - uses: actions/checkout@v5
-      - uses: dtolnay/rust-toolchain@stable
+      - run: rustup toolchain install
       - uses: Swatinem/rust-cache@v2
         with: { workspaces: desktop }
       - name: Build the helper and the window
-        run: cargo build --release -p eyetime-helper -p eyetime
+        run: cargo build --locked --release -p eyetime-helper -p eyetime
       - name: Gather the files
         shell: pwsh
         run: |

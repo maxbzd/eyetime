@@ -7,7 +7,7 @@ import { syncTasks, syncBlocks, SyncError } from '../shared/sync/run.js';
 import { PROVIDERS } from '../shared/sync/providers/index.js';
 import { getSettings, onChange } from '../shared/storage.js';
 import { dayKey } from '../shared/time.js';
-import { logError } from '../shared/errorlog.js';
+import { logError, errorText } from '../shared/errorlog.js';
 
 const EVERY = 'connections-sync', SOON = 'connections-soon';
 const PERIOD_MIN = 15, SOON_MS = 45_000, QUIET_AFTER_RUN_MS = 6_000;
@@ -55,7 +55,7 @@ async function syncOne(/** @type {any} */ conn, { force = false } = {}) {
   } catch (e) {
     status.ok = false;
     if (e instanceof SyncError) { status.error = e.kind; status.detail = e.message; if (e.kind === 'auth') status.needsAuth = true; if (e.kind === 'rate') status.retryAt = now + (e.retryAfter || 60) * 1000; }
-    else { status.error = 'other'; status.detail = String((e && e.message) || e).slice(0, 160); logError('connections:' + conn.provider, e); }
+    else { status.error = 'other'; status.detail = errorText(e).slice(0, 160); logError('connections:' + conn.provider, e); }
   }
   const still = await patchConnection(conn.id, (c) => { c.status = status; });
   if (!still) await chrome.storage.local.remove([`cl:${conn.id}:tasks`, `cl:${conn.id}:blocks`]).catch(() => {}); // disconnected while this round was running: leave no pairs behind

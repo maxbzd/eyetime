@@ -83,7 +83,7 @@ Candidates: built-in productive list, enabled presets, custom/always lists, user
 
 ## i18n (`src/shared/i18n.js`, `locales/`)
 
-Flat key → string maps; plural forms via `Intl.PluralRules`; `{param}` interpolation. English is the reference; eleven languages ship (en, ru, es, de, fr, pt, it, pl, uk, zh, ja — see [TRANSLATING.md](TRANSLATING.md)). The store texts live in `_locales/<lang>/messages.json`. `scripts-dev/check.mjs` fails the build when a used key is missing, a language lacks a key, or placeholders differ.
+Flat key → string maps; plural forms via `Intl.PluralRules`; `{param}` interpolation. **A page loads one language**: English is code (`locales/en.js`, the fallback for a missing key), every other language is read as data (`locales/data/<lang>.json`, written from the `.js` files by `npm run locales`, checked by `npm run check`) with `await setLocale(...)`. The service worker cannot `import()`, so data is what works there too. `scripts-dev/tests/weight.test.mjs` fails if a page starts to load translations as code. English is the reference; eleven languages ship (en, ru, es, de, fr, pt, it, pl, uk, zh, ja — see [TRANSLATING.md](TRANSLATING.md)). The store texts live in `_locales/<lang>/messages.json`. `scripts-dev/check.mjs` fails the build when a used key is missing, a language lacks a key, or placeholders differ.
 
 ## Migration (`migrate.js`)
 

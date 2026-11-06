@@ -1,0 +1,74 @@
+# Security policy
+
+EyeTime is a browser extension and a Windows program that closes sites and programs, runs a service with system rights and updates itself. A flaw in it can matter,
+so this page says how to report one, what is in scope, what we defend against (and what we do not), and how the signing key is handled.
+
+## Reporting a vulnerability
+
+**Do not open a public issue.** Use GitHub's private reporting: *Security → Report a vulnerability* in this repository
+(<https://github.com/maxbzd/eyetime/security/advisories/new>). Say what you found, how to repeat it, and what you think it allows.
+
+What to expect: an answer within **7 days**, a fix or a clear plan within **30 days** for anything that lets a program or a web page do something the person did not
+allow, and credit in the release notes if you want it. Please give us the time to ship a fix before you publish.
+
+## What is in scope
+
+| Part | Examples of what counts |
+|---|---|
+| **The Windows service** (`desktop/helper`) | a program without administrator rights making the service loosen a block, end a session, read or change the PIN, close a program it should not, or write to the hosts file anything but the managed block |
+| **The named pipe** | getting a role it should not have; making the service stop answering (a flood, a half-sent line) |
+| **The update** (`desktop/core/src/update.rs`) | getting an installer run that the release key did not sign; replaying an older signed release; downgrading |
+| **The installer** | running a program from the folder it was started in with administrator rights; leaving a folder or a key writable by everyone |
+| **The window** (`desktop/prototype`, Tauri) | any way for text that is not ours (a program name, a site, a rule name) to run as script or to call the service |
+| **The extension** | a web page reaching its storage or its messages; leaking what it stores; code from outside running in an extension page; the dock or the social-site guard doing more than documented |
+| **The usage collector** (`server/usage`) | storing or exposing anything beyond the documented fields; being filled with made-up installs |
+
+## What is not a vulnerability
+
+- A person with administrator rights, or physical access, who is determined to get round EyeTime on their own computer. The locks are there to stop an impulse at 2 a.m.,
+  not an attacker with the machine (`desktop/README.md` says this in plain words). Booting to recovery, stopping the service from outside, uninstalling after the
+  permission is given, editing the browser's profile by hand: not in scope.
+- The hosts file cannot see a site reached by a number, or through a browser's own encrypted DNS: this is a limit of the method and is listed in the README.
+- A browser extension can be disabled by the person in the browser. Strict mode of the extension is a commitment, not a lock; the lock is the desktop program.
+- Reports that need the person to install something hostile themselves.
+
+## What we defend against
+
+1. **A web page** (or anything a page can make a browser send) must not be able to read or change EyeTime's data or messages, or make an extension page run its script.
+   The extension has no `innerHTML` with data, a CSP of `script-src 'self'`, no site access by default, and checks who sent every message.
+2. **Another program run by the same person** must not be able to turn the service against them. The pipe tells who is on the other end from the system (the real file of the
+   connecting program and whether it is elevated), never from the request; unknown programs get a few connections and a few seconds; programs to close are taken from the
+   system's own process table and checked again before they are ended.
+3. **A stolen release account** must not be able to put a program on everyone's computer. An update runs only if the Ed25519 release key signed *this version of this file*
+   (`desktop/core/src/update.rs`); the key is in a repository secret that only the release job reads.
+4. **Our own mistakes in what we show.** The window escapes every name that came from a person or from the computer before it reaches markup, and its policy forbids inline script;
+   `desktop/tests/xss_real.cjs` tries hostile names against it.
+
+## Secrets kept by the extension
+
+Tokens and passwords of the connected services (Todoist, Notion, CalDAV) are kept in `chrome.storage.local`, which the browser stores unencrypted in the profile folder.
+They are never synced, never in a backup and never in the usage report; *Disconnect* deletes them. We have not added encryption on top of this on purpose: a key that the extension
+can read by itself is stored next to what it protects, so it would add the look of protection and not the thing. Real protection would need a passphrase the person types at
+each browser start, which we judged worse for the people this is for. Use an access token with the least rights the service offers (and an app-specific password for CalDAV, never
+the account password). If your threat model includes someone who can read your browser profile, do not connect services.
+
+## Changing the update signing key
+
+The apps trust the public keys listed in `UPDATE_PUBKEYS_HEX` (`desktop/core/src/update.rs`); the release job signs with the first one. A list, so that a key can be replaced without
+leaving anybody on a version that cannot update:
+
+1. Make a new key: `cargo run -p eyetime-core --bin eyetime-sign -- --gen`. Keep the private half in a new repository secret; it is not used by anything yet.
+2. Release a version whose list holds the **old and the new** public key (signed with the old key). Wait until people have it (the app checks about every six hours).
+3. Put the new private key in `UPDATE_SIGNING_KEY` and move the new public key to the front of the list; release signed with it.
+4. In a later release drop the old public key.
+
+**If the key was stolen**, be clear about what that means: every installed app trusts it until it takes a release that no longer lists it, and whoever holds the key can sign a
+malicious "update" that the apps which have not yet updated would run. So: do steps 1–3 at once in a single release that lists only the *new* key, signed with the old key
+(the only way an old app will take it); say publicly that the key was stolen and ask people to check the version in *Settings → About* and, if they are on an older one, to
+install the new release by hand. An app that has taken that release ignores everything signed with the stolen key from then on.
+
+## Dependencies and the build
+
+- Versions of the tools are fixed (`package-lock.json`, `desktop/Cargo.lock`, `desktop/rust-toolchain.toml`); CI installs from the lock and fails if it does not match.
+- `npm audit` and `cargo deny` (advisories, licences, sources) run on every change; Dependabot proposes updates; CodeQL scans JavaScript, Python and Rust.
+- The extension has **no runtime dependencies**: everything in it is code in this repository, plus the ONNX Runtime and two models whose licences are in `src/newtab/ml/`.
