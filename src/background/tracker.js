@@ -66,8 +66,22 @@ async function run(reason) {
   // a switch = moving from one site to a different one (context switching is what fragments attention)
   if (trk && trk.host && target && target.host !== trk.host) await updateDay(dayKey(new Date(now)), (d) => { d.sw = (d.sw || 0) + 1; });
   await session().set({ trk: target ? { host: target.host, since: now, rem } : { host: null, since: now, rem } });
+  await keepTick(!!target);
 
   await updateBadge(settings);
+}
+
+/**
+ * The 30-second alarm exists only while it has something to do: a site is being counted (its interval must be closed before it could look like a sleeping computer), or
+ * a focus session or a rest is running (the badge counts its minutes down). With nobody at the keyboard and nothing running, the worker is not woken twice a minute for
+ * nothing: coming back (an idle, window or tab event) runs this again and starts the alarm.
+ */
+async function keepTick(/** @type {boolean} */ counting) {
+  const { focus, rest } = await getRaw(['focus', 'rest']);
+  const need = counting || !!focus || !!rest;
+  const has = !!(await chrome.alarms.get('tick'));
+  if (need && !has) await chrome.alarms.create('tick', { periodInMinutes: 0.5 });
+  else if (!need && has) await chrome.alarms.clear('tick');
 }
 
 /* ---------- wiring (registered synchronously at worker start) ---------- */
@@ -83,6 +97,5 @@ chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'tick') sync('tick'); 
 export async function initTracker() {
   const settings = await getSettings();
   chrome.idle.setDetectionInterval(Math.max(15, settings.tracking.idleSeconds));
-  await chrome.alarms.create('tick', { periodInMinutes: 0.5 });
-  await sync('init');
+  await sync('init'); // which also starts the 30-second alarm if there is something to count
 }
