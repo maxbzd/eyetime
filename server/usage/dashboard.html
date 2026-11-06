@@ -235,6 +235,21 @@ svg.chart .ln { fill: none; stroke-width: 1.75; stroke-linejoin: round; stroke-l
 svg.chart .ln.dash { stroke-dasharray: 4 4; opacity: .7; }
 svg.chart .pt { stroke: var(--panel); stroke-width: 2; }
 svg.chart .zero { stroke: var(--ink2); stroke-width: 1; opacity: .45; }
+svg.chart .noteline { stroke: var(--s4); stroke-width: 1; stroke-dasharray: 2 3; }
+svg.chart .notetri { fill: var(--s4); }
+svg.chart g.note:hover .noteline, svg.chart g.note:focus .noteline { stroke-width: 2; }
+.dl.noise { background: transparent; border: 1px dashed var(--line2); }
+.ns { display: grid; grid-template-columns: minmax(230px, 330px) minmax(0, 1fr); gap: 22px; }
+@media (max-width: 820px) { .ns { grid-template-columns: 1fr; } }
+.ns .lab { font-size: 12px; color: var(--ink2); }
+.ns .big { font-size: 40px; font-weight: 600; letter-spacing: -.035em; line-height: 1.1; margin: 4px 0 2px; }
+.ns .big.low { color: var(--muted); }
+.tree { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+.tree .r { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: baseline; padding: 6px 10px; border-bottom: 1px solid var(--line); font-size: 12.5px; }
+.tree .r:last-child { border-bottom: 0; }
+.tree small { color: var(--muted); font-size: 11px; }
+.fgrid input[type=text], .fgrid input[type=number], .fgrid input[type=date] { background: var(--surface); border: 1px solid var(--line2); border-radius: 6px; padding: 0 8px; height: 28px; min-width: 0; width: 100%; color-scheme: inherit; }
+.fgrid input:disabled { opacity: .55; }
 .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; color: var(--ink2); }
 .legend i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
 .legend i.sq { height: 8px; width: 8px; border-radius: 2px; }
@@ -483,6 +498,76 @@ const GLOSS = [ // [term, definition] in ru and en
 ];
 const FN = { newtab_view: ['Новая вкладка', 'New tab'], popup_open: ['Окно расширения', 'Extension popup'], insights_view: ['Аналитика', 'Insights'], settings_view: ['Настройки', 'Settings'], focus_start: ['Старт фокуса', 'Focus started'], focus_done: ['Фокус завершён', 'Focus finished'], focus_stop: ['Фокус остановлен', 'Focus stopped'], focus_pause: ['Пауза фокуса', 'Focus paused'], eye_break_done: ['Перерыв для глаз сделан', 'Eye break taken'], eye_break_skip: ['Перерыв пропущен', 'Eye break skipped'], block_page: ['Страница паузы показана', 'Pause page shown'], block_continue: ['Нажато «Продолжить»', '“Continue” pressed'], task_add: ['Задача добавлена', 'Task added'], task_done: ['Задача сделана', 'Task done'], habit_check: ['Отметка привычки', 'Habit checked'], shutdown_done: ['Вечернее закрытие дня', 'Evening shutdown'], plan_done: ['План дня составлен', 'Day planned'], ritual_plan: ['Утренний ритуал: план', 'Morning ritual: plan'], ritual_skip: ['Утренний ритуал пропущен', 'Morning ritual skipped'], connection_add: ['Подключение добавлено', 'Connection added'], palette_open: ['Палитра команд', 'Command palette'], drawer_open: ['Боковая панель', 'Side drawer'], editor_open: ['Редактор вида', 'Look editor'], starter_apply: ['Готовый набор применён', 'Starter pack applied'], wall_next: ['Следующая обложка', 'Next wallpaper'], standby_open: ['Режим ожидания', 'Standby mode'] };
 const FG = { ritual: ['Утренний ритуал', 'Morning ritual'], dock: ['Док на сайтах', 'Dock on sites'], weather: ['Погода', 'Weather'], calendar: ['Календарь', 'Calendar'], tasks_sync: ['Синхронизация задач', 'Task sync'], settings_sync: ['Синхронизация настроек', 'Settings sync'], sync_encrypted: ['Шифрование синхронизации', 'Encrypted sync'], instant_block: ['Мгновенная блокировка', 'Instant blocking'], smart_sites: ['Умные сайты', 'Smart sites'], connections: ['Подключения', 'Connections'], schedule: ['Расписание блокировки', 'Block schedule'], limits: ['Лимиты по сайтам', 'Per-site limits'], budget: ['Бюджет отвлечений', 'Distraction budget'], friction: ['Трение (пауза)', 'Friction (pause)'], eye_notify: ['Напоминания о глазах', 'Eye reminders'], bedtime: ['Режим сна', 'Bedtime mode'], standby: ['Режим ожидания', 'Standby mode'], custom_css: ['Свой CSS', 'Custom CSS'], companion: ['Приложение для Windows', 'Windows app'], daily_goal: ['Цель на день', 'Daily goal'], focus_sound: ['Звук фокуса', 'Focus sound'], review: ['Итоги недели', 'Weekly review'], tasks_0: ['Задач: 0', 'Tasks: 0'], tasks_1_5: ['Задач: 1–5', 'Tasks: 1–5'], tasks_6_20: ['Задач: 6–20', 'Tasks: 6–20'], tasks_21p: ['Задач: 21+', 'Tasks: 21+'], habits_0: ['Привычек: 0', 'Habits: 0'], habits_1_2: ['Привычек: 1–2', 'Habits: 1–2'], habits_3p: ['Привычек: 3+', 'Habits: 3+'], sites_0: ['Блок-сайтов: 0', 'Blocked sites: 0'], sites_1_5: ['Блок-сайтов: 1–5', 'Blocked sites: 1–5'], sites_6p: ['Блок-сайтов: 6+', 'Blocked sites: 6+'] };
+const MORE = {
+  // the north star
+  ns_title: ['Главная метрика', 'North star'], ns_name: ['Завершённых сессий на активного в неделю', 'Finished sessions per active install per week'], ns_per: ['на активного', 'per active install'],
+  ns_min: ['≈ {m} мин фокуса на активного в неделю (оценка по корзинам длины)', '≈ {m} min of focus per active install per week (an estimate from the length buckets)'], ns_tree: ['Из чего она складывается', 'What it is made of'],
+  ns_in_act: ['Дошли до первой сессии за неделю', 'Reach a first session in a week'], ns_in_ret: ['Возвращаются на 2-й неделе', 'Come back in week 2'], ns_in_fin: ['Доводят сессию до конца', 'Finish a session'], ns_in_stick: ['Активных дней из 28', 'Active days of 28'],
+  ns_note: ['Растёт, когда больше людей доходит до первой сессии, возвращается и доводит сессии до конца. Последние недели неполные: они показаны пунктиром.', 'It grows when more people reach a first session, come back and finish sessions. The latest weeks are incomplete: they are dashed.'],
+  ci95: ['95%: {a}–{b}', '95%: {a}–{b}'], sig_yes: ['значимо', 'significant'], sig_no: ['может быть шумом', 'could be noise'],
+  sig_tip: ['Различие больше случайного (p < 0,05, не меньше 20 человек в каждой группе)', 'More than chance (p < 0.05, at least 20 people in each group)'], sig_tip_no: ['Различие в пределах случайного колебания', 'Within what chance alone would give'],
+  // events on the charts
+  note_btn: ['Событие', 'Event'], note_form: ['Событие на графиках', 'Event on the charts'], note_date: ['Дата', 'Date'], note_ph: ['Релиз, пост, правка…', 'Release, post, change…'], note_add: ['Добавить', 'Add'], note_del: ['Удалить', 'Delete'],
+  notes_title: ['События на графиках', 'Events on the charts'], notes_q: ['Отметьте релиз, статью или правку, и они появятся линиями на всех недельных графиках: так видно, подействовало ли.', 'Mark a release, an article or a change and it appears as a line on every weekly chart, so you can see whether it worked.'],
+  notes_empty: ['Событий пока нет.', 'No events yet.'], note_demo: ['В демо события живут только на этой странице.', 'In the demo events live only on this page.'], note_err: ['Не удалось сохранить: {why}', 'Could not save: {why}'], note_saved: ['Событие добавлено', 'Event added'],
+  // targets
+  tg_btn: ['Цели', 'Targets'], tg_title: ['Цели табло', 'Scorecard targets'], tg_note: ['Пустое поле у возврата и активации значит «цели нет». Хранится в коллекторе.', 'An empty field for return and activation means “no target”. Kept on the collector.'], tg_save: ['Сохранить', 'Save'], tg_reset: ['Стандартные', 'Defaults'],
+  tg_demo: ['В демо цели не сохраняются.', 'Targets are not saved in the demo.'], tg_saved: ['Цели сохранены', 'Targets saved'], tg_speed: ['Скорость: 9 из 10 открытий быстрее, мс', 'Speed: 9 of 10 opens faster than, ms'], tg_finish: ['Завершённых сессий, % не меньше', 'Finished sessions, % at least'],
+  tg_early: ['Ранних остановок, % не больше', 'Early stops, % at most'], tg_err: ['Установок с ошибками, % не больше', 'Installs with errors, % at most'], tg_quick: ['Приток к оттоку не меньше', 'Quick ratio at least'], tg_upd: ['На свежей версии, % не меньше', 'On the newest version, % at least'],
+  tg_stick: ['Липкость DAU/MAU, % не меньше', 'Stickiness, % at least'], tg_d1: ['Возврат на след. день, % не меньше', 'Back the next day, % at least'], tg_d7: ['Возврат на 2-й неделе, % не меньше', 'Back in week 2, % at least'],
+  tg_d30: ['Возврат на 5-й неделе, % не меньше', 'Back in week 5, % at least'], tg_act: ['Первая сессия за неделю, % не меньше', 'First session in a week, % at least'],
+  sc_goal_d1: ['Цель: возврат на след. день', 'Goal: back the next day'], sc_goal_d7: ['Цель: возврат на 2-й неделе', 'Goal: back in week 2'], sc_goal_d30: ['Цель: возврат на 5-й неделе', 'Goal: back in week 5'], sc_goal_act: ['Цель: первая сессия за неделю', 'Goal: first session in a week'],
+  // days of the week
+  wd_title: ['Когда пользуются: дни недели', 'When it is used: day of the week'], wd_note: ['Доля активных дней по дням недели за период (без последней недели, она ещё приходит). Время суток не собирается.', 'The share of active days by day of the week over the period (without the last week, still arriving). The time of day is not collected.'],
+  wd_0: ['Пн', 'Mon'], wd_1: ['Вт', 'Tue'], wd_2: ['Ср', 'Wed'], wd_3: ['Чт', 'Thu'], wd_4: ['Пт', 'Fri'], wd_5: ['Сб', 'Sat'], wd_6: ['Вс', 'Sun'],
+  // the door
+  ig_title: ['Приём отчётов', 'Report intake'], ig_q: ['Работает ли сам сбор: сколько отчётов принято и сколько отклонено. Если отказы растут, какая-то версия шлёт неверный отчёт.', 'Is the collection itself working: how many reports were accepted and how many refused. If refusals grow, some version sends a wrong report.'],
+  ig_acc: ['Принято за 7 дней', 'Accepted in 7 days'], ig_rej: ['Отклонено за 7 дней', 'Refused in 7 days'], ig_thr: ['Придержано (слишком рано)', 'Held back (too soon)'], ig_chart: ['Отчёты по дням', 'Reports by day'], ig_reasons: ['Причины отказа за 7 дней', 'Reasons for refusal in 7 days'],
+  ig_name_acc: ['Принято', 'Accepted'], ig_name_rej: ['Отклонено', 'Refused'], ig_note: ['«Слишком рано» не ошибка: клиент повторил отправку раньше срока. Счётчики не хранят ничего об установке: только день и причину.', '“Too soon” is not an error: a client retried before it was due. The counters keep nothing about an install: only the day and the reason.'],
+  ig_r_bad_report: ['Неверный отчёт', 'Invalid report'], ig_r_bad_json: ['Не JSON', 'Not JSON'], ig_r_bad_type: ['Не тот тип содержимого', 'Wrong content type'], ig_r_too_big: ['Слишком большой', 'Too big'], ig_r_wrong_origin: ['Не от расширения', 'Not from the extension'],
+  ig_r_too_soon: ['Слишком рано', 'Too soon'], ig_r_flood: ['Слишком много новых', 'Too many new'], ig_share: ['{p} отклонено', '{p} refused'],
+  // coverage
+  cv_title: ['Охват выборки', 'Coverage of the sample'], cv_q: ['Какая доля активных пользователей из магазина присылает отчёты сюда. Это показывает, насколько цифрам можно верить: при охвате 5% это очень отобранная группа.', 'What share of the store’s active users report here. It shows how far the numbers can be trusted: at 5% this is a very selected group.'],
+  cv_th_day: ['Дата', 'Date'], cv_th_users: ['Активных в магазине', 'Active in the store'], cv_th_ours: ['Присылают отчёты (7 дн.)', 'Reporting (7 days)'], cv_th_cov: ['Охват', 'Coverage'], cv_th_inst: ['Установок за неделю', 'Installs in a week'], cv_th_unin: ['Удалений за неделю', 'Removals in a week'], cv_th_rate: ['Доля удалений', 'Removal rate'],
+  cv_form: ['Добавить числа из консоли магазина', 'Add numbers from the store’s console'], cv_users: ['Активные пользователи', 'Active users'], cv_installs: ['Установок за неделю (необязательно)', 'Installs in a week (optional)'], cv_unin: ['Удалений за неделю (необязательно)', 'Removals in a week (optional)'],
+  cv_save: ['Сохранить', 'Save'], cv_demo: ['В демо числа не сохраняются.', 'Numbers are not saved in the demo.'], cv_saved: ['Числа сохранены', 'Numbers saved'], cv_kpi: ['Охват выборки', 'Coverage'],
+  cv_empty: ['Пока нет чисел из магазина. Раз в неделю копируйте из консоли Chrome Web Store число активных пользователей: тогда панель покажет охват.', 'No store numbers yet. Once a week copy the active users from the Chrome Web Store console, and the dashboard shows the coverage.'],
+  cv_note: ['Установки не люди: один человек на двух браузерах считается дважды, поэтому охват чуть завышен.', 'Installs are not people: one person on two browsers counts twice, so coverage is slightly high.'],
+  // why people leave
+  ur_title: ['Почему удаляют', 'Why people remove it'], ur_q: ['Ответы со страницы, которая открывается после удаления: одна кнопка, без текста и без идентификатора.', 'Answers from the page that opens after removal: one click, no text and no identifier.'],
+  ur_empty: ['Ответов пока нет. Страница открывается после удаления, если в сборке задан адрес коллектора.', 'No answers yet. The page opens after removal when the build has a collector address.'], ur_total: ['Ответов за период', 'Answers in the period'],
+  ur_slow: ['Медленно', 'Slow'], ur_broken: ['Ломается', 'Broken'], ur_not_useful: ['Не полезно', 'Not useful'], ur_too_strict: ['Слишком строго', 'Too strict'], ur_other_tool: ['Нашёл другое', 'Found another tool'], ur_temporary: ['Временно', 'Temporarily'], ur_other: ['Другое', 'Other'],
+  // behaviour as a segment
+  d_use: ['Использование', 'Use'], d_session: ['Запускал сессию', 'Started a session'], d_blocking: ['Включена блокировка', 'Blocking on'],
+  use_power: ['Ежедневные (15+ из 28)', 'Daily (15+ of 28)'], use_regular: ['Регулярные (8–14)', 'Regular (8–14)'], use_casual: ['Иногда (2–7)', 'Casual (2–7)'], use_once: ['Один день', 'One day'], use_new: ['Новые (до недели)', 'New (under a week)'], use_idle: ['Не активны', 'Idle'],
+  yn_yes: ['да', 'yes'], yn_no: ['нет', 'no'], yn_unknown: ['неизвестно', 'unknown'],
+  // experiments
+  pg_experiments: ['Эксперименты', 'Experiments'], q_experiments: ['Какой вариант лучше: группы сравниваются между собой, и сказано, настоящая ли разница.', 'Which variant is better: groups are compared with each other, and it says whether the difference is real.'],
+  ex_empty_h: ['Экспериментов нет', 'No experiments'], ex_empty: ['Эксперимент — это два варианта (например, длина сессии по умолчанию), которые получают случайные группы людей. Расширение назначает группу на устройстве, в отчёт идёт только её название. Чтобы начать, добавьте эксперимент в EXPERIMENTS (src/shared/usage-schema.js) и сделайте, чтобы варианты вели себя по-разному; пример в docs/MEASUREMENT.md.', 'An experiment is two variants (for example the default session length) given to random groups of people. The extension assigns the group on the device and the report carries only its name. To start one, add it to EXPERIMENTS (src/shared/usage-schema.js) and make the variants behave differently; there is an example in docs/MEASUREMENT.md.'],
+  ex_control: ['контроль', 'control'], ex_arm: ['Группа', 'Group'], ex_th_made: ['Установок в периоде', 'Installs in the period'], ex_th_d1: ['След. день', 'Next day'], ex_th_d7: ['2-я неделя', 'Week 2'], ex_th_act: ['Сессия за неделю', 'Session in a week'], ex_th_fin: ['Завершено', 'Finished'], ex_th_days: ['Дней из 28', 'Days of 28'],
+  ex_vs: ['к контролю: {v}', 'vs control: {v}'], ex_win: ['лучше, значимо', 'better, significant'], ex_lose: ['хуже, значимо', 'worse, significant'], ex_noise: ['пока неотличимо', 'not yet distinguishable'],
+  ex_note: ['Группа считается лучше, только когда разница значима (p < 0,05) и в каждой группе не меньше 20 человек. Ждите, пока наберётся выборка: смотреть раньше значит принять шум за результат.', 'A group counts as better only when the difference is significant (p < 0.05) and each has at least 20 people. Wait for the sample: looking early takes noise for a result.'],
+};
+Object.assign(MORE, {
+  'ins.sig': ['{f}: изменение к прошлому периоду {d} значимо, это не шум.', '{f}: the change against the previous period, {d}, is significant, not noise.'],
+  'ins.exp': ['Эксперимент «{e}»: группа «{a}» лучше контроля по «{m}» на {d} п.п. (значимо).', 'Experiment “{e}”: group “{a}” beats the control on “{m}” by {d} pp (significant).'],
+  'ins.cov': ['Охват выборки {p}: цифры описывают небольшую отобранную группу, читайте их осторожно.', 'Coverage of the sample is {p}: the figures describe a small, selected group, so read them with care.'],
+  'ins.door': ['Приём отчётов: за неделю отклонено {p}. Откройте «Качество», там причины.', 'Report intake: {p} refused this week. Open “Quality” for the reasons.'],
+});
+Object.assign(PAIRS, MORE);
+const MORE_GLOSS = [
+  [['Главная метрика (North Star)', 'North star'], ['Завершённые фокус-сессии на активную установку в неделю, по последней полной неделе. Минуты — оценка: длина известна только по корзинам, берётся середина корзины.', 'Finished focus sessions per active install per week, for the last full week. Minutes are an estimate: the length is known only by bucket, and the middle of the bucket is used.']],
+  [['Интервал 95%', '95% interval'], ['Диапазон, в котором с вероятностью 95% лежит настоящая доля (Уилсон). Чем меньше людей, тем он шире: «30%» на 40 установках — это «от 18% до 46%».', 'The range in which the true share lies with 95% confidence (Wilson). The fewer the people, the wider it is: “30%” on 40 installs means “from 18% to 46%”.']],
+  [['Значимо или шум', 'Significant or noise'], ['Рядом со стрелкой изменения к прошлому периоду: «значимо» — разница больше случайной (p < 0,05, не меньше 20 человек в каждой группе); «может быть шумом» — нет. Для счётчиков (число установок) проверка не делается.', 'Beside the arrow of a change against the previous period: “significant” means more than chance (p < 0.05, at least 20 people in each group); “could be noise” means not. Counts (the number of installs) are not tested.']],
+  [['События и цели', 'Events and targets'], ['События — ваши отметки на графиках (релиз, пост). Цели — пороги табло «Состояние продукта»; по умолчанию наши, не стандарт индустрии, и их можно менять. Хранятся в коллекторе.', 'Events are your marks on the charts (a release, a post). Targets are the thresholds of the “Product health” table; ours by default, not an industry standard, and you can change them. Kept on the collector.']],
+  [['Охват выборки', 'Coverage of the sample'], ['Число присылающих отчёты (активных за 7 дней) ÷ число активных пользователей в консоли магазина на ту же дату. Числа магазина вводите вручную; без них охват неизвестен.', 'Installs that report (active in 7 days) ÷ the store console’s active users on the same date. You type the store’s numbers; without them the coverage is unknown.']],
+  [['Типы использования', 'Types of use'], ['По дням активности из последних 28 полных дней: ежедневные 15+, регулярные 8–14, иногда 2–7, один день, новые (меньше недели), не активны. «Запускал сессию» и «Включена блокировка» — из первых использований и настроек.', 'By days active of the last 28 full days: daily 15+, regular 8–14, casual 2–7, one day, new (under a week), idle. “Started a session” and “Blocking on” come from first uses and setup.']],
+  [['Эксперименты', 'Experiments'], ['Группа назначается на устройстве по случайному числу, которое никуда не уходит; в отчёте только название группы. Группы сравниваются с контролем тестом против случайности, и без значимости победителя нет.', 'The group is chosen on the device by a random number that never leaves it; the report carries only the group’s name. Groups are compared with the control by a test against chance, and without significance there is no winner.']],
+  [['Приём отчётов', 'Report intake'], ['Коллектор считает по дням, сколько отчётов принял и сколько отклонил и почему, без чего-либо об установке. Это единственный способ заметить, что отчёты ломаются, не ведя журнал.', 'The collector counts by day how many reports it accepted and how many it refused and why, with nothing about an install. This is the only way to notice that reports are breaking without keeping a log.']],
+  [['Почему удаляют', 'Why people remove it'], ['Ответы на одну кнопку со страницы после удаления: без текста, без идентификатора, одна запись в день на причину.', 'One-click answers from the page after removal: no text, no identifier, a count per day and reason.']],
+  [['Дни недели', 'Days of the week'], ['Из дней активности уже собранных отчётов; время суток не собирается. Последняя неделя не входит: она ещё приходит.', 'From the days of activity already in the reports; the time of day is not collected. The last week is left out: it is still arriving.']],
+];
+for (const g of MORE_GLOSS) GLOSS.push(g);
 const L = { ru: {}, en: {} };
 for (const [k, v] of Object.entries(PAIRS)) { L.ru[k] = v[0]; L.en[k] = v[1]; }
 for (const [k, v] of Object.entries(FN)) { L.ru['fn.' + k] = v[0]; L.en['fn.' + k] = v[1]; }
@@ -498,7 +583,7 @@ const OPEN_END = 100000; // stats.js: the bound of the slowest bucket means "no 
 const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch { /* private window */ } } };
 const tab = { get(k) { try { return sessionStorage.getItem(k); } catch { return null; } }, set(k, v) { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch { /* private window */ } } };
 const params = new URLSearchParams(location.search);
-const DEFAULT_DAYS = 90, ISO = /^\d{4}-\d{2}-\d{2}$/, DIMS = ['app', 'br', 'os', 'lang', 'look', 'layout', 'mode'], SLUG = /^[a-z0-9._-]{1,24}$/;
+const DEFAULT_DAYS = 90, ISO = /^\d{4}-\d{2}-\d{2}$/, DIMS = ['app', 'br', 'os', 'lang', 'look', 'layout', 'mode', 'use', 'session', 'blocking'], SLUG = /^[a-z0-9._-]{1,24}$/;
 const rangeFromUrl = () => {
   const f = params.get('from'), t2 = params.get('to'), d = params.get('days');
   if (params.get('range') === 'all') return { kind: 'all' };
@@ -509,11 +594,11 @@ const rangeFromUrl = () => {
 const filterFromUrl = () => Object.fromEntries(DIMS.filter((d) => params.get(d) && SLUG.test(params.get(d))).map((d) => [d, params.get(d)]));
 const PAGES = [
   { id: 'overview', grp: 'g_main', ok: () => true }, { id: 'growth', grp: 'g_people', ok: (s) => !!s.weekly }, { id: 'activation', grp: 'g_people', ok: (s) => !!s.funnel }, { id: 'retention', grp: 'g_people', ok: (s) => !!s.retention }, { id: 'audience', grp: 'g_people', ok: (s) => !!s.setup },
-  { id: 'features', grp: 'g_product', ok: (s) => !!s.features }, { id: 'product', grp: 'g_product', ok: (s) => !!s.sessions }, { id: 'quality', grp: 'g_product', ok: (s) => !!(s.speed || s.health) }, { id: 'method', grp: 'g_ref', ok: () => true },
+  { id: 'features', grp: 'g_product', ok: (s) => !!s.features }, { id: 'experiments', grp: 'g_product', ok: (s) => !!s.experiments }, { id: 'product', grp: 'g_product', ok: (s) => !!s.sessions }, { id: 'quality', grp: 'g_product', ok: (s) => !!(s.speed || s.health) }, { id: 'method', grp: 'g_ref', ok: () => true },
 ];
-const SCOPE = { overview: 'active', growth: 'weeks', activation: 'made', retention: 'made', features: 'active', product: 'active', quality: 'active', audience: 'active', method: null };
+const SCOPE = { overview: 'active', growth: 'weeks', activation: 'made', retention: 'made', features: 'active', experiments: 'made', product: 'active', quality: 'active', audience: 'active', method: null };
 const hashPage = () => { const hs = location.hash.replace(/^#/, ''); return PAGES.some((p) => p.id === hs) ? hs : 'overview'; };
-const state = { range: rangeFromUrl(), filter: filterFromUrl(), compare: store.get('et-compare') !== '0', rangeErr: '', page: hashPage(), feature: null, group: 'all', segDim: 'lang', lang: store.get('et-lang') || (/^ru|^uk|^be/i.test(navigator.language || '') ? 'ru' : 'en'), theme: store.get('et-theme') || 'auto', s: null, mode: params.has('demo') ? 'demo' : params.has('public') ? 'public' : 'owner', err: '', first: true };
+const state = { localNotes: [], localSeq: 0, range: rangeFromUrl(), filter: filterFromUrl(), compare: store.get('et-compare') !== '0', rangeErr: '', page: hashPage(), feature: null, group: 'all', segDim: 'lang', lang: store.get('et-lang') || (/^ru|^uk|^be/i.test(navigator.language || '') ? 'ru' : 'en'), theme: store.get('et-theme') || 'auto', s: null, mode: params.has('demo') ? 'demo' : params.has('public') ? 'public' : 'owner', err: '', first: true };
 const t = (key, vars) => { let s = L[state.lang][key]; if (s == null) s = L.en[key]; if (s == null) return key; if (typeof s === 'string' && vars) for (const k in vars) s = s.split('{' + k + '}').join(String(vars[k])); return s; };
 const nf = () => new Intl.NumberFormat(state.lang === 'ru' ? 'ru-RU' : 'en-US');
 const num = (n) => nf().format(Math.round(n));
@@ -529,9 +614,9 @@ function h(tag, attrs, ...kids) {
   return el;
 }
 function svg(tag, attrs, ...kids) { const el = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs || {})) if (v != null) el.setAttribute(k, String(v)); for (const c of kids.flat()) if (c != null) el.append(c.nodeType ? c : document.createTextNode(String(c))); return el; }
-const ICONS = { overview: 'M3 3h4.5v4.5H3zM8.5 3H13v4.5H8.5zM3 8.5h4.5V13H3zM8.5 8.5H13V13H8.5z', growth: 'M2 11.5l3.5-3.5 2.5 2.5L13.5 5M10 5h3.5v3.5', activation: 'M2.5 3h11l-4.2 5v4.5l-2.6-1.2V8z', retention: 'M13 8a5 5 0 1 1-1.6-3.7M13 2.8v3.1h-3.1', audience: 'M6 7.2a2.4 2.4 0 1 0 0-4.8 2.4 2.4 0 0 0 0 4.8zM1.8 13.5c0-2.3 1.9-3.7 4.2-3.7s4.2 1.4 4.2 3.7M10.6 2.8a2.2 2.2 0 0 1 0 4.2M11.5 9.9c1.6.4 2.7 1.6 2.7 3.6', features: 'M8 2.2l5.8 2.9L8 8 2.2 5.1zM2.2 8L8 10.9 13.8 8M2.2 10.9L8 13.8l5.8-2.9', product: 'M8 4.5V8l2.2 1.4M8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12', quality: 'M1.8 8.5h3l1.8-4.6 2.8 7.6 1.8-3h3', method: 'M3.2 2.8h6.3a2 2 0 0 1 2 2v8.4H5.2a2 2 0 0 1-2-2zM5.5 6h4M5.5 8.6h4' };
+const ICONS = { overview: 'M3 3h4.5v4.5H3zM8.5 3H13v4.5H8.5zM3 8.5h4.5V13H3zM8.5 8.5H13V13H8.5z', growth: 'M2 11.5l3.5-3.5 2.5 2.5L13.5 5M10 5h3.5v3.5', activation: 'M2.5 3h11l-4.2 5v4.5l-2.6-1.2V8z', retention: 'M13 8a5 5 0 1 1-1.6-3.7M13 2.8v3.1h-3.1', audience: 'M6 7.2a2.4 2.4 0 1 0 0-4.8 2.4 2.4 0 0 0 0 4.8zM1.8 13.5c0-2.3 1.9-3.7 4.2-3.7s4.2 1.4 4.2 3.7M10.6 2.8a2.2 2.2 0 0 1 0 4.2M11.5 9.9c1.6.4 2.7 1.6 2.7 3.6', features: 'M8 2.2l5.8 2.9L8 8 2.2 5.1zM2.2 8L8 10.9 13.8 8M2.2 10.9L8 13.8l5.8-2.9', product: 'M8 4.5V8l2.2 1.4M8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12', quality: 'M1.8 8.5h3l1.8-4.6 2.8 7.6 1.8-3h3', method: 'M3.2 2.8h6.3a2 2 0 0 1 2 2v8.4H5.2a2 2 0 0 1-2-2zM5.5 6h4M5.5 8.6h4', experiments: 'M6.5 2.5h3M7 2.5V6L3.5 12.2A1.2 1.2 0 0 0 4.5 14h7a1.2 1.2 0 0 0 1-1.8L9 6V2.5M5.2 10h5.6' };
 const icon = (id) => svg('svg', { class: 'ic', viewBox: '0 0 16 16', 'aria-hidden': 'true' }, svg('path', { d: ICONS[id] }));
-const nameOf = (dim, v) => (v === 'other' ? t('st_other') : dim === 'lang' ? v.toUpperCase() : dim === 'mode' ? (L[state.lang]['m_' + v] || v) : v);
+const nameOf = (dim, v) => (v === 'other' ? t('st_other') : dim === 'lang' ? v.toUpperCase() : dim === 'mode' ? (L[state.lang]['m_' + v] || v) : dim === 'use' ? t('use_' + v) : dim === 'session' || dim === 'blocking' ? t('yn_' + v) : v);
 
 // ───────────────────────── tooltip (text only) ─────────────────────────
 const tip = $('#tip');
@@ -554,7 +639,8 @@ function tipOn(el, lines) {
 // ───────────────────────── building blocks ─────────────────────────
 function block(title, why, ...body) { return h('section', { class: 'block' }, h('div', { class: 'bh' }, h('h2', null, title), why && h('span', { class: 'why' }, why)), ...body); }
 /** A change against the period before: counts as a relative share, rates in percentage points; tone says whether up is good. Nothing when there is nothing sound to compare with. */
-function delta(cur, prev, { rate = false, good = 'up', minN = 0 } = {}) {
+const cmp = (/** @type {string} */ k) => (state.s && state.s.compare ? state.s.compare[k] : null);
+function delta(cur, prev, { rate = false, good = 'up', minN = 0, sig = null } = {}) {
   if (!state.compare || !state.s || !state.s.prev || cur == null || prev == null || Number.isNaN(cur) || Number.isNaN(prev)) return null;
   if (minN && cur.n != null && cur.n < minN) return null;
   const a = cur.pct !== undefined ? cur.pct : cur, b = prev.pct !== undefined ? prev.pct : prev;
@@ -562,17 +648,18 @@ function delta(cur, prev, { rate = false, good = 'up', minN = 0 } = {}) {
   const diff = rate ? (a - b) * 100 : (b ? ((a - b) / b) * 100 : null);
   if (diff == null) return null;
   const flat = Math.abs(diff) < (rate ? 0.5 : 1), up = diff > 0;
-  const tone = flat || good === 'neutral' ? 'flat' : (up === (good === 'up') ? 'up' : 'down');
+  const noise = !!sig && !sig.significant;
+  const tone = noise || flat || good === 'neutral' ? 'flat' : (up === (good === 'up') ? 'up' : 'down');
   const txt = (up ? '+' : diff < 0 ? '−' : '') + dec(Math.abs(diff)) + (rate ? ' ' + t('pp') : '%');
-  return h('div', { class: 'dl ' + tone, title: t('vs') }, (flat ? '→ ' : up ? '▲ ' : '▼ ') + txt + ' · ' + t('vs_was', { v: rate ? pct(b) : num(b) }));
+  return h('div', { class: 'dl ' + tone + (noise ? ' noise' : ''), title: sig ? t(sig.significant ? 'sig_tip' : 'sig_tip_no') : t('vs') }, (flat ? '→ ' : up ? '▲ ' : '▼ ') + txt + ' · ' + t('vs_was', { v: rate ? pct(b) : num(b) }) + (sig ? ' · ' + t(sig.significant ? 'sig_yes' : 'sig_no') : ''));
 }
 function kpi({ lab, val, sub, hint, frac: fr, low, d }) {
   return h('div', { class: 'card kpi' + (low ? ' low' : '') }, h('div', { class: 'lab' }, lab), h('div', { class: 'val' }, val), sub && h('div', { class: 'sub' }, sub), d, fr != null && h('div', { class: 'bar', 'aria-hidden': 'true' }, h('i', { style: 'width:' + Math.max(0, Math.min(100, fr * 100)) + '%' })), hint && h('div', { class: 'hint' }, hint));
 }
 const known = (p) => p && p.n > 0 ? p : null;
-function pairKpi(lab, p, hint, prevPair, good = 'up') {
+function pairKpi(lab, p, hint, prevPair, good = 'up', key = '') {
   const ok = known(p); const low = !ok || p.n < LOW();
-  return kpi({ lab, val: ok ? pct(p.pct) : '—', sub: ok ? `${num(p.k)} ${t('of')} ${num(p.n)}` + (low ? ' · ' + t('low') : '') : t('wait'), frac: ok ? p.pct : null, hint, low, d: ok && !low ? delta(p, prevPair, { rate: true, good, minN: 20 }) : null });
+  return kpi({ lab, val: ok ? pct(p.pct) : '—', sub: ok ? `${num(p.k)} ${t('of')} ${num(p.n)}` + (p.lo != null ? ' · ' + t('ci95', { a: pct(p.lo), b: pct(p.hi) }) : '') + (low ? ' · ' + t('low') : '') : t('wait'), frac: ok ? p.pct : null, hint, low, d: ok && !low ? delta(p, prevPair, { rate: true, good, minN: 20, sig: key ? cmp(key) : null }) : null });
 }
 /** rows: [{ label, badge, value (0..1 of max), text, small, tip: [[a,b],…], cls }] */
 function hlist(rows, { max: fixedMax } = {}) {
@@ -588,7 +675,7 @@ function dataTable(head, rows) {
 }
 const nice = (m) => { const p = Math.pow(10, Math.floor(Math.log10(m || 1))), f = (m || 1) / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p; };
 /** A column chart. cols: [{ label, v, part, tip, top }] */
-function columns(cols, { height = 200, fmt = num, yMax, tickEvery = 1, caption } = {}) {
+function columns(cols, { height = 200, fmt = num, yMax, tickEvery = 1, caption, marks = [] } = {}) {
   const W = 720, mL = 40, mR = 8, mT = 14, mB = 26, H = height, iw = W - mL - mR, ih = H - mT - mB;
   const max = yMax ?? Math.max(1, ...cols.map((c) => c.v)), top = yMax ?? nice(max), ticks = [0, 0.5, 1].map((f) => top * f);
   const el = svg('svg', { class: 'chart', viewBox: `0 0 ${W} ${H}`, role: 'group', 'aria-label': caption || '' });
@@ -605,11 +692,12 @@ function columns(cols, { height = 200, fmt = num, yMax, tickEvery = 1, caption }
     tipOn(col, c.tip || [[fmt(c.v), c.label]]);
     el.append(col);
   });
+  for (const m of marks) el.append(noteMark(mL + (m.idx + 0.5) * bw, mT, mT + ih, m.text, m.day));
   return el;
 }
 const legend = (items) => h('div', { class: 'legend' }, items.map((x) => h('span', null, h('i', { class: x.sq ? 'sq' : '', style: 'background:' + x.color }), x.name)));
 /** A line chart with a crosshair that reads every series at once (also by keyboard: left and right arrows). series: [{ name, color, values (null = no point) }]; points from `partialFrom` on are drawn dashed. */
-function lineChart({ labels, series, height = 220, fmt = num, yMax, partialFrom = Infinity, caption, tickEvery = 1, note }) {
+function lineChart({ labels, series, height = 220, fmt = num, yMax, partialFrom = Infinity, caption, tickEvery = 1, note, marks = [] }) {
   const W = 720, mL = 44, mR = 14, mT = 14, mB = 26, H = height, iw = W - mL - mR, ih = H - mT - mB, n = labels.length;
   const all = series.flatMap((s) => s.values).filter((v) => v != null), top = yMax ?? nice(Math.max(1e-9, ...all)), ticks = [0, 0.5, 1].map((f) => top * f);
   const X = (i) => mL + (n === 1 ? iw / 2 : (i * iw) / (n - 1)), Y = (v) => mT + ih - (v / top) * ih;
@@ -639,11 +727,11 @@ function lineChart({ labels, series, height = 220, fmt = num, yMax, partialFrom 
   hit.addEventListener('pointermove', (e) => { cur = idxAt(e.clientX); at(cur, e.clientX, e.clientY); });
   hit.addEventListener('pointerleave', off); hit.addEventListener('blur', off); hit.addEventListener('focus', focusAt);
   hit.addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); cur = Math.max(0, Math.min(n - 1, cur + (e.key === 'ArrowRight' ? 1 : -1))); focusAt(); } });
-  el.append(cross, ...dots, hit);
+  el.append(cross, ...dots, hit, ...marks.map((m) => noteMark(X(m.idx), mT, mT + ih, m.text, m.day)));
   return h('div', null, el, series.length > 1 ? legend(series.map((s) => ({ name: s.name, color: s.color }))) : null);
 }
 /** Weekly stacked columns: above the axis who is active (stayed, new, returned), below it who lapsed. */
-function lifecycleChart(rows) {
+function lifecycleChart(rows, marks = []) {
   const W = 720, mL = 44, mR = 8, mT = 14, mB = 26, H = 280, iw = W - mL - mR, ih = H - mT - mB;
   const up = Math.max(1, ...rows.map((r) => r.retained + r.new + r.resurrected)), down = Math.max(1, ...rows.map((r) => r.churned));
   const top = nice(up), bot = nice(down), span = top + bot, Y = (v) => mT + ((top - v) / span) * ih, zero = Y(0);
@@ -661,6 +749,7 @@ function lifecycleChart(rows) {
     tipOn(col, [[r.from + ' – ' + r.to + (r.partial ? ' *' : ''), ''], [num(r.new), t('lc_new')], [num(r.retained), t('lc_ret')], [num(r.resurrected), t('lc_res')], [num(r.churned), t('lc_churn')], [r.quick_ratio == null ? '—' : dec(r.quick_ratio, 2), t('lc_qr')]]);
     el.append(col);
   });
+  for (const m of marks) el.append(noteMark(mL + (m.idx + 0.5) * bw, mT, mT + ih, m.text, m.day));
   return h('div', null, el, legend([{ name: t('lc_ret'), color: 'var(--s1)', sq: 1 }, { name: t('lc_new'), color: 'var(--s3)', sq: 1 }, { name: t('lc_res'), color: 'var(--s4)', sq: 1 }, { name: t('lc_churn'), color: 'var(--s2)', sq: 1 }]));
 }
 /** A small trend line without axes: the last stable point emphasised. */
@@ -675,19 +764,68 @@ function spark(values, partialFrom = Infinity) {
 const firstPartial = (tr) => { const k = tr.weeks.findIndex((w) => w.partial); return k < 0 ? Infinity : k; };
 const weekLabels = (tr) => tr.weeks.map((w) => dateShort(w.to));
 const ratioSeries = (a, b) => a.map((v, i) => (b[i] > 0 ? v / b[i] : null));
+
+// ───────────────────────── events on the charts, the owner's writes ─────────────────────────
+const notesFor = (s) => [...(s.notes || []), ...(state.mode === 'demo' ? state.localNotes : [])];
+const weekMarks = (s, weeks) => notesFor(s).map((n) => ({ idx: weeks.findIndex((w) => n.day >= w.from && n.day <= w.to), text: n.text, day: n.day })).filter((m) => m.idx >= 0);
+const dayMarks = (s, days) => notesFor(s).map((n) => ({ idx: days.indexOf(n.day), text: n.text, day: n.day })).filter((m) => m.idx >= 0);
+function noteMark(x, y1, y2, text, day) {
+  const g = svg('g', { class: 'note', tabindex: '0', role: 'img', 'aria-label': day + ': ' + text });
+  g.append(svg('line', { class: 'noteline', x1: x, x2: x, y1, y2 }), svg('path', { class: 'notetri', d: `M${x - 4},${y1 - 9}h8l-4,7z` }), svg('rect', { class: 'hit', x: x - 6, y: y1 - 10, width: 12, height: y2 - y1 + 10 }));
+  return tipOn(g, [[text, ''], [day, '']]);
+}
+/** A write that only the owner may make (notes, store numbers, targets): the same key as for reading. */
+async function ownerCall(method, path, body) {
+  const token = tab.get('et-token') || '';
+  try {
+    const r = await fetch(path, { method, headers: { authorization: 'Bearer ' + token, ...(body !== undefined ? { 'content-type': 'application/json' } : {}) }, body: body === undefined ? undefined : JSON.stringify(body), cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer' });
+    return { ok: r.ok, status: r.status, text: r.ok ? '' : await r.text().catch(() => '') };
+  } catch { return { ok: false, status: 0, text: 'network' }; }
+}
+const todayIso = () => new Date().toISOString().slice(0, 10);
+function noteMenu() {
+  const demo = state.mode === 'demo';
+  const date = h('input', { type: 'date', id: 'note-date', value: todayIso() }), text = h('input', { type: 'text', id: 'note-text', maxlength: '80', placeholder: t('note_ph'), 'aria-label': t('note_ph') });
+  const add = async () => {
+    const day = date.value, txt = text.value.trim();
+    if (!ISO.test(day) || !txt || txt.length > 80) { toast(t('note_max')); return; }
+    if (demo) { state.localNotes.push({ id: --state.localSeq, day, text: txt }); d.open = false; render(); return; }
+    const r = await ownerCall('POST', '/v1/notes', { day, text: txt });
+    if (r.ok) { d.open = false; toast(t('note_saved')); load(); } else toast(t('note_err', { why: r.text || r.status }));
+  };
+  const d = h('details', { class: 'menu' }, h('summary', { class: 'btn', role: 'button' }, t('note_btn') + ' ▾'),
+    h('div', { class: 'pop wide' }, h('div', { class: 'fgrid' }, h('label', { for: 'note-date' }, t('note_date')), date, h('label', { for: 'note-text' }, t('note_form')), text), demo && h('p', { class: 'note', style: 'margin:0' }, t('note_demo')), h('button', { class: 'btn primary', type: 'button', onclick: add }, t('note_add'))));
+  return d;
+}
+function notesBlock(s) {
+  const rows = notesFor(s).slice().sort((a, b) => (a.day < b.day ? 1 : -1)), owner = state.mode === 'owner', demo = state.mode === 'demo';
+  const del = async (n) => { if (n.id < 0) { state.localNotes = state.localNotes.filter((x) => x.id !== n.id); render(); } else if (owner && (await ownerCall('DELETE', '/v1/notes/' + n.id)).ok) load(); };
+  return block(t('notes_title'), t('notes_q'), h('div', { class: 'card tbl' }, rows.length
+    ? h('table', { class: 't' }, h('tbody', null, rows.map((n) => h('tr', null, h('td', null, n.day), h('td', { style: 'text-align:left;width:100%;white-space:normal' }, n.text), h('td', null, (owner || (demo && n.id < 0)) && h('button', { class: 'btn ghost', type: 'button', onclick: () => del(n) }, t('note_del')))))))
+    : h('p', { class: 'note', style: 'margin:0' }, t('notes_empty'))));
+}
+const TKEYS = [['speed_p90', 'tg_speed', false], ['finish', 'tg_finish', true], ['early', 'tg_early', true], ['err', 'tg_err', true], ['quick', 'tg_quick', false], ['upd', 'tg_upd', true], ['stick', 'tg_stick', true], ['d1', 'tg_d1', true], ['d7', 'tg_d7', true], ['d30', 'tg_d30', true], ['act', 'tg_act', true]];
+function targetsEditor(s) {
+  if (!s.targets || state.mode === 'public') return null;
+  const demo = state.mode === 'demo', V = s.targets.values, inputs = {};
+  const grid = h('div', { class: 'fgrid' }, TKEYS.flatMap(([k, key, isPct]) => {
+    const v = V[k], inp = h('input', { type: 'number', id: 'tg-' + k, step: isPct ? '1' : k === 'quick' ? '0.1' : '50', min: '0', value: v == null ? '' : String(isPct ? Math.round(v * 1000) / 10 : v), disabled: demo });
+    inputs[k] = inp; return [h('label', { for: 'tg-' + k }, t(key)), inp];
+  }));
+  const save = async (body) => { const r = await ownerCall('PUT', '/v1/targets', body); if (r.ok) { toast(t('tg_saved')); load(); } else toast(t('note_err', { why: r.text || r.status })); };
+  const collect = () => { const body = {}; for (const [k, , isPct] of TKEYS) { const raw = inputs[k].value.trim(); if (raw === '') { body[k] = null; continue; } const n = Number(raw); if (Number.isFinite(n)) body[k] = isPct ? n / 100 : n; } return body; };
+  return h('div', { style: 'display:flex;justify-content:flex-end;margin-bottom:6px' }, h('details', { class: 'menu' }, h('summary', { class: 'btn', role: 'button' }, t('tg_btn') + ' ▾'),
+    h('div', { class: 'pop wide' }, h('h3', { style: 'margin:0' }, t('tg_title')), grid, h('p', { class: 'note', style: 'margin:0' }, demo ? t('tg_demo') : t('tg_note')),
+      !demo && h('div', { style: 'display:flex;gap:6px' }, h('button', { class: 'btn primary', type: 'button', onclick: () => save(collect()) }, t('tg_save')), h('button', { class: 'btn', type: 'button', onclick: () => save({}) }, t('tg_reset'))))));
+}
 const sessionsOf = (s) => (s.sessions && s.sessions.finish_rate != null ? s.sessions : null);
 
 // ───────────────────────── derived figures ─────────────────────────
+/** The product-health rows come from the server (stats.js scorecard, with the owner's targets); here they get their words. */
 function scorecard(s) {
-  const rows = [], add = (id, page, label, val, text, target, status) => rows.push({ id, page, label, val, text, target, status });
-  const st = (v, good, warn, higher = true, enough = true) => (!enough || v == null ? 'na' : higher ? (v >= good ? 'good' : v >= warn ? 'warn' : 'bad') : (v <= good ? 'good' : v <= warn ? 'warn' : 'bad'));
-  if (s.speed) { const p = s.speed.p90_upper, e = s.speed.opens >= 100 && p != null; add('speed', 'quality', t('sc_speed'), p, e ? (p >= OPEN_END ? '> 1000 ' : '< ' + p + ' ') + t('sp_unit') : t('sc_na'), t('sc_speed_t'), !e ? 'na' : p <= 500 ? 'good' : p <= 1000 ? 'warn' : 'bad'); }
-  if (s.sessions) { const x = s.sessions, e = x.started >= 30; add('finish', 'product', t('sc_finish'), x.finish_rate, e ? pct(x.finish_rate) : t('sc_na'), t('sc_finish_t'), st(x.finish_rate, 0.7, 0.5, true, e)); add('early', 'product', t('sc_early'), x.early_stop_rate, e ? pct(x.early_stop_rate) : t('sc_na'), t('sc_early_t'), st(x.early_stop_rate, 0.1, 0.2, false, e)); }
-  if (s.health) { const p = s.health.installs_with_error, e = p.n >= 50; add('err', 'quality', t('sc_err'), p.pct, e ? pct(p.pct) : t('sc_na'), t('sc_err_t'), st(p.pct, 0.05, 0.1, false, e)); }
-  if (s.lifecycle) { const l = s.lifecycle.filter((x) => !x.partial).at(-1), e = !!l && l.churned > 0; add('quick', 'growth', t('sc_quick'), l && l.quick_ratio, e ? dec(l.quick_ratio, 2) : t('sc_na'), t('sc_quick_t'), st(l && l.quick_ratio, 1, 0.8, true, e)); }
-  if (s.releases && s.releases.latest) { const p = s.releases.on_latest, e = p.n >= 50 && s.releases.versions.length > 1; add('upd', 'quality', t('sc_upd'), p.pct, e ? pct(p.pct) : t('sc_na'), t('sc_upd_t'), st(p.pct, 0.8, 0.5, true, e)); }
-  if (s.engagement) { const v = s.engagement.dau_mau, e = s.engagement.mau >= 50; add('stick', 'growth', t('sc_stick'), v, e ? pct(v) : t('sc_na'), t('sc_stick_t'), st(v, 0.2, 0.1, true, e)); }
-  return rows;
+  const fmtV = (r) => { if (!r.enough) return t('sc_na'); switch (r.id) { case 'speed': return (r.value >= OPEN_END ? '> 1000 ' : '< ' + r.value + ' ') + t('sp_unit'); case 'quick': return dec(r.value, 2); default: return pct(r.value); } };
+  const fmtT = (r) => { if (r.target == null) return ''; switch (r.id) { case 'speed': return '≤ ' + r.target + ' ' + t('sp_unit'); case 'quick': return '≥ ' + dec(r.target, 2); case 'early': case 'err': return '≤ ' + pct(r.target); default: return '≥ ' + pct(r.target); } };
+  return (s.scorecard || []).map((r) => ({ ...r, label: t('sc_' + r.id), text: fmtV(r), targetText: fmtT(r) }));
 }
 function insights(s) {
   const out = [], P = (x) => pct(x), I = (kind, text, page) => out.push({ kind, text, page });
@@ -713,6 +851,10 @@ function insights(s) {
   if (s.health && s.health.installs_with_error.n >= 20 && s.health.installs_with_error.pct > 0.05) { const top = [...s.health.by_place].sort((a, b) => b.k - a.k)[0]; I('warn', t('ins.err', { p: P(s.health.installs_with_error.pct), place: t('he_' + top.id) }), 'quality'); }
   if (s.releases && s.releases.latest && s.releases.versions.length > 1 && s.releases.on_latest.n >= 50 && s.releases.on_latest.pct < 0.5) I('info', t('ins.upd', { p: P(s.releases.on_latest.pct), v: s.releases.latest }), 'quality');
   if (s.releases) { const vs = s.releases.versions.filter((v) => v.installs >= 30); if (vs.length > 1) { const worst = [...vs].sort((a, b) => b.errors_per_1000 - a.errors_per_1000)[0], others = vs.filter((v) => v !== worst), avg = others.reduce((a, v) => a + v.errors_per_1000, 0) / others.length; if (worst.errors_per_1000 > 2 * avg && worst.errors_per_1000 > 20) I('warn', t('ins.rel', { v: worst.value, e: dec(worst.errors_per_1000, 0), o: dec(avg, 0) }), 'quality'); } }
+  if (s.compare) for (const [k, key] of [['d7', 'k_d7'], ['d1', 'k_d1'], ['session_week1', 'k_act'], ['finish_rate', 'k_fin']]) { const c = s.compare[k]; if (c && c.significant) I(c.diff > 0 ? 'good' : 'warn', t('ins.sig', { f: t(key), d: (c.diff > 0 ? '+' : '−') + dec(Math.abs(c.diff) * 100) + ' ' + t('pp') }), 'overview'); }
+  for (const e of s.experiments || []) for (const a of e.arms) for (const [m, key] of [['d7', 'ex_th_d7'], ['session_week1', 'ex_th_act'], ['d1', 'ex_th_d1']]) { const c = a.vs_control && a.vs_control[m]; if (c && c.significant && c.diff > 0) I('good', t('ins.exp', { e: e.id, a: a.arm, m: t(key), d: dec(c.diff * 100) }), 'experiments'); }
+  const cov = s.coverage && s.coverage.rows.filter((r) => r.coverage != null).at(-1); if (cov && cov.coverage < 0.1 && cov.users >= 100) I('info', t('ins.cov', { p: pct(cov.coverage, 1) }), 'audience');
+  if (s.ingest && s.ingest.rejected_share_7d != null && s.ingest.rejected_share_7d > 0.2 && s.ingest.accepted_7d + s.ingest.rejected_7d >= 20) I('warn', t('ins.door', { p: pct(s.ingest.rejected_share_7d) }), 'quality');
   return out;
 }
 
@@ -739,6 +881,7 @@ function controls(s) {
   }
   if (owner && state.range.kind !== 'all') first.append(h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: state.compare, onchange: (e) => { state.compare = e.target.checked; store.set('et-compare', state.compare ? '1' : '0'); render(); } }), t('cmp')));
   if (owner && s.facets) first.append(filterMenu(s));
+  if (owner) first.append(noteMenu());
   first.append(exportMenu());
   const info = h('div', { class: 'rangetxt', 'aria-live': 'polite' });
   if (s.range) {
@@ -774,7 +917,7 @@ function pageHead(id, s) {
 }
 function weeklyChart(s) {
   const cols = s.weekly.map((w) => ({ label: dateShort(w.to), v: w.active, part: w.partial, top: w.active ? num(w.active) : '', tip: [[num(w.active), t('w_active')], [t('w_range') + ' ' + w.from + ' – ' + w.to], w.installed ? [pct(w.active / w.installed), t('w_share') + ' (' + num(w.installed) + ' ' + t('n_inst') + ')'] : ['', ''], w.partial ? ['', t('w_open')] : null].filter((x) => x && (x[0] || x[1])) }));
-  return h('div', null, columns(cols, { height: 230, caption: t('s_trend') }), h('p', { class: 'note' }, t('w_note')), dataTable([t('w_range'), t('w_active'), t('w_installed')], s.weekly.map((w) => [w.from + ' – ' + w.to + (w.partial ? ' *' : ''), num(w.active), num(w.installed)])));
+  return h('div', null, columns(cols, { height: 230, caption: t('s_trend'), marks: weekMarks(s, s.weekly) }), h('p', { class: 'note' }, t('w_note')), dataTable([t('w_range'), t('w_active'), t('w_installed')], s.weekly.map((w) => [w.from + ' – ' + w.to + (w.partial ? ' *' : ''), num(w.active), num(w.installed)])));
 }
 function pageOverview(s) {
   const o = s.overview, a = s.activation, pv = s.prev, w = s.weekly && s.weekly.at(-3);
@@ -783,17 +926,18 @@ function pageOverview(s) {
   cards.push(kpi({ lab: t('k_recent'), val: num(o.recent), sub: o.installs ? pct(o.recent / o.installs) + ' ' + t('of') + ' ' + num(o.installs) : '', d: pv && delta(o.recent, pv.installs_active) }));
   if (o.new_in_range != null) cards.push(kpi({ lab: t('k_newp'), val: num(o.new_in_range), d: pv && delta(o.new_in_range, pv.installs_new) }));
   if (w) cards.push(kpi({ lab: t('k_wau'), val: num(w.active), sub: w.from + ' – ' + w.to }));
-  const ret = s.retention ? [pairKpi(t('k_d1'), s.retention.d1, t('h_d1'), pv && pv.d1), pairKpi(t('k_d7'), s.retention.d7, t('h_d7'), pv && pv.d7), pairKpi(t('k_d30'), s.retention.d30, t('h_d30'), pv && pv.d30)] : [];
-  const fin = sessionsOf(s) ? kpi({ lab: t('k_fin'), val: pct(s.sessions.finish_rate), sub: `${num(s.sessions.finished)} ${t('of')} ${num(s.sessions.started)}`, frac: s.sessions.finish_rate, hint: t('h_fin'), low: s.sessions.started < 30, d: s.sessions.started >= 30 && pv && pv.started >= 30 ? delta(s.sessions.finish_rate, pv.finish_rate, { rate: true }) : null }) : null;
+  const ret = s.retention ? [pairKpi(t('k_d1'), s.retention.d1, t('h_d1'), pv && pv.d1, 'up', 'd1'), pairKpi(t('k_d7'), s.retention.d7, t('h_d7'), pv && pv.d7, 'up', 'd7'), pairKpi(t('k_d30'), s.retention.d30, t('h_d30'), pv && pv.d30, 'up', 'd30')] : [];
+  const fin = sessionsOf(s) ? kpi({ lab: t('k_fin'), val: pct(s.sessions.finish_rate), sub: `${num(s.sessions.finished)} ${t('of')} ${num(s.sessions.started)}`, frac: s.sessions.finish_rate, hint: t('h_fin'), low: s.sessions.started < 30, d: s.sessions.started >= 30 && pv && pv.started >= 30 ? delta(s.sessions.finish_rate, pv.finish_rate, { rate: true, sig: cmp('finish_rate') }) : null }) : null;
   const deep = [];
   if (s.engagement && s.engagement.dau_mau != null) deep.push(kpi({ lab: t('k_stick'), val: pct(s.engagement.dau_mau), hint: t('h_stick'), low: s.engagement.mau < 50, sub: `${num(s.engagement.mau)} MAU` }));
   if (s.lifecycle) { const l = s.lifecycle.filter((x) => !x.partial).at(-1); if (l) deep.push(kpi({ lab: t('k_quick'), val: l.quick_ratio == null ? '—' : dec(l.quick_ratio, 2), hint: t('h_quick'), sub: `+${num(l.new + l.resurrected)} / −${num(l.churned)}`, low: l.churned < 5 })); }
-  if (a && a.session_week1) deep.push(pairKpi(t('k_act'), a.session_week1, t('h_act'), pv && pv.session_week1));
+  if (a && a.session_week1) deep.push(pairKpi(t('k_act'), a.session_week1, t('h_act'), pv && pv.session_week1, 'up', 'session_week1'));
   const rows = s.features && s.funnel ? scorecard(s) : [], ins = s.features && s.funnel ? insights(s) : [];
   const mark = { good: '✓', warn: '!', bad: '✕', na: '–' };
   return [
-    h('div', { class: 'grid g4' }, cards), (ret.length || fin) && h('div', { class: 'grid g4', style: 'margin-top:12px' }, ret, fin), deep.length > 0 && h('div', { class: 'grid g3', style: 'margin-top:12px' }, deep),
-    rows.length > 0 && block(t('s_score'), t('s_score_s'), h('div', { class: 'card score' }, rows.map((r) => h('div', { class: 'r' }, h('span', { class: 'pill ' + r.status, 'aria-label': r.status }, mark[r.status]), h('a', { href: '#' + r.page }, r.label), h('span', { class: 'v' }, r.text), h('span', { class: 'tg' }, r.target))))),
+    s.northstar && northStar(s),
+    h('div', { class: 'grid g4', style: 'margin-top:10px' }, cards), (ret.length || fin) && h('div', { class: 'grid g4', style: 'margin-top:12px' }, ret, fin), deep.length > 0 && h('div', { class: 'grid g3', style: 'margin-top:12px' }, deep),
+    rows.length > 0 && block(t('s_score'), t('s_score_s'), targetsEditor(s), h('div', { class: 'card score' }, rows.map((r) => h('div', { class: 'r' }, h('span', { class: 'pill ' + r.status, 'aria-label': r.status }, mark[r.status]), h('a', { href: '#' + r.page }, r.label), h('span', { class: 'v' }, r.text), h('span', { class: 'tg' }, r.targetText))))),
     ins.length > 0 && block(t('s_insights'), null, h('ul', { class: 'insights' }, ins.map((i) => h('li', null, h('span', { class: 'ic ' + i.kind, 'aria-hidden': 'true' }, i.kind === 'good' ? '✓' : i.kind === 'warn' ? '!' : 'i'), h('span', null, i.text), i.page && h('a', { href: '#' + i.page }, t('to_page') + ' →'))))),
     s.weekly && block(t('s_trend'), null, h('div', { class: 'card' }, weeklyChart(s))),
   ];
@@ -805,20 +949,21 @@ function pageGrowth(s) {
     const lc = s.lifecycle, last = lc.filter((x) => !x.partial).at(-1);
     out.push(block(t('lc_title'), null,
       last && h('div', { class: 'grid g4', style: 'margin-bottom:12px' }, kpi({ lab: t('lc_new'), val: num(last.new) }), kpi({ lab: t('lc_res'), val: num(last.resurrected) }), kpi({ lab: t('lc_churn'), val: num(last.churned) }), kpi({ lab: t('lc_qr'), val: last.quick_ratio == null ? '—' : dec(last.quick_ratio, 2), hint: t('h_quick'), low: last.churned < 5 })),
-      h('div', { class: 'card' }, lifecycleChart(lc), h('p', { class: 'note' }, t('lc_note')), dataTable([t('w_range'), t('lc_new'), t('lc_ret'), t('lc_res'), t('lc_churn'), t('lc_qr')], lc.map((r) => [r.from + ' – ' + r.to + (r.partial ? ' *' : ''), num(r.new), num(r.retained), num(r.resurrected), num(r.churned), r.quick_ratio == null ? '—' : dec(r.quick_ratio, 2)])))));
-    out.push(block(t('newp_title'), null, h('div', { class: 'card' }, columns(lc.map((r) => ({ label: dateShort(r.to), v: r.new, part: r.partial, top: r.new ? num(r.new) : '', tip: [[num(r.new), t('lc_new')], [r.from + ' – ' + r.to, '']] })), { height: 200, caption: t('newp_title') }))));
+      h('div', { class: 'card' }, lifecycleChart(lc, weekMarks(s, lc)), h('p', { class: 'note' }, t('lc_note')), dataTable([t('w_range'), t('lc_new'), t('lc_ret'), t('lc_res'), t('lc_churn'), t('lc_qr')], lc.map((r) => [r.from + ' – ' + r.to + (r.partial ? ' *' : ''), num(r.new), num(r.retained), num(r.resurrected), num(r.churned), r.quick_ratio == null ? '—' : dec(r.quick_ratio, 2)])))));
+    out.push(block(t('newp_title'), null, h('div', { class: 'card' }, columns(lc.map((r) => ({ label: dateShort(r.to), v: r.new, part: r.partial, top: r.new ? num(r.new) : '', tip: [[num(r.new), t('lc_new')], [r.from + ' – ' + r.to, '']] })), { height: 200, caption: t('newp_title'), marks: weekMarks(s, lc) }))));
   }
   if (s.engagement) {
     const e = s.engagement, k = e.dau.findIndex((d) => d.partial);
-    out.push(block(t('dau_title'), t('scope_mau'), h('div', { class: 'card' }, lineChart({ labels: e.dau.map((d) => dateShort(d.day)), series: [{ name: t('dau_name'), color: 'var(--s1)', values: e.dau.map((d) => d.active) }], partialFrom: k < 0 ? Infinity : k, tickEvery: 5, caption: t('dau_title'), note: t('w_open') }), h('p', { class: 'note' }, t('dau_note')))));
+    out.push(block(t('dau_title'), t('scope_mau'), h('div', { class: 'card' }, lineChart({ labels: e.dau.map((d) => dateShort(d.day)), series: [{ name: t('dau_name'), color: 'var(--s1)', values: e.dau.map((d) => d.active) }], partialFrom: k < 0 ? Infinity : k, tickEvery: 5, marks: dayMarks(s, e.dau.map((d) => d.day)), caption: t('dau_title'), note: t('w_open') }), h('p', { class: 'note' }, t('dau_note')))));
   }
+  out.push(notesBlock(s));
   return out;
 }
 function pageActivation(s) {
   const f = s.funnel, base = f[0].n || 1, out = [];
   const rows = f.map((x, i) => { const tl = [[num(x.n), t('f_' + x.id)], [pct(x.n / base), t('f_all')]]; if (i) tl.push([pct(f[i - 1].n ? x.n / f[i - 1].n : null), t('f_conv', { p: '' }).trim()]); return { label: t('f_' + x.id), value: x.n, text: num(x.n), small: pct(x.n / base), cls: x.n < LOW() ? 'low' : '', tip: tl }; });
   const a = s.activation;
-  if (a) out.push(h('div', { class: 'grid g3' }, pairKpi(t('k_act'), a.session_week1, t('h_act'), s.prev && s.prev.session_week1), a.onboarding_done && pairKpi(t('a_onb'), a.onboarding_done, t('a_note')), a.median_days_to_first_session != null && kpi({ lab: t('a_med'), val: dec(a.median_days_to_first_session), sub: t('a_med_u') })));
+  if (a) out.push(h('div', { class: 'grid g3' }, pairKpi(t('k_act'), a.session_week1, t('h_act'), s.prev && s.prev.session_week1, 'up', 'session_week1'), a.onboarding_done && pairKpi(t('a_onb'), a.onboarding_done, t('a_note')), a.median_days_to_first_session != null && kpi({ lab: t('a_med'), val: dec(a.median_days_to_first_session), sub: t('a_med_u') })));
   out.push(block(t('fun_title'), null, h('div', { class: 'card' }, hlist(rows), h('p', { class: 'note' }, t('f_note')), dataTable([t('pg_activation'), t('n_inst'), '%'], f.map((x) => [t('f_' + x.id), num(x.n), pct(x.n / base)])))));
   const fs = a && a.first_session;
   if (fs && fs.n) out.push(block(t('fs_title'), null, h('div', { class: 'card' }, columns(fs.buckets.map((b) => ({ label: t('fs_' + b.id), v: b.k, part: fs.n < 30, top: pct(b.k / fs.n), tip: [[num(b.k), t('fs_' + b.id)], [pct(b.k / fs.n), t('n_inst')]] })), { height: 210, caption: t('fs_title') }), h('p', { class: 'note' }, t('fs_note')))));
@@ -834,7 +979,7 @@ function pageActivation(s) {
 }
 function pageRetention(s) {
   const pv = s.prev, r = s.retention, out = [];
-  out.push(h('div', { class: 'grid g3' }, pairKpi(t('k_d1'), r.d1, t('h_d1'), pv && pv.d1), pairKpi(t('k_d7'), r.d7, t('h_d7'), pv && pv.d7), pairKpi(t('k_d30'), r.d30, t('h_d30'), pv && pv.d30)));
+  out.push(h('div', { class: 'grid g3' }, pairKpi(t('k_d1'), r.d1, t('h_d1'), pv && pv.d1, 'up', 'd1'), pairKpi(t('k_d7'), r.d7, t('h_d7'), pv && pv.d7, 'up', 'd7'), pairKpi(t('k_d30'), r.d30, t('h_d30'), pv && pv.d30, 'up', 'd30')));
   if (s.overview.new_in_range != null) out.push(h('p', { class: 'note' }, t('r_scope', { n: num(s.overview.new_in_range) })));
   if (s.cohorts && s.cohorts.length) {
     const curve = []; for (let i = 1; i < 9; i++) { let k = 0, n = 0; for (const c of s.cohorts) { const w = c.weeks[i]; if (w && w.n) { k += w.k; n += w.n; } } curve.push({ i, k, n }); }
@@ -854,6 +999,7 @@ function pageRetention(s) {
     out.push(block(t('eng_title'), t('scope_mau'), h('div', { class: 'grid g3', style: 'margin-bottom:12px' }, kpi({ lab: t('eng_mau'), val: num(e.mau) }), kpi({ lab: t('k_stick'), val: pct(e.dau_mau), hint: t('h_stick'), low: e.mau < 50 }), kpi({ lab: t('eng_avg'), val: dec(e.avg_active_days), sub: t('eng_avg_s') })),
       h('div', { class: 'card' }, h('h3', null, t('dp_title')), hlist(e.depth.slice().reverse().map((d) => ({ label: t('dp_' + d.id), value: e.mau ? d.k / e.mau : 0, text: pct(d.k / e.mau), small: num(d.k), cls: e.mau < LOW() ? 'low' : '', tip: [[num(d.k), t('dp_' + d.id)], [pct(d.k / e.mau), t('eng_mau')]] })), { max: 1 }), h('p', { class: 'note' }, t('eng_window', { a: fmtDay(e.window.from), b: fmtDay(e.window.to) })))));
   }
+  out.push(weekdayBlock(s), uninstallBlock(s));
   return out;
 }
 function featureDetail(s, f) {
@@ -863,7 +1009,7 @@ function featureDetail(s, f) {
     h('div', { class: 'dh' }, h('h2', null, t('fn.' + id)), f.cut_candidate && h('span', { class: 'tag warn' }, t('cut')), h('div', { class: 'sp' }), h('button', { class: 'btn', type: 'button', onclick: () => { state.feature = null; render(); } }, t('close') + ' ×')),
     h('div', { class: 'grid g4' }, kpi({ lab: t('fd_users'), val: pct(f.users.pct), sub: `${num(f.users.k)} ${t('of')} ${num(f.users.n)}`, low: f.users.n < LOW() }), kpi({ lab: t('fd_uses'), val: num(f.uses), sub: f.per_user != null ? t('feat_per', { n: dec(f.per_user) }) : '' }), kpi({ lab: t('fd_ever'), val: f.ever ? pct(f.ever.pct) : '—', sub: f.median_days_to_first != null ? t('fd_first') + ': ' + dec(f.median_days_to_first) + ' ' + t('fd_days') : '' }),
       kpi({ lab: t('fd_aha'), val: aha && aha.lift != null ? sign(aha.lift) + dec(Math.abs(aha.lift) * 100, 0) + ' ' + t('pp') : '—', sub: aha ? t('fd_aha_t', { a: pct(aha.did.pct), b: pct(aha.not.pct) }) : '', low: !aha || !aha.reliable })),
-    tr && h('div', { class: 'grid g2', style: 'margin-top:12px' }, h('div', null, h('h3', null, t('fd_trend')), lineChart({ labels: weekLabels(tr), series: [{ name: t('fn.' + id), color: 'var(--s1)', values: share }], fmt: (v) => pct(v, 0), partialFrom: pf, tickEvery: 3, height: 180, caption: t('fd_trend'), note: t('w_open') })), h('div', null, h('h3', null, t('fd_uses_w')), columns(tr.weeks.map((w, k) => ({ label: dateShort(w.to), v: tr.uses[id][k], part: w.partial, tip: [[num(tr.uses[id][k]), t('fd_uses_w')], [w.from + ' – ' + w.to, '']] })), { height: 180, tickEvery: 3, caption: t('fd_uses_w') }))));
+    tr && h('div', { class: 'grid g2', style: 'margin-top:12px' }, h('div', null, h('h3', null, t('fd_trend')), lineChart({ marks: weekMarks(s, tr.weeks), labels: weekLabels(tr), series: [{ name: t('fn.' + id), color: 'var(--s1)', values: share }], fmt: (v) => pct(v, 0), partialFrom: pf, tickEvery: 3, height: 180, caption: t('fd_trend'), note: t('w_open') })), h('div', null, h('h3', null, t('fd_uses_w')), columns(tr.weeks.map((w, k) => ({ label: dateShort(w.to), v: tr.uses[id][k], part: w.partial, tip: [[num(tr.uses[id][k]), t('fd_uses_w')], [w.from + ' – ' + w.to, '']] })), { height: 180, tickEvery: 3, caption: t('fd_uses_w'), marks: weekMarks(s, tr.weeks) }))));
 }
 function pageFeatures(s) {
   const groups = Object.keys(s.groups || {}), list = s.features.filter((f) => state.group === 'all' || f.group === state.group), tr = s.trends, pf = tr ? firstPartial(tr) : Infinity;
@@ -886,22 +1032,22 @@ function pageProduct(s) {
   const out = [], x = s.sessions, tr = s.trends, pf = tr ? firstPartial(tr) : Infinity, pv = s.prev;
   const total = x.length.reduce((a, b) => a + b.k, 0);
   out.push(block(t('sess_title'), null,
-    h('div', { class: 'grid g4' }, kpi({ lab: t('s_started'), val: num(x.started), sub: `${s.window_days} ${t('d_short')}` }), kpi({ lab: t('s_fin_rate'), val: pct(x.finish_rate), frac: x.finish_rate, low: x.started < 30, d: pv && x.started >= 30 && pv.started >= 30 ? delta(x.finish_rate, pv.finish_rate, { rate: true }) : null, sub: `${num(x.finished)} ${t('of')} ${num(x.started)}` }), kpi({ lab: t('s_early_rate'), val: pct(x.early_stop_rate), frac: x.early_stop_rate, low: x.started < 30, d: pv && x.started >= 30 && pv.started >= 30 ? delta(x.early_stop_rate, pv.early_stop_rate, { rate: true, good: 'down' }) : null, sub: `${num(x.early_stop)} ${t('of')} ${num(x.started)}` }), x.stopped != null && kpi({ lab: t('s_stopped'), val: num(x.stopped) })),
+    h('div', { class: 'grid g4' }, kpi({ lab: t('s_started'), val: num(x.started), sub: `${s.window_days} ${t('d_short')}` }), kpi({ lab: t('s_fin_rate'), val: pct(x.finish_rate), frac: x.finish_rate, low: x.started < 30, d: pv && x.started >= 30 && pv.started >= 30 ? delta(x.finish_rate, pv.finish_rate, { rate: true, sig: cmp('finish_rate') }) : null, sub: `${num(x.finished)} ${t('of')} ${num(x.started)}` }), kpi({ lab: t('s_early_rate'), val: pct(x.early_stop_rate), frac: x.early_stop_rate, low: x.started < 30, d: pv && x.started >= 30 && pv.started >= 30 ? delta(x.early_stop_rate, pv.early_stop_rate, { rate: true, good: 'down', sig: cmp('early_stop_rate') }) : null, sub: `${num(x.early_stop)} ${t('of')} ${num(x.started)}` }), x.stopped != null && kpi({ lab: t('s_stopped'), val: num(x.stopped) })),
     h('div', { class: 'grid g2', style: 'margin-top:12px' },
       h('div', { class: 'card' }, h('h3', null, t('s_len') + ', ' + t('min')), columns(x.length.map((b) => ({ label: t('len_' + b.id), v: b.k, part: total < 30, top: total ? pct(b.k / total) : '', tip: [[num(b.k), t('len_' + b.id) + ' ' + t('min')], total ? [pct(b.k / total), t('s_len')] : null].filter(Boolean) })), { height: 200, caption: t('s_len') }), h('p', { class: 'note' }, t('s_len_note'))),
-      tr && h('div', { class: 'card' }, h('h3', null, t('tr_sess')), lineChart({ labels: weekLabels(tr), series: [{ name: t('s_started'), color: 'var(--s1)', values: ratioSeries(tr.uses.focus_start, tr.active) }, { name: t('s_finished'), color: 'var(--s3)', values: ratioSeries(tr.uses.focus_done, tr.active) }], fmt: (v) => dec(v, 2), partialFrom: pf, tickEvery: 3, height: 200, caption: t('tr_sess'), note: t('w_open') }), h('p', { class: 'note' }, t('tr_sess_note'))))));
+      tr && h('div', { class: 'card' }, h('h3', null, t('tr_sess')), lineChart({ marks: weekMarks(s, tr.weeks), labels: weekLabels(tr), series: [{ name: t('s_started'), color: 'var(--s1)', values: ratioSeries(tr.uses.focus_start, tr.active) }, { name: t('s_finished'), color: 'var(--s3)', values: ratioSeries(tr.uses.focus_done, tr.active) }], fmt: (v) => dec(v, 2), partialFrom: pf, tickEvery: 3, height: 200, caption: t('tr_sess'), note: t('w_open') }), h('p', { class: 'note' }, t('tr_sess_note'))))));
   if (s.blocking) {
     const b = s.blocking, tot = b.reasons.reduce((a, r) => a + r.k, 0);
     const rows = b.reasons.map((r) => ({ label: t('br_' + r.id), value: tot ? r.k / tot : 0, text: tot ? pct(r.k / tot) : '—', small: num(r.k), cls: tot < 30 ? 'low' : '', tip: [[num(r.k), t('br_' + r.id)], tot ? [pct(r.k / tot), t('b_reasons')] : null].filter(Boolean) })).sort((a, c) => c.value - a.value);
     out.push(block(t('block_title'), null,
-      h('div', { class: 'grid g3' }, b.pages != null && kpi({ lab: t('b_pages'), val: num(b.pages) }), b.continue_rate != null && kpi({ lab: t('b_cont_rate'), val: pct(b.continue_rate), frac: b.continue_rate, low: b.pages < 30, d: pv && b.pages >= 30 && pv.continue_rate != null ? delta(b.continue_rate, pv.continue_rate, { rate: true, good: 'neutral' }) : null, sub: b.continued != null ? `${num(b.continued)} ${t('of')} ${num(b.pages)}` : '' })),
+      h('div', { class: 'grid g3' }, b.pages != null && kpi({ lab: t('b_pages'), val: num(b.pages) }), b.continue_rate != null && kpi({ lab: t('b_cont_rate'), val: pct(b.continue_rate), frac: b.continue_rate, low: b.pages < 30, d: pv && b.pages >= 30 && pv.continue_rate != null ? delta(b.continue_rate, pv.continue_rate, { rate: true, good: 'neutral', sig: cmp('continue_rate') }) : null, sub: b.continued != null ? `${num(b.continued)} ${t('of')} ${num(b.pages)}` : '' })),
       h('div', { class: 'grid g2', style: 'margin-top:12px' }, h('div', { class: 'card' }, h('h3', null, t('b_reasons')), hlist(rows, { max: 1 })),
-        tr && h('div', { class: 'card' }, h('h3', null, t('tr_block')), lineChart({ labels: weekLabels(tr), series: [{ name: t('tr_pages'), color: 'var(--s1)', values: ratioSeries(tr.uses.block_page, tr.active) }], fmt: (v) => dec(v, 2), partialFrom: pf, tickEvery: 3, height: 200, caption: t('tr_block'), note: t('w_open') }), lineChart({ labels: weekLabels(tr), series: [{ name: t('tr_cont_rate'), color: 'var(--s2)', values: ratioSeries(tr.uses.block_continue, tr.uses.block_page) }], fmt: (v) => pct(v, 0), yMax: 1, partialFrom: pf, tickEvery: 3, height: 160, caption: t('tr_cont_rate'), note: t('w_open') })))));
+        tr && h('div', { class: 'card' }, h('h3', null, t('tr_block')), lineChart({ marks: weekMarks(s, tr.weeks), labels: weekLabels(tr), series: [{ name: t('tr_pages'), color: 'var(--s1)', values: ratioSeries(tr.uses.block_page, tr.active) }], fmt: (v) => dec(v, 2), partialFrom: pf, tickEvery: 3, height: 200, caption: t('tr_block'), note: t('w_open') }), lineChart({ marks: weekMarks(s, tr.weeks), labels: weekLabels(tr), series: [{ name: t('tr_cont_rate'), color: 'var(--s2)', values: ratioSeries(tr.uses.block_continue, tr.uses.block_page) }], fmt: (v) => pct(v, 0), yMax: 1, partialFrom: pf, tickEvery: 3, height: 160, caption: t('tr_cont_rate'), note: t('w_open') })))));
   }
   if (s.eyes && s.eyes.rate != null) {
     out.push(block(t('e_title'), t('q_eyes'), h('div', { class: 'grid g2' },
-      kpi({ lab: t('e_rate'), val: pct(s.eyes.rate), frac: s.eyes.rate, low: s.eyes.done + s.eyes.skipped < 30, d: pv && s.eyes.done + s.eyes.skipped >= 30 ? delta(s.eyes.rate, pv.eye_rate, { rate: true }) : null, sub: `${num(s.eyes.done)} ${t('of')} ${num(s.eyes.done + s.eyes.skipped)}` }),
-      tr && h('div', { class: 'card' }, h('h3', null, t('tr_eyes')), lineChart({ labels: weekLabels(tr), series: [{ name: t('e_done'), color: 'var(--s3)', values: ratioSeries(tr.uses.eye_break_done, tr.active) }, { name: t('e_skip'), color: 'var(--s2)', values: ratioSeries(tr.uses.eye_break_skip, tr.active) }], fmt: (v) => dec(v, 2), partialFrom: pf, tickEvery: 3, height: 180, caption: t('tr_eyes'), note: t('w_open') })))));
+      kpi({ lab: t('e_rate'), val: pct(s.eyes.rate), frac: s.eyes.rate, low: s.eyes.done + s.eyes.skipped < 30, d: pv && s.eyes.done + s.eyes.skipped >= 30 ? delta(s.eyes.rate, pv.eye_rate, { rate: true, sig: cmp('eye_rate') }) : null, sub: `${num(s.eyes.done)} ${t('of')} ${num(s.eyes.done + s.eyes.skipped)}` }),
+      tr && h('div', { class: 'card' }, h('h3', null, t('tr_eyes')), lineChart({ marks: weekMarks(s, tr.weeks), labels: weekLabels(tr), series: [{ name: t('e_done'), color: 'var(--s3)', values: ratioSeries(tr.uses.eye_break_done, tr.active) }, { name: t('e_skip'), color: 'var(--s2)', values: ratioSeries(tr.uses.eye_break_skip, tr.active) }], fmt: (v) => dec(v, 2), partialFrom: pf, tickEvery: 3, height: 180, caption: t('tr_eyes'), note: t('w_open') })))));
   }
   return out;
 }
@@ -910,15 +1056,15 @@ function pageQuality(s) {
   if (s.speed) {
     const x = s.speed, total = x.hist.reduce((a, b) => a + b.k, 0), fmtU = (u) => (u == null ? '—' : u >= OPEN_END ? '> 1000 ' + t('sp_unit') : '< ' + u + ' ' + t('sp_unit'));
     const fast = tr ? tr.uses.nt_u100.map((v, k) => { const all = SP.reduce((a, id) => a + tr.uses[id][k], 0); return all >= 20 ? (v + tr.uses.nt_u250[k]) / all : null; }) : null;
-    out.push(block(t('s_speed_title'), null, h('div', { class: 'grid g4' }, kpi({ lab: t('sp_opens'), val: num(x.opens) }), kpi({ lab: t('sp_u250'), val: pct(x.under250), frac: x.under250, low: x.opens < 100, d: x.opens >= 100 && s.prev && s.prev.under250 != null ? delta(x.under250, s.prev.under250, { rate: true }) : null }), kpi({ lab: t('sp_p50'), val: fmtU(x.p50_upper) }), kpi({ lab: t('sp_p90'), val: fmtU(x.p90_upper) })),
+    out.push(block(t('s_speed_title'), null, h('div', { class: 'grid g4' }, kpi({ lab: t('sp_opens'), val: num(x.opens) }), kpi({ lab: t('sp_u250'), val: pct(x.under250), frac: x.under250, low: x.opens < 100, d: x.opens >= 100 && s.prev && s.prev.under250 != null ? delta(x.under250, s.prev.under250, { rate: true, sig: cmp('under250') }) : null }), kpi({ lab: t('sp_p50'), val: fmtU(x.p50_upper) }), kpi({ lab: t('sp_p90'), val: fmtU(x.p90_upper) })),
       h('div', { class: 'grid g2', style: 'margin-top:12px' }, h('div', { class: 'card' }, h('h3', null, t('sp_hist')), columns(x.hist.map((b) => ({ label: t('sp_b_' + b.id), v: b.k, part: total < 100, top: total ? pct(b.k / total) : '', tip: [[num(b.k), t('sp_b_' + b.id)], total ? [pct(b.k / total), t('sp_hist')] : null].filter(Boolean) })), { height: 200, caption: t('sp_hist') }), h('p', { class: 'note' }, t('sp_note'))),
-        fast && h('div', { class: 'card' }, h('h3', null, t('tr_speed')), lineChart({ labels: weekLabels(tr), series: [{ name: t('sp_u250'), color: 'var(--s1)', values: fast }], fmt: (v) => pct(v, 0), yMax: 1, partialFrom: pf, tickEvery: 3, height: 200, caption: t('tr_speed'), note: t('w_open') })))));
+        fast && h('div', { class: 'card' }, h('h3', null, t('tr_speed')), lineChart({ marks: weekMarks(s, tr.weeks), labels: weekLabels(tr), series: [{ name: t('sp_u250'), color: 'var(--s1)', values: fast }], fmt: (v) => pct(v, 0), yMax: 1, partialFrom: pf, tickEvery: 3, height: 200, caption: t('tr_speed'), note: t('w_open') })))));
   }
   if (s.health) {
     const x = s.health, rows = x.by_place.map((p) => ({ label: t('he_' + p.id), value: p.per_1000 ?? 0, text: dec(p.per_1000), small: num(p.k), tip: [[dec(p.per_1000), t('h_place') + ' · ' + t('he_' + p.id)], [num(p.k), t('h_all')]] })).sort((a, b) => b.value - a.value);
     const errs = tr ? tr.active.map((a, k) => (a >= 20 ? (1000 * ER.reduce((acc, id) => acc + tr.uses[id][k], 0)) / a : null)) : null;
-    out.push(block(t('pg_health_title'), null, h('div', { class: 'grid g2' }, h('div', { class: 'grid' }, pairKpi(t('h_with'), x.installs_with_error, t('h_note'), s.prev && s.prev.with_error, 'down')), h('div', { class: 'card' }, h('h3', null, t('h_place')), hlist(rows))),
-      errs && h('div', { class: 'card', style: 'margin-top:12px' }, h('h3', null, t('tr_err')), lineChart({ labels: weekLabels(tr), series: [{ name: t('h_place'), color: 'var(--s2)', values: errs }], fmt: (v) => dec(v, 0), partialFrom: pf, tickEvery: 3, height: 180, caption: t('tr_err'), note: t('w_open') }))));
+    out.push(block(t('pg_health_title'), null, h('div', { class: 'grid g2' }, h('div', { class: 'grid' }, pairKpi(t('h_with'), x.installs_with_error, t('h_note'), s.prev && s.prev.with_error, 'down', 'with_error')), h('div', { class: 'card' }, h('h3', null, t('h_place')), hlist(rows))),
+      errs && h('div', { class: 'card', style: 'margin-top:12px' }, h('h3', null, t('tr_err')), lineChart({ marks: weekMarks(s, tr.weeks), labels: weekLabels(tr), series: [{ name: t('h_place'), color: 'var(--s2)', values: errs }], fmt: (v) => dec(v, 0), partialFrom: pf, tickEvery: 3, height: 180, caption: t('tr_err'), note: t('w_open') }))));
   }
   if (s.releases && s.releases.versions.length) {
     const r = s.releases, vs = r.versions, okv = vs.filter((v) => v.installs >= 30);
@@ -929,6 +1075,7 @@ function pageQuality(s) {
         h('table', { class: 't' }, h('thead', null, h('tr', null, [t('rel_th'), t('rel_inst'), t('rel_share'), t('rel_fin'), t('rel_err'), t('rel_with')].map((c) => h('th', null, c)))),
           h('tbody', null, vs.map((v) => h('tr', { class: v.installs < 30 ? 'dimmed' : '' }, h('td', null, v.value, ' ', v.latest && h('span', { class: 'tag good' }, t('rel_latest'))), h('td', null, num(v.installs)), h('td', null, pct(v.share)), h('td', { class: cls(v, 'finish_rate', true) }, pct(v.finish_rate)), h('td', { class: cls(v, 'errors_per_1000', false) }, dec(v.errors_per_1000, 0)), h('td', null, pct(v.with_error.pct)))))))));
   }
+  out.push(ingestBlock(s));
   return out;
 }
 function pageAudience(s) {
@@ -955,7 +1102,69 @@ function pageAudience(s) {
     const rows = fl.items.slice().sort((a, b) => b.k - a.k).map((x) => ({ label: t('fg.' + x.id), value: x.k / fl.of, text: pct(x.k / fl.of), small: num(x.k), cls: fl.of < LOW() ? 'low' : '', tip: [[num(x.k) + ' ' + t('of') + ' ' + num(fl.of), t('fg.' + x.id)]] }));
     out.push(block(t('st_flags'), t('st_flags_n', { n: num(fl.of) }), h('div', { class: 'card' }, hlist(rows, { max: 1 }))));
   }
+  out.push(coverageBlock(s));
   return out;
+}
+
+function northStar(s) {
+  const ns = s.northstar, pf = ns.weeks.findIndex((w) => w.partial), chg = ns.value != null && ns.prev_value ? (ns.value - ns.prev_value) / ns.prev_value : null;
+  const inputs = [[t('ns_in_act'), s.activation && s.activation.session_week1], [t('ns_in_ret'), s.retention && s.retention.d7], [t('ns_in_fin'), s.sessions && s.sessions.finish_rate != null ? { pct: s.sessions.finish_rate, n: s.sessions.started, lo: null } : null]].filter((x) => x[1] && x[1].pct != null);
+  return h('div', { class: 'card ns' },
+    h('div', null, h('div', { class: 'lab' }, t('ns_title') + ' · ' + t('ns_name')), h('div', { class: 'big' + (ns.enough ? '' : ' low') }, ns.value == null ? '—' : dec(ns.value, 2)),
+      chg != null && ns.enough && h('div', { class: 'dl ' + (chg >= 0.01 ? 'up' : chg <= -0.01 ? 'down' : 'flat') }, (chg >= 0 ? '▲ +' : '▼ −') + dec(Math.abs(chg * 100)) + '% · ' + t('vs_was', { v: dec(ns.prev_value, 2) })),
+      ns.minutes != null && h('p', { class: 'note' }, t('ns_min', { m: dec(ns.minutes, 0) })),
+      h('h3', { style: 'margin-top:14px' }, t('ns_tree')),
+      h('div', { class: 'tree' }, inputs.map(([lab, p]) => h('div', { class: 'r' }, h('span', null, lab), h('b', null, pct(p.pct)), h('small', null, p.lo != null ? pct(p.lo) + '–' + pct(p.hi) : ''))),
+        s.engagement && s.engagement.avg_active_days != null && h('div', { class: 'r' }, h('span', null, t('ns_in_stick')), h('b', null, dec(s.engagement.avg_active_days)), h('small', null, t('eng_avg_s'))))),
+    h('div', null, lineChart({ labels: ns.weeks.map((w) => dateShort(w.to)), series: [{ name: t('ns_name'), color: 'var(--s1)', values: ns.weeks.map((w) => w.value) }], fmt: (v) => dec(v, 2), partialFrom: pf < 0 ? Infinity : pf, tickEvery: 2, height: 190, caption: t('ns_title'), note: t('w_open'), marks: weekMarks(s, ns.weeks) }), h('p', { class: 'note' }, t('ns_note'))));
+}
+function weekdayBlock(s) {
+  const w = s.weekday; if (!w || !w.total) return null;
+  const cols = w.counts.map((c, i) => ({ label: t('wd_' + i), v: c / w.total, part: w.total < 50, top: pct(c / w.total, 0), tip: [[pct(c / w.total), t('wd_' + i)], [num(c), t('w_active')]] }));
+  return block(t('wd_title'), `${fmtDay(w.from)} — ${fmtDay(w.to)}`, h('div', { class: 'card' }, columns(cols, { height: 190, fmt: (v) => pct(v, 0), caption: t('wd_title') }), h('p', { class: 'note' }, t('wd_note'))));
+}
+function uninstallBlock(s) {
+  const u = s.uninstalls; if (!u) return null;
+  const rows = u.reasons.filter((r) => r.k > 0).sort((a, b) => b.k - a.k).map((r) => ({ label: t('ur_' + r.id), value: u.total ? r.k / u.total : 0, text: pct(r.k / u.total), small: num(r.k), cls: u.total < 30 ? 'low' : '', tip: [[num(r.k), t('ur_' + r.id)], [pct(r.k / u.total), t('ur_total')]] }));
+  return block(t('ur_title'), t('ur_q'), h('div', { class: 'card' }, u.total ? [h('h3', null, t('ur_total') + ': ' + num(u.total)), hlist(rows, { max: 1 })] : h('p', { class: 'note', style: 'margin:0' }, t('ur_empty'))));
+}
+function ingestBlock(s) {
+  const g = s.ingest; if (!g) return null;
+  const rows = g.reasons_7d.filter((r) => r.k > 0).sort((a, b) => b.k - a.k).map((r) => ({ label: t('ig_r_' + r.id), value: r.k, text: num(r.k), tip: [[num(r.k), t('ig_r_' + r.id)]] }));
+  const thr = g.days.slice(-7).reduce((a, d) => a + d.throttled, 0);
+  return block(t('ig_title'), t('ig_q'),
+    h('div', { class: 'grid g3' }, kpi({ lab: t('ig_acc'), val: num(g.accepted_7d) }), kpi({ lab: t('ig_rej'), val: num(g.rejected_7d), sub: g.rejected_share_7d != null ? t('ig_share', { p: pct(g.rejected_share_7d) }) : '', low: false }), kpi({ lab: t('ig_thr'), val: num(thr) })),
+    h('div', { class: 'grid g2', style: 'margin-top:10px' },
+      h('div', { class: 'card' }, h('h3', null, t('ig_chart')), lineChart({ labels: g.days.map((d) => dateShort(d.day)), series: [{ name: t('ig_name_acc'), color: 'var(--s1)', values: g.days.map((d) => d.accepted) }, { name: t('ig_name_rej'), color: 'var(--s2)', values: g.days.map((d) => d.rejected) }], tickEvery: 5, height: 190, caption: t('ig_chart') })),
+      h('div', { class: 'card' }, h('h3', null, t('ig_reasons')), rows.length ? hlist(rows) : h('p', { class: 'note', style: 'margin:0' }, '—'), h('p', { class: 'note' }, t('ig_note')))));
+}
+function coverageBlock(s) {
+  const c = s.coverage; if (!c || state.mode === 'public') return null;
+  const demo = state.mode === 'demo', rows = c.rows.slice().sort((a, b) => (a.day < b.day ? 1 : -1)), last = rows[0];
+  const day = h('input', { type: 'date', id: 'cv-day', value: todayIso() }), users = h('input', { type: 'number', id: 'cv-users', min: '0', disabled: demo }), inst = h('input', { type: 'number', id: 'cv-inst', min: '0', disabled: demo }), unin = h('input', { type: 'number', id: 'cv-unin', min: '0', disabled: demo });
+  const save = async () => {
+    const num_ = (el) => (el.value.trim() === '' ? undefined : Number(el.value)), body = { day: day.value, users: num_(users) };
+    if (!ISO.test(body.day) || body.users === undefined) { toast(t('note_err', { why: t('cv_users') })); return; }
+    if (num_(inst) !== undefined) body.installs = num_(inst); if (num_(unin) !== undefined) body.uninstalls = num_(unin);
+    const r = await ownerCall('PUT', '/v1/store-stats', body); if (r.ok) { toast(t('cv_saved')); load(); } else toast(t('note_err', { why: r.text || r.status }));
+  };
+  return block(t('cv_title'), t('cv_q'),
+    last && last.coverage != null && h('div', { class: 'grid g3', style: 'margin-bottom:10px' }, kpi({ lab: t('cv_kpi'), val: pct(last.coverage), sub: `${num(last.ours)} ${t('of')} ${num(last.users)} · ${fmtDay(last.day)}`, low: last.users < 100 })),
+    h('div', { class: 'card tbl' }, rows.length
+      ? h('table', { class: 't' }, h('thead', null, h('tr', null, [t('cv_th_day'), t('cv_th_users'), t('cv_th_ours'), t('cv_th_cov'), t('cv_th_inst'), t('cv_th_unin'), t('cv_th_rate')].map((x) => h('th', null, x)))),
+        h('tbody', null, rows.map((r) => h('tr', null, h('td', null, r.day), h('td', null, num(r.users)), h('td', null, num(r.ours)), h('td', null, pct(r.coverage)), h('td', null, r.installs == null ? '—' : num(r.installs)), h('td', null, r.uninstalls == null ? '—' : num(r.uninstalls)), h('td', null, pct(r.uninstall_rate, 1))))))
+      : h('p', { class: 'note', style: 'margin:0' }, t('cv_empty')),
+      h('h3', { style: 'margin-top:14px' }, t('cv_form')),
+      h('div', { class: 'fgrid', style: 'max-width:520px' }, h('label', { for: 'cv-day' }, t('cv_th_day')), day, h('label', { for: 'cv-users' }, t('cv_users')), users, h('label', { for: 'cv-inst' }, t('cv_installs')), inst, h('label', { for: 'cv-unin' }, t('cv_unin')), unin),
+      h('div', { style: 'margin-top:8px' }, demo ? h('p', { class: 'note', style: 'margin:0' }, t('cv_demo')) : h('button', { class: 'btn primary', type: 'button', onclick: save }, t('cv_save'))), h('p', { class: 'note' }, t('cv_note'))));
+}
+function pageExperiments(s) {
+  const list = s.experiments || [];
+  if (!list.length) return [block(t('ex_empty_h'), null, h('div', { class: 'card' }, h('p', { class: 'lead', style: 'margin:0' }, t('ex_empty'))))];
+  const cell = (p, vs) => { const verdict = vs ? (vs.significant ? (vs.diff > 0 ? 'win' : 'lose') : 'noise') : ''; return h('td', null, p.n ? pct(p.pct) : '—', ' ', h('small', null, p.lo != null ? pct(p.lo) + '–' + pct(p.hi) : ''), verdict && h('div', null, h('span', { class: 'tag ' + (verdict === 'win' ? 'good' : verdict === 'lose' ? 'warn' : ''), title: 'p = ' + dec(vs.p, 3) }, t('ex_' + verdict)))); };
+  return [...list.map((e) => block(e.id, null, h('div', { class: 'card tbl' }, h('table', { class: 't' }, h('thead', null, h('tr', null, [t('ex_arm'), t('ex_th_made'), t('ex_th_d1'), t('ex_th_d7'), t('ex_th_act'), t('ex_th_fin'), t('ex_th_days')].map((x) => h('th', null, x)))),
+    h('tbody', null, e.arms.map((a) => h('tr', null, h('td', null, a.arm, ' ', a.arm === e.control && h('span', { class: 'tag' }, t('ex_control'))), h('td', null, num(a.made)), cell(a.d1, a.vs_control && a.vs_control.d1), cell(a.d7, a.vs_control && a.vs_control.d7), cell(a.session_week1, a.vs_control && a.vs_control.session_week1), h('td', null, pct(a.finish_rate)), h('td', null, dec(a.avg_active_days))))))))),
+    h('p', { class: 'note' }, t('ex_note'))];
 }
 function pageMethod() {
   const n = Number(L[state.lang].gl_n), items = [];
@@ -963,7 +1172,7 @@ function pageMethod() {
   return [block(t('how_h'), null, h('div', { class: 'card' }, h('ul', { style: 'margin:0;padding-left:18px;display:grid;gap:6px' }, t('how').map((x) => h('li', null, x.split('{k}').join(String(LOW()))))))),
     block(t('gl_title'), null, h('div', { class: 'card' }, h('dl', { class: 'gl' }, items)))];
 }
-const PAGE_FN = { overview: pageOverview, growth: pageGrowth, activation: pageActivation, retention: pageRetention, features: pageFeatures, product: pageProduct, quality: pageQuality, audience: pageAudience, method: pageMethod };
+const PAGE_FN = { overview: pageOverview, growth: pageGrowth, activation: pageActivation, retention: pageRetention, features: pageFeatures, experiments: pageExperiments, product: pageProduct, quality: pageQuality, audience: pageAudience, method: pageMethod };
 
 // ───────────────────────── render ─────────────────────────
 function footer() { return h('footer', { class: 'foot' }, h('div', null, t('ft')), h('div', null, t('ft2'))); }
@@ -1034,7 +1243,7 @@ function toast(msg) { const el = h('div', { class: 'toast', role: 'status' }, ms
 /** Every figure as rows: [section, id, metric, label, value, k, n]. Rates are ratios (0..1); the labels are in the language of the page. */
 function exportRows(s) {
   const rows = [], R = (sec, id, metric, label, value, k, n) => rows.push([sec, id, metric, label ?? '', value ?? '', k ?? '', n ?? '']);
-  const P = (sec, id, label, p) => { if (p) R(sec, id, 'share', label, p.pct, p.k, p.n); };
+  const P = (sec, id, label, p) => { if (p) { R(sec, id, 'share', label, p.pct, p.k, p.n); if (p.lo != null) { R(sec, id, 'ci95_low', label, p.lo); R(sec, id, 'ci95_high', label, p.hi); } } };
   if (s.range) { R('period', 'from', 'date', t('p_from'), s.range.from); R('period', 'to', 'date', t('p_to'), s.range.to); R('period', 'days', 'count', '', s.range.days); R('period', 'weeks_from', 'date', '', s.range.weeks_from); R('period', 'weeks_to', 'date', '', s.range.weeks_to); }
   R('period', 'generated_at', 'time', t('ftm'), new Date(s.generated_at).toISOString()); R('period', 'low_sample', 'count', '', s.low_sample);
   for (const [d, v] of Object.entries(s.filter || {})) R('filter', d, 'value', t('d_' + d), v);
@@ -1069,6 +1278,15 @@ function exportRows(s) {
     for (const cat of ['look', 'layout', 'lang', 'mode', 'browser', 'os']) { const list = s.setup[cat] || []; const tot = list.reduce((a, x) => a + x.k, 0); list.forEach((x) => R('setup_' + cat, x.value, 'share', x.value, tot ? x.k / tot : '', x.k, tot)); }
     if (s.setup.flags) s.setup.flags.items.forEach((x) => R('flags', x.id, 'share', t('fg.' + x.id), s.setup.flags.of ? x.k / s.setup.flags.of : '', x.k, s.setup.flags.of));
   }
+  if (s.northstar) { R('northstar', 'value', 'per_active_week', t('ns_name'), s.northstar.value); R('northstar', 'minutes', 'per_active_week', t('ns_title'), s.northstar.minutes); s.northstar.weeks.forEach((w) => R('northstar_weeks', w.to, 'finished_per_active', w.from + ' – ' + w.to + (w.partial ? ' *' : ''), w.value, w.finished, w.active)); }
+  if (s.weekday) s.weekday.counts.forEach((c, i) => R('weekday', String(i), 'share_of_active_days', t('wd_' + i), s.weekday.total ? c / s.weekday.total : '', c, s.weekday.total));
+  if (s.ingest) s.ingest.days.forEach((d) => { R('intake', d.day, 'accepted', '', d.accepted); R('intake', d.day, 'rejected', '', d.rejected); R('intake', d.day, 'held_back', '', d.throttled); });
+  if (s.coverage) s.coverage.rows.forEach((r) => { R('coverage', r.day, 'share', '', r.coverage, r.ours, r.users); R('coverage', r.day, 'removal_rate', '', r.uninstall_rate); });
+  if (s.uninstalls) s.uninstalls.reasons.forEach((r) => R('removal_reasons', r.id, 'answers', t('ur_' + r.id), s.uninstalls.total ? r.k / s.uninstalls.total : '', r.k, s.uninstalls.total));
+  for (const e of s.experiments || []) for (const a of e.arms) { const sec = 'experiment_' + e.id; R(sec, a.arm, 'installs', a.arm === e.control ? t('ex_control') : '', a.made); for (const m of ['d1', 'd7', 'session_week1']) { P(sec, a.arm + ':' + m, a.arm, a[m]); if (a.vs_control && a.vs_control[m]) R(sec, a.arm + ':' + m, 'p_vs_control', '', a.vs_control[m].p); } R(sec, a.arm, 'finish_rate', '', a.finish_rate); R(sec, a.arm, 'active_days_of_28', '', a.avg_active_days); }
+  (s.notes || []).forEach((n) => R('notes', n.day, 'text', n.text));
+  if (s.targets) Object.entries(s.targets.values).forEach(([k, v]) => R('targets', k, 'value', s.targets.custom.includes(k) ? 'custom' : 'default', v));
+  if (s.compare) Object.entries(s.compare).forEach(([k, c]) => { if (c) { R('change_vs_previous', k, 'difference', '', c.diff); R('change_vs_previous', k, 'p_value', c.significant ? 'significant' : 'could be noise', c.p); } });
   if (s.features && s.funnel) scorecard(s).forEach((r) => R('scorecard', r.id, 'status', r.label, r.status, '', ''));
   if (s.prev) {
     const q = s.prev; R('previous', 'from', 'date', '', q.range.from); R('previous', 'to', 'date', '', q.range.to);
@@ -1082,7 +1300,7 @@ const csvCell = (v) => { let x = v == null ? '' : String(v); if (typeof v === 's
 function exportCsv() { if (!state.s) return; download(`eyetime-${stamp()}.csv`, '﻿' + [t('csv_cols'), ...exportRows(state.s)].map((r) => r.map(csvCell).join(',')).join('\r\n') + '\r\n', 'text/csv;charset=utf-8'); }
 function exportJson() { if (!state.s) return; download(`eyetime-${stamp()}.json`, JSON.stringify({ exported_at: new Date().toISOString(), mode: state.mode, ...state.s }, null, 2) + '\n', 'application/json'); }
 function reportText(s) {
-  const o = s.overview || {}, L2 = [], row = (...c) => '| ' + c.join(' | ') + ' |', P = (p) => (p && p.n ? `${pct(p.pct)} (${num(p.k)}/${num(p.n)})` : '—');
+  const o = s.overview || {}, L2 = [], row = (...c) => '| ' + c.join(' | ') + ' |', P = (p) => (p && p.n ? `${pct(p.pct)} (${num(p.k)}/${num(p.n)}${p.lo != null ? ', ' + t('ci95', { a: pct(p.lo), b: pct(p.hi) }) : ''})` : '—');
   L2.push('# ' + t('rp_h'), '');
   if (s.range) L2.push(`**${t('rp_period')}:** ${fmtDay(s.range.from)} — ${fmtDay(s.range.to)} (${s.range.days} ${state.lang === 'ru' ? 'дн.' : 'days'})`);
   const fl = Object.entries(s.filter || {}); if (fl.length) L2.push(`**${t('rp_filter')}:** ` + fl.map(([d, v]) => `${t('d_' + d)} = ${nameOf(d, v)}`).join(', '));
@@ -1090,6 +1308,7 @@ function reportText(s) {
   L2.push('## ' + t('rp_glance'), '');
   if (o.installs != null) L2.push(`- ${t('k_installs')}: **${num(o.installs)}**`);
   L2.push(`- ${t('k_recent')}: **${num(o.recent)}**`); if (o.new_in_range != null) L2.push(`- ${t('k_newp')}: **${num(o.new_in_range)}**`);
+  if (s.northstar && s.northstar.value != null) L2.push(`- ${t('ns_name')}: **${dec(s.northstar.value, 2)}**`);
   if (s.engagement && s.engagement.dau_mau != null) L2.push(`- ${t('k_stick')}: **${pct(s.engagement.dau_mau)}**`);
   if (s.retention) L2.push(`- ${t('k_d1')}: **${P(s.retention.d1)}**`, `- ${t('k_d7')}: **${P(s.retention.d7)}**`, `- ${t('k_d30')}: **${P(s.retention.d30)}**`);
   if (s.sessions && s.sessions.finish_rate != null) L2.push(`- ${t('k_fin')}: **${pct(s.sessions.finish_rate)}**`);
