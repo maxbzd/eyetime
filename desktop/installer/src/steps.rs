@@ -5,7 +5,7 @@
 use crate::payload::{EXTENSION, FILES};
 use serde_json::json;
 use std::io::{BufRead, BufReader, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
 /// What the service keeps of the system's rights (see the setup step that applies it)
@@ -409,7 +409,7 @@ fn do_install(desktop: bool, upgrade: bool, emit: Emit) -> Result<(), Stop> {
 }
 
 /// system and administrators: everything; with `users_read`, signed-in people may also read and run
-fn lock_down(path: &PathBuf, users_read: bool) -> Result<(), String> {
+fn lock_down(path: &Path, users_read: bool) -> Result<(), String> {
     let p = path.display().to_string();
     let mut args: Vec<&str> = vec![
         &p,
@@ -426,7 +426,7 @@ fn lock_down(path: &PathBuf, users_read: bool) -> Result<(), String> {
         .map_err(|e| format!("the folder {p} could not be protected: {e}"))
 }
 
-fn make_shortcut(link: &PathBuf, target: &PathBuf) -> Result<(), String> {
+fn make_shortcut(link: &Path, target: &Path) -> Result<(), String> {
     if let Some(d) = link.parent() {
         let _ = std::fs::create_dir_all(d);
     }
