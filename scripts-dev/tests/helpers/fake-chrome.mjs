@@ -20,7 +20,7 @@ function event() {
   };
 }
 
-function storageArea(name, onChanged, { quota = Infinity } = {}) {
+function storageArea(name, onChanged, { quota = Infinity, perItem = Infinity } = {}) {
   let data = {};
   const pick = (keys) => {
     if (keys == null) return clone(data);
@@ -35,6 +35,7 @@ function storageArea(name, onChanged, { quota = Infinity } = {}) {
     set: async (items) => {
       const changes = {};
       for (const [k, v] of Object.entries(items)) { changes[k] = { oldValue: clone(data[k]), newValue: clone(v) }; }
+      for (const [k, v] of Object.entries(items)) if (k.length + JSON.stringify(v).length > perItem) throw new Error('QUOTA_BYTES_PER_ITEM quota exceeded');
       if (JSON.stringify({ ...data, ...items }).length > quota) throw new Error('QUOTA_BYTES quota exceeded');
       for (const [k, v] of Object.entries(items)) data[k] = clone(v);
       onChanged.fire(changes, name);
@@ -89,7 +90,7 @@ export function installFakeChrome({ extensionId = 'fakeextensionidfakeextensioni
     storage: {
       local: storageArea('local', storageChanged, { quota: 10_000_000 }),
       session: storageArea('session', storageChanged),
-      sync: storageArea('sync', storageChanged, { quota: 102_400 }),
+      sync: storageArea('sync', storageChanged, { quota: 102_400, perItem: 8192 }),
       onChanged: storageChanged,
     },
     alarms: {

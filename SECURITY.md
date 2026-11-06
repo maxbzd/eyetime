@@ -54,6 +54,16 @@ made from the passphrase with PBKDF2-SHA256 (600 000 rounds, random salt) (`src/
 `chrome.storage.session` (memory only, gone when the browser closes), so the connections can keep syncing in the background; after a browser start they wait, without an error, until the
 passphrase is given. A forgotten passphrase cannot be recovered: the sealed details are deleted and each service asks to sign in again (tasks, history and settings are untouched).
 
+**Optional passphrase for the synced settings and tasks** (Settings → Data & privacy → Sync → *Encrypt synced data with a passphrase*). Without it the two payloads are plain JSON in the
+browser account's cloud (`chrome.storage.sync`), readable by whoever runs that cloud. With it they are compressed and sealed on the device with AES-256-GCM under a key from the passphrase (the same
+PBKDF2-SHA256 as above, its own salt) before they are chunked (`src/shared/syncseal.js`, `syncvault.js`, `scripts-dev/tests/syncseal.test.mjs`, `worker-syncenc.test.mjs`, `e2e/syncenc.cjs`):
+- the cloud holds ciphertext, the salt and rounds, a check value, the time of the copy and the time the passphrase was set; the key is kept in `chrome.storage.session` only, so after a browser start the sync waits for the passphrase and uploads nothing in the clear;
+- the seal is bound to the payload kind and the copy's time, so a copy changed by one bit, moved from tasks to settings, or an old copy put back with a new time does not open: the run stops with "does not open" and overwrites nothing;
+- a sealed copy is version 2: an older EyeTime says "written by a newer version" and leaves it alone instead of replacing the ciphertext with plain text;
+- the first device to see either payload sealed asks for the passphrase before it uploads the other; a passphrase set later wins over an older one; switching it off writes plain copies that say which encryption they replace, so the other devices follow instead of sealing them again;
+- a forgotten passphrase cannot be recovered: the synced copy is lost, the data on each device stays, and switching encryption off on a device overwrites the cloud with that device's data.
+What it does not protect: the *existence* and rough size of the synced data and when it changed, the cloud being deleted or rolled back to an older sealed copy that still carries its own (older) time, and code running inside the browser while it is unlocked.
+
 What it protects against: what can be read from the profile folder alone (a copy of the browser's files, a disk backup, malware that reads files but does not run inside the browser).
 What it does not: code that runs inside the browser as the person while it is unlocked, and a weak passphrase (the key derivation makes each guess cost a fraction of a second, no more;
 only length is required, eight characters, and a long one is better). Without a passphrase nothing is hidden: use an access token with the least rights the service offers (and an

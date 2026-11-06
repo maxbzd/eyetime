@@ -12,6 +12,7 @@
     {"id": "keyboard", "file": "keyboard.cjs", "weight": 42},
     {"id": "blocking", "file": "blocking.cjs", "weight": 37},
     {"id": "instant", "file": "instant.cjs", "weight": 30},
+    {"id": "syncenc", "file": "syncenc.cjs", "weight": 25},
     {"id": "calendar", "file": "calendar.cjs", "weight": 8},
     {"id": "storage", "file": "storage.cjs", "weight": 11},
     {"id": "dock", "file": "dock.cjs", "weight": 19},

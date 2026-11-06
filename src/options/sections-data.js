@@ -1,5 +1,6 @@
 // Settings → Data & privacy: calendar, tasks in/out, settings sync, backup, privacy, danger zone.
 
+import { syncEncRow } from './sync-enc-row.js';
 import { calendarGroup as calCalendarGroup } from './calendar-group.js';
 import { h, icon, toast, confirmDialog } from '../ui/dom.js';
 import { send } from '../ui/api.js';
@@ -113,7 +114,7 @@ function syncGroup(s) {
     status.textContent = !syncSettings ? t('opt.syncOff')
       : !syncStatus ? t('opt.syncWait')
       : syncStatus.ok ? t('opt.syncOk', { time: fmtTime(new Date(syncStatus.at), s.newtab.clock24 ?? undefined) })
-      : syncStatus.error === 'unsupported' ? t('opt.syncUnsupported') : syncStatus.error === 'incompatible' ? t('opt.syncIncompatible') : syncStatus.error === 'too_big' ? t('opt.syncTooBig') : t('opt.syncError', { e: syncStatus.error });
+      : syncStatus.error === 'unsupported' ? t('opt.syncUnsupported') : syncStatus.error === 'incompatible' ? t('opt.syncIncompatible') : syncStatus.error === 'too_big' ? t('opt.syncTooBig') : syncStatus.error === 'locked' ? t('opt.syncLocked') : syncStatus.error === 'tampered' ? t('opt.syncTampered') : t('opt.syncError', { e: syncStatus.error });
   }
   /* tasks: their own switch (personal text), same status line style */
   const tStatus = h('div', { class: 'setting-desc sync-status' });
@@ -125,12 +126,13 @@ function syncGroup(s) {
     tStatus.hidden = !syncTasks;
     tStatus.textContent = !syncTasks ? '' : !st ? t('opt.syncWait')
       : st.ok ? t('opt.syncOk', { time: fmtTime(new Date(st.at), s.newtab.clock24 ?? undefined) })
-      : st.error === 'unsupported' ? t('opt.syncUnsupported') : st.error === 'incompatible' ? t('opt.syncIncompatible') : st.error === 'too_big' ? t('opt.syncTasksBig') : t('opt.syncError', { e: st.error });
+      : st.error === 'unsupported' ? t('opt.syncUnsupported') : st.error === 'incompatible' ? t('opt.syncIncompatible') : st.error === 'too_big' ? t('opt.syncTasksBig') : st.error === 'locked' ? t('opt.syncLocked') : st.error === 'tampered' ? t('opt.syncTampered') : t('opt.syncError', { e: st.error });
   }
   paint(); paintTasks();
   syncPaint = () => { paint(); paintTasks(); }; // one page-wide listener repaints the newest status row (the page redraws often; per-draw listeners would pile up)
   if (!syncListening) { syncListening = true; chrome.storage.onChanged.addListener((c, area) => { if (area === 'local' && (c.syncStatus || c.syncSettings || c.tasksSyncStatus || c.syncTasks) && syncPaint) syncPaint(); }); }
   return group(t('opt.groupSync'),
     (() => { const r = row({ title: t('opt.sync'), desc: t('opt.syncDesc'), control: h('div', { class: 'row gap-3' }, nowBtn, sw) }); r.querySelector('.setting-text').append(status); status.classList.add('sync-status'); return r; })(),
-    (() => { const r = row({ title: t('opt.syncTasks'), desc: t('opt.syncTasksDesc'), control: tSw }); r.querySelector('.setting-text').append(tStatus); return r; })());
+    (() => { const r = row({ title: t('opt.syncTasks'), desc: t('opt.syncTasksDesc'), control: tSw }); r.querySelector('.setting-text').append(tStatus); return r; })(),
+    syncEncRow());
 }
