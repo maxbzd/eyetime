@@ -470,7 +470,7 @@ use eyetime_core::update::UpdateInfo;
 fn ready_update(s: &Supervisor<Fake>, wanted: bool, manual: bool) {
     let mut u = s.upd.lock().unwrap();
     u.phase = Phase::Ready;
-    u.info = Some(UpdateInfo { version: "0.2.0".into(), notes: vec!["Faster".into()], url: "x".into(), sha256: "0".repeat(64), size: 5, sig_url: String::new() });
+    u.info = Some(UpdateInfo { version: "9.9.9".into(), notes: vec!["Faster".into()], url: "x".into(), sha256: "0".repeat(64), size: 5, sig_url: String::new() });
     u.path = Some(std::path::PathBuf::from("C:/ProgramData/EyeTime/update/EyeTime-Setup-0.2.0.exe"));
     u.want_install = wanted;
     u.manual = manual;
