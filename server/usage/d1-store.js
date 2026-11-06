@@ -28,12 +28,25 @@ export class D1Store {
         ON CONFLICT(id) DO UPDATE SET last_report = ?2, app = ?3, br = ?4, os = ?5, lang = ?6, look = ?7, layout = ?8, mode = ?9, age = MAX(age, ?10), act = ?11`)
         .bind(r.id, now, r.app, r.br, r.os, r.lang, r.look, r.layout, r.mode, r.age, JSON.stringify(act)),
       ...Object.entries(r.first).map(([f, age]) => this.db.prepare('INSERT INTO firsts (id, feature, age) VALUES (?1, ?2, ?3) ON CONFLICT(id, feature) DO UPDATE SET age = MIN(age, ?3)').bind(r.id, f, age)),
+      ...(r.fl ? [this.db.prepare('DELETE FROM flags WHERE id = ?').bind(r.id), ...r.fl.map((f) => this.db.prepare('INSERT INTO flags (id, flag) VALUES (?1, ?2)').bind(r.id, f))] : []),
       ...Object.entries(r.ft).map(([f, n]) => this.db.prepare('INSERT INTO usage_weeks (id, week, feature, n) VALUES (?1, ?2, ?3, ?4) ON CONFLICT(id, week, feature) DO UPDATE SET n = n + ?4').bind(r.id, week, f, n)),
     ];
     await this.db.batch(stmts);
   }
 
+  /** Everything the statistics are computed from (see stats.js). */
+  async snapshot() {
+    const all = async (sql) => (await this.db.prepare(sql).all()).results;
+    const [installs, firsts, weeks, flags] = await Promise.all([
+      all('SELECT id, first_report, last_report, app, br, os, lang, look, layout, mode, age, act FROM installs'),
+      all('SELECT id, feature, age FROM firsts'),
+      all('SELECT id, week, feature, n FROM usage_weeks'),
+      all('SELECT id, flag FROM flags'),
+    ]);
+    return { installs: installs.map((i) => ({ ...i, act: JSON.parse(i.act) })), firsts, weeks, flags };
+  }
+
   async forget(id) {
-    await this.db.batch(['installs', 'firsts', 'usage_weeks'].map((t) => this.db.prepare(`DELETE FROM ${t} WHERE id = ?`).bind(id)));
+    await this.db.batch(['installs', 'firsts', 'usage_weeks', 'flags'].map((t) => this.db.prepare(`DELETE FROM ${t} WHERE id = ?`).bind(id)));
   }
 }

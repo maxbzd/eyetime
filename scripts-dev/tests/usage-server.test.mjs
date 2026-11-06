@@ -27,7 +27,7 @@ test('collector: a valid report is stored, anything else is refused', async () =
   }
   assert.equal((await handle(post('not json'), store, T0)).status, 400);
   assert.equal((await handle(post(r, { type: 'text/plain' }), store, T0)).status, 415);
-  assert.equal((await handle(post('x'.repeat(5000)), store, T0)).status, 413);
+  assert.equal((await handle(post("x".repeat(9000)), store, T0)).status, 413);
   assert.equal((await handle(post(null, { method: 'GET' }), store, T0)).status, 405);
   assert.equal((await handle(post(r, { path: '/other' }), store, T0)).status, 404);
   const pre = await handle(post(null, { method: 'OPTIONS' }), store, T0);
@@ -42,7 +42,7 @@ test('collector: one report per six hours per install; the history adds up; forg
   assert.equal((await handle(post(r2), store, later)).status, 204);
   assert.ok(store.installs.get(ctx.id).act.length >= 4, 'the active days of both reports are kept');
   assert.equal((await handle(post({ v: 1, op: 'forget', id: ctx.id }), store, later)).status, 204);
-  assert.equal(store.installs.size + store.firsts.size + store.weeks.size, 0);
+  assert.equal(store.installs.size + store.firsts.size + store.weeks.size + store.flags.size, 0);
   assert.equal((await handle(post({ v: 1, op: 'forget', id: ctx.id, extra: 1 }), store, later)).status, 400, 'a forget request holds nothing else');
 });
 
