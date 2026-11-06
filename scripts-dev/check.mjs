@@ -118,6 +118,7 @@ for (const [code, dict] of Object.entries(LOCALES)) {
 }
 try { cp.execFileSync(process.execPath, [path.join(root, 'scripts-dev/license-check.mjs')], { stdio: 'pipe' }); } catch (e) { fail('licence: ' + (String(e.stderr || e.stdout || '').trim().replace(/\n/g, ' | ') || 'licence-check failed')); }
 try { cp.execFileSync(process.execPath, [path.join(root, 'scripts-dev/store-check.mjs')], { stdio: 'pipe' }); } catch (e) { fail('store: ' + (String(e.stderr || e.stdout || '').trim().replace(/\n/g, ' | ') || 'store-check failed')); }
+try { cp.execFileSync(process.execPath, [path.join(root, 'scripts-dev/tracking-plan.mjs'), '--check'], { stdio: 'pipe' }); } catch (e) { fail('tracking plan: ' + (String(e.stderr || '').trim() || 'docs/TRACKING-PLAN.md is out of date')); }
 try { cp.execFileSync(process.execPath, [path.join(root, 'scripts-dev/build-locales.mjs'), '--check'], { stdio: 'pipe' }); } catch (e) { fail('i18n: ' + (String(e.stderr || '').trim() || 'locales/data is out of date: run  node scripts-dev/build-locales.mjs')); }
 const unusedKeys = Object.keys(en).filter((k) => !used.has(k));
 if (unusedKeys.length && process.argv.includes('--unused')) console.log('unused i18n keys:', unusedKeys.join(', '));

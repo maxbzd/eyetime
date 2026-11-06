@@ -5,6 +5,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { USAGE_ENDPOINT } from '../src/shared/usage-config.js';
+import { collectorUninstallUrl } from './site-collector.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const out = path.join(root, 'site/assets');
@@ -36,4 +38,7 @@ if (list) html.push('</ul>');
 const file = path.join(root, 'site/privacy.html');
 const page = fs.readFileSync(file, 'utf8').replace(/(<main class="doc">)[\s\S]*(<\/main>)/, `$1\n${html.join('\n')}\n  $2`);
 fs.writeFileSync(file, page);
+// the page shown after removal posts its one answer to the collector, when the build has one; with none it asks nothing
+const gone = path.join(root, 'site/uninstall.html');
+fs.writeFileSync(gone, fs.readFileSync(gone, 'utf8').replace(/data-collector="[^"]*"/, `data-collector="${collectorUninstallUrl(USAGE_ENDPOINT)}"`));
 console.log('site ready');

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EyeTime was removed</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .ask { max-width: 640px; padding: 56px 0 80px; }
+    .ask h1 { font-size: clamp(30px, 5vw, 44px); max-width: none; text-align: left; margin: 0 0 12px; }
+    .ask .why { display: grid; gap: 10px; margin: 24px 0 0; padding: 0; list-style: none; }
+    .ask .why button { width: 100%; text-align: left; font: inherit; font-weight: 560; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 18px; cursor: pointer; }
+    .ask .why button:hover { border-color: var(--text2); }
+    .ask .done { background: var(--soft); border-radius: 18px; padding: 22px; margin-top: 24px; }
+    .ask [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header><a class="brand" href="./"><img src="assets/logo.svg" alt="" width="30" height="30">EyeTime</a><nav aria-label="Main"><a href="privacy.html">Privacy</a></nav></header>
+  <main class="ask" id="ask" data-collector="">
+    <h1><span data-en>EyeTime was removed. Thank you for trying it.</span><span data-ru>EyeTime удалён. Спасибо, что попробовали.</span></h1>
+    <p class="note" style="font-size:17px"><span data-en>One tap, if you like: what was the main reason? The answer is a single word from this list; it is counted by day and goes nowhere else. No account, no cookie, no address is stored. You can just close this page.</span><span data-ru>Если хотите, одно нажатие: что было главной причиной? Ответ — одно слово из этого списка, он считается по дням и больше никуда не попадает. Ни аккаунта, ни куки, ни адреса не сохраняется. Страницу можно просто закрыть.</span></p>
+    <ul class="why" id="why">
+      <li><button type="button" data-reason="slow"><span data-en>It slowed my browser down</span><span data-ru>Тормозил браузер</span></button></li>
+      <li><button type="button" data-reason="broken"><span data-en>Something did not work</span><span data-ru>Что-то не работало</span></button></li>
+      <li><button type="button" data-reason="not_useful"><span data-en>It was not useful to me</span><span data-ru>Мне это не пригодилось</span></button></li>
+      <li><button type="button" data-reason="too_strict"><span data-en>It was too strict or too pushy</span><span data-ru>Слишком строго или навязчиво</span></button></li>
+      <li><button type="button" data-reason="other_tool"><span data-en>I use another tool</span><span data-ru>Пользуюсь другим инструментом</span></button></li>
+      <li><button type="button" data-reason="temporary"><span data-en>Only removed for now</span><span data-ru>Удалил временно</span></button></li>
+      <li><button type="button" data-reason="other"><span data-en>Something else</span><span data-ru>Другое</span></button></li>
+    </ul>
+    <div class="done" id="done" hidden><span data-en>Thank you. That helps make it better.</span><span data-ru>Спасибо, это помогает сделать лучше.</span></div>
+  </main>
+</div>
+<script>
+(function () {
+  var html = document.documentElement, ask = document.getElementById('ask'), list = document.getElementById('why'), done = document.getElementById('done');
+  html.lang = (navigator.language || 'en').toLowerCase().indexOf('ru') === 0 ? 'ru' : 'en';
+  var url = ask.getAttribute('data-collector');
+  if (!url) { list.hidden = true; ask.querySelector('p').hidden = true; return; } // no collector: nothing to ask and nothing to send
+  list.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-reason]'); if (!b) return;
+    list.hidden = true; ask.querySelector('p').hidden = true; done.hidden = false;
+    try { fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ reason: b.getAttribute('data-reason') }), credentials: 'omit', referrerPolicy: 'no-referrer', keepalive: true }).catch(function () {}); } catch (x) {}
+  });
+})();
+</script>
+</body>
+</html>

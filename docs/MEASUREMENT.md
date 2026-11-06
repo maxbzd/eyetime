@@ -54,7 +54,7 @@ The queries in `queries.sql` are the quick ones for a console. **The dashboard i
 
 `server/usage/dashboard.html`, served by the collector at `/` and drawn from `GET /v1/stats` (behind the secret `DASH_TOKEN`). One file, no library, nothing requested except its own origin; Russian and English, light and dark, usable on a phone and by keyboard.
 
-**Nine pages**, in a side navigation (tabs on a phone) that follows the address (`#growth`, `#retention`, …); a dot beside a page means something on it needs a look:
+**Ten pages**, in a side navigation (tabs on a phone) that follows the address (`#growth`, `#retention`, …); a dot beside a page means something on it needs a look:
 
 | Page | Answers | What is on it |
 |---|---|---|
@@ -66,14 +66,46 @@ The queries in `queries.sql` are the quick ones for a console. **The dashboard i
 | Features | What is alive? | every feature with its share, uses and a weekly trend line; a click opens the feature: trend, uses by week, ever tried, time to first use, link with coming back |
 | Sessions & blocking | Do sessions reach the end, why are pages stopped, are breaks taken? | length, weekly trends, reasons, continue rate, eye breaks |
 | Quality | Fast, healthy, up to date? | new-tab speed and its weekly trend, errors by place and per 1000, **versions in use** with finish rate and errors per version |
+| Experiments | Did a change help? | each experiment's arms side by side: installs, D1, D7, a first session in the week, finish rate, active days; a difference from the control is called significant only when chance does not explain it (p < 0.05, at least 20 per arm) |
 | Method | How is each figure counted? | a glossary of every figure and how to read it |
 
-- **Look and feel**: a quiet tracker-style shell (grey sidebar with icons, one white panel, breadcrumb and actions on top, hairlines instead of shadows, 13px type, one accent colour, light and dark). The keys **1–9** open the pages in the order of the sidebar; on a phone the sidebar becomes a row of tabs.
-- **Period** (one row above everything): 7 / 28 / 90 days, all time, or any two dates; **filters** narrow the whole dashboard to a segment (version, browser, system, language, look, layout, mode), and the comparison with the previous period is narrowed the same way. Period and filters are in the address, so a link opens the same view. **Compare with the previous period** is on by default.
+- **Look and feel**: a quiet tracker-style shell (grey sidebar with icons, one white panel, breadcrumb and actions on top, hairlines instead of shadows, 13px type, one accent colour, light and dark). The keys **1–9** open the first nine pages in the order of the sidebar; on a phone the sidebar becomes a row of tabs.
+- **Period** (one row above everything): 7 / 28 / 90 days, all time, or any two dates; **filters** narrow the whole dashboard to a segment (version, browser, system, language, look, layout, mode, and by behaviour: how much they use it, whether they ever started a session, whether they keep blocking on), and the comparison with the previous period is narrowed the same way. Period and filters are in the address, so a link opens the same view. **Compare with the previous period** is on by default.
 - **Export** (the same menu on the public view): *CSV* of every figure of every page (long format `section,id,metric,label,value,k,n`, a BOM for Excel, labels in the language of the page, cells that start like a formula are neutralised), *JSON* (the collector's full answer), a *Markdown report* (file, or copied) and *print / PDF*. File names carry the period.
 - **Every page says which question it answers and which people it counts** (active in the period, installs of the period, weeks of the period).
 - **Public statistics**: with `PUBLIC_STATS=1` the collector also answers `GET /v1/public-stats`, and `/?public` shows it: only totals over at least 50 installs, small categories folded into "other", no cohorts, errors or versions. Below 50 it says it is still collecting.
 - **Look at it before there is data**: `node scripts-dev/dashboard-preview.mjs` serves the real handler with a made-up population of 500 installs (`/?demo`); `node scripts-dev/dashboard-demo.mjs out.html` makes one self-contained file of it (the formulas run in the browser).
+
+### What a figure is worth: intervals, chance, the north star
+
+- **Every share carries a 95 % interval** (Wilson, which stays honest for small numbers and for 0 % and 100 %). "42 % (31–54 %)" says how much the 42 can be trusted; two intervals that overlap heavily are not two different things.
+- **A change against the previous period says whether it is more than chance.** Two shares are compared with a two-proportion test; the arrow is solid only when p < 0.05 and each side has at least 20 people, otherwise it says *could be noise*. A wiggle of a few points on a few dozen installs is never news.
+- **The north star: sessions finished per active week** (a finished focus session per install active that week). One number that rises when more people come back *and* when they get something done, which neither installs nor opens can show. The overview draws it by week next to its minutes estimate.
+- **Events on the charts.** The owner adds a note on a day ("Release 3.8.1", "Post on Habr") from the *Event* menu; it becomes a mark on every weekly chart and a row in the Growth page, so a jump is read against what was done. Notes are the owner's, written through `POST /v1/notes`, up to 300 of up to 80 characters.
+- **Targets are the owner's.** *Targets* in the scorecard edits the numbers it is measured against (`PUT /v1/targets`, stored in the collector); the return and activation rates can be given a target too and then get a row. Defaults below.
+- **Why people leave.** When the extension is removed the browser opens one page on the project's site (`site/uninstall.html`) with seven buttons. A click sends only `{ "reason": … }` from a fixed list; the collector counts it per day and keeps no identifier, and the page sets no cookie and stores nothing. The extension asks for that page only when a collector exists (`setUninstallURL`), so a build without one asks nothing. The Retention page shows the reasons and the removal share of the store's user count.
+- **Coverage of the sample.** The people who share are not all the people. The owner types in the store's weekly users (`PUT /v1/store-stats`, or the form under *Coverage of the sample* on the Audience page) and the dashboard shows what share of them reports. Under 10 % the dashboard says to read the figures as a small, selected group.
+- **Report intake.** The collector counts, by day and without ids, what it accepted and what it refused and why (a bad report, too soon, too big, a web page, a flood). The Quality page shows it; a sudden refusal rate means a version that sends something the schema does not know, and the digest warns about it.
+- **Days of the week** of the active days (the retention page), so a Tuesday dip is not read as a trend.
+
+### Experiments
+
+A change is tried by putting some devices in an arm. The arm is drawn on the device from a random number that is kept there, never sent and left out of backups; a report says only `"x": ["welcome:short"]`, and only for an experiment that is listed. To start one:
+
+1. Add it to `EXPERIMENTS` in `src/shared/usage-schema.js`, the control first: `{ id: 'welcome', arms: ['control', 'short'] }`. The collector reads the same list, so a report that names an experiment that is not in it is refused.
+2. In the code that differs, ask `await armOf('welcome')` (`src/shared/usage-store.js`) and branch on the arm. The arm is drawn on the device whether or not the person shares, so what they see never depends on sharing; only a sharer's report says which arm it was.
+3. Release. After a few weeks the **Experiments** page shows each arm with its intervals and whether the difference from the control is significant. Do not stop at the first green arrow: decide the length and the number of people in advance, and remember that it is the people who share that are compared, as everywhere else.
+4. Remove the code of the loser, and remove the experiment from the list.
+
+Every counter, flag and field of the report is listed in `docs/TRACKING-PLAN.md` with the page that reads it; the file is generated (`node scripts-dev/tracking-plan.mjs`), a test fails when the schema and the plan differ, and `npm run check` fails when the file is stale.
+
+### The digest and the alarms
+
+With the Worker's cron triggers and two secrets (`TG_BOT_TOKEN`, `TG_CHAT_ID`) the collector sends the owner a Telegram message every Monday (the week's figures with the change and the link to the dashboard) and, at most once in three days per cause, an alarm when errors, new-tab speed, a fall in active installs (under 70 % of the week before) or a share of refused reports crosses a line. Nothing is sent without the two secrets, and the message holds only totals.
+
+### Retention of the data
+
+An install that has not reported for 400 days (`RETENTION_DAYS`, at least 30) is deleted with everything held for it, on the weekly run. An install of the people who share is a number, but a number is not owed forever.
 
 ### Scorecard targets (ours, not an industry standard)
 
@@ -87,11 +119,11 @@ The queries in `queries.sql` are the quick ones for a console. **The dashboard i
 | People on the newest version | ≥ 80 % | ≥ 50 % |
 | DAU / MAU | ≥ 20 % | ≥ 10 % |
 
-A row with too little data (under 50 installs, 30 sessions, 100 tab opens) shows *low data* and is neither green nor red. Change the numbers in `scorecard()` in the page once real figures say what is normal here.
+A row with too little data (under 50 installs, 30 sessions, 100 tab opens) shows *low data* and is neither green nor red. The rows are computed on the collector from the owner's targets (*Targets* on the scorecard); amber starts at three quarters of the target for a rate that should be high, and at twice the target for one that should be low.
 
 ### What the dashboard does not cover
 
-The numbers come from **the browser extension only**. The Windows app (`desktop/`) sends nothing: its only network use is the update check. Reporting from it would need its own opt-in, its own list of counters (blocks by kind, programs closed, unlock attempts, service restarts) and a decision about the promise made to the people who pay for it; see the end of this page. Nothing outside the app is measured either (the site, the store page, downloads): the Chrome Web Store dashboard and the GitHub release counts already answer *how many came*, and this dashboard answers *what they did*.
+The numbers come from **the browser extension only**. The Windows app (`desktop/`) sends nothing: its only network use is the update check. Reporting from it would need its own opt-in, its own list of counters (blocks by kind, programs closed, unlock attempts, service restarts) and a decision about the promise made to the people who pay for it; see the end of this page. It is a decision for the owner and has not been made. Nothing outside the app is measured either (the site, the store page, downloads): the Chrome Web Store dashboard and the GitHub release counts already answer *how many came*, and this dashboard answers *what they did*.
 
 ## Targets for the first quarter
 

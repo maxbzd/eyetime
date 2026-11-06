@@ -31,16 +31,18 @@ const FLAG_ODDS = {
  */
 export function makeDemoSnapshot(now, { installs: count = 520, seed = 11 } = {}) {
   const r = rng(seed), today = Math.floor(now / DAY);
-  const out = { installs: /** @type {any[]} */ ([]), firsts: /** @type {any[]} */ ([]), weeks: /** @type {any[]} */ ([]), flags: /** @type {any[]} */ ([]) };
+  const out = { installs: /** @type {any[]} */ ([]), firsts: /** @type {any[]} */ ([]), weeks: /** @type {any[]} */ ([]), flags: /** @type {any[]} */ ([]), experiments: /** @type {any[]} */ ([]), notes: /** @type {any[]} */ ([]), ingest: /** @type {any[]} */ ([]), uninstalls: /** @type {any[]} */ ([]), store_stats: /** @type {any[]} */ ([]), settings: {} };
   for (let n = 0; n < count; n++) {
     const id = hex(r);
     const installAgo = Math.floor(Math.pow(r(), 1.5) * 90); // more of the installs are recent: the project grows
     const day0 = today - installAgo;
     const kind = r() < 0.52 ? 'leaves' : r() < 0.8 ? 'casual' : 'daily';
+    const arm = parseInt(id[0], 16) % 2 ? 'short' : 'control'; // a made-up experiment: the "short" default keeps people a little more
+    out.experiments.push({ id, exp: 'demo-len', arm });
     const act = [0];
     for (let d = 1; d <= installAgo; d++) {
       const p = kind === 'leaves' ? 0.45 * Math.exp(-d / 1.6) : kind === 'casual' ? 0.07 + 0.3 * Math.exp(-d / 18) : 0.2 + 0.65 * Math.exp(-d / 120) + (d % 7 > 4 ? -0.15 : 0.05);
-      if (r() < Math.max(0.02, Math.min(0.97, p))) act.push(d);
+      if (r() < Math.max(0.02, Math.min(0.97, p * (arm === 'short' ? 1.25 : 1)))) act.push(d);
     }
     const lastActive = act[act.length - 1];
     const reportAge = Math.min(installAgo, lastActive + Math.floor(r() * 6)); // a person who stopped using it stops reporting a few days later
@@ -91,6 +93,17 @@ export function makeDemoSnapshot(now, { installs: count = 520, seed = 11 } = {})
     on.add(weighted(r, [['sites_0', 40], ['sites_1_5', 42], ['sites_6p', 18]]));
     for (const f of FLAGS) if (on.has(f)) out.flags.push({ id, flag: f });
   }
+  // what the owner and the collector add around the reports: events on the charts, the door's counters, answers after removal, numbers typed in from the store
+  const iso = (/** @type {number} */ d) => new Date(d * DAY).toISOString().slice(0, 10);
+  out.notes = [{ id: 1, day: iso(today - 47), text: 'Release 3.8.0' }, { id: 2, day: iso(today - 20), text: 'Post on Habr' }, { id: 3, day: iso(today - 6), text: 'Release 3.8.1' }];
+  for (let k = 27; k >= 0; k--) {
+    const day = iso(today - k), acc = 12 + Math.floor(r() * 25), bad = r() < 0.4 ? Math.floor(r() * 3) : 0, soon = Math.floor(r() * 6);
+    out.ingest.push({ day, kind: 'accepted', n: acc }); if (bad) out.ingest.push({ day, kind: 'bad_report', n: bad }); if (soon) out.ingest.push({ day, kind: 'too_soon', n: soon });
+  }
+  const reasons = [['slow', 3], ['broken', 2], ['not_useful', 5], ['too_strict', 3], ['other_tool', 4], ['temporary', 2], ['other', 3]];
+  for (let k = 59; k >= 0; k--) for (const [reason, w] of reasons) { const n = Math.floor(r() * (w / 2)); if (n) out.uninstalls.push({ day: iso(today - k), reason, n }); }
+  const activeIn = (/** @type {number} */ d) => out.installs.filter((i) => { const d0 = Math.floor(i.last_report / DAY) - i.age; return i.act.some((/** @type {number} */ a) => d0 + a >= d - 6 && d0 + a <= d); }).length;
+  for (const k of [28, 14, 7]) out.store_stats.push({ day: iso(today - k), users: Math.round(activeIn(today - k) * (3.1 + r() * 0.6)), installs: 40 + Math.floor(r() * 30), uninstalls: 10 + Math.floor(r() * 20) });
   for (const f of out.weeks) if (!FEATURES.includes(f.feature)) throw new Error('demo data: unknown feature ' + f.feature);
   return out;
 }
