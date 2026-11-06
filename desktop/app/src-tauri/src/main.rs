@@ -16,13 +16,26 @@ use tauri::{AppHandle, Manager, State, WebviewUrl, WebviewWindowBuilder, WindowE
 use tauri_plugin_autostart::ManagerExt;
 
 const PIPE: &str = r"\\.\pipe\eyetime-helper";
-const KEYS: [&str; 8] = ["et-rules", "et-items", "et-limits", "et-auto", "et-cats", "et-kw", "et-ex", "et-protect"];
+const KEYS: [&str; 8] = [
+    "et-rules",
+    "et-items",
+    "et-limits",
+    "et-auto",
+    "et-cats",
+    "et-kw",
+    "et-ex",
+    "et-protect",
+];
 
 /// one connection to the helper, opened when needed and again after any break
 struct Link(Mutex<Option<(File, BufReader<File>)>>);
 
 fn open_link() -> Result<(File, BufReader<File>), String> {
-    let f = OpenOptions::new().read(true).write(true).open(PIPE).map_err(|e| e.to_string())?;
+    let f = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(PIPE)
+        .map_err(|e| e.to_string())?;
     let r = f.try_clone().map_err(|e| e.to_string())?;
     Ok((f, BufReader::new(r)))
 }
@@ -37,7 +50,11 @@ fn talk(slot: &mut Option<(File, BufReader<File>)>, req: &Value) -> Result<Value
     w.write_all(text.as_bytes()).map_err(|e| e.to_string())?;
     w.flush().map_err(|e| e.to_string())?;
     let mut line = String::new();
-    let n = r.by_ref().take(4 * 1024 * 1024).read_line(&mut line).map_err(|e| e.to_string())?;
+    let n = r
+        .by_ref()
+        .take(4 * 1024 * 1024)
+        .read_line(&mut line)
+        .map_err(|e| e.to_string())?;
     if n == 0 {
         return Err("the helper closed the connection".into());
     }
@@ -70,11 +87,16 @@ async fn helper(link: State<'_, Link>, req: Value) -> Result<Value, String> {
 // ---------- the window's own small settings ----------
 
 fn settings_path() -> PathBuf {
-    let base = std::env::var_os("APPDATA").map(PathBuf::from).unwrap_or_else(std::env::temp_dir);
+    let base = std::env::var_os("APPDATA")
+        .map(PathBuf::from)
+        .unwrap_or_else(std::env::temp_dir);
     base.join("EyeTime").join("app.json")
 }
 pub(crate) fn read_settings() -> Value {
-    std::fs::read_to_string(settings_path()).ok().and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_else(|| json!({"launch": true, "tray": true}))
+    std::fs::read_to_string(settings_path())
+        .ok()
+        .and_then(|t| serde_json::from_str(&t).ok())
+        .unwrap_or_else(|| json!({"launch": true, "tray": true}))
 }
 fn write_settings(v: &Value) {
     let p = settings_path();
@@ -155,7 +177,10 @@ fn open_target(kind: String) -> Result<(), String> {
         }
         _ => return Ok(()),
     };
-    c.creation_flags(0x0800_0000).spawn().map(|_| ()).map_err(|e| e.to_string())
+    c.creation_flags(0x0800_0000)
+        .spawn()
+        .map(|_| ())
+        .map_err(|e| e.to_string())
 }
 
 fn show_main(app: &AppHandle) {

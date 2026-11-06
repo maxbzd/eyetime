@@ -38,7 +38,20 @@ pub struct Rule {
 }
 impl Default for Rule {
     fn default() -> Self {
-        Rule { id: String::new(), name: String::new(), kind: "schedule".into(), from: "09:00".into(), to: "17:00".into(), days: vec![0, 1, 2, 3, 4], block: "dis".into(), breaks: true, on: true, glyph: "cal".into(), level: 0, dur: 25 }
+        Rule {
+            id: String::new(),
+            name: String::new(),
+            kind: "schedule".into(),
+            from: "09:00".into(),
+            to: "17:00".into(),
+            days: vec![0, 1, 2, 3, 4],
+            block: "dis".into(),
+            breaks: true,
+            on: true,
+            glyph: "cal".into(),
+            level: 0,
+            dur: 25,
+        }
     }
 }
 
@@ -63,7 +76,19 @@ pub struct Limit {
 }
 impl Default for Limit {
     fn default() -> Self {
-        Limit { id: String::new(), name: String::new(), color: String::new(), scope: "site".into(), kind: "time".into(), amount: 30, per: "day".into(), cool: 30, used: 0, on: true, act: "block".into() }
+        Limit {
+            id: String::new(),
+            name: String::new(),
+            color: String::new(),
+            scope: "site".into(),
+            kind: "time".into(),
+            amount: 30,
+            per: "day".into(),
+            cool: 30,
+            used: 0,
+            on: true,
+            act: "block".into(),
+        }
     }
 }
 
@@ -94,7 +119,18 @@ pub struct Tamper {
 }
 impl Default for Tamper {
     fn default() -> Self {
-        Tamper { uninstall: true, watchdog: true, hosts: true, private: true, vpn: true, ext: true, clock: true, taskmgr: false, safemode: true, sleep: false }
+        Tamper {
+            uninstall: true,
+            watchdog: true,
+            hosts: true,
+            private: true,
+            vpn: true,
+            ext: true,
+            clock: true,
+            taskmgr: false,
+            safemode: true,
+            sleep: false,
+        }
     }
 }
 
@@ -121,7 +157,23 @@ pub struct Protect {
 }
 impl Default for Protect {
     fn default() -> Self {
-        Protect { level: 0, friction: "hold".into(), wait_sec: 30, grow: true, type_len: 1, pin_on: false, partner: String::new(), emerg: 3, emerg_week: 1, daily: 7, len: 5, reset_streak: true, points: false, only: false, tam: Tamper::default() }
+        Protect {
+            level: 0,
+            friction: "hold".into(),
+            wait_sec: 30,
+            grow: true,
+            type_len: 1,
+            pin_on: false,
+            partner: String::new(),
+            emerg: 3,
+            emerg_week: 1,
+            daily: 7,
+            len: 5,
+            reset_streak: true,
+            points: false,
+            only: false,
+            tam: Tamper::default(),
+        }
     }
 }
 
@@ -138,10 +190,24 @@ pub struct State {
     pub protect: Protect,
 }
 
-pub const KEYS: [&str; 8] = ["et-rules", "et-items", "et-limits", "et-auto", "et-cats", "et-kw", "et-ex", "et-protect"];
+pub const KEYS: [&str; 8] = [
+    "et-rules",
+    "et-items",
+    "et-limits",
+    "et-auto",
+    "et-cats",
+    "et-kw",
+    "et-ex",
+    "et-protect",
+];
 
-fn take<T: for<'de> Deserialize<'de> + Default>(m: &HashMap<String, serde_json::Value>, k: &str) -> T {
-    m.get(k).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+fn take<T: for<'de> Deserialize<'de> + Default>(
+    m: &HashMap<String, serde_json::Value>,
+    k: &str,
+) -> T {
+    m.get(k)
+        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .unwrap_or_default()
 }
 
 impl State {
@@ -199,7 +265,12 @@ impl Now {
         let minute = (local.rem_euclid(86_400_000) / 60_000) as u16;
         let weekday = (days + 3).rem_euclid(7) as u8; // 1970-01-01 was a Thursday
         let (y, m, d) = crate::friction::civil_from_days(days);
-        Now { ms, weekday, minute, day: format!("{y:04}-{m:02}-{d:02}") }
+        Now {
+            ms,
+            weekday,
+            minute,
+            day: format!("{y:04}-{m:02}-{d:02}"),
+        }
     }
 }
 
@@ -211,7 +282,10 @@ mod tests {
         // 2026-11-04 (Wednesday) 10:30 UTC, in a zone two hours ahead
         let ms = 1_793_788_200_000;
         let n = Now::from_local(ms, 2 * 3_600_000);
-        assert_eq!((n.day.as_str(), n.weekday, n.minute), ("2026-11-04", 2, 12 * 60 + 30));
+        assert_eq!(
+            (n.day.as_str(), n.weekday, n.minute),
+            ("2026-11-04", 2, 12 * 60 + 30)
+        );
         // the same moment where it is already the next day
         let n = Now::from_local(ms, 14 * 3_600_000);
         assert_eq!((n.day.as_str(), n.weekday, n.minute), ("2026-11-05", 3, 30));

@@ -1,7 +1,10 @@
 //! The network half of updates: look for a newer version now and then, and fetch it when the person (or the automatic setting) asks.
 //! It only talks; whether and when the new installer runs is decided by the supervisor, with the same care as everything else.
 
-use eyetime_core::update::{builtin_pubkey, from_feed, newest, same_hash, sha256_file, verify_update, UpdateInfo, MAX_BYTES, RELEASES_URL};
+use eyetime_core::update::{
+    builtin_pubkey, from_feed, newest, same_hash, sha256_file, verify_update, UpdateInfo,
+    MAX_BYTES, RELEASES_URL,
+};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
@@ -70,17 +73,37 @@ fn lock(s: &Arc<Mutex<Shared>>) -> std::sync::MutexGuard<'_, Shared> {
 
 impl<N: Net> Updater<N> {
     pub fn new(net: N, shared: Arc<Mutex<Shared>>, current: &str) -> Updater<N> {
-        { let mut g = lock(&shared); if g.checked_ms == 0 { g.checked_ms = i64::MIN / 4; } } // never looked yet: look at the first turn
-        Updater { net, shared, current: current.to_string(), key: builtin_pubkey() }
+        {
+            let mut g = lock(&shared);
+            if g.checked_ms == 0 {
+                g.checked_ms = i64::MIN / 4;
+            }
+        } // never looked yet: look at the first turn
+        Updater {
+            net,
+            shared,
+            current: current.to_string(),
+            key: builtin_pubkey(),
+        }
     }
 
     /// One turn of the work: look, or fetch, if something asks for it. The server calls this about once a second.
     pub fn step(&self, now_ms: i64) {
         let (check, fetch) = {
             let s = lock(&self.shared);
-            let busy = matches!(s.phase, Phase::Checking | Phase::Downloading | Phase::Installing | Phase::Ready);
-            let every = if s.phase == Phase::Error { RETRY_MS } else { EVERY_MS };
-            (!busy && (s.want_check || now_ms - s.checked_ms >= every), s.want_install && s.phase == Phase::Available)
+            let busy = matches!(
+                s.phase,
+                Phase::Checking | Phase::Downloading | Phase::Installing | Phase::Ready
+            );
+            let every = if s.phase == Phase::Error {
+                RETRY_MS
+            } else {
+                EVERY_MS
+            };
+            (
+                !busy && (s.want_check || now_ms - s.checked_ms >= every),
+                s.want_install && s.phase == Phase::Available,
+            )
         };
         if check {
             self.check(now_ms);
@@ -98,7 +121,10 @@ impl<N: Net> Updater<N> {
         }
         let found = match self.net.local_feed() {
             Some(text) => from_feed(&text, &self.current, true),
-            None => self.net.get(RELEASES_URL).and_then(|t| newest(&t, &self.current)),
+            None => self
+                .net
+                .get(RELEASES_URL)
+                .and_then(|t| newest(&t, &self.current)),
         };
         let mut s = lock(&self.shared);
         s.checked_ms = now_ms;
@@ -115,7 +141,11 @@ impl<N: Net> Updater<N> {
             }
             Err(e) => {
                 s.error = e;
-                s.phase = if s.info.is_some() { Phase::Available } else { Phase::Error };
+                s.phase = if s.info.is_some() {
+                    Phase::Available
+                } else {
+                    Phase::Error
+                };
             }
         }
     }
@@ -136,21 +166,32 @@ impl<N: Net> Updater<N> {
         let _ = std::fs::remove_file(&part);
         let shared = self.shared.clone();
         let size = info.size.max(1);
-        let r = self.net.download(&info.url, &part, &|bytes| lock(&shared).pct = ((bytes.min(size) * 100) / size).min(99) as u32);
+        let r = self.net.download(&info.url, &part, &|bytes| {
+            lock(&shared).pct = ((bytes.min(size) * 100) / size).min(99) as u32
+        });
         let verdict = r.and_then(|()| {
-            let len = std::fs::metadata(&part).map(|m| m.len()).map_err(|e| e.to_string())?;
+            let len = std::fs::metadata(&part)
+                .map(|m| m.len())
+                .map_err(|e| e.to_string())?;
             if len > MAX_BYTES || len != info.size {
                 return Err("the download is not the size that was announced".to_string());
             }
             let got = sha256_file(&part).map_err(|e| e.to_string())?;
             if !same_hash(&got, &info.sha256) {
-                return Err("the download does not match its checksum, so it was thrown away".to_string());
+                return Err(
+                    "the download does not match its checksum, so it was thrown away".to_string(),
+                );
             }
             // a release is run only if the signing key said so about this version and this very file (the administrator's own feed file is the one exception)
             if !info.sig_url.is_empty() {
-                let sig = self.net.get(&info.sig_url).map_err(|e| format!("the signature could not be fetched: {e}"))?;
+                let sig = self
+                    .net
+                    .get(&info.sig_url)
+                    .map_err(|e| format!("the signature could not be fetched: {e}"))?;
                 if !verify_update(&self.key, &info.version, &got, &sig) {
-                    return Err("the download is not signed by EyeTime, so it was thrown away".to_string());
+                    return Err(
+                        "the download is not signed by EyeTime, so it was thrown away".to_string(),
+                    );
                 }
             } else if self.net.local_feed().is_none() {
                 return Err("the download has no signature, so it was thrown away".to_string());
@@ -220,12 +261,27 @@ mod tests {
         )
     }
     fn setup(bytes: &[u8], list: Result<String, String>) -> (Updater<FakeNet>, PathBuf) {
-        let dir = std::env::temp_dir().join(format!("eyetime-upd-{}-{:?}", std::process::id(), std::thread::current().id()));
+        let dir = std::env::temp_dir().join(format!(
+            "eyetime-upd-{}-{:?}",
+            std::process::id(),
+            std::thread::current().id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
         // the release job's key is a test key here; the file that is offered is signed with it
         let seed = [9u8; 32];
-        let sig = eyetime_core::update::sign_update(&seed, "0.2.0", &eyetime_core::update::sha256_hex(bytes));
-        let net = FakeNet { list: Mutex::new(list), bytes: Mutex::new(bytes.to_vec()), feed: Mutex::new(None), dir: dir.clone(), gets: AtomicUsize::new(0), sig: Mutex::new(sig) };
+        let sig = eyetime_core::update::sign_update(
+            &seed,
+            "0.2.0",
+            &eyetime_core::update::sha256_hex(bytes),
+        );
+        let net = FakeNet {
+            list: Mutex::new(list),
+            bytes: Mutex::new(bytes.to_vec()),
+            feed: Mutex::new(None),
+            dir: dir.clone(),
+            gets: AtomicUsize::new(0),
+            sig: Mutex::new(sig),
+        };
         let mut u = Updater::new(net, Arc::new(Mutex::new(Shared::default())), "0.1.0");
         u.key = ed25519_dalek_pub(&seed);
         (u, dir)
@@ -243,13 +299,20 @@ mod tests {
         let (u, dir) = setup(&b, Ok(release_list(&b)));
         u.step(1);
         // a file that has the right checksum, signed by somebody else (a release made by a thief)
-        *u.net.sig.lock().unwrap() = eyetime_core::update::sign_update(&[1u8; 32], "0.2.0", &eyetime_core::update::sha256_hex(&b));
+        *u.net.sig.lock().unwrap() = eyetime_core::update::sign_update(
+            &[1u8; 32],
+            "0.2.0",
+            &eyetime_core::update::sha256_hex(&b),
+        );
         lock(&u.shared).want_install = true;
         u.step(2);
         let s = lock(&u.shared);
         assert_eq!(s.phase, Phase::Available);
         assert!(s.error.contains("not signed"), "{}", s.error);
-        assert!(!dir.join("EyeTime-Setup-0.2.0.exe").exists(), "it is not even kept");
+        assert!(
+            !dir.join("EyeTime-Setup-0.2.0.exe").exists(),
+            "it is not even kept"
+        );
         drop(s);
         // no signature at all
         *u.net.sig.lock().unwrap() = String::new();
@@ -266,7 +329,11 @@ mod tests {
         assert_eq!(lock(&u.shared).phase, Phase::Available);
         assert_eq!(lock(&u.shared).info.as_ref().unwrap().version, "0.2.0");
         u.step(10_000_000 + 3_600_000);
-        assert_eq!(u.net.gets.load(Ordering::SeqCst), 1, "not again within six hours");
+        assert_eq!(
+            u.net.gets.load(Ordering::SeqCst),
+            1,
+            "not again within six hours"
+        );
         u.step(10_000_000 + EVERY_MS + 1);
         assert_eq!(u.net.gets.load(Ordering::SeqCst), 2);
     }
@@ -298,7 +365,10 @@ mod tests {
         assert_eq!(s.phase, Phase::Available);
         assert!(s.error.contains("checksum"), "{}", s.error);
         assert!(!s.want_install);
-        assert!(!dir.join("EyeTime-Setup-0.2.0.exe").exists() && !dir.join("EyeTime-Setup.exe.part").exists());
+        assert!(
+            !dir.join("EyeTime-Setup-0.2.0.exe").exists()
+                && !dir.join("EyeTime-Setup.exe.part").exists()
+        );
         drop(s);
         *u.net.bytes.lock().unwrap() = b"short".to_vec();
         lock(&u.shared).want_install = true;
@@ -330,7 +400,9 @@ mod tests {
         let b = b"abc".to_vec();
         let (u, _) = setup(&b, Err("must not be asked".into()));
         let sha = eyetime_core::update::sha256_hex(&b);
-        *u.net.feed.lock().unwrap() = Some(format!(r#"{{"version":"0.5.0","url":"C:\\x.exe","sha256":"{sha}","size":3,"notes":["n"]}}"#));
+        *u.net.feed.lock().unwrap() = Some(format!(
+            r#"{{"version":"0.5.0","url":"C:\\x.exe","sha256":"{sha}","size":3,"notes":["n"]}}"#
+        ));
         u.step(0);
         assert_eq!(lock(&u.shared).info.as_ref().unwrap().version, "0.5.0");
         assert_eq!(u.net.gets.load(Ordering::SeqCst), 0);

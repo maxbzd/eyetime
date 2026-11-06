@@ -15,7 +15,10 @@ mod win {
     use std::sync::atomic::{AtomicBool, Ordering};
     use std::sync::{mpsc, Arc, Mutex};
     use std::time::Duration;
-    use windows_service::service::{ServiceControl, ServiceControlAccept, ServiceExitCode, ServiceState, ServiceStatus, ServiceType};
+    use windows_service::service::{
+        ServiceControl, ServiceControlAccept, ServiceExitCode, ServiceState, ServiceStatus,
+        ServiceType,
+    };
     use windows_service::service_control_handler::{self, ServiceControlHandlerResult};
     use windows_service::{define_windows_service, service_dispatcher};
 
@@ -64,7 +67,12 @@ mod win {
         let sup: Shared = Arc::new(Mutex::new(Supervisor::new(WinOs)));
         let stop = Arc::new(AtomicBool::new(false));
         start_threads(&sup, &stop);
-        handle.set_service_status(status(ServiceState::Running, ServiceControlAccept::STOP | ServiceControlAccept::SHUTDOWN | ServiceControlAccept::PRESHUTDOWN))?;
+        handle.set_service_status(status(
+            ServiceState::Running,
+            ServiceControlAccept::STOP
+                | ServiceControlAccept::SHUTDOWN
+                | ServiceControlAccept::PRESHUTDOWN,
+        ))?;
         let keep_blocks = loop {
             match rx.recv() {
                 Ok(ServiceControl::Stop) => {
@@ -81,7 +89,10 @@ mod win {
                 Err(_) => break true,
             }
         };
-        handle.set_service_status(status(ServiceState::StopPending, ServiceControlAccept::empty()))?;
+        handle.set_service_status(status(
+            ServiceState::StopPending,
+            ServiceControlAccept::empty(),
+        ))?;
         stop.store(true, Ordering::Relaxed);
         poke();
         lock(&sup).shutdown(keep_blocks);
@@ -111,7 +122,9 @@ fn main() {
         "--agent" => eyetime_helper::agent::run(),
         "--native-host" => eyetime_helper::agent::native_host(),
         // a browser starts a native host with the address of the extension as its first argument
-        o if o.starts_with("chrome-extension://") || o.starts_with("moz-extension://") => eyetime_helper::agent::native_host(),
+        o if o.starts_with("chrome-extension://") || o.starts_with("moz-extension://") => {
+            eyetime_helper::agent::native_host()
+        }
         "--cleanup" => {
             eyetime_helper::os_windows::cleanup_all();
             println!("EyeTime blocks removed from the hosts file and the system policies.");

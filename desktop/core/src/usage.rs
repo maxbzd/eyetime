@@ -65,7 +65,9 @@ impl Usage {
                     }
                 }
                 if track_hours_for.iter().any(|x| x == k) {
-                    d.hour_keys.entry(k.to_string()).or_insert_with(|| vec![0; 24])[h] += dt;
+                    d.hour_keys
+                        .entry(k.to_string())
+                        .or_insert_with(|| vec![0; 24])[h] += dt;
                 }
                 if first {
                     self.run.clear(); // continuous use is use of the same thing
@@ -103,16 +105,43 @@ impl Usage {
     /// seconds of `key` in the period
     pub fn secs(&self, key: &str, per: &str, now: &Now) -> u32 {
         match per {
-            "hour" => self.days.get(&now.day).and_then(|d| d.hour_keys.get(key)).map(|v| v[now.hour() as usize]).unwrap_or(0),
-            "week" => self.days.iter().rev().take(7).map(|(_, d)| d.secs.get(key).copied().unwrap_or(0)).sum(),
-            _ => self.days.get(&now.day).and_then(|d| d.secs.get(key)).copied().unwrap_or(0),
+            "hour" => self
+                .days
+                .get(&now.day)
+                .and_then(|d| d.hour_keys.get(key))
+                .map(|v| v[now.hour() as usize])
+                .unwrap_or(0),
+            "week" => self
+                .days
+                .iter()
+                .rev()
+                .take(7)
+                .map(|(_, d)| d.secs.get(key).copied().unwrap_or(0))
+                .sum(),
+            _ => self
+                .days
+                .get(&now.day)
+                .and_then(|d| d.secs.get(key))
+                .copied()
+                .unwrap_or(0),
         }
     }
 
     pub fn opens(&self, key: &str, per: &str, now: &Now) -> u32 {
         match per {
-            "week" => self.days.iter().rev().take(7).map(|(_, d)| d.opens.get(key).copied().unwrap_or(0)).sum(),
-            _ => self.days.get(&now.day).and_then(|d| d.opens.get(key)).copied().unwrap_or(0),
+            "week" => self
+                .days
+                .iter()
+                .rev()
+                .take(7)
+                .map(|(_, d)| d.opens.get(key).copied().unwrap_or(0))
+                .sum(),
+            _ => self
+                .days
+                .get(&now.day)
+                .and_then(|d| d.opens.get(key))
+                .copied()
+                .unwrap_or(0),
         }
     }
 }
@@ -121,7 +150,12 @@ impl Usage {
 mod tests {
     use super::*;
     fn now(ms: i64, minute: u16) -> Now {
-        Now { ms, weekday: 2, minute, day: "2026-11-04".into() }
+        Now {
+            ms,
+            weekday: 2,
+            minute,
+            day: "2026-11-04".into(),
+        }
     }
     #[test]
     fn counts_time_opens_and_switches() {

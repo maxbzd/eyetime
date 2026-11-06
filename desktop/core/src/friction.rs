@@ -52,8 +52,11 @@ pub enum Verdict {
 }
 
 const WORDS: &[&str] = &[
-    "quiet", "river", "amber", "window", "garden", "pencil", "morning", "copper", "ladder", "meadow", "candle", "harbor", "violet", "pocket", "orchard", "silver", "thunder", "marble", "feather", "compass", "lantern", "velvet", "island", "canyon", "whisper", "bridge",
-    "falcon", "ember", "willow", "prairie", "cactus", "ribbon", "summit", "saffron", "tundra", "cobalt", "glacier", "maple", "pebble", "horizon",
+    "quiet", "river", "amber", "window", "garden", "pencil", "morning", "copper", "ladder",
+    "meadow", "candle", "harbor", "violet", "pocket", "orchard", "silver", "thunder", "marble",
+    "feather", "compass", "lantern", "velvet", "island", "canyon", "whisper", "bridge", "falcon",
+    "ember", "willow", "prairie", "cactus", "ribbon", "summit", "saffron", "tundra", "cobalt",
+    "glacier", "maple", "pebble", "horizon",
 ];
 
 fn text_of(len: u8, rng: &mut Rng) -> String {
@@ -62,22 +65,45 @@ fn text_of(len: u8, rng: &mut Rng) -> String {
         2 => 12,
         _ => 20,
     };
-    (0..words).map(|_| WORDS[rng.below(WORDS.len() as u64) as usize]).collect::<Vec<_>>().join(" ")
+    (0..words)
+        .map(|_| WORDS[rng.below(WORDS.len() as u64) as usize])
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 impl Challenge {
     /// `unblocks_today` makes the waiting longer each time when "grow" is on.
-    pub fn new(p: &Protect, action: &str, now_ms: i64, seed: u64, unblocks_today: u32) -> Challenge {
+    pub fn new(
+        p: &Protect,
+        action: &str,
+        now_ms: i64,
+        seed: u64,
+        unblocks_today: u32,
+    ) -> Challenge {
         let mut rng = Rng::new(seed);
         let id = format!("{:016x}", rng.next());
-        let mut c = Challenge { id, kind: p.friction.clone(), action: action.to_string(), prompt: String::new(), issued_ms: now_ms, ready_ms: now_ms, expires_ms: now_ms + 10 * 60_000, answer: String::new(), needs_pin: p.pin_on };
+        let mut c = Challenge {
+            id,
+            kind: p.friction.clone(),
+            action: action.to_string(),
+            prompt: String::new(),
+            issued_ms: now_ms,
+            ready_ms: now_ms,
+            expires_ms: now_ms + 10 * 60_000,
+            answer: String::new(),
+            needs_pin: p.pin_on,
+        };
         match p.friction.as_str() {
             "hold" => {
                 c.ready_ms = now_ms + 2_500;
                 c.prompt = "Hold".into();
             }
             "wait" => {
-                let mult = if p.grow { 1 + unblocks_today.min(5) as i64 } else { 1 };
+                let mult = if p.grow {
+                    1 + unblocks_today.min(5) as i64
+                } else {
+                    1
+                };
                 let secs = (p.wait_sec.max(5) as i64 * mult).min(600);
                 c.ready_ms = now_ms + secs * 1000;
                 c.expires_ms = c.ready_ms + 5 * 60_000;
@@ -108,7 +134,10 @@ impl Challenge {
     }
 
     pub fn public(&self) -> Challenge {
-        Challenge { answer: String::new(), ..self.clone() }
+        Challenge {
+            answer: String::new(),
+            ..self.clone()
+        }
     }
 
     /// The answer to a "type", "math" or "hold" challenge. PIN and friend codes are checked separately against the stored hashes.
@@ -153,10 +182,16 @@ fn hash_pin(salt: &str, pin: &str) -> String {
     let mut out = [0u8; 32];
     let mut salt_bytes = b"eyetime-pin-v2:".to_vec();
     salt_bytes.extend_from_slice(salt.as_bytes());
-    if Argon2::new(Algorithm::Argon2id, Version::V0x13, params).hash_password_into(pin.as_bytes(), &salt_bytes, &mut out).is_err() {
+    if Argon2::new(Algorithm::Argon2id, Version::V0x13, params)
+        .hash_password_into(pin.as_bytes(), &salt_bytes, &mut out)
+        .is_err()
+    {
         return String::new(); // never matches
     }
-    format!("a2:{}", out.iter().map(|b| format!("{b:02x}")).collect::<String>())
+    format!(
+        "a2:{}",
+        out.iter().map(|b| format!("{b:02x}")).collect::<String>()
+    )
 }
 
 /// the form of an earlier version
@@ -195,7 +230,12 @@ impl Pin {
             return None;
         }
         let salt = format!("{:016x}", Rng::new(seed).next());
-        Some(Pin { hash: hash_pin(&salt, pin), salt, fails: 0, locked_until_ms: 0 })
+        Some(Pin {
+            hash: hash_pin(&salt, pin),
+            salt,
+            fails: 0,
+            locked_until_ms: 0,
+        })
     }
     pub fn verify(&mut self, pin: &str, now_ms: i64) -> PinResult {
         if !self.is_set() {
@@ -218,9 +258,16 @@ impl Pin {
         }
         self.fails += 1;
         // three free tries, then 30 s, 60 s, 2 min ... up to an hour
-        let lock = if self.fails >= 3 { (30_000i64 << (self.fails - 3).min(7)).min(3_600_000) } else { 0 };
+        let lock = if self.fails >= 3 {
+            (30_000i64 << (self.fails - 3).min(7)).min(3_600_000)
+        } else {
+            0
+        };
         self.locked_until_ms = now_ms + lock;
-        PinResult::Wrong { fails: self.fails, locked_for_ms: lock }
+        PinResult::Wrong {
+            fails: self.fails,
+            locked_for_ms: lock,
+        }
     }
 }
 
@@ -228,7 +275,10 @@ fn constant_eq(a: &str, b: &str) -> bool {
     if a.len() != b.len() {
         return false;
     }
-    a.bytes().zip(b.bytes()).fold(0u8, |acc, (x, y)| acc | (x ^ y)) == 0
+    a.bytes()
+        .zip(b.bytes())
+        .fold(0u8, |acc, (x, y)| acc | (x ^ y))
+        == 0
 }
 
 /// Emergency keys: a few a month, fewer a week. The helper keeps the ledger, the window only sees the count.
@@ -246,7 +296,11 @@ pub struct Ledger {
 /// days since 1970-01-01 of a YYYY-MM-DD date
 pub fn days_from_civil(day: &str) -> Option<i64> {
     let mut it = day.split('-');
-    let (y, m, d): (i64, i64, i64) = (it.next()?.parse().ok()?, it.next()?.parse().ok()?, it.next()?.parse().ok()?);
+    let (y, m, d): (i64, i64, i64) = (
+        it.next()?.parse().ok()?,
+        it.next()?.parse().ok()?,
+        it.next()?.parse().ok()?,
+    );
     if !(1..=12).contains(&m) || !(1..=31).contains(&d) {
         return None;
     }
@@ -275,7 +329,9 @@ pub fn civil_from_days(z: i64) -> (i64, u32, u32) {
 impl Ledger {
     fn roll(&mut self, day: &str) {
         let month = day.get(..7).unwrap_or("").to_string();
-        let week = days_from_civil(day).map(|d| (d + 3).div_euclid(7)).unwrap_or(0); // weeks begin on Monday
+        let week = days_from_civil(day)
+            .map(|d| (d + 3).div_euclid(7))
+            .unwrap_or(0); // weeks begin on Monday
         if self.month != month {
             self.month = month;
             self.used_month = 0;
@@ -287,7 +343,9 @@ impl Ledger {
     }
     pub fn left(&mut self, p: &Protect, day: &str) -> u32 {
         self.roll(day);
-        p.emerg.saturating_sub(self.used_month).min(p.emerg_week.saturating_sub(self.used_week))
+        p.emerg
+            .saturating_sub(self.used_month)
+            .min(p.emerg_week.saturating_sub(self.used_week))
     }
     pub fn spend(&mut self, p: &Protect, day: &str) -> bool {
         if self.left(p, day) == 0 {
@@ -305,18 +363,28 @@ mod tests {
     use super::*;
 
     fn protect(friction: &str) -> Protect {
-        Protect { friction: friction.into(), ..Default::default() }
+        Protect {
+            friction: friction.into(),
+            ..Default::default()
+        }
     }
 
     #[test]
     fn waiting_grows_with_each_unblock_and_is_capped() {
-        let p = Protect { wait_sec: 30, ..protect("wait") };
+        let p = Protect {
+            wait_sec: 30,
+            ..protect("wait")
+        };
         assert_eq!(Challenge::new(&p, "break", 0, 1, 0).ready_ms, 30_000);
         assert_eq!(Challenge::new(&p, "break", 0, 1, 2).ready_ms, 90_000);
         assert_eq!(Challenge::new(&p, "break", 0, 1, 50).ready_ms, 180_000);
         let p = Protect { grow: false, ..p };
         assert_eq!(Challenge::new(&p, "break", 0, 1, 4).ready_ms, 30_000);
-        let p = Protect { wait_sec: 9999, grow: false, ..p };
+        let p = Protect {
+            wait_sec: 9999,
+            grow: false,
+            ..p
+        };
         assert_eq!(Challenge::new(&p, "break", 0, 1, 0).ready_ms, 600_000);
     }
 
@@ -335,16 +403,42 @@ mod tests {
 
     #[test]
     fn the_longer_the_setting_the_longer_the_text() {
-        let short = Challenge::new(&Protect { type_len: 1, ..protect("type") }, "x", 0, 3, 0);
-        let long = Challenge::new(&Protect { type_len: 3, ..protect("type") }, "x", 0, 3, 0);
+        let short = Challenge::new(
+            &Protect {
+                type_len: 1,
+                ..protect("type")
+            },
+            "x",
+            0,
+            3,
+            0,
+        );
+        let long = Challenge::new(
+            &Protect {
+                type_len: 3,
+                ..protect("type")
+            },
+            "x",
+            0,
+            3,
+            0,
+        );
         assert!(long.answer.len() > short.answer.len() * 2);
     }
 
     #[test]
     fn math_answers_are_right() {
         let c = Challenge::new(&protect("math"), "x", 0, 99, 0);
-        let nums: Vec<u64> = c.prompt.split(|ch: char| !ch.is_ascii_digit()).filter(|s| !s.is_empty()).map(|s| s.parse().unwrap()).collect();
-        assert_eq!(nums[0] * nums[1] + nums[2] * nums[3], c.answer.parse::<u64>().unwrap());
+        let nums: Vec<u64> = c
+            .prompt
+            .split(|ch: char| !ch.is_ascii_digit())
+            .filter(|s| !s.is_empty())
+            .map(|s| s.parse().unwrap())
+            .collect();
+        assert_eq!(
+            nums[0] * nums[1] + nums[2] * nums[3],
+            c.answer.parse::<u64>().unwrap()
+        );
         assert_eq!(c.check(&c.answer, 4000), Verdict::Ok);
     }
 
@@ -367,11 +461,35 @@ mod tests {
         let mut p = Pin::set("1234", 5).unwrap();
         assert_ne!(p.hash, "1234");
         assert_eq!(p.verify("1234", 0), PinResult::Ok);
-        assert!(matches!(p.verify("0000", 0), PinResult::Wrong { locked_for_ms: 0, .. }));
-        assert!(matches!(p.verify("0000", 0), PinResult::Wrong { locked_for_ms: 0, .. }));
-        assert_eq!(p.verify("0000", 0), PinResult::Wrong { fails: 3, locked_for_ms: 30_000 });
+        assert!(matches!(
+            p.verify("0000", 0),
+            PinResult::Wrong {
+                locked_for_ms: 0,
+                ..
+            }
+        ));
+        assert!(matches!(
+            p.verify("0000", 0),
+            PinResult::Wrong {
+                locked_for_ms: 0,
+                ..
+            }
+        ));
+        assert_eq!(
+            p.verify("0000", 0),
+            PinResult::Wrong {
+                fails: 3,
+                locked_for_ms: 30_000
+            }
+        );
         assert_eq!(p.verify("1234", 10_000), PinResult::Locked(20_000)); // even the right one waits
-        assert_eq!(p.verify("0000", 31_000), PinResult::Wrong { fails: 4, locked_for_ms: 60_000 });
+        assert_eq!(
+            p.verify("0000", 31_000),
+            PinResult::Wrong {
+                fails: 4,
+                locked_for_ms: 60_000
+            }
+        );
         assert_eq!(p.verify("1234", 100_000), PinResult::Ok);
         assert_eq!(p.fails, 0);
     }
@@ -386,12 +504,19 @@ mod tests {
 
     #[test]
     fn same_pin_different_salt() {
-        assert_ne!(Pin::set("1234", 1).unwrap().hash, Pin::set("1234", 2).unwrap().hash);
+        assert_ne!(
+            Pin::set("1234", 1).unwrap().hash,
+            Pin::set("1234", 2).unwrap().hash
+        );
     }
 
     #[test]
     fn emergency_keys_per_week_and_month() {
-        let p = Protect { emerg: 3, emerg_week: 1, ..Default::default() };
+        let p = Protect {
+            emerg: 3,
+            emerg_week: 1,
+            ..Default::default()
+        };
         let mut l = Ledger::default();
         assert_eq!(l.left(&p, "2026-11-04"), 1);
         assert!(l.spend(&p, "2026-11-04"));
@@ -409,7 +534,13 @@ mod tests {
         assert_eq!(days_from_civil("1970-01-01"), Some(0));
         assert_eq!(days_from_civil("2000-03-01"), Some(11017));
         assert_eq!(days_from_civil("nope"), None);
-        for d in ["1970-01-01", "2000-02-29", "2026-11-04", "2100-03-01", "1969-12-31"] {
+        for d in [
+            "1970-01-01",
+            "2000-02-29",
+            "2026-11-04",
+            "2100-03-01",
+            "1969-12-31",
+        ] {
             let (y, m, dd) = civil_from_days(days_from_civil(d).unwrap());
             assert_eq!(format!("{y:04}-{m:02}-{dd:02}"), d);
         }
@@ -418,7 +549,12 @@ mod tests {
     #[test]
     fn a_pin_from_an_earlier_version_still_works_and_is_kept_in_the_new_form() {
         let salt = "00112233445566ff".to_string();
-        let mut old = Pin { salt: salt.clone(), hash: hash_pin_v1(&salt, "4821"), fails: 0, locked_until_ms: 0 };
+        let mut old = Pin {
+            salt: salt.clone(),
+            hash: hash_pin_v1(&salt, "4821"),
+            fails: 0,
+            locked_until_ms: 0,
+        };
         assert!(!old.hash.starts_with("a2:"));
         assert_eq!(old.verify("4821", 0), PinResult::Ok);
         assert!(old.hash.starts_with("a2:"), "saved again as Argon2id");

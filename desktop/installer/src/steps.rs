@@ -13,17 +13,25 @@ const PIPE: &str = r"\\.\pipe\eyetime-helper";
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// the fixed id of the browser extension (its manifest carries the key this comes from)
 const EXT_ID: &str = "ohpkalpfhikadmajknogifbcljaennho";
-const NATIVE_KEYS: [&str; 3] = [r"HKLM\SOFTWARE\Google\Chrome\NativeMessagingHosts\com.eyetime.helper", r"HKLM\SOFTWARE\Microsoft\Edge\NativeMessagingHosts\com.eyetime.helper", r"HKLM\SOFTWARE\BraveSoftware\Brave-Browser\NativeMessagingHosts\com.eyetime.helper"];
+const NATIVE_KEYS: [&str; 3] = [
+    r"HKLM\SOFTWARE\Google\Chrome\NativeMessagingHosts\com.eyetime.helper",
+    r"HKLM\SOFTWARE\Microsoft\Edge\NativeMessagingHosts\com.eyetime.helper",
+    r"HKLM\SOFTWARE\BraveSoftware\Brave-Browser\NativeMessagingHosts\com.eyetime.helper",
+];
 const UNINSTALL_KEY: &str = r"HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\EyeTime";
 
 fn program_files() -> PathBuf {
-    std::env::var_os("ProgramFiles").map(PathBuf::from).unwrap_or_else(|| PathBuf::from(r"C:\Program Files"))
+    std::env::var_os("ProgramFiles")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from(r"C:\Program Files"))
 }
 pub fn install_dir() -> PathBuf {
     program_files().join("EyeTime")
 }
 fn program_data() -> PathBuf {
-    std::env::var_os("ProgramData").map(PathBuf::from).unwrap_or_else(|| PathBuf::from(r"C:\ProgramData"))
+    std::env::var_os("ProgramData")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from(r"C:\ProgramData"))
 }
 fn data_dir() -> PathBuf {
     program_data().join("EyeTime")
@@ -35,7 +43,10 @@ fn start_menu_link() -> PathBuf {
     program_data().join(r"Microsoft\Windows\Start Menu\Programs\EyeTime.lnk")
 }
 fn desktop_link() -> PathBuf {
-    std::env::var_os("PUBLIC").map(PathBuf::from).unwrap_or_else(|| PathBuf::from(r"C:\Users\Public")).join(r"Desktop\EyeTime.lnk")
+    std::env::var_os("PUBLIC")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from(r"C:\Users\Public"))
+        .join(r"Desktop\EyeTime.lnk")
 }
 
 // ---------- running things ----------
@@ -54,8 +65,16 @@ fn run(program: &str, args: &[&str]) -> Result<String, String> {
     let mut c = Command::new(program);
     hide(c.args(args).stdin(Stdio::null()));
     let out = c.output().map_err(|e| format!("{program}: {e}"))?;
-    let text = format!("{}{}", String::from_utf8_lossy(&out.stdout), String::from_utf8_lossy(&out.stderr));
-    if out.status.success() { Ok(text) } else { Err(format!("{program} {}: {}", args.join(" "), text.trim())) }
+    let text = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
+    if out.status.success() {
+        Ok(text)
+    } else {
+        Err(format!("{program} {}: {}", args.join(" "), text.trim()))
+    }
 }
 fn run_ok(program: &str, args: &[&str]) -> bool {
     run(program, args).is_ok()
@@ -76,10 +95,23 @@ pub fn is_admin() -> bool {
 pub fn relaunch_elevated(args: &[String]) {
     use windows_sys::Win32::UI::Shell::ShellExecuteW;
     let w = |s: &str| -> Vec<u16> { s.encode_utf16().chain(std::iter::once(0)).collect() };
-    let exe = std::env::current_exe().map(|p| p.display().to_string()).unwrap_or_default();
-    let params = args.iter().map(|a| format!("\"{a}\"")).collect::<Vec<_>>().join(" ");
+    let exe = std::env::current_exe()
+        .map(|p| p.display().to_string())
+        .unwrap_or_default();
+    let params = args
+        .iter()
+        .map(|a| format!("\"{a}\""))
+        .collect::<Vec<_>>()
+        .join(" ");
     unsafe {
-        ShellExecuteW(std::ptr::null_mut(), w("runas").as_ptr(), w(&exe).as_ptr(), w(&params).as_ptr(), std::ptr::null(), 1);
+        ShellExecuteW(
+            std::ptr::null_mut(),
+            w("runas").as_ptr(),
+            w(&exe).as_ptr(),
+            w(&params).as_ptr(),
+            std::ptr::null(),
+            1,
+        );
     }
 }
 #[cfg(not(windows))]
@@ -95,8 +127,16 @@ enum Ask {
 
 /// Is the helper willing to be stopped or removed? (Not during a locked block; with the watchdog on, only after the person allowed it in the app.)
 fn ask_helper() -> Ask {
-    let Ok(f) = std::fs::OpenOptions::new().read(true).write(true).open(PIPE) else { return Ask::Ok };
-    let Ok(mut w) = f.try_clone() else { return Ask::Ok };
+    let Ok(f) = std::fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(PIPE)
+    else {
+        return Ask::Ok;
+    };
+    let Ok(mut w) = f.try_clone() else {
+        return Ask::Ok;
+    };
     let mut r = BufReader::new(f);
     if w.write_all(b"{\"op\":\"uninstall\"}\n").is_err() {
         return Ask::Ok;
@@ -106,7 +146,10 @@ fn ask_helper() -> Ask {
         return Ask::Ok;
     }
     let v: serde_json::Value = serde_json::from_str(&line).unwrap_or_default();
-    match (v["ok"].as_bool().unwrap_or(false), v["code"].as_str().unwrap_or("")) {
+    match (
+        v["ok"].as_bool().unwrap_or(false),
+        v["code"].as_str().unwrap_or(""),
+    ) {
         (true, _) => Ask::Ok,
         (false, "locked") => Ask::Locked,
         _ => Ask::Challenge,
@@ -114,8 +157,16 @@ fn ask_helper() -> Ask {
 }
 
 fn ping_helper() -> bool {
-    let Ok(f) = std::fs::OpenOptions::new().read(true).write(true).open(PIPE) else { return false };
-    let Ok(mut w) = f.try_clone() else { return false };
+    let Ok(f) = std::fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(PIPE)
+    else {
+        return false;
+    };
+    let Ok(mut w) = f.try_clone() else {
+        return false;
+    };
     let mut r = BufReader::new(f);
     if w.write_all(b"{\"op\":\"ping\"}\n").is_err() {
         return false;
@@ -128,7 +179,9 @@ pub fn service_exists() -> bool {
     run_ok("sc", &["query", SERVICE])
 }
 fn service_stopped() -> bool {
-    run("sc", &["query", SERVICE]).map(|t| t.contains("STOPPED")).unwrap_or(true)
+    run("sc", &["query", SERVICE])
+        .map(|t| t.contains("STOPPED"))
+        .unwrap_or(true)
 }
 fn stop_service() -> bool {
     if !service_exists() || service_stopped() {
@@ -181,7 +234,9 @@ impl From<String> for Stop {
 
 fn do_install(desktop: bool, upgrade: bool, emit: Emit) -> Result<(), Stop> {
     if FILES.is_empty() {
-        return Err(Stop::Failed("This installer was built without the program files.".into()));
+        return Err(Stop::Failed(
+            "This installer was built without the program files.".into(),
+        ));
     }
     // 0. prepare
     step(emit, 0, 4);
@@ -217,13 +272,38 @@ fn do_install(desktop: bool, upgrade: bool, emit: Emit) -> Result<(), Stop> {
     let helper = dir.join("eyetime-helper.exe");
     let bin = format!("\"{}\" --service", helper.display());
     if upgrade {
-        run("sc", &["config", SERVICE, "binPath=", &bin, "start=", "auto"])?;
+        run(
+            "sc",
+            &["config", SERVICE, "binPath=", &bin, "start=", "auto"],
+        )?;
     } else {
-        run("sc", &["create", SERVICE, "binPath=", &bin, "start=", "auto", "DisplayName=", "EyeTime Helper"])?;
+        run(
+            "sc",
+            &[
+                "create",
+                SERVICE,
+                "binPath=",
+                &bin,
+                "start=",
+                "auto",
+                "DisplayName=",
+                "EyeTime Helper",
+            ],
+        )?;
     }
     let _ = run("sc", &["description", SERVICE, "Carries out EyeTime blocks: sites, apps and the rules you set. Runs in the background."]);
     // restart by itself if it is ever stopped from outside
-    let _ = run("sc", &["failure", SERVICE, "reset=", "86400", "actions=", "restart/1000/restart/1000/restart/5000"]);
+    let _ = run(
+        "sc",
+        &[
+            "failure",
+            SERVICE,
+            "reset=",
+            "86400",
+            "actions=",
+            "restart/1000/restart/1000/restart/5000",
+        ],
+    );
     let _ = run("sc", &["failureflag", SERVICE, "1"]);
     // 3. protect
     step(emit, 3, 66);
@@ -233,11 +313,15 @@ fn do_install(desktop: bool, upgrade: bool, emit: Emit) -> Result<(), Stop> {
     // checked: if a protection cannot be applied, the setup stops instead of leaving a door open.
     // The data folder holds the PIN hashes and the downloaded updates: only the system and administrators may even read it
     // (the window gets its state through the helper, never from the files).
-    let _ = run("icacls", &[&data.display().to_string(), "/remove:g", "*S-1-5-32-545"]); // an earlier version let every user read it
+    let _ = run(
+        "icacls",
+        &[&data.display().to_string(), "/remove:g", "*S-1-5-32-545"],
+    ); // an earlier version let every user read it
     lock_down(&data, false)?;
     // the service: system and administrators have it all; signed-in people may look at it and start it, never stop or change it
     let sddl = "D:(A;;CCLCSWRPWPDTLOCRRC;;;SY)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;LCRPLOCRRC;;;IU)(A;;LCRPLOCRRC;;;SU)";
-    run("sc", &["sdset", SERVICE, sddl]).map_err(|e| format!("the service could not be protected: {e}"))?;
+    run("sc", &["sdset", SERVICE, sddl])
+        .map_err(|e| format!("the service could not be protected: {e}"))?;
     // the program folder: everyone may run what is in it, only administrators may change it
     lock_down(&dir, true)?;
     // the browser extension: its files, and the note that tells browsers where the native host is
@@ -248,10 +332,27 @@ fn do_install(desktop: bool, upgrade: bool, emit: Emit) -> Result<(), Stop> {
     }
     let manifest = json!({"name": "com.eyetime.helper", "description": "EyeTime helper", "path": helper.display().to_string(), "type": "stdio", "allowed_origins": [format!("chrome-extension://{EXT_ID}/")]});
     let mpath = dir.join("native-host.json");
-    std::fs::write(&mpath, serde_json::to_string_pretty(&manifest).unwrap_or_default()).map_err(|e| format!("native-host.json: {e}"))?;
+    std::fs::write(
+        &mpath,
+        serde_json::to_string_pretty(&manifest).unwrap_or_default(),
+    )
+    .map_err(|e| format!("native-host.json: {e}"))?;
     for key in NATIVE_KEYS {
         for view in ["/reg:64", "/reg:32"] {
-            let _ = run("reg", &["add", key, "/ve", "/t", "REG_SZ", "/d", &mpath.display().to_string(), "/f", view]);
+            let _ = run(
+                "reg",
+                &[
+                    "add",
+                    key,
+                    "/ve",
+                    "/t",
+                    "REG_SZ",
+                    "/d",
+                    &mpath.display().to_string(),
+                    "/f",
+                    view,
+                ],
+            );
         }
     }
     // 4. shortcuts and the entry in "Apps & features"
@@ -274,7 +375,10 @@ fn do_install(desktop: bool, upgrade: bool, emit: Emit) -> Result<(), Stop> {
         ("NoModify", "REG_DWORD", "1".to_string()),
         ("NoRepair", "REG_DWORD", "1".to_string()),
     ] {
-        run("reg", &["add", key, "/v", name, "/t", kind, "/d", &value, "/f"])?;
+        run(
+            "reg",
+            &["add", key, "/v", name, "/t", kind, "/d", &value, "/f"],
+        )?;
     }
     // 5. start, and make sure it answers
     step(emit, 5, 90);
@@ -296,11 +400,19 @@ fn do_install(desktop: bool, upgrade: bool, emit: Emit) -> Result<(), Stop> {
 /// system and administrators: everything; with `users_read`, signed-in people may also read and run
 fn lock_down(path: &PathBuf, users_read: bool) -> Result<(), String> {
     let p = path.display().to_string();
-    let mut args: Vec<&str> = vec![&p, "/inheritance:r", "/grant:r", "*S-1-5-18:(OI)(CI)F", "*S-1-5-32-544:(OI)(CI)F"];
+    let mut args: Vec<&str> = vec![
+        &p,
+        "/inheritance:r",
+        "/grant:r",
+        "*S-1-5-18:(OI)(CI)F",
+        "*S-1-5-32-544:(OI)(CI)F",
+    ];
     if users_read {
         args.push("*S-1-5-32-545:(OI)(CI)RX");
     }
-    run("icacls", &args).map(|_| ()).map_err(|e| format!("the folder {p} could not be protected: {e}"))
+    run("icacls", &args)
+        .map(|_| ())
+        .map_err(|e| format!("the folder {p} could not be protected: {e}"))
 }
 
 fn make_shortcut(link: &PathBuf, target: &PathBuf) -> Result<(), String> {
@@ -313,7 +425,18 @@ fn make_shortcut(link: &PathBuf, target: &PathBuf) -> Result<(), String> {
         target.display().to_string().replace('\'', "''"),
         target.parent().map(|p| p.display().to_string()).unwrap_or_default().replace('\'', "''")
     );
-    run("powershell", &["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", &script]).map(|_| ())
+    run(
+        "powershell",
+        &[
+            "-NoProfile",
+            "-NonInteractive",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-Command",
+            &script,
+        ],
+    )
+    .map(|_| ())
 }
 
 /// a failed first install leaves nothing behind
@@ -362,7 +485,14 @@ fn do_uninstall(delete_data: bool, emit: Emit) -> Result<(), Stop> {
         let _ = run(&helper.display().to_string(), &["--cleanup"]);
     }
     for net in ["Minimal", "Network"] {
-        let _ = run("reg", &["delete", &format!(r"HKLM\SYSTEM\CurrentControlSet\Control\SafeBoot\{net}\{SERVICE}"), "/f"]);
+        let _ = run(
+            "reg",
+            &[
+                "delete",
+                &format!(r"HKLM\SYSTEM\CurrentControlSet\Control\SafeBoot\{net}\{SERVICE}"),
+                "/f",
+            ],
+        );
     }
     let _ = run("sc", &["delete", SERVICE]);
     for key in NATIVE_KEYS {
@@ -377,7 +507,16 @@ fn do_uninstall(delete_data: bool, emit: Emit) -> Result<(), Stop> {
     let _ = std::fs::remove_file(start_menu_link());
     let _ = std::fs::remove_file(desktop_link());
     let _ = run("reg", &["delete", UNINSTALL_KEY, "/f"]);
-    let _ = run("reg", &["delete", r"HKCU\Software\Microsoft\Windows\CurrentVersion\Run", "/v", "EyeTime", "/f"]);
+    let _ = run(
+        "reg",
+        &[
+            "delete",
+            r"HKCU\Software\Microsoft\Windows\CurrentVersion\Run",
+            "/v",
+            "EyeTime",
+            "/f",
+        ],
+    );
     for (name, _) in FILES {
         remove_with_retries(&dir.join(name));
     }
@@ -409,18 +548,34 @@ pub fn webview_dir() -> PathBuf {
 
 /// ... and takes it away once this program has exited (the browser engine still holds it until then)
 pub fn forget_webview_dir() {
-    let cmd = format!("ping -n 4 127.0.0.1 >nul & rmdir /s /q \"{}\"", webview_dir().display());
+    let cmd = format!(
+        "ping -n 4 127.0.0.1 >nul & rmdir /s /q \"{}\"",
+        webview_dir().display()
+    );
     let mut c = Command::new("cmd");
-    hide(c.args(["/c", &cmd]).stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null()));
+    hide(
+        c.args(["/c", &cmd])
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null()),
+    );
     let _ = c.spawn();
 }
 
 /// this program removes its own folder after it has exited
 pub fn remove_self_later() {
     let dir = install_dir();
-    let cmd = format!("ping -n 4 127.0.0.1 >nul & rmdir /s /q \"{}\"", dir.display());
+    let cmd = format!(
+        "ping -n 4 127.0.0.1 >nul & rmdir /s /q \"{}\"",
+        dir.display()
+    );
     let mut c = Command::new("cmd");
-    hide(c.args(["/c", &cmd]).stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null()));
+    hide(
+        c.args(["/c", &cmd])
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null()),
+    );
     let _ = c.spawn();
 }
 

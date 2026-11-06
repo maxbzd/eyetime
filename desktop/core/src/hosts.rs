@@ -15,12 +15,19 @@ pub fn valid_domain(d: &str) -> bool {
         if l.is_empty() || l.len() > 63 || l.starts_with('-') || l.ends_with('-') {
             return false;
         }
-        if !l.bytes().all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'-') {
+        if !l
+            .bytes()
+            .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'-')
+        {
             return false;
         }
     }
     let tld = labels.last().unwrap();
-    tld.len() >= 2 && tld.bytes().all(|b| b.is_ascii_lowercase() || b == b'-' || b.is_ascii_digit()) && !tld.bytes().all(|b| b.is_ascii_digit())
+    tld.len() >= 2
+        && tld
+            .bytes()
+            .all(|b| b.is_ascii_lowercase() || b == b'-' || b.is_ascii_digit())
+        && !tld.bytes().all(|b| b.is_ascii_digit())
 }
 
 /// the names that go in the file: the address itself and its www. form
@@ -111,10 +118,30 @@ mod tests {
 
     #[test]
     fn only_plain_names_pass() {
-        for ok in ["youtube.com", "a-b.co.uk", "xn--80ak6aa92e.com", "m.youtube.com"] {
+        for ok in [
+            "youtube.com",
+            "a-b.co.uk",
+            "xn--80ak6aa92e.com",
+            "m.youtube.com",
+        ] {
             assert!(valid_domain(ok), "{ok}");
         }
-        for bad in ["", "localhost", "a b.com", "evil.com\n127.0.0.1 bank.com", "a.com/path", "-a.com", "a-.com", "a..com", "A.com", "1.2.3.4", "a.com#x", "a.c", "$(x).com", "a.com\r"] {
+        for bad in [
+            "",
+            "localhost",
+            "a b.com",
+            "evil.com\n127.0.0.1 bank.com",
+            "a.com/path",
+            "-a.com",
+            "a-.com",
+            "a..com",
+            "A.com",
+            "1.2.3.4",
+            "a.com#x",
+            "a.c",
+            "$(x).com",
+            "a.com\r",
+        ] {
             assert!(!valid_domain(bad), "{bad:?}");
         }
         assert!(!valid_domain(&format!("{}.com", "a".repeat(64))));
@@ -137,7 +164,14 @@ mod tests {
 
     #[test]
     fn nothing_but_names_can_get_into_the_file() {
-        let a = render(SAMPLE, &["ok.com".into(), "bad.com\r\n127.0.0.1 bank.com".into(), "localhost".into()]);
+        let a = render(
+            SAMPLE,
+            &[
+                "ok.com".into(),
+                "bad.com\r\n127.0.0.1 bank.com".into(),
+                "localhost".into(),
+            ],
+        );
         assert!(a.contains("ok.com"));
         assert!(!a.contains("bank.com"));
         assert!(!a.contains("0.0.0.0 localhost"));
@@ -162,7 +196,10 @@ mod tests {
     fn hand_edits_are_noticed() {
         let a = render(SAMPLE, &["x.com".into()]);
         assert!(is_current(&a, &["x.com".into()]));
-        assert!(!is_current(&a.replace("0.0.0.0 x.com", "# 0.0.0.0 x.com"), &["x.com".into()]));
+        assert!(!is_current(
+            &a.replace("0.0.0.0 x.com", "# 0.0.0.0 x.com"),
+            &["x.com".into()]
+        ));
         assert!(!is_current(SAMPLE, &["x.com".into()]));
         assert!(is_current(SAMPLE, &[]));
     }

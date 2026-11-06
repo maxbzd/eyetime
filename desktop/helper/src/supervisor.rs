@@ -2,20 +2,28 @@
 //! Nothing here knows about Windows: it talks to the computer through `Os`, so all of it is tested with a pretend one.
 
 use crate::os::Os;
-use eyetime_core::catalog::{is_private_title, item_exes, never_close, BROWSERS, TOOLS_CLOSED_WHEN_FROZEN, VPN_AND_PROXY};
-use eyetime_core::engine::{apply_cools, canonical_key, decide, hour_keys, is_distracting, Decision, Grants};
-use eyetime_core::friction::{days_from_civil, civil_from_days, Challenge, Ledger, Pin, PinResult, Verdict};
-use eyetime_core::hosts;
-use eyetime_core::ipc::{challenge_data, BlockEvent, Fg, Orders, Request, Response, Status, Totals, UpdateView, Win};
-use eyetime_core::update::Updated;
 use crate::update::{Phase, Shared};
-use std::sync::{Arc, Mutex};
+use eyetime_core::catalog::{
+    is_private_title, item_exes, never_close, BROWSERS, TOOLS_CLOSED_WHEN_FROZEN, VPN_AND_PROXY,
+};
+use eyetime_core::engine::{
+    apply_cools, canonical_key, decide, hour_keys, is_distracting, Decision, Grants,
+};
+use eyetime_core::friction::{
+    civil_from_days, days_from_civil, Challenge, Ledger, Pin, PinResult, Verdict,
+};
+use eyetime_core::hosts;
+use eyetime_core::ipc::{
+    challenge_data, BlockEvent, Fg, Orders, Request, Response, Status, Totals, UpdateView, Win,
+};
 use eyetime_core::model::{Item, Now, Session, State, KEYS};
 use eyetime_core::tamper::{boot_time, loosens, unsafe_setup, ClockGuard, MAX_FROZEN_MIN};
+use eyetime_core::update::Updated;
 use eyetime_core::usage::Usage;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::{BTreeMap, HashMap, VecDeque};
+use std::sync::{Arc, Mutex};
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// how long a program gets to close by itself (and offer to save) before it is closed by force
@@ -101,7 +109,10 @@ fn lower(s: &str) -> String {
 
 impl<O: Os> Supervisor<O> {
     pub fn new(os: O) -> Supervisor<O> {
-        let p: Persist = os.read_store().and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_default();
+        let p: Persist = os
+            .read_store()
+            .and_then(|t| serde_json::from_str(&t).ok())
+            .unwrap_or_default();
         let state = State::from_keys(&p.keys);
         let (wall, mono) = (os.wall_ms(), os.mono_ms());
         let floor = boot_time(wall, p.last_seen_ms);
@@ -145,7 +156,11 @@ impl<O: Os> Supervisor<O> {
     fn time(&mut self) -> (i64, Now) {
         let (wall, mono) = (self.os.wall_ms(), self.os.mono_ms());
         let locked = self.decision.locked() && self.p.emergency_until_ms <= self.last_trusted;
-        let trusted = if self.state.protect.tam.clock || locked { self.clock.trusted_ms(wall, mono, locked) } else { wall };
+        let trusted = if self.state.protect.tam.clock || locked {
+            self.clock.trusted_ms(wall, mono, locked)
+        } else {
+            wall
+        };
         let trusted = trusted.max(self.last_trusted); // never backwards inside one run
         self.last_trusted = trusted;
         (trusted, Now::from_local(trusted, self.tz))
@@ -180,7 +195,11 @@ impl<O: Os> Supervisor<O> {
         let hk = hour_keys(&self.state);
         let key = key.map(|k| canonical_key(&self.state, &k));
         self.p.usage.tick(&now, key.as_deref(), dt, &hk);
-        if key.as_deref().map(|k| is_distracting(&self.state, k)).unwrap_or(false) {
+        if key
+            .as_deref()
+            .map(|k| is_distracting(&self.state, k))
+            .unwrap_or(false)
+        {
             self.p.usage.mark_distracting(&now, dt);
         }
         apply_cools(&mut self.p.usage, &self.state, &now);
@@ -223,7 +242,9 @@ impl<O: Os> Supervisor<O> {
     }
 
     fn expire_session(&mut self, t: i64, now: &Now) {
-        let Some(s) = self.p.session.clone() else { return };
+        let Some(s) = self.p.session.clone() else {
+            return;
+        };
         if s.ends_at_ms > t {
             return;
         }
@@ -237,7 +258,11 @@ impl<O: Os> Supervisor<O> {
             self.p.focus.remove(&first);
         }
         if self.p.streak_day != now.day {
-            self.p.streak = if self.p.streak_day == Self::yesterday(&now.day) { self.p.streak + 1 } else { 1 };
+            self.p.streak = if self.p.streak_day == Self::yesterday(&now.day) {
+                self.p.streak + 1
+            } else {
+                1
+            };
             self.p.streak_day = now.day.clone();
         }
         self.p.totals.best_streak = self.p.totals.best_streak.max(self.p.streak);
@@ -249,22 +274,48 @@ impl<O: Os> Supervisor<O> {
         self.decision = if self.p.emergency_until_ms > t {
             Decision::default()
         } else {
-            decide(&self.state, now, &self.p.usage, self.p.session.as_ref(), &self.p.grants)
+            decide(
+                &self.state,
+                now,
+                &self.p.usage,
+                self.p.session.as_ref(),
+                &self.p.grants,
+            )
         };
-        let ses = self.p.session.as_ref().filter(|s| s.ends_at_ms > t && self.p.emergency_until_ms <= t);
+        let ses = self
+            .p
+            .session
+            .as_ref()
+            .filter(|s| s.ends_at_ms > t && self.p.emergency_until_ms <= t);
         let close_pids = std::mem::take(&mut self.orders.close_pids);
-        self.orders = Orders { close_private: self.decision.close_private, mute: ses.map(|s| s.mute).unwrap_or(false), dnd: ses.map(|s| s.dnd).unwrap_or(false), close_pids, launch_app: false };
+        self.orders = Orders {
+            close_private: self.decision.close_private,
+            mute: ses.map(|s| s.mute).unwrap_or(false),
+            dnd: ses.map(|s| s.dnd).unwrap_or(false),
+            close_pids,
+            launch_app: false,
+        };
     }
 
     // ---------- carrying it out ----------
 
     fn event(&mut self, t: i64, kind: &str, name: &str, reason: &str) {
         let k = format!("{kind}:{name}");
-        if self.last_event.get(&k).map(|l| t - l < 5_000).unwrap_or(false) {
+        if self
+            .last_event
+            .get(&k)
+            .map(|l| t - l < 5_000)
+            .unwrap_or(false)
+        {
             return;
         }
         self.last_event.insert(k, t);
-        self.events.push_back(BlockEvent { at_ms: t, kind: kind.into(), name: name.into(), reason: reason.into() });
+        self.events.push_back(BlockEvent {
+            at_ms: t,
+            kind: kind.into(),
+            name: name.into(),
+            reason: reason.into(),
+        });
         while self.events.len() > 30 {
             self.events.pop_front();
         }
@@ -273,10 +324,18 @@ impl<O: Os> Supervisor<O> {
     fn enforce(&mut self, t: i64, _now: &Now) {
         let d = self.decision.clone();
         let tam = self.state.protect.tam.clone();
-        let reason = d.reasons.first().map(|r| r.name.clone()).unwrap_or_default();
+        let reason = d
+            .reasons
+            .first()
+            .map(|r| r.name.clone())
+            .unwrap_or_default();
 
         // 1. the hosts file
-        let desired: Vec<String> = if d.active() { d.domains.clone() } else { Vec::new() };
+        let desired: Vec<String> = if d.active() {
+            d.domains.clone()
+        } else {
+            Vec::new()
+        };
         if tam.hosts || desired != self.applied.hosts {
             let cur = self.os.read_hosts().unwrap_or_default();
             if !hosts::is_current(&cur, &desired) {
@@ -322,9 +381,17 @@ impl<O: Os> Supervisor<O> {
                         // the agent only says which windows are open; what each process really is, is read from the system's own table,
                         // never from the agent's words (a request can name any program and any process number)
                         for w in wins {
-                            let Some(real) = table.iter().find(|p| p.pid == w.pid) else { continue };
+                            let Some(real) = table.iter().find(|p| p.pid == w.pid) else {
+                                continue;
+                            };
                             let e = lower(&real.exe);
-                            if w.pid != own && w.pid != 0 && !e.is_empty() && !never_close(&e) && d.blocks_exe(&e) && !doomed.iter().any(|x| x.0 == w.pid) {
+                            if w.pid != own
+                                && w.pid != 0
+                                && !e.is_empty()
+                                && !never_close(&e)
+                                && d.blocks_exe(&e)
+                                && !doomed.iter().any(|x| x.0 == w.pid)
+                            {
                                 doomed.push((w.pid, e, "app"));
                             }
                         }
@@ -333,7 +400,11 @@ impl<O: Os> Supervisor<O> {
             }
         }
         // programs are asked to close first, so that they can offer to save; only what is still there after the grace time is closed by force
-        let grace = if d.level >= 3 { GRACE_FROZEN_MS } else { GRACE_MS };
+        let grace = if d.level >= 3 {
+            GRACE_FROZEN_MS
+        } else {
+            GRACE_MS
+        };
         let mut ask: Vec<u32> = Vec::new();
         let live: Vec<u32> = doomed.iter().map(|x| x.0).collect();
         self.closing.retain(|pid, _| live.contains(pid));
@@ -419,13 +490,23 @@ impl<O: Os> Supervisor<O> {
     /// "When this program opens, start a session": the only kind of automation that is carried out, and only a normal one
     /// (it can be paused or ended), so that nothing can lock the person in without their asking for it.
     fn auto_watch(&mut self, t: i64) {
-        let exe = self.obs.as_ref().and_then(|o| o.1.as_ref()).map(|f| f.exe.to_lowercase());
+        let exe = self
+            .obs
+            .as_ref()
+            .and_then(|o| o.1.as_ref())
+            .map(|f| f.exe.to_lowercase());
         if exe == self.auto_prev {
             return;
         }
         self.auto_prev = exe.clone();
         let Some(exe) = exe else { return };
-        if self.p.session.as_ref().map(|s| s.ends_at_ms > t).unwrap_or(false) {
+        if self
+            .p
+            .session
+            .as_ref()
+            .map(|s| s.ends_at_ms > t)
+            .unwrap_or(false)
+        {
             return;
         }
         let todo: Vec<(String, String, u32)> = self
@@ -433,17 +514,55 @@ impl<O: Os> Supervisor<O> {
             .auto
             .iter()
             .filter(|a| a.on && a.when == "app" && a.then == "start" && !a.wv.trim().is_empty())
-            .filter(|a| item_exes(&Item { name: a.wv.clone(), kind: "app".into(), ..Default::default() }).contains(&exe))
-            .filter(|a| self.auto_fired.get(&a.id).map(|at| t - at > 60 * 60_000).unwrap_or(true))
+            .filter(|a| {
+                item_exes(&Item {
+                    name: a.wv.clone(),
+                    kind: "app".into(),
+                    ..Default::default()
+                })
+                .contains(&exe)
+            })
+            .filter(|a| {
+                self.auto_fired
+                    .get(&a.id)
+                    .map(|at| t - at > 60 * 60_000)
+                    .unwrap_or(true)
+            })
             .map(|a| {
-                let minutes = a.tv.split(|c: char| !c.is_ascii_digit()).find(|p| !p.is_empty()).and_then(|p| p.parse::<u32>().ok()).unwrap_or(25).clamp(1, 240);
-                let name = a.tv.split(',').next().map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).unwrap_or_else(|| "Focus".into());
+                let minutes =
+                    a.tv.split(|c: char| !c.is_ascii_digit())
+                        .find(|p| !p.is_empty())
+                        .and_then(|p| p.parse::<u32>().ok())
+                        .unwrap_or(25)
+                        .clamp(1, 240);
+                let name =
+                    a.tv.split(',')
+                        .next()
+                        .map(|s| s.trim().to_string())
+                        .filter(|s| !s.is_empty())
+                        .unwrap_or_else(|| "Focus".into());
                 (a.id.clone(), name, minutes)
             })
             .collect();
         if let Some((id, name, minutes)) = todo.into_iter().next() {
-            let blocks: Vec<String> = self.state.items.iter().filter(|i| i.g == "dis").map(|i| i.name.clone()).collect();
-            let r = self.handle(Request::StartSession { name, minutes, level: 0, blocks, scene: String::new(), allow_breaks: true, dnd: false, mute: false, close_now: false });
+            let blocks: Vec<String> = self
+                .state
+                .items
+                .iter()
+                .filter(|i| i.g == "dis")
+                .map(|i| i.name.clone())
+                .collect();
+            let r = self.handle(Request::StartSession {
+                name,
+                minutes,
+                level: 0,
+                blocks,
+                scene: String::new(),
+                allow_breaks: true,
+                dnd: false,
+                mute: false,
+                close_now: false,
+            });
             if r.ok {
                 self.auto_fired.insert(id, t);
             }
@@ -479,7 +598,11 @@ impl<O: Os> Supervisor<O> {
             info: s.info.clone(),
             pct: s.pct,
             error: s.error.clone(),
-            checked_ago_ms: if s.checked_ms > 0 { (self.os.mono_ms() - s.checked_ms).max(0) } else { -1 },
+            checked_ago_ms: if s.checked_ms > 0 {
+                (self.os.mono_ms() - s.checked_ms).max(0)
+            } else {
+                -1
+            },
             auto: !self.p.auto_off,
             waiting_for_lock: s.want_install && s.phase != Phase::Installing && self.locked_now(t),
             updated: self.p.updated.clone(),
@@ -508,19 +631,44 @@ impl<O: Os> Supervisor<O> {
             if s.phase == Phase::Available && !self.p.auto_off && !s.want_install {
                 s.want_install = true; // fetch in the background
             }
-            (s.phase, s.want_install, s.manual, s.info.clone(), s.path.clone())
+            (
+                s.phase,
+                s.want_install,
+                s.manual,
+                s.info.clone(),
+                s.path.clone(),
+            )
         };
         if phase != Phase::Ready || !want || self.locked_now(t) {
             return;
         }
-        let idle = self.p.session.as_ref().map(|s| s.ends_at_ms <= t).unwrap_or(true) && !self.decision.active();
+        let idle = self
+            .p
+            .session
+            .as_ref()
+            .map(|s| s.ends_at_ms <= t)
+            .unwrap_or(true)
+            && !self.decision.active();
         if !manual && !idle {
             return;
         }
-        let (Some(info), Some(path)) = (info, path) else { return };
-        self.p.pending_update = Some(Updated { from: VERSION.into(), to: info.version.clone(), notes: info.notes.clone() });
+        let (Some(info), Some(path)) = (info, path) else {
+            return;
+        };
+        self.p.pending_update = Some(Updated {
+            from: VERSION.into(),
+            to: info.version.clone(),
+            notes: info.notes.clone(),
+        });
         // the window comes back after the update if the person asked for it, or if it was open
-        let window_open = self.obs.as_ref().map(|o| o.0.iter().any(|w| w.exe.eq_ignore_ascii_case("eyetime.exe"))).unwrap_or(false);
+        let window_open = self
+            .obs
+            .as_ref()
+            .map(|o| {
+                o.0.iter()
+                    .any(|w| w.exe.eq_ignore_ascii_case("eyetime.exe"))
+            })
+            .unwrap_or(false);
         self.p.relaunch_app = manual || window_open;
         self.p.uninstall_ok_until_ms = t + 10 * 60_000; // the service is allowed to be stopped by the installer it is starting
         self.save(t);
@@ -548,7 +696,13 @@ impl<O: Os> Supervisor<O> {
         if let Some(today) = days_from_civil(&now.day) {
             for i in (0..35).rev() {
                 let (y, m, d) = civil_from_days(today - i);
-                focus.push(self.p.focus.get(&format!("{y:04}-{m:02}-{d:02}")).copied().unwrap_or(0));
+                focus.push(
+                    self.p
+                        .focus
+                        .get(&format!("{y:04}-{m:02}-{d:02}"))
+                        .copied()
+                        .unwrap_or(0),
+                );
             }
         }
         Status {
@@ -565,11 +719,30 @@ impl<O: Os> Supervisor<O> {
             clock_tampered: self.clock.tampered(),
             safe_mode_guard: self.state.protect.tam.safemode,
             hosts_ok: self.hosts_ok,
-            frozen_limit_ms: self.p.session.as_ref().filter(|s| s.level >= 3 && s.ends_at_ms > t).map(|s| s.ends_at_ms),
-            streak_days: if self.p.streak_day == now.day || self.p.streak_day == Self::yesterday(&now.day) { self.p.streak } else { 0 },
+            frozen_limit_ms: self
+                .p
+                .session
+                .as_ref()
+                .filter(|s| s.level >= 3 && s.ends_at_ms > t)
+                .map(|s| s.ends_at_ms),
+            streak_days: if self.p.streak_day == now.day
+                || self.p.streak_day == Self::yesterday(&now.day)
+            {
+                self.p.streak
+            } else {
+                0
+            },
             events: self.events.iter().cloned().collect(),
-            agent_connected: self.obs.as_ref().map(|o| t - o.4 <= FRESH_MS).unwrap_or(false),
-            ext_connected: self.site.as_ref().map(|s| t - s.2 <= 30_000).unwrap_or(false),
+            agent_connected: self
+                .obs
+                .as_ref()
+                .map(|o| t - o.4 <= FRESH_MS)
+                .unwrap_or(false),
+            ext_connected: self
+                .site
+                .as_ref()
+                .map(|s| t - s.2 <= 30_000)
+                .unwrap_or(false),
             emergency_until_ms: self.p.emergency_until_ms,
             focus_minutes: focus,
             totals: self.p.totals.clone(),
@@ -581,8 +754,17 @@ impl<O: Os> Supervisor<O> {
         self.decision.locked() && self.p.emergency_until_ms <= t
     }
 
-    fn check_pin(&mut self, which_partner: bool, pin: Option<&str>, t: i64) -> Result<(), Response> {
-        let slot = if which_partner { &mut self.p.partner } else { &mut self.p.pin };
+    fn check_pin(
+        &mut self,
+        which_partner: bool,
+        pin: Option<&str>,
+        t: i64,
+    ) -> Result<(), Response> {
+        let slot = if which_partner {
+            &mut self.p.partner
+        } else {
+            &mut self.p.pin
+        };
         if !slot.is_set() {
             return Ok(());
         }
@@ -590,8 +772,17 @@ impl<O: Os> Supervisor<O> {
         self.dirty = true;
         match r {
             PinResult::Ok | PinResult::NotSet => Ok(()),
-            PinResult::Locked(ms) => Err(Response::err_with("pin_locked", "Too many wrong tries", ms)),
-            PinResult::Wrong { fails, locked_for_ms } => Err(Response::err_with("pin", "Wrong PIN", serde_json::json!({"fails": fails, "lockedForMs": locked_for_ms}))),
+            PinResult::Locked(ms) => {
+                Err(Response::err_with("pin_locked", "Too many wrong tries", ms))
+            }
+            PinResult::Wrong {
+                fails,
+                locked_for_ms,
+            } => Err(Response::err_with(
+                "pin",
+                "Wrong PIN",
+                serde_json::json!({"fails": fails, "lockedForMs": locked_for_ms}),
+            )),
         }
     }
 
@@ -613,7 +804,12 @@ impl<O: Os> Supervisor<O> {
             }
             Request::GetState => Response::ok(&self.p.keys),
 
-            Request::Observe { fg, idle_secs, windows, screen_locked } => {
+            Request::Observe {
+                fg,
+                idle_secs,
+                windows,
+                screen_locked,
+            } => {
                 self.obs = Some((windows, fg, idle_secs, screen_locked, t));
                 self.auto_watch(t);
                 let mut o = self.orders.clone();
@@ -625,13 +821,19 @@ impl<O: Os> Supervisor<O> {
                 Response::ok(&o)
             }
             Request::UpdateCheck => {
-                self.upd.lock().unwrap_or_else(|e| e.into_inner()).want_check = true;
+                self.upd
+                    .lock()
+                    .unwrap_or_else(|e| e.into_inner())
+                    .want_check = true;
                 Response::ok(self.update_view(t))
             }
             Request::UpdateInstall => {
                 {
                     let mut s = self.upd.lock().unwrap_or_else(|e| e.into_inner());
-                    if !matches!(s.phase, Phase::Available | Phase::Ready | Phase::Downloading | Phase::Installing) {
+                    if !matches!(
+                        s.phase,
+                        Phase::Available | Phase::Ready | Phase::Downloading | Phase::Installing
+                    ) {
                         return Response::err("none", "There is no update to install");
                     }
                     s.want_install = true;
@@ -650,12 +852,19 @@ impl<O: Os> Supervisor<O> {
                 self.dirty = true;
                 Response::done()
             }
-            Request::Site { host, incognito, browser: _ } => {
+            Request::Site {
+                host,
+                incognito,
+                browser: _,
+            } => {
                 let h = host.as_deref().map(lower).unwrap_or_default();
                 let h = h.trim_start_matches("www.").to_string();
                 self.site = Some((h.clone(), incognito, t));
-                let blocked = !h.is_empty() && self.decision.active() && self.decision.blocks_host(&h);
-                Response::ok(serde_json::json!({"blocked": blocked, "incognito": incognito && self.decision.close_private}))
+                let blocked =
+                    !h.is_empty() && self.decision.active() && self.decision.blocks_host(&h);
+                Response::ok(
+                    serde_json::json!({"blocked": blocked, "incognito": incognito && self.decision.close_private}),
+                )
             }
 
             Request::SetState { keys, pin } => {
@@ -677,7 +886,11 @@ impl<O: Os> Supervisor<O> {
                 let weaker = loosens(&self.state, &new_state);
                 if !weaker.is_empty() {
                     if self.locked_now(t) {
-                        return Response::err_with("locked", "A locked block is running: it cannot be loosened", weaker);
+                        return Response::err_with(
+                            "locked",
+                            "A locked block is running: it cannot be loosened",
+                            weaker,
+                        );
                     }
                     if self.state.protect.pin_on && self.p.pin.is_set() {
                         if let Err(e) = self.check_pin(false, pin.as_deref(), t) {
@@ -692,19 +905,60 @@ impl<O: Os> Supervisor<O> {
                 Response::done()
             }
 
-            Request::StartSession { name, minutes, level, blocks, scene, allow_breaks, dnd, mute, close_now } => {
-                if self.p.session.as_ref().map(|s| s.ends_at_ms > t).unwrap_or(false) {
+            Request::StartSession {
+                name,
+                minutes,
+                level,
+                blocks,
+                scene,
+                allow_breaks,
+                dnd,
+                mute,
+                close_now,
+            } => {
+                if self
+                    .p
+                    .session
+                    .as_ref()
+                    .map(|s| s.ends_at_ms > t)
+                    .unwrap_or(false)
+                {
                     return Response::err("busy", "A session is already running");
                 }
                 let level = level.min(3);
-                if level >= 2 && !(self.state.protect.emerg >= 1 && self.state.protect.emerg_week >= 1) {
-                    return Response::err("no_escape", "A locked session needs at least one emergency key a week");
+                if level >= 2
+                    && !(self.state.protect.emerg >= 1 && self.state.protect.emerg_week >= 1)
+                {
+                    return Response::err(
+                        "no_escape",
+                        "A locked session needs at least one emergency key a week",
+                    );
                 }
-                let cap = if level >= 3 { MAX_FROZEN_MIN } else { MAX_SESSION_MIN };
+                let cap = if level >= 3 {
+                    MAX_FROZEN_MIN
+                } else {
+                    MAX_SESSION_MIN
+                };
                 if minutes == 0 || minutes > cap || blocks.len() > 100 || name.len() > 80 {
-                    return Response::err("bad_request", format!("Length must be 1 to {cap} minutes"));
+                    return Response::err(
+                        "bad_request",
+                        format!("Length must be 1 to {cap} minutes"),
+                    );
                 }
-                let s = Session { id: format!("s{t}"), name, started_at_ms: t, ends_at_ms: t + minutes as i64 * 60_000, level, blocks, scene, allow_breaks: allow_breaks && level < 2, snooze_until_ms: None, close_now, dnd, mute };
+                let s = Session {
+                    id: format!("s{t}"),
+                    name,
+                    started_at_ms: t,
+                    ends_at_ms: t + minutes as i64 * 60_000,
+                    level,
+                    blocks,
+                    scene,
+                    allow_breaks: allow_breaks && level < 2,
+                    snooze_until_ms: None,
+                    close_now,
+                    dnd,
+                    mute,
+                };
                 self.p.session = Some(s);
                 self.p.emergency_until_ms = 0;
                 self.dirty = true;
@@ -713,8 +967,17 @@ impl<O: Os> Supervisor<O> {
                 Response::ok(self.status())
             }
 
-            Request::Challenge { action, target, minutes } => self.challenge(&action, target, minutes.unwrap_or(5), t, &now),
-            Request::Complete { challenge_id, answer, pin, partner_code } => self.complete(&challenge_id, &answer, pin, partner_code, t, &now),
+            Request::Challenge {
+                action,
+                target,
+                minutes,
+            } => self.challenge(&action, target, minutes.unwrap_or(5), t, &now),
+            Request::Complete {
+                challenge_id,
+                answer,
+                pin,
+                partner_code,
+            } => self.complete(&challenge_id, &answer, pin, partner_code, t, &now),
 
             Request::SetPin { old, new } => self.set_pin(false, old, new, t),
             Request::SetPartnerPin { old, new } => self.set_pin(true, old, new, t),
@@ -741,11 +1004,18 @@ impl<O: Os> Supervisor<O> {
         if let Err(e) = self.check_pin(partner, old.as_deref(), t) {
             return e;
         }
-        let slot = if partner { &mut self.p.partner } else { &mut self.p.pin };
+        let slot = if partner {
+            &mut self.p.partner
+        } else {
+            &mut self.p.pin
+        };
         if new.is_empty() {
             *slot = Pin::default();
         } else {
-            match Pin::set(&new, (t as u64) ^ (self.os.mono_ms() as u64).rotate_left(21)) {
+            match Pin::set(
+                &new,
+                (t as u64) ^ (self.os.mono_ms() as u64).rotate_left(21),
+            ) {
                 Some(p) => *slot = p,
                 None => return Response::err("bad_request", "4 to 12 digits"),
             }
@@ -754,14 +1024,26 @@ impl<O: Os> Supervisor<O> {
         Response::done()
     }
 
-    fn challenge(&mut self, action: &str, target: Option<String>, minutes: u32, t: i64, now: &Now) -> Response {
+    fn challenge(
+        &mut self,
+        action: &str,
+        target: Option<String>,
+        minutes: u32,
+        t: i64,
+        now: &Now,
+    ) -> Response {
         let locked = self.locked_now(t);
         let session = self.p.session.clone().filter(|s| s.ends_at_ms > t);
         let mut minutes = minutes.clamp(1, 60);
         match action {
             "end_session" => match &session {
                 None => return Response::err("none", "No session is running"),
-                Some(s) if s.level >= 2 && self.p.emergency_until_ms <= t => return Response::err("locked", "This session cannot be ended. Only an emergency key opens it"),
+                Some(s) if s.level >= 2 && self.p.emergency_until_ms <= t => {
+                    return Response::err(
+                        "locked",
+                        "This session cannot be ended. Only an emergency key opens it",
+                    )
+                }
                 _ => {}
             },
             "break" => match &session {
@@ -802,30 +1084,51 @@ impl<O: Os> Supervisor<O> {
             _ => return Response::err("bad_request", "Unknown action"),
         }
         self.pending.retain(|p| p.ch.expires_ms > t);
-        self.pending.retain(|p| p.ch.action != action || p.target != target);
+        self.pending
+            .retain(|p| p.ch.action != action || p.target != target);
         if self.pending.len() >= 8 {
             self.pending.remove(0);
         }
         let used = self.p.unblocks.get(&now.day).copied().unwrap_or(0);
-        let seed = (t as u64) ^ (self.os.mono_ms() as u64).rotate_left(17) ^ (self.pending.len() as u64) << 40;
+        let seed = (t as u64)
+            ^ (self.os.mono_ms() as u64).rotate_left(17)
+            ^ (self.pending.len() as u64) << 40;
         let mut protect = self.state.protect.clone();
         // emergency and uninstall are never easier than "hold"
-        if matches!(action, "emergency" | "uninstall") && matches!(protect.friction.as_str(), "none") {
+        if matches!(action, "emergency" | "uninstall")
+            && matches!(protect.friction.as_str(), "none")
+        {
             protect.friction = "hold".into();
         }
         // a Normal session can be left or paused at any time, that is what Normal means
-        if matches!(action, "end_session" | "break") && session.as_ref().map(|s| s.level == 0).unwrap_or(false) {
+        if matches!(action, "end_session" | "break")
+            && session.as_ref().map(|s| s.level == 0).unwrap_or(false)
+        {
             protect.friction = "none".into();
             protect.pin_on = false;
         }
         let ch = Challenge::new(&protect, action, t, seed, used);
         let data = challenge_data(&ch);
-        self.pending.push(Pending { ch, target, minutes });
+        self.pending.push(Pending {
+            ch,
+            target,
+            minutes,
+        });
         Response::ok(data)
     }
 
-    fn complete(&mut self, id: &str, answer: &str, pin: Option<String>, partner_code: Option<String>, t: i64, now: &Now) -> Response {
-        let Some(idx) = self.pending.iter().position(|p| p.ch.id == id) else { return Response::err("expired", "Ask again") };
+    fn complete(
+        &mut self,
+        id: &str,
+        answer: &str,
+        pin: Option<String>,
+        partner_code: Option<String>,
+        t: i64,
+        now: &Now,
+    ) -> Response {
+        let Some(idx) = self.pending.iter().position(|p| p.ch.id == id) else {
+            return Response::err("expired", "Ask again");
+        };
         match self.pending[idx].ch.check(answer, t) {
             Verdict::Ok => {}
             Verdict::TooEarly(ms) => return Response::err_with("early", "Not yet", ms),
@@ -895,7 +1198,10 @@ impl<O: Os> Supervisor<O> {
 
     /// Does the agent in the person's session report in?
     pub fn agent_alive(&self) -> bool {
-        self.obs.as_ref().map(|o| self.last_trusted - o.4 <= FRESH_MS).unwrap_or(false)
+        self.obs
+            .as_ref()
+            .map(|o| self.last_trusted - o.4 <= FRESH_MS)
+            .unwrap_or(false)
     }
 
     /// May the service be stopped right now? Not during a locked block, and with the watchdog on only after the uninstall permission.
