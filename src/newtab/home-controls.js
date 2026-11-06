@@ -4,7 +4,7 @@
 
 import { h, icon, toast } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
-import { getRaw, setRaw } from '../shared/storage.js';
+import { getPhoto, getPhotos, setPhoto, removePhotos } from '../shared/photos.js';
 import { normalizeHex } from '../shared/color.js';
 import { normalizeDepth } from '../shared/depth.js';
 import { looksGallery, accentPicker } from '../ui/appearance.js';
@@ -37,18 +37,18 @@ export function cutoutBlock() {
   const make = h('button', { class: 'btn btn-sm', type: 'button' }, icon('scissors'), t('ct.make'));
   const remove = h('button', { class: 'btn btn-sm btn-ghost', type: 'button', hidden: true }, icon('x'), t('ct.remove'));
   const sync = (has) => { make.hidden = has; remove.hidden = !has; };
-  getRaw('newtabFg').then(({ newtabFg }) => sync(!!newtabFg));
+  getPhoto('fg').then((fg) => sync(!!fg));
   make.addEventListener('click', async () => {
-    const { newtabBg } = await getRaw('newtabBg');
+    const newtabBg = await getPhoto('bg');
     if (!newtabBg) { status.textContent = t('ct.noPhoto'); return; }
     make.disabled = true;
     try {
       const r = await cutOut(newtabBg, (stage) => { status.textContent = t('ct.' + stage); });
       if (!r.usable) { status.textContent = t('ct.unusable'); return; }
-      await setRaw({ newtabFg: r.dataUrl }); sync(true); status.textContent = t('ct.done');
+      await setPhoto('fg', r.dataUrl); sync(true); status.textContent = t('ct.done');
     } catch { status.textContent = t('ct.error'); } finally { make.disabled = false; }
   });
-  remove.addEventListener('click', async () => { await chrome.storage.local.remove('newtabFg'); sync(false); status.textContent = ''; });
+  remove.addEventListener('click', async () => { await removePhotos(['fg']); sync(false); status.textContent = ''; });
   return h('div', { class: 'stack gap-2', style: { marginTop: 'var(--s-4)' } }, h('div', { class: 'eyebrow', text: t('ct.title') }), h('p', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, text: t('ct.hint') }), h('div', { class: 'row gap-2' }, make, remove), status);
 }
 
@@ -63,17 +63,17 @@ export function volumeBlock(n, set) {
     row(t('v3.on'), depth.volume, 'volume'), row(t('v3.behind'), depth.behind, 'behind'),
     depth.behind ? h('label', { class: 'toggle-row' }, h('span', { text: t('v3.cut') }), h('input', { type: 'range', min: 10, max: 95, step: 5, value: 105 - depth.cut, 'aria-label': t('v3.cut'), style: { width: '140px', accentColor: 'var(--accent)' }, onchange: (e) => patch({ cut: 105 - Number(e.target.value) }) })) : null,
     row(t('v3.sway'), depth.sway, 'sway'),
-    h('button', { class: 'btn btn-sm btn-ghost', type: 'button', style: { alignSelf: 'flex-start' }, onclick: async () => { await chrome.storage.local.remove('newtabDepth'); await patch({ volume: false }); } }, icon('x'), t('v3.remove')));
+    h('button', { class: 'btn btn-sm btn-ghost', type: 'button', style: { alignSelf: 'flex-start' }, onclick: async () => { await removePhotos(['depth']); await patch({ volume: false }); } }, icon('x'), t('v3.remove')));
   const sync = (ready) => { make.hidden = ready; more.hidden = !ready; };
-  getRaw(['newtabBg', 'newtabDepth']).then(({ newtabBg, newtabDepth }) => sync(!!(newtabBg && newtabDepth && newtabDepth.key === photoKey(newtabBg))));
+  getPhotos(['bg', 'depth']).then(({ bg: newtabBg, depth: newtabDepth }) => sync(!!(newtabBg && newtabDepth && newtabDepth.key === photoKey(newtabBg))));
   make.addEventListener('click', async () => {
-    const { newtabBg } = await getRaw('newtabBg');
+    const newtabBg = await getPhoto('bg');
     if (!newtabBg) { status.textContent = t('ct.noPhoto'); return; }
     make.disabled = true;
     try {
       const r = await makeDepth(newtabBg, (stage) => { status.textContent = t('v3.' + stage); });
       if (!r.usable) { status.textContent = t('v3.unusable'); return; }
-      await setRaw({ newtabDepth: { key: photoKey(newtabBg), png: r.dataUrl } });
+      await setPhoto('depth', { key: photoKey(newtabBg), png: r.dataUrl });
       await patch({ volume: true }); sync(true); status.textContent = t('v3.done');
     } catch { status.textContent = t('v3.error'); } finally { make.disabled = false; }
   });
@@ -84,10 +84,10 @@ export function volumeBlock(n, set) {
 export function backgroundControls(n, set) {
   const fileIn = h('input', { type: 'file', accept: 'image/*', hidden: true, onchange: async (e) => {
     const f = e.target.files[0]; if (!f) return;
-    try { await setRaw({ newtabBg: await fileToDataUrl(f) }); await chrome.storage.local.remove(['newtabFg', 'newtabDepth']); await set((s) => { s.newtab.background = 'photo'; s.newtab.frame = ''; }); toast(t('home.photoSaved')); } catch { toast(t('common.error')); }
+    try { await removePhotos(['fg', 'depth']); await setPhoto('bg', await fileToDataUrl(f)); await set((s) => { s.newtab.background = 'photo'; s.newtab.frame = ''; }); toast(t('home.photoSaved')); } catch { toast(t('common.error')); }
   } });
   const tiles = [...BACKGROUNDS, 'photo', ...(n.scene && n.scene.layers && n.scene.layers.length ? ['scene'] : [])].map((id) => h('button', { class: 'bg-tile', type: 'button', 'aria-pressed': String(n.background === id), onclick: async () => {
-    if (id === 'photo' && !n.frame) { const { newtabBg } = await getRaw('newtabBg'); if (!newtabBg) { fileIn.click(); return; } }
+    if (id === 'photo' && !n.frame) { if (!(await getPhoto('bg'))) { fileIn.click(); return; } }
     await set((s) => { s.newtab.background = id; });
   } }, h('i', { class: 'bgx-' + (id === 'photo' ? 'plain' : id), style: id === 'photo' ? { background: 'repeating-linear-gradient(45deg, var(--surface-2), var(--surface-2) 6px, var(--surface-3) 6px, var(--surface-3) 12px)' } : id === 'color' ? { '--bg-color': normalizeHex(n.bgColor) || '#e9e4ff' } : {} }), h('span', { text: t('bg.' + id) })));
   const colorIn = h('label', { class: 'row gap-2', style: { marginTop: 'var(--s-3)' } }, h('span', { class: 'muted-2', text: t('home.bgColor') }),

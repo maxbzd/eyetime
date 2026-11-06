@@ -27,6 +27,19 @@ const { launch } = require('./lib.cjs');
   if (!after.old.d || after.old.d['a.com'] !== 600) bad.push('an old day lost its daily totals');
   if (!after.recent.h || !after.recent.h[9]) bad.push('a recent day lost its hourly detail');
   if (!(after.usage.total < before.total)) bad.push('nothing was freed');
+  // a photo that an earlier version kept in chrome.storage.local moves to IndexedDB the first time it is read: the storage gets its room back and the photo is still there
+  const mv = await page.evaluate(async () => {
+    const photo = 'data:image/jpeg;base64,' + 'A'.repeat(300000);
+    await chrome.storage.local.set({ newtabBg: photo, newtabFg: 'data:image/png;base64,QQ==' });
+    const bytesBefore = await chrome.storage.local.getBytesInUse(null);
+    const ph = await import('/src/shared/photos.js');
+    const bg = await ph.getPhoto('bg'), fg = await ph.getPhoto('fg');
+    const left = await chrome.storage.local.get(['newtabBg', 'newtabFg']);
+    return { same: bg === photo, fgOk: fg === 'data:image/png;base64,QQ==', leftKeys: Object.keys(left), freed: bytesBefore - (await chrome.storage.local.getBytesInUse(null)), again: (await ph.getPhoto('bg')) === photo };
+  });
+  if (!mv.same || !mv.fgOk || !mv.again) bad.push('a photo from an earlier version was lost on the way to IndexedDB: ' + JSON.stringify(mv));
+  if (mv.leftKeys.length) bad.push('the photo was copied, not moved: ' + mv.leftKeys);
+  if (mv.freed < 290000) bad.push('the storage did not get its room back: ' + mv.freed);
   // a lost schema stamp over current settings is repaired, the settings stay
   const kept = await page.evaluate(async () => {
     const st = await import('/src/shared/storage.js');

@@ -20,13 +20,13 @@ const { launch } = require('./lib.cjs');
     g.fillStyle = '#16301c'; g.beginPath(); g.moveTo(0, 800); g.lineTo(0, 640); for (let x = 0; x <= 520; x += 20) g.lineTo(x, 640 - Math.sin(x / 30) * 26 - 60 * Math.sin(x / 520 * 3.14)); g.lineTo(520, 800); g.fill();
     g.fillStyle = '#0f2415'; g.beginPath(); g.ellipse(1050, 800, 330, 190, 0, Math.PI, 0); g.fill();
     const st = await import('/src/shared/storage.js');
-    await st.setRaw({ newtabBg: c.toDataURL('image/jpeg', 0.88), gsDismissed: true });
+    await (await import('/src/shared/photos.js')).setPhoto('bg', c.toDataURL('image/jpeg', 0.88)); await st.setRaw({ gsDismissed: true });
     await st.updateSettings((s) => { s.onboarded = true; s.newtab.layout = 'center'; s.language = 'en'; s.newtab.background = 'photo'; });
   });
   const p = await app.ctx.newPage();
   p.on('pageerror', (e) => bad.push('pageerror: ' + e)); p.on('console', (m) => { if (m.type() === 'error' && !/GL Driver|GPU stall/.test(m.text())) bad.push('console: ' + m.text()); });
   await p.goto(ext('src/newtab/newtab.html')); await p.waitForTimeout(1200);
-  const stored = () => p.evaluate(async () => (await chrome.storage.local.get('newtabDepth')).newtabDepth || null);
+  const stored = () => p.evaluate(async () => (await import('/src/shared/photos.js')).getPhoto('depth'));
   const state = () => p.evaluate(() => ({ canvases: document.querySelectorAll('.bg .gl3d').length, front: document.querySelectorAll('#bgFront .dl-gl .gl3d-front').length, gl: document.body.classList.contains('bg-gl'), depth: document.body.classList.contains('has-depth'), bgImage: getComputedStyle(document.querySelector('.bg')).backgroundImage.slice(0, 12) }));
   const setDepth = (patch) => sp.evaluate(async (pt) => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.newtab.depth = { on: true, parallax: true, strength: 60, ...(s.newtab.depth || {}), ...pt }; }); }, patch);
   /** mean absolute difference of two screenshots, 0..255 */
@@ -97,13 +97,13 @@ const { launch } = require('./lib.cjs');
   // a new photo does not keep the old depth map
   await sp.evaluate(async () => {
     const c = document.createElement('canvas'); c.width = 640; c.height = 400; const g = c.getContext('2d'); g.fillStyle = '#446'; g.fillRect(0, 0, 640, 400);
-    await (await import('/src/shared/storage.js')).setRaw({ newtabBg: c.toDataURL('image/jpeg', 0.8) });
+    await (await import('/src/shared/photos.js')).setPhoto('bg', c.toDataURL('image/jpeg', 0.8));
   });
   await p.waitForTimeout(1500);
   const s2 = await state(); ok(s2.canvases === 0 && !s2.gl, 'another photo: the old map is not used: ' + JSON.stringify(s2));
 
   // removing the depth
-  await sp.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.setRaw({ newtabBg: (await chrome.storage.local.get('newtabBg')).newtabBg }); });
+  await sp.evaluate(async () => { const ph = await import('/src/shared/photos.js'); await ph.setPhoto('bg', await ph.getPhoto('bg')); });
   await p.click('#customize'); await p.waitForTimeout(400);
   await p.locator('.hr-head', { hasText: 'Background' }).click(); await p.waitForTimeout(400); 
   ok(await p.locator('#drawerBody button', { hasText: 'Make the photo 3D' }).count() === 1, 'the drawer offers to make it again');

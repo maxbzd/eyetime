@@ -7,9 +7,8 @@
 //   passes              { [ruleDomain]: untilTs }  temporary "continue" permissions
 //   tasks / habits / captures / links   small user data used by the new tab
 //   d:YYYY-MM-DD        one record per day (see stats.js) – small, independent writes
-//   newtabBg            custom background photo (data URL)
-//   newtabFg            the subject mask of that photo (a PNG whose alpha is the subject), for the depth effect
-//   newtabDepth         { key, png }: the depth map of that photo (8-bit PNG, bright = near) for the 3D photo; key names the photo it was made from
+//   photoRev            a number bumped whenever the person's own photo (or the cut-out / depth map made from it) changes. The photo itself lives in IndexedDB (shared/photos.js);
+//                       versions before 4 kept it here as newtabBg / newtabFg / newtabDepth and it is moved the first time it is read
 
 import { normalizeCalendarUrl } from './calsub.js';
 import { DEFAULT_SETTINGS, deepMerge, clone, SCHEMA_VERSION, DEFAULT_META } from './defaults.js';
@@ -286,5 +285,6 @@ export async function resetAll() {
   try { await (await import('./usage-store.js')).forgetOnReset(); } catch { /* nothing was shared, or no network: the local data is deleted all the same */ }
   await area().clear();
   try { await chrome.storage.session.remove('vaultKey'); } catch { /* no session storage */ } // the key of a vault that no longer exists
+  try { await (await import('./photos.js')).clearPhotos(); } catch { /* no IndexedDB (a test): there is nothing to clear */ }
   await ensureSchema();
 }

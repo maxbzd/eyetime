@@ -85,7 +85,7 @@ function renderOff() {
   renderModules(); applySkins();
   installDrawer(); installShortcuts();
   $('#moreMods').addEventListener('click', () => document.body.classList.toggle('show-mods'));
-  onChange(['newtabBg', 'newtabFg', 'newtabDepth'], applyBackground);
+  onChange(['photoRev'], applyBackground); // the photo and what is made from it are in IndexedDB (shared/photos.js); every write bumps this key
   window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', () => setTimeout(applyBackground, 0));
   watchFocus();
 })();

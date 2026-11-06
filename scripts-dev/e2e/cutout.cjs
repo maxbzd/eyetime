@@ -18,13 +18,13 @@ const { launch } = require('./lib.cjs');
     g.beginPath(); g.ellipse(640, 480, 250, 330, 0, 0, 7); g.fill(); g.beginPath(); g.ellipse(640, 210, 130, 140, 0, 0, 7); g.fill();
     g.fillStyle = '#2b1a10'; g.beginPath(); g.ellipse(595, 195, 16, 20, 0, 0, 7); g.ellipse(685, 195, 16, 20, 0, 0, 7); g.fill();
     const st = await import('/src/shared/storage.js');
-    await st.setRaw({ newtabBg: c.toDataURL('image/jpeg', 0.85), gsDismissed: true });
+    await (await import('/src/shared/photos.js')).setPhoto('bg', c.toDataURL('image/jpeg', 0.85)); await st.setRaw({ gsDismissed: true });
     await st.updateSettings((s) => { s.onboarded = true; s.newtab.layout = 'center'; s.language = 'en'; s.newtab.background = 'photo'; });
   });
   const p = await app.ctx.newPage();
   p.on('pageerror', (e) => bad.push('pageerror: ' + e)); p.on('console', (m) => { if (m.type() === 'error') bad.push('console: ' + m.text()); });
   await p.goto(ext('src/newtab/newtab.html')); await p.waitForTimeout(1200);
-  const fg = () => p.evaluate(async () => (await chrome.storage.local.get('newtabFg')).newtabFg || null);
+  const fg = () => p.evaluate(async () => (await import('/src/shared/photos.js')).getPhoto('fg'));
   const layers = () => p.evaluate(() => [...document.querySelectorAll('#bgFront .dl')].map((e) => e.className.replace('dl ', '')));
   ok(!(await fg()) && (await layers()).length === 0, 'no cut-out and no front layer to begin with');
 
@@ -53,7 +53,7 @@ const { launch } = require('./lib.cjs');
   ok(!(await fg()) && (await layers()).length === 0, 'removing the cut-out clears the mask and the layer');
 
   // a new photo must not keep an old mask: put one back, then choose a file
-  await p.evaluate(async () => { await chrome.storage.local.set({ newtabFg: 'data:image/png;base64,iVBORw0KGgo=' }); });
+  await p.evaluate(async () => { await (await import('/src/shared/photos.js')).setPhoto('fg', 'data:image/png;base64,iVBORw0KGgo='); });
   await p.waitForTimeout(300);
   ok(!!(await fg()), 'precondition: a mask exists');
   await p.setInputFiles('#drawerBody input[accept="image/*"]', { name: 'p.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64') });

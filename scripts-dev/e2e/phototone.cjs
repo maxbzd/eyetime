@@ -15,8 +15,8 @@ const { launch } = require('./lib.cjs');
     if (kind === 'bright') { g.addColorStop(0, '#f4f1ea'); g.addColorStop(1, '#d9d2c3'); } else if (kind === 'dark') { g.addColorStop(0, '#0b1020'); g.addColorStop(1, '#1b2233'); } else { g.addColorStop(0, '#f4f1ea'); g.addColorStop(0.5, '#f4f1ea'); g.addColorStop(0.5, '#10131c'); g.addColorStop(1, '#10131c'); }
     x.fillStyle = g; x.fillRect(0, 0, 320, 180);
     const st = await import('/src/shared/storage.js');
-    await chrome.storage.local.remove('newtabFg');
-    await st.setRaw({ newtabBg: c.toDataURL('image/jpeg', 0.9) });
+    await (await import('/src/shared/photos.js')).removePhotos(['fg']);
+    await (await import('/src/shared/photos.js')).setPhoto('bg', c.toDataURL('image/jpeg', 0.9));
     await st.updateSettings((s) => { s.newtab.background = 'photo'; });
   }, kind);
   const setMode = (m) => sp.evaluate(async (m) => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.newtab.photoText = m; }); }, m);
