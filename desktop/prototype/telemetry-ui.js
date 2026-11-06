@@ -18,6 +18,9 @@
       p2: 'Never used for money. No ads, no profiles. The numbers only help me make EyeTime better.',
       p3: 'Nothing personal. Just counts, like how many times something was closed. No program names, sites, paths, window titles, PINs or codes, no name, no account.',
       note: 'You can read the exact report first, and turn this off with one click, whenever you like.',
+      leadS: 'EyeTime is made by one person. Once a week it can send a few anonymous numbers, so I can see what to fix next.',
+      p1s: 'Never sold, never used for ads or money.', p2s: 'Nothing personal. Just counts: no program names, sites, paths, PINs, name or account.',
+      later: 'Not now', last: 'This is the last time I ask.', laterBye: "Okay. I'll ask once more in a few weeks, and never again after that.", thanksT: 'Thank you', policy: 'Privacy details', settings: 'Settings', close: 'Close',
       yes: "Yes, I'll help", no: 'No, thanks', show: 'Show exactly what is sent', hide: 'Hide', sign: '— the person who makes EyeTime',
       thanks: 'Thank you, truly. You can see what is sent, and stop, in Settings.', bye: "Of course. I won't ask again.",
       setT: 'Share anonymous numbers', setD: 'Once a week, a few counts. Never names of programs or sites. Off unless you turn it on.', setSee: 'Show what would be sent', setHide: 'Hide',
@@ -30,6 +33,9 @@
       p2: 'Не ради заработка. Никакой рекламы и профилей: цифры нужны только затем, чтобы EyeTime становился лучше.',
       p3: 'Ничего личного. Только счётчики, например сколько раз что-то было закрыто. Никаких названий программ, сайтов, путей, заголовков окон, PIN-кодов, ни имени, ни аккаунта.',
       note: 'Точный отчёт можно прочитать до отправки, а выключить всё — одним нажатием в любой момент.',
+      leadS: 'EyeTime делает один человек. Раз в неделю он может отправлять несколько анонимных чисел — так я пойму, что исправлять.',
+      p1s: 'Ничего не продаётся и не идёт на рекламу или заработок.', p2s: 'Ничего личного. Только счётчики: без названий программ, сайтов, путей, PIN-кодов, имени и аккаунта.',
+      later: 'Не сейчас', last: 'Это последний раз, когда я спрашиваю.', laterBye: 'Хорошо. Спрошу ещё один раз через несколько недель, а потом больше никогда.', thanksT: 'Спасибо', policy: 'Подробнее о приватности', settings: 'Настройки', close: 'Закрыть',
       yes: 'Да, помогу', no: 'Нет, спасибо', show: 'Показать, что именно отправляется', hide: 'Скрыть', sign: '— тот, кто делает EyeTime',
       thanks: 'Спасибо, правда. Что отправляется и как остановить, видно в Настройках.', bye: 'Конечно. Больше не спрошу.',
       setT: 'Делиться анонимными числами', setD: 'Раз в неделю несколько счётчиков. Никаких названий программ и сайтов. Выключено, пока вы не включите.', setSee: 'Показать, что будет отправлено', setHide: 'Скрыть',
@@ -57,10 +63,12 @@
   .tel-list li{display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:start;font-size:13px;line-height:1.5;color:var(--text-2,#9bb)}.tel-list b{color:var(--text,#fff);font-weight:650}
   .tel-ico{display:grid;place-items:center;width:32px;height:32px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--edge,rgba(200,255,230,.13));color:var(--mint,#8cf2c6)}.tel-ico svg{width:16px;height:16px}
   .tel-fine{margin:0 0 14px;font-size:12px;line-height:1.5;color:var(--text-3,#789)}
-  .tel-act{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-  .tel-act button{flex:1 1 auto;height:44px;padding:0 20px;border-radius:999px;border:1px solid var(--edge,rgba(200,255,230,.2));background:rgba(255,255,255,.06);color:inherit;font:600 14px var(--font-body,system-ui);cursor:pointer;transition:transform .2s}
-  .tel-act button:hover{transform:translateY(-1px)}.tel-act button:active{transform:scale(.97)}
-  .tel-act button.go{background:#f4faf7;color:#04100b;border-color:transparent;box-shadow:0 8px 24px -8px rgba(255,255,255,.35)}
+  /* "Yes" is the filled, wider button. Every way of saying no is a real, bordered, readable button of the same height as each other, side by side, one click: nothing is hidden, shrunk to a link or made hard to read. */
+  .tel-act{display:grid;gap:10px;margin-bottom:10px}.tel-no{display:flex;gap:10px}
+  .tel-act button,.tel-act a{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;flex:1 1 0;height:44px;padding:0 18px;border-radius:999px;border:1px solid rgba(220,255,240,.45);background:transparent;color:var(--text,#eaf7f0);font:600 14px var(--font-body,system-ui);cursor:pointer;transition:transform .2s,background .2s}
+  .tel-act button:hover,.tel-act a:hover{background:rgba(255,255,255,.07);transform:translateY(-1px)}.tel-act button:active{transform:scale(.97)}
+  .tel-act button.go{height:48px;width:100%;background:#f4faf7;color:#04100b;border-color:transparent;box-shadow:0 8px 24px -8px rgba(255,255,255,.35)}
+  .tel-links{display:flex;flex-wrap:wrap;gap:4px 16px}.tel-last{margin:0 0 8px;text-align:center}
   .tel-show{display:inline-flex;align-items:center;gap:6px;padding:4px 2px;margin:0 0 8px;border:0;background:none;color:var(--text-2,#9bb);font:500 12px var(--font-body,system-ui);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
   .tel-show:hover{color:var(--text,#fff)}.tel-show svg{width:14px;height:14px}
   .tel-pre{margin:0 0 10px;padding:12px;max-height:190px;overflow:auto;border-radius:14px;background:rgba(0,0,0,.28);border:1px solid var(--edge,rgba(200,255,230,.13));font:11px/1.5 ui-monospace,Consolas,monospace;color:var(--text-2,#9bb);white-space:pre-wrap;word-break:break-all}
@@ -82,21 +90,34 @@
   }
   function leave() { if (!card) return; const c = card; card = null; c.classList.add('leaving'); setTimeout(() => c.remove(), 280); }
 
-  function showAsk() {
+  function showAsk(final) {
     if (card || document.getElementById('telAsk')) return;
     const x = L(), c = el('aside', 'tel-card'); c.id = 'telAsk'; c.setAttribute('role', 'dialog'); c.setAttribute('aria-modal', 'false'); c.setAttribute('aria-labelledby', 'telAskT');
     const badge = el('div', 'tel-badge'); badge.append(svg(ICON.sprout)); badge.setAttribute('aria-hidden', 'true');
     const title = el('h2', 'tel-title', x.title); title.id = 'telAskT';
-    const list = el('ul', 'tel-list'); list.append(promise('ban', x.p1), promise('sprout', x.p2), promise('lock', x.p3));
+    const list = el('ul', 'tel-list'); list.append(promise('ban', x.p1s), promise('lock', x.p2s));
     const pre = el('pre', 'tel-pre'); pre.hidden = true; pre.tabIndex = 0;
     const fine2 = el('p', 'tel-fine', L().setNote); fine2.hidden = true;
     const show = el('button', 'tel-show'); show.type = 'button'; show.setAttribute('aria-expanded', 'false'); const lab = el('span', null, x.show); show.append(svg(ICON.eye), lab);
     show.onclick = async () => { const open = show.getAttribute('aria-expanded') !== 'true'; show.setAttribute('aria-expanded', String(open)); lab.textContent = open ? x.hide : x.show; if (open) { await get(); pre.textContent = pretty(v && v.report); } pre.hidden = fine2.hidden = !open; };
-    const yes = el('button', 'go', x.yes), no = el('button', null, x.no); yes.type = no.type = 'button';
-    yes.onclick = async () => { await set('telemetry_set', { on: true }); leave(); ET.toast(L().thanks); };
-    no.onclick = async () => { await set('telemetry_decline'); leave(); ET.toast(L().bye); };
-    const act = el('div', 'tel-act'); act.append(yes, no);
-    c.append(badge, title, el('p', 'tel-lead', x.lead), list, el('p', 'tel-fine', x.note), act, show, fine2, pre, el('p', 'tel-sign', x.sign));
+    const policy = el('button', 'tel-show'); policy.type = 'button'; policy.append(svg(ICON.lock), el('span', null, x.policy));
+    policy.onclick = () => window.__TAURI__.core.invoke('open_target', { kind: 'privacy' }).catch(() => {});
+    const yes = el('button', 'go', x.yes); yes.type = 'button';
+    yes.onclick = async () => {
+      await set('telemetry_set', { on: true });
+      // the thank-you stays a few seconds and says where the switch is: withdrawing must be as easy as agreeing
+      const ok = el('button', null, x.close); ok.type = 'button'; ok.onclick = leave;
+      const act2 = el('div', 'tel-act'); const row = el('div', 'tel-no'); row.append(ok); act2.append(row);
+      c.replaceChildren(el('h2', 'tel-title', x.thanksT), el('p', 'tel-lead', x.thanks), act2);
+      setTimeout(leave, 9000);
+    };
+    const later = final ? null : el('button', null, x.later), no = el('button', null, x.no);
+    if (later) { later.type = 'button'; later.onclick = async () => { await set('telemetry_defer'); leave(); ET.toast(x.laterBye); }; }
+    no.type = 'button'; no.onclick = async () => { await set('telemetry_decline'); leave(); ET.toast(L().bye); };
+    const row = el('div', 'tel-no'); if (later) row.append(later); row.append(no);
+    const act = el('div', 'tel-act'); act.append(yes, row);
+    const links = el('div', 'tel-links'); links.append(show, policy);
+    c.append(badge, title, el('p', 'tel-lead', x.leadS), list, el('p', 'tel-fine', x.note), act, final ? el('p', 'tel-fine tel-last', x.last) : document.createComment(''), links, fine2, pre, el('p', 'tel-sign', x.sign));
     document.body.append(c); card = c;
   }
 
@@ -123,7 +144,7 @@
   }
 
   const running = () => { const st = ETB.getStatus && ETB.getStatus(); return !!(st && st.session); };
-  async function look() { await get(); paintRow(); if (v && v.ask && !running() && !document.hidden) showAsk(); }
+  async function look() { await get(); paintRow(); if (v && v.ask && !running() && !document.hidden) showAsk(!!v.final); }
   setTimeout(look, 9000); setInterval(look, 5 * 60 * 1000);
   document.addEventListener('et-settings-shown', look);
   ET.langHooks.push(() => { paintRow(); });

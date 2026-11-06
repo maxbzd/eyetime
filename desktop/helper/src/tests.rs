@@ -1296,6 +1296,7 @@ fn only_the_window_may_touch_the_switch_and_a_no_is_final() {
         Request::TelemetryGet,
         Request::TelemetrySet { on: true },
         Request::TelemetryDecline,
+        Request::TelemetryDefer,
     ] {
         assert!(Role::Window.allows(&req) && Role::Admin.allows(&req));
         assert!(

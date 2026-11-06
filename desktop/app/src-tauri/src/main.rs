@@ -172,6 +172,16 @@ fn open_target(kind: String) -> Result<(), String> {
             c.args(["/c", "start", "", "chrome", "chrome://extensions"]);
             c
         }
+        "privacy" => {
+            let mut c = std::process::Command::new(eyetime_core::sys::system32("cmd"));
+            c.args([
+                "/c",
+                "start",
+                "",
+                "https://maxbzd.github.io/eyetime/privacy.html",
+            ]);
+            c
+        }
         "edge_extensions" => {
             let mut c = std::process::Command::new(eyetime_core::sys::system32("cmd"));
             c.args(["/c", "start", "", "msedge", "edge://extensions"]);

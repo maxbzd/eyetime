@@ -4,6 +4,7 @@ Every `## x.y.z` section becomes the release notes of the tag `desktop-vx.y.z`. 
 
 ## Unreleased
 
+- The question about anonymous numbers asks right after a finished session, offers "Not now" (it comes back once, after three weeks), and has a link to the privacy details
 - Optional anonymous numbers (off until you say yes; this build has nowhere to send them yet): a note asks once after a few days of use, Settings has the switch and shows the exact next report. Only counts of kinds of events, never a program, a site, a path or a PIN; see PRIVACY.md
 - The service keeps only the rights of the system that it uses (starting the agent in your session, folder checks): it can no longer debug any process, load a driver, read or write files regardless of their rights, take ownership or create tokens, so a flaw in it has less to work with. The setup applies it and stops if it cannot; the Windows test checks it and that a blocked program is still closed
 - Locked blocks: an edit that turned an overnight rule (17:00–09:00) into an all-day one on the same days was let through although it opens the morning after the last day; found by a test over 40 000 random edits, fixed, and now proven for every moment of the week

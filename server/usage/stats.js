@@ -6,7 +6,7 @@
 // Every figure is a pair { k, n } (k of n installs) or a count, never a rounded-off guess: the page shows both, and greys out what rests on few installs.
 // What a figure means is written next to it below, and in docs/MEASUREMENT.md; read the numbers as the behaviour of people who agreed to share (not a census).
 
-import { FEATURES, FLAGS, UNINSTALL_REASONS, WIN_FEATURES, WIN_FLAGS } from '../../src/shared/usage-schema.js';
+import { FEATURES, FLAGS, UNINSTALL_REASONS, WIN_FEATURES, WIN_FLAGS, EXPERIMENTS } from '../../src/shared/usage-schema.js';
 
 const DAY = 86_400_000;
 
@@ -381,7 +381,8 @@ export function computeStats(snap, now = Date.now(), { recentDays = 90, from: fr
       return { arm, installs: inArm.length, made: M.length, d1: pair(M1.filter((i) => i.act.includes(1)).length, M1.length), d7: pair(M7.filter(back).length, M7.length), session_week1: pair(W1.filter((i) => first(i, 'focus_start') <= 7).length, W1.length), finish_rate: st ? Math.min(1, sumOf(R, ['focus_done']) / st) : null, avg_active_days: R.length ? R.reduce((a, i) => a + (daysIn.get(i.id) || 0), 0) / R.length : null };
     });
     const c = arms.find((a) => a.arm === control);
-    return { id: exp, control, arms: arms.map((a) => ({ ...a, vs_control: a.arm === control || !c ? null : { d1: compareProps(a.d1, c.d1), d7: compareProps(a.d7, c.d7), session_week1: compareProps(a.session_week1, c.session_week1) } })) };
+    const consent = EXPERIMENTS.find((e) => e.id === exp)?.measures === 'consent' ? consentSplit(arms) : null;
+    return { id: exp, control, consent, arms: arms.map((a) => ({ ...a, vs_control: a.arm === control || !c ? null : { d1: compareProps(a.d1, c.d1), d7: compareProps(a.d7, c.d7), session_week1: compareProps(a.session_week1, c.session_week1) } })) };
   });
 
   // ---- the targets the scorecard uses: ours by default, the owner's where set ----
@@ -410,6 +411,24 @@ export function computeStats(snap, now = Date.now(), { recentDays = 90, from: fr
   if (win) return asWindows(out, winBlock({ snap, recent, made, firsts, weekFrom, weekTo, mature }));
   out.scorecard = scorecard(out);
   return out;
+}
+
+/**
+ * The conversion of an experiment about the question "may I share anonymous numbers?": only people who said yes ever report, but the arms were shared out evenly over every device, so
+ * how the people who said yes split between the arms is how well each wording converted. A group that holds more than half of them converted better: tested against an even split
+ * (two arms; with more, against 1/arms). A result is only called one with at least 200 people who agreed.
+ * @param {{ arm: string, installs: number }[]} arms
+ */
+export function consentSplit(arms) {
+  const n = arms.reduce((a, x) => a + x.installs, 0), k = arms.length;
+  if (k < 2 || !n) return { n, arms: arms.map((a) => ({ arm: a.arm, n: a.installs, share: null })), leader: null, p: null, enough: false };
+  const rows = arms.map((a) => ({ arm: a.arm, n: a.installs, share: a.installs / n, lo: wilson(a.installs, n)?.[0] ?? null, hi: wilson(a.installs, n)?.[1] ?? null }));
+  const top = rows.reduce((a, b) => (b.n > a.n ? b : a));
+  // the biggest group against an even share: z = (n_top - n/k) / sqrt(n (1/k)(1 - 1/k))
+  const z = (top.n - n / k) / Math.sqrt((n * (1 / k) * (1 - 1 / k)));
+  const p = Math.min(1, 2 * (1 - normalCdf(Math.abs(z)))) * (k > 2 ? k - 1 : 1); // (a plain correction for picking the biggest of several)
+  const enough = n >= 200;
+  return { n, arms: rows, leader: enough && p < 0.05 ? top.arm : null, p: Math.min(1, p), enough };
 }
 
 /**

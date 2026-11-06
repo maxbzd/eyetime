@@ -98,11 +98,36 @@ export function subtractPeriod(/** @type {Usage} */ u, /** @type {Record<string,
 export const modeOf = (/** @type {string} */ m) => (m === 'light' || m === 'dark' ? m : 'auto');
 
 /**
- * Show the one-time question "share anonymous usage?" Only to someone who has finished a focus session and come back on another day, only once,
- * and only when there is a collector to share with. `share` is the stored consent.
+ * The version of what a "yes" covers (the list of fields, the purpose, the recipients). Raise it when any of those changes: reports stop until the person has agreed again,
+ * because a consent is for what it was given for.
  */
-export function shouldAsk(/** @type {Usage} */ u, /** @type {any} */ share, /** @type {boolean} */ haveEndpoint) {
-  return haveEndpoint && !(share && (share.on || share.askedAt)) && (u.total.focus_done || 0) >= 1 && u.days.length >= 2;
+export const CONSENT_VERSION = 1;
+
+/** The rhythm of the question: after "Not now" it waits this long and is asked once more, never a third time. A good moment is right after a finished session; failing that, a week of waiting. */
+export const ASK_TIMING = { laterMs: 21 * 86_400_000, peakMs: 30 * 60_000, patienceMs: 7 * 86_400_000, maxDeferrals: 1 };
+
+/** Does this stored consent cover what is sent now? A consent given before the last change of CONSENT_VERSION does not. */
+export const consentCurrent = (/** @type {any} */ share) => !!share && (share.consentV ?? 1) === CONSENT_VERSION;
+
+/**
+ * May the question be asked at all? Only to someone who has finished a focus session and come back on another day, only when there is a collector to share with, never after a
+ * "no" (`askedAt`), not for three weeks after a "not now", and not a second time after that. A consent that is out of date asks again (it is a new question).
+ * `share` is the stored consent.
+ */
+export function shouldAsk(/** @type {Usage} */ u, /** @type {any} */ share, /** @type {boolean} */ haveEndpoint, now = Date.now()) {
+  if (!haveEndpoint || (u.total.focus_done || 0) < 1 || u.days.length < 2) return false;
+  if (share && share.on) return !consentCurrent(share); // already agreed: only a changed scope asks again
+  if (share && share.askedAt) return false;
+  if (share && share.deferredAt && now - share.deferredAt < ASK_TIMING.laterMs) return false;
+  return true;
+}
+
+/**
+ * Is this a good moment for the question that may be asked? Right after a finished session (the person has just got something out of EyeTime), or, if that never happens,
+ * once the question has been waiting a week. Never mid-session (the caller checks).
+ */
+export function goodMoment(/** @type {any} */ share, /** @type {number} */ now, /** @type {boolean} */ justFinished) {
+  return justFinished || (!!share && !!share.eligibleAt && now - share.eligibleAt >= ASK_TIMING.patienceMs);
 }
 
 /**
@@ -110,7 +135,7 @@ export function shouldAsk(/** @type {Usage} */ u, /** @type {any} */ share, /** 
  * Weekly, the first one a day after turning sharing on; a failed try waits six hours.
  */
 export function reportDue(/** @type {any} */ share, /** @type {number} */ now, /** @type {boolean} */ haveEndpoint) {
-  if (!haveEndpoint || !share || share.on !== true || typeof share.id !== 'string') return false;
+  if (!haveEndpoint || !share || share.on !== true || typeof share.id !== 'string' || !consentCurrent(share)) return false;
   if (share.lastTryAt && now - share.lastTryAt < 6 * 3_600_000) return false;
   if (!share.lastReportAt) return now - (share.optInAt || now) >= FIRST_REPORT_AFTER_MS;
   return now - share.lastReportAt >= WEEK_MS - 3_600_000;

@@ -37,9 +37,11 @@ export const FLAGS = [
 /**
  * Experiments that may be running, each with its arms (the first arm is the control). Empty until one is started (docs/MEASUREMENT.md says how). A person is put in an arm
  * on the device, by a random number that is kept there and never sent; a report says only which arm ("onboarding-v2:short"), and only for an experiment in this list.
- * @type {{ id: string, arms: string[] }[]}
+ * `measures: 'consent'` marks the experiment that is about the question "may I share anonymous numbers?" itself. Only people who said yes ever report, but the arms are shared out
+ * evenly over every device, so how the people who said yes split between the arms is how well each wording converted (the collector tests it, see stats.js).
+ * @type {{ id: string, arms: string[], measures?: string }[]}
  */
-export const EXPERIMENTS = [];
+export const EXPERIMENTS = [{ id: 'ask-copy', arms: ['long', 'short'], measures: 'consent' }];
 
 /** Why someone removed EyeTime, as the page that opens after removal offers it. One click, no text, no identifier: a count per day on the collector. */
 export const UNINSTALL_REASONS = ['slow', 'broken', 'not_useful', 'too_strict', 'other_tool', 'temporary', 'other'];

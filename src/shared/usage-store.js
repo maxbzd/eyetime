@@ -8,9 +8,10 @@
 //   enableSharing() / disableSharing()
 //   sendReport()                the worker calls it every few hours; it sends only when a report is due, sharing is on and a collector is configured
 
-import { getRaw, setRaw, getSettings, withLock } from './storage.js';
+import { getRaw, setRaw, getSettings, withLock, getDays } from './storage.js';
 import { USAGE_ENDPOINT } from './usage-config.js';
-import { normalizeUsage, record, buildReport, subtractPeriod, reportDue, detectEnv, newId, modeOf, shouldAsk, flagsOf, assignArms } from './usage.js';
+import { normalizeUsage, record, buildReport, subtractPeriod, reportDue, detectEnv, newId, modeOf, shouldAsk, goodMoment, flagsOf, assignArms, CONSENT_VERSION, ASK_TIMING } from './usage.js';
+import { dayKey, addDays } from './time.js';
 import { validateReport, EXPERIMENTS } from './usage-schema.js';
 
 export const haveEndpoint = (/** @type {string} */ e = USAGE_ENDPOINT) => /^https:\/\/[^\s]+$/.test(e);
@@ -32,13 +33,13 @@ export async function getUsage(now = Date.now()) {
   return normalizeUsage(usage, meta?.installedAt || now);
 }
 
-/** @typedef {{ on: boolean, id: string | null, optInAt: number | null, lastReportAt: number | null, lastTryAt: number | null, askedAt: number | null }} Share */
+/** @typedef {{ on: boolean, id: string | null, optInAt: number | null, lastReportAt: number | null, lastTryAt: number | null, askedAt: number | null, deferredAt: number | null, deferrals: number, eligibleAt: number | null, consentV: number }} Share */
 
 export async function getShare() {
   const { usageShare } = await getRaw('usageShare');
   const u = usageShare && typeof usageShare === 'object' ? usageShare : {};
   const n = (/** @type {any} */ v) => (Number.isFinite(v) ? v : null);
-  return /** @type {Share} */ ({ on: u.on === true && typeof u.id === 'string', id: typeof u.id === 'string' ? u.id : null, optInAt: n(u.optInAt), lastReportAt: n(u.lastReportAt), lastTryAt: n(u.lastTryAt), askedAt: n(u.askedAt) });
+  return /** @type {Share} */ ({ on: u.on === true && typeof u.id === 'string', id: typeof u.id === 'string' ? u.id : null, optInAt: n(u.optInAt), lastReportAt: n(u.lastReportAt), lastTryAt: n(u.lastTryAt), askedAt: n(u.askedAt), deferredAt: n(u.deferredAt), deferrals: Number.isInteger(u.deferrals) ? u.deferrals : 0, eligibleAt: n(u.eligibleAt), consentV: Number.isInteger(u.consentV) ? u.consentV : 1 });
 }
 const setShare = (/** @type {Partial<Share>} */ patch) => withLock('usageShare', async () => { await setRaw({ usageShare: { ...(await getShare()), ...patch } }); });
 
@@ -79,7 +80,9 @@ export async function enableSharing(now = Date.now()) {
   if (isFirefox() && chrome.permissions?.request) {
     try { if (!(await chrome.permissions.request(/** @type {any} */ ({ data_collection: ['technicalAndInteraction'] })))) return false; } catch { return false; }
   }
-  await setShare({ on: true, id: newId(), optInAt: now, lastReportAt: null, lastTryAt: null, askedAt: now });
+  const old = await getShare();
+  // a consent that is only out of date keeps its identifier (it is the same person saying yes to a changed scope); a first yes makes a new one
+  await setShare({ on: true, id: old.on && old.id ? old.id : newId(), optInAt: old.on && old.optInAt ? old.optInAt : now, lastReportAt: old.on ? old.lastReportAt : null, lastTryAt: null, askedAt: now, deferredAt: null, eligibleAt: null, consentV: CONSENT_VERSION });
   return true;
 }
 
@@ -97,11 +100,44 @@ export async function forgetOnReset() {
 }
 
 /** The person answered the question on Home without switching it on. */
-export async function declineAsk(now = Date.now()) { await setShare({ askedAt: now }); }
+/** "No, thanks": final. The question is never asked again. */
+export async function declineAsk(now = Date.now()) { await setShare({ askedAt: now, deferredAt: null, eligibleAt: null }); }
+
+/** "Not now": the question comes back once, after three weeks, at a good moment; after the second "not now" it is a "no". */
+export async function deferAsk(now = Date.now()) {
+  const share = await getShare();
+  if (share.deferrals >= ASK_TIMING.maxDeferrals) { await declineAsk(now); return; }
+  await setShare({ deferredAt: now, deferrals: share.deferrals + 1, eligibleAt: null });
+}
 
 export async function wantsToAsk(now = Date.now()) {
   const [u, share] = await Promise.all([getUsage(now), getShare()]);
-  return shouldAsk(u, share, haveEndpoint());
+  return shouldAsk(u, share, haveEndpoint(), now);
+}
+
+/** Did a focus session end (completed) in the last half hour? Then the person has just got something out of EyeTime. */
+async function justFinishedSession(now) {
+  try {
+    const keys = [dayKey(new Date(now)), dayKey(addDays(new Date(now), -1))];
+    for (const [, day] of await getDays(keys)) for (const s of (day && day.ss) || []) if (s && s.c && s.t + (s.m || 0) * 60_000 > now - ASK_TIMING.peakMs && s.t <= now) return true;
+  } catch { /* no days: no peak */ }
+  return false;
+}
+
+/**
+ * The plan for the question now: null (do not show), or `{ final, variant }`. `final` is the second and last time (no "Not now" any more); `variant` is the wording this device
+ * was put in ("long" or "short", an experiment whose result is how the people who agreed split between the arms). Shown at a good moment only; the caller never asks mid-session.
+ * @returns {Promise<{ final: boolean, variant: string } | null>}
+ */
+export async function askPlan(now = Date.now()) {
+  if (!(await wantsToAsk(now))) return null;
+  // China's law asks for a separate consent to a transfer abroad, which this card does not carry: the question is not put to a Chinese-language interface until that has been reviewed
+  // (the switch in Settings stays, and says where the numbers are kept). See docs/COMPLIANCE.md.
+  if ((await getSettings()).language === 'zh') return null;
+  let share = await getShare();
+  if (!share.eligibleAt) { await setShare({ eligibleAt: now }); share = { ...share, eligibleAt: now }; }
+  if (!goodMoment(share, now, await justFinishedSession(now))) return null;
+  return { final: share.deferrals >= ASK_TIMING.maxDeferrals, variant: (await armOf('ask-copy')) || 'long' };
 }
 
 const post = (/** @type {any} */ body) => ({ method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), credentials: /** @type {RequestCredentials} */ ('omit'), referrerPolicy: /** @type {ReferrerPolicy} */ ('no-referrer'), cache: /** @type {RequestCache} */ ('no-store') });
