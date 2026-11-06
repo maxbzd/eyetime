@@ -134,7 +134,7 @@ test('usage v2: a report with flags is valid, one without is valid too (an earli
   const u = emptyUsage(T0 - 3 * DAY); record(u, 'fl_u35', T0); record(u, 'nt_u250', T0); record(u, 'err_sync', T0);
   const withFlags = buildReport(u, { ...ctx, flags: ['dock', 'tasks_1_5'] }, T0);
   assert.deepEqual(withFlags.fl, ['dock', 'tasks_1_5']); assert.equal(validateReport(withFlags).ok, true);
-  assert.deepEqual(Object.keys(withFlags), REPORT_KEYS.filter((k) => k !== 'x'), 'the keys come in the order of REPORT_KEYS (x only while an experiment is running)');
+  assert.deepEqual(Object.keys(withFlags), REPORT_KEYS.filter((k) => k !== 'x' && k !== 'pr'), 'the keys come in the order of REPORT_KEYS (x only while an experiment is running, pr only for the Windows app)');
   const without = buildReport(u, ctx, T0); assert.ok(!('fl' in without)); assert.equal(validateReport(without).ok, true);
   for (const bad of [['dock', 'dock'], ['github.com'], 'dock', ['dock', 5], [...FLAGS, 'x']]) assert.equal(validateReport({ ...withFlags, fl: bad }).ok, false, JSON.stringify(bad));
 });

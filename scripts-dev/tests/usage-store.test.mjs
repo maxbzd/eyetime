@@ -10,7 +10,7 @@ const pick = (keys) => (keys == null ? { ...mem } : Object.fromEntries([].concat
 globalThis.chrome = { storage: { local: { get: async (k) => pick(k), set: async (o) => { Object.assign(mem, structuredClone(o)); }, clear: async () => { mem = {}; }, remove: async (k) => { for (const x of [].concat(k)) delete mem[x]; } }, onChanged: { addListener() {}, removeListener() {} } }, runtime: { getManifest: () => ({ version: '3.5.0' }) }, permissions: { remove: async () => {}, request: async () => true } };
 
 const { track, getUsage, getShare, previewReport, enableSharing, disableSharing, sendReport, declineAsk, wantsToAsk, forgetOnReset, haveEndpoint } = await import('../../src/shared/usage-store.js');
-const { validateReport, FEATURES, FLAGS, REPORT_KEYS } = await import('../../src/shared/usage-schema.js');
+const { validateReport, FEATURES, FLAGS, REPORT_KEYS, WIN_FEATURES, WIN_FLAGS } = await import('../../src/shared/usage-schema.js');
 
 const DAY = 86_400_000, T0 = new Date(2026, 10, 2, 10).getTime(), URL_ = 'https://collector.example/v1/usage';
 const fresh = () => { mem = { meta: { installedAt: T0 - 5 * DAY, schemaVersion: 3 } }; };
@@ -123,6 +123,8 @@ test('usage store: the code and the privacy page say the same thing', () => {
   const privacy = readFileSync(new URL('../../PRIVACY.md', import.meta.url), 'utf8');
   for (const f of FEATURES) assert.ok(privacy.includes('`' + f + '`'), `PRIVACY.md lists the counted feature ${f}`);
   for (const f of FLAGS) assert.ok(privacy.includes('`' + f + '`'), `PRIVACY.md lists the reportable setup flag ${f}`);
+  for (const f of WIN_FEATURES) assert.ok(privacy.includes('`' + f + '`'), `PRIVACY.md lists the Windows counter ${f}`);
+  for (const f of WIN_FLAGS) assert.ok(privacy.includes('`' + f + '`'), `PRIVACY.md lists the Windows setup flag ${f}`);
   assert.match(privacy, /Anonymous usage/);
   for (const k of REPORT_KEYS) assert.ok(privacy.includes('`' + k + '`'), `PRIVACY.md describes the report field ${k}`);
   const src = readFileSync(new URL('../../src/shared/usage-config.js', import.meta.url), 'utf8');

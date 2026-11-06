@@ -16,7 +16,7 @@ export class MemoryStore {
   async save(r, now) {
     const old = this.installs.get(r.id);
     const act = [...new Set([...(old ? old.act : []), ...r.act])].sort((a, b) => a - b).slice(-800);
-    this.installs.set(r.id, { id: r.id, first_report: old ? old.first_report : now, last_report: now, app: r.app, br: r.br, os: r.os, lang: r.lang, look: r.look, layout: r.layout, mode: r.mode, age: Math.max(r.age, old ? old.age : 0), act });
+    this.installs.set(r.id, { id: r.id, first_report: old ? old.first_report : now, last_report: now, app: r.app, br: r.br ?? 'other', os: r.os ?? 'win', lang: r.lang, look: r.look ?? '-', layout: r.layout ?? '-', mode: r.mode ?? 'auto', age: Math.max(r.age, old ? old.age : 0), act, pr: r.pr === 'win' ? 'win' : 'ext' });
     for (const [f, age] of Object.entries(r.first)) { const k = r.id + '|' + f; if (!this.firsts.has(k) || this.firsts.get(k) > age) this.firsts.set(k, age); }
     if (r.fl) { // a state: this report replaces the earlier one
       for (const k of [...this.flags.keys()]) if (k.startsWith(r.id + '|')) this.flags.delete(k);

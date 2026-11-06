@@ -4,7 +4,7 @@
 // Three kinds of person (leaves in a few days, uses it now and then, uses it every day), with the habits of each: which days, which features, what stays switched on.
 // None of this is data of anyone: it exists so that a page can be looked at, and a formula checked, before the first real report arrives.
 
-import { FEATURES, FLAGS } from '../../src/shared/usage-schema.js';
+import { FEATURES, FLAGS, WIN_FEATURES, WIN_FLAGS } from '../../src/shared/usage-schema.js';
 
 const DAY = 86_400_000, WEEK = 7 * DAY;
 
@@ -104,6 +104,29 @@ export function makeDemoSnapshot(now, { installs: count = 520, seed = 11 } = {})
   for (let k = 59; k >= 0; k--) for (const [reason, w] of reasons) { const n = Math.floor(r() * (w / 2)); if (n) out.uninstalls.push({ day: iso(today - k), reason, n }); }
   const activeIn = (/** @type {number} */ d) => out.installs.filter((i) => { const d0 = Math.floor(i.last_report / DAY) - i.age; return i.act.some((/** @type {number} */ a) => d0 + a >= d - 6 && d0 + a <= d); }).length;
   for (const k of [28, 14, 7]) out.store_stats.push({ day: iso(today - k), users: Math.round(activeIn(today - k) * (3.1 + r() * 0.6)), installs: 40 + Math.floor(r() * 30), uninstalls: 10 + Math.floor(r() * 20) });
-  for (const f of out.weeks) if (!FEATURES.includes(f.feature)) throw new Error('demo data: unknown feature ' + f.feature);
+  // the Windows app: a small, committed population (people who paid or chose to install it are fewer), with its own counters
+  const weekNow = Math.floor(now / WEEK);
+  for (let n = 0; n < Math.round(count / 6); n++) {
+    const id = hex(r), installAgo = Math.floor(Math.pow(r(), 1.3) * 70), day0 = today - installAgo, kind = r() < 0.3 ? 'leaves' : r() < 0.4 ? 'casual' : 'daily';
+    const act = [0];
+    for (let d = 1; d <= installAgo; d++) { const p = kind === 'leaves' ? 0.4 * Math.exp(-d / 1.5) : kind === 'casual' ? 0.12 + 0.3 * Math.exp(-d / 15) : 0.35 + 0.5 * Math.exp(-d / 90); if (r() < Math.max(0.03, Math.min(0.95, p))) act.push(d); }
+    const lastReport = (day0 + Math.min(installAgo, act[act.length - 1] + Math.floor(r() * 5))) * DAY + Math.floor(r() * DAY * 0.9);
+    if (lastReport > now) continue;
+    const age = Math.floor(lastReport / DAY) - day0;
+    out.installs.push({ id, pr: 'win', first_report: Math.min(lastReport, (day0 + 1) * DAY + Math.floor(r() * DAY)), last_report: lastReport, app: weighted(r, [['0.2.1', 75], ['0.2.0', 20], ['0.1.4', 5]]), br: 'other', os: 'win', lang: weighted(r, [['ru', 52], ['en', 30], ['uk', 8], ['de', 4], ['es', 3], ['pl', 3]]), look: '-', layout: '-', mode: 'auto', age, act: act.filter((a) => a <= age) });
+    const intense = kind === 'daily' ? 1 : kind === 'casual' ? 0.4 : 0.15;
+    const put = (/** @type {string} */ f, /** @type {number} */ perWeek, /** @type {number} [odds] */ odds = 1) => { if (r() > odds) return; out.firsts.push({ id, feature: f, age: Math.min(age, Math.floor(-Math.log(1 - r() * 0.98) * (kind === 'leaves' ? 1 : 4))) }); for (let w = 0; w < 13; w++) { if (weekNow - w < Math.floor((day0 * DAY) / WEEK)) break; const k = Math.max(0, Math.round(perWeek * intense * (0.6 + r() * 0.8))); if (k) out.weeks.push({ id, week: weekNow - w, feature: f, n: k }); } };
+    put('ui_open', 6, 1); put('svc_start', 1.2, 1); put('blk_rule', 22, 0.9); put('blk_session', 9, 0.5); put('blk_limit', 5, 0.35); put('blk_cool', 2, 0.15);
+    put('ch_shown', 3, 0.6); put('ch_done', 1.4, 0.55); put('ch_wrong', 0.3, 0.2); put('ch_expired', 1.2, 0.4);
+    put('ch_hold', 1, 0.3); put('ch_wait', 1.2, 0.3); put('ch_type', 0.8, 0.2); put('ch_math', 0.6, 0.15); put('ch_pin', 0.5, 0.15); put('ch_friend', 0.15, 0.04);
+    put('ch_for_end', 0.9, 0.4); put('ch_for_break', 1.1, 0.4); put('ch_for_unblock', 0.8, 0.3); put('ch_for_edit', 0.6, 0.3); put('ch_for_emergency', 0.05, 0.03);
+    put('ses_start', 4, 0.65); put('ses_done', 3, 0.55); put('ses_stop', 1, 0.3);
+    put('svc_crash', 0.05, 0.06); put('upd_found', 0.4, 0.5); put('upd_applied', 0.35, 0.45); put('upd_failed', 0.05, 0.06);
+    const flagOdds = { pin: 0.55, partner_pin: 0.08, auto_update: 0.7, browser_ext: 0.62, locked_rules: 0.3, limits: 0.35, schedule: 0.3, sessions_used: 0.65, strict: 0.12 };
+    for (const [f, o] of Object.entries(flagOdds)) if (r() < o) out.flags.push({ id, flag: f });
+    out.flags.push({ id, flag: r() < 0.35 ? 'w10' : 'w11' });
+  }
+  for (const f of out.weeks) if (!FEATURES.includes(f.feature) && !WIN_FEATURES.includes(f.feature)) throw new Error('demo data: unknown feature ' + f.feature);
+  for (const f of out.flags) if (!FLAGS.includes(f.flag) && !WIN_FLAGS.includes(f.flag)) throw new Error('demo data: unknown flag ' + f.flag);
   return out;
 }
