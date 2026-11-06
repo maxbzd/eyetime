@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The screen-time tracker of the service worker, against a pretend browser: what is credited to which site, and when nothing is.
 import test, { mock, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';

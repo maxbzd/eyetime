@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Which layout of Home is on: checked every few seconds and when a focus session starts or ends.
 
 import { wantedLayout, activeLayoutId, editingLayoutId } from '../home-config.js';

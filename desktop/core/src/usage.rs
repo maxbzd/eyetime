@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! How long each program or site was in front, today, this hour, this week. This is what the limits are measured against, and what the
 //! Insights screen shows. Everything stays on this computer.
 

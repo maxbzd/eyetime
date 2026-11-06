@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // "Plan my day" dialog: proposes focus blocks for the open priorities; one confirmation schedules a reminder for each.
 
 import { h, icon, toast } from '../ui/dom.js';

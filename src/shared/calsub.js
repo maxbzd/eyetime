@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Calendar subscription by link: the address Google / Outlook / iCloud call "secret address in iCal format".
 // Pure helpers only; the download itself lives in background/calendar.js.
 

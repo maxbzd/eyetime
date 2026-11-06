@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Moss — a forest floor. Contour lines that breathe, light through leaves, fireflies after dark; a little plant that grows with your day.
 
 import { text, ellipse, group, full, grad, radial, customWidget } from '../kit.js';

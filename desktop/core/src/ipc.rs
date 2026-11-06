@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! What the window, the browser extension and the helper say to each other. One JSON object per line over a named pipe.
 //! The window may ask for anything; the helper decides what it gets.
 

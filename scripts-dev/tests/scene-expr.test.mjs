@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compile, compileTemplate, parse, LIMITS, FUNCTION_NAMES } from '../../src/shared/scene/expr.js';

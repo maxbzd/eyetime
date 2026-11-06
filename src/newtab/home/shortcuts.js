@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Single-key shortcuts of Home (ignored while typing): the new tab is where work starts, so it should be drivable from the keyboard.
 
 import { $, h } from '../../ui/dom.js';

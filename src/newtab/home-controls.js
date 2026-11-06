@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The controls that shape the look of Home, shared by the customize drawer and the arrangement editor:
 // the scene (background, photo, cut-out), depth, the look and accent, the clock format and the greeting.
 // Each builder takes the settings it draws (`n` = the Home settings in effect) and `set(fn)`, which changes them (fn gets `{ ...settings, newtab }`).

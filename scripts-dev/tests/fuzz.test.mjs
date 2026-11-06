@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // What a person can paste or import — a calendar file, a list of tasks, a theme file, a sentence — must never make a parser throw, hang or return something
 // that breaks its own promises, whatever the bytes are. Each case starts from a realistic sample and damages it at random (a seeded generator, so a failure repeats:
 // the seed is in the message).

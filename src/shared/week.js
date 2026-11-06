@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Weekly outcomes: up to three results that would make the week a success (weekly planning is one of the better-supported habits).
 // Stored as { week: 'YYYY-MM-DD' (the Monday), items: [{ id, text, done }] }; a new week starts empty.
 

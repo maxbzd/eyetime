@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Sites that are in no list: what the on-device language model is asked, how its answer is read, and how the guesses are kept (pure, so it can be tested).
 // Only the address (host) and the title of an open tab go to the model, which runs inside the browser (Chrome's built-in Gemini Nano); the page itself is never read.
 // A guess is used for reports only (Insights, the day's totals): it never blocks anything and a person's own choice always wins.

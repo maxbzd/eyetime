@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // "Time to focus" reminders: one alarm for the soonest scheduled slot, re-armed after it fires.
 
 import { getSettings, getRaw, getCollection } from '../shared/storage.js';

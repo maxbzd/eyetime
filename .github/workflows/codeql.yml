@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: FSL-1.1-ALv2
+# Copyright 2026 maxbzd
 name: CodeQL
 # GitHub's code scanning for the three languages of the project. Results appear under Security → Code scanning.
 on:

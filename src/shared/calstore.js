@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Calendar data on this device: up to three subscriptions (secret links) plus an optional imported file, merged into what the rest of
 // EyeTime reads — `calendar` (timed events) and `calendarDays` (all-day events). The sources are kept apart in `calendarSrc`, so one
 // calendar failing or being removed never touches the others.

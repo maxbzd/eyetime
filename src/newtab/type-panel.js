@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The type designer panel of the Home editor: faces as live samples, weight and spacing, fills (solid / gradient / outline), glow and shadow,
 // seconds. It edits the clock or the greeting + date, shows the result on the real page at once and saves a moment after the last change.
 

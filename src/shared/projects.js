@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // "Where did my focus go?": focus time per project. A project is the first #tag of the task a session was started for (or a #tag in the goal text).
 // Pure and unit-tested; Insights only draws the rows.
 

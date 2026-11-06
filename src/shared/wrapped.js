@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Numbers behind the weekly "My week" card (pure, so tests and the canvas agree).
 
 /** Everything the card says, derived once. `cur`: [[dayKey, day]] for the period; `sum`/`prev`: summarize() results. */

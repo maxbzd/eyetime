@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Connections to other services (Todoist, Notion, CalDAV calendars, Google, Microsoft): what is kept on this device and how it is read and written.
 //
 //   conns        { [id]: { id, provider, label, tasks, calendar, deletes, options, status } }   — nothing secret, shown in Settings

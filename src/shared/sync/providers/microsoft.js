@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Microsoft (Outlook, Microsoft 365, Outlook.com): Calendar (busy times in, planned focus blocks out) and To Do (a task list), through Microsoft Graph and the person's own sign-in.
 // Needs the OAuth client of EyeTime (oauth-config.js, docs/CONNECTIONS.md); without it this connection says it is not available in this build.
 //

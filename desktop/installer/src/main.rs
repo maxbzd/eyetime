@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! eyetime-setup.exe: the installer and, with --uninstall, the uninstaller. One window, one animation, a few honest steps.
 //! It needs administrator rights (it installs a Windows service) and asks for them once, when it starts.
 

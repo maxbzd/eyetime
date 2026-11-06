@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // What each page and the worker load at start, counted from the code itself (no browser, so the numbers are the same on every machine): the
 // modules reachable through static imports from the scripts of the page. A page that quietly starts to pull in a megabyte fails here, in seconds,
 // instead of showing up as a slower new tab. Dynamic `import()` (loaded when needed) is not counted: that is how a heavy part is made lazy.

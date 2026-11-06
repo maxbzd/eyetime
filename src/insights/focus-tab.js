@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Insights → Focus: how the focus sessions went — goal, quality, best hours, weekdays, sessions, tasks, temptations, wins.
 // Every block is its own card; blocks without data say what they need instead of disappearing.
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Meetings from the imported / subscribed calendars: a heads-up when a running focus session would run into one, and an optional quiet
 // mode (no eye-break notices, no chimes) while a meeting is on. Driven by the 30-second `tick` alarm; nothing is kept in memory.
 

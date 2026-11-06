@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The skin of a card on Home: how the card itself looks (glass, liquid glass, solid, outline, bare, neon, paper, tint), separate from what it shows.
 // One skin for every card of Home (the theme's "DNA", newtab.dna) and an optional own skin per widget. Pure: a validated skin → the CSS variables to set.
 // Cards already take their look from variables (--card-bg, --card-border, --card-shadow, --card-blur, --r-lg …), so a skin only has to set those (and the text tokens).

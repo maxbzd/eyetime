@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: FSL-1.1-ALv2
+# Copyright 2026 maxbzd
 name: Nightly
 # The browser changes under the extension every four weeks, and a beta or canary shows what will break before the people who use the stable one see it.
 # Every night (and by hand) the main end-to-end suites run on Chrome for Testing: stable, beta, dev and canary. (Branded Chrome 137 and later no longer loads an unpacked

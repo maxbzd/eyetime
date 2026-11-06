@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Focus-session helpers (pure).
 
 export const MIN_MINUTES = 1;

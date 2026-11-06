@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 import { bootPage } from '../ui/page.js';
 import { addCapture } from '../shared/productivity.js';
 import { $, h, icon, favicon, clear, toast } from '../ui/dom.js';

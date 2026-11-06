@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The wallpaper of the moments (pause page, eye break, onboarding): the same photo of the day as the new tab, behind a soft veil.
 // Only in the Calm look (the others keep their own colour); `body.has-wall` switches the page to white-on-photo (see wall.css).
 

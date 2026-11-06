@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The dock panel (an iframe inside web pages, see src/content/dock.js): Now (focus + today's tasks), Learn (topics and links) and Thoughts.
 import { bootPage } from '../ui/page.js';
 import { $, h, icon, favicon, clear, toast, confirmDialog } from '../ui/dom.js';

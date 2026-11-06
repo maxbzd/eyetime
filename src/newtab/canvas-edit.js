@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The Home arrangement editor: frames over every block to drag and resize, snapping guides, a keyboard way to do the same,
 // undo / redo, a tray of blocks that are not on the screen and a reset. Loaded only when the user opens it.
 

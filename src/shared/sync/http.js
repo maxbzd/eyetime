@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The one way the connections talk to the network: a request with a time limit, no cookies, no referrer, and every failure turned into a SyncError the runner understands
 // (sign-in refused → 'auth', too many requests → 'rate' with the wait, unreachable → 'network', anything else → 'other').
 

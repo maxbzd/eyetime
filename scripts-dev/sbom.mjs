@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // A software bill of materials (CycloneDX 1.5, JSON) for what the extension package ships: the extension itself and every third-party thing inside it, with its licence,
 // and the SHA-256 of the packages. Released next to them (release.yml) so that anyone can see what is in the zip without unpacking it.
 //   node scripts-dev/sbom.mjs [dist-folder]      writes <dist>/eyetime-sbom.cdx.json
@@ -36,7 +38,7 @@ for (const z of ['eyetime-chrome.zip', 'eyetime-firefox.zip']) { const f = path.
 
 const bom = {
   bomFormat: 'CycloneDX', specVersion: '1.5', version: 1,
-  metadata: { component: { type: 'application', name: 'EyeTime', version: manifest.version, licenses: [lic('MIT')], supplier: { name: 'EyeTime contributors', url: ['https://github.com/maxbzd/eyetime'] } },
+  metadata: { component: { type: 'application', name: 'EyeTime', version: manifest.version, licenses: [lic('FSL-1.1-ALv2')], supplier: { name: 'EyeTime contributors', url: ['https://github.com/maxbzd/eyetime'] } },
     properties: [{ name: 'runtime-dependencies', value: 'none: everything that runs is code in this repository plus the third-party files below' }, { name: 'build-tools', value: 'esbuild (bundles and minifies); fixed versions in package-lock.json' }] },
   components: [...components, ...packages],
 };

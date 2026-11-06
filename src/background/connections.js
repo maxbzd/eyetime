@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The worker side of "Connected services": every fifteen minutes (and shortly after the tasks change) each connection is synchronised, one after another.
 // Tasks go through shared/sync/run.js `syncTasks`; a calendar brings its busy times in and puts planned focus blocks out (`syncBlocks`).
 // A failure is written into the connection's status (shown in Settings); a refused sign-in pauses it until the person signs in again; a service that asks to slow down is left alone for that long.

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mergeTasks, packTasks, unpackTasks, stable, sameTasks, samePayload, syncable, T_CHUNK_CHARS, T_MAX_BYTES, staleTaskKeys } from '../../src/shared/tasksync.js';

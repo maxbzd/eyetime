@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // "What's new" card: shown once after an update that changes the minor (or major) version — never after a patch fix, never on first install.
 
 const parts = (v) => { const [a, b] = String(v || '').split('.').map((x) => parseInt(x, 10)); return [a || 0, b || 0]; };

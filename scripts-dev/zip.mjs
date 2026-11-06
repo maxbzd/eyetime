@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // A zip writer that makes the same bytes from the same files, on every machine and every day: entries in a fixed order, a fixed time stamp, a fixed compression level,
 // no extra fields (no owner, no local time zone, no access times). That is what lets anyone rebuild a release from the source and compare the hash with the published one.
 //   writeZip('out.zip', [{ name: 'a/b.txt', data: Buffer }, ...])

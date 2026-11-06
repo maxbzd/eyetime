@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Layouts of Home end to end: make one in the editor, see it switch on during a focus session and at certain hours, pin it, keep the default untouched,
 // delete it; save the look as a theme file and load it back (a hostile file is refused).
 //   node scripts-dev/e2e/layouts.cjs

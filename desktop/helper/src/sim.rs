@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! A pretend computer, for the tests and for the simulator that the screens are tried against on any machine.
 
 use crate::os::{Os, Proc};

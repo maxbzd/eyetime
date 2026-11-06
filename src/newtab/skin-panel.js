@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The controls of a card's skin: a row of ready styles first (one tap), then a colour, and the sliders folded away under "Fine-tune".
 // Used for the theme's cards (Look panel) and for one widget (its own settings), where the first tile is "Same as the theme".
 

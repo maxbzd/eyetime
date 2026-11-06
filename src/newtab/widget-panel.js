@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The widget panels of the Home editor: the gallery (pick a widget to add) and the settings of one widget.
 
 import { h, icon } from '../ui/dom.js';

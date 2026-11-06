@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Regenerates store/screenshots/*.png with realistic demo data:  node scripts-dev/e2e/screenshots.cjs
 // (6-onboarding.png, the dock and the demo video are made by their own scripts.) Requires Playwright + Chromium like the e2e run.
 const { launch } = require('./lib.cjs');

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! eyetime-helper.exe
 //!   --service      run as the Windows service (the service manager starts it this way)
 //!   --console      run in the foreground, for trying things out

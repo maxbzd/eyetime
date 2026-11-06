@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // A small CalDAV server for the adapter's tests: discovery (principal → home → collections), calendar-query, PUT / DELETE with ETags, Basic sign-in.
 export function mockCaldav({ user = 'me@example.com', pass = 'abcd-efgh-ijkl-mnop', host = 'caldav.test' } = {}) {
   const state = { res: new Map(), seq: 0, calls: [], tick: 1 };

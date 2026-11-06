@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Shared appearance controls: look cards with live miniature previews, accent picker, scheme helpers.
 // Used by Settings → Appearance and by the Home "Customize" drawer.
 

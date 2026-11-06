@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // What "plan my day" knows: the person's best hours, how long things really take them, the calendar, the working hours.
 // Read once, then `proposeBlocks` turns a set of tasks into focus blocks at sensible times (shared/dayplan.js does the placing).
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Natural quick-add for tasks: "Write the report 14:30 45m !" → { text, at, est, priority, tags }.
 // Conservative on purpose: only well-formed tokens are taken out of the text, everything else stays part of the title.
 

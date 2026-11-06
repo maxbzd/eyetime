@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Settings → Data & privacy → Connected services: Todoist, Notion, Google, Microsoft and CalDAV (iCloud, Fastmail, Nextcloud…) kept in step with the tasks and the calendar here.
 // This file is only the screen: what is kept lives in shared/connections.js, the conversation with each service in shared/sync/, the schedule in background/connections.js.
 // A browser asks for permission only on a click, so the permission request is always the first thing a click does.

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: FSL-1.1-ALv2
+# Copyright 2026 maxbzd
 # Cloudflare Worker for the optional usage report. Nothing here is deployed by this repository: see README.md.
 name = "eyetime-usage"
 main = "worker.js"

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 /* The bridge between the screens and the helper (the Windows service that really closes things).
    In a plain browser (the design prototype) this file does nothing and the screens run on demo data.
    Inside the app: the helper owns the setup, the session and every way out; the screens ask and show. */

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The background photo in 3D, drawn with WebGL from the photo and its depth map (depth-make.js): as the pointer moves, near parts slide more than far ones.
 // For every pixel the shader looks for where that pixel would be seen from the shifted viewpoint (a few rounds of "which depth is there, so where do I look"),
 // which keeps edges sharp and needs no mesh. A second canvas draws only the nearest part (a depth threshold) in front of the clock, if the person wants that.

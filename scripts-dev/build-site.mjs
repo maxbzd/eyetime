@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Prepares site/assets (screenshots + logo) and regenerates the body of site/privacy.html from PRIVACY.md,
 // so the published policy can never drift from the repository. Run by the Pages workflow; also handy locally.
 import fs from 'node:fs';

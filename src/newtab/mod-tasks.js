@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Home module: tasks — quick add (dates, times, lengths, tags, repeats), priorities, the week strip and "Plan my day".
 
 import { h, icon, toast, clear } from '../ui/dom.js';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Home module: quick links.
 
 import { h, icon, favicon, clear } from '../ui/dom.js';

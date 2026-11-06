@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! The hosts file: one managed block, nothing else touched. Every name is checked before it is written,
 //! so that nothing a person types in a list can ever become a line of its own.
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Settings sync via chrome.storage.sync: browsers cap one item at 8 KB, so the settings JSON is split into small chunks.
 // Pure functions only — the worker does the I/O (src/background/sync.js). With a sync passphrase the payload is sealed (shared/syncseal.js) before it is chunked.
 

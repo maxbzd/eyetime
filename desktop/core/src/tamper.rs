@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! Things people do to get around a block, and what to make of them: moving the clock, editing the settings while locked.
 
 use crate::model::{Item, Limit, Rule, State};

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // What a scene can know about the day: the slow values (focus, goal, tasks, streak …) read from storage and kept fresh, the clock, the mouse.
 // Everything is read-only; a scene never sees more than the names in shared/scene/schema.js BINDINGS.
 

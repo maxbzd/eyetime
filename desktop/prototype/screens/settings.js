@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 /* Settings, plus the three things that live outside any screen: the welcome tour, the "blocked" screen and the small tray widget. */
 (() => {
   const ET = window.ET, { $, $$, clamp, wait, reduced, toast, store } = ET;

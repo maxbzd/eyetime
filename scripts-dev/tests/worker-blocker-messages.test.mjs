@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // What the worker does when a site is opened (the pause or block page, the "continue" passes, the count of temptations), and who may talk to it.
 import test, { mock, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';

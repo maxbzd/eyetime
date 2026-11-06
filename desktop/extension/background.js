@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // EyeTime Bridge. Tells the EyeTime app which page is in front, asks what is closed, and closes pages that are.
 // It never decides anything: the service on this computer does. If the app is not there, nothing is closed.
 import { hostOf, verdict } from './rules.js';

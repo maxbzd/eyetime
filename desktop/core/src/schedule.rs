@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! When is a scheduled rule running, and when does it start next.
 
 use crate::model::{Now, Rule};

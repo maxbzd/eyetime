@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Short quotes for Home, the pause page, the break screen and the start of a focus session.
 // Every language has its OWN version of each quote (not a word-for-word translation): the wording is how that language says it, with the usual
 // published rendering where there is one. Authors are written the way each language writes their name. Sources are listed in docs/QUOTES.md.

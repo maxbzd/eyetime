@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Plays the two soft sounds (session start / end, synthesised) and the ambient focus sound. Lives in an offscreen document
 // because service workers have no Web Audio.
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! The agent: a tiny program in the person's own session. The service cannot see windows (it lives in session 0),
 //! so the agent looks at the screen and reports, and does the few things that only work from inside the session.
 

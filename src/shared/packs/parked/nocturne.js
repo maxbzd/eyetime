@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Nocturne — a night sky over quiet hills. A moon with a halo, three layers of stars, a shooting star now and then; a pale day sky with clouds in light looks.
 
 import { text, rect, ellipse, group, full, grad, radial, customWidget } from '../kit.js';

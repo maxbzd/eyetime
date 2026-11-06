@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // A tiny local error log (last 20 entries, in storage). Nothing is ever sent anywhere: it only feeds the diagnostic report
 // that the person can read, copy and attach to a bug report themselves (Settings → About).
 
