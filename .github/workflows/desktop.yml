@@ -42,7 +42,8 @@ jobs:
       - name: The screens against the real logic
         run: |
           cargo build -p eyetime-helper --bin eyetime-sim
-          (./target/debug/eyetime-sim prototype 8131 &) ; sleep 1
+          (./target/debug/eyetime-sim prototype 8131 &)
+          for i in $(seq 1 50); do (echo > /dev/tcp/127.0.0.1/8131) 2>/dev/null && break; sleep 0.2; done  # until it answers, not a guess of one second
           npm i --no-save playwright@1.56.1 axe-core@4.14.0 && npx playwright install --with-deps chromium
           node tests/e2e_real.cjs
           node tests/xss_real.cjs
@@ -51,7 +52,9 @@ jobs:
         run: |
           node --test tests/extension_rules.test.mjs
           pkill -f eyetime-sim || true
-          (./target/debug/eyetime-sim prototype 8131 &) ; sleep 1
+          for i in $(seq 1 50); do (echo > /dev/tcp/127.0.0.1/8131) 2>/dev/null || break; sleep 0.2; done   # the old one has let go of the port
+          (./target/debug/eyetime-sim prototype 8131 &)
+          for i in $(seq 1 50); do (echo > /dev/tcp/127.0.0.1/8131) 2>/dev/null && break; sleep 0.2; done  # and the new one answers
           node tests/ext_e2e.cjs
 
   # The real thing, built on Windows: the helper (service), the window (Tauri), and the installer with both inside.
