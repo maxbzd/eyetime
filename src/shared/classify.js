@@ -18,6 +18,11 @@ function candidates(settings, guess) {
   return out;
 }
 
+/** Every domain that a list or a personal choice mentions (the on-device model's guesses do not count): what a network-level rule set is built from. */
+export function listedDomains(settings) {
+  return [...new Set(candidates(settings, undefined).map((r) => r.domain))];
+}
+
 /** Builds a fast classifier for the current settings (and, for reports, the saved guesses). Rebuild it when settings change. */
 export function makeClassifier(settings, guess = undefined) {
   const rules = candidates(settings, guess);

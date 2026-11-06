@@ -12,12 +12,15 @@ import { dayKey } from '../shared/time.js';
 import { usageOf } from '../shared/policy.js';
 
 const params = new URLSearchParams(location.search);
+// Sent here by the browser's own rule (instant blocking): the address of the page is everything after `&u=`, as it was typed (not encoded), with its #fragment in the hash
+const viaRule = params.get('d') === '1';
+const rawTarget = viaRule ? location.search.slice(location.search.indexOf('&u=') + 3) + location.hash : params.get('u');
 
 /** Only ever navigate back to a plain http(s) URL. */
 function safeTarget(raw) {
   try { const u = new URL(raw); return u.protocol === 'http:' || u.protocol === 'https:' ? u.href : null; } catch { return null; }
 }
-const target = safeTarget(params.get('u'));
+const target = safeTarget(rawTarget);
 const host = target ? new URL(target).hostname.replace(/^www\./, '') : '';
 
 let decision = null, settings = null, timers = [];
@@ -28,7 +31,18 @@ function goBack() {
   else location.href = chrome.runtime.getURL('src/newtab/newtab.html');
 }
 
-function release() { if (target) location.replace(target); }
+/** Back to the site. When a rule sent us here, the rules are brought up to date first (a rule that is out of date would send the page straight back here), and a loop is cut. */
+async function release() {
+  if (!target) return;
+  if (viaRule) {
+    let stamps = [];
+    try { stamps = JSON.parse(sessionStorage.getItem('et-rel') || '[]').filter((at) => Date.now() - at < 5000); } catch { /* no storage */ }
+    stamps.push(Date.now());
+    try { sessionStorage.setItem('et-rel', JSON.stringify(stamps)); } catch { /* no storage */ }
+    await send(stamps.length >= 3 ? 'instant:drop' : 'instant:sync').catch(() => {}); // the third time within five seconds is a loop: no rules at all
+  }
+  location.replace(target);
+}
 
 async function check() {
   if (!target) return null;

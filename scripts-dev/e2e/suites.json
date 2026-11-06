@@ -11,6 +11,7 @@
     {"id": "a11y-3", "file": "a11y.cjs", "args": ["--strict"], "env": {"PART": "3/3"}, "weight": 125},
     {"id": "keyboard", "file": "keyboard.cjs", "weight": 42},
     {"id": "blocking", "file": "blocking.cjs", "weight": 37},
+    {"id": "instant", "file": "instant.cjs", "weight": 30},
     {"id": "calendar", "file": "calendar.cjs", "weight": 8},
     {"id": "storage", "file": "storage.cjs", "weight": 11},
     {"id": "dock", "file": "dock.cjs", "weight": 19},

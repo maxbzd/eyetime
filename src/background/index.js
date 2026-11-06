@@ -27,6 +27,7 @@ import './companion.js';
 import { buildMenus } from './menus.js';
 import { armUsage, onUsageAlarm } from './usage.js';
 import { armConnections, onConnectionsAlarm, watchTasks } from './connections.js';
+import { syncInstant } from './instant.js';
 
 captureErrors('worker');
 
@@ -51,7 +52,7 @@ async function boot() {
   // started and not waited for (the worker is ready as soon as the state is consistent), but never left to fail unseen: a rejection here would be an
   // "Uncaught (in promise)" on the extensions page and nothing in our own error log
   /** @type {Record<string, () => Promise<unknown>>} */
-  const tasks = { syncNow: () => syncNow(), syncTasksNow: () => syncTasksNow(), syncDock: () => syncDock(), rolloverTasks: () => rolloverTasks(), armCalendar: () => armCalendar({ refresh: true }), armUsage: () => armUsage(), armConnections: () => armConnections() };
+  const tasks = { syncNow: () => syncNow(), syncTasksNow: () => syncTasksNow(), syncDock: () => syncDock(), rolloverTasks: () => rolloverTasks(), armCalendar: () => armCalendar({ refresh: true }), armUsage: () => armUsage(), armConnections: () => armConnections(), syncInstant: () => syncInstant() };
   for (const [name, task] of Object.entries(tasks)) Promise.resolve().then(task).catch((e) => logError('boot:' + name, e));
   return migrated;
 }

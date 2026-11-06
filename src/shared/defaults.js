@@ -53,6 +53,7 @@ export const DEFAULT_SETTINGS = {
     budget: { enabled: false, minutes: 30 }, // a daily allowance for ALL distracting sites together; when it is used up they are closed (with a pass)
     plans: [],                 // if-then plans shown on the pause page: [{ id, when: 'domain' | '', then: 'text' }] – implementation intentions
     friction: { enabled: true, seconds: 8, passMinutes: 10 }, // breathing pause before distracting sites
+    instant: false,            // the browser itself sends a distracting tab to the pause page (declarativeNetRequest) so that not even one request reaches the site; needs access to websites, asked for when it is switched on
     schedule: { enabled: false, days: [1, 2, 3, 4, 5], start: '09:00', end: '18:00', strict: false, passMinutes: 5 },
     feed: { shortLimit: true, shortMinutes: 3, hideShorts: false, hideRecs: false, hideComments: false, hideHome: false },
   },
