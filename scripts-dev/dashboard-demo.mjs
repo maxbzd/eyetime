@@ -40,12 +40,13 @@ if (artifact) {
   html = html.replace(/<!doctype html>\s*/i, '').replace(/<html[^>]*>\s*/i, '').replace(/<\/html>\s*/i, '').replace(/<head>\s*/i, '').replace(/<\/head>\s*/i, '').replace(/<body>\s*/i, '').replace(/<\/body>\s*/i, '');
   html = html.replace(/<meta charset="utf-8">\s*/i, '').replace(/<meta name="viewport"[^>]*>\s*/i, '').replace(/<meta name="robots"[^>]*>\s*/i, '').replace(/<meta name="color-scheme"[^>]*>\s*/i, '');
   html = html.replace(/<title>[^<]*<\/title>/, '<title>EyeTime Dashboard</title>\n<meta name="claude:viewport-fit-sides" content="cover">');
-  html = html.replace('.wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px 64px; }', '.wrap { max-width: 1120px; margin: 0 auto; padding-block: 0 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }');
-  html = html.replace('.top .in { max-width: 1120px; margin: 0 auto; padding: 10px 16px;', '.top .in { max-width: 1120px; margin: 0 auto; padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));');
-  html = html.replace('nav.toc { max-width: 1120px; margin: 0 auto; padding: 0 16px 8px;', 'nav.toc { max-width: 1120px; margin: 0 auto; padding-block: 0 8px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));');
-  html = html.replace('header.top { position: sticky; top: 0; z-index: 5;', 'header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;');
-  html = html.replace('html { background: var(--page); }', 'html { background: var(--page); }\nbody::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--page); }');
-  html = html.replace('body { margin: 0; background: var(--page);', 'body { margin: 0; min-height: 100vh; background: var(--page);');
+  const gutter = 'padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));';
+  swap('.wrap { max-width: 1240px; margin: 0 auto; padding: 0 16px 64px; }', `.wrap { max-width: 1240px; margin: 0 auto; padding-block: 0 64px; ${gutter} }`);
+  swap('.top .in { max-width: 1240px; margin: 0 auto; padding: 10px 16px;', `.top .in { max-width: 1240px; margin: 0 auto; padding-block: 10px; ${gutter}`);
+  swap('padding: 4px 16px; position: sticky; top: 52px; z-index: 5; background: var(--page); border-bottom: 1px solid var(--grid); margin: 0 -16px; }', 'padding: 4px 0; position: sticky; top: calc(52px + env(safe-area-inset-top, 0px)); z-index: 5; background: var(--page); border-bottom: 1px solid var(--grid); }');
+  swap('header.top { position: sticky; top: 0; z-index: 6;', 'header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6;');
+  swap('html { background: var(--page); }', 'html { background: var(--page); }\nbody::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--page); }');
+  swap('body { margin: 0; background: var(--page);', 'body { margin: 0; min-height: 100vh; background: var(--page);');
 }
 writeFileSync(out, html);
 console.log(`${out}: ${(html.length / 1024).toFixed(0)} KB`);

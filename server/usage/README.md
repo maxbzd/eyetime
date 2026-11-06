@@ -50,7 +50,7 @@ and release. Until that line is filled, no build can send anything and the setti
 Open `https://eyetime-usage.<you>.workers.dev/` and enter the key. (A bookmark `…/#t=<key>` signs in at once and removes the key from the address bar; the key is kept in that tab only and goes only to this address.)
 
 - Without `DASH_TOKEN` (or with one shorter than 16 characters) the numbers do not exist: `GET /v1/stats` answers 404. A wrong key is 401 and the comparison is constant-time. The page itself holds no data and is served with a strict policy (`default-src 'none'`, own origin only, no framing, no referrer).
-- `GET /v1/stats?days=28`, `?range=all`, `?from=2026-10-01&to=2026-10-31` answer for a period (a malformed one is a 400, never silently another period); the dashboard's period bar uses these.
+- `GET /v1/stats?days=28`, `?range=all`, `?from=2026-10-01&to=2026-10-31` answer for a period, and `&br=chrome&lang=ru` (also `app`, `os`, `look`, `layout`, `mode`) narrow it to a segment (a malformed one is a 400, never silently another period); the dashboard's period bar and filters use these.
 - **Public statistics** (optional): `npx wrangler secret put PUBLIC_STATS` with the value `1` (or `[vars] PUBLIC_STATS = "1"` in `wrangler.toml`) turns on `GET /v1/public-stats` for anyone (cached five minutes, CORS open): totals over at least 50 installs only. `…/?public` shows them with the same page.
 - Rotating the key: `wrangler secret put DASH_TOKEN` again; the old one stops working at once.
 - Try the page with made-up people, before any real report: `node scripts-dev/dashboard-preview.mjs`, then open `http://127.0.0.1:8787/?demo`.
