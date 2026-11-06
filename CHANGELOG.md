@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased — Lighter, stricter, easier to trust
+
+### Faster to open
+- **One language per page.** The translations are read as data, and only the language in use: the popup now reads 363 KB of script at start instead of 1 387 KB, the new tab 804 KB instead of 1 828 KB, and the background worker no longer loads eleven languages every time it wakes. (`src/shared/locales/data/*.json` are written from the `.js` files by `npm run locales`; `npm run check` fails if they are out of date.)
+- A test now counts what each page and the worker load at start, and fails when a page starts to carry translations as code or grows past its budget (`scripts-dev/tests/weight.test.mjs`). The load-time budgets of the browser suite were tightened from 3.5 s to 1.5 s for Home.
+
+### More exact
+- **Tracking keeps the fractions of a second.** Flicking through tabs used to drop every stay shorter than half a second; now what does not make a whole second is carried to the next one, so a day adds up to the time that really passed (`creditSeconds`, tested over thousands of random spans).
+
+### Safer
+- Messages from pages to the worker are bounded: a "continue" lasts 1 minute to 8 hours, a tracking pause up to a day, and a malformed value is refused (`src/shared/validate.js`).
+- The optional usage collector now answers only extension origins (a web page gets 403, and CORS names the extension instead of everyone), refuses an oversized body before reading it, and takes at most 1 000 new installs per hour, so a script cannot fill its database with made-up ids.
+- `SECURITY.md`: how to report a problem privately, what is in and out of scope, the threat model, what is stored unencrypted and why, and how the update signing key is rotated (or replaced if stolen).
+
+### Under the hood
+- Tools are at fixed versions (`package-lock.json`; `npm audit` finds nothing); ESLint's rules are all errors and cover the desktop screens too; the type check covers every folder of `src/` (all but the third-party engine) with five more strict flags; unit tests have a coverage floor; parsers of what people paste or import (`.ics`, XML from a calendar server, task lists, themes, dates in words) are fuzzed with damaged input.
+- CI: lint, types, coverage, `npm audit`, pinned versions of web-ext and axe-core, least-privilege tokens, CodeQL (JavaScript, Python, Rust), Dependabot.
+
 ## 3.7.0 — 2026-11-04 — The day as one story, and your other tools
 
 ### Measurement (optional, off by default)
