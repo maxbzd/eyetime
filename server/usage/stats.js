@@ -6,7 +6,7 @@
 // Every figure is a pair { k, n } (k of n installs) or a count, never a rounded-off guess: the page shows both, and greys out what rests on few installs.
 // What a figure means is written next to it below, and in docs/MEASUREMENT.md; read the numbers as the behaviour of people who agreed to share (not a census).
 
-import { FEATURES, FLAGS, UNINSTALL_REASONS } from '../../src/shared/usage-schema.js';
+import { FEATURES, FLAGS, UNINSTALL_REASONS, WIN_FEATURES, WIN_FLAGS } from '../../src/shared/usage-schema.js';
 
 const DAY = 86_400_000;
 
@@ -24,8 +24,9 @@ export const ADOPTION = Object.values(GROUPS).flat();
  * behaviour, worked out from the reports: `use` (new, once, casual, regular, power or idle, by the days active of 28), `session` (ever started a focus session: yes / no)
  * and `blocking` (keeps a schedule, limits, a budget or instant blocking switched on: yes / no / unknown).
  */
-export const DIMS = ['app', 'br', 'os', 'lang', 'look', 'layout', 'mode', 'use', 'session', 'blocking'];
+export const DIMS = ['app', 'br', 'os', 'lang', 'look', 'layout', 'mode', 'use', 'session', 'blocking', 'pr'];
 const BLOCK_FLAGS = ['schedule', 'limits', 'budget', 'instant_block'];
+const WIN_BLOCK_FLAGS = ['locked_rules', 'limits', 'schedule'];
 /** The middle of each length bucket, in minutes: a finished-session length is only known by bucket, so minutes of focus are an estimate and the page says so. */
 const LENGTH_MID = { fl_u15: 10, fl_u25: 20, fl_u35: 30, fl_u50: 42, fl_u75: 62, fl_75p: 90 };
 
@@ -101,16 +102,18 @@ const newer = (/** @type {string} */ a, /** @type {string} */ b) => { const x = 
  */
 export function computeStats(snap, now = Date.now(), { recentDays = 90, from: fromOpt, to: toOpt, all = false, compare = true, filter = {} } = {}) {
   const today = Math.floor(now / DAY);
+  filter = { pr: 'ext', ...filter }; // the numbers are of one product at a time: the extension unless the Windows app is asked for
+  const win = filter.pr === 'win';
   // what each install does, worked out once from the reports (the three behavioural dimensions of DIMS), so that a view can be narrowed to it like to a browser
   const toDay = Math.min(toOpt ?? today, today);
-  const startedIds = new Set(snap.firsts.filter((f) => f.feature === 'focus_start').map((f) => f.id)), flagged = new Set(snap.flags.map((f) => f.id)), blocks = new Set(snap.flags.filter((f) => BLOCK_FLAGS.includes(f.flag)).map((f) => f.id));
+  const startedIds = new Set(snap.firsts.filter((f) => f.feature === (filter.pr === 'win' ? 'ses_start' : 'focus_start')).map((f) => f.id)), flagged = new Set(snap.flags.map((f) => f.id)), blocks = new Set(snap.flags.filter((f) => (filter.pr === 'win' ? WIN_BLOCK_FLAGS : BLOCK_FLAGS).includes(f.flag)).map((f) => f.id));
   snap = {
     ...snap,
     installs: snap.installs.map((i) => {
       const day0 = Math.floor(i.last_report / DAY) - i.age;
       let used = 0; for (const a of i.act) { const d = day0 + a; if (d >= toDay - 34 && d <= toDay - 7) used++; }
       const use = day0 > toDay - 7 ? 'new' : used >= 15 ? 'power' : used >= 8 ? 'regular' : used >= 2 ? 'casual' : used >= 1 ? 'once' : 'idle';
-      return { ...i, use, session: startedIds.has(i.id) ? 'yes' : 'no', blocking: blocks.has(i.id) ? 'yes' : flagged.has(i.id) ? 'no' : 'unknown' };
+      return { ...i, pr: i.pr || 'ext', use, session: startedIds.has(i.id) ? 'yes' : 'no', blocking: blocks.has(i.id) ? 'yes' : flagged.has(i.id) ? 'no' : 'unknown' };
     }),
   };
   const everyone = snap.installs; // before any narrowing: the coverage of the sample is about all of them
@@ -386,7 +389,7 @@ export function computeStats(snap, now = Date.now(), { recentDays = 90, from: fr
   const targets = { values: { ...DEFAULT_TARGETS, ...custom }, custom: Object.keys(custom) };
 
   const out = {
-    v: 3, generated_at: now, window_days: days, range, low_sample: LOW_SAMPLE, filter: Object.fromEntries(narrow.map((d) => [d, filter[d]])), facets,
+    v: 3, generated_at: now, window_days: days, range, low_sample: LOW_SAMPLE, product: filter.pr, filter: Object.fromEntries(narrow.filter((d) => d !== 'pr').map((d) => [d, filter[d]])), facets,
     overview, weekly, lifecycle, engagement, weekday, northstar, trends, aha, releases, segments, coverage, notes, ingest, uninstalls, experiments, targets, activation, funnel, retention, cohorts, features, groups: GROUPS, sessions, blocking, eyes, speed, health, setup,
     prev: /** @type {ReturnType<typeof before> | null} */ (null),
     compare: /** @type {Record<string, ReturnType<typeof compareProps>> | null} */ (null),
@@ -404,7 +407,51 @@ export function computeStats(snap, now = Date.now(), { recentDays = 90, from: fr
       under250: compareProps(rate(fast, speed.opens), rate(q.counts.fast, q.counts.opens)), with_error: compareProps(health.installs_with_error, q.with_error),
     };
   }
+  if (win) return asWindows(out, winBlock({ snap, recent, made, firsts, weekFrom, weekTo, mature }));
   out.scorecard = scorecard(out);
+  return out;
+}
+
+/**
+ * The Windows app, as its own block: what it closed and why, how the challenges end, sessions, updates and crashes, what is set up. Counters are the weekly buckets of the installs
+ * seen in the period; every share is a pair { k, n } like everywhere else.
+ */
+function winBlock({ snap, recent, made, firsts, weekFrom, weekTo, mature }) {
+  const ids = new Set(recent.map((i) => i.id)), total = Object.fromEntries(WIN_FEATURES.map((f) => [f, 0])), users = Object.fromEntries(WIN_FEATURES.map((f) => [f, new Set()]));
+  for (const w of snap.weeks) if (ids.has(w.id) && w.week >= weekFrom && w.week <= weekTo && w.feature in total) { total[w.feature] += w.n; if (w.n > 0) users[w.feature].add(w.id); }
+  const cnt = (/** @type {string} */ f) => total[f] || 0, rate = (/** @type {number} */ k, /** @type {number} */ n) => (n ? Math.min(1, k / n) : null);
+  const flags = new Map(); for (const f of snap.flags) if (ids.has(f.id)) { if (!flags.has(f.id)) flags.set(f.id, new Set()); flags.get(f.id).add(f.flag); }
+  const withFlags = recent.filter((i) => flags.has(i.id));
+  const first = (/** @type {any} */ i, /** @type {string} */ f) => firsts.get(i.id)?.[f];
+  const mature7 = made.filter((i) => mature(i, 7));
+  return {
+    installs: recent.length,
+    blocks: ['blk_rule', 'blk_session', 'blk_limit', 'blk_cool'].map((id) => ({ id, k: cnt(id) })),
+    blocks_total: cnt('blk_rule') + cnt('blk_session') + cnt('blk_limit') + cnt('blk_cool'),
+    // the challenge before something is loosened: how often it is shown, how it ends, which kinds, and what for
+    challenges: {
+      shown: cnt('ch_shown'), done: cnt('ch_done'), wrong: cnt('ch_wrong'), expired: cnt('ch_expired'),
+      done_rate: rate(cnt('ch_done'), cnt('ch_shown')), give_up_rate: rate(cnt('ch_expired'), cnt('ch_shown')),
+      kinds: ['ch_hold', 'ch_wait', 'ch_type', 'ch_math', 'ch_pin', 'ch_friend'].map((id) => ({ id, k: cnt(id) })),
+      purposes: ['ch_for_end', 'ch_for_break', 'ch_for_unblock', 'ch_for_edit', 'ch_for_emergency'].map((id) => ({ id, k: cnt(id) })),
+    },
+    sessions: { started: cnt('ses_start'), finished: cnt('ses_done'), stopped: cnt('ses_stop'), finish_rate: rate(cnt('ses_done'), cnt('ses_start')), users: pair(users.ses_start.size, recent.length), first_week: pair(mature7.filter((i) => first(i, 'ses_start') <= 7).length, mature7.length) },
+    service: { starts: cnt('svc_start'), crashes: cnt('svc_crash'), crashes_per_1000: recent.length ? (1000 * cnt('svc_crash')) / recent.length : null, installs_with_crash: pair(users.svc_crash.size, recent.length), opens: cnt('ui_open') },
+    updates: { found: cnt('upd_found'), applied: cnt('upd_applied'), failed: cnt('upd_failed'), failed_rate: rate(cnt('upd_failed'), cnt('upd_found')) },
+    flags: { of: withFlags.length, items: WIN_FLAGS.map((f) => ({ id: f, k: withFlags.filter((i) => flags.get(i.id).has(f)).length })) },
+    lang: countBy(recent, (i) => i.lang),
+    versions: countBy(recent, (i) => i.app),
+  };
+}
+
+/** The answer for the Windows app: the generic parts (growth, retention, cohorts, engagement) stand; the parts that are about the extension's features are dropped, and its own block is added. */
+function asWindows(out, win) {
+  for (const k of ['funnel', 'activation', 'features', 'sessions', 'blocking', 'eyes', 'speed', 'health', 'aha', 'trends', 'segments', 'experiments', 'northstar', 'releases', 'setup', 'uninstalls', 'coverage']) out[k] = null;
+  out.groups = {};
+  out.win = win;
+  out.setup = { lang: win.lang, flags: win.flags, win: true };
+  if (out.compare) out.compare = Object.fromEntries(['d1', 'd7', 'd30'].map((k) => [k, out.compare[k]]));
+  out.scorecard = [];
   return out;
 }
 

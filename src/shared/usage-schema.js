@@ -44,6 +44,27 @@ export const EXPERIMENTS = [];
 /** Why someone removed EyeTime, as the page that opens after removal offers it. One click, no text, no identifier: a count per day on the collector. */
 export const UNINSTALL_REASONS = ['slow', 'broken', 'not_useful', 'too_strict', 'other_tool', 'temporary', 'other'];
 
+/**
+ * The Windows app is a second product with its own, smaller list of counters (a report says `pr: "win"`). Only the names below can be sent, and none of them can hold a program,
+ * a site, a path, a window title or a rule name: they count kinds of events.
+ */
+export const WIN_FEATURES = [
+  // what was closed, by the reason the engine gave (a program or a page, never which one)
+  'blk_rule', 'blk_session', 'blk_limit', 'blk_cool',
+  // the challenge shown before something is loosened, and how it ends: by kind of challenge and by what it was for
+  'ch_shown', 'ch_done', 'ch_wrong', 'ch_expired', 'ch_hold', 'ch_wait', 'ch_type', 'ch_math', 'ch_pin', 'ch_friend',
+  'ch_for_end', 'ch_for_break', 'ch_for_unblock', 'ch_for_edit', 'ch_for_emergency',
+  // focus sessions started by hand
+  'ses_start', 'ses_done', 'ses_stop',
+  // the window and the service
+  'ui_open', 'svc_start', 'svc_crash',
+  // updates
+  'upd_found', 'upd_applied', 'upd_failed',
+];
+/** What is set up in the Windows app (a state, from the list). Windows 10 or 11 is a flag too. */
+export const WIN_FLAGS = ['pin', 'partner_pin', 'auto_update', 'browser_ext', 'locked_rules', 'limits', 'schedule', 'sessions_used', 'strict', 'w10', 'w11'];
+export const PRODUCTS = ['ext', 'win'];
+
 export const BROWSERS = ['chrome', 'edge', 'firefox', 'other'];
 export const SYSTEMS = ['mac', 'win', 'linux', 'cros', 'other'];
 export const LANGS = ['en', 'ru', 'es', 'de', 'fr', 'pt', 'it', 'pl', 'uk', 'zh', 'ja'];
@@ -57,7 +78,9 @@ const ID = /^[0-9a-f]{32}$/;
 const isInt = (/** @type {any} */ n, /** @type {number} */ max) => Number.isInteger(n) && n >= 0 && n <= max;
 
 /** The keys of a report, in the order they are written. */
-export const REPORT_KEYS = ['v', 'id', 'app', 'br', 'os', 'lang', 'look', 'layout', 'mode', 'age', 'act', 'first', 'ft', 'fl', 'x'];
+export const REPORT_KEYS = ['v', 'id', 'pr', 'app', 'br', 'os', 'lang', 'look', 'layout', 'mode', 'age', 'act', 'first', 'ft', 'fl', 'x'];
+/** The keys of a report of the Windows app: no browser, look, layout or mode, no experiments. */
+export const WIN_REPORT_KEYS = ['v', 'id', 'pr', 'app', 'lang', 'age', 'act', 'first', 'ft', 'fl'];
 
 /**
  * Check a report. Strict on purpose: an unknown key, a value outside its list or a number outside its range makes the whole report invalid.
@@ -67,26 +90,32 @@ export const REPORT_KEYS = ['v', 'id', 'app', 'br', 'os', 'lang', 'look', 'layou
 export function validateReport(r, experiments = EXPERIMENTS) {
   const bad = (/** @type {string} */ why) => ({ ok: /** @type {const} */ (false), why });
   if (!r || typeof r !== 'object' || Array.isArray(r)) return bad('not an object');
-  for (const k of Object.keys(r)) if (!REPORT_KEYS.includes(k)) return bad('unknown key ' + k);
+  if ('pr' in r && !PRODUCTS.includes(r.pr)) return bad('product');
+  const win = r.pr === 'win';
+  if (r.pr === 'ext') return bad('product'); // the extension says nothing: that is what it always did
+  for (const k of Object.keys(r)) if (!(win ? WIN_REPORT_KEYS : REPORT_KEYS).includes(k)) return bad('unknown key ' + k);
   if (r.v !== 1) return bad('version');
   if (typeof r.id !== 'string' || !ID.test(r.id)) return bad('id');
   if (typeof r.app !== 'string' || !VERSION.test(r.app)) return bad('app');
-  if (!BROWSERS.includes(r.br)) return bad('browser');
-  if (!SYSTEMS.includes(r.os)) return bad('system');
   if (!LANGS.includes(r.lang)) return bad('language');
-  if (typeof r.look !== 'string' || !SLUG.test(r.look)) return bad('look');
-  if (typeof r.layout !== 'string' || !SLUG.test(r.layout)) return bad('layout');
-  if (!MODES.includes(r.mode)) return bad('mode');
+  if (!win) {
+    if (!BROWSERS.includes(r.br)) return bad('browser');
+    if (!SYSTEMS.includes(r.os)) return bad('system');
+    if (typeof r.look !== 'string' || !SLUG.test(r.look)) return bad('look');
+    if (typeof r.layout !== 'string' || !SLUG.test(r.layout)) return bad('layout');
+    if (!MODES.includes(r.mode)) return bad('mode');
+  }
+  const counters = win ? WIN_FEATURES : FEATURES, flagList = win ? WIN_FLAGS : FLAGS;
   if (!isInt(r.age, LIMITS.maxAge)) return bad('age');
   if (!Array.isArray(r.act) || r.act.length > LIMITS.days || !r.act.every((n) => isInt(n, LIMITS.maxAge))) return bad('active days');
   if (new Set(r.act).size !== r.act.length) return bad('active days repeat');
   for (const [name, max] of /** @type {[string, number][]} */ ([['first', LIMITS.maxAge], ['ft', LIMITS.maxCount]])) {
     const o = r[name];
     if (!o || typeof o !== 'object' || Array.isArray(o)) return bad(name);
-    for (const [k, v] of Object.entries(o)) if (!FEATURES.includes(k) || !isInt(v, max)) return bad(`${name}.${k}`);
+    for (const [k, v] of Object.entries(o)) if (!counters.includes(k) || !isInt(v, max)) return bad(`${name}.${k}`);
   }
   if ('fl' in r) { // optional: an earlier version of EyeTime does not send it
-    if (!Array.isArray(r.fl) || r.fl.length > FLAGS.length || !r.fl.every((f) => FLAGS.includes(f)) || new Set(r.fl).size !== r.fl.length) return bad('flags');
+    if (!Array.isArray(r.fl) || r.fl.length > flagList.length || !r.fl.every((f) => flagList.includes(f)) || new Set(r.fl).size !== r.fl.length) return bad('flags');
   }
   if ('x' in r) { // optional: the arms of the experiments that are running, "id:arm", at most one per experiment
     const known = new Set(experiments.flatMap((e) => e.arms.map((a) => `${e.id}:${a}`)));
