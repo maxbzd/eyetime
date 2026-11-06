@@ -33,10 +33,24 @@ export function sameSecret(/** @type {string} */ a, /** @type {string} */ b) {
 
 /**
  * The period a dashboard asks for: ?range=all, or ?days=N (1–3650, counted back from today), or ?from=YYYY-MM-DD&to=YYYY-MM-DD (either may be left out). Nothing given: the default.
+ * And what it is narrowed to: ?br=chrome&lang=ru (app, br, os, lang, look, layout, mode; a value is a short slug).
  * Anything malformed is null (a 400), so a typo is never silently answered with another period.
  * @param {URL} url
  */
 export function parsePeriod(url) {
+  const r = parseRange(url);
+  if (!r) return null;
+  const filter = {};
+  for (const d of ['app', 'br', 'os', 'lang', 'look', 'layout', 'mode']) {
+    const v = url.searchParams.get(d);
+    if (v === null) continue;
+    if (!/^[a-z0-9._-]{1,24}$/.test(v)) return null;
+    filter[d] = v;
+  }
+  return Object.keys(filter).length ? { ...r, filter } : r;
+}
+/** @param {URL} url */
+function parseRange(url) {
   const q = url.searchParams;
   const day = (/** @type {string} */ v) => { if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return null; const ms = Date.parse(v + 'T00:00:00Z'); return Number.isNaN(ms) || new Date(ms).toISOString().slice(0, 10) !== v ? null : Math.floor(ms / DAY_MS); };
   if (q.get('range') === 'all') return { all: true };

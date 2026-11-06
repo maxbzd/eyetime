@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
-// The collector's dashboard in a browser, over the real handler and a made-up population: the key door, the period and its comparison, the two languages and themes,
-// the exports (what a downloaded file holds), the public view, a narrow screen, and no console error anywhere.
+// The collector's dashboard in a browser, over the real handler and a made-up population: the key door, every page, the period and its comparison, the filters, the two languages and
+// themes, the exports (what a downloaded file holds), the public view, a narrow screen, and no console error anywhere.
 //   node scripts-dev/e2e/dashboard.cjs
 const fs = require('fs');
 const http = require('http');
@@ -12,6 +12,7 @@ try { ({ chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright')); } c
 const SRC = path.join(__dirname, '../..');
 const TOKEN = 'dashboard-e2e-token-0123456789';
 const DAY = 86400000;
+const PAGES = ['overview', 'growth', 'activation', 'retention', 'audience', 'features', 'product', 'quality', 'method'];
 
 (async () => {
   const { handle } = await import(path.join(SRC, 'server/usage/handler.js'));
@@ -38,13 +39,14 @@ const DAY = 86400000;
     await p.goto(base + url);
     return p;
   };
-  const ready = (p) => p.waitForSelector('#now .kpi');
+  const ready = (p) => p.waitForSelector('main .kpi');
   const range = (p) => p.textContent('.rangetxt');
+  const h1 = (p) => p.textContent('main h1');
 
   // 1. the key door
   let p = await open('/');
   await p.waitForSelector('.gate');
-  ok(await p.$('#now') === null, 'nothing is shown before the key');
+  ok(await p.$('main .kpi') === null, 'nothing is shown before the key');
   await p.fill('.gate input', 'not-the-key'); await p.click('.gate button[type=submit]');
   await p.waitForSelector('.gate .err'); ok(/not accepted/.test(await p.textContent('.gate .err')), 'a wrong key is refused in words');
   await p.fill('.gate input', TOKEN); await p.click('.gate button[type=submit]'); await ready(p);
@@ -55,7 +57,21 @@ const DAY = 86400000;
   ok(!(await p.evaluate(() => location.hash)), 'a key given in the address is taken out of the address bar');
   await p.context().close();
 
-  // 2. period and comparison
+  // 2. every page opens, has its head and something to read, and the address follows
+  p = await open('/?demo'); await ready(p);
+  ok((await p.$$('nav.pages a')).length === PAGES.length, 'the navigation lists every page');
+  for (const id of PAGES) {
+    await p.click(`nav.pages a[href="#${id}"]`); await p.waitForSelector(`nav.pages a[href="#${id}"][aria-current="page"]`);
+    ok((await h1(p)).trim().length > 2, 'page ' + id + ' has a title');
+    ok((await p.$$('main .card')).length >= 1, 'page ' + id + ' has content');
+    ok(await p.$eval(`nav.pages a[href="#${id}"]`, (a) => a.getAttribute('aria-current')) === 'page', 'the current page is marked: ' + id);
+  }
+  await p.context().close();
+  p = await open('/?demo#retention'); await ready(p); ok(/Retention/.test(await h1(p)), 'an address with a page opens on it');
+  ok(await p.$('table.hm') !== null && (await p.$$('svg.chart')).length >= 1, 'retention: the cohort map and the curve');
+  await p.context().close();
+
+  // 3. period and comparison
   p = await open('/?demo'); await ready(p);
   ok(/90 days/.test(await range(p)), 'the default period is 90 days');
   await p.click('.seg button:has-text("28 days")'); await p.waitForFunction(() => /28 days/.test(document.querySelector('.rangetxt').textContent));
@@ -76,40 +92,65 @@ const DAY = 86400000;
   ok(await p.$('.err') === null, 'a good period clears the error');
   ok(/\(21 days\)/.test(await range(p)), 'the chosen period is spelled out: ' + (await range(p)).slice(0, 80));
   await p.context().close();
-  // an address with a period opens on it
   p = await open('/?demo&days=7'); await ready(p); ok(/7 days/.test(await range(p)), 'a period in the address is used'); await p.context().close();
 
-  // 3. languages and themes
+  // 4. filters narrow the whole dashboard (and the address), and chips take them off
+  p = await open('/?demo'); await ready(p);
+  const all = Number((await p.textContent('main .kpi .val')).replace(/\D/g, ''));
+  await p.click('details.menu summary:has-text("Filters")'); await p.selectOption('#f-br', 'firefox');
+  await p.waitForFunction(() => /br=firefox/.test(location.search));
+  const narrow = Number((await p.textContent('main .kpi .val')).replace(/\D/g, ''));
+  ok(narrow > 0 && narrow < all, `a filter narrows the installs: ${all} -> ${narrow}`);
+  ok(await p.$('.fchip') !== null && /Browser: firefox/.test(await p.textContent('.fchip')), 'the filter shows as a chip');
+  ok(/Filters: Browser = firefox/.test(await p.textContent('main .pagehead')), 'and on the page itself');
+  await p.click('.fchip'); await p.waitForFunction(() => !/br=/.test(location.search)); ok(Number((await p.textContent('main .kpi .val')).replace(/\D/g, '')) === all, 'removing the chip restores everything');
+  await p.context().close();
+
+  // 5. a feature opens into its detail; segments compare; the first-week habits table is there
+  p = await open('/?demo#features'); await ready(p).catch(() => {}); await p.waitForSelector('.frow');
+  await p.click('.frow >> nth=0'); await p.waitForSelector('#feature-detail');
+  ok((await p.$$('#feature-detail svg.chart')).length >= 2, 'a feature shows its weekly trend and its uses');
+  await p.click('#feature-detail button:has-text("Close")'); ok(await p.$('#feature-detail') === null, 'and closes');
+  await p.goto(base + '/?demo#audience'); await p.waitForSelector('table.t');
+  await p.click('.chip:has-text("Browser")'); ok((await p.$$('table.t tbody tr')).length >= 2, 'segments: the values of a setting side by side');
+  await p.goto(base + '/?demo#activation'); await p.waitForSelector('table.t');
+  ok((await p.$$('table.t tbody tr')).length >= 5, 'activation: the first-week habits table');
+  await p.context().close();
+
+  // 6. languages and themes
   p = await open('/?demo', { locale: 'ru-RU' }); await ready(p);
-  ok(/Главное/.test(await p.textContent('#now h2')), 'Russian by browser language');
-  await p.click('#bLang'); ok(/At a glance/.test(await p.textContent('#now h2')), 'English after the switch'); await p.click('#bLang');
+  ok(/Обзор/.test(await h1(p)), 'Russian by browser language');
+  await p.click('#bLang'); ok(/Overview/.test(await h1(p)), 'English after the switch'); await p.click('#bLang');
   await p.click('#bTheme'); ok(await p.evaluate(() => document.documentElement.dataset.theme) === 'light', 'theme: light'); await p.click('#bTheme'); await p.click('#bTheme');
   ok(!(await p.evaluate(() => document.documentElement.dataset.theme)), 'theme: back to automatic');
   await p.context().close();
 
-  // 4. exports
+  // 7. exports
   p = await open('/?demo'); await ready(p);
-  const grab = async (label) => { await p.click('details.menu summary'); const [dl] = await Promise.all([p.waitForEvent('download'), p.click(`.pop button:has-text("${label}")`)]); return { name: dl.suggestedFilename(), text: fs.readFileSync(await dl.path(), 'utf8') }; };
+  const grab = async (label) => { await p.click('details.menu summary.primary'); const [dl] = await Promise.all([p.waitForEvent('download'), p.click(`.pop button:has-text("${label}")`)]); return { name: dl.suggestedFilename(), text: fs.readFileSync(await dl.path(), 'utf8') }; };
   const csv = await grab('CSV table');
   ok(/^eyetime-demo_\d{4}-\d{2}-\d{2}_\d{4}-\d{2}-\d{2}\.csv$/.test(csv.name), 'csv file name carries the period: ' + csv.name);
   ok(csv.text.startsWith('﻿section,id,metric,label,value,k,n\r\n'), 'csv: BOM (Excel), header, CRLF');
   const rows = csv.text.trim().split('\r\n').slice(1).map((l) => l.split(','));
-  for (const key of ['retention,d1', 'funnel,started', 'features,focus_start', 'speed,under250', 'flags,ritual', 'weekly,']) ok(rows.some((r) => (r[0] + ',' + r[1]).startsWith(key)), 'csv has ' + key);
+  for (const key of ['retention,d1', 'funnel,started', 'features,focus_start', 'speed,under250', 'flags,ritual', 'weekly,', 'lifecycle,', 'engagement,dau_mau', 'first_week_habit,', 'release,', 'segment_br,', 'trend_users,', 'scorecard,']) ok(rows.some((r) => (r[0] + ',' + r[1]).startsWith(key)), 'csv has ' + key);
   ok(rows.every((r) => r.length >= 7), 'csv: every row has its columns');
   const json = await grab('JSON data'); const j = JSON.parse(json.text);
-  ok(j.v === 1 && j.range && j.retention && j.exported_at && j.mode === 'demo', 'json holds the collector answer and when it was exported');
+  ok(j.v === 2 && j.range && j.retention && j.lifecycle && j.trends && j.segments && j.exported_at && j.mode === 'demo', 'json holds the collector answer and when it was exported');
   const md = await grab('Markdown report');
-  ok(md.name.endsWith('.md') && /^# EyeTime report/.test(md.text) && /\| Sent a first report \|/.test(md.text), 'markdown report');
+  ok(md.name.endsWith('.md') && /^# EyeTime report/.test(md.text) && /\| Sent a first report \|/.test(md.text) && /## Product health/.test(md.text), 'markdown report');
   await p.context().close();
 
-  // 5. the public view, a narrow screen, the keyboard
+  // 8. the public view, a narrow screen, the keyboard
   p = await open('/?public'); await ready(p);
-  ok(!(await p.$('.seg')) && !(await p.$('#health')) && !(await p.$('#ret .hm')), 'public: no period bar, no health, no cohorts');
+  ok(!(await p.$('.seg')) && !(await p.$('details.menu summary:has-text("Filters")')), 'public: no period bar, no filters');
+  await p.goto(base + '/?public#quality'); await p.waitForSelector('main h1'); ok(!/Installs with an error/.test(await p.textContent('main')), 'public: no health');
+  await p.goto(base + '/?public#retention'); await p.waitForSelector('main h1'); ok(!(await p.$('table.hm')), 'public: no cohorts');
   await p.context().close();
   p = await open('/?demo', { width: 390 }); await ready(p);
-  ok(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), 'no sideways scroll on a phone');
-  await p.focus('.hrow >> nth=0'); ok(await p.evaluate(() => document.getElementById('tip').classList.contains('on')), 'a row shows its tooltip on keyboard focus');
-  ok(await p.$$eval('button, summary, input', (els) => els.every((e) => ((e.getAttribute('aria-label') || e.textContent || e.getAttribute('placeholder') || '') + (e.labels && e.labels.length ? 'x' : '')).trim().length > 0)), 'every control has a name');
+  for (const id of ['overview', 'growth', 'features', 'quality', 'audience']) { await p.goto(base + '/?demo#' + id); await p.waitForSelector('main h1'); ok(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), 'no sideways scroll on a phone: ' + id); }
+  await p.goto(base + '/?demo#features'); await p.waitForSelector('.frow'); await p.focus('.frow >> nth=0'); ok(await p.evaluate(() => document.getElementById('tip').classList.contains('on')), 'a row shows its tooltip on keyboard focus');
+  await p.goto(base + '/?demo#growth'); await p.waitForSelector('svg.chart rect.hit[tabindex]'); await p.focus('svg.chart rect.hit[tabindex] >> nth=0'); await p.keyboard.press('ArrowLeft'); ok(await p.evaluate(() => document.getElementById('tip').classList.contains('on')), 'a line chart reads with the arrow keys');
+  ok(await p.$$eval('button, summary, input, select', (els) => els.every((e) => ((e.getAttribute('aria-label') || e.textContent || e.getAttribute('placeholder') || '') + (e.labels && e.labels.length ? 'x' : '')).trim().length > 0)), 'every control has a name');
   await p.context().close();
 
   await browser.close(); server.close();
