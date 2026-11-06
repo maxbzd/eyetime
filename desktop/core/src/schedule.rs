@@ -132,4 +132,77 @@ mod tests {
         let r = rule("25:00", "17:00", &[0]);
         assert_eq!(active_for(&r, &now(0, "10:00")), None);
     }
+
+    /// The statement shared with the browser extension (`conformance/schedule.json`, read by scripts-dev/tests/conformance.test.mjs too).
+    fn schedule_vector_file() -> String {
+        const TIMES: [&str; 6] = ["00:00", "06:30", "09:00", "17:00", "23:30", "12:00"];
+        const MOMENTS: [u16; 13] = [
+            0, 359, 360, 389, 390, 539, 540, 719, 720, 1019, 1020, 1409, 1439,
+        ];
+        let day_sets: [&[u8]; 7] = [
+            &[],
+            &[0],
+            &[0, 1, 2, 3, 4],
+            &[5, 6],
+            &[6],
+            &[0, 2, 3],
+            &[0, 1, 2, 3, 4, 5, 6],
+        ];
+        let mut cases = Vec::new();
+        for from in TIMES {
+            for to in TIMES.iter().filter(|t| **t != from) {
+                for days in day_sets {
+                    let rule = Rule {
+                        from: from.into(),
+                        to: (*to).into(),
+                        days: days.to_vec(),
+                        ..Default::default()
+                    };
+                    // one bit per (weekday, moment): weekday 0 = Monday, in the order of MOMENTS
+                    let bits: String = (0..7u8)
+                        .flat_map(|w| MOMENTS.iter().map(move |m| (w, *m)))
+                        .map(|(w, m)| {
+                            let now = Now {
+                                ms: 0,
+                                weekday: w,
+                                minute: m,
+                                day: String::new(),
+                            };
+                            if active_for(&rule, &now).is_some() {
+                                '1'
+                            } else {
+                                '0'
+                            }
+                        })
+                        .collect();
+                    cases.push(
+                        serde_json::json!({ "from": from, "to": to, "days": days, "bits": bits }),
+                    );
+                }
+            }
+        }
+        let doc = serde_json::json!({
+            "about": "Is a work-hours rule running? One bit per (weekday, moment), weekday 0 = Monday, moments in the order of `moments` (minutes since midnight). Written by core/src/schedule.rs (schedule_vectors); read by the extension's tests. Rules whose times are equal are left out on purpose: the two products read them differently.",
+            "moments": MOMENTS,
+            "cases": cases,
+        });
+        serde_json::to_string_pretty(&doc).unwrap() + "\n"
+    }
+
+    #[test]
+    fn schedule_vectors() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../conformance/schedule.json");
+        let now = schedule_vector_file();
+        if std::env::var("UPDATE_CONFORMANCE").is_ok() {
+            std::fs::write(&path, &now).unwrap();
+        }
+        let on_disk = std::fs::read_to_string(&path)
+            .expect("conformance/schedule.json is missing: run with UPDATE_CONFORMANCE=1");
+        assert_eq!(
+            on_disk.replace("\r\n", "\n"),
+            now,
+            "the vectors on disk are not what the engine says now: if the change is meant, rewrite them with UPDATE_CONFORMANCE=1 and make the extension agree"
+        );
+    }
 }
