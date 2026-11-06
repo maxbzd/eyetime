@@ -95,7 +95,7 @@
 
   /* ---------------- the screen ---------------- */
   const ico = (n, c = '') => `<svg class="ico ${c}"><use href="#i-${n}"/></svg>`;
-  const tile = (it, cls = '') => `<span class="app-tile ${cls}" data-n="${String(it.name).replace(/"/g, '&quot;')}" style="background:${it.color}">${it.name.slice(0, 2)}</span>`;
+  const tile = (it, cls = '') => `<span class="app-tile ${cls}" data-n="${ET.esc(it.name)}" style="background:${ET.esc(it.color)}">${ET.esc(String(it.name).slice(0, 2))}</span>`;
   const gcolor = { dis: 'var(--rose)', neu: 'var(--sky)', allow: 'var(--mint)' };
   let root, editing = null;
 
@@ -128,15 +128,15 @@
   function renderNow() {
     const l = L(), act = rules.map((r) => ({ r, st: status(r) })).filter((x) => x.st.s === 'active'), box = $('#rlNow');
     const tiles = items.filter((i) => i.g === 'dis').slice(0, 6).map((i) => tile(i)).join('');
-    if (act.length) { const { r, st } = act[0]; box.innerHTML = `<div class="glass rise" style="--d:100"><div class="rl-now"><div class="shield-ico">${ico('shield')}</div><div class="grow"><h3>${l.nowTitle(r.name)}</h3><p>${l.nowSub(fmt(st.end))}</p><div class="app-stack stack">${tiles}</div></div><div class="acts"><button class="pill-white" id="rlBreak" type="button">${ico('unlock')}${l.takeBreak}</button></div></div></div>`; $('#rlBreak').addEventListener('click', () => { ET.go('home'); setTimeout(() => $('#unblockBtn').click(), 900); }); }
-    else { const nx = rules.map((r) => ({ r, st: status(r) })).filter((x) => x.st.s === 'next').sort((a, b) => a.st.in - b.st.in)[0]; box.innerHTML = `<div class="glass rise" style="--d:100"><div class="rl-now"><div class="shield-ico" style="color:var(--text-2);border-color:var(--edge);background:rgba(255,255,255,.06)">${ico('shield')}</div><div class="grow"><h3>${l.nowNone}</h3><p>${nx ? l.startsIn(dur(nx.st.in)) + ' · ' + nx.r.name : l.nowNoneSub}</p></div><div class="acts"><button class="pill-white" id="rlFocus" type="button">${ico('timer')}${l.startFocus}</button></div></div></div>`; $('#rlFocus').addEventListener('click', () => { ET.go('home'); setTimeout(() => ET.openSheet(), 700); }); }
+    if (act.length) { const { r, st } = act[0]; box.innerHTML = `<div class="glass rise" style="--d:100"><div class="rl-now"><div class="shield-ico">${ico('shield')}</div><div class="grow"><h3>${l.nowTitle(ET.esc(r.name))}</h3><p>${l.nowSub(fmt(st.end))}</p><div class="app-stack stack">${tiles}</div></div><div class="acts"><button class="pill-white" id="rlBreak" type="button">${ico('unlock')}${l.takeBreak}</button></div></div></div>`; $('#rlBreak').addEventListener('click', () => { ET.go('home'); setTimeout(() => $('#unblockBtn').click(), 900); }); }
+    else { const nx = rules.map((r) => ({ r, st: status(r) })).filter((x) => x.st.s === 'next').sort((a, b) => a.st.in - b.st.in)[0]; box.innerHTML = `<div class="glass rise" style="--d:100"><div class="rl-now"><div class="shield-ico" style="color:var(--text-2);border-color:var(--edge);background:rgba(255,255,255,.06)">${ico('shield')}</div><div class="grow"><h3>${l.nowNone}</h3><p>${nx ? l.startsIn(dur(nx.st.in)) + ' · ' + ET.esc(nx.r.name) : l.nowNoneSub}</p></div><div class="acts"><button class="pill-white" id="rlFocus" type="button">${ico('timer')}${l.startFocus}</button></div></div></div>`; $('#rlFocus').addEventListener('click', () => { ET.go('home'); setTimeout(() => ET.openSheet(), 700); }); }
   }
   function renderRules() {
     const l = L(), grid = $('#rlGrid'); grid.innerHTML = '';
     rules.forEach((r, i) => {
       const st = status(r), chip = st.s === 'timer' ? `${dur(r.dur || 25)} · ${l.timer}` : st.s === 'active' ? l.active(fmt(st.end)) : st.s === 'next' ? l.startsIn(dur(st.in)) : l.off, dis = items.filter((x) => (r.block === 'dis' ? x.g === 'dis' : r.block === 'all' ? x.g !== 'allow' : x.g === 'dis')).slice(0, 4);
       const card = document.createElement('div'); card.className = 'rule rise'; card.style.setProperty('--d', 120 + i * 70); card.dataset.s = st.s; card.tabIndex = 0; card.setAttribute('role', 'button'); card.setAttribute('aria-label', r.name);
-      card.innerHTML = `<div class="glyphs">${ico(r.glyph === 'sun' ? 'sun' : r.glyph === 'moon' ? 'moon' : 'cal')}${ico('arrow', 'arr')}${ico('shield', 'sh')}</div><span class="chipt">${chip}</span><b>${r.name}${r.level ? `<span class="lvl">${ico('lock')}${l.levels[r.level]}</span>` : ''}</b><div class="sub">${r.kind === 'timer' ? l.blockSet[r.block] : `${fmt(tm(r.from))} – ${fmt(tm(r.to))} · ${dayLabel(r.days)}`}</div><div class="foot"><div class="app-stack">${dis.map((x) => tile(x)).join('')}</div>${r.kind === 'timer' ? `<button class="pill-white go" type="button" style="height:36px;padding:0 14px;font-size:13px">${ico('timer')}${ET.lang() === 'ru' ? 'Старт' : 'Start'}</button>` : `<button class="sw" role="switch" aria-checked="${r.on}" aria-label="${r.on ? l.ruleOn : l.ruleOff}: ${r.name}"></button>`}</div>`;
+      card.innerHTML = `<div class="glyphs">${ico(r.glyph === 'sun' ? 'sun' : r.glyph === 'moon' ? 'moon' : 'cal')}${ico('arrow', 'arr')}${ico('shield', 'sh')}</div><span class="chipt">${chip}</span><b>${ET.esc(r.name)}${r.level ? `<span class="lvl">${ico('lock')}${l.levels[r.level]}</span>` : ''}</b><div class="sub">${r.kind === 'timer' ? l.blockSet[r.block] : `${fmt(tm(r.from))} – ${fmt(tm(r.to))} · ${dayLabel(r.days)}`}</div><div class="foot"><div class="app-stack">${dis.map((x) => tile(x)).join('')}</div>${r.kind === 'timer' ? `<button class="pill-white go" type="button" style="height:36px;padding:0 14px;font-size:13px">${ico('timer')}${ET.lang() === 'ru' ? 'Старт' : 'Start'}</button>` : `<button class="sw" role="switch" aria-checked="${r.on}" aria-label="${r.on ? l.ruleOn : l.ruleOff}: ${ET.esc(r.name)}"></button>`}</div>`;
       const go = $('.go', card); if (go) go.addEventListener('click', (e) => { e.stopPropagation(); ET.S.min = r.dur || 25; ET.S.name = r.name; ET.go('home'); setTimeout(() => ET.startSession(), 500); });
       const sw = $('.sw', card); if (sw) sw.addEventListener('click', (e) => { e.stopPropagation(); r.on = !r.on; save(); sw.setAttribute('aria-checked', String(r.on)); toast(r.on ? l.ruleOn : l.ruleOff); setTimeout(() => { renderRules(); renderNow(); }, 350); });
       card.addEventListener('click', () => openEditor(r)); card.addEventListener('keydown', (e) => { if (e.key === 'Enter') openEditor(r); });
@@ -153,7 +153,7 @@
       if (!list.length) rows.innerHTML = `<div class="li-empty">${l.empty}</div>`;
       list.forEach((it, i) => {
         const row = document.createElement('div'); row.className = 'li'; row.style.setProperty('--i', i); row.draggable = true; row.dataset.name = it.name;
-        row.innerHTML = `${tile(it)}<div class="n"><b>${it.name}</b><span>${it.type === 'app' ? l.app : l.site}</span></div><button class="mv" type="button" aria-label="${name}: ${it.name}"><i style="background:${gcolor[g]}"></i></button>`;
+        row.innerHTML = `${tile(it)}<div class="n"><b>${ET.esc(it.name)}</b><span>${it.type === 'app' ? l.app : l.site}</span></div><button class="mv" type="button" aria-label="${name}: ${ET.esc(it.name)}"><i style="background:${gcolor[g]}"></i></button>`;
         row.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', it.name); e.dataTransfer.effectAllowed = 'move'; row.classList.add('drag'); }); row.addEventListener('dragend', () => { row.classList.remove('drag'); $$('.list-card.over', root).forEach((x) => x.classList.remove('over')); });
         $('.mv', row).addEventListener('click', () => move(it.name, { dis: 'neu', neu: 'allow', allow: 'dis' }[g]));
         rows.append(row);
@@ -186,7 +186,7 @@
     const box = document.createElement('div'); box.className = 'sug'; box.setAttribute('role', 'listbox'); inp.parentElement.style.position = 'relative'; inp.parentElement.append(box);
     let list = [], at = -1;
     const paint = () => {
-      box.innerHTML = list.map((x, i) => `<button type="button" role="option" class="${i === at ? 'on' : ''}" data-i="${i}"><span class="app-tile" data-n="${String(x.name).replace(/"/g, '&quot;')}">${x.name.slice(0, 2)}</span><b>${x.name}</b><i>${x.hint || ''}</i></button>`).join('');
+      box.innerHTML = list.map((x, i) => `<button type="button" role="option" class="${i === at ? 'on' : ''}" data-i="${i}"><span class="app-tile" data-n="${ET.esc(x.name)}">${ET.esc(String(x.name).slice(0, 2))}</span><b>${ET.esc(x.name)}</b><i>${ET.esc(x.hint || '')}</i></button>`).join('');
       box.classList.toggle('open', list.length > 0);
     };
     const pickAt = (i) => { const x = list[i]; if (!x) return false; addItem(x); list = []; paint(); return true; };
