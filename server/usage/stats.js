@@ -6,7 +6,7 @@
 // Every figure is a pair { k, n } (k of n installs) or a count, never a rounded-off guess: the page shows both, and greys out what rests on few installs.
 // What a figure means is written next to it below, and in docs/MEASUREMENT.md; read the numbers as the behaviour of people who agreed to share (not a census).
 
-import { FEATURES, FLAGS } from '../../src/shared/usage-schema.js';
+import { FEATURES, FLAGS, UNINSTALL_REASONS } from '../../src/shared/usage-schema.js';
 
 const DAY = 86_400_000;
 
@@ -19,8 +19,38 @@ export const GROUPS = {
   home: ['newtab_view', 'popup_open', 'insights_view', 'settings_view', 'palette_open', 'drawer_open', 'editor_open', 'starter_apply', 'wall_next', 'standby_open'],
 };
 export const ADOPTION = Object.values(GROUPS).flat();
-/** What a view can be narrowed to: the fields of an install that are a choice or a fact about the setup. */
-export const DIMS = ['app', 'br', 'os', 'lang', 'look', 'layout', 'mode'];
+/**
+ * What a view can be narrowed to, and what segments are compared by: the choices and facts of the setup (app, br, os, lang, look, layout, mode) and three things about the
+ * behaviour, worked out from the reports: `use` (new, once, casual, regular, power or idle, by the days active of 28), `session` (ever started a focus session: yes / no)
+ * and `blocking` (keeps a schedule, limits, a budget or instant blocking switched on: yes / no / unknown).
+ */
+export const DIMS = ['app', 'br', 'os', 'lang', 'look', 'layout', 'mode', 'use', 'session', 'blocking'];
+const BLOCK_FLAGS = ['schedule', 'limits', 'budget', 'instant_block'];
+/** The middle of each length bucket, in minutes: a finished-session length is only known by bucket, so minutes of focus are an estimate and the page says so. */
+const LENGTH_MID = { fl_u15: 10, fl_u25: 20, fl_u35: 30, fl_u50: 42, fl_u75: 62, fl_75p: 90 };
+
+/**
+ * The targets the scorecard is measured against, and the range each may be set to. A target the owner has not set stays at its default; the optional ones (the return and
+ * activation rates) have none until the owner sets one. They are ours, not an industry standard.
+ */
+export const DEFAULT_TARGETS = { speed_p90: 500, finish: 0.7, early: 0.1, err: 0.05, quick: 1, upd: 0.8, stick: 0.2 };
+export const TARGET_RANGES = { speed_p90: [100, 5000], finish: [0, 1], early: [0, 1], err: [0, 1], quick: [0, 10], upd: [0, 1], stick: [0, 1], d1: [0, 1], d7: [0, 1], d30: [0, 1], act: [0, 1] };
+/**
+ * The targets a request may set: an object of known keys with a number in range, or null to clear one. Returns the cleaned object.
+ * @param {any} b @returns {{ ok: true, targets: Record<string, number> } | { ok: false, why: string }}
+ */
+export function normalizeTargets(b) {
+  if (!b || typeof b !== 'object' || Array.isArray(b)) return { ok: false, why: 'not an object' };
+  /** @type {Record<string, number>} */ const targets = {};
+  for (const [k, v] of Object.entries(b)) {
+    const range = /** @type {Record<string, number[]>} */ (TARGET_RANGES)[k];
+    if (!range) return { ok: false, why: 'unknown target ' + k };
+    if (v === null) continue;
+    if (typeof v !== 'number' || !Number.isFinite(v) || v < range[0] || v > range[1]) return { ok: false, why: 'out of range: ' + k };
+    targets[k] = v;
+  }
+  return { ok: true, targets };
+}
 const LENGTHS = ['fl_u15', 'fl_u25', 'fl_u35', 'fl_u50', 'fl_u75', 'fl_75p'];
 const REASONS = ['bp_always', 'bp_focus', 'bp_schedule', 'bp_limit', 'bp_budget', 'bp_friction'];
 const SPEEDS = ['nt_u100', 'nt_u250', 'nt_u500', 'nt_u1000', 'nt_slow'];
@@ -32,7 +62,29 @@ const ERRORS = ['err_worker', 'err_page', 'err_blocker', 'err_sync', 'err_other'
 /** The size of a sample below which a figure is shown as unreliable (the dashboard greys it out); docs/MEASUREMENT.md says "fewer than 50". */
 export const LOW_SAMPLE = 50;
 
-const pair = (/** @type {number} */ k, /** @type {number} */ n) => ({ k, n, pct: n > 0 ? k / n : null });
+/** The 95% interval of a share k of n (Wilson): honest at small n and at shares near 0 or 1, where the usual formula is not. null when there is nobody. */
+export function wilson(/** @type {number} */ k, /** @type {number} */ n) {
+  if (!(n > 0)) return null;
+  const z = 1.96, p = k / n, z2 = z * z, d = 1 + z2 / n, c = p + z2 / (2 * n), m = z * Math.sqrt((p * (1 - p)) / n + z2 / (4 * n * n));
+  return [Math.max(0, (c - m) / d), Math.min(1, (c + m) / d)];
+}
+const normalCdf = (/** @type {number} */ x) => { // Abramowitz and Stegun 7.1.26: good to about 1e-7, plenty for "is this noise"
+  const t = 1 / (1 + 0.3275911 * Math.abs(x) / Math.SQRT2), y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-(x * x) / 2);
+  return x >= 0 ? 0.5 * (1 + y) : 0.5 * (1 - y);
+};
+/**
+ * Is the difference between two shares more than chance (two-proportion z-test, two-sided)? `significant` only at p < 0.05 and at least 20 people in each; a bare
+ * difference of two small groups is not a finding, and the dashboard says so next to the arrow.
+ * @param {{ k: number, n: number } | null | undefined} a @param {{ k: number, n: number } | null | undefined} b
+ */
+export function compareProps(a, b) {
+  if (!a || !b || !(a.n > 0) || !(b.n > 0)) return null;
+  const p1 = a.k / a.n, p2 = b.k / b.n, pool = (a.k + b.k) / (a.n + b.n), se = Math.sqrt(pool * (1 - pool) * (1 / a.n + 1 / b.n));
+  const z = se > 0 ? (p1 - p2) / se : 0, p = 2 * (1 - normalCdf(Math.abs(z)));
+  return { diff: p1 - p2, z, p, significant: p < 0.05 && a.n >= 20 && b.n >= 20 };
+}
+const r4 = (/** @type {number} */ x) => Math.round(x * 10_000) / 10_000;
+const pair = (/** @type {number} */ k, /** @type {number} */ n) => { const w = wilson(k, n); return { k, n, pct: n > 0 ? k / n : null, lo: w ? r4(w[0]) : null, hi: w ? r4(w[1]) : null }; };
 const median = (/** @type {number[]} */ a) => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 const countBy = (/** @type {any[]} */ list, /** @type {(x: any) => string} */ f) => { const m = new Map(); for (const x of list) { const v = f(x); m.set(v, (m.get(v) || 0) + 1); } return [...m].map(([value, k]) => ({ value, k })).sort((a, b) => b.k - a.k || (a.value < b.value ? -1 : 1)); };
 const isoDay = (/** @type {number} */ dayNumber) => new Date(dayNumber * DAY).toISOString().slice(0, 10);
@@ -40,7 +92,7 @@ const semver = (/** @type {string} */ v) => v.split('.').map((x) => parseInt(x, 
 const newer = (/** @type {string} */ a, /** @type {string} */ b) => { const x = semver(a), y = semver(b); for (let i = 0; i < Math.max(x.length, y.length); i++) { const d = (x[i] || 0) - (y[i] || 0); if (d) return d > 0; } return false; };
 
 /**
- * @typedef {{ installs: any[], firsts: { id: string, feature: string, age: number }[], weeks: { id: string, week: number, feature: string, n: number }[], flags: { id: string, flag: string }[] }} Snapshot
+ * @typedef {{ installs: any[], firsts: { id: string, feature: string, age: number }[], weeks: { id: string, week: number, feature: string, n: number }[], flags: { id: string, flag: string }[], experiments?: { id: string, exp: string, arm: string }[], notes?: { id: number, day: string, text: string }[], ingest?: { day: string, kind: string, n: number }[], uninstalls?: { day: string, reason: string, n: number }[], store_stats?: { day: string, users: number | null, installs: number | null, uninstalls: number | null }[], settings?: Record<string, string> }} Snapshot
  * The period: `from`/`to` are day numbers (days since 1970-01-01, UTC), or `all` for everything since the first install, or `recentDays` counted back from `to` (default: 90 days up to today; 90 so that the 30-day return of the people who came in the period can be seen).
  * What the period scopes: who counts as active, the weekly counters (rounded outward to whole weeks, they are stored by week), the installs made in it (the funnel, activation and
  * retention follow those people for as long as they have been around), and the comparison with the period of the same length right before it.
@@ -49,18 +101,31 @@ const newer = (/** @type {string} */ a, /** @type {string} */ b) => { const x = 
  */
 export function computeStats(snap, now = Date.now(), { recentDays = 90, from: fromOpt, to: toOpt, all = false, compare = true, filter = {} } = {}) {
   const today = Math.floor(now / DAY);
+  // what each install does, worked out once from the reports (the three behavioural dimensions of DIMS), so that a view can be narrowed to it like to a browser
+  const toDay = Math.min(toOpt ?? today, today);
+  const startedIds = new Set(snap.firsts.filter((f) => f.feature === 'focus_start').map((f) => f.id)), flagged = new Set(snap.flags.map((f) => f.id)), blocks = new Set(snap.flags.filter((f) => BLOCK_FLAGS.includes(f.flag)).map((f) => f.id));
+  snap = {
+    ...snap,
+    installs: snap.installs.map((i) => {
+      const day0 = Math.floor(i.last_report / DAY) - i.age;
+      let used = 0; for (const a of i.act) { const d = day0 + a; if (d >= toDay - 34 && d <= toDay - 7) used++; }
+      const use = day0 > toDay - 7 ? 'new' : used >= 15 ? 'power' : used >= 8 ? 'regular' : used >= 2 ? 'casual' : used >= 1 ? 'once' : 'idle';
+      return { ...i, use, session: startedIds.has(i.id) ? 'yes' : 'no', blocking: blocks.has(i.id) ? 'yes' : flagged.has(i.id) ? 'no' : 'unknown' };
+    }),
+  };
+  const everyone = snap.installs; // before any narrowing: the coverage of the sample is about all of them
   const facets = Object.fromEntries(DIMS.map((d) => [d, countBy(snap.installs, (i) => i[d])]));
   const narrow = DIMS.filter((d) => filter[d]);
   if (narrow.length) {
     const keep = new Set(snap.installs.filter((i) => narrow.every((d) => i[d] === filter[d])).map((i) => i.id));
-    snap = { installs: snap.installs.filter((i) => keep.has(i.id)), firsts: snap.firsts.filter((x) => keep.has(x.id)), weeks: snap.weeks.filter((x) => keep.has(x.id)), flags: snap.flags.filter((x) => keep.has(x.id)) };
+    snap = { ...snap, installs: snap.installs.filter((i) => keep.has(i.id)), firsts: snap.firsts.filter((x) => keep.has(x.id)), weeks: snap.weeks.filter((x) => keep.has(x.id)), flags: snap.flags.filter((x) => keep.has(x.id)), experiments: (snap.experiments || []).filter((x) => keep.has(x.id)) };
   }
   const installs = snap.installs.map((i) => {
     const lastDay = Math.floor(i.last_report / DAY);
     return { ...i, act: [...i.act].sort((a, b) => a - b), lastDay, day0: lastDay - i.age };
   });
   const firstDay = installs.length ? Math.min(...installs.map((i) => i.day0)) : today;
-  const to = Math.min(toOpt ?? today, today);
+  const to = toDay;
   const from = Math.min(to, all ? firstDay : (fromOpt ?? to - recentDays + 1));
   const days = to - from + 1;
   const weekFrom = Math.floor(from / 7), weekTo = Math.floor(to / 7);
@@ -272,14 +337,96 @@ export function computeStats(snap, now = Date.now(), { recentDays = 90, from: fr
   };
   const segments = Object.fromEntries(DIMS.map((d) => [d, segmentOf(d)]));
 
+  // ---- the north star: finished focus sessions per active install per week, with the minutes behind it (an estimate: lengths are known by bucket) ----
+  const stable = tWeeks.map((_, k) => !trends.weeks[k].partial);
+  const lastFull = stable.lastIndexOf(true), prevFull = lastFull > 0 ? stable.lastIndexOf(true, lastFull - 1) : -1;
+  const nsRow = (/** @type {number} */ k) => ({ from: trends.weeks[k].from, to: trends.weeks[k].to, partial: trends.weeks[k].partial, active: trends.active[k], finished: tUses.focus_done[k], value: trends.active[k] > 0 ? tUses.focus_done[k] / trends.active[k] : null, minutes: trends.active[k] > 0 ? Object.entries(LENGTH_MID).reduce((a, [id, mid]) => a + mid * tUses[id][k], 0) / trends.active[k] : null });
+  const nsWeeks = tWeeks.map((_, k) => nsRow(k));
+  const northstar = { weeks: nsWeeks, value: lastFull >= 0 ? nsWeeks[lastFull].value : null, minutes: lastFull >= 0 ? nsWeeks[lastFull].minutes : null, prev_value: prevFull >= 0 ? nsWeeks[prevFull].value : null, enough: lastFull >= 0 && nsWeeks[lastFull].active >= LOW_SAMPLE };
+
+  // ---- when it is used: active days by day of the week, over the fully reported part of the period (Monday first) ----
+  const weekdayCounts = new Array(7).fill(0);
+  for (const i of installs) for (const a of i.act) { const d = i.day0 + a; if (d >= from && d <= to - 7) weekdayCounts[(d + 3) % 7]++; }
+  const weekday = { from: isoDay(from), to: isoDay(Math.max(from, to - 7)), counts: weekdayCounts, total: weekdayCounts.reduce((a, b) => a + b, 0) };
+
+  // ---- coverage: how much of the store's own count of active users reports here (typed in by the owner for a day), and how many people remove it ----
+  const coverage = {
+    rows: (snap.store_stats || []).map((r) => {
+      const d = Math.floor(Date.parse(r.day + 'T00:00:00Z') / DAY);
+      const ours = everyone.filter((i) => { const d0 = Math.floor(i.last_report / DAY) - i.age; return i.act.some((/** @type {number} */ a) => d0 + a >= d - 6 && d0 + a <= d); }).length;
+      return { day: r.day, users: r.users, installs: r.installs, uninstalls: r.uninstalls, ours, coverage: r.users ? ours / r.users : null, uninstall_rate: r.users && r.uninstalls != null ? r.uninstalls / r.users : null };
+    }),
+  };
+
+  // ---- notes for the charts, the door's own counters, and why people leave ----
+  const notes = (snap.notes || []).filter((n) => n.day >= isoDay(to - 7 * trend - 7) && n.day <= isoDay(to)).map((n) => ({ id: n.id, day: n.day, text: n.text }));
+  const doorDays = Array.from({ length: 28 }, (_, k) => isoDay(today - 27 + k));
+  const REJECTED = ['bad_report', 'bad_json', 'bad_type', 'too_big', 'wrong_origin'], THROTTLED = ['too_soon', 'flood'];
+  const door = doorDays.map((day) => { const by = Object.fromEntries((snap.ingest || []).filter((r) => r.day === day).map((r) => [r.kind, r.n])); const tot = (/** @type {string[]} */ ks) => ks.reduce((a, k) => a + (by[k] || 0), 0); return { day, accepted: by.accepted || 0, forgot: by.forgot || 0, rejected: tot(REJECTED), throttled: tot(THROTTLED), by }; });
+  const door7 = door.slice(-7), got = door7.reduce((a, d) => a + d.accepted + d.rejected, 0);
+  const ingest = { days: door, accepted_7d: door7.reduce((a, d) => a + d.accepted, 0), rejected_7d: door7.reduce((a, d) => a + d.rejected, 0), rejected_share_7d: got ? door7.reduce((a, d) => a + d.rejected, 0) / got : null, reasons_7d: [...REJECTED, ...THROTTLED].map((kind) => ({ id: kind, k: door7.reduce((a, d) => a + (d.by[kind] || 0), 0) })) };
+  const leaving = (snap.uninstalls || []).filter((u) => u.day >= isoDay(from) && u.day <= isoDay(to));
+  const uninstalls = { total: leaving.reduce((a, u) => a + u.n, 0), reasons: UNINSTALL_REASONS.map((id) => ({ id, k: leaving.filter((u) => u.reason === id).reduce((a, u) => a + u.n, 0) })) };
+
+  // ---- experiments: for each, the arms side by side and each against the control (the arm called "control", else the first by name) ----
+  const armsOf = new Map(); for (const e of snap.experiments || []) { if (!armsOf.has(e.exp)) armsOf.set(e.exp, new Map()); armsOf.get(e.exp).set(e.id, e.arm); }
+  const experiments = [...armsOf].map(([exp, byId]) => {
+    const names = [...new Set(byId.values())].sort(), control = names.includes('control') ? 'control' : names[0];
+    const arms = names.map((arm) => {
+      const inArm = installs.filter((i) => byId.get(i.id) === arm), M = inArm.filter((i) => i.day0 >= from && i.day0 <= to), R = inArm.filter((i) => recentIds.has(i.id));
+      const M1 = M.filter((i) => mature(i, 1)), M7 = M.filter((i) => mature(i, 13)), W1 = M.filter((i) => mature(i, 7)), st = sumOf(R, ['focus_start']);
+      return { arm, installs: inArm.length, made: M.length, d1: pair(M1.filter((i) => i.act.includes(1)).length, M1.length), d7: pair(M7.filter(back).length, M7.length), session_week1: pair(W1.filter((i) => first(i, 'focus_start') <= 7).length, W1.length), finish_rate: st ? Math.min(1, sumOf(R, ['focus_done']) / st) : null, avg_active_days: R.length ? R.reduce((a, i) => a + (daysIn.get(i.id) || 0), 0) / R.length : null };
+    });
+    const c = arms.find((a) => a.arm === control);
+    return { id: exp, control, arms: arms.map((a) => ({ ...a, vs_control: a.arm === control || !c ? null : { d1: compareProps(a.d1, c.d1), d7: compareProps(a.d7, c.d7), session_week1: compareProps(a.session_week1, c.session_week1) } })) };
+  });
+
+  // ---- the targets the scorecard uses: ours by default, the owner's where set ----
+  let custom = {}; try { const t = normalizeTargets(JSON.parse(snap.settings?.targets || 'null') ?? {}); if (t.ok) custom = t.targets; } catch { /* a damaged setting is no setting */ }
+  const targets = { values: { ...DEFAULT_TARGETS, ...custom }, custom: Object.keys(custom) };
+
   const out = {
-    v: 2, generated_at: now, window_days: days, range, low_sample: LOW_SAMPLE, filter: Object.fromEntries(narrow.map((d) => [d, filter[d]])), facets,
-    overview, weekly, lifecycle, engagement, trends, aha, releases, segments, activation, funnel, retention, cohorts, features, groups: GROUPS, sessions, blocking, eyes, speed, health, setup,
+    v: 3, generated_at: now, window_days: days, range, low_sample: LOW_SAMPLE, filter: Object.fromEntries(narrow.map((d) => [d, filter[d]])), facets,
+    overview, weekly, lifecycle, engagement, weekday, northstar, trends, aha, releases, segments, coverage, notes, ingest, uninstalls, experiments, targets, activation, funnel, retention, cohorts, features, groups: GROUPS, sessions, blocking, eyes, speed, health, setup,
     prev: /** @type {ReturnType<typeof before> | null} */ (null),
+    compare: /** @type {Record<string, ReturnType<typeof compareProps>> | null} */ (null),
+    scorecard: /** @type {ReturnType<typeof scorecard>} */ ([]),
   };
   // the period of the same length right before this one (not for "everything", and not when it would end before the first install)
-  if (compare && !all && from - 1 >= firstDay) out.prev = before(computeStats(snap, now, { from: from - days, to: from - 1, compare: false, filter }));
+  if (compare && !all && from - 1 >= firstDay) {
+    out.prev = before(computeStats(snap, now, { from: from - days, to: from - 1, compare: false, filter }));
+    // which of the changes against the period before are more than chance (a share against a share; counts are not tested)
+    const q = out.prev, rate = (/** @type {number} */ k, /** @type {number} */ n) => pair(Math.min(k, n), n), fast = speed.hist[0].k + speed.hist[1].k;
+    out.compare = {
+      d1: compareProps(retention.d1, q.d1), d7: compareProps(retention.d7, q.d7), d30: compareProps(retention.d30, q.d30), session_week1: compareProps(activation.session_week1, q.session_week1),
+      finish_rate: compareProps(rate(sessions.finished, sessions.started), rate(q.counts.finished, q.counts.started)), early_stop_rate: compareProps(rate(sessions.early_stop, sessions.started), rate(q.counts.early_stop, q.counts.started)),
+      continue_rate: compareProps(rate(blocking.continued, blocking.pages), rate(q.counts.continued, q.counts.pages)), eye_rate: compareProps(rate(eyes.done, eyes.done + eyes.skipped), rate(q.counts.eye_done, q.counts.eye_done + q.counts.eye_skip)),
+      under250: compareProps(rate(fast, speed.opens), rate(q.counts.fast, q.counts.opens)), with_error: compareProps(health.installs_with_error, q.with_error),
+    };
+  }
+  out.scorecard = scorecard(out);
   return out;
+}
+
+/**
+ * The product-health rows, measured against the targets (ours unless the owner set them): one place for the dashboard, the report and the weekly digest, so they cannot disagree.
+ * `status` is good, warn, bad or na (too little data to say). Higher-is-better figures are amber from 75% of the target, lower-is-better ones up to twice the target.
+ * @param {any} s the statistics
+ */
+export function scorecard(s) {
+  const T = s.targets.values, rows = /** @type {{ id: string, page: string, status: string, value: number | null, target: number | null, enough: boolean }[]} */ ([]);
+  const row = (/** @type {string} */ id, /** @type {string} */ page, /** @type {number | null} */ value, /** @type {number | null} */ target, /** @type {boolean} */ higher, /** @type {boolean} */ enough) => {
+    const status = !enough || value == null || target == null ? 'na' : higher ? (value >= target ? 'good' : value >= target * 0.75 ? 'warn' : 'bad') : (value <= target ? 'good' : value <= target * 2 ? 'warn' : 'bad');
+    rows.push({ id, page, status, value, target, enough: enough && value != null });
+  };
+  if (s.speed) row('speed', 'quality', s.speed.p90_upper, T.speed_p90, false, s.speed.opens >= 100 && s.speed.p90_upper != null);
+  if (s.sessions) { const en = s.sessions.started >= 30; row('finish', 'product', s.sessions.finish_rate, T.finish, true, en); row('early', 'product', s.sessions.early_stop_rate, T.early, false, en); }
+  if (s.health) row('err', 'quality', s.health.installs_with_error.pct, T.err, false, s.health.installs_with_error.n >= 50);
+  if (s.lifecycle) { const l = s.lifecycle.filter((/** @type {any} */ x) => !x.partial).at(-1); row('quick', 'growth', l ? l.quick_ratio : null, T.quick, true, !!l && l.churned > 0); }
+  if (s.releases && s.releases.latest) row('upd', 'quality', s.releases.on_latest.pct, T.upd, true, s.releases.on_latest.n >= 50 && s.releases.versions.length > 1);
+  if (s.engagement) row('stick', 'growth', s.engagement.dau_mau, T.stick, true, s.engagement.mau >= 50);
+  for (const [id, page, p] of /** @type {[string, string, any][]} */ ([['d1', 'retention', s.retention.d1], ['d7', 'retention', s.retention.d7], ['d30', 'retention', s.retention.d30], ['act', 'activation', s.activation.session_week1]])) if (T[id] != null) row('goal_' + id, page, p.pct, T[id], true, p.n >= LOW_SAMPLE);
+  return rows;
 }
 
 /** The few figures worth a comparison with the period before, with the period they are from. */
@@ -289,6 +436,8 @@ function before(/** @type {any} */ p) {
     d1: p.retention.d1, d7: p.retention.d7, d30: p.retention.d30, session_week1: p.activation.session_week1,
     finish_rate: p.sessions.finish_rate, early_stop_rate: p.sessions.early_stop_rate, started: p.sessions.started,
     continue_rate: p.blocking.continue_rate, eye_rate: p.eyes.rate, under250: p.speed.under250, with_error: p.health.installs_with_error,
+    // the counts behind the rates, to test a change against chance
+    counts: { started: p.sessions.started, finished: p.sessions.finished, early_stop: p.sessions.early_stop, pages: p.blocking.pages, continued: p.blocking.continued, eye_done: p.eyes.done, eye_skip: p.eyes.skipped, opens: p.speed.opens, fast: p.speed.hist[0].k + p.speed.hist[1].k },
   };
 }
 

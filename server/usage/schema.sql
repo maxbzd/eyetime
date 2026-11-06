@@ -36,3 +36,42 @@ CREATE TABLE IF NOT EXISTS flags (
   flag TEXT NOT NULL,
   PRIMARY KEY (id, flag)
 );
+-- The arm of each experiment an install is in ("onboarding-v2" → "short"): a state, from the fixed list EXPERIMENTS in src/shared/usage-schema.js.
+CREATE TABLE IF NOT EXISTS experiments (
+  id  TEXT NOT NULL,
+  exp TEXT NOT NULL,
+  arm TEXT NOT NULL,
+  PRIMARY KEY (id, exp)
+);
+-- Things the collector counts about its own door, by day and never by who (see INGEST_KINDS in limits.js): how many reports came in, how many were refused and why.
+CREATE TABLE IF NOT EXISTS ingest (
+  day  TEXT NOT NULL,              -- YYYY-MM-DD, UTC
+  kind TEXT NOT NULL,
+  n    INTEGER NOT NULL,
+  PRIMARY KEY (day, kind)
+);
+-- Answers to the one question on the page that opens after removal: a count per reason and day, no identifier.
+CREATE TABLE IF NOT EXISTS uninstalls (
+  day    TEXT NOT NULL,
+  reason TEXT NOT NULL,
+  n      INTEGER NOT NULL,
+  PRIMARY KEY (day, reason)
+);
+-- Notes the owner puts on the charts ("released 3.8.1"): the owner's own words, not anything from an install.
+CREATE TABLE IF NOT EXISTS notes (
+  id   INTEGER PRIMARY KEY AUTOINCREMENT,
+  day  TEXT NOT NULL,
+  text TEXT NOT NULL
+);
+-- What the owner copies from the store's own dashboard for a day (active users, installs, removals): the denominator that makes the coverage of this sample known.
+CREATE TABLE IF NOT EXISTS store_stats (
+  day        TEXT PRIMARY KEY,
+  users      INTEGER,
+  installs   INTEGER,
+  uninstalls INTEGER
+);
+-- The owner's settings of the dashboard (targets) and the day an alert was last sent.
+CREATE TABLE IF NOT EXISTS settings (
+  key   TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);

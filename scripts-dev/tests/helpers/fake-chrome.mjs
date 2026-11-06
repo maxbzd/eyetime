@@ -87,6 +87,7 @@ export function installFakeChrome({ extensionId = 'fakeextensionidfakeextensioni
       getContexts: async () => [],
       sendMessage: async (m) => { log('runtime.sendMessage', m); return undefined; },
       onMessage: event(), onInstalled: event(), onStartup: event(),
+      setUninstallURL: async (u) => { log('runtime.setUninstallURL', u); },
       lastError: undefined,
     },
     storage: {
