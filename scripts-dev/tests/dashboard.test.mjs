@@ -5,12 +5,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { ADOPTION, GROUPS, DIMS, TARGET_RANGES } from '../../server/usage/stats.js';
-import { FLAGS, UNINSTALL_REASONS } from '../../src/shared/usage-schema.js';
+import { FLAGS, UNINSTALL_REASONS, WIN_FEATURES, WIN_FLAGS } from '../../src/shared/usage-schema.js';
 import { INGEST_KINDS } from '../../server/usage/limits.js';
 
 const html = readFileSync(new URL('../../server/usage/dashboard.html', import.meta.url), 'utf8');
 const script = /<script>([\s\S]*)<\/script>/.exec(html)[1];
-const PAGE_IDS = ['overview', 'growth', 'activation', 'retention', 'features', 'experiments', 'product', 'quality', 'audience', 'method'];
+const PAGE_IDS = ['overview', 'growth', 'activation', 'retention', 'features', 'experiments', 'product', 'quality', 'audience', 'windows', 'method'];
 const texts = new Function(script.slice(0, script.indexOf('// ───────────────────────── small helpers')) + '; return L;')();
 
 test('dashboard: nothing from the server is ever turned into HTML, nothing is run from a string', () => {
@@ -44,7 +44,7 @@ test('dashboard: every feature, flag, bucket, page and setting the collector can
     'fn.': ADOPTION, 'fg.': FLAGS, f_: ['reported', 'newtab', 'started', 'finished', 'days3', 'days7'], len_: ['fl_u15', 'fl_u25', 'fl_u35', 'fl_u50', 'fl_u75', 'fl_75p'],
     br_: ['bp_always', 'bp_focus', 'bp_schedule', 'bp_limit', 'bp_budget', 'bp_friction'], sp_b_: ['nt_u100', 'nt_u250', 'nt_u500', 'nt_u1000', 'nt_slow'],
     he_: ['err_worker', 'err_page', 'err_blocker', 'err_sync', 'err_other'], g_: Object.keys(GROUPS), dp_: ['d1', 'd2', 'd4', 'd8', 'd15'], fs_: ['d0', 'd1', 'd2_3', 'd4_7', 'later', 'never'],
-    d_: DIMS, pg_: PAGE_IDS, q_: PAGE_IDS.filter((x) => x !== 'features' || true),
+    wf_: WIN_FEATURES, wfl_: WIN_FLAGS, d_: DIMS, pg_: PAGE_IDS, q_: PAGE_IDS.filter((x) => x !== 'features' || true),
     ur_: UNINSTALL_REASONS, ig_r_: INGEST_KINDS.filter((k) => k !== 'accepted' && k !== 'forgot'), wd_: ['0', '1', '2', '3', '4', '5', '6'], tg_: Object.keys(TARGET_RANGES).map((k) => (k === 'speed_p90' ? 'speed' : k)),
     use_: ['power', 'regular', 'casual', 'once', 'new', 'idle'], yn_: ['yes', 'no', 'unknown'],
     sc_: ['speed', 'finish', 'early', 'err', 'quick', 'upd', 'stick', 'goal_d1', 'goal_d7', 'goal_d30', 'goal_act'],
@@ -61,5 +61,5 @@ test('dashboard: every page has a builder, a name and a question', () => {
 test('dashboard: the page asks for a period only in the words the collector understands', () => {
   assert.ok(/range=all/.test(script) && /days=\$\{r\.kind\}/.test(script) && /from=\$\{r\.from\}/.test(script) && /to=\$\{r\.to\}/.test(script));
   const dimsInPage = /DIMS = \[([^\]]*)\]/.exec(script)[1].replace(/['\s]/g, '').split(',');
-  assert.deepEqual(dimsInPage, DIMS, 'the page narrows by the same settings the collector knows');
+  assert.deepEqual(dimsInPage, DIMS.filter((d) => d !== 'pr'), 'the page narrows by the same settings the collector knows (the product is a switch of its own)');
 });

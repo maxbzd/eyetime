@@ -112,6 +112,16 @@ const PAGES = ['overview', 'growth', 'activation', 'retention', 'audience', 'fea
   await p.selectOption('#f-use', 'power'); await p.waitForFunction(() => /use=power/.test(location.search)); ok(await p.$('.fchip') !== null, 'narrowed to the daily users');
   await p.context().close();
 
+  // 3c. the Windows app is a product of its own: the same pages where they mean the same, and a page about what it closes and how its challenge ends
+  p = await open('/?demo'); await ready(p);
+  await p.click('.seg button:has-text("Windows")'); await p.waitForFunction(() => /pr=win/.test(location.search)); await p.waitForSelector('nav.pages a[href="#windows"]');
+  const winPages = await p.$$eval('nav.pages a', (a) => a.map((x) => x.getAttribute('href')));
+  ok(winPages.includes('#windows') && !winPages.includes('#features') && !winPages.includes('#audience'), 'windows: its own page, and none of the extension feature pages: ' + winPages.join(' '));
+  await p.goto(base + '/?demo&pr=win#windows'); await p.waitForSelector('main h1'); await p.waitForSelector('.hlist');
+  ok(/What was closed|Что закрыто/.test(await p.textContent('main')) && (await p.$$('main .kpi')).length >= 10, 'windows: blocks, the challenge, sessions, the service');
+  await p.click('.seg button:has-text("Extension"), .seg button:has-text("Расширение")'); await p.waitForFunction(() => !/pr=win/.test(location.search)); await p.waitForSelector('nav.pages a[href="#features"]'); ok(true, 'and back to the extension');
+  await p.context().close();
+
   // 4. filters narrow the whole dashboard (and the address), and chips take them off
   p = await open('/?demo'); await ready(p);
   const all = Number((await p.textContent('main .kpi .val')).replace(/\D/g, ''));

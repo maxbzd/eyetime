@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS installs (
   layout       TEXT NOT NULL,
   mode         TEXT NOT NULL,      -- light | dark | auto
   age          INTEGER NOT NULL,   -- days since the install, as of the last report
-  act          TEXT NOT NULL       -- JSON array: the ages (days since the install) on which EyeTime was used; every report adds to it
+  act          TEXT NOT NULL,      -- JSON array: the ages (days since the install) on which EyeTime was used; every report adds to it
+  pr           TEXT NOT NULL DEFAULT 'ext'   -- ext (the browser extension) | win (the Windows app, which has no browser, look, layout or mode: those hold fixed fillers)
 );
 CREATE INDEX IF NOT EXISTS installs_first_report ON installs (first_report);
 -- The age (in days) at which each feature was first used.

@@ -28,9 +28,9 @@ export class D1Store {
     const act = [...new Set([...(old ? JSON.parse(old.act) : []), ...r.act])].sort((a, b) => a - b).slice(-800);
     const week = Math.floor(now / WEEK_MS);
     const stmts = [
-      this.db.prepare(`INSERT INTO installs (id, first_report, last_report, app, br, os, lang, look, layout, mode, age, act) VALUES (?1, ?2, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)
-        ON CONFLICT(id) DO UPDATE SET last_report = ?2, app = ?3, br = ?4, os = ?5, lang = ?6, look = ?7, layout = ?8, mode = ?9, age = MAX(age, ?10), act = ?11`)
-        .bind(r.id, now, r.app, r.br, r.os, r.lang, r.look, r.layout, r.mode, r.age, JSON.stringify(act)),
+      this.db.prepare(`INSERT INTO installs (id, first_report, last_report, app, br, os, lang, look, layout, mode, age, act, pr) VALUES (?1, ?2, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)
+        ON CONFLICT(id) DO UPDATE SET last_report = ?2, app = ?3, br = ?4, os = ?5, lang = ?6, look = ?7, layout = ?8, mode = ?9, age = MAX(age, ?10), act = ?11, pr = ?12`)
+        .bind(r.id, now, r.app, r.br ?? 'other', r.os ?? 'win', r.lang, r.look ?? '-', r.layout ?? '-', r.mode ?? 'auto', r.age, JSON.stringify(act), r.pr === 'win' ? 'win' : 'ext'),
       ...Object.entries(r.first).map(([f, age]) => this.db.prepare('INSERT INTO firsts (id, feature, age) VALUES (?1, ?2, ?3) ON CONFLICT(id, feature) DO UPDATE SET age = MIN(age, ?3)').bind(r.id, f, age)),
       ...(r.fl ? [this.db.prepare('DELETE FROM flags WHERE id = ?').bind(r.id), ...r.fl.map((f) => this.db.prepare('INSERT INTO flags (id, flag) VALUES (?1, ?2)').bind(r.id, f))] : []),
       ...(r.x || []).map((a) => { const [exp, arm] = a.split(':'); return this.db.prepare('INSERT INTO experiments (id, exp, arm) VALUES (?1, ?2, ?3) ON CONFLICT(id, exp) DO UPDATE SET arm = ?3').bind(r.id, exp, arm); }),
@@ -101,7 +101,7 @@ export class D1Store {
   async snapshot() {
     const all = async (sql) => (await this.db.prepare(sql).all()).results;
     const [installs, firsts, weeks, flags, experiments, notes, ingest, uninstalls, storeStats, settings] = await Promise.all([
-      all('SELECT id, first_report, last_report, app, br, os, lang, look, layout, mode, age, act FROM installs'),
+      all('SELECT id, first_report, last_report, app, br, os, lang, look, layout, mode, age, act, pr FROM installs'),
       all('SELECT id, feature, age FROM firsts'),
       all('SELECT id, week, feature, n FROM usage_weeks'),
       all('SELECT id, flag FROM flags'),

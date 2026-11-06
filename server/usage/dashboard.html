@@ -554,6 +554,74 @@ Object.assign(MORE, {
   'ins.cov': ['Охват выборки {p}: цифры описывают небольшую отобранную группу, читайте их осторожно.', 'Coverage of the sample is {p}: the figures describe a small, selected group, so read them with care.'],
   'ins.door': ['Приём отчётов: за неделю отклонено {p}. Откройте «Качество», там причины.', 'Report intake: {p} refused this week. Open “Quality” for the reasons.'],
 });
+Object.assign(MORE, {
+  wf_blk_rule: ['Закрыто по вашим правилам', 'Closed by your rules'],
+  wf_blk_session: ['Закрыто сессией', 'Closed by a session'],
+  wf_blk_limit: ['Закрыто лимитом', 'Closed by a limit'],
+  wf_blk_cool: ['Закрыто паузой после долгого сидения', 'Closed by a cool-down'],
+  wf_ch_shown: ['Испытаний показано', 'Challenges shown'],
+  wf_ch_done: ['Пройдено', 'Completed'],
+  wf_ch_wrong: ['Неверных ответов', 'Wrong answers'],
+  wf_ch_expired: ['Сдались (время вышло)', 'Gave up (timed out)'],
+  wf_ch_hold: ['Удержание', 'Hold'],
+  wf_ch_wait: ['Ожидание', 'Wait'],
+  wf_ch_type: ['Набрать слова', 'Type words'],
+  wf_ch_math: ['Задача на счёт', 'Sum'],
+  wf_ch_pin: ['PIN-код', 'PIN'],
+  wf_ch_friend: ['Код друга', 'Friend’s code'],
+  wf_ch_for_end: ['Завершить сессию', 'End a session'],
+  wf_ch_for_break: ['Перерыв', 'A break'],
+  wf_ch_for_unblock: ['Разблокировать', 'Unblock'],
+  wf_ch_for_edit: ['Изменить правила', 'Edit rules'],
+  wf_ch_for_emergency: ['Экстренный выход', 'Emergency exit'],
+  wf_ses_start: ['Сессий начато', 'Sessions started'],
+  wf_ses_done: ['Сессий завершено', 'Sessions finished'],
+  wf_ses_stop: ['Сессий прервано', 'Sessions stopped'],
+  wf_ui_open: ['Открытий окна', 'Window opened'],
+  wf_svc_start: ['Запусков службы', 'Service starts'],
+  wf_svc_crash: ['Сбоев службы', 'Service crashes'],
+  wf_upd_found: ['Найдено обновлений', 'Updates found'],
+  wf_upd_applied: ['Установлено обновлений', 'Updates installed'],
+  wf_upd_failed: ['Неудачных обновлений', 'Updates failed'],
+  wfl_pin: ['Задан PIN', 'PIN set'],
+  wfl_partner_pin: ['Код друга', 'Friend’s code'],
+  wfl_auto_update: ['Автообновление', 'Auto-update'],
+  wfl_browser_ext: ['Расширение для браузера', 'Browser extension'],
+  wfl_locked_rules: ['Есть жёсткие правила', 'Locked rules'],
+  wfl_limits: ['Лимиты', 'Limits'],
+  wfl_schedule: ['Расписание', 'Schedule'],
+  wfl_sessions_used: ['Запускали сессии', 'Started sessions'],
+  wfl_strict: ['Строгий режим', 'Strict mode'],
+  wfl_w10: ['Windows 10', 'Windows 10'],
+  wfl_w11: ['Windows 11', 'Windows 11'],
+  d_pr: ['Продукт', 'Product'],
+  prod_ext: ['Расширение', 'Extension'],
+  prod_win: ['Windows', 'Windows'],
+  prod_label: ['Продукт', 'Product'],
+  pg_windows: ['Приложение для Windows', 'Windows app'],
+  q_windows: ['Что приложение закрывает, как люди проходят испытания перед разблокировкой, доходят ли сессии до конца, не ломается ли служба.', 'What the app closes, how people get through the challenge before unblocking, whether sessions reach their end, whether the service holds.'],
+  wn_note: ['Только те, кто включил отчёты в самом приложении. Ни названий программ, ни сайтов, ни путей: считаются виды событий.', 'Only people who switched reports on inside the app. No program names, no sites, no paths: kinds of events are counted.'],
+  wn_blocks: ['Что закрыто и почему', 'What was closed, and why'],
+  wn_blocks_n: ['Закрытий за период', 'Closings in the period'],
+  wn_blocks_per: ['на установку', 'per install'],
+  wn_ch: ['Испытание перед разблокировкой', 'The challenge before unblocking'],
+  wn_ch_q: ['Приложение просит пройти испытание, прежде чем ослабить блокировку. Если почти все его проходят, оно слишком лёгкое; если почти все сдаются, слишком тяжёлое.', 'The app asks for a challenge before it loosens a block. If almost everyone passes, it is too easy; if almost everyone gives up, too hard.'],
+  wn_ch_done: ['Проходят', 'Pass it'],
+  wn_ch_giveup: ['Сдаются', 'Give up'],
+  wn_ch_kind: ['Какие испытания', 'Which kinds'],
+  wn_ch_for: ['Ради чего просят', 'What it is asked for'],
+  wn_ses: ['Сессии', 'Sessions'],
+  wn_ses_users: ['Запускали сессию', 'Ever started one'],
+  wn_ses_fw: ['Первая сессия за неделю', 'First session in week 1'],
+  wn_ses_fin: ['Доходят до конца', 'Reach the end'],
+  wn_svc: ['Служба и обновления', 'The service and updates'],
+  wn_crash: ['Сбоев на 1000 установок', 'Crashes per 1000 installs'],
+  wn_crash_i: ['Установок со сбоем', 'Installs with a crash'],
+  wn_upd_fail: ['Неудачных обновлений', 'Failed updates'],
+  wn_flags: ['Что настроено', 'What is set up'],
+  wn_ver: ['Версии приложения', 'App versions'],
+  wn_empty: ['Пока нет отчётов от приложения. Они появятся, когда первые люди включат «Делиться анонимными числами» в приложении.', 'No reports from the app yet. They will appear once the first people switch on “Share anonymous numbers” inside the app.'],
+});
 Object.assign(PAIRS, MORE);
 const MORE_GLOSS = [
   [['Главная метрика (North Star)', 'North star'], ['Завершённые фокус-сессии на активную установку в неделю, по последней полной неделе. Минуты — оценка: длина известна только по корзинам, берётся середина корзины.', 'Finished focus sessions per active install per week, for the last full week. Minutes are an estimate: the length is known only by bucket, and the middle of the bucket is used.']],
@@ -593,12 +661,12 @@ const rangeFromUrl = () => {
 };
 const filterFromUrl = () => Object.fromEntries(DIMS.filter((d) => params.get(d) && SLUG.test(params.get(d))).map((d) => [d, params.get(d)]));
 const PAGES = [
-  { id: 'overview', grp: 'g_main', ok: () => true }, { id: 'growth', grp: 'g_people', ok: (s) => !!s.weekly }, { id: 'activation', grp: 'g_people', ok: (s) => !!s.funnel }, { id: 'retention', grp: 'g_people', ok: (s) => !!s.retention }, { id: 'audience', grp: 'g_people', ok: (s) => !!s.setup },
-  { id: 'features', grp: 'g_product', ok: (s) => !!s.features }, { id: 'experiments', grp: 'g_product', ok: (s) => !!s.experiments }, { id: 'product', grp: 'g_product', ok: (s) => !!s.sessions }, { id: 'quality', grp: 'g_product', ok: (s) => !!(s.speed || s.health) }, { id: 'method', grp: 'g_ref', ok: () => true },
+  { id: 'overview', grp: 'g_main', ok: () => true }, { id: 'growth', grp: 'g_people', ok: (s) => !!s.weekly }, { id: 'activation', grp: 'g_people', ok: (s) => !!s.funnel }, { id: 'retention', grp: 'g_people', ok: (s) => !!s.retention }, { id: 'audience', grp: 'g_people', ok: (s) => !!s.setup && !s.win },
+  { id: 'windows', grp: 'g_product', ok: (s) => !!s.win }, { id: 'features', grp: 'g_product', ok: (s) => !!s.features }, { id: 'experiments', grp: 'g_product', ok: (s) => !!s.experiments }, { id: 'product', grp: 'g_product', ok: (s) => !!s.sessions }, { id: 'quality', grp: 'g_product', ok: (s) => !!(s.speed || s.health) }, { id: 'method', grp: 'g_ref', ok: () => true },
 ];
-const SCOPE = { overview: 'active', growth: 'weeks', activation: 'made', retention: 'made', features: 'active', experiments: 'made', product: 'active', quality: 'active', audience: 'active', method: null };
+const SCOPE = { windows: 'active', overview: 'active', growth: 'weeks', activation: 'made', retention: 'made', features: 'active', experiments: 'made', product: 'active', quality: 'active', audience: 'active', method: null };
 const hashPage = () => { const hs = location.hash.replace(/^#/, ''); return PAGES.some((p) => p.id === hs) ? hs : 'overview'; };
-const state = { localNotes: [], localSeq: 0, range: rangeFromUrl(), filter: filterFromUrl(), compare: store.get('et-compare') !== '0', rangeErr: '', page: hashPage(), feature: null, group: 'all', segDim: 'lang', lang: store.get('et-lang') || (/^ru|^uk|^be/i.test(navigator.language || '') ? 'ru' : 'en'), theme: store.get('et-theme') || 'auto', s: null, mode: params.has('demo') ? 'demo' : params.has('public') ? 'public' : 'owner', err: '', first: true };
+const state = { product: params.get('pr') === 'win' ? 'win' : 'ext', localNotes: [], localSeq: 0, range: rangeFromUrl(), filter: filterFromUrl(), compare: store.get('et-compare') !== '0', rangeErr: '', page: hashPage(), feature: null, group: 'all', segDim: 'lang', lang: store.get('et-lang') || (/^ru|^uk|^be/i.test(navigator.language || '') ? 'ru' : 'en'), theme: store.get('et-theme') || 'auto', s: null, mode: params.has('demo') ? 'demo' : params.has('public') ? 'public' : 'owner', err: '', first: true };
 const t = (key, vars) => { let s = L[state.lang][key]; if (s == null) s = L.en[key]; if (s == null) return key; if (typeof s === 'string' && vars) for (const k in vars) s = s.split('{' + k + '}').join(String(vars[k])); return s; };
 const nf = () => new Intl.NumberFormat(state.lang === 'ru' ? 'ru-RU' : 'en-US');
 const num = (n) => nf().format(Math.round(n));
@@ -614,7 +682,7 @@ function h(tag, attrs, ...kids) {
   return el;
 }
 function svg(tag, attrs, ...kids) { const el = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs || {})) if (v != null) el.setAttribute(k, String(v)); for (const c of kids.flat()) if (c != null) el.append(c.nodeType ? c : document.createTextNode(String(c))); return el; }
-const ICONS = { overview: 'M3 3h4.5v4.5H3zM8.5 3H13v4.5H8.5zM3 8.5h4.5V13H3zM8.5 8.5H13V13H8.5z', growth: 'M2 11.5l3.5-3.5 2.5 2.5L13.5 5M10 5h3.5v3.5', activation: 'M2.5 3h11l-4.2 5v4.5l-2.6-1.2V8z', retention: 'M13 8a5 5 0 1 1-1.6-3.7M13 2.8v3.1h-3.1', audience: 'M6 7.2a2.4 2.4 0 1 0 0-4.8 2.4 2.4 0 0 0 0 4.8zM1.8 13.5c0-2.3 1.9-3.7 4.2-3.7s4.2 1.4 4.2 3.7M10.6 2.8a2.2 2.2 0 0 1 0 4.2M11.5 9.9c1.6.4 2.7 1.6 2.7 3.6', features: 'M8 2.2l5.8 2.9L8 8 2.2 5.1zM2.2 8L8 10.9 13.8 8M2.2 10.9L8 13.8l5.8-2.9', product: 'M8 4.5V8l2.2 1.4M8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12', quality: 'M1.8 8.5h3l1.8-4.6 2.8 7.6 1.8-3h3', method: 'M3.2 2.8h6.3a2 2 0 0 1 2 2v8.4H5.2a2 2 0 0 1-2-2zM5.5 6h4M5.5 8.6h4', experiments: 'M6.5 2.5h3M7 2.5V6L3.5 12.2A1.2 1.2 0 0 0 4.5 14h7a1.2 1.2 0 0 0 1-1.8L9 6V2.5M5.2 10h5.6' };
+const ICONS = { windows: 'M2.5 3.5l4.7-.7v4.4H2.5zM8 2.7l5.5-.8v5.3H8zM2.5 8.8h4.7v4.4l-4.7-.7zM8 8.8h5.5v5.3L8 13.3z', overview: 'M3 3h4.5v4.5H3zM8.5 3H13v4.5H8.5zM3 8.5h4.5V13H3zM8.5 8.5H13V13H8.5z', growth: 'M2 11.5l3.5-3.5 2.5 2.5L13.5 5M10 5h3.5v3.5', activation: 'M2.5 3h11l-4.2 5v4.5l-2.6-1.2V8z', retention: 'M13 8a5 5 0 1 1-1.6-3.7M13 2.8v3.1h-3.1', audience: 'M6 7.2a2.4 2.4 0 1 0 0-4.8 2.4 2.4 0 0 0 0 4.8zM1.8 13.5c0-2.3 1.9-3.7 4.2-3.7s4.2 1.4 4.2 3.7M10.6 2.8a2.2 2.2 0 0 1 0 4.2M11.5 9.9c1.6.4 2.7 1.6 2.7 3.6', features: 'M8 2.2l5.8 2.9L8 8 2.2 5.1zM2.2 8L8 10.9 13.8 8M2.2 10.9L8 13.8l5.8-2.9', product: 'M8 4.5V8l2.2 1.4M8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12', quality: 'M1.8 8.5h3l1.8-4.6 2.8 7.6 1.8-3h3', method: 'M3.2 2.8h6.3a2 2 0 0 1 2 2v8.4H5.2a2 2 0 0 1-2-2zM5.5 6h4M5.5 8.6h4', experiments: 'M6.5 2.5h3M7 2.5V6L3.5 12.2A1.2 1.2 0 0 0 4.5 14h7a1.2 1.2 0 0 0 1-1.8L9 6V2.5M5.2 10h5.6' };
 const icon = (id) => svg('svg', { class: 'ic', viewBox: '0 0 16 16', 'aria-hidden': 'true' }, svg('path', { d: ICONS[id] }));
 const nameOf = (dim, v) => (v === 'other' ? t('st_other') : dim === 'lang' ? v.toUpperCase() : dim === 'mode' ? (L[state.lang]['m_' + v] || v) : dim === 'use' ? t('use_' + v) : dim === 'session' || dim === 'blocking' ? t('yn_' + v) : v);
 
@@ -859,7 +927,7 @@ function insights(s) {
 }
 
 // ───────────────────────── the controls ─────────────────────────
-const periodQuery = () => { const r = state.range; const q = r.kind === 'all' ? ['range=all'] : r.kind === 'custom' ? [`from=${r.from}`, `to=${r.to}`] : [`days=${r.kind}`]; for (const d of DIMS) if (state.filter[d]) q.push(`${d}=${encodeURIComponent(state.filter[d])}`); return q.join('&'); };
+const periodQuery = () => { const r = state.range; const q = r.kind === 'all' ? ['range=all'] : r.kind === 'custom' ? [`from=${r.from}`, `to=${r.to}`] : [`days=${r.kind}`]; for (const d of DIMS) if (state.filter[d]) q.push(`${d}=${encodeURIComponent(state.filter[d])}`); if (state.product === 'win') q.push('pr=win'); return q.join('&'); };
 function pick(kind) {
   if (kind === 'custom') { const r = state.s && state.s.range; state.range = { kind: 'custom', from: r ? r.from : '', to: r ? r.to : '' }; state.rangeErr = ''; render(); return; }
   state.range = { kind }; state.rangeErr = ''; load();
@@ -869,6 +937,7 @@ function controls(s) {
   const kinds = [['7', 'p_7'], ['28', 'p_28'], ['90', 'p_90'], ['all', 'p_all'], ['custom', 'p_custom']];
   const first = h('div', { class: 'row' });
   if (owner) {
+    first.append(h('div', { class: 'seg', role: 'group', 'aria-label': t('prod_label') }, ['ext', 'win'].map((k) => h('button', { type: 'button', 'aria-pressed': String(state.product === k), onclick: () => { if (state.product === k) return; state.product = k; state.filter = {}; state.page = 'overview'; location.hash = 'overview'; load(); } }, t('prod_' + k)))));
     first.append(h('div', { class: 'seg', role: 'group', 'aria-label': t('p_label') }, kinds.map(([k, key]) => h('button', { type: 'button', 'aria-pressed': String(state.range.kind === k), onclick: () => pick(k) }, t(key)))));
     if (state.range.kind === 'custom') {
       const max = new Date(s.generated_at).toISOString().slice(0, 10), min = s.overview && s.overview.first_day;
@@ -1158,6 +1227,34 @@ function coverageBlock(s) {
       h('div', { class: 'fgrid', style: 'max-width:520px' }, h('label', { for: 'cv-day' }, t('cv_th_day')), day, h('label', { for: 'cv-users' }, t('cv_users')), users, h('label', { for: 'cv-inst' }, t('cv_installs')), inst, h('label', { for: 'cv-unin' }, t('cv_unin')), unin),
       h('div', { style: 'margin-top:8px' }, demo ? h('p', { class: 'note', style: 'margin:0' }, t('cv_demo')) : h('button', { class: 'btn primary', type: 'button', onclick: save }, t('cv_save'))), h('p', { class: 'note' }, t('cv_note'))));
 }
+function pageWindows(s) {
+  const w = s.win, pv = s.prev, out = [];
+  if (!w || !w.installs) return h('div', { class: 'card' }, h('p', { class: 'note', style: 'margin:0' }, t('wn_empty')));
+  const share = (list, label, whole) => list.map((x) => ({ label: label(x), value: whole ? x.k / whole : 0, text: whole ? pct(x.k / whole) : '—', small: num(x.k), cls: whole < 30 ? 'low' : '', tip: [[num(x.k), label(x)], whole ? [pct(x.k / whole), ''] : null].filter(Boolean) })).sort((a, b) => b.value - a.value);
+  const ch = w.challenges, tot = (l) => l.reduce((a, x) => a + x.k, 0);
+  out.push(h('p', { class: 'note' }, t('wn_note')));
+  out.push(block(t('wn_blocks'), null,
+    h('div', { class: 'grid g3' }, kpi({ lab: t('wn_blocks_n'), val: num(w.blocks_total), sub: w.installs ? `${dec(w.blocks_total / w.installs, 1)} ${t('wn_blocks_per')}` : null, low: w.installs < LOW() }), kpi({ lab: t('k_installs'), val: num(w.installs), low: w.installs < LOW() }), kpi({ lab: t('wn_ses_users'), val: pct(w.sessions.users.pct), frac: w.sessions.users.pct, sub: `${num(w.sessions.users.k)} ${t('of')} ${num(w.sessions.users.n)}`, low: w.sessions.users.n < LOW() })),
+    h('div', { class: 'card', style: 'margin-top:12px' }, hlist(share(w.blocks, (x) => t('wf_' + x.id), w.blocks_total), { max: 1 }))));
+  out.push(block(t('wn_ch'), t('wn_ch_q'),
+    h('div', { class: 'grid g4' }, kpi({ lab: t('wf_ch_shown'), val: num(ch.shown), low: ch.shown < 30 }), kpi({ lab: t('wn_ch_done'), val: pct(ch.done_rate), frac: ch.done_rate, low: ch.shown < 30, sub: `${num(ch.done)} ${t('of')} ${num(ch.shown)}` }), kpi({ lab: t('wn_ch_giveup'), val: pct(ch.give_up_rate), frac: ch.give_up_rate, low: ch.shown < 30, sub: `${num(ch.expired)} ${t('of')} ${num(ch.shown)}` }), kpi({ lab: t('wf_ch_wrong'), val: num(ch.wrong), low: ch.shown < 30 })),
+    h('div', { class: 'grid g2', style: 'margin-top:12px' },
+      h('div', { class: 'card' }, h('h3', null, t('wn_ch_kind')), hlist(share(ch.kinds, (x) => t('wf_' + x.id), tot(ch.kinds)), { max: 1 })),
+      h('div', { class: 'card' }, h('h3', null, t('wn_ch_for')), hlist(share(ch.purposes, (x) => t('wf_' + x.id), tot(ch.purposes)), { max: 1 })))));
+  const se = w.sessions;
+  out.push(block(t('wn_ses'), null, h('div', { class: 'grid g4' },
+    kpi({ lab: t('wf_ses_start'), val: num(se.started), low: se.started < 30 }), kpi({ lab: t('wn_ses_fin'), val: pct(se.finish_rate), frac: se.finish_rate, low: se.started < 30, sub: `${num(se.finished)} ${t('of')} ${num(se.started)}` }),
+    kpi({ lab: t('wf_ses_stop'), val: num(se.stopped), low: se.started < 30 }), kpi({ lab: t('wn_ses_fw'), val: pct(se.first_week.pct), frac: se.first_week.pct, low: se.first_week.n < LOW(), sub: `${num(se.first_week.k)} ${t('of')} ${num(se.first_week.n)}` }))));
+  const sv = w.service, up = w.updates;
+  out.push(block(t('wn_svc'), null, h('div', { class: 'grid g4' },
+    kpi({ lab: t('wn_crash'), val: sv.crashes_per_1000 != null ? dec(sv.crashes_per_1000, 1) : '—', sub: `${num(sv.crashes)} ${t('wf_svc_crash').toLowerCase()}`, low: w.installs < LOW() }), kpi({ lab: t('wn_crash_i'), val: pct(sv.installs_with_crash.pct), frac: sv.installs_with_crash.pct, sub: `${num(sv.installs_with_crash.k)} ${t('of')} ${num(sv.installs_with_crash.n)}`, low: sv.installs_with_crash.n < LOW() }),
+    kpi({ lab: t('wf_upd_applied'), val: num(up.applied), sub: `${num(up.found)} ${t('wf_upd_found').toLowerCase()}` }), kpi({ lab: t('wn_upd_fail'), val: pct(up.failed_rate), frac: up.failed_rate, sub: `${num(up.failed)} ${t('of')} ${num(up.found)}`, low: up.found < 20 }))));
+  const fl = w.flags;
+  out.push(block(t('wn_flags'), null, h('div', { class: 'grid g2' },
+    h('div', { class: 'card' }, hlist(fl.items.filter((x) => x.k > 0 || !/^w1/.test(x.id)).map((x) => ({ label: t('wfl_' + x.id), value: fl.of ? x.k / fl.of : 0, text: fl.of ? pct(x.k / fl.of) : '—', small: num(x.k), cls: fl.of < LOW() ? 'low' : '', tip: [[num(x.k), t('wfl_' + x.id)], fl.of ? [pct(x.k / fl.of), t('st_flags')] : null].filter(Boolean) })).sort((a, b) => b.value - a.value), { max: 1 })),
+    h('div', { class: 'card' }, h('h3', null, t('wn_ver')), hlist(share(w.versions, (x) => x.value, tot(w.versions)), { max: 1 })))));
+  return out;
+}
 function pageExperiments(s) {
   const list = s.experiments || [];
   if (!list.length) return [block(t('ex_empty_h'), null, h('div', { class: 'card' }, h('p', { class: 'lead', style: 'margin:0' }, t('ex_empty'))))];
@@ -1172,7 +1269,7 @@ function pageMethod() {
   return [block(t('how_h'), null, h('div', { class: 'card' }, h('ul', { style: 'margin:0;padding-left:18px;display:grid;gap:6px' }, t('how').map((x) => h('li', null, x.split('{k}').join(String(LOW()))))))),
     block(t('gl_title'), null, h('div', { class: 'card' }, h('dl', { class: 'gl' }, items)))];
 }
-const PAGE_FN = { overview: pageOverview, growth: pageGrowth, activation: pageActivation, retention: pageRetention, features: pageFeatures, experiments: pageExperiments, product: pageProduct, quality: pageQuality, audience: pageAudience, method: pageMethod };
+const PAGE_FN = { windows: pageWindows, overview: pageOverview, growth: pageGrowth, activation: pageActivation, retention: pageRetention, features: pageFeatures, experiments: pageExperiments, product: pageProduct, quality: pageQuality, audience: pageAudience, method: pageMethod };
 
 // ───────────────────────── render ─────────────────────────
 function footer() { return h('footer', { class: 'foot' }, h('div', null, t('ft')), h('div', null, t('ft2'))); }
@@ -1212,7 +1309,7 @@ function render() {
 let busy = false;
 function syncUrl() {
   const q = new URLSearchParams(); for (const k of ['demo', 'public']) if (params.has(k)) q.set(k, '');
-  const r = state.range; if (state.mode !== 'public') { if (r.kind === 'all') q.set('range', 'all'); else if (r.kind === 'custom') { q.set('from', r.from); q.set('to', r.to); } else if (r.kind !== String(DEFAULT_DAYS)) q.set('days', r.kind); for (const d of DIMS) if (state.filter[d]) q.set(d, state.filter[d]); }
+  const r = state.range; if (state.mode !== 'public') { if (r.kind === 'all') q.set('range', 'all'); else if (r.kind === 'custom') { q.set('from', r.from); q.set('to', r.to); } else if (r.kind !== String(DEFAULT_DAYS)) q.set('days', r.kind); for (const d of DIMS) if (state.filter[d]) q.set(d, state.filter[d]); if (state.product === 'win') q.set('pr', 'win'); }
   const qs = q.toString().replace(/(demo|public)=(&|$)/g, '$1$2');
   try { history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash); } catch { /* not allowed here */ }
 }

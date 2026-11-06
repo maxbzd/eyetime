@@ -4,7 +4,7 @@
 // in a test (memory-store.js) or behind any other server. It accepts exactly what src/shared/usage-schema.js allows and nothing else, keeps no IP address or header,
 // and forgets an id on request.
 
-import { validateReport, validateForget, LIMITS, UNINSTALL_REASONS } from '../../src/shared/usage-schema.js';
+import { validateReport, validateForget, LIMITS, UNINSTALL_REASONS, PRODUCTS } from '../../src/shared/usage-schema.js';
 import { computeStats, publicStats, DIMS, normalizeTargets } from './stats.js';
 import { MAX_NOTE_LENGTH } from './limits.js';
 
@@ -48,7 +48,7 @@ export function parsePeriod(url) {
   for (const d of DIMS) {
     const v = url.searchParams.get(d);
     if (v === null) continue;
-    if (!/^[a-z0-9._-]{1,24}$/.test(v)) return null;
+    if (!/^[a-z0-9._-]{1,24}$/.test(v) || (d === 'pr' && !PRODUCTS.includes(v))) return null;
     filter[d] = v;
   }
   return Object.keys(filter).length ? { ...r, filter } : r;
