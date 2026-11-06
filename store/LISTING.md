@@ -1,6 +1,6 @@
 # Store listing copy (Chrome Web Store · Edge Add-ons · Firefox AMO)
 
-Everything below is ready to paste. Screenshots: `store/screenshots/<lang>/` (five per language, 1280×800, made by `scripts-dev/e2e/store-shots.cjs`; the store takes five and refuses any other size). Privacy policy URL: `https://maxbzd.github.io/eyetime/privacy.html` (published by `.github/workflows/pages.yml`; the same text lives in `PRIVACY.md`).
+Everything below is ready to paste. Screenshots: `store/screenshots/<lang>/` (five per language, 1280×800, made by `scripts-dev/e2e/store-shots.cjs`; the store takes five and refuses any other size). Support: `maxbzd1600@gmail.com` (Telegram @maxbzd), issues: `https://github.com/maxbzd/eyetime/issues`. Privacy policy URL: `https://maxbzd.github.io/eyetime/privacy.html` (published by `.github/workflows/pages.yml`; the same text lives in `PRIVACY.md`).
 
 ## Name, summary, description, screenshot captions, keywords
 One file per language, same structure — paste the sections into the store form of that language:

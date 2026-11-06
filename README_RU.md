@@ -123,3 +123,7 @@ npm run build     # dist/eyetime-chrome.zip и dist/eyetime-firefox.zip
 ## Лицензия
 
 [FSL-1.1-ALv2](LICENSE). Шрифт Inter (SIL OFL 1.1), иконки Lucide (ISC) — оба лежат внутри расширения: EyeTime ничего не загружает из интернета.
+
+## Связь
+
+Вопросы, идеи, проблемы: [issues](https://github.com/maxbzd/eyetime/issues), <maxbzd1600@gmail.com> или Telegram [@maxbzd](https://t.me/maxbzd). Уязвимость: см. [SECURITY.md](SECURITY.md).

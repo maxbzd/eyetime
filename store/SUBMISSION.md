@@ -1,5 +1,7 @@
 # Publishing checklist (what only the account owner can do)
 
+**Подробно, по шагам, на русском: [`PUBLISH_RU.md`](PUBLISH_RU.md).** Ниже краткая версия для всех магазинов.
+
 Prepared: package (`npm run build` → `dist/eyetime-chrome.zip`, `dist/eyetime-firefox.zip`; also attached to every GitHub release), listing text and permission justifications (`store/LISTING.md`), screenshots (`store/screenshots/`), privacy policy page (`site/privacy.html` → GitHub Pages).
 
 ## 0. One-time: turn on the project page

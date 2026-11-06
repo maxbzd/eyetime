@@ -3,3 +3,6 @@ contact_links:
   - name: Project page and privacy policy
     url: https://maxbzd.github.io/eyetime/
     about: Features, downloads and the privacy policy
+  - name: Write to the author
+    url: https://t.me/maxbzd
+    about: Telegram @maxbzd or maxbzd1600@gmail.com; for a vulnerability use the private report (SECURITY.md), not an issue

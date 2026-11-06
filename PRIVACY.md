@@ -81,4 +81,4 @@ Fonts and icons are bundled inside the extension; no content is loaded from the 
 
 Any change to this policy ships with a version bump and is listed in the release notes.
 
-Questions: open an issue at <https://github.com/maxbzd/eyetime/issues>.
+Questions: open an issue at <https://github.com/maxbzd/eyetime/issues>, write to <maxbzd1600@gmail.com> or to Telegram [@maxbzd](https://t.me/maxbzd).
