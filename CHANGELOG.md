@@ -7,6 +7,7 @@
 - A test now counts what each page and the worker load at start, and fails when a page starts to carry translations as code or grows past its budget (`scripts-dev/tests/weight.test.mjs`). The load-time budgets of the browser suite were tightened from 3.5 s to 1.5 s for Home.
 
 ### Lighter on the browser
+- **The worker is no longer woken twice a minute for nothing.** The 30-second tracking alarm now runs only while a site is being counted or a focus session or rest is running; with nobody at the keyboard it is off (120 wake-ups an hour saved), and coming back starts it again.
 - **Your own photo, its cut-out and its depth map live in IndexedDB**, not in the 10 MB of `chrome.storage.local` that the history shares: the photo is no longer copied into a change event for every open page whenever it is written, and no longer read again by every backup and daily clean-up. A photo from an earlier version is moved the first time it is needed (nothing is lost, tested in a real browser).
 
 ### More exact

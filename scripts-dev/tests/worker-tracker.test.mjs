@@ -96,3 +96,26 @@ test('an interval across midnight goes to both days', async () => {
   const all = chrome.storage.local._all();
   assert.equal(all['d:2026-11-04'].d['github.com'], 30); assert.equal(all['d:2026-11-05'].d['github.com'], 30);
 });
+
+test('the 30-second alarm exists while a site is counted and is not kept for nothing', async () => {
+  const tick = () => chrome.alarms.get('tick');
+  chrome._openTab('https://github.com/'); await sync('init');
+  assert.ok(await tick(), 'a site is being counted: the alarm runs');
+  chrome.idle._state = 'idle'; await sync('idle:idle');
+  assert.equal(await tick(), undefined, 'nobody at the keyboard and nothing running: the worker is not woken twice a minute');
+  chrome.idle._state = 'active'; await sync('idle:active');
+  assert.ok(await tick(), 'back at the keyboard: it starts again');
+  chrome._window.focused = false; await sync('focus');
+  assert.equal(await tick(), undefined, 'another program has focus');
+});
+
+test('a running focus session or rest keeps the alarm (the badge counts the minutes down) even with nobody counted', async () => {
+  chrome._window.focused = false;
+  await chrome.storage.local.set({ focus: { id: 'f', startedAt: Date.now(), endsAt: Date.now() + 25 * 60_000, minutes: 25 } });
+  await sync('init');
+  assert.ok(await chrome.alarms.get('tick'), 'a session is running');
+  await chrome.storage.local.set({ focus: null, rest: { startedAt: Date.now(), endsAt: Date.now() + 5 * 60_000, minutes: 5 } });
+  await sync('x'); assert.ok(await chrome.alarms.get('tick'), 'a rest is running');
+  await chrome.storage.local.set({ rest: null }); await sync('y');
+  assert.equal(await chrome.alarms.get('tick'), undefined, 'both over: no alarm');
+});
