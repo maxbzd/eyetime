@@ -260,3 +260,19 @@ test('client: the page after removal is set only when there is a collector to co
   globalThis.chrome.runtime.setUninstallURL = async () => { throw new Error('not allowed'); };
   assert.equal(await armUninstall('https://collector.example/v1/usage'), false, 'a refusal is no error');
 });
+
+test('stats: how the people who agreed split between the wordings of the question is the conversion of each', async () => {
+  const { consentSplit } = await import('../../server/usage/stats.js');
+  const even = consentSplit([{ arm: 'long', installs: 100 }, { arm: 'short', installs: 100 }]);
+  assert.equal(even.leader, null); assert.ok(even.p > 0.99 && even.enough);
+  const short = consentSplit([{ arm: 'long', installs: 220 }, { arm: 'short', installs: 280 }]);
+  assert.equal(short.leader, 'short'); assert.ok(short.p < 0.01 && Math.abs(short.arms[1].share - 0.56) < 1e-9);
+  const few = consentSplit([{ arm: 'long', installs: 20 }, { arm: 'short', installs: 60 }]);
+  assert.equal(few.leader, null, 'under 200 people nothing is called a result'); assert.equal(few.enough, false);
+  assert.equal(consentSplit([{ arm: 'only', installs: 5 }]).leader, null);
+  // through computeStats, for the experiment that the schema marks as measuring consent (and not for any other)
+  const snap = makeDemoSnapshot(NOW, { installs: 900 }), s = computeStats(snap, NOW, { all: true });
+  const ask = s.experiments.find((e) => e.id === 'ask-copy'), other = s.experiments.find((e) => e.id === 'demo-len');
+  assert.ok(ask && ask.consent && ask.consent.arms.length === 2 && ask.consent.n > 300, JSON.stringify(ask && ask.consent));
+  assert.equal(other.consent, null);
+});

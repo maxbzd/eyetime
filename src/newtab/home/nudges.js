@@ -9,7 +9,7 @@ import { nudge as pickNudge, dayReview } from '../../shared/productivity.js';
 import { dayKey } from '../../shared/time.js';
 import { downloadBackup, needsBackup } from '../../ui/backup.js';
 import { openShutdown } from '../shutdown.js';
-import { wantsToAsk } from '../../shared/usage-store.js';
+import { askPlan } from '../../shared/usage-store.js';
 import { showUsageAsk } from './usage-ask.js';
 import { isFocusLive } from '../../shared/blocking.js';
 import { state } from './state.js';
@@ -53,6 +53,7 @@ export async function paintNudge() {
  * and only once (any answer ends it). It is a card in the corner (usage-ask.js), not a strip: it says who is asking and why. Returns whether it is on the screen.
  */
 async function paintUsageAsk() {
-  if ((state.runningFocus && isFocusLive(state.runningFocus)) || !(await wantsToAsk())) return false;
-  return showUsageAsk();
+  if (state.runningFocus && isFocusLive(state.runningFocus)) return false;
+  const plan = await askPlan(); // null unless this is a good moment: right after a finished session (or, failing that, once it has waited a week)
+  return plan ? showUsageAsk(plan) : false;
 }

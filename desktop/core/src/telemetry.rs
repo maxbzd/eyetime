@@ -73,6 +73,14 @@ const MAX_COUNT: u32 = 100_000;
 const MAX_AGE: i64 = 4000;
 /// the one-time question is asked after this many days of use, and once something was closed
 pub const ASK_AFTER_DAYS: usize = 3;
+/// The version of what a "yes" covers (the list of fields, the purpose, the recipients). Raise it when any of those changes: reports stop until the person has agreed again.
+pub const CONSENT_VERSION: u32 = 1;
+/// "Not now" waits this long, and the question comes once more; never a third time.
+pub const LATER_MS: i64 = 21 * DAY_MS;
+pub const MAX_DEFERRALS: u32 = 1;
+/// A good moment is right after a finished session; failing that, once the question has waited this long.
+pub const PEAK_MS: i64 = 30 * 60_000;
+pub const PATIENCE_MS: i64 = 7 * DAY_MS;
 
 fn known(name: &str) -> bool {
     COUNTERS.contains(&name)
@@ -100,6 +108,14 @@ pub struct Telemetry {
     pub period: BTreeMap<String, u32>,
     /// an identifier that was switched off and that the collector has not yet been asked to forget
     pub forget: String,
+    /// "Not now": when it was said and how many times (a "not now" is not an answer)
+    pub deferred_ms: i64,
+    pub deferrals: u32,
+    /// since when the question could have been asked (a few days of use and something closed), and when a session last finished
+    pub eligible_ms: i64,
+    pub last_done_ms: i64,
+    /// which version of what is sent the person said yes to
+    pub consent_v: u32,
 }
 
 impl Telemetry {
@@ -136,6 +152,26 @@ impl Telemetry {
         self.first.entry(name.to_string()).or_insert(age);
         let n = self.period.entry(name.to_string()).or_insert(0);
         *n = (*n + 1).min(MAX_COUNT);
+        if name == "ses_done" {
+            self.last_done_ms = now_ms;
+        }
+        if self.eligible_ms == 0 && self.qualifies(now_ms) {
+            self.eligible_ms = now_ms;
+        }
+    }
+
+    /// A few days of use and something closed, and no answer that rules the question out (a "no", a "yes", a "not now" that is still fresh).
+    fn qualifies(&self, now_ms: i64) -> bool {
+        !self.on
+            && self.asked_ms == 0
+            && !(self.deferred_ms > 0 && now_ms - self.deferred_ms < LATER_MS)
+            && self.days.len() >= ASK_AFTER_DAYS
+            && self.first.keys().any(|k| k.starts_with("blk_"))
+    }
+
+    /// Does the stored "yes" cover what is sent now?
+    pub fn consent_current(&self) -> bool {
+        self.consent_v == CONSENT_VERSION
     }
 
     /// Switch sharing on with a fresh random identifier (the caller brings 128 random bits).
@@ -144,6 +180,9 @@ impl Telemetry {
         self.id = id_bits.iter().map(|b| format!("{b:02x}")).collect();
         self.opt_in_ms = now_ms;
         self.asked_ms = now_ms;
+        self.deferred_ms = 0;
+        self.eligible_ms = 0;
+        self.consent_v = CONSENT_VERSION;
         self.last_report_ms = 0;
         self.last_try_ms = 0;
     }
@@ -176,20 +215,38 @@ impl Telemetry {
     /// "No, thank you" to the one-time question: it is not asked again.
     pub fn decline(&mut self, now_ms: i64) {
         self.asked_ms = now_ms.max(1);
+        self.deferred_ms = 0;
+        self.eligible_ms = 0;
     }
 
-    /// Should the app ask now? Only with a collector to share with, only once, only after a few days of use and once something was closed.
-    pub fn should_ask(&self, have_collector: bool) -> bool {
-        have_collector
-            && !self.on
-            && self.asked_ms == 0
-            && self.days.len() >= ASK_AFTER_DAYS
-            && self.first.keys().any(|k| k.starts_with("blk_"))
+    /// "Not now": the question comes back once, after three weeks, at a good moment; the second "not now" is a "no".
+    pub fn defer(&mut self, now_ms: i64) {
+        if self.deferrals >= MAX_DEFERRALS {
+            self.decline(now_ms);
+            return;
+        }
+        self.deferred_ms = now_ms.max(1);
+        self.deferrals += 1;
+        self.eligible_ms = 0;
+    }
+
+    /// The plan for the question now: None (do not show), or Some(final), where `final` is the second and last time (no "Not now" any more).
+    pub fn ask_plan(&self, have_collector: bool, now_ms: i64) -> Option<bool> {
+        if !have_collector {
+            return None;
+        }
+        let stale = self.on && !self.consent_current();
+        if !stale && !self.qualifies(now_ms) {
+            return None;
+        }
+        let peak = self.last_done_ms > 0 && now_ms - self.last_done_ms <= PEAK_MS;
+        let patient = self.eligible_ms > 0 && now_ms - self.eligible_ms >= PATIENCE_MS;
+        (stale || peak || patient).then_some(self.deferrals >= MAX_DEFERRALS)
     }
 
     /// Is a report due? Weekly; the first one a day after switching on; a failed try waits six hours.
     pub fn due(&self, now_ms: i64, have_collector: bool) -> bool {
-        if !have_collector || !self.on || self.id.len() != 32 {
+        if !have_collector || !self.on || self.id.len() != 32 || !self.consent_current() {
             return false;
         }
         if self.last_try_ms != 0 && now_ms - self.last_try_ms < RETRY_AFTER_MS {
@@ -419,14 +476,17 @@ mod tests {
         for d in 0..4 {
             t.record("blk_rule", MS + d * DAY_MS, 0);
         }
-        assert!(!t.should_ask(false), "no collector, no question");
-        assert!(t.should_ask(true));
+        let now = MS + 4 * DAY_MS;
+        t.record("ses_done", now, 0); // a session just finished: a good moment
+        assert_eq!(t.ask_plan(false, now), None, "no collector, no question");
+        assert_eq!(t.ask_plan(true, now), Some(false));
         assert!(!t.due(MS + 40 * DAY_MS, true), "no yes, nothing is due");
-        t.decline(MS);
-        assert!(!t.should_ask(true), "a no is final");
+        t.decline(now);
+        assert_eq!(t.ask_plan(true, now), None, "a no is final");
         let mut t = Telemetry::default();
         t.record("blk_rule", MS, 0);
-        assert!(!t.should_ask(true), "a few days of use first");
+        t.record("ses_done", MS, 0);
+        assert_eq!(t.ask_plan(true, MS), None, "a few days of use first");
         t.enable(MS, ID);
         assert!(
             !t.due(MS + 3_600_000, true),
@@ -437,6 +497,82 @@ mod tests {
             !t.due(MS + 21 * 3_600_000, false),
             "a build with no collector sends nothing"
         );
+    }
+
+    #[test]
+    fn the_question_waits_for_a_good_moment_and_a_not_now_brings_it_back_once() {
+        let mut t = Telemetry::default();
+        for d in 0..4 {
+            t.record("blk_rule", MS + d * DAY_MS, 0);
+        }
+        let day4 = MS + 4 * DAY_MS;
+        t.record("blk_rule", day4, 0);
+        assert!(
+            t.eligible_ms > 0,
+            "the wait is noted from the first moment the person qualified"
+        );
+        assert_eq!(
+            t.ask_plan(true, day4 + 3_600_000),
+            None,
+            "not a good moment: no session just ended"
+        );
+        t.record("ses_done", day4 + 3_600_000, 0);
+        assert_eq!(
+            t.ask_plan(true, day4 + 3_600_000 + PEAK_MS - 1),
+            Some(false),
+            "right after a finished session"
+        );
+        assert_eq!(
+            t.ask_plan(true, day4 + 3_600_000 + PEAK_MS + 1),
+            None,
+            "half an hour later the moment has gone"
+        );
+        assert_eq!(
+            t.ask_plan(true, t.eligible_ms + PATIENCE_MS),
+            Some(false),
+            "after a week of waiting it is asked anyway"
+        );
+        // "not now": not an answer; waits three weeks; comes once more as the last time
+        let said = day4 + 7_200_000;
+        t.defer(said);
+        assert_eq!((t.asked_ms, t.deferrals), (0, 1));
+        assert_eq!(
+            t.ask_plan(true, said + LATER_MS - 1),
+            None,
+            "three weeks of quiet"
+        );
+        t.record("ses_done", said + LATER_MS + 1, 0);
+        assert_eq!(
+            t.ask_plan(true, said + LATER_MS + 2),
+            Some(true),
+            "once more, and it is the last time"
+        );
+        t.defer(said + LATER_MS + 2);
+        assert!(
+            t.asked_ms > 0 && t.ask_plan(true, said + 3 * LATER_MS).is_none(),
+            "a second \"not now\" is a \"no\""
+        );
+    }
+
+    #[test]
+    fn a_consent_is_for_what_it_was_given_for() {
+        let mut t = Telemetry::default();
+        t.enable(MS, ID);
+        assert_eq!(t.consent_v, CONSENT_VERSION);
+        assert!(t.due(MS + 21 * 3_600_000, true));
+        t.consent_v = CONSENT_VERSION - 1; // the scope changed since the person agreed
+        assert!(!t.consent_current());
+        assert!(
+            !t.due(MS + 40 * DAY_MS, true),
+            "nothing is sent until the person has agreed again"
+        );
+        assert_eq!(
+            t.ask_plan(true, MS + 40 * DAY_MS),
+            Some(false),
+            "and the question comes back"
+        );
+        t.enable(MS + 41 * DAY_MS, ID);
+        assert!(t.consent_current() && t.due(MS + 70 * DAY_MS, true));
     }
 
     #[test]

@@ -103,6 +103,8 @@ pub enum Request {
     },
     /// "no thank you" to the one-time question: it is not asked again
     TelemetryDecline,
+    /// "not now": the question comes back once, in three weeks
+    TelemetryDefer,
     /// the installer and the window ask before uninstalling
     Uninstall,
     /// the little agent in the person's session: what it sees, every couple of seconds. The answer is what it should do.
