@@ -11,5 +11,6 @@ pub mod model;
 pub mod schedule;
 pub mod sys;
 pub mod tamper;
+pub mod telemetry;
 pub mod update;
 pub mod usage;
