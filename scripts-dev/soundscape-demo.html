@@ -1,0 +1,219 @@
+<title>Звук фокуса</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;1,6..72,300&family=Hanken+Grotesk:wght@400;500;600&family=DM+Mono:wght@400&display=swap">
+<style>
+/* Layout: one calm column over a field of slow light. The sound draws itself: each note is a soft disc that rises and fades. */
+:root {
+  --bg: #0a1114; --bg-2: #0f1a1e; --panel: #101b1f; --line: #1d2d32;
+  --fg: #e7efe9; --muted: #8ea39d; --faint: #566a66;
+  --lamp: #e9b872; --lamp-soft: #e9b87226; --mist: #6fb6a8;
+  --f-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --f-body: 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --f-mono: 'DM Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg); font: 400 16px/1.55 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px; overflow-x: hidden;
+}
+canvas#field { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+main { position: relative; z-index: 1; max-width: 520px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; gap: 28px; }
+header { text-align: center; padding-top: 4vh; }
+.eyebrow { font: 400 12px/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--faint); margin: 0 0 14px; }
+h1 { font: italic 300 clamp(40px, 9vw, 58px)/1.02 var(--f-display); margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+.lede { color: var(--muted); margin: 14px auto 0; max-width: 40ch; text-wrap: balance; }
+
+.stage { display: grid; place-items: center; padding: 8px 0; }
+.play {
+  position: relative; width: 148px; height: 148px; border-radius: 50%; border: 1px solid var(--line); cursor: pointer;
+  background: radial-gradient(circle at 50% 38%, #172a2f, var(--bg-2) 70%); color: var(--fg);
+  display: grid; place-items: center; transition: transform .25s ease, border-color .25s ease;
+}
+.play:hover { transform: scale(1.025); border-color: #2e4a50; }
+.play:focus-visible { outline: 2px solid var(--lamp); outline-offset: 5px; }
+.play svg { width: 40px; height: 40px; fill: var(--lamp); }
+.play .pause { display: none; }
+.play[aria-pressed="true"] .pause { display: block; }
+.play[aria-pressed="true"] .go { display: none; }
+.play::before, .play::after { content: ""; position: absolute; inset: -14px; border-radius: 50%; border: 1px solid var(--lamp-soft); opacity: 0; }
+.play[aria-pressed="true"]::before { animation: breathe 9s ease-in-out infinite; }
+.play[aria-pressed="true"]::after { animation: breathe 9s ease-in-out 4.5s infinite; }
+@keyframes breathe { 0% { transform: scale(.94); opacity: 0; } 35% { opacity: .9; } 100% { transform: scale(1.32); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .play::before, .play::after { animation: none !important; } }
+
+.now { text-align: center; min-height: 3.4em; }
+.now .t { font: 400 38px/1 var(--f-mono); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.now .s { color: var(--muted); font-size: 14px; margin-top: 8px; }
+.now .s b { font-weight: 500; color: var(--fg); }
+
+.panel { background: color-mix(in srgb, var(--panel) 88%, transparent); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 18px; backdrop-filter: blur(6px); }
+.row { display: grid; gap: 8px; }
+.row > label, .row > .lab { font: 400 12px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--faint); display: flex; justify-content: space-between; gap: 12px; }
+.row > label output { color: var(--muted); text-transform: none; letter-spacing: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 500 14px/1 var(--f-body); padding: 10px 14px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
+.chip[aria-pressed="true"] { color: #1a1206; background: var(--lamp); border-color: var(--lamp); }
+.chip:focus-visible { outline: 2px solid var(--lamp); outline-offset: 2px; }
+input[type=range] { width: 100%; accent-color: var(--lamp); height: 28px; }
+svg.curve { width: 100%; height: 64px; display: block; }
+.hint { color: var(--faint); font-size: 13px; margin: 0; }
+
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.ghost { font: 500 14px/1 var(--f-body); padding: 11px 16px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
+.ghost:hover { border-color: #2e4a50; }
+.ghost:focus-visible { outline: 2px solid var(--lamp); outline-offset: 2px; }
+
+footer { margin-top: auto; color: var(--faint); font-size: 13px; line-height: 1.5; padding-top: 6px; }
+footer a { color: var(--muted); }
+</style>
+
+<canvas id="field" aria-hidden="true"></canvas>
+<main>
+  <header>
+    <p class="eyebrow">EyeTime · прототип</p>
+    <h1>Звук для фокуса</h1>
+    <p class="lede">Музыка, которой нет в записи. Она собирается заново при каждом запуске и никогда не повторяется.</p>
+  </header>
+
+  <section class="stage" aria-label="Воспроизведение">
+    <button class="play" id="play" type="button" aria-pressed="false" aria-label="Играть">
+      <svg class="go" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6a1 1 0 0 0 1.5.86l11-6.8a1 1 0 0 0 0-1.72l-11-6.8A1 1 0 0 0 8 5.2z"/></svg>
+      <svg class="pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4.2" height="14" rx="1.2"/><rect x="13.8" y="5" width="4.2" height="14" rx="1.2"/></svg>
+    </button>
+  </section>
+
+  <div class="now" aria-live="polite">
+    <div class="t" id="clock">00:00</div>
+    <div class="s" id="status">Нажмите, чтобы начать</div>
+  </div>
+
+  <section class="panel" aria-label="Настройки">
+    <div class="row">
+      <div class="lab">Сессия</div>
+      <div class="chips" role="group" aria-label="Длина сессии" id="sessions">
+        <button class="chip" type="button" data-min="25" aria-pressed="false">25 мин</button>
+        <button class="chip" type="button" data-min="50" aria-pressed="false">50 мин</button>
+        <button class="chip" type="button" data-min="90" aria-pressed="false">90 мин</button>
+        <button class="chip" type="button" data-min="0" aria-pressed="true">Без конца</button>
+      </div>
+      <svg class="curve" id="curve" viewBox="0 0 400 64" preserveAspectRatio="none" role="img" aria-label="Как меняется насыщенность звука за сессию"></svg>
+      <p class="hint" id="curveHint">Звук набирает силу первые минуты, держится, и к концу сессии становится тише и реже.</p>
+    </div>
+    <div class="row" id="manualRow">
+      <label for="intensity">Насыщенность <output id="intensityOut">80%</output></label>
+      <input id="intensity" type="range" min="0" max="100" value="80">
+    </div>
+    <div class="row">
+      <label for="volume">Громкость <output id="volumeOut">60%</output></label>
+      <input id="volume" type="range" min="0" max="100" value="60">
+    </div>
+    <div class="actions">
+      <button class="ghost" id="again" type="button">Сыграть по-другому</button>
+    </div>
+  </section>
+
+  <footer>
+    Всё синтезируется в браузере, без записей и без файлов. Принцип нот со своими случайными периодами взят у
+    <a href="https://github.com/generative-music/pieces-alex-bainter" target="_blank" rel="noopener">generative.fm</a> (MIT, Alex Bainter).
+    Лучше слушать в наушниках.
+  </footer>
+</main>
+
+<script type="module">
+/*ENGINE*/
+
+const $ = (id) => document.getElementById(id);
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let ctx = null, engine = null, seed = 0, playing = false;
+let startedAt = 0, pausedAt = 0, elapsedBefore = 0;
+let totalMin = 0, manual = 0.8, volume = 0.6;
+const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+const elapsed = () => elapsedBefore + (playing && ctx ? ctx.currentTime - startedAt : 0);
+
+/* ---- the picture: every note is a disc that drifts up and fades ---- */
+const cv = $('field'), g = cv.getContext('2d');
+let W = 0, H = 0, DPR = 1; const discs = [], rings = []; let glow = 0.4, chordHue = 38;
+function resize() { DPR = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * DPR; cv.height = H * DPR; g.setTransform(DPR, 0, 0, DPR, 0, 0); }
+addEventListener('resize', resize); resize();
+function onEvent(e) {
+  const delay = Math.max(0, (e.t - ctx.currentTime) * 1000);
+  if (e.type === 'note') setTimeout(() => discs.push({ x: (e.pan + 1) / 2 * W, y: H * (0.92 - (e.midi - 50) / 44 * 0.8), r: 26 + e.vel * 120, born: performance.now(), life: Math.min(e.dur, 12) * 1000, hue: chordHue + (e.midi % 12) * 4 }), delay);
+  else if (e.type === 'pulse') setTimeout(() => rings.push({ born: performance.now(), life: 1400 }), delay);
+  else if (e.type === 'chord') setTimeout(() => { chordHue = 30 + ((e.notes[1] % 12) * 11) % 140; $('status').innerHTML = `Аккорд <b>${e.name}</b> · вариация № ${seed}`; }, delay);
+}
+function frame(now) {
+  g.clearRect(0, 0, W, H);
+  const lvl = playing ? (engine ? engine.state().intensity : 0.8) : 0.15;
+  glow += (lvl - glow) * 0.01;
+  const t = now / 1000, cx = W / 2 + Math.sin(t * 0.05) * W * 0.12, cy = H * 0.52 + Math.cos(t * 0.04) * H * 0.06, R = Math.max(W, H) * (0.45 + glow * 0.2);
+  const bg = g.createRadialGradient(cx, cy, 0, cx, cy, R); bg.addColorStop(0, `hsla(${chordHue},60%,50%,${0.05 + glow * 0.08})`); bg.addColorStop(1, 'hsla(190,40%,10%,0)');
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  for (let i = discs.length - 1; i >= 0; i--) {
+    const d = discs[i], k = (now - d.born) / d.life; if (k >= 1) { discs.splice(i, 1); continue; }
+    const a = Math.sin(Math.PI * Math.min(1, k * 1.15)) * 0.22, y = d.y - (REDUCED ? 0 : k * 50), r = d.r * (0.85 + k * 0.5);
+    const gr = g.createRadialGradient(d.x, y, 0, d.x, y, r); gr.addColorStop(0, `hsla(${d.hue},70%,68%,${a})`); gr.addColorStop(1, `hsla(${d.hue},70%,60%,0)`);
+    g.fillStyle = gr; g.beginPath(); g.arc(d.x, y, r, 0, 7); g.fill();
+  }
+  for (let i = rings.length - 1; i >= 0; i--) {
+    const rg = rings[i], k = (now - rg.born) / rg.life; if (k >= 1) { rings.splice(i, 1); continue; }
+    g.strokeStyle = `hsla(${chordHue},60%,70%,${0.16 * (1 - k)})`; g.lineWidth = 1.2; g.beginPath(); g.arc(W / 2, H * 0.78, 14 + k * 90, 0, 7); g.stroke();
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---- sound ---- */
+function begin(fresh) {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  ctx.resume();
+  if (fresh || !engine) {
+    if (engine) engine.stop(1.5);
+    seed = Math.floor(Math.random() * 1e6);
+    discs.length = 0;
+    engine = createEngine(ctx, { mode: 'focus', rng: seeded(seed), volume, intensity: intensityNow(0), onEvent });
+    elapsedBefore = 0; startedAt = ctx.currentTime;
+  } else { engine.setVolume(volume); startedAt = ctx.currentTime; }
+  playing = true; sync();
+}
+function pause() { if (!playing) return; elapsedBefore = elapsed(); playing = false; ctx.suspend(); sync(); }
+function resume() { ctx.resume(); startedAt = ctx.currentTime; playing = true; sync(); }
+function intensityNow(s) { return totalMin > 0 ? sessionIntensity(s, totalMin * 60) : manual; }
+
+const play = $('play');
+play.addEventListener('click', () => { if (!ctx || !engine) begin(true); else if (playing) pause(); else resume(); });
+$('again').addEventListener('click', () => begin(true));
+function sync() {
+  play.setAttribute('aria-pressed', String(playing)); play.setAttribute('aria-label', playing ? 'Пауза' : 'Играть');
+  if (!playing && !engine) $('status').textContent = 'Нажмите, чтобы начать';
+  else if (!playing) $('status').textContent = 'Пауза';
+  $('seedNote')?.remove();
+}
+setInterval(() => {
+  const s = elapsed(); $('clock').textContent = totalMin > 0 ? `${fmt(s)} / ${fmt(totalMin * 60)}` : fmt(s);
+  if (engine && playing) { engine.setIntensity(intensityNow(s)); if (totalMin > 0 && s >= totalMin * 60) { engine.stop(6); playing = false; engine = null; $('status').textContent = 'Сессия закончилась'; sync(); } }
+  drawCurve(s);
+}, 1000);
+
+/* ---- controls ---- */
+document.querySelectorAll('#sessions .chip').forEach((b) => b.addEventListener('click', () => {
+  document.querySelectorAll('#sessions .chip').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  totalMin = +b.dataset.min; $('manualRow').hidden = totalMin > 0; $('curve').style.display = totalMin > 0 ? 'block' : 'none'; $('curveHint').hidden = totalMin === 0;
+  if (engine) { elapsedBefore = 0; startedAt = ctx.currentTime; engine.setIntensity(intensityNow(0)); }
+  drawCurve(0);
+}));
+$('intensity').addEventListener('input', (e) => { manual = e.target.value / 100; $('intensityOut').textContent = e.target.value + '%'; if (engine && totalMin === 0) engine.setIntensity(manual); });
+$('volume').addEventListener('input', (e) => { volume = e.target.value / 100; $('volumeOut').textContent = e.target.value + '%'; if (engine) engine.setVolume(volume); });
+function drawCurve(s) {
+  const c = $('curve'); if (totalMin <= 0) { c.innerHTML = ''; return; }
+  const T = totalMin * 60; let d = ''; for (let i = 0; i <= 120; i++) { const x = i / 120 * 400, y = 58 - sessionIntensity(i / 120 * T, T) * 52; d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); }
+  const px = Math.min(1, s / T) * 400;
+  c.innerHTML = `<path d="${d}" fill="none" stroke="#e9b872" stroke-width="1.6" vector-effect="non-scaling-stroke"/><line x1="${px}" x2="${px}" y1="2" y2="62" stroke="#8ea39d" stroke-width="1" vector-effect="non-scaling-stroke" opacity=".7"/>`;
+}
+$('curve').style.display = 'none'; $('curveHint').hidden = true; drawCurve(0);
+</script>
