@@ -108,9 +108,20 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 
 Permissions are minimal and each one is explained in **Settings → Data & privacy**. EyeTime makes no network requests of its own. Four things you can turn on reach out, and only to the address you give: the desktop companion (`127.0.0.1`), a connected service (Todoist, Notion, CalDAV: the service's own address, straight from your browser), a calendar subscription (your calendar's link, fetched about once an hour) and the optional weather (Open-Meteo, a free service without accounts; only the rounded coordinates of the city you pick are sent). See [PRIVACY.md](PRIVACY.md).
 
-## Desktop companion (optional)
+## EyeTime for Windows (desktop app)
 
-A tiny read-only Windows helper that adds time spent in desktop apps. It only notes the front app's executable name, is protected by a pairing token and can never touch your browser. → [companion/README.md](companion/README.md)
+The browser extension closes distractions inside the browser. **EyeTime for Windows** closes them on the whole computer, and is what the extension's optional companion grew into. Everything stays on your machine.
+
+- **Real blocking.** A protected Windows service closes sites (system level, so every browser and app) and programs, with a polite 15 seconds to save first. Sessions, schedules, limits, "only these apps", strict levels up to Frozen, emergency keys, an app PIN (Argon2id) and a partner code.
+- **A window you want to open.** Home with a live 3D gemstone, Rules, Timer, Insights and Profile built from what the service really measured (no invented numbers), a first-minute onboarding, and 3 400+ app and site logos with search while you add one.
+- **Eye care that works when the window is closed.** A quiet Windows notification for eye breaks and before bedtime.
+- **Updates that update themselves.** A glowing chip appears when a new version is out; it installs at a quiet moment, never in the middle of a session or a locked block. Every update is checked: size, SHA-256 and an **Ed25519 signature** made by the release job.
+- **Safe by design.** Who may ask the service for what is decided per connection (the real program on the other end, not what a request says); the data folder is readable only by the system and administrators; setup stops if a protection cannot be applied. Details: [desktop/README.md](desktop/README.md).
+- **Install:** one file, `EyeTime-Setup.exe` (a custom animated setup, one click). Windows 10 or 11. It is not code-signed with a certificate yet, so SmartScreen may warn on the first start.
+- **Network:** the only thing the Windows app reaches out for is this project's GitHub release list (about every six hours) and, when you accept an update, the installer from there. No account, no telemetry.
+- **The browser extension talks to it** through native messaging, so pages, words and exceptions are closed in the browser too.
+
+→ [desktop/README.md](desktop/README.md) · [desktop/CHANGELOG.md](desktop/CHANGELOG.md). The older read-only Python companion ([companion/README.md](companion/README.md)) still works for the extension on its own.
 
 ## Project layout
 
@@ -121,7 +132,8 @@ src/background/        service worker: tracker, focus, blocker, eye breaks, week
 src/popup|newtab|insights|options|onboarding|blocked|break/   the seven surfaces
 src/content/feed.js    short-video guard (only YouTube / Instagram / TikTok / VK)
 src/ui/                design tokens, components, charts, icons (Lucide), Inter font
-companion/             optional Windows desktop companion (Python, stdlib only)
+companion/             the older read-only Windows companion (Python, stdlib only)
+desktop/               EyeTime for Windows: service + agent (Rust), window (Tauri), setup, screens (see desktop/README.md)
 docs/                  PRODUCT.md · DESIGN.md · THEMES.md · RESEARCH.md · ARCHITECTURE.md
 scripts-dev/           checker, tests, icon + package builders
 ```
@@ -131,7 +143,7 @@ No framework, no bundler, no runtime dependencies — open the folder, read the 
 ## Development
 
 ```bash
-npm run check     # syntax, manifest, i18n parity, icons + unit tests (Node 22+)
+npm run check     # syntax, manifest, i18n parity, icons + unit tests (Node 24+)
 npm run build     # dist/eyetime-chrome.zip and dist/eyetime-firefox.zip
 npm run e2e       # every end-to-end suite in Chromium, three at a time (needs Playwright; scripts-dev/e2e/README.md)
 python -m unittest -v test_companion   # in companion/
@@ -145,6 +157,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the architecture tour, adding a langu
 - [ ] Chrome Web Store, Edge Add-ons and Firefox AMO listings
 - [x] Spanish, German, French and Portuguese (machine-translated — corrections welcome, see [docs/TRANSLATING.md](docs/TRANSLATING.md))
 - [ ] More languages (UK, ZH, JA, IT, PL …) — [one file each](CONTRIBUTING.md#adding-a-language)
+- [x] EyeTime for Windows: protected service, window, setup, signed self-updates (0.2)
+- [ ] Windows: network-level blocking and instant app-start events
 - [ ] macOS / Linux companion backends — [guide](companion/README.md#contributing-a-backend)
 - [ ] In-app weekly review
 
