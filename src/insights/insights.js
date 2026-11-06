@@ -50,8 +50,8 @@ function deltaChip(pct, { tone = 'upGood', unit = '%' } = {}) {
   if (pct === null || pct === undefined) return null;
   const v = Math.round(pct) || 0;
   const up = v > 0;
-  const cls = v === 0 || tone === 'none' ? '' : (up === (tone === 'upBad') ? 'bad' : 'good');
-  return h('span', { class: 'delta ' + cls }, icon(v === 0 ? 'minus' : up ? 'trending-up' : 'trending-down'), `${up ? '+' : ''}${fmtNumber(v)}${unit}`);
+  const mood = v === 0 || tone === 'none' ? '' : (up === (tone === 'upBad') ? 'bad' : 'good');
+  return h('span', { class: 'delta ' + mood }, icon(v === 0 ? 'minus' : up ? 'trending-up' : 'trending-down'), `${up ? '+' : ''}${fmtNumber(v)}${unit}`);
 }
 
 function kpi({ ico, label, value, sub, chip }) {

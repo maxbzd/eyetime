@@ -55,9 +55,9 @@ export function calendarGroup(s, save) {
   async function unsubscribe(id) {
     const { gone, rest } = await calLock(async () => {
       const subs = await loadSubs();
-      const rest = subs.filter((x) => x.id !== id);
-      await saveSubs(rest); await removeSourceUnlocked(id);
-      return { gone: subs.find((x) => x.id === id), rest };
+      const kept = subs.filter((x) => x.id !== id);
+      await saveSubs(kept); await removeSourceUnlocked(id);
+      return { gone: subs.find((x) => x.id === id), rest: kept };
     });
     const n = gone ? normalizeCalendarUrl(gone.url) : null;
     if (n && n.ok && !rest.some((x) => { const m = normalizeCalendarUrl(x.url); return m.ok && m.pattern === n.pattern; })) await chrome.permissions.remove({ origins: [n.pattern] }).catch(() => {});

@@ -164,7 +164,7 @@ export const LIFE_DEFS = {
   water: {
     build(root, api) {
       const draw = () => {
-        let c = api.cfg(); const today = dayKey(), n = c.day === today ? c.n : 0;
+        const c = api.cfg(); const today = dayKey(), n = c.day === today ? c.n : 0;
         const set = (v) => api.save({ day: today, n: Math.max(0, Math.min(40, v)) });
         clear(root, el('div', 'wg-label', t('wg.k.water')),
           el('div', 'wa-cups', Array.from({ length: Math.max(c.goal, n) }, (_, i) => h('button', { class: 'wa-cup' + (i < n ? ' on' : ''), type: 'button', 'aria-pressed': String(i < n), 'aria-label': t('wg.water.cup', { n: i + 1 }), onclick: () => set(i + 1 === n ? i : i + 1) }, icon('droplet')))),

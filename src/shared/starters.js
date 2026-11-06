@@ -54,11 +54,11 @@ export function restoreHome(s, target, before) {
  * not tasks, links, notes, habits, widgets or history.
  */
 export function calmDefault() {
-  const n = DEFAULT_SETTINGS.newtab, a = DEFAULT_SETTINGS.appearance;
+  const nt = DEFAULT_SETTINGS.newtab, a = DEFAULT_SETTINGS.appearance;
   return {
     id: 'calm',
     appearance: { look: a.look, accent: a.accent, font: a.font, scale: a.scale, radius: a.radius, density: a.density, cards: a.cards, customCss: a.customCss },
-    home: { layout: n.layout, background: n.background, frame: n.frame, quiet: n.quiet, photoText: n.photoText, clockStyle: n.clockStyle, greeting: n.greeting, scene: n.scene, sceneParams: {}, dna: n.dna, depth: n.depth, canvas: { on: false, items: {} } },
+    home: { layout: nt.layout, background: nt.background, frame: nt.frame, quiet: nt.quiet, photoText: nt.photoText, clockStyle: nt.clockStyle, greeting: nt.greeting, scene: nt.scene, sceneParams: {}, dna: nt.dna, depth: nt.depth, canvas: { on: false, items: {} } },
   };
 }
 
