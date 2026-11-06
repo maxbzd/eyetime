@@ -1,13 +1,15 @@
 // Builds store packages in dist/:  eyetime-chrome.zip (Chrome + Edge, MV3)  and  eyetime-firefox.zip (Firefox AMO).
 //   npm run build
-// Needs the `zip` CLI (or Python 3 as a fallback).
+// What is shipped is the production build of src/ (scripts/build.mjs: bundled and minified), not the source tree; EYETIME_BUILD=source ships the tree as it is (for a bug that
+// only the shipped code shows, or for reading). The zips are deterministic (scripts-dev/zip.mjs): the same source gives the same bytes.
 import fs from 'node:fs';
 import path from 'node:path';
-import cp from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { buildInto } from './build.mjs';
+import { writeZip, filesUnder } from './zip.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const dist = path.join(root, 'dist');
+const dist = process.env.EYETIME_DIST ? path.resolve(process.env.EYETIME_DIST) : path.join(root, 'dist'); // EYETIME_DIST: build somewhere else (the tests, the verification of a release)
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
 const INCLUDE = ['src', '_locales', 'icons', 'LICENSE'];
 const SKIP = /(\.md$|\.d\.ts$|icon512\.png$)/;
@@ -40,12 +42,19 @@ function stage(name, transform) {
 }
 
 function zip(dir, out) {
-  try { cp.execFileSync('zip', ['-qr', out, '.'], { cwd: dir }); }
-  catch { cp.execFileSync('python3', ['-c', 'import shutil,sys; shutil.make_archive(sys.argv[1][:-4], "zip", sys.argv[2])', out, dir]); }
+  writeZip(out, filesUnder(dir));
   console.log(`✓ ${path.relative(root, out)} (${(fs.statSync(out).size / 1024).toFixed(0)} KB)`);
 }
 
+const SOURCE = process.env.EYETIME_BUILD === 'source';
+async function build(stageDir, target) {
+  if (SOURCE) return;
+  const r = await buildInto({ stage: stageDir, root, target });
+  console.log(`  production build: ${r.entries} entry points, ${r.outputs} script files shipped, ${r.bundled} source modules folded into them`);
+}
+
 const chrome = stage('chrome');
+await build(chrome, ['chrome120']);
 zip(chrome, path.join(dist, 'eyetime-chrome.zip'));
 
 const firefox = stage('firefox', (m) => {
@@ -54,4 +63,5 @@ const firefox = stage('firefox', (m) => {
   m.background = { scripts: ['src/background/index.js'], type: 'module' };
   m.browser_specific_settings = { gecko: { id: 'eyetime@maxbzd.github.io', strict_min_version: '142.0', data_collection_permissions: { required: ['none'], optional: ['technicalAndInteraction'] } } };
 });
+await build(firefox, ['firefox142']);
 zip(firefox, path.join(dist, 'eyetime-firefox.zip'));

@@ -9,15 +9,25 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  id-token: write       # to sign the build provenance
+  attestations: write
 jobs:
   release:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with: { node-version: 24 }
+      - run: npm ci --ignore-scripts
       - run: npm run check
       - run: npm run build
+      # the same source must give the same bytes: if two builds differ, nothing is published
+      - run: node scripts-dev/verify-build.mjs
+      - run: node scripts-dev/sbom.mjs
+      # a signed statement (Sigstore, through GitHub) that these exact files were built from this commit by this workflow; `gh attestation verify <file> --repo maxbzd/eyetime` checks it
+      - uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
+        with:
+          subject-path: dist/*.zip
       - name: Create the release if it does not exist yet
         env:
           GH_TOKEN: ${{ github.token }}
@@ -28,4 +38,4 @@ jobs:
           if gh release view "$TAG" >/dev/null 2>&1; then echo "Release $TAG already exists — nothing to do."; exit 0; fi
           awk -v v="$VERSION" '/^## /{p=0} $0 ~ "^## " v {p=1} p' CHANGELOG.md > notes.md
           [ -s notes.md ] || echo "EyeTime $VERSION" > notes.md
-          gh release create "$TAG" dist/eyetime-chrome.zip dist/eyetime-firefox.zip --target "$GITHUB_SHA" --title "EyeTime $VERSION" --notes-file notes.md
+          gh release create "$TAG" dist/eyetime-chrome.zip dist/eyetime-firefox.zip dist/eyetime-sbom.cdx.json --target "$GITHUB_SHA" --title "EyeTime $VERSION" --notes-file notes.md
