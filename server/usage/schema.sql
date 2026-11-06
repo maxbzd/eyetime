@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS installs (
   age          INTEGER NOT NULL,   -- days since the install, as of the last report
   act          TEXT NOT NULL       -- JSON array: the ages (days since the install) on which EyeTime was used; every report adds to it
 );
+CREATE INDEX IF NOT EXISTS installs_first_report ON installs (first_report);
 -- The age (in days) at which each feature was first used.
 CREATE TABLE IF NOT EXISTS firsts (
   id      TEXT NOT NULL,

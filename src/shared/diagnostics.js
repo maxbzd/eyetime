@@ -1,6 +1,6 @@
 // The text a person can copy into a bug report: versions, counts and recent errors — no site names, tasks, notes or goals.
 // It is built on demand and shown before anything leaves the page; EyeTime never sends it by itself.
-import { LANGUAGES } from './locales/index.js';
+import { LANGUAGES } from './locales/languages.js';
 
 
 const pick = (v, allowed) => (allowed.includes(v) ? v : 'other');

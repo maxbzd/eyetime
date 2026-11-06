@@ -18,7 +18,7 @@ export function compact(sec) {
 export async function updateBadge(settings) {
   const dk = dayStorageKey(dayKey());
   const raw = await getRaw(['focus', 'rest', dk]);
-  setLocale(resolveLocale(settings.language));
+  await setLocale(resolveLocale(settings.language));
 
   if (raw.focus && isPaused(raw.focus)) {
     await chrome.action.setBadgeText({ text: 'II' });

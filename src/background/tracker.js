@@ -3,7 +3,7 @@
 // previous interval (credits the seconds) and opens the next one.
 
 import { getSettings, addTime, getRaw, updateDay } from '../shared/storage.js';
-import { dayKey, splitAtMidnight } from '../shared/time.js';
+import { dayKey, splitAtMidnight, creditSeconds } from '../shared/time.js';
 import { hostFromUrl, matchesAny } from '../shared/domains.js';
 import { updateBadge } from './badge.js';
 import { onActiveTime } from './breaks.js';
@@ -43,17 +43,21 @@ async function run(reason) {
   const now = Date.now();
   const settings = await getSettings();
   const { trk } = await session().get('trk');
+  let rem = 0; // ms that did not make a whole second at the last close
 
   // 1) close the previous interval
   if (trk && trk.host) {
-    const sec = Math.round((now - trk.since) / 1000);
-    if (sec > 0 && sec <= MAX_GAP) {
-      // an interval that crosses midnight is split: each part goes to its own day and hour
-      for (const part of splitAtMidnight(trk.since, now)) {
-        const psec = Math.round((part.to - part.from) / 1000);
-        if (psec > 0) await addTime({ host: trk.host, sec: psec, hour: new Date(part.from + (part.to - part.from) / 2).getHours(), date: new Date(part.to - 1) });
+    const gap = (now - trk.since) / 1000;
+    if (gap > 0 && gap <= MAX_GAP) {
+      // an interval that crosses midnight is split: each part goes to its own day and hour; the fractions of a second are carried, not dropped
+      const { credits, rem: left } = creditSeconds(splitAtMidnight(trk.since, now), trk.rem);
+      rem = left;
+      let sec = 0;
+      for (const c of credits) {
+        await addTime({ host: trk.host, sec: c.sec, hour: new Date(c.from + (c.to - c.from) / 2).getHours(), date: new Date(c.to - 1) });
+        sec += c.sec;
       }
-      await onActiveTime(sec, now);
+      if (sec > 0) await onActiveTime(sec, now);
     }
   }
 
@@ -61,7 +65,7 @@ async function run(reason) {
   const target = await currentTarget(settings);
   // a switch = moving from one site to a different one (context switching is what fragments attention)
   if (trk && trk.host && target && target.host !== trk.host) await updateDay(dayKey(new Date(now)), (d) => { d.sw = (d.sw || 0) + 1; });
-  await session().set({ trk: target ? { host: target.host, since: now } : { host: null, since: now } });
+  await session().set({ trk: target ? { host: target.host, since: now, rem } : { host: null, since: now, rem } });
 
   await updateBadge(settings);
 }
