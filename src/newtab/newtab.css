@@ -289,6 +289,25 @@ body[data-layout="split"] .hero .clock { white-space: nowrap; font-size: clamp(5
 .sc-row { display: grid; grid-template-columns: 64px 1fr; align-items: center; } .sc-row .kbd { justify-self: start; }
 .nudge { flex-wrap: wrap; justify-content: center; max-width: 100%; border-radius: min(var(--r-full), 22px); } .nudge .nudge-text { min-width: 0; }
 
+/* the one-time question about anonymous usage numbers (usage-ask.js): a note in the corner, not a banner */
+.ask { position: fixed; inset-inline-end: var(--s-6); bottom: var(--s-6); z-index: 60; width: min(372px, calc(100vw - 2 * var(--s-4))); max-height: calc(100vh - 2 * var(--s-6)); overflow-y: auto; padding: var(--s-6); border-radius: var(--r-xl); border: var(--border-w) solid var(--border); background: radial-gradient(120% 70% at 0% 0%, var(--accent-soft), transparent 62%), var(--surface); color: var(--text); box-shadow: var(--shadow-3); animation: ask-in var(--t-slow) var(--ease) both; }
+.ask.leaving { animation: ask-out var(--t-med) var(--ease) forwards; pointer-events: none; }
+@keyframes ask-in { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes ask-out { to { opacity: 0; transform: translateY(10px) scale(.98); } }
+.ask-badge { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--r-full); background: var(--accent); color: var(--accent-fg); margin-bottom: var(--s-4); } .ask-badge .ico { font-size: 20px; }
+.ask-title { margin: 0 0 var(--s-2); font-family: var(--font-serif); font-weight: 400; font-size: 28px; line-height: 1.12; letter-spacing: -.01em; text-wrap: balance; }
+.ask-lead { margin: 0 0 var(--s-4); color: var(--text-2); font-size: var(--fs-md); line-height: 1.55; text-wrap: pretty; }
+.ask-promises { list-style: none; margin: 0 0 var(--s-4); padding: 0; display: grid; gap: var(--s-3); }
+.ask-promises li { display: grid; grid-template-columns: 32px 1fr; gap: var(--s-3); align-items: start; font-size: var(--fs-sm); line-height: 1.5; color: var(--text-2); } .ask-promises strong { color: var(--text); font-weight: 650; }
+.ask-ico { display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--r-md); background: var(--surface-2); border: var(--border-w) solid var(--border); color: var(--accent-text); } .ask-ico .ico { font-size: 16px; }
+.ask-fine { margin: 0 0 var(--s-4); font-size: var(--fs-xs); line-height: 1.5; color: var(--text-3); }
+.ask-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-bottom: var(--s-3); } .ask-actions .btn { flex: 1 1 auto; justify-content: center; }
+.ask-show { display: inline-flex; align-items: center; gap: 6px; padding: 4px 2px; margin: 0 0 var(--s-2); border: 0; background: none; color: var(--text-2); font: inherit; font-size: var(--fs-xs); font-weight: 560; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--border-strong); } .ask-show:hover { color: var(--text); }
+.ask-show .ico { font-size: 14px; } .ask-show[aria-expanded="true"] .ico:last-child { transform: rotate(180deg); }
+.ask-preview { margin: 0 0 var(--s-3); padding: var(--s-3); max-height: 190px; overflow: auto; border-radius: var(--r-md); background: var(--surface-2); border: var(--border-w) solid var(--border); font: 11px/1.5 var(--font-mono); color: var(--text-2); white-space: pre-wrap; word-break: break-all; } .ask-preview[hidden], .ask-fine[hidden] { display: none; }
+.ask-sign { margin: var(--s-2) 0 0; font-family: var(--font-serif); font-style: italic; font-size: 17px; color: var(--text-3); text-align: end; }
+@media (max-width: 600px) { .ask { inset-inline: var(--s-3); bottom: var(--s-3); width: auto; padding: var(--s-5); } .ask-title { font-size: 24px; } }
+
 /* get-started checklist */
 .wn { width: min(760px, 100%); margin: 0 auto; padding: var(--s-5); display: flex; flex-direction: column; gap: var(--s-3); border-color: var(--accent-ring); }
 .wn[hidden] { display: none; } .wn-head { display: flex; align-items: center; gap: var(--s-3); } .wn-head .ico { color: var(--accent-text); } .wn-head h2 { font-size: var(--fs-lg); flex: 1; }
