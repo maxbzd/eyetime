@@ -4,7 +4,6 @@
     "target": "ES2023", "module": "ESNext", "moduleResolution": "Bundler",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "skipLibCheck": true, "types": [],
-    // strict, one flag at a time: the ones below are on now; noImplicitAny (3 400 places) and strictNullChecks (about 490) are the two that remain
     "alwaysStrict": true, "noImplicitThis": true, "strictBindCallApply": true, "strictFunctionTypes": true, "useUnknownInCatchVariables": true,
     "noImplicitAny": false, "strictNullChecks": false
   },
