@@ -43,6 +43,7 @@ test('e2e runner: CI runs the suites through the runner', async () => {
   const ci = readFileSync(join(HERE, '../../.github/workflows/ci.yml'), 'utf8');
   assert.match(ci, /scripts-dev\/e2e\/run\.mjs/);
   // dist.cjs is not a suite of the shards: it needs the built package (suites.json lists it under "tools"), and the `package` job runs it
-  const byHand = [...ci.matchAll(/node scripts-dev\/e2e\/([a-z0-9-]+)\.cjs/g)].map((m) => m[1]).filter((n) => n !== 'dist');
+  // instant and syncenc are suites of the shards (on the source tree) and are run once more by hand in the `package` job, against the built package that goes to the store
+  const byHand = [...ci.matchAll(/node scripts-dev\/e2e\/([a-z0-9-]+)\.cjs/g)].map((m) => m[1]).filter((n) => !['dist', 'instant', 'syncenc'].includes(n));
   assert.deepEqual(byHand, [], 'no suite is run by hand: it would be missing from the shards');
 });
