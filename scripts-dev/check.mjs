@@ -102,6 +102,7 @@ for (const [code, dict] of Object.entries(LOCALES)) {
     else if (typeof en[k] === 'string' && typeof dict[k] === 'string' && ph(en[k]) !== ph(dict[k])) fail(`i18n: placeholder mismatch in ${code}:${k}`);
   }
 }
+try { cp.execFileSync(process.execPath, [path.join(root, 'scripts-dev/build-locales.mjs'), '--check'], { stdio: 'pipe' }); } catch (e) { fail('i18n: ' + (String(e.stderr || '').trim() || 'locales/data is out of date: run  node scripts-dev/build-locales.mjs')); }
 const unusedKeys = Object.keys(en).filter((k) => !used.has(k));
 if (unusedKeys.length && process.argv.includes('--unused')) console.log('unused i18n keys:', unusedKeys.join(', '));
 

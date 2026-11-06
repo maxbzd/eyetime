@@ -16,6 +16,7 @@ import { syncNow } from './sync.js';
 import { syncTasksNow } from './tasksync.js';
 import { applySettings } from './apply.js';
 import { logError } from '../shared/errorlog.js';
+import { intIn, isPassKey, PASS_MINUTES, TRACKING_PAUSE_MINUTES } from '../shared/validate.js';
 
 import { syncCalendar, armCalendar } from './calendar.js';
 import { syncConnections, armConnections } from './connections.js';
@@ -49,14 +50,23 @@ const handlers = {
     return { ok: true };
   },
   'rest:skip': async () => { await endRest({ notify: false }); return { ok: true }; },
-  'pass:grant': async (m, sender) => { await grantPass(m.rule, m.minutes, sender.tab ? sender.tab.id : null); return { ok: true }; },
+  'pass:grant': async (m, sender) => {
+    if (!isPassKey(m.rule)) return { ok: false, error: 'rule' };
+    await grantPass(m.rule, intIn(m.minutes, PASS_MINUTES.min, PASS_MINUTES.max, PASS_MINUTES.fallback), sender.tab ? sender.tab.id : null);
+    return { ok: true };
+  },
   'break:complete': async () => { await completeBreak(); return { ok: true }; },
   'break:skip': async () => { await skipBreak(); return { ok: true }; },
   'break:snooze': async () => { await snoozeBreak(); return { ok: true }; },
   'break:open': async () => { await openBreakPage(); return { ok: true }; },
   'break:state': () => getEyeState(),
   'tracker:sync': async () => { await sync('open'); return { ok: true }; },
-  'tracking:pause': async (m) => { await setRaw({ pausedUntil: m.minutes ? Date.now() + m.minutes * 60_000 : 0 }); await sync('pause'); return { ok: true }; },
+  'tracking:pause': async (m) => {
+    const minutes = m.minutes ? intIn(m.minutes, TRACKING_PAUSE_MINUTES.min, TRACKING_PAUSE_MINUTES.max, 0) : 0; // 0 (or nothing sensible) ends a pause
+    await setRaw({ pausedUntil: minutes ? Date.now() + minutes * 60_000 : 0 });
+    await sync('pause');
+    return { ok: true };
+  },
   'tab:close': async (m, sender) => { if (sender.tab) await chrome.tabs.remove(sender.tab.id); return { ok: true }; },
   'dock:pos': async (m) => { const y = Number(m.y); if (!(y >= 0.05 && y <= 0.95)) return { ok: false }; await updateSettings((s) => { s.dock.y = Math.round(y * 1000) / 1000; }, { touch: false }); return { ok: true }; }, // a place on the screen is not a settings edit: it must not win a settings sync
   'dock:page': async (m, sender) => (sender.tab ? { url: sender.tab.url || '', title: sender.tab.title || '' } : { url: '', title: '' }),

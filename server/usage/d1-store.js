@@ -11,6 +11,12 @@ export class D1Store {
     return row ? row.last_report : null;
   }
 
+  /** how many installs reported for the first time after `since` (ms) */
+  async newSince(since) {
+    const row = await this.db.prepare('SELECT COUNT(*) AS n FROM installs WHERE first_report > ?').bind(since).first();
+    return row ? row.n : 0;
+  }
+
   async save(r, now) {
     const old = await this.db.prepare('SELECT act, first_report, age FROM installs WHERE id = ?').bind(r.id).first();
     const act = [...new Set([...(old ? JSON.parse(old.act) : []), ...r.act])].sort((a, b) => a - b).slice(-800);

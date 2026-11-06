@@ -37,7 +37,7 @@ export function onActiveTime(sec, now = Date.now()) {
 }
 
 async function notifyBreak(settings) {
-  setLocale(resolveLocale(settings.language));
+  await setLocale(resolveLocale(settings.language));
   const opts = {
     type: 'basic', iconUrl: ICON, priority: 1,
     title: t('eye.notifTitle'),
@@ -107,7 +107,7 @@ chrome.alarms.onAlarm.addListener((a) => {
   serial(async () => {
     const settings = await getSettings();
     if (!settings.eye.bedtime.enabled) return;
-    setLocale(resolveLocale(settings.language));
+    await setLocale(resolveLocale(settings.language));
     await chrome.notifications.create('bedtime', {
       type: 'basic', iconUrl: ICON,
       title: t('eye.bedtimeTitle'),
