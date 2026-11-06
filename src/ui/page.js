@@ -13,8 +13,8 @@ export function applyTheme(settings) {
   /** @type {any} */ (window).EyeTimeTheme?.apply(buildCache(settings.appearance), true);
 }
 
-export function localize(settings) {
-  setLocale(resolveLocale(settings.language));
+export async function localize(settings) {
+  await setLocale(resolveLocale(settings.language));
   document.documentElement.dataset.langCache = document.documentElement.lang;
 }
 
@@ -26,7 +26,7 @@ export function localize(settings) {
 export async function bootPage({ onSettings } = {}) {
   captureErrors('page:' + location.pathname.split('/').slice(-2).join('/'));
   const settings = await getSettings();
-  localize(settings);
+  await localize(settings);
   applyTheme(settings);
   applyI18n();
   hydrateIcons();
@@ -34,7 +34,7 @@ export async function bootPage({ onSettings } = {}) {
   if (onSettings) {
     onChange('settings', async () => {
       const s = await getSettings();
-      localize(s); applyTheme(s);
+      await localize(s); applyTheme(s);
       onSettings(s);
     });
   }

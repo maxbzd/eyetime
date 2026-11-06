@@ -163,7 +163,7 @@ export async function finishFocus() {
   await creditTask(focus, focus.minutes * 60);
   const settings = await getSettings();
   if (settings.focus.review) await setRaw({ review: reviewOf(focus, focus.minutes * 60, true) });
-  setLocale(resolveLocale(settings.language));
+  await setLocale(resolveLocale(settings.language));
   if (settings.focus.sound) playChime('end');
   const fresh = Date.now() - focus.endsAt < 2 * 60_000; // a session that ended long ago (browser was closed) gets no rest
   const next = restFor(settings.focus, sessionsToday);
@@ -191,7 +191,7 @@ export async function endRest({ notify = true } = {}) {
   const settings = await getSettings();
   await updateBadge(settings);
   if (!notify) return;
-  setLocale(resolveLocale(settings.language));
+  await setLocale(resolveLocale(settings.language));
   const opts = { type: 'basic', iconUrl: ICON, priority: 0, title: t('rest.overTitle'), message: t('rest.overBody', { n: settings.focus.minutes }), buttons: [{ title: t('focus.start', { time: fmtDuration(settings.focus.minutes * 60) }) }] };
   try { await chrome.notifications.create('rest-over', opts); } catch { delete opts.buttons; await chrome.notifications.create('rest-over', opts); }
 }

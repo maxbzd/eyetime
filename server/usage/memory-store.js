@@ -2,6 +2,7 @@
 
 export class MemoryStore {
   constructor() { this.installs = new Map(); this.firsts = new Map(); this.weeks = new Map(); }
+  async newSince(since) { let n = 0; for (const i of this.installs.values()) if (i.first_report > since) n++; return n; }
   async lastReceived(id) { return this.installs.get(id)?.last_report ?? null; }
   async save(r, now) {
     const old = this.installs.get(r.id);

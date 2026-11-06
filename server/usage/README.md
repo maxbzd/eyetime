@@ -15,9 +15,11 @@ wrangler.toml     the Worker's settings (logs and analytics of the collector its
 
 ## What it will not do
 
-- It does not read, store or log an IP address, a header, a cookie or a user agent. The handler never looks at them and a test checks that nothing of the kind is stored.
+- It does not store or log an IP address, a header, a cookie or a user agent, and a test checks that nothing of the kind is stored. The handler looks at two headers only to decide whether to answer, and keeps neither: `Content-Type` and `Content-Length` (a body announced as too big is refused unread), and `Origin`.
 - It does not accept an unknown field, a value outside its list, or a body over 4 KB.
 - It accepts one report per install per six hours (HTTP 429 otherwise).
+- It accepts a browser request only from an extension (`chrome-extension://…`, `moz-extension://…`): a web page gets 403, so a page cannot be made to send reports. (A program that is not a browser can say anything in `Origin`; this is about web pages, not about a determined script.)
+- It takes at most 1000 installs that report for the first time per hour in all (HTTP 429 with `Retry-After`; `MAX_NEW_PER_HOUR` in `handler.js`). The six-hour rule holds only for an id it has seen, so without this limit a script could fill the database with made-up ids. Installs that are already known keep reporting. For a real flood put a Cloudflare rate-limiting rule in front of the Worker too (dashboard: Security → WAF → Rate limiting rules); that cannot be set from this repository.
 - It deletes everything held for an id when asked (`{ "v": 1, "op": "forget", "id": "…" }`), which the extension sends when someone stops sharing.
 
 ## Set it up (about five minutes; nothing here is deployed by the repository)

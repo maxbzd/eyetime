@@ -28,7 +28,7 @@ export async function maybeSendWeeklyReport(now = new Date()) {
   const before = summarize(await getDays(weekKeys(prev)), classify);
   if (cur.total < 600) return;
 
-  setLocale(resolveLocale(settings.language));
+  await setLocale(resolveLocale(settings.language));
   const lines = [];
   const d = delta(cur.total, before.total);
   lines.push(t('weekly.total', { time: fmtDuration(cur.total) }) + (d === null ? '' : ` (${d > 0 ? '+' : ''}${d}%)`));

@@ -15,7 +15,7 @@ export async function checkStorage() {
     if (Date.now() - storageWarnedAt < EVERY_MS) return;
     await setRaw({ storageWarnedAt: Date.now() });
     const settings = await getSettings();
-    setLocale(resolveLocale(settings.language));
+    await setLocale(resolveLocale(settings.language));
     await chrome.notifications.create('storage-full', { type: 'basic', iconUrl: ICON, priority: 1, title: t('store.fullTitle'), message: t('store.fullBody', { pct: Math.round((u.total / u.limit) * 100) }) });
   } catch { /* a heads-up is a nicety, never an error */ }
 }
