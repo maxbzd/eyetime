@@ -2,7 +2,7 @@
 //! It only talks; whether and when the new installer runs is decided by the supervisor, with the same care as everything else.
 
 use eyetime_core::update::{
-    builtin_pubkey, from_feed, newest, same_hash, sha256_file, verify_update, UpdateInfo,
+    builtin_pubkeys, from_feed, newest, same_hash, sha256_file, verify_update_any, UpdateInfo,
     MAX_BYTES, RELEASES_URL,
 };
 use std::path::{Path, PathBuf};
@@ -63,8 +63,8 @@ pub struct Updater<N: Net> {
     pub net: N,
     pub shared: Arc<Mutex<Shared>>,
     pub current: String,
-    /// the key whose signature an update must carry
-    pub key: [u8; 32],
+    /// the keys of which one must have signed an update
+    pub keys: Vec<[u8; 32]>,
 }
 
 fn lock(s: &Arc<Mutex<Shared>>) -> std::sync::MutexGuard<'_, Shared> {
@@ -83,7 +83,7 @@ impl<N: Net> Updater<N> {
             net,
             shared,
             current: current.to_string(),
-            key: builtin_pubkey(),
+            keys: builtin_pubkeys(),
         }
     }
 
@@ -188,7 +188,7 @@ impl<N: Net> Updater<N> {
                     .net
                     .get(&info.sig_url)
                     .map_err(|e| format!("the signature could not be fetched: {e}"))?;
-                if !verify_update(&self.key, &info.version, &got, &sig) {
+                if !verify_update_any(&self.keys, &info.version, &got, &sig) {
                     return Err(
                         "the download is not signed by EyeTime, so it was thrown away".to_string(),
                     );
@@ -283,7 +283,7 @@ mod tests {
             sig: Mutex::new(sig),
         };
         let mut u = Updater::new(net, Arc::new(Mutex::new(Shared::default())), "0.1.0");
-        u.key = ed25519_dalek_pub(&seed);
+        u.keys = vec![ed25519_dalek_pub(&seed)];
         (u, dir)
     }
 

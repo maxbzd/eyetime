@@ -11,7 +11,7 @@ impl Rng {
     pub fn new(seed: u64) -> Rng {
         Rng(seed ^ 0x9E37_79B9_7F4A_7C15)
     }
-    pub fn next(&mut self) -> u64 {
+    pub fn next_u64(&mut self) -> u64 {
         self.0 = self.0.wrapping_add(0x9E37_79B9_7F4A_7C15);
         let mut z = self.0;
         z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
@@ -19,7 +19,7 @@ impl Rng {
         z ^ (z >> 31)
     }
     pub fn below(&mut self, n: u64) -> u64 {
-        self.next() % n.max(1)
+        self.next_u64() % n.max(1)
     }
 }
 
@@ -81,7 +81,7 @@ impl Challenge {
         unblocks_today: u32,
     ) -> Challenge {
         let mut rng = Rng::new(seed);
-        let id = format!("{:016x}", rng.next());
+        let id = format!("{:016x}", rng.next_u64());
         let mut c = Challenge {
             id,
             kind: p.friction.clone(),
@@ -229,7 +229,7 @@ impl Pin {
         if !Pin::valid_format(pin) {
             return None;
         }
-        let salt = format!("{:016x}", Rng::new(seed).next());
+        let salt = format!("{:016x}", Rng::new(seed).next_u64());
         Some(Pin {
             hash: hash_pin(&salt, pin),
             salt,

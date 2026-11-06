@@ -76,6 +76,15 @@ struct Applied {
     safeboot: Option<bool>,
 }
 
+/// What the agent in the person's session last reported: the open windows, the one in front, how long the person has been away, whether the screen is locked, and when.
+struct Observation {
+    windows: Vec<Win>,
+    fg: Option<Fg>,
+    idle_secs: u32,
+    screen_locked: bool,
+    at: i64,
+}
+
 pub struct Supervisor<O: Os> {
     pub os: O,
     pub p: Persist,
@@ -83,7 +92,7 @@ pub struct Supervisor<O: Os> {
     pub decision: Decision,
     clock: ClockGuard,
     pending: Vec<Pending>,
-    obs: Option<(Vec<Win>, Option<Fg>, u32, bool, i64)>,
+    obs: Option<Observation>,
     site: Option<(String, bool, i64)>,
     last_tick: i64,
     /// the program that was in front at the last look (for "when this program opens")
@@ -219,11 +228,11 @@ impl<O: Os> Supervisor<O> {
     }
 
     fn foreground_key(&self, t: i64) -> Option<String> {
-        let (_, fg, idle, locked, at) = self.obs.as_ref()?;
-        if t - at > FRESH_MS || *locked || *idle >= AWAY_SECS {
+        let o = self.obs.as_ref()?;
+        if t - o.at > FRESH_MS || o.screen_locked || o.idle_secs >= AWAY_SECS {
             return None;
         }
-        let fg = fg.as_ref()?;
+        let fg = o.fg.as_ref()?;
         let exe = lower(&fg.exe);
         if exe.is_empty() || never_close(&exe) && exe != "explorer.exe" {
             return None;
@@ -376,7 +385,10 @@ impl<O: Os> Supervisor<O> {
                 }
             }
             if d.allow_only {
-                if let Some((wins, _, _, _, at)) = &self.obs {
+                if let Some(Observation {
+                    windows: wins, at, ..
+                }) = &self.obs
+                {
                     if t - at <= FRESH_MS {
                         // the agent only says which windows are open; what each process really is, is read from the system's own table,
                         // never from the agent's words (a request can name any program and any process number)
@@ -410,7 +422,7 @@ impl<O: Os> Supervisor<O> {
         self.closing.retain(|pid, _| live.contains(pid));
         for (pid, exe, kind) in doomed {
             if kind == "tool" {
-                if self.os.terminate(pid) {
+                if self.os.terminate(pid, &exe) {
                     self.event(t, kind, &exe, &reason);
                 }
                 continue;
@@ -420,7 +432,7 @@ impl<O: Os> Supervisor<O> {
                 self.event(t, "closing", &exe, &reason);
             }
             if t - since >= grace {
-                if self.os.terminate(pid) {
+                if self.os.terminate(pid, &exe) {
                     self.event(t, kind, &exe, &reason);
                 }
                 self.closing.remove(&pid);
@@ -493,7 +505,7 @@ impl<O: Os> Supervisor<O> {
         let exe = self
             .obs
             .as_ref()
-            .and_then(|o| o.1.as_ref())
+            .and_then(|o| o.fg.as_ref())
             .map(|f| f.exe.to_lowercase());
         if exe == self.auto_prev {
             return;
@@ -665,7 +677,8 @@ impl<O: Os> Supervisor<O> {
             .obs
             .as_ref()
             .map(|o| {
-                o.0.iter()
+                o.windows
+                    .iter()
                     .any(|w| w.exe.eq_ignore_ascii_case("eyetime.exe"))
             })
             .unwrap_or(false);
@@ -736,7 +749,7 @@ impl<O: Os> Supervisor<O> {
             agent_connected: self
                 .obs
                 .as_ref()
-                .map(|o| t - o.4 <= FRESH_MS)
+                .map(|o| t - o.at <= FRESH_MS)
                 .unwrap_or(false),
             ext_connected: self
                 .site
@@ -810,7 +823,13 @@ impl<O: Os> Supervisor<O> {
                 windows,
                 screen_locked,
             } => {
-                self.obs = Some((windows, fg, idle_secs, screen_locked, t));
+                self.obs = Some(Observation {
+                    windows,
+                    fg,
+                    idle_secs,
+                    screen_locked,
+                    at: t,
+                });
                 self.auto_watch(t);
                 let mut o = self.orders.clone();
                 if self.p.relaunch_app && self.p.pending_update.is_none() {
@@ -881,7 +900,11 @@ impl<O: Os> Supervisor<O> {
                 let new_state = State::from_keys(&merged);
                 let trap = unsafe_setup(&new_state);
                 if !trap.is_empty() && unsafe_setup(&self.state).is_empty() {
-                    return Response::err_with("no_escape", "Locked rules need an emergency key a week, and frozen ones at most 8 hours", trap);
+                    return Response::err_with(
+                        "no_escape",
+                        "Locked rules need an emergency key a week, and frozen ones at most 8 hours",
+                        trap,
+                    );
                 }
                 let weaker = loosens(&self.state, &new_state);
                 if !weaker.is_empty() {
@@ -1042,7 +1065,7 @@ impl<O: Os> Supervisor<O> {
                     return Response::err(
                         "locked",
                         "This session cannot be ended. Only an emergency key opens it",
-                    )
+                    );
                 }
                 _ => {}
             },
@@ -1200,7 +1223,7 @@ impl<O: Os> Supervisor<O> {
     pub fn agent_alive(&self) -> bool {
         self.obs
             .as_ref()
-            .map(|o| self.last_trusted - o.4 <= FRESH_MS)
+            .map(|o| self.last_trusted - o.at <= FRESH_MS)
             .unwrap_or(false)
     }
 

@@ -214,7 +214,7 @@ fn brand(name: &str) -> Option<&'static Entry> {
     let n = name.trim().to_lowercase();
     brands()
         .iter()
-        .find(|b| b.n.to_lowercase() == n || b.a.iter().any(|a| *a == n))
+        .find(|b| b.n.to_lowercase() == n || b.a.contains(&n))
 }
 
 /// A name or an address in the interface's list becomes the addresses it stands for.

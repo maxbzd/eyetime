@@ -1,6 +1,6 @@
 //! The real computer. Everything here is thin: ask Windows, do what the supervisor said.
 
-use crate::os::{Os, Proc};
+use crate::os::{image_file_name, Os, Proc};
 use std::ffi::OsString;
 use std::io::{self, Write};
 use std::os::windows::ffi::OsStringExt;
@@ -41,7 +41,7 @@ fn hosts_path() -> PathBuf {
 }
 
 pub fn run_quiet(program: &str, args: &[&str]) -> bool {
-    Command::new(program)
+    Command::new(eyetime_core::sys::system32(program))
         .args(args)
         .creation_flags(NO_WINDOW)
         .stdin(std::process::Stdio::null())
@@ -118,13 +118,15 @@ impl Os for WinOs {
         if let Ok(meta) = std::fs::metadata(&p) {
             let mut perm = meta.permissions();
             if perm.readonly() {
+                // on Windows this clears the read-only attribute and nothing else (the lint is about Unix modes)
+                #[allow(clippy::permissions_set_readonly_false)]
                 perm.set_readonly(false);
                 let _ = std::fs::set_permissions(&p, perm);
             }
         }
         // write beside it and swap, so that a failure half way never leaves a broken file; if the swap is refused, write in place
         let tmp = p.with_file_name("hosts.eyetime-new");
-        if std::fs::write(&tmp, text.as_bytes()).is_ok() && std::fs::rename(&tmp, &p).is_ok() {
+        if crate::os::write_durably(&tmp, &p, text.as_bytes()).is_ok() {
             return Ok(());
         }
         let _ = std::fs::remove_file(&tmp);
@@ -155,15 +157,27 @@ impl Os for WinOs {
         }
         out
     }
-    fn terminate(&self, pid: u32) -> bool {
+    fn terminate(&self, pid: u32, exe: &str) -> bool {
+        use windows_sys::Win32::System::Threading::{
+            QueryFullProcessImageNameW, PROCESS_QUERY_LIMITED_INFORMATION,
+        };
         unsafe {
-            let h = OpenProcess(PROCESS_TERMINATE, 0, pid);
+            // one handle for the check and for the closing: while it is open the process number cannot go to another program
+            let h = OpenProcess(
+                PROCESS_TERMINATE | PROCESS_QUERY_LIMITED_INFORMATION,
+                0,
+                pid,
+            );
             if h.is_null() {
                 return false;
             }
-            let r = TerminateProcess(h, 1);
+            let mut buf = [0u16; 1040];
+            let mut n = buf.len() as u32;
+            let named = QueryFullProcessImageNameW(h, 0, buf.as_mut_ptr(), &mut n) != 0
+                && image_file_name(&wide_to_string(&buf[..n as usize])).eq_ignore_ascii_case(exe);
+            let r = named && TerminateProcess(h, 1) != 0;
             CloseHandle(h);
-            r != 0
+            r
         }
     }
     fn own_pid(&self) -> u32 {
@@ -256,9 +270,11 @@ impl Os for WinOs {
     fn write_store(&self, text: &str) -> io::Result<()> {
         let dir = data_dir();
         std::fs::create_dir_all(&dir)?;
-        let tmp = dir.join("helper.json.tmp");
-        std::fs::write(&tmp, text)?;
-        std::fs::rename(&tmp, dir.join("helper.json"))
+        crate::os::write_durably(
+            &dir.join("helper.json.tmp"),
+            &dir.join("helper.json"),
+            text.as_bytes(),
+        )
     }
     fn launch_update(&self, installer: &std::path::Path) -> io::Result<()> {
         WinOs::start_installer(installer)
@@ -373,10 +389,7 @@ const DETACHED: u32 = 0x0000_0008;
 const NEW_GROUP: u32 = 0x0000_0200;
 
 fn curl_path() -> PathBuf {
-    let root = std::env::var_os("SystemRoot")
-        .map(PathBuf::from)
-        .unwrap_or_else(|| PathBuf::from(r"C:\Windows"));
-    root.join(r"System32\curl.exe")
+    eyetime_core::sys::system32("curl.exe")
 }
 
 /// The network, through the curl.exe that Windows ships (10 1803 and later): it knows the computer's proxy and certificates.
@@ -527,7 +540,13 @@ impl WinOs {
 
 /// What the service itself can tell about the program that connected: its real file, and whether it runs elevated.
 /// The request is never asked who it is.
-pub fn pipe_client_role(pipe: windows_sys::Win32::Foundation::HANDLE) -> eyetime_core::ipc::Role {
+/// Who is on the other end of a connected named pipe, read from the system (the real file of the connecting program and whether it runs elevated).
+///
+/// # Safety
+/// `pipe` must be a valid handle of the server end of a named pipe, with a client connected.
+pub unsafe fn pipe_client_role(
+    pipe: windows_sys::Win32::Foundation::HANDLE,
+) -> eyetime_core::ipc::Role {
     use eyetime_core::ipc::Role;
     use windows_sys::Win32::Foundation::HANDLE;
     use windows_sys::Win32::Security::{

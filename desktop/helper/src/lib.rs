@@ -1,6 +1,7 @@
 //! EyeTime helper: the part that carries blocks out. `supervisor` is the logic, `os` the way to the computer,
 //! `os_windows`, `server` and `agent` the Windows side.
 
+pub mod limits;
 pub mod os;
 pub mod sim;
 pub mod supervisor;

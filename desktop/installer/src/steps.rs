@@ -62,7 +62,8 @@ fn hide(c: &mut Command) -> &mut Command {
 }
 
 fn run(program: &str, args: &[&str]) -> Result<String, String> {
-    let mut c = Command::new(program);
+    // by full path: this program runs as an administrator from the folder it was downloaded to (see eyetime_core::sys)
+    let mut c = Command::new(eyetime_core::sys::system32(program));
     hide(c.args(args).stdin(Stdio::null()));
     let out = c.output().map_err(|e| format!("{program}: {e}"))?;
     let text = format!(
@@ -552,7 +553,7 @@ pub fn forget_webview_dir() {
         "ping -n 4 127.0.0.1 >nul & rmdir /s /q \"{}\"",
         webview_dir().display()
     );
-    let mut c = Command::new("cmd");
+    let mut c = Command::new(eyetime_core::sys::system32("cmd"));
     hide(
         c.args(["/c", &cmd])
             .stdin(Stdio::null())
@@ -569,7 +570,7 @@ pub fn remove_self_later() {
         "ping -n 4 127.0.0.1 >nul & rmdir /s /q \"{}\"",
         dir.display()
     );
-    let mut c = Command::new("cmd");
+    let mut c = Command::new(eyetime_core::sys::system32("cmd"));
     hide(
         c.args(["/c", &cmd])
             .stdin(Stdio::null())
@@ -582,7 +583,7 @@ pub fn remove_self_later() {
 /// start the app as the person who is signed in, not as the administrator that installed it
 pub fn open_app() {
     let app = install_dir().join("eyetime.exe");
-    let mut c = Command::new("explorer.exe");
+    let mut c = Command::new(eyetime_core::sys::windows_dir("explorer"));
     hide(c.arg(app));
     let _ = c.spawn();
 }

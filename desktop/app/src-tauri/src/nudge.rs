@@ -64,7 +64,7 @@ pub fn toast(title: &str, body: &str) {
         xml(title).replace('\'', "''"),
         xml(body).replace('\'', "''")
     );
-    let _ = std::process::Command::new("powershell")
+    let _ = std::process::Command::new(eyetime_core::sys::powershell())
         .args([
             "-NoProfile",
             "-NonInteractive",

@@ -259,6 +259,10 @@ fn serve(
         }
         _ => (404, "text/plain", b"no".to_vec()),
     };
-    write!(conn, "HTTP/1.1 {code} X\r\nContent-Type: {ctype}\r\nContent-Length: {}\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n", out.len())?;
+    write!(
+        conn,
+        "HTTP/1.1 {code} X\r\nContent-Type: {ctype}\r\nContent-Length: {}\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n",
+        out.len()
+    )?;
     conn.write_all(&out)
 }
