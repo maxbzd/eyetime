@@ -2,6 +2,8 @@
 name = "eyetime-helper"
 version.workspace = true
 edition = "2021"
+license.workspace = true
+publish = false
 description = "EyeTime helper: the Windows service that carries blocks out, and the agent that sees the screen"
 
 [lib]

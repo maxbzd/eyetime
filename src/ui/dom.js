@@ -24,8 +24,8 @@ export function icon(name, cls = '') {
 /** Replace <i data-icon="name"></i> placeholders under root with real icons. */
 export function hydrateIcons(root = document) {
   root.querySelectorAll('[data-icon]').forEach((el) => {
-    const svg = icon(/** @type {HTMLElement} */ (el).dataset.icon, el.className);
-    el.replaceWith(svg);
+    const glyph = icon(/** @type {HTMLElement} */ (el).dataset.icon, el.className);
+    el.replaceWith(glyph);
   });
 }
 

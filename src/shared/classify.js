@@ -25,13 +25,13 @@ export function makeClassifier(settings, guess = undefined) {
   const cache = new Map();
   function rule(host) {
     if (!host) return null;
-    let best = null, guess = null;
+    let best = null, weak = null; // `weak`: the best of the on-device model's guesses
     for (const r of rules) {
       if (!matches(host, r.domain)) continue;
-      if (r.prio === 0) { if (!guess || r.domain.length > guess.domain.length) guess = r; continue; } // a guess only counts when no list or personal choice covers the site
+      if (r.prio === 0) { if (!weak || r.domain.length > weak.domain.length) weak = r; continue; } // a guess only counts when no list or personal choice covers the site
       if (!best || r.domain.length > best.domain.length || (r.domain.length === best.domain.length && r.prio > best.prio)) best = r;
     }
-    return best || guess;
+    return best || weak;
   }
   return {
     /** 'productive' | 'neutral' | 'distracting' */

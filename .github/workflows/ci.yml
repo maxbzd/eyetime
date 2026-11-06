@@ -4,6 +4,11 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch: # run it by hand on any branch (gh workflow run ci.yml --ref <branch>)
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   check:
     runs-on: ubuntu-24.04
@@ -11,16 +16,21 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with: { node-version: 24 }
+      # the exact versions of the tools are in package-lock.json; `npm ci` fails if it and package.json disagree
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=moderate
       - run: npm run check
+      - run: npm run lint
+      - run: npm run types
+      - run: npm run coverage
       # tests that depend on the calendar (daylight saving, a day of 23 or 25 hours) run in zones that have it
       - run: TZ=Europe/Kiev npm test
       - run: TZ=Pacific/Auckland npm test
-      - run: npm run types
       - run: npm run build
       - uses: actions/upload-artifact@v5
         with: { name: eyetime-packages, path: dist/*.zip }
       - name: Lint the Firefox package (web-ext)
-        run: mkdir /tmp/ff && unzip -q dist/eyetime-firefox.zip -d /tmp/ff && npx --yes web-ext lint -s /tmp/ff --warnings-as-errors=false
+        run: mkdir /tmp/ff && unzip -q dist/eyetime-firefox.zip -d /tmp/ff && npx --yes web-ext@10.8.0 lint -s /tmp/ff --warnings-as-errors=false
   companion:
     runs-on: ubuntu-24.04
     steps:
@@ -47,7 +57,7 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-v1
-      - run: npm i --no-save playwright@1.56.1 axe-core && npx playwright install --with-deps chromium
+      - run: npm i --no-save playwright@1.56.1 axe-core@4.14.0 && npx playwright install --with-deps chromium
       # screenshots of the main screens against scripts-dev/e2e/visual-baseline (CI fonts); after an intended UI change run the suites once, download the `visual-diff-*` artifacts and copy the `*-now.png` files over the baseline
       - run: node scripts-dev/e2e/run.mjs --shard ${{ matrix.shard }}/5 --jobs 2 --retries 1
       - uses: actions/upload-artifact@v5

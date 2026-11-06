@@ -1,0 +1,19 @@
+# Dependabot proposes updates; each one goes through the same CI as any change (tests, lint, audit, cargo deny).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+    groups:
+      dev-tools: { patterns: ['*'] }
+  - package-ecosystem: cargo
+    directory: /desktop
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+    groups:
+      rust-minor-and-patch: { update-types: [minor, patch] }
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5

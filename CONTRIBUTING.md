@@ -7,7 +7,9 @@ Thanks for helping make EyeTime better for everyone! It is free, open source and
 ```bash
 git clone https://github.com/maxbzd/eyetime.git && cd eyetime
 # Chrome: chrome://extensions → Developer mode → Load unpacked → pick this folder (no build step)
-npm run check        # syntax · manifest · HTML refs · i18n parity · icons · unit tests (Node 22+)
+npm run check        # syntax · manifest · HTML refs · i18n parity · icons · unit tests (Node 22+; nothing to install)
+npm ci               # once, for the two dev tools below (eslint, typescript), at the versions in package-lock.json
+npm run verify       # check + lint + types
 ```
 
 Edit a file, press the reload icon on the extension card, refresh the page you're working on.
@@ -24,7 +26,7 @@ Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) first (5 minutes). The short v
 ## Adding a language
 
 1. Copy `src/shared/locales/en.js` to `xx.js`, translate the **values** (keep `{placeholders}`; plural objects use CLDR categories for your language).
-2. Register it in `src/shared/locales/index.js` (`LOCALES` and `LANGUAGES`).
+2. Register it in `src/shared/locales/index.js` (`LOCALES`) and `src/shared/locales/languages.js` (`LANGUAGES`), then run `npm run locales` (writes `locales/data/xx.json`, the file the extension reads; `npm run check` fails when it is out of date).
 3. Copy `_locales/en/messages.json` to `_locales/xx/messages.json` and translate it (store name, description, shortcut label, the short-video overlay).
 4. `npm run check` fails if a key is missing or a placeholder differs.
 
@@ -44,9 +46,12 @@ npm i --no-save lucide-static && npm run icons
 
 | Command | What |
 |---|---|
-| `npm run check` | static checks + unit tests |
+| `npm run check` | static checks + unit tests (no install needed) |
+| `npm run lint` | ESLint over `src/`, the desktop screens and the scripts (every rule is an error) |
+| `npm run coverage` | the unit tests with a coverage floor on `src/` |
+| `npm run locales` | rewrites `src/shared/locales/data/*.json` after a translation changed |
 | `node scripts-dev/e2e/e2e.cjs` | the whole extension in real Chromium ([how](scripts-dev/e2e/README.md)) |
-| `npm run types` | TypeScript check of `src/shared` and `src/background` from JSDoc comments |
+| `npm run types` | TypeScript check of `src/` (all but `newtab/ml`) from JSDoc comments |
 | `node scripts-dev/e2e/upgrade.cjs` | upgrade from old versions, every language at 400 px / 125 % zoom (`ONLY=regex` runs one case) |
 | `node scripts-dev/e2e/visual.cjs [--update]` | screenshots of the main screens against `visual-baseline/`; `--update` after a change you meant to make |
 | `node scripts-dev/e2e/perf.cjs`, `a11y.cjs --strict`, `blocking.cjs`, `calendar.cjs` | load budgets, accessibility (axe), real blocking scenarios, calendar subscription |

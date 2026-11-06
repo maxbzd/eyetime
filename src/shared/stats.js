@@ -122,9 +122,9 @@ export { sum };
  * A gentle, specific suggestion for next week: cap the heaviest distracting site at ~60% of its recent daily average.
  * Returns { host, avgMin, limitMin } or null (nothing worth suggesting, or a limit already exists).
  */
-export function suggestLimit(sum, existingLimits = {}) {
-  const days = Math.max(1, sum.activeDays);
-  for (const s of sum.topSites) {
+export function suggestLimit(summary, existingLimits = {}) {
+  const days = Math.max(1, summary.activeDays);
+  for (const s of summary.topSites) {
     if (s.cls !== 'distracting') continue;
     const avgMin = s.sec / days / 60;
     if (avgMin < 15) return null; // top distraction is already small: nothing to suggest

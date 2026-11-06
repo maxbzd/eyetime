@@ -4,7 +4,7 @@ EyeTime speaks English and Russian (written by the author) and Spanish, German, 
 
 ## Fix a translation
 
-1. Open `src/shared/locales/<lang>.js` (`es`, `de`, `fr`, `pt`, `ru`, `it`, `pl`, `uk`, `zh`, `ja`). Every line is `'area.key': 'text'`.
+1. Open `src/shared/locales/<lang>.js` (`es`, `de`, `fr`, `pt`, `ru`, `it`, `pl`, `uk`, `zh`, `ja`). Every line is `'area.key': 'text'`. After editing run `npm run locales` (it refreshes `locales/data/<lang>.json`, which is what the extension reads).
 2. Change the text. Do not touch the key (left of the colon).
 3. Keep `{placeholders}` exactly as they are — `{n}`, `{time}`, `{host}` … are filled in by the code.
 4. Run `npm run check`. It fails if a key is missing, a placeholder differs, or a key is unknown.
@@ -21,7 +21,8 @@ EyeTime speaks English and Russian (written by the author) and Spanish, German, 
 ## Add a new language
 
 1. Copy `src/shared/locales/en.js` to `xx.js`, rename the export (`export const xx = {…}`), translate the values.
-2. Register it in `src/shared/locales/index.js` — add it to `LOCALES` and to `LANGUAGES` (the name written in that language).
+2. Register it in `src/shared/locales/index.js` (add it to `LOCALES`) and in `src/shared/locales/languages.js` (add it to `LANGUAGES`, the name written in that language).
+   Then run `npm run locales`: it writes `src/shared/locales/data/xx.json`, the file the extension actually reads (a page loads one language, as data). `npm run check` fails if that file is missing or out of date, so a changed translation always needs `npm run locales` too.
 3. Copy `_locales/en/messages.json` to `_locales/xx/messages.json` (Chrome uses `pt_BR`, `zh_CN` style names for regional variants) and translate the store name, description and the two overlay strings.
 4. Add `'xx'` to the `narrow` loop in `scripts-dev/e2e/upgrade.cjs`.
 5. `npm run check && npm test`, then look at Home, the popup, Settings and Insights in your language.

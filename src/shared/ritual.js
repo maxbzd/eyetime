@@ -52,7 +52,7 @@ export function candidates(tasks, today, max = CANDIDATES) {
   const list = (tasks || []).filter((x) => x && !x.done).map((task) => ({ task, why: /** @type {any} */ (why(task)), s: score(task) }))
     .sort((a, b) => b.s - a.s || (b.task.createdAt || 0) - (a.task.createdAt || 0)).slice(0, max);
   let chosen = 0;
-  return list.map(({ task, why }) => ({ task, why, pre: why !== '' && chosen < MAX_PRIORITIES && !!++chosen })); // what was already planned, starred or due is pre-selected, up to three
+  return list.map(({ task, why: reason }) => ({ task, why: reason, pre: reason !== '' && chosen < MAX_PRIORITIES && !!++chosen })); // what was already planned, starred or due is pre-selected, up to three
 }
 
 /** Exactly `ids` (at most three open tasks) are today's priorities; every other open task is not, and an earlier plan for a day is spent. Returns a new list. */
