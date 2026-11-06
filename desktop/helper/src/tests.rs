@@ -1094,3 +1094,18 @@ fn an_agent_cannot_make_the_service_close_what_it_names() {
     );
     assert!(!killed.contains(&9999));
 }
+
+#[test]
+fn closing_by_force_names_the_program_and_refuses_another_one_under_the_same_number() {
+    use crate::os::Os;
+    let (f, _s) = world();
+    f.0.lock().unwrap().procs = vec![proc(10, "calc.exe")];
+    // number 10 used to be steam.exe: the order names it, the computer says it is calc.exe now
+    assert!(!f.terminate(10, "steam.exe"));
+    assert!(f.0.lock().unwrap().killed.is_empty());
+    assert!(
+        f.terminate(10, "CALC.EXE"),
+        "names are compared without regard to case"
+    );
+    assert_eq!(f.0.lock().unwrap().killed, vec![10]);
+}

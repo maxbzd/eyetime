@@ -345,4 +345,60 @@ mod tests {
     fn oversize_lines_are_refused() {
         assert!(parse_request(&"x".repeat(MAX_LINE + 1)).is_err());
     }
+
+    #[test]
+    fn no_line_whatsoever_makes_the_parser_panic_and_what_it_accepts_goes_round() {
+        let seeds = [
+            "{\"op\":\"ping\"}",
+            "{\"op\":\"challenge\",\"action\":\"end_session\",\"minutes\":5}",
+            "{\"op\":\"observe\",\"fg\":{\"exe\":\"a.exe\"},\"idle_secs\":3}",
+            "{\"op\":\"set_state\",\"keys\":{\"et-kw\":[\"x\"]}}",
+            "",
+            "[]",
+            "null",
+            "{\"op\":",
+        ];
+        let mut x = 0x2545_F491_4F6C_DD1Du64;
+        let mut rnd = move || {
+            x ^= x << 13;
+            x ^= x >> 7;
+            x ^= x << 17;
+            x
+        };
+        for _ in 0..3000 {
+            let mut b = seeds[(rnd() % seeds.len() as u64) as usize]
+                .as_bytes()
+                .to_vec();
+            for _ in 0..(rnd() % 6) {
+                if b.is_empty() {
+                    b.push(b'{');
+                }
+                let i = (rnd() % b.len() as u64) as usize;
+                match rnd() % 4 {
+                    0 => b[i] = (rnd() % 128) as u8,
+                    1 => {
+                        b.remove(i);
+                    }
+                    2 => {
+                        let junk = br#"{}[]":,\"#;
+                        b.insert(i, junk[(rnd() % junk.len() as u64) as usize]);
+                    }
+                    _ => b.truncate(i),
+                }
+            }
+            let line = String::from_utf8_lossy(&b).to_string();
+            if let Ok(req) = parse_request(&line) {
+                let again = serde_json::to_string(&req).unwrap();
+                assert_eq!(
+                    parse_request(&again).unwrap(),
+                    req,
+                    "round trip of {line:?}"
+                );
+                // a request that parsed is one the role table has an answer for (no panic in the table either)
+                for role in [Role::Window, Role::Agent, Role::Admin, Role::Other] {
+                    let _ = role.allows(&req);
+                }
+            }
+        }
+    }
 }

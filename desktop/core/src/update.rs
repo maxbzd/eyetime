@@ -10,10 +10,20 @@ pub const RELEASES_URL: &str = "https://api.github.com/repos/maxbzd/eyetime/rele
 pub const ASSET: &str = "EyeTime-Setup.exe";
 /// the signature of the installer, made by the release job with a key that only that job has
 pub const SIG_ASSET: &str = "EyeTime-Setup.exe.sig";
-/// The public half of the signing key. An update is run only if this key signed exactly this version and exactly this file, so that a
-/// stolen release account (which can upload any file) is not enough to get a program run on every computer.
-pub const UPDATE_PUBKEY_HEX: &str =
-    "1ebbc0aa56ba7b69b4b03933a7c432c6bc0780c52a7c5be0b7f0a58e21cff5d6";
+/// The public halves of the keys that may sign an update. An update is run only if one of them signed exactly this version and exactly
+/// this file, so that a stolen release account (which can upload any file) is not enough to get a program run on every computer.
+///
+/// A list, so that the key can be changed without stranding anybody (see SECURITY.md, "Changing the signing key"):
+/// 1. release a version that lists the old key and the new one, signed with the old key;
+/// 2. when it is out, sign releases with the new key;
+/// 3. a later release drops the old key (and if the old key was stolen, this is the release that must go out first: it is signed with
+///    the key that is still good, and nothing signed with the stolen one is accepted after it).
+///
+/// The first entry is the key the release job signs with now.
+pub const UPDATE_PUBKEYS_HEX: &[&str] =
+    &["1ebbc0aa56ba7b69b4b03933a7c432c6bc0780c52a7c5be0b7f0a58e21cff5d6"];
+/// the key the release job signs with now
+pub const UPDATE_PUBKEY_HEX: &str = UPDATE_PUBKEYS_HEX[0];
 pub const TAG_PREFIX: &str = "desktop-v";
 /// a download bigger than this is refused
 pub const MAX_BYTES: u64 = 200 * 1024 * 1024;
@@ -222,9 +232,24 @@ pub fn pubkey_of(seed: &[u8; 32]) -> [u8; 32] {
         .to_bytes()
 }
 
-/// the key built into this version
+/// the key built into this version that signs now
 pub fn builtin_pubkey() -> [u8; 32] {
     from_hex32(UPDATE_PUBKEY_HEX).unwrap_or([0u8; 32])
+}
+
+/// every key built into this version that may sign an update (an entry that does not parse is left out, never replaced by a zero key)
+pub fn builtin_pubkeys() -> Vec<[u8; 32]> {
+    UPDATE_PUBKEYS_HEX
+        .iter()
+        .filter_map(|h| from_hex32(h))
+        .collect()
+}
+
+/// `verify_update` against a list of trusted keys: true if any of them signed it. An empty list trusts nothing.
+pub fn verify_update_any(pubkeys: &[[u8; 32]], version: &str, sha256: &str, sig_hex: &str) -> bool {
+    pubkeys
+        .iter()
+        .any(|k| verify_update(k, version, sha256, sig_hex))
 }
 
 pub fn sha256_hex(bytes: &[u8]) -> String {
@@ -421,5 +446,41 @@ mod tests {
             from_hex32(UPDATE_PUBKEY_HEX).is_some(),
             "the built-in key is a real key"
         );
+    }
+
+    #[test]
+    fn any_of_the_listed_keys_may_sign_and_no_other() {
+        let (old, new, thief) = ([1u8; 32], [2u8; 32], [3u8; 32]);
+        let keys = vec![pubkey_of(&old), pubkey_of(&new)];
+        let sig = |seed: &[u8; 32]| sign_update(seed, "0.3.0", SHA);
+        assert!(
+            verify_update_any(&keys, "0.3.0", SHA, &sig(&old)),
+            "the old key"
+        );
+        assert!(
+            verify_update_any(&keys, "0.3.0", SHA, &sig(&new)),
+            "the new key"
+        );
+        assert!(
+            !verify_update_any(&keys, "0.3.0", SHA, &sig(&thief)),
+            "a key that is not listed"
+        );
+        assert!(
+            !verify_update_any(&[], "0.3.0", SHA, &sig(&old)),
+            "an empty list trusts nothing"
+        );
+        // a stolen key that a later release dropped from the list signs nothing any more
+        assert!(!verify_update_any(&keys[1..], "0.3.0", SHA, &sig(&old)));
+    }
+
+    #[test]
+    fn every_built_in_key_parses_and_the_signing_key_is_the_first() {
+        assert!(!UPDATE_PUBKEYS_HEX.is_empty());
+        assert_eq!(
+            builtin_pubkeys().len(),
+            UPDATE_PUBKEYS_HEX.len(),
+            "a key that does not parse would silently shrink the list"
+        );
+        assert_eq!(builtin_pubkeys()[0], builtin_pubkey());
     }
 }

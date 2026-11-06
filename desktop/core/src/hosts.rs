@@ -209,4 +209,88 @@ mod tests {
         let v = expand(&["www.x.com".into(), "x.com".into()]);
         assert_eq!(v, vec!["www.x.com".to_string(), "x.com".to_string()]);
     }
+
+    /// a small deterministic generator, so that a failure can be repeated (no dependency)
+    struct Gen(u64);
+    impl Gen {
+        fn next(&mut self) -> u64 {
+            self.0 ^= self.0 << 13;
+            self.0 ^= self.0 >> 7;
+            self.0 ^= self.0 << 17;
+            self.0
+        }
+        fn pick<'a>(&mut self, v: &[&'a str]) -> &'a str {
+            v[(self.next() % v.len() as u64) as usize]
+        }
+    }
+
+    #[test]
+    fn whatever_is_in_the_file_and_the_lists_the_block_stays_one_clean_block() {
+        let pieces = [
+            "127.0.0.1 localhost",
+            "# comment",
+            "",
+            "  ",
+            BEGIN,
+            END,
+            "0.0.0.0 a.com",
+            "::1 localhost",
+            "1.2.3.4 bank.com # my bank",
+        ];
+        let names = [
+            "youtube.com",
+            "WWW.Reddit.com",
+            "a b.com",
+            "evil.com\n127.0.0.1 bank.com",
+            "x",
+            "",
+            "m.facebook.com",
+            "-bad.com",
+            "ok.co.uk",
+            "bank.com\r\n::1 y.com",
+        ];
+        let mut g = Gen(0x9E37_79B9_7F4A_7C15);
+        for _ in 0..400 {
+            let nl = if g.next() % 2 == 0 { "\r\n" } else { "\n" };
+            let existing: String = (0..g.next() % 12)
+                .map(|_| format!("{}{nl}", g.pick(&pieces)))
+                .collect();
+            let list: Vec<String> = (0..g.next() % 8)
+                .map(|_| g.pick(&names).to_string())
+                .collect();
+            let once = render(&existing, &list);
+            // the same lists again change nothing, and the file is recognised as current
+            assert_eq!(
+                render(&once, &list),
+                once,
+                "idempotent for {existing:?} {list:?}"
+            );
+            assert!(is_current(&once, &list));
+            // at most one block, and nothing in it but the two address forms of a valid name
+            assert!(once.matches(BEGIN).count() <= 1 && once.matches(END).count() <= 1);
+            let mut inside = false;
+            for line in once.lines() {
+                if line.trim() == BEGIN {
+                    inside = true;
+                    continue;
+                }
+                if line.trim() == END {
+                    inside = false;
+                    continue;
+                }
+                if inside {
+                    let (addr, name) = line.split_once(' ').expect("address and name");
+                    assert!(addr == "0.0.0.0" || addr == "::", "{line:?}");
+                    assert!(valid_domain(name), "{line:?}");
+                }
+            }
+            // taking the block out gives back what was there without our block, whatever it was
+            assert_eq!(
+                strip(&once),
+                strip(&existing),
+                "strip undoes render for {existing:?}"
+            );
+            assert_eq!(render(&once, &[]), strip(&existing));
+        }
+    }
 }
