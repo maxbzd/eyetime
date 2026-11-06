@@ -123,7 +123,7 @@ function mount(extra) {
 /** Install the Ctrl/Cmd+K shortcut on the current page. */
 /** @param {{ extra?: any }} [o] */
 export function installPalette({ extra } = {}) {
-  if (!document.querySelector('link[data-palette]')) document.head.append(h('link', { rel: 'stylesheet', href: new URL('./palette.css', import.meta.url).href, 'data-palette': '' }));
+  if (!document.querySelector('link[data-palette]')) document.head.append(h('link', { rel: 'stylesheet', href: chrome.runtime.getURL('src/ui/palette.css'), /* by the extension's own address: import.meta.url is the address of the bundle in a production build, not of this file */ 'data-palette': '' }));
   window.addEventListener('et:palette', () => mount(extra));
   document.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.code === 'KeyK' || e.key.toLowerCase() === 'k')) { e.preventDefault(); mount(extra); }

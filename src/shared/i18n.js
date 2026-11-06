@@ -38,6 +38,8 @@ export function resolveLocale(pref, uiLang) {
   return 'en';
 }
 
+const NODE_LOCALES = './locales/index.js'; // where the tests (Node, no extension API) get the words from
+
 /** The words of one language, read once: from the extension's own file in a browser, from the module in Node (the tests). null if it cannot be read. */
 async function readLocale(/** @type {string} */ code) {
   try {
@@ -45,7 +47,7 @@ async function readLocale(/** @type {string} */ code) {
       const res = await fetch(chrome.runtime.getURL(`src/shared/locales/data/${code}.json`));
       return res.ok ? await res.json() : null;
     }
-    return (await import('./locales/index.js')).LOCALES[code] || null;
+    return (await import(/* a variable: the production build must not pull every language into the bundle for the sake of Node */ NODE_LOCALES)).LOCALES[code] || null;
   } catch { return null; }
 }
 
