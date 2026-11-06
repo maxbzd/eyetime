@@ -7,6 +7,7 @@ pub mod limits;
 pub mod os;
 pub mod sim;
 pub mod supervisor;
+pub mod telemetry_send;
 pub mod update;
 
 #[cfg(windows)]
