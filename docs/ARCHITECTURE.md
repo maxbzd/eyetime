@@ -103,7 +103,7 @@ Pure function from a raw 1.x storage snapshot to the 2.0 layout (settings mappin
 | Companion | `python -m unittest` |
 | Narrow windows, 125 % zoom and long names in every language; upgrade from old versions; accessibility (axe) | `upgrade.cjs`, `a11y.cjs` |
 | Real-world blocking scenarios (second window, SPA navigation, restarted service worker, shared pass) | `blocking.cjs` |
-| Store screenshots (English and per language) and the demo video | `screenshots.cjs`, `screenshots-lang.cjs`, `demo.cjs` |
+| Store screenshots (English and per language) and the demo video | `screenshots.cjs` (the English set), `store-shots.cjs` (the five store screenshots in every language), `demo.cjs` |
 | Calendar subscription against a local server | `calendar.cjs` |
 | Visual regression (en/ru/de × light/dark, frozen clock): `--update` rewrites the baseline after an intended change | `visual.cjs`, `visual-baseline/` |
 | Load: a year of dense data, 60 open tabs, with budgets | `perf.cjs` |

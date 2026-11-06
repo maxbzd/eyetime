@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — Lighter, stricter, easier to trust
+## 3.8.0 — 2026-11-06 — Lighter, stricter, easier to trust
 
 ### Faster to open
 - **A production build.** The packages hold one bundle per page instead of a tree of modules: the new tab loads 2 scripts and 18 files instead of 131 and 148, the popup 11 files instead of 55, the options page 12 instead of 106; time to the end of loading (median of 14 loads) falls from about 230 ms to about 90 ms on the new tab and from about 142 ms to 65 ms in the popup. Source and development are unchanged (load the folder as it is). The build is reproducible (two builds, same bytes; `scripts-dev/verify-build.mjs`), each release has an SBOM and a signed provenance statement, and the shipped package is loaded into a browser and used by a test of its own. See `docs/BUILDING.md`.

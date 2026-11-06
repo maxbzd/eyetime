@@ -13,7 +13,7 @@ SKUPIENIE JEDNYM KLIKNIĘCIEM
 Rozpocznij sesję z timerem z paska narzędzi, nowej karty, skrótem Alt+Shift+F lub z palety poleceń (Ctrl/Cmd+K). Wybierz tryb — Głęboka praca, Sprint, Nauka — dodaj pięć minut, gdy wpadniesz w rytm, i pozwól timerowi przerwy zrobić swoje. Rozpraszające strony są wstrzymane do końca sesji i same otwierają się z powrotem. Tryb ścisły jest na chwile, gdy naprawdę tak myślisz.
 
 BLOKOWANIE Z SZACUNKIEM DLA CIEBIE
-Wybierz kategorie (social media, wideo, fora, wiadomości, gry, zakupy, komunikatory) albo dodaj własne strony. Krótka pauza na oddech z Twoim planem „jeśli–to” działa lepiej niż zakaz. Dodaj godziny pracy, dzienne limity na stronę i dzienny „budżet na rozpraszacze”.
+Wybierz kategorie (social media, wideo, fora, wiadomości, gry, zakupy, komunikatory) albo dodaj własne strony. Krótka pauza na oddech z Twoim planem „jeśli–to” działa lepiej niż zakaz. Dodaj godziny pracy, dzienne limity na stronę i dzienny „budżet na rozpraszacze”. Opcjonalne natychmiastowe blokowanie (Chrome) kieruje rozpraszającą stronę na pauzę, zanim zostanie wysłane choć jedno żądanie.
 
 ZAPLANUJ DZIEŃ I TYDZIEŃ
 „Zaplanuj mój dzień” mieści Twoje priorytety w czasie, który naprawdę masz. Wpisz „Raport jutro 14:30 45m !” lub „Rozciąganie w dni robocze”, a EyeTime zrozumie — w wielu językach. Zasubskrybuj link do kalendarza (albo zaimportuj plik), by zobaczyć następne spotkanie na karcie skupienia. Trzy cele na tydzień, zadania cykliczne oraz zadania na wejściu i wyjściu jako Markdown lub CSV.
@@ -31,17 +31,16 @@ STRÓŻ KRÓTKICH WIDEO
 Po przekroczeniu limitu przewijania Shorts / Reels / TikToka / VK Clips strona robi się szara i zatrzymuje się.
 
 PRYWATNOŚĆ W ZAŁOŻENIU
-Bez konta. Bez serwerów. Bez analityki. Zapisujemy tylko nazwy domen i sekundy — na Twoim urządzeniu. Jeśli zasubskrybujesz link do kalendarza, EyeTime pobiera ten jeden plik prosto z Twojej przeglądarki; adres nigdy nie opuszcza urządzenia. Opcjonalna synchronizacja ustawień korzysta z wbudowanej synchronizacji przeglądarki i nigdy nie obejmuje historii. Kod jest open source (MIT): https://github.com/maxbzd/eyetime
+Bez konta. Bez serwerów. Bez analityki. Zapisujemy tylko nazwy domen i sekundy — na Twoim urządzeniu. Jeśli zasubskrybujesz link do kalendarza, EyeTime pobiera ten jeden plik prosto z Twojej przeglądarki; adres nigdy nie opuszcza urządzenia. Opcjonalna synchronizacja ustawień korzysta z wbudowanej synchronizacji przeglądarki i nigdy nie obejmuje historii. Kod jest open source (MIT): https://github.com/maxbzd/eyetime Opcjonalnie: zaszyfruj synchronizowane ustawienia i zadania hasłem, a nawet chmura przeglądarki będzie przechowywać tylko szyfrogram.
 
 Języki: angielski, rosyjski, hiszpański, niemiecki, francuski, portugalski, włoski, polski, ukraiński, chiński i japoński.
 
 ## Screenshot captions
-1. Spokojna nowa karta z kartą skupienia, zadaniami i nawykami
-2. Trwająca sesja skupienia w oknie na pasku narzędzi
-3. Uczciwe statystyki i przegląd tygodnia
-4. Ciemny styl
-5. Paleta poleceń (Ctrl/Cmd+K)
-6. Dzień ze szczegółami: godziny i sesje skupienia
+1. Spokojna nowa karta z fokusem, zadaniami i nawykami
+2. Trwa sesja skupienia: zegar zamienia się w odliczanie
+3. Uczciwe statystyki i tygodniowe podsumowanie
+4. Pauza na oddech z własnym planem „jeśli — to” zamiast blokady
+5. Szesnaście stylów i dowolny kolor akcentu
 
 ## Keywords
 skupienie, pomodoro, blokada stron, czas przed ekranem, produktywność, zmęczenie oczu, 20-20-20, rozpraszacze, nowa karta, nawyki, licznik czasu

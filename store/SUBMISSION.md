@@ -28,7 +28,7 @@ Repository → Settings → Pages → *Build and deployment* → Source: **GitHu
 1. Sign in at https://partner.microsoft.com/dashboard/microsoftedge/overview with a Microsoft account and register as a developer (no fee).
 2. *Create new extension* → upload the **same** `eyetime-chrome.zip` (Edge runs Chrome extensions unchanged).
 3. *Availability*: public, all markets. *Properties*: category *Productivity*, privacy policy URL `https://maxbzd.github.io/eyetime/privacy.html`, website `https://maxbzd.github.io/eyetime/`, support `https://github.com/maxbzd/eyetime/issues`.
-4. *Store listings*: add one listing per language (EN, RU, ES, DE, FR, PT, IT, PL, UK, ZH, JA) from `store/listing/<lang>.md`, with that language's screenshots from `store/screenshots/<lang>/` (English: `store/screenshots/*.png`).
+4. *Store listings*: add one listing per language (EN, RU, ES, DE, FR, PT, IT, PL, UK, ZH, JA) from `store/listing/<lang>.md`, with that language's five screenshots from `store/screenshots/<lang>/` (English: `store/screenshots/en/`).
 5. *Notes for certification*: paste the same permission justifications as for Chrome (`store/LISTING.md`). Review usually takes a few days.
 
 ## 3. After approval

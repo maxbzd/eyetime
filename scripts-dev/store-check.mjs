@@ -2,7 +2,7 @@
 //   node scripts-dev/store-check.mjs          (also part of `npm run check`)
 // Manifest: the description is at most 132 characters in every language (the Chrome Web Store refuses a longer one), the name at most 75, every __MSG_x__ exists in every language,
 // the icons exist at the sizes the stores want, every permission and optional host is justified in store/LISTING.md, no remote code. Listing: summary at most 132 characters,
-// every language has its file. Pictures: the screenshots the listings use are 1280×800 or 640×400 without transparency (JPEG or 24-bit PNG), at most five a language; the tiles have their sizes.
+// every language has its file. Pictures: each language has the five screenshots (store/screenshots/<lang>/, made by e2e/store-shots.cjs), 1280×800 or 640×400 without transparency, with a caption each; the tiles have their sizes.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -63,35 +63,23 @@ function imageInfo(file) {
   }
   return null;
 }
-const shotDirs = ['store/screenshots', ...langs.filter((l) => l !== 'en').map((l) => `store/screenshots/${l}`)];
-for (const d of shotDirs) {
-  const full = path.join(root, d);
-  if (!fs.existsSync(full)) continue;
-  const files = fs.readdirSync(full).filter((f) => /\.(png|jpe?g)$/.test(f));
-  const store = d === 'store/screenshots' ? files.filter((f) => /^\d+-/.test(f) && f.endsWith('.png') && fs.existsSync(path.join(full, f.replace(/\.png$/, '.jpg'))) === false) : files;
-  const chosen = d === 'store/screenshots' ? (read('store/listing/en.md').match(/\n(\d+)\. /g) || []).length : files.length;
-  ok(chosen <= 5, `${d}: the listing names ${chosen} screenshots (the Chrome Web Store takes 5)`);
-  void store;
+const SHOTS = ['1-home', '2-focus', '3-insights', '4-pause', '5-looks'];
+for (const l of langs) {
+  const dir = path.join(root, 'store/screenshots', l);
+  const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => /\.(png|jpe?g)$/.test(f)) : [];
+  ok(files.length === SHOTS.length && SHOTS.every((n) => files.includes(n + '.jpg')), `store/screenshots/${l}/ must hold exactly ${SHOTS.map((n) => n + '.jpg').join(', ')} (the store takes five; has: ${files.join(', ') || 'nothing'})`);
+  for (const f of files) {
+    const i = imageInfo(path.join(dir, f));
+    ok(i && ((i.w === 1280 && i.h === 800) || (i.w === 640 && i.h === 400)) && !i.alpha, `store/screenshots/${l}/${f} must be 1280×800 or 640×400 without transparency (is ${i ? i.w + '×' + i.h : 'unreadable'})`);
+  }
+  const t = read(`store/listing/${l}.md`);
+  const captions = ((t.split(/\n## /).find((x) => /^(Screenshot captions|Подписи к скриншотам)/.test(x)) || '').match(/^\d+\. .+$/gm) || []).length;
+  ok(captions === SHOTS.length, `store/listing/${l}.md has ${captions} screenshot captions, the set has ${SHOTS.length}`);
 }
 for (const [file, w, h] of [['store/promo/small-tile-440x280.png', 440, 280], ['store/promo/marquee-1400x560.png', 1400, 560]]) {
   const i = fs.existsSync(path.join(root, file)) ? imageInfo(path.join(root, file)) : null;
   ok(i && i.w === w && i.h === h, `${file} must be ${w}×${h}`);
   ok(i && !i.alpha, `${file} must have no transparency`);
 }
-for (const l of langs.filter((x) => x !== 'en' && fs.existsSync(path.join(root, 'store/screenshots', x)))) {
-  const dir = path.join(root, 'store/screenshots', l);
-  for (const f of fs.readdirSync(dir).filter((x) => /\.(jpe?g|png)$/.test(x))) {
-    const i = imageInfo(path.join(dir, f));
-    ok(i && ((i.w === 1280 && i.h === 800) || (i.w === 640 && i.h === 400)) && !i.alpha, `store/screenshots/${l}/${f} must be 1280×800 or 640×400 without transparency (is ${i ? i.w + '×' + i.h : 'unreadable'})`);
-  }
-}
-// the English screenshots the listing uses: the numbered captions say how many; the first N files by number are what is uploaded
-const enCaptions = (read('store/listing/en.md').split('## Screenshot captions')[1] || '').split('\n').filter((x) => /^\d+\. /.test(x)).length;
-const enShots = fs.readdirSync(path.join(root, 'store/screenshots')).filter((f) => /^\d+-.*\.png$/.test(f)).sort((a, b) => parseInt(a) - parseInt(b));
-for (const f of enShots.slice(0, enCaptions)) {
-  const i = imageInfo(path.join(root, 'store/screenshots', f));
-  ok(i && ((i.w === 1280 && i.h === 800) || (i.w === 640 && i.h === 400)) && !i.alpha, `store/screenshots/${f} is one of the ${enCaptions} the English listing uses and must be 1280×800 or 640×400 without transparency (is ${i ? i.w + '×' + i.h : 'unreadable'})`);
-}
-
 if (bad.length) { console.error('✗ store check\n  ' + bad.join('\n  ')); process.exit(1); }
 console.log(`✓ store check: ${locales.length} manifest languages, ${man.permissions.length} permissions justified, listings in ${langs.length} languages, pictures within the stores' limits`);
