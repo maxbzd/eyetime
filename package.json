@@ -15,7 +15,8 @@
     "build": "node scripts-dev/check.mjs && node scripts-dev/pack.mjs",
     "locales": "node scripts-dev/build-locales.mjs",
     "coverage": "node scripts-dev/coverage.mjs",
-    "verify": "npm run check && npm run lint && npm run types"
+    "verify": "npm run check && npm run lint && npm run types",
+    "mutation": "npx --yes -p @stryker-mutator/core@10.1.1 -p @stryker-mutator/tap-runner@10.1.1 -p typescript@5.9.3 stryker run"
   },
   "engines": {
     "node": ">=22"

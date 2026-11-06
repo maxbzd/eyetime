@@ -233,7 +233,7 @@ export async function exportAll() {
   delete all.newtabBg; delete all.newtabFg; delete all.newtabDepth; delete all.siteGuess; // guesses are tied to this computer's model
   delete all.tasksBase; delete all.tasksTomb; delete all.tasksSyncStatus; // device-level sync bookkeeping
   delete all.calendarSub; delete all.calendarSubs; delete all.calendarSrc; // calendar addresses are secrets: they never leave this device, not even in a backup file
-  delete all.conns; delete all.connSecrets; for (const k of Object.keys(all)) if (k.startsWith('cl:')) delete all[k]; // connections to other services: their passwords and tokens stay on this device
+  delete all.conns; delete all.connSecrets; delete all.vault; for (const k of Object.keys(all)) if (k.startsWith('cl:')) delete all[k]; // connections to other services: their passwords and tokens stay on this device
   delete all.usage; delete all.usageShare; // the usage counters and the consent belong to this browser, not to the person: a backup restored elsewhere must not carry the anonymous id
   return { app: 'eyetime', version: 2, exportedAt: new Date().toISOString(), data: all };
 }
@@ -285,5 +285,6 @@ export async function resetAll() {
   await dropCalendarPermission();
   try { await (await import('./usage-store.js')).forgetOnReset(); } catch { /* nothing was shared, or no network: the local data is deleted all the same */ }
   await area().clear();
+  try { await chrome.storage.session.remove('vaultKey'); } catch { /* no session storage */ } // the key of a vault that no longer exists
   await ensureSchema();
 }
