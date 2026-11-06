@@ -579,7 +579,7 @@ Object.assign(MORE, {
   wf_ses_stop: ['Сессий прервано', 'Sessions stopped'],
   wf_ui_open: ['Открытий окна', 'Window opened'],
   wf_svc_start: ['Запусков службы', 'Service starts'],
-  wf_svc_crash: ['Сбоев службы', 'Service crashes'],
+  wf_svc_unclean: ['Нечистых остановок службы', 'Unclean service stops'],
   wf_upd_found: ['Найдено обновлений', 'Updates found'],
   wf_upd_applied: ['Установлено обновлений', 'Updates installed'],
   wf_upd_failed: ['Неудачных обновлений', 'Updates failed'],
@@ -615,8 +615,8 @@ Object.assign(MORE, {
   wn_ses_fw: ['Первая сессия за неделю', 'First session in week 1'],
   wn_ses_fin: ['Доходят до конца', 'Reach the end'],
   wn_svc: ['Служба и обновления', 'The service and updates'],
-  wn_crash: ['Сбоев на 1000 установок', 'Crashes per 1000 installs'],
-  wn_crash_i: ['Установок со сбоем', 'Installs with a crash'],
+  wn_crash: ['Нечистых остановок на 1000 установок', 'Unclean stops per 1000 installs'],
+  wn_crash_i: ['Установок с нечистой остановкой', 'Installs with an unclean stop'],
   wn_upd_fail: ['Неудачных обновлений', 'Failed updates'],
   wn_flags: ['Что настроено', 'What is set up'],
   wn_ver: ['Версии приложения', 'App versions'],
@@ -1247,7 +1247,7 @@ function pageWindows(s) {
     kpi({ lab: t('wf_ses_stop'), val: num(se.stopped), low: se.started < 30 }), kpi({ lab: t('wn_ses_fw'), val: pct(se.first_week.pct), frac: se.first_week.pct, low: se.first_week.n < LOW(), sub: `${num(se.first_week.k)} ${t('of')} ${num(se.first_week.n)}` }))));
   const sv = w.service, up = w.updates;
   out.push(block(t('wn_svc'), null, h('div', { class: 'grid g4' },
-    kpi({ lab: t('wn_crash'), val: sv.crashes_per_1000 != null ? dec(sv.crashes_per_1000, 1) : '—', sub: `${num(sv.crashes)} ${t('wf_svc_crash').toLowerCase()}`, low: w.installs < LOW() }), kpi({ lab: t('wn_crash_i'), val: pct(sv.installs_with_crash.pct), frac: sv.installs_with_crash.pct, sub: `${num(sv.installs_with_crash.k)} ${t('of')} ${num(sv.installs_with_crash.n)}`, low: sv.installs_with_crash.n < LOW() }),
+    kpi({ lab: t('wn_crash'), val: sv.crashes_per_1000 != null ? dec(sv.crashes_per_1000, 1) : '—', sub: `${num(sv.crashes)} ${t('wf_svc_unclean').toLowerCase()}`, low: w.installs < LOW() }), kpi({ lab: t('wn_crash_i'), val: pct(sv.installs_with_crash.pct), frac: sv.installs_with_crash.pct, sub: `${num(sv.installs_with_crash.k)} ${t('of')} ${num(sv.installs_with_crash.n)}`, low: sv.installs_with_crash.n < LOW() }),
     kpi({ lab: t('wf_upd_applied'), val: num(up.applied), sub: `${num(up.found)} ${t('wf_upd_found').toLowerCase()}` }), kpi({ lab: t('wn_upd_fail'), val: pct(up.failed_rate), frac: up.failed_rate, sub: `${num(up.failed)} ${t('of')} ${num(up.found)}`, low: up.found < 20 }))));
   const fl = w.flags;
   out.push(block(t('wn_flags'), null, h('div', { class: 'grid g2' },

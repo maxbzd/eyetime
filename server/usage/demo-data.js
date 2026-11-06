@@ -121,7 +121,7 @@ export function makeDemoSnapshot(now, { installs: count = 520, seed = 11 } = {})
     put('ch_hold', 1, 0.3); put('ch_wait', 1.2, 0.3); put('ch_type', 0.8, 0.2); put('ch_math', 0.6, 0.15); put('ch_pin', 0.5, 0.15); put('ch_friend', 0.15, 0.04);
     put('ch_for_end', 0.9, 0.4); put('ch_for_break', 1.1, 0.4); put('ch_for_unblock', 0.8, 0.3); put('ch_for_edit', 0.6, 0.3); put('ch_for_emergency', 0.05, 0.03);
     put('ses_start', 4, 0.65); put('ses_done', 3, 0.55); put('ses_stop', 1, 0.3);
-    put('svc_crash', 0.05, 0.06); put('upd_found', 0.4, 0.5); put('upd_applied', 0.35, 0.45); put('upd_failed', 0.05, 0.06);
+    put('svc_unclean', 0.05, 0.06); put('upd_found', 0.4, 0.5); put('upd_applied', 0.35, 0.45); put('upd_failed', 0.05, 0.06);
     const flagOdds = { pin: 0.55, partner_pin: 0.08, auto_update: 0.7, browser_ext: 0.62, locked_rules: 0.3, limits: 0.35, schedule: 0.3, sessions_used: 0.65, strict: 0.12 };
     for (const [f, o] of Object.entries(flagOdds)) if (r() < o) out.flags.push({ id, flag: f });
     out.flags.push({ id, flag: r() < 0.35 ? 'w10' : 'w11' });

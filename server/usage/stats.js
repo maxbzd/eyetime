@@ -436,7 +436,7 @@ function winBlock({ snap, recent, made, firsts, weekFrom, weekTo, mature }) {
       purposes: ['ch_for_end', 'ch_for_break', 'ch_for_unblock', 'ch_for_edit', 'ch_for_emergency'].map((id) => ({ id, k: cnt(id) })),
     },
     sessions: { started: cnt('ses_start'), finished: cnt('ses_done'), stopped: cnt('ses_stop'), finish_rate: rate(cnt('ses_done'), cnt('ses_start')), users: pair(users.ses_start.size, recent.length), first_week: pair(mature7.filter((i) => first(i, 'ses_start') <= 7).length, mature7.length) },
-    service: { starts: cnt('svc_start'), crashes: cnt('svc_crash'), crashes_per_1000: recent.length ? (1000 * cnt('svc_crash')) / recent.length : null, installs_with_crash: pair(users.svc_crash.size, recent.length), opens: cnt('ui_open') },
+    service: { starts: cnt('svc_start'), crashes: cnt('svc_unclean'), crashes_per_1000: recent.length ? (1000 * cnt('svc_unclean')) / recent.length : null, installs_with_crash: pair(users.svc_unclean.size, recent.length), opens: cnt('ui_open') },
     updates: { found: cnt('upd_found'), applied: cnt('upd_applied'), failed: cnt('upd_failed'), failed_rate: rate(cnt('upd_failed'), cnt('upd_found')) },
     flags: { of: withFlags.length, items: WIN_FLAGS.map((f) => ({ id: f, k: withFlags.filter((i) => flags.get(i.id).has(f)).length })) },
     lang: countBy(recent, (i) => i.lang),
