@@ -25,6 +25,7 @@ const handlers = {
   'calendar:sync': async () => { await armCalendar(); return syncCalendar(); },
   'conn:sync': async (m) => { await syncConnections({ only: typeof m.id === 'string' ? m.id : '', force: true }); return { ok: true }; },
   'conn:arm': async () => { await armConnections(); return { ok: true }; },
+  'vault:unlocked': async () => { await armConnections(); await syncConnections({ force: true }); return { ok: true }; }, // the person gave the passphrase on the Settings page: the connections that waited for it run now
   'focus:start': (m) => startFocus(m),
   'focus:stop': async () => {
     const { focus } = await getRaw('focus');
