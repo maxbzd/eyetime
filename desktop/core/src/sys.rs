@@ -18,6 +18,10 @@ pub fn system32(name: &str) -> PathBuf {
     if name.contains(['\\', '/', ':']) {
         return PathBuf::from(name);
     }
+    // the one tool that does not live directly in System32
+    if name.eq_ignore_ascii_case("powershell") || name.eq_ignore_ascii_case("powershell.exe") {
+        return powershell();
+    }
     let file = if name.contains('.') {
         name.to_string()
     } else {
@@ -57,6 +61,18 @@ mod tests {
             p.ends_with("curl.exe") && !p.ends_with("curl.exe.exe"),
             "{p}"
         );
+    }
+
+    #[test]
+    fn powershell_by_its_bare_name_is_found_where_it_really_is() {
+        // run("powershell", ...) in the installer asked for System32\\powershell.exe, which does not exist: no shortcut, so no install
+        for name in ["powershell", "PowerShell", "powershell.exe"] {
+            let p = system32(name).to_string_lossy().to_lowercase();
+            assert!(
+                p.contains("windowspowershell") && p.ends_with("powershell.exe"),
+                "{name}: {p}"
+            );
+        }
     }
 
     #[test]

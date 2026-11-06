@@ -2,7 +2,7 @@
 // github.com … "load" offline — no DNS, no TLS, no HSTS upgrades, no proxy — and the real block/track flows can be exercised.
 // Requires Playwright (npm i -D playwright, or set PLAYWRIGHT_PATH) and Chromium (channel 'chromium').
 let chromium;
-try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright')); }
+try { ({ chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright')); } catch { ({ chromium } = require('playwright')); } // PLAYWRIGHT_PATH first: it is how a suite is run on the version CI pins
 const path = require('path');
 const EXT = process.env.EXT || path.join(__dirname, '../..'); // folder with manifest.json (repo root or dist/chrome)
 const PORT = 8099;

@@ -9,7 +9,11 @@ const { launch } = require('./lib.cjs');
   const bad = [];
   const ok = (c, m) => { if (!c) bad.push(m); };
   const at = (h, m = 0) => app.ctx.clock.setFixedTime(new Date(2026, 10, 4, h, m));
-  await app.ctx.clock.install({ time: new Date(2026, 10, 4, 9, 30) }); // older Playwright (CI pins 1.56) needs the clock installed before it can be set
+  // The clock is put into the pages that exist, and Playwright 1.56 (what CI pins) fails on one it has not reached yet: the onboarding tab that a fresh install opens, or the
+  // blank first tab. So wait for that tab, close what is open (keeping one blank page, a browser with no page quits), and only then start the clock.
+  const blank = await app.ctx.newPage(); await blank.waitForTimeout(1500);
+  for (const p of app.ctx.pages()) if (p !== blank) await p.close().catch(() => {});
+  await app.ctx.clock.install({ time: new Date(2026, 10, 4, 9, 30) });
   await at(9, 30);
   const o = await app.ctx.newPage();
   o.on('pageerror', (e) => bad.push('pageerror: ' + e)); o.on('console', (m) => { if (m.type() === 'error') bad.push('console: ' + m.text()); });
