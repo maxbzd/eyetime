@@ -14,7 +14,7 @@ demo-data.js      a made-up population for trying the page and for the tests
 memory-store.js   a store in memory (tests, a quick local try)
 d1-store.js       the same store on Cloudflare D1 (SQLite)
 worker.js         the Cloudflare Worker that wires the two
-schema.sql        the tables (installs, firsts, usage_weeks, flags, experiments, ingest, uninstalls, notes, store_stats, settings)
+schema.sql        the tables (installs, firsts, usage_weeks, flags, experiments, ingest, uninstalls, notes, store_stats, settings); `installs.pr` says which product a row is (ext | win)
 queries.sql       quick questions for a console (the dashboard is the reference)
 wrangler.toml     the Worker's settings (logs and analytics of the collector itself are off)
 ```
@@ -75,6 +75,7 @@ Without the two secrets the crons still clean up and send nothing.
 Open `https://eyetime-usage.<you>.workers.dev/` and enter the key. (A bookmark `…/#t=<key>` signs in at once and removes the key from the address bar; the key is kept in that tab only and goes only to this address.)
 
 - Without `DASH_TOKEN` (or with one shorter than 16 characters) the numbers do not exist: `GET /v1/stats` answers 404. A wrong key is 401 and the comparison is constant-time. The page itself holds no data and is served with a strict policy (`default-src 'none'`, own origin only, no framing, no referrer).
+- `GET /v1/stats?pr=win` answers for the Windows app (the extension unless said otherwise). The app posts to the same `/v1/usage`, without an `Origin` header (it is not a browser).
 - `GET /v1/stats?days=28`, `?range=all`, `?from=2026-10-01&to=2026-10-31` answer for a period, and `&br=chrome&lang=ru` (also `app`, `os`, `look`, `layout`, `mode`, and by behaviour `use`, `session`, `blocking`) narrow it to a segment (a malformed one is a 400, never silently another period); the dashboard's period bar and filters use these.
 - **Public statistics** (optional): `npx wrangler secret put PUBLIC_STATS` with the value `1` (or `[vars] PUBLIC_STATS = "1"` in `wrangler.toml`) turns on `GET /v1/public-stats` for anyone (cached five minutes, CORS open): totals over at least 50 installs only. `…/?public` shows them with the same page.
 - Rotating the key: `wrangler secret put DASH_TOKEN` again; the old one stops working at once.
