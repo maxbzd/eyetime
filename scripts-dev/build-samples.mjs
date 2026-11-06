@@ -17,6 +17,7 @@ const midi = (name) => { const m = /^([A-G])(#?)(\d)$/.exec(name); return 12 * (
 const SETS = {
   piano: { dir: 'Keys/Upright Nr1', pick: (f) => /^UR1_(C|G)\d_pp_RR1\.wav$/.test(f) && ['C2', 'G2', 'C3', 'G3', 'C4', 'G4', 'C5', 'G5'].includes(f.split('_')[1]), note: (f) => f.split('_')[1], secs: 6.5, fade: 1.8, ch: 1, q: 2 },
   harp: { dir: 'Strings/Harp', pick: (f) => ['A2', 'A4', 'B3', 'C3', 'C5', 'D4', 'D6', 'E3', 'E5', 'G3', 'G5', 'A6'].includes(f.split('_')[1]), note: (f) => f.split('_')[1], secs: 5, fade: 1.5, ch: 1, q: 2 },
+  violin: { dir: 'Strings/Violin Section/susVib', pick: (f) => /^VlnEns_susVib_(G2|D3|A3|C4|G4|D5)_v1\.wav$/.test(f), note: (f) => f.split('_')[2], secs: 8, fade: 2.2, ch: 2, q: 1 },
   cello: { dir: 'Strings/Cello Section/susvib', pick: (f) => /^susvib_(A2|C3|D2|D4|E3|F2|G3)_v1_1\.wav$/.test(f), note: (f) => f.split('_')[1], secs: 8, fade: 2.2, ch: 2, q: 1 },
 };
 const manifest = {};

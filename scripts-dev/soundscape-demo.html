@@ -59,6 +59,9 @@ button:focus-visible { outline: 2px solid var(--lamp); outline-offset: 2px; }
 .sum { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
 .sum code { font: 400 13px/1.3 var(--f-mono); color: var(--fg); }
 .ghost { font: 500 13px/1 var(--f-body); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
+.layers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.layers label { display: grid; gap: 4px; font: 400 12px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
+.layers input { width: 100%; accent-color: var(--lamp); height: 24px; }
 footer { color: var(--faint); font-size: 13px; line-height: 1.5; }
 footer a { color: var(--muted); }
 </style>
@@ -67,20 +70,27 @@ footer a { color: var(--muted); }
   <header>
     <p class="eyebrow">EyeTime · пробы звука</p>
     <h1>Звук для фокуса</h1>
-    <p class="lede">Вторая серия, после ваших оценок. Раньше у всех звуков был один и тот же ровный гул и повторяющийся рисунок. Теперь постоянного пэда нет: голоса и инструменты приходят и уходят сами, а каждые одну-две минуты меняется «сцена» (кто играет, как высоко, как плотно, сколько воздуха). Слушайте минут пять каждый: смысл в том, чтобы оно не надоедало. Настоящие инструменты играют из коротких CC0-записей, а что и когда играть, решается заново.</p>
+    <p class="lede">Третья серия. Теперь первыми идут звуки в духе generative.fm, «Skyline» и ещё четыре их пьесы, которые подходят для фокуса. Принцип у них один: несколько настоящих нот струнных или пианино, сыгранных на две-три октавы ниже, под огромным эхом и медленным фильтром. Что и когда играть, решается заново каждый раз. Ниже мои прошлые варианты для сравнения. Слушайте минут пять каждый.</p>
   </header>
 
-  <section id="g1" aria-labelledby="h1a"><h2 id="h1a">A · Звук, который меняется</h2>
-    <p class="group-note">Хор есть везде, потому что он был единственным, что вам подошло. Остальное добавлено вокруг него. Начните с 1 и 2.</p><div class="list" id="listA"></div></section>
-  <section id="g2" aria-labelledby="h2a"><h2 id="h2a">B · Для сравнения</h2>
-    <p class="group-note">Тот самый «Хор» из прошлой серии, который вам понравился.</p><div class="list" id="listB"></div></section>
+  <section id="g1" aria-labelledby="h1a"><h2 id="h1a">A · В духе Skyline</h2>
+    <p class="group-note">Глубокий струнный гул и очень тихий случайный грув. Пока играет, внизу появятся ползунки слоёв: если что-то мешает, убавьте его.</p><div class="list" id="listA"></div></section>
+  <section id="g2" aria-labelledby="h2a"><h2 id="h2a">B · Другие пьесы generative.fm</h2>
+    <p class="group-note">Четыре пьесы с похожим характером, но разные по устройству: медленные дроны, обратное пианино с эхом на 20–30 секунд, фразы пианино.</p><div class="list" id="listB"></div></section>
+  <section id="g3" aria-labelledby="h3a"><h2 id="h3a">C · Мои прошлые варианты</h2>
+    <p class="group-note">Для сравнения: голоса и инструменты, которые приходят и уходят сами, и «Хор», который вам понравился.</p><div class="list" id="listC"></div></section>
 
-  <footer>Инструменты: пианино, арфа и виолончельная секция из <a href="https://github.com/sgossner/VSCO-2-CE" target="_blank" rel="noopener">VS Chamber Orchestra: Community Edition</a> (Versilian Studios, CC0). Идея независимых голосов взята у <a href="https://github.com/generative-music/pieces-alex-bainter" target="_blank" rel="noopener">generative.fm</a> (MIT, Alex Bainter) и Брайана Ино. Звук Endel здесь не копируется: по записям измерены только общие свойства (тональность, спектр, темп и ширина).</footer>
+  <footer>Пьесы Skyline, Drones 2, Homage, Apoapsis и Nakaii придуманы Alex Bainter (<a href="https://github.com/generative-music/pieces-alex-bainter" target="_blank" rel="noopener">generative.fm</a>, MIT); здесь они заново написаны по их идее. Инструменты: пианино, арфа, скрипки и виолончели из <a href="https://github.com/sgossner/VSCO-2-CE" target="_blank" rel="noopener">VS Chamber Orchestra: Community Edition</a> (Versilian Studios, CC0). Идея независимых голосов принадлежит им и Брайану Ино.</footer>
 </main>
 
 <div class="bar" role="region" aria-label="Плеер">
   <div class="bar-in">
     <div class="now"><span id="status">Выберите звук и нажмите ▶</span><span class="clock" id="clock">00:00</span></div>
+    <div class="layers" id="layersBox" hidden>
+      <label for="lay-drone">Гул <input id="lay-drone" type="range" min="0" max="150" value="100"></label>
+      <label for="lay-bass">Бас <input id="lay-bass" type="range" min="0" max="150" value="100"></label>
+      <label for="lay-drums">Барабаны <input id="lay-drums" type="range" min="0" max="150" value="100"></label>
+    </div>
     <div class="vol"><label for="volume">Громкость</label><input id="volume" type="range" min="0" max="100" value="55"><output id="volumeOut">55%</output></div>
     <div class="sum"><span>Оценки:</span><code id="sum">пока нет</code><button class="ghost" id="copy" type="button">Скопировать</button><button class="ghost" id="reset" type="button">Сбросить</button></div>
   </div>
@@ -89,23 +99,25 @@ footer a { color: var(--muted); }
 <script type="module">
 /*ENGINE*/
 
-const { seeded } = M_theory, { createMethod } = M_methods, { PRESETS } = M_evolve, { loadSamples } = M_rhythm, { createEvolvingEngine } = M_evolve;
+const { seeded } = M_theory, { createMethod } = M_methods, { PRESETS, createEvolvingEngine } = M_evolve, { loadSamples } = M_rhythm, { SKYLINES, createSkylineEngine } = M_skyline, { PIECES, createPieceEngine } = M_gfm;
 const $ = (id) => document.getElementById(id);
 
 // Loudness trim, measured so that everything plays at about the same level.
-const TRIM = { voices: 1, cello: 1, harp: 1, piano: 1, night: 1, dark: 1, all: 1, choirOld: 1.22 };
+const TRIM = { skyline: 0.64, 'skyline-soft': 0.66, 'skyline-cello': 0.56, 'skyline-drone': 0.61, 'skyline-slow': 0.62, drones2: 1, homage: 0.5, apoapsis: 1.46, nakaii: 1.13, voices: 1, cello: 1, harp: 1, piano: 1, night: 1, dark: 1, all: 1, choirOld: 1.22 };
 
 const entries = [];
-for (const pr of PRESETS.filter((x) => !x.id.startsWith('cal-'))) entries.push({ kind: 'evolve', id: pr.id, name: pr.name, note: pr.note, sampled: !!pr.sampled, group: 'A' });
-entries.push({ kind: 'method', id: 'choir', key: 'choirOld', name: 'Хор (прошлая серия)', note: 'Тот, что вам понравился: аккорды хором на «у-о», без смены сцен.', sampled: false, group: 'B' });
+for (const sk of SKYLINES) entries.push({ kind: 'skyline', id: sk.id, name: sk.name, note: sk.note, sampled: true, group: 'A' });
+for (const pc of PIECES) entries.push({ kind: 'gfm', id: pc.id, name: pc.name, note: pc.note, sampled: true, group: 'B' });
+for (const pr of PRESETS.filter((x) => !x.id.startsWith('cal-'))) entries.push({ kind: 'evolve', id: pr.id, name: 'Серия 2: ' + pr.name, note: pr.note, sampled: !!pr.sampled, group: 'C' });
+entries.push({ kind: 'method', id: 'choir', key: 'choirOld', name: 'Хор (серия 1)', note: 'Тот, что вам понравился: аккорды хором на «у-о», без смены сцен.', sampled: false, group: 'C' });
 entries.forEach((e, i) => { e.n = i + 1; });
 
 let samples = null, loading = null;
 function ensureSamples() { if (samples) return Promise.resolve(samples); loading ||= loadSamples(ctx, 'samples/').then((x) => { samples = x; return x; }); return loading; }
 
 let ctx = null, out = null, engine = null, current = null, startedAt = 0, volume = 0.55, ratings = {};
-try { ratings = JSON.parse(localStorage.getItem('et-sound-ratings-2') || '{}'); } catch { /* storage may be unavailable */ }
-const saveRatings = () => { try { localStorage.setItem('et-sound-ratings-2', JSON.stringify(ratings)); } catch { /* ignore */ } };
+try { ratings = JSON.parse(localStorage.getItem('et-sound-ratings-3') || '{}'); } catch { /* storage may be unavailable */ }
+const saveRatings = () => { try { localStorage.setItem('et-sound-ratings-3', JSON.stringify(ratings)); } catch { /* ignore */ } };
 
 const ICON_PLAY = '<svg class="p1" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6a1 1 0 0 0 1.5.86l11-6.8a1 1 0 0 0 0-1.72l-11-6.8A1 1 0 0 0 8 5.2z"/></svg><svg class="p2" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4.2" height="14" rx="1.2"/><rect x="13.8" y="5" width="4.2" height="14" rx="1.2"/></svg>';
 for (const e of entries) {
@@ -119,13 +131,16 @@ for (const e of entries) {
   $('list' + e.group).append(card); e.el = card;
 }
 
+const layerVals = { drone: 1, bass: 1, drums: 1 };
 function make(e, seed) {
   const rng = seeded(seed), o = { rng, destination: out, volume: 0.8 };
+  if (e.kind === 'skyline') return createSkylineEngine(ctx, { ...o, preset: e.id, samples: samples || undefined, layers: { ...layerVals } });
+  if (e.kind === 'gfm') return createPieceEngine(ctx, { ...o, piece: e.id, samples: samples || undefined });
   if (e.kind === 'evolve') return createEvolvingEngine(ctx, { ...o, preset: e.id, samples: samples || undefined });
   return createMethod(ctx, e.id, o);
 }
 function applyVolume() { if (out) out.gain.setTargetAtTime(volume * (current ? TRIM[current.key || current.id] || 1 : 1), ctx.currentTime, 0.1); }
-function stopCurrent() { if (engine) { engine.stop(1.6); engine = null; } if (current) current.el.dataset.on = 'false'; current = null; }
+function stopCurrent() { if (engine) { engine.stop(1.6); engine = null; } if (current) current.el.dataset.on = 'false'; current = null; $('layersBox').hidden = true; }
 async function toggle(e) {
   if (!ctx) { ctx = new (window.AudioContext || window.webkitAudioContext)(); out = ctx.createGain(); out.connect(ctx.destination); }
   ctx.resume();
@@ -134,9 +149,10 @@ async function toggle(e) {
   if (e.sampled && !samples) { $('status').textContent = 'Загружаю инструменты…'; try { await ensureSamples(); } catch { $('status').textContent = 'Не удалось загрузить инструменты'; e.el.dataset.on = 'false'; current = null; return; } if (current !== e) return; }
   const seed = Math.floor(Math.random() * 1e6);
   engine = make(e, seed); startedAt = ctx.currentTime; applyVolume();
-  $('status').innerHTML = `Играет <b>${e.n}. ${e.name}</b> · вариация ${seed}`;
+  $('status').innerHTML = `Играет <b>${e.n}. ${e.name}</b> · вариация ${seed}`; $('layersBox').hidden = e.kind !== 'skyline';
 }
 setInterval(() => { const s = ctx && current ? Math.floor(ctx.currentTime - startedAt) : 0; $('clock').textContent = `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; }, 500);
+for (const k of ['drone', 'bass', 'drums']) $('lay-' + k).addEventListener('input', (ev) => { layerVals[k] = ev.target.value / 100; if (engine && engine.setLayers) engine.setLayers({ [k]: layerVals[k] }); });
 $('volume').addEventListener('input', (ev) => { volume = ev.target.value / 100; $('volumeOut').textContent = ev.target.value + '%'; applyVolume(); });
 
 function rate(e, kind) { ratings[e.n] = ratings[e.n] === kind ? undefined : kind; if (!ratings[e.n]) delete ratings[e.n]; saveRatings(); paint(); }

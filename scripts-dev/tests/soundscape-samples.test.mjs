@@ -8,7 +8,7 @@ const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../src/a
 
 test('the sample manifest lists real files, in pitch order, and the pack stays small', () => {
   const man = JSON.parse(fs.readFileSync(path.join(dir, 'manifest.json'), 'utf8'));
-  assert.deepEqual(Object.keys(man).sort(), ['cello', 'harp', 'piano']);
+  assert.deepEqual(Object.keys(man).sort(), ['cello', 'harp', 'piano', 'violin']);
   let total = 0;
   for (const [id, list] of Object.entries(man)) {
     assert.ok(list.length >= 6, id);
