@@ -12,7 +12,7 @@ try { ({ chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright')); } c
 const SRC = path.join(__dirname, '../..');
 const TOKEN = 'dashboard-e2e-token-0123456789';
 const DAY = 86400000;
-const PAGES = ['overview', 'growth', 'activation', 'retention', 'audience', 'features', 'product', 'quality', 'method'];
+const PAGES = ['overview', 'growth', 'activation', 'retention', 'audience', 'features', 'experiments', 'product', 'quality', 'method'];
 
 (async () => {
   const { handle } = await import(path.join(SRC, 'server/usage/handler.js'));
@@ -76,12 +76,13 @@ const PAGES = ['overview', 'growth', 'activation', 'retention', 'audience', 'fea
   ok(/90 days/.test(await range(p)), 'the default period is 90 days');
   await p.click('.seg button:has-text("28 days")'); await p.waitForFunction(() => /28 days/.test(document.querySelector('.rangetxt').textContent));
   ok(/days=28/.test(await p.evaluate(() => location.search)), 'the period is in the address');
-  ok((await p.$$('.dl')).length >= 3, 'the figures carry a change against the period before');
+  ok((await p.$$('.kpi .dl')).length >= 3, 'the figures carry a change against the period before');
+  ok(/significant|could be noise/.test(await p.textContent('main')), 'and say whether it is more than chance');
   ok(/Compared with the period before/.test(await range(p)), 'the comparison period is named');
-  await p.uncheck('.switch input'); ok((await p.$$('.dl')).length === 0, 'comparison switched off');
+  await p.uncheck('.switch input'); ok((await p.$$('.kpi .dl')).length === 0, 'comparison switched off');
   await p.check('.switch input');
   await p.click('.seg button:has-text("All time")'); await p.waitForFunction(() => /range=all/.test(location.search));
-  ok((await p.$$('.dl')).length === 0 && !(await p.$('.switch')), 'all time has nothing to compare with');
+  ok((await p.$$('.kpi .dl')).length === 0 && !(await p.$('.switch')), 'all time has nothing to compare with');
   await p.click('.seg button:has-text("Custom")');
   await p.fill('.custom input >> nth=0', '2026-10-30'); await p.fill('.custom input >> nth=1', '2026-10-01'); await p.click('.custom .btn.primary');
   ok(/must not be later/.test(await p.textContent('.err')), 'a backwards period is explained');
@@ -93,6 +94,23 @@ const PAGES = ['overview', 'growth', 'activation', 'retention', 'audience', 'fea
   ok(/\(21 days\)/.test(await range(p)), 'the chosen period is spelled out: ' + (await range(p)).slice(0, 80));
   await p.context().close();
   p = await open('/?demo&days=7'); await ready(p); ok(/7 days/.test(await range(p)), 'a period in the address is used'); await p.context().close();
+
+
+  // 3b. the north star, events on the charts, targets, intake, coverage, why people leave, days of the week
+  p = await open('/?demo'); await ready(p);
+  ok(await p.$('.ns .big') !== null && (await p.$$('.ns svg.chart')).length === 1, 'overview: the north star with its chart');
+  const marksBefore = (await p.$$('svg.chart g.note')).length; ok(marksBefore >= 2, 'the events of the demo are marks on the weekly charts: ' + marksBefore);
+  await p.click('details.menu summary:has-text("Event")'); await p.fill('#note-text', 'My release'); await p.click('.pop button:has-text("Add")');
+  await p.waitForFunction((n) => document.querySelectorAll('svg.chart g.note').length > n, marksBefore); ok(true, 'an event added in the demo shows at once');
+  await p.click('details.menu summary:has-text("Targets")'); ok(await p.$eval('#tg-finish', (e) => e.disabled), 'targets cannot be saved in the demo, and say so');
+  await p.goto(base + '/?demo#growth'); await p.waitForSelector('table.t'); ok(/My release|Release 3.8.1/.test(await p.textContent('main')), 'growth: the list of events');
+  await p.goto(base + '/?demo#retention'); await p.waitForSelector('table.hm'); ok((await p.textContent('main')).includes('Mon') && /Why people remove it/.test(await p.textContent('main')), 'retention: days of the week and the reasons for leaving');
+  await p.goto(base + '/?demo#quality'); await p.waitForSelector('main h1'); ok(/Report intake/.test(await p.textContent('main')), 'quality: the intake of reports');
+  await p.goto(base + '/?demo#audience'); await p.waitForSelector('table.t'); ok(/Coverage of the sample/.test(await p.textContent('main')) && await p.$eval('#cv-users', (e) => e.disabled), 'audience: coverage, and the form is off in the demo');
+  await p.goto(base + '/?demo#experiments'); await p.waitForSelector('table.t'); ok(/demo-len/.test(await p.textContent('main')) && /control/.test(await p.textContent('main')), 'experiments: the arms side by side');
+  await p.click('details.menu summary:has-text("Filters")'); ok((await p.$$('#f-use option')).length >= 5 && await p.$('#f-session') !== null && await p.$('#f-blocking') !== null, 'filters by behaviour as well as by setup');
+  await p.selectOption('#f-use', 'power'); await p.waitForFunction(() => /use=power/.test(location.search)); ok(await p.$('.fchip') !== null, 'narrowed to the daily users');
+  await p.context().close();
 
   // 4. filters narrow the whole dashboard (and the address), and chips take them off
   p = await open('/?demo'); await ready(p);
@@ -132,10 +150,10 @@ const PAGES = ['overview', 'growth', 'activation', 'retention', 'audience', 'fea
   ok(/^eyetime-demo_\d{4}-\d{2}-\d{2}_\d{4}-\d{2}-\d{2}\.csv$/.test(csv.name), 'csv file name carries the period: ' + csv.name);
   ok(csv.text.startsWith('﻿section,id,metric,label,value,k,n\r\n'), 'csv: BOM (Excel), header, CRLF');
   const rows = csv.text.trim().split('\r\n').slice(1).map((l) => l.split(','));
-  for (const key of ['retention,d1', 'funnel,started', 'features,focus_start', 'speed,under250', 'flags,ritual', 'weekly,', 'lifecycle,', 'engagement,dau_mau', 'first_week_habit,', 'release,', 'segment_br,', 'trend_users,', 'scorecard,']) ok(rows.some((r) => (r[0] + ',' + r[1]).startsWith(key)), 'csv has ' + key);
+  for (const key of ['retention,d1', 'funnel,started', 'features,focus_start', 'speed,under250', 'flags,ritual', 'weekly,', 'lifecycle,', 'engagement,dau_mau', 'first_week_habit,', 'release,', 'segment_br,', 'trend_users,', 'scorecard,', 'northstar,', 'weekday,', 'intake,', 'coverage,', 'removal_reasons,', 'experiment_demo-len,', 'notes,', 'targets,']) ok(rows.some((r) => (r[0] + ',' + r[1]).startsWith(key)), 'csv has ' + key);
   ok(rows.every((r) => r.length >= 7), 'csv: every row has its columns');
   const json = await grab('JSON data'); const j = JSON.parse(json.text);
-  ok(j.v === 2 && j.range && j.retention && j.lifecycle && j.trends && j.segments && j.exported_at && j.mode === 'demo', 'json holds the collector answer and when it was exported');
+  ok(j.v === 3 && j.range && j.retention && j.lifecycle && j.trends && j.segments && j.northstar && j.targets && j.exported_at && j.mode === 'demo', 'json holds the collector answer and when it was exported');
   const md = await grab('Markdown report');
   ok(md.name.endsWith('.md') && /^# EyeTime report/.test(md.text) && /\| Sent a first report \|/.test(md.text) && /## Product health/.test(md.text), 'markdown report');
   await p.context().close();
