@@ -2,6 +2,7 @@
 // no extra fields (no owner, no local time zone, no access times). That is what lets anyone rebuild a release from the source and compare the hash with the published one.
 //   writeZip('out.zip', [{ name: 'a/b.txt', data: Buffer }, ...])
 import fs from 'node:fs';
+import { Buffer } from 'node:buffer';
 import zlib from 'node:zlib';
 
 const DOS_TIME = 0, DOS_DATE = ((2020 - 1980) << 9) | (1 << 5) | 1; // 2020-01-01 00:00:00, whatever the clock says

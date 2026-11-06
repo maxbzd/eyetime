@@ -20,6 +20,7 @@ import { intIn, isPassKey, PASS_MINUTES, TRACKING_PAUSE_MINUTES } from '../share
 
 import { syncCalendar, armCalendar } from './calendar.js';
 import { syncConnections, armConnections } from './connections.js';
+import { syncInstant, dropRules } from './instant.js';
 
 const handlers = {
   'calendar:sync': async () => { await armCalendar(); return syncCalendar(); },
@@ -56,6 +57,8 @@ const handlers = {
     await grantPass(m.rule, intIn(m.minutes, PASS_MINUTES.min, PASS_MINUTES.max, PASS_MINUTES.fallback), sender.tab ? sender.tab.id : null);
     return { ok: true };
   },
+  'instant:sync': async () => { await syncInstant(); return { ok: true }; },
+  'instant:drop': async () => { await dropRules(); return { ok: true }; },
   'break:complete': async () => { await completeBreak(); return { ok: true }; },
   'break:skip': async () => { await skipBreak(); return { ok: true }; },
   'break:snooze': async () => { await snoozeBreak(); return { ok: true }; },

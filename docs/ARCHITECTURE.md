@@ -122,3 +122,5 @@ Pure function from a raw 1.x storage snapshot to the 2.0 layout (settings mappin
 ## Why these permissions
 
 See **Settings → Data & privacy** in the app (or `perm.*` in `locales/en.js`).
+
+- **Instant blocking** (`shared/dnr.js`, `background/instant.js`, `options/instant-row.js`) — opt-in (`settings.blocking.instant`, needs the optional access to websites). `buildRules` turns the same `decide()` the blocker uses into declarativeNetRequest redirect rules (one per listed domain, an allow rule for a more specific allowed site, a session rule for the 30 s window of one tab); the blocked page receives the address raw after `&u=` (`d=1`). Soundness (a rule never redirects what `decide` allows) is the invariant; the tab blocker stays as the net and waits 350 ms for the rule before stepping in. The page that is about to release a tab syncs the rules first, and cuts a loop after three releases in five seconds.

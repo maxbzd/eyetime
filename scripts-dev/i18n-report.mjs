@@ -11,7 +11,6 @@ import { LOCALES } from '../src/shared/locales/index.js';
 const en = LOCALES.en;
 const NON_LATIN = new Set(['ru', 'uk', 'zh', 'ja']);
 const KEEP = new Set(['EyeTime', 'Todoist', 'Notion', 'CalDAV', 'iCloud', 'Fastmail', 'Nextcloud', 'Google', 'Microsoft', 'Pomodoro', 'CSV', 'JSON', 'Markdown', 'URL', 'PIN', 'OK', 'ICS', 'iCal', 'AI', 'CSS', 'API', 'RSS', 'HTML', 'YouTube', 'TikTok', 'Instagram', 'VK', 'Reddit', 'Shorts', 'Reels', 'Chrome', 'Edge', 'Firefox', 'Brave', 'Alt', 'Ctrl', 'Cmd', 'Shift', 'Enter', 'Esc', 'GitHub', 'Mac', 'Windows', 'Linux', 'Gemini', 'Nano', 'Hex', 'MIT', 'PNG', 'SVG', 'WebP', 'JPEG', 'min', 'ics', 'http', 'https', 'example', 'com', 'basic']);
-const textsOf = (v) => (typeof v === 'string' ? [v] : Object.values(v)).filter((s) => typeof s === 'string');
 const words = (s) => (s.replace(/\{\w+\}/g, '').match(/[A-Za-z]{3,}/g) || []);
 
 /** The findings for one language: [{ key, signal, en, text }] */
