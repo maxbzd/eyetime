@@ -78,8 +78,8 @@
     countTo($('#pfS'), V.s, 900); countTo($('#pfN'), V.n, 1500);
     const shelf = $('#pfShelf'); shelf.innerHTML = '';
     l.list.forEach(([name, desc, have, need, unit, hue, seed], i) => {
-      const own = have >= need, g = document.createElement('button'); g.className = 'gm rise' + (own ? '' : ' lk'); g.style.setProperty('--d', 120 + i * 60); g.style.setProperty('--i', i); g.type = 'button'; g.setAttribute('aria-label', `${name}: ${own ? l.owned : l.progress(have, need, unit)}`);
-      g.innerHTML = `<div class="st">${stills.get(seed) ? `<img alt="" src="${stills.get(seed)}">` : '<div class="sk"></div>'}</div><b>${name}</b><span class="s">${own ? l.owned : l.progress(have, need, unit)}</span>${own ? '' : `<div class="pbar"><i data-w="${(have / need) * 100}"></i></div>`}`;
+      const own = have >= need, g = document.createElement('button'); g.className = 'gm rise' + (own ? '' : ' lk'); g.style.setProperty('--d', 120 + i * 60); g.style.setProperty('--i', i); g.type = 'button'; /* the name is its visible text (WCAG 2.5.3) */
+      g.innerHTML = `<div class="st">${stills.get(seed) ? `<img alt="" src="${stills.get(seed)}">` : '<div class="sk"></div>'}</div><b>${name}</b> <span class="s">${own ? l.owned : l.progress(have, need, unit)}</span>${own ? '' : `<div class="pbar"><i data-w="${(have / need) * 100}"></i></div>`}`;
       g.addEventListener('click', () => openGem(i)); shelf.append(g); const bar = $('.pbar i', g); if (bar) setTimeout(() => { bar.style.width = bar.dataset.w + '%'; }, 80);
     });
     makeStills();
