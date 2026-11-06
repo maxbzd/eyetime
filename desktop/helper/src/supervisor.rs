@@ -739,6 +739,7 @@ impl<O: Os> Supervisor<O> {
     /// What the window shows: the switch, whether to ask now, and the exact next report (the same text that would be sent).
     fn telemetry_view(&self, _t: i64) -> Value {
         let have = !telemetry::COLLECTOR.is_empty();
+        let plan = self.p.tele.ask_plan(have, self.os.wall_ms());
         let flags = self.tele_flags();
         let report = self.p.tele.report(
             self.os.wall_ms(),
@@ -750,7 +751,8 @@ impl<O: Os> Supervisor<O> {
         serde_json::json!({
             "on": self.p.tele.on,
             "configured": have,
-            "ask": self.p.tele.should_ask(have),
+            "ask": plan.is_some(),
+            "final": plan.unwrap_or(false),
             "asked": self.p.tele.asked_ms > 0,
             "report": report,
             "lastReportMs": self.p.tele.last_report_ms,
@@ -1099,6 +1101,11 @@ impl<O: Os> Supervisor<O> {
             }
             Request::TelemetryDecline => {
                 self.p.tele.decline(wall_now(&self.os));
+                self.dirty = true;
+                Response::ok(self.telemetry_view(t))
+            }
+            Request::TelemetryDefer => {
+                self.p.tele.defer(wall_now(&self.os));
                 self.dirty = true;
                 Response::ok(self.telemetry_view(t))
             }

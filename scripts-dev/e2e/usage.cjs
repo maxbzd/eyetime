@@ -94,25 +94,45 @@ const { launch } = require('./lib.cjs');
   const after = await get('usageShare');
   ok(after && after.on === false && after.id === null && after.askedAt, 'and it is gone here; the question will not come back');
 
-  // 6. the one-time question on Home (it only speaks when the day-loop nudge has nothing to say: no open tasks here)
-  await o.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.setCollection('tasks', []); await chrome.storage.local.remove('usageShare'); const { usage } = await chrome.storage.local.get('usage'); usage.total.focus_done = 1; usage.days = [0, 1]; await chrome.storage.local.set({ usage }); });
-  await home.reload(); await home.waitForTimeout(2200);
+  // 6. the question on Home: only at a good moment, "Not now" brings it back once, "No, thanks" is final, every refusal is a real button
+  const DAYMS = 86_400_000;
+  const prime = (share) => o.evaluate(async (share) => { const st = await import('/src/shared/storage.js'); await st.setCollection('tasks', []); if (share) await chrome.storage.local.set({ usageShare: share }); else await chrome.storage.local.remove('usageShare'); const { usage } = await chrome.storage.local.get('usage'); usage.total.focus_done = 1; usage.days = [0, 1]; await chrome.storage.local.set({ usage }); }, share);
+  await prime(null); await home.reload(); await home.waitForTimeout(2200);
+  ok(await home.locator('#usageAsk').count() === 0, 'a person who qualifies but has not just finished a session is not asked yet (waiting for a good moment)');
+  const eligible = await get('usageShare'); ok(eligible && eligible.eligibleAt > 0, 'the wait is written down: ' + JSON.stringify(eligible));
+  await prime({ on: false, id: null, eligibleAt: Date.now() - 8 * DAYMS }); await home.reload(); await home.waitForTimeout(2200);
   const ask = home.locator('#usageAsk');
-  ok(await ask.count() === 1 && /small favour/.test(await ask.innerText()), 'the question is on Home after a finished session and a second day: ' + (await ask.innerText()).slice(0, 60));
-  ok(/Never sold/.test(await ask.innerText()) && /Never used for money/.test(await ask.innerText()) && /Nothing personal/.test(await ask.innerText()), 'it says in plain words that nothing is sold, nothing is used for money, nothing is personal');
+  ok(await ask.count() === 1 && /small favour/.test(await ask.innerText()), 'a week of waiting is enough: the question is on Home: ' + (await ask.innerText()).slice(0, 60));
+  const wording = await ask.innerText();
+  ok(/Never sold/.test(wording) && /Nothing personal/.test(wording), 'it says in plain words that nothing is sold, nothing is personal');
   ok(await home.locator('#nudge:not([hidden])').count() === 0, 'and it is a card of its own, not the nudge strip');
+  const box = async (name) => (await ask.getByRole('button', { name }).boundingBox());
+  const [yb, lb, nb] = [await box(/Yes, I'll help/), await box('Not now'), await box('No, thanks')];
+  ok(yb && lb && nb && lb.height === nb.height && lb.height >= 40 && yb.width > lb.width, 'both refusals are real buttons of the same, ordinary height; "Yes" is the wider one: ' + JSON.stringify([yb && yb.width, lb && lb.width, nb && nb.width, lb && lb.height, nb && nb.height]));
+  const colour = (loc) => loc.evaluate((e) => { const c = getComputedStyle(e); return [c.color, c.borderTopWidth, c.opacity, c.visibility]; });
+  const [lc, ncol] = [await colour(ask.getByRole('button', { name: 'Not now' })), await colour(ask.getByRole('button', { name: 'No, thanks' }))];
+  ok(lc[1] !== '0px' && ncol[1] !== '0px' && lc[2] === '1' && ncol[2] === '1' && lc[3] === 'visible', 'a refusal has a border, full opacity and is visible: ' + JSON.stringify([lc, ncol]));
+  ok(await ask.getByRole('link', { name: 'Privacy details' }).count() === 1, 'the privacy details are one click away');
   await ask.getByRole('button', { name: /Show exactly what is sent/ }).click(); await home.waitForTimeout(400);
   const shownText = await ask.locator('.ask-preview').innerText();
   ok(/"v": 1/.test(shownText) && !/private|youtube|bank/i.test(shownText), 'one click shows the exact report');
-  await ask.getByRole('button', { name: 'No, thanks' }).click(); await home.waitForTimeout(600);
-  ok(await home.locator('#usageAsk').count() === 0, 'a "no" closes it');
+  ok(!/\"x\"/.test(shownText) || /ask-copy:(long|short)/.test(shownText), 'an experiment arm in the report is the one named for the wording');
+  await ask.getByRole('button', { name: 'Not now' }).click(); await home.waitForTimeout(600);
+  ok(await home.locator('#usageAsk').count() === 0, '"Not now" closes it');
+  const later = await get('usageShare'); ok(later.on === false && later.deferredAt > 0 && later.deferrals === 1 && !later.askedAt, '...and is not a "no": ' + JSON.stringify(later));
+  await home.reload(); await home.waitForTimeout(2200);
+  ok(await home.locator('#usageAsk').count() === 0, 'it does not come back for weeks');
+  await prime({ ...later, deferredAt: Date.now() - 22 * DAYMS, eligibleAt: Date.now() - 8 * DAYMS }); await home.reload(); await home.waitForTimeout(2200);
+  ok(await home.locator('#usageAsk').count() === 1 && await home.locator('#usageAsk').getByRole('button', { name: 'Not now' }).count() === 0 && /last time/.test(await home.locator('#usageAsk').innerText()), 'after three weeks it comes once more, says it is the last time and offers no "Not now"');
+  await home.locator('#usageAsk').getByRole('button', { name: 'No, thanks' }).click(); await home.waitForTimeout(600);
   await home.reload(); await home.waitForTimeout(2200);
   ok(await home.locator('#usageAsk').count() === 0, 'after "No, thanks" it does not come back');
   ok((await get('usageShare')).askedAt > 0 && (await get('usageShare')).on === false, 'and nothing is on');
-  await o.evaluate(async () => { await chrome.storage.local.remove('usageShare'); });
-  await home.reload(); await home.waitForTimeout(2200);
+  await prime({ on: false, id: null, eligibleAt: Date.now() - 8 * DAYMS }); await home.reload(); await home.waitForTimeout(2200);
   await home.locator('#usageAsk').getByRole('button', { name: "Yes, I'll help" }).click(); await home.waitForTimeout(800);
-  ok((await get('usageShare')).on === true, '"Yes" switches it on');
+  const yes = await get('usageShare');
+  ok(yes.on === true && yes.consentV === 1 && yes.askedAt > 0, '"Yes" switches it on and stamps which consent was given: ' + JSON.stringify(yes));
+  ok(/Thank you/.test(await home.locator('#usageAsk').innerText()) && await home.locator('#usageAsk').getByRole('link', { name: 'Anonymous usage' }).count() === 1, 'the thank-you says where the switch is');
 
   // 7. delete-all ends it, with a request to forget
   const before = hits.length;

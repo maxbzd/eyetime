@@ -99,6 +99,12 @@ A change is tried by putting some devices in an arm. The arm is drawn on the dev
 
 Every counter, flag and field of the report is listed in `docs/TRACKING-PLAN.md` with the page that reads it; the file is generated (`node scripts-dev/tracking-plan.mjs`), a test fails when the schema and the plan differ, and `npm run check` fails when the file is stale.
 
+### The question about sharing is itself an experiment (and how it is measured without asking those who said no)
+
+How the question is worded matters more than anything else for how many people agree, so it is tested, honestly: the experiment `ask-copy` (`src/shared/usage-schema.js`) puts every device in the *long* or the *short* wording, 50/50. Only people who said yes ever report, and they name their arm; but because the arms were shared out evenly over **all** devices, how the people who agreed split between the arms is the conversion of each wording. The **Experiments** page shows it ("Agreements by group") and calls a winner only with at least 200 people who agreed and p < 0.05 (`consentSplit` in `stats.js`). About 400 agreements tell a 55 / 45 split from chance, so a few thousand people have to be asked. Nothing is ever collected from a person who said no. Do not change the wording of an arm while the test runs; when there is a winner, make it the only wording and remove the experiment.
+
+What is not tested, on purpose: anything that makes a "no" harder, smaller than readable, or costlier (see `docs/COMPLIANCE.md`). The rhythm is fixed: at a good moment (right after a finished session, or after a week of waiting), **Not now** brings the question back once after three weeks and says it is the last time, **No, thanks** is final, and a consent is for the version of what is sent that it was given for.
+
 ### The digest and the alarms
 
 With the Worker's cron triggers and two secrets (`TG_BOT_TOKEN`, `TG_CHAT_ID`) the collector sends the owner a Telegram message every Monday (the week's figures with the change and the link to the dashboard) and, at most once in three days per cause, an alarm when errors, new-tab speed, a fall in active installs (under 70 % of the week before) or a share of refused reports crosses a line. Nothing is sent without the two secrets, and the message holds only totals.

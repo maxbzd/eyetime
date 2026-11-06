@@ -622,6 +622,14 @@ Object.assign(MORE, {
   wn_ver: ['Версии приложения', 'App versions'],
   wn_empty: ['Пока нет отчётов от приложения. Они появятся, когда первые люди включат «Делиться анонимными числами» в приложении.', 'No reports from the app yet. They will appear once the first people switch on “Share anonymous numbers” inside the app.'],
 });
+Object.assign(MORE, {
+  ex_consent: ['Согласия по группам', 'Agreements by group'],
+  ex_consent_q: ['Это опыт о самом вопросе «поделитесь числами?». Присылают отчёты только согласившиеся, но группы раздавались поровну всем устройствам, поэтому то, как согласившиеся делятся между группами, и есть конверсия каждого текста: у кого больше половины, тот убеждает лучше.', 'This is an experiment about the question “may I share numbers?” itself. Only people who said yes report, but the groups were shared out evenly over every device, so how the people who said yes split between the groups is how well each wording converted: the one with more than half convinces better.'],
+  ex_consent_win: ['Лучше убеждает «{a}»: {s} согласившихся против {r} (p = {p}).', '“{a}” convinces better: {s} of the people who agreed, against {r} (p = {p}).'],
+  ex_consent_none: ['Пока разницы не видно (p = {p}).', 'No difference yet (p = {p}).'],
+  ex_consent_few: ['Согласившихся пока мало ({n}): нужно хотя бы 200, иначе разницу нельзя отличить от случая.', 'Too few people have agreed so far ({n}): at least 200 are needed, or a difference cannot be told from chance.'],
+  ex_consent_share: ['доля согласившихся', 'share of those who agreed'],
+});
 Object.assign(PAIRS, MORE);
 const MORE_GLOSS = [
   [['Главная метрика (North Star)', 'North star'], ['Завершённые фокус-сессии на активную установку в неделю, по последней полной неделе. Минуты — оценка: длина известна только по корзинам, берётся середина корзины.', 'Finished focus sessions per active install per week, for the last full week. Minutes are an estimate: the length is known only by bucket, and the middle of the bucket is used.']],
@@ -1255,11 +1263,18 @@ function pageWindows(s) {
     h('div', { class: 'card' }, h('h3', null, t('wn_ver')), hlist(share(w.versions, (x) => x.value, tot(w.versions)), { max: 1 })))));
   return out;
 }
+function consentCard(e) {
+  const c = e.consent; if (!c) return null;
+  const rows = c.arms.map((a) => ({ label: a.arm, value: a.share || 0, text: a.share != null ? pct(a.share) : '—', small: num(a.n), cls: c.enough ? '' : 'low', tip: [[num(a.n), a.arm], a.share != null ? [pct(a.share), t('ex_consent_share')] : null].filter(Boolean) }));
+  const lead = c.arms.find((a) => a.arm === c.leader), rest = c.arms.filter((a) => a.arm !== c.leader);
+  const verdict = !c.enough ? t('ex_consent_few', { n: num(c.n) }) : c.leader ? t('ex_consent_win', { a: c.leader, s: pct(lead.share), r: pct(rest.reduce((a, x) => a + x.share, 0) / Math.max(1, rest.length)), p: dec(c.p, 3) }) : t('ex_consent_none', { p: dec(c.p, 2) });
+  return h('div', { class: 'card', style: 'margin-top:12px' }, h('h3', null, t('ex_consent')), hlist(rows, { max: 1 }), h('p', { class: 'note' }, verdict), h('p', { class: 'note' }, t('ex_consent_q')));
+}
 function pageExperiments(s) {
   const list = s.experiments || [];
   if (!list.length) return [block(t('ex_empty_h'), null, h('div', { class: 'card' }, h('p', { class: 'lead', style: 'margin:0' }, t('ex_empty'))))];
   const cell = (p, vs) => { const verdict = vs ? (vs.significant ? (vs.diff > 0 ? 'win' : 'lose') : 'noise') : ''; return h('td', null, p.n ? pct(p.pct) : '—', ' ', h('small', null, p.lo != null ? pct(p.lo) + '–' + pct(p.hi) : ''), verdict && h('div', null, h('span', { class: 'tag ' + (verdict === 'win' ? 'good' : verdict === 'lose' ? 'warn' : ''), title: 'p = ' + dec(vs.p, 3) }, t('ex_' + verdict)))); };
-  return [...list.map((e) => block(e.id, null, h('div', { class: 'card tbl' }, h('table', { class: 't' }, h('thead', null, h('tr', null, [t('ex_arm'), t('ex_th_made'), t('ex_th_d1'), t('ex_th_d7'), t('ex_th_act'), t('ex_th_fin'), t('ex_th_days')].map((x) => h('th', null, x)))),
+  return [...list.map((e) => block(e.id, null, consentCard(e), h('div', { class: 'card tbl' }, h('table', { class: 't' }, h('thead', null, h('tr', null, [t('ex_arm'), t('ex_th_made'), t('ex_th_d1'), t('ex_th_d7'), t('ex_th_act'), t('ex_th_fin'), t('ex_th_days')].map((x) => h('th', null, x)))),
     h('tbody', null, e.arms.map((a) => h('tr', null, h('td', null, a.arm, ' ', a.arm === e.control && h('span', { class: 'tag' }, t('ex_control'))), h('td', null, num(a.made)), cell(a.d1, a.vs_control && a.vs_control.d1), cell(a.d7, a.vs_control && a.vs_control.d7), cell(a.session_week1, a.vs_control && a.vs_control.session_week1), h('td', null, pct(a.finish_rate)), h('td', null, dec(a.avg_active_days))))))))),
     h('p', { class: 'note' }, t('ex_note'))];
 }
