@@ -49,7 +49,7 @@ test('the collector takes both products, keeps them apart, and says nothing abou
 test('stats: the Windows block, counted by hand', () => {
   const inst = (id, age, act, extra = {}) => ({ id, pr: 'win', first_report: (TODAY - age) * DAY, last_report: TODAY * DAY + 3600_000, app: '0.2.1', br: 'other', os: 'win', lang: 'ru', look: '-', layout: '-', mode: 'auto', age, act, ...extra });
   const week = Math.floor(TODAY / 7);
-  const weeks = [['a', 'blk_rule', 40], ['a', 'blk_limit', 10], ['b', 'blk_rule', 20], ['a', 'ch_shown', 10], ['b', 'ch_shown', 10], ['a', 'ch_done', 6], ['b', 'ch_done', 2], ['a', 'ch_expired', 3], ['a', 'ses_start', 4], ['b', 'ses_start', 2], ['a', 'ses_done', 3], ['b', 'svc_crash', 1], ['a', 'upd_found', 2], ['a', 'upd_failed', 1]].map(([id, feature, n]) => ({ id, week, feature, n }));
+  const weeks = [['a', 'blk_rule', 40], ['a', 'blk_limit', 10], ['b', 'blk_rule', 20], ['a', 'ch_shown', 10], ['b', 'ch_shown', 10], ['a', 'ch_done', 6], ['b', 'ch_done', 2], ['a', 'ch_expired', 3], ['a', 'ses_start', 4], ['b', 'ses_start', 2], ['a', 'ses_done', 3], ['b', 'svc_unclean', 1], ['a', 'upd_found', 2], ['a', 'upd_failed', 1]].map(([id, feature, n]) => ({ id, week, feature, n }));
   const snap = { installs: [inst('a', 30, [0, 1, 8, 20]), inst('b', 12, [0, 3])], firsts: [{ id: 'a', feature: 'ses_start', age: 1 }, { id: 'b', feature: 'ses_start', age: 3 }], weeks, flags: [{ id: 'a', flag: 'pin' }, { id: 'a', flag: 'w11' }, { id: 'b', flag: 'w10' }] };
   const w = computeStats(snap, NOW, { filter: { pr: 'win' } }).win;
   assert.equal(w.installs, 2); assert.equal(w.blocks_total, 70); assert.equal(w.blocks.find((x) => x.id === 'blk_rule').k, 60);
@@ -69,4 +69,17 @@ test('the product is a parameter of the request, and only a product', () => {
   const w = computeStats(demo, NOW, { filter: { pr: 'win' } }), e = computeStats(demo, NOW, {});
   assert.ok(w.overview.installs > 20 && e.overview.installs > 300 && w.overview.installs + e.overview.installs === demo.installs.length);
   assert.ok(w.win.challenges.shown > 0 && w.retention.d7.n > 0);
+});
+
+test('the report that the Windows app builds (a golden file written by its own Rust test) passes the collector\'s check and is stored', async () => {
+  const { readFileSync } = await import('node:fs');
+  const text = readFileSync(new URL('../../desktop/tests/telemetry-golden.json', import.meta.url), 'utf8').trim();
+  const report = JSON.parse(text);
+  assert.deepEqual(validateReport(report), { ok: true });
+  assert.equal(JSON.stringify(report), text, 'the same text, key for key');
+  const store = new MemoryStore();
+  const res = await handle(new Request('https://x.test/v1/usage', { method: 'POST', headers: { 'content-type': 'application/json' }, body: text }), store, NOW, {});
+  assert.equal(res.status, 204);
+  const w = computeStats(await store.snapshot(), NOW, { filter: { pr: 'win' } }).win;
+  assert.equal(w.blocks_total, 3); assert.equal(w.challenges.shown, 1); assert.equal(w.sessions.finished, 1);
 });

@@ -57,7 +57,7 @@ export const WIN_FEATURES = [
   // focus sessions started by hand
   'ses_start', 'ses_done', 'ses_stop',
   // the window and the service
-  'ui_open', 'svc_start', 'svc_crash',
+  'ui_open', 'svc_start', 'svc_unclean',
   // updates
   'upd_found', 'upd_applied', 'upd_failed',
 ];
