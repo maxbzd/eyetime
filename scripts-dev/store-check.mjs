@@ -42,6 +42,7 @@ ok(!man.host_permissions || man.host_permissions.length === 0, 'host permissions
 const csp = (man.content_security_policy || {}).extension_pages || '';
 ok(!/(?<!wasm-)unsafe-eval|unsafe-inline/.test(csp) && /script-src 'self'/.test(csp), 'the CSP for extension pages must be script-src \'self\' (with wasm-unsafe-eval only)');
 ok(!/https?:\/\/(?!127\.0\.0\.1|localhost)/.test(csp), 'the CSP names a remote host');
+if (/wasm-unsafe-eval/.test(csp)) ok(listing.includes('wasm-unsafe-eval'), "the CSP has 'wasm-unsafe-eval' and store/LISTING.md does not explain it (a reviewer asks)");
 
 // 4. listings
 const langs = ['en', 'ru', 'es', 'de', 'fr', 'pt', 'it', 'pl', 'uk', 'zh', 'ja'];
