@@ -14,8 +14,15 @@ type = "Text"
 globs = ["**/*.html"]
 fallthrough = true
 
-# Secrets (never in this file): `wrangler secret put DASH_TOKEN` (the key that opens the dashboard; 32+ random characters).
+# Secrets (never in this file): `wrangler secret put DASH_TOKEN` (the key that opens the dashboard and lets the owner write notes; 32+ random characters).
 # Optional, public totals for anyone: `wrangler secret put PUBLIC_STATS` and enter 1.
+
+# Two cron triggers: Monday 06:00 UTC (the weekly digest, and the deleting of installs that have not reported for RETENTION_DAYS, default 400) and every six hours (alerts only).
+# Telegram, all optional: `wrangler secret put TG_BOT_TOKEN` (a bot made with @BotFather) and `wrangler secret put TG_CHAT_ID` (your chat with it); without them nothing is sent.
+# Optional variables: DASH_URL (the address put in the messages), DIGEST_LANG (ru or en), RETENTION_DAYS (30 or more), SITE_ORIGINS (the web origins that may send the answer of the
+# page after removal, comma separated; default https://maxbzd.github.io).
+[triggers]
+crons = ["0 6 * * 1", "30 */6 * * *"]
 
 [[d1_databases]]
 binding = "DB"

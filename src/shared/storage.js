@@ -235,7 +235,7 @@ export async function exportAll() {
   delete all.tasksBase; delete all.tasksTomb; delete all.tasksSyncStatus; // device-level sync bookkeeping
   delete all.calendarSub; delete all.calendarSubs; delete all.calendarSrc; // calendar addresses are secrets: they never leave this device, not even in a backup file
   delete all.conns; delete all.connSecrets; delete all.vault; for (const k of Object.keys(all)) if (k.startsWith('cl:')) delete all[k]; // connections to other services: their passwords and tokens stay on this device
-  delete all.usage; delete all.usageShare; // the usage counters and the consent belong to this browser, not to the person: a backup restored elsewhere must not carry the anonymous id
+  delete all.usage; delete all.usageShare; delete all.expSeed; // the usage counters and the consent belong to this browser, not to the person: a backup restored elsewhere must not carry the anonymous id
   return { app: 'eyetime', version: 2, exportedAt: new Date().toISOString(), data: all };
 }
 

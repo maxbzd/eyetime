@@ -10,8 +10,8 @@
 
 import { getRaw, setRaw, getSettings, withLock } from './storage.js';
 import { USAGE_ENDPOINT } from './usage-config.js';
-import { normalizeUsage, record, buildReport, subtractPeriod, reportDue, detectEnv, newId, modeOf, shouldAsk, flagsOf } from './usage.js';
-import { validateReport } from './usage-schema.js';
+import { normalizeUsage, record, buildReport, subtractPeriod, reportDue, detectEnv, newId, modeOf, shouldAsk, flagsOf, assignArms } from './usage.js';
+import { validateReport, EXPERIMENTS } from './usage-schema.js';
 
 export const haveEndpoint = (/** @type {string} */ e = USAGE_ENDPOINT) => /^https:\/\/[^\s]+$/.test(e);
 
@@ -42,12 +42,27 @@ export async function getShare() {
 }
 const setShare = (/** @type {Partial<Share>} */ patch) => withLock('usageShare', async () => { await setRaw({ usageShare: { ...(await getShare()), ...patch } }); });
 
+/** The random number that decides the arms of experiments. Made the first time it is needed (so never when no experiment is running), kept on this device only, never sent. */
+async function experimentSeed() {
+  const { expSeed } = await getRaw('expSeed');
+  if (typeof expSeed === 'string' && /^[0-9a-f]{32}$/.test(expSeed)) return expSeed;
+  const seed = newId();
+  await setRaw({ expSeed: seed });
+  return seed;
+}
+
+/** The arm this device is in for an experiment (a name from EXPERIMENTS), or null when there is no such experiment. For the product code that behaves differently per arm. */
+export async function armOf(/** @type {string} */ experimentId) {
+  const e = EXPERIMENTS.find((x) => x.id === experimentId);
+  return e ? (assignArms(await experimentSeed(), [e])[0] || ':').split(':')[1] : null;
+}
+
 /** Everything a report says about the setup, read from the settings. */
 async function context(/** @type {string} */ id) {
   const s = await getSettings();
   const raw = await getRaw(['syncSettings', 'syncTasks', 'syncEnc', 'tasks', 'habits', 'conns', 'calendarSubs']);
   const env = detectEnv(typeof navigator !== 'undefined' ? navigator.userAgent : '', typeof navigator !== 'undefined' ? /** @type {any} */ (navigator).userAgentData?.platform || navigator.platform : '');
-  return { id, app: chrome.runtime.getManifest().version, ...env, lang: s.language, look: s.appearance.look, layout: s.newtab.layout || 'today', mode: modeOf(s.appearance.mode), flags: flagsOf(s, raw) };
+  return { id, app: chrome.runtime.getManifest().version, ...env, lang: s.language, look: s.appearance.look, layout: s.newtab.layout || 'today', mode: modeOf(s.appearance.mode), flags: flagsOf(s, raw), experiments: EXPERIMENTS.length ? assignArms(await experimentSeed()) : [] };
 }
 
 /** The report that would be sent now, as the text Settings shows. Before sharing is on the id is a row of zeros (it is made when sharing is switched on). */

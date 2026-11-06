@@ -8,7 +8,7 @@
 //
 // Time is counted in whole local days since the install ("age"), never as a clock time, so a report cannot tell when in the day anything happened.
 
-import { FEATURES, FLAGS, LIMITS, LANGS, MODES } from './usage-schema.js';
+import { FEATURES, FLAGS, LIMITS, LANGS, MODES, EXPERIMENTS } from './usage-schema.js';
 
 export const WEEK_MS = 7 * 86_400_000;
 const FIRST_REPORT_AFTER_MS = 20 * 3_600_000; // the day after turning sharing on: the first report carries the first day
@@ -51,7 +51,22 @@ export function record(/** @type {Usage} */ u, /** @type {string} */ feature, /*
   return u;
 }
 
-/** @typedef {{ id: string, app: string, br: string, os: string, lang: string, look: string, layout: string, mode: string, flags?: string[] }} ReportContext */
+/** A 32-bit hash of a text (FNV-1a): enough to spread people over the arms of an experiment evenly and the same way every time. */
+export function hash32(/** @type {string} */ text) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  h ^= h >>> 15; h = Math.imul(h, 0x2c1b3c6d) >>> 0; h ^= h >>> 12; // a final mix, so that the low bits (which choose between two arms) are as good as the rest
+  return h >>> 0;
+}
+
+/**
+ * The arm of each experiment this device is in, as "id:arm". `seed` is a random number kept on the device and never sent, so the same device is always in the same arm
+ * and nothing in the report can be traced back to it.
+ * @param {string} seed @param {{ id: string, arms: string[] }[]} [list]
+ */
+export const assignArms = (seed, list = EXPERIMENTS) => list.filter((e) => e.arms.length > 0).map((e) => `${e.id}:${e.arms[hash32(`${seed}:${e.id}`) % e.arms.length]}`);
+
+/** @typedef {{ id: string, app: string, br: string, os: string, lang: string, look: string, layout: string, mode: string, flags?: string[], experiments?: string[] }} ReportContext */
 
 /** The report as it would be sent now. The caller checks it with validateReport before sending. */
 export function buildReport(/** @type {Usage} */ u, /** @type {ReportContext} */ ctx, /** @type {number} */ now) {
@@ -66,6 +81,7 @@ export function buildReport(/** @type {Usage} */ u, /** @type {ReportContext} */
     first: { ...u.first },
     ft: { ...u.period },
     ...(ctx.flags ? { fl: FLAGS.filter((f) => ctx.flags?.includes(f)) } : {}), // in the order of the list: the same setup is always the same text
+    ...(ctx.experiments && ctx.experiments.length ? { x: [...ctx.experiments] } : {}),
   };
 }
 

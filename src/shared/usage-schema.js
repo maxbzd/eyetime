@@ -34,6 +34,16 @@ export const FLAGS = [
   'tasks_0', 'tasks_1_5', 'tasks_6_20', 'tasks_21p', 'habits_0', 'habits_1_2', 'habits_3p', 'sites_0', 'sites_1_5', 'sites_6p',
 ];
 
+/**
+ * Experiments that may be running, each with its arms (the first arm is the control). Empty until one is started (docs/MEASUREMENT.md says how). A person is put in an arm
+ * on the device, by a random number that is kept there and never sent; a report says only which arm ("onboarding-v2:short"), and only for an experiment in this list.
+ * @type {{ id: string, arms: string[] }[]}
+ */
+export const EXPERIMENTS = [];
+
+/** Why someone removed EyeTime, as the page that opens after removal offers it. One click, no text, no identifier: a count per day on the collector. */
+export const UNINSTALL_REASONS = ['slow', 'broken', 'not_useful', 'too_strict', 'other_tool', 'temporary', 'other'];
+
 export const BROWSERS = ['chrome', 'edge', 'firefox', 'other'];
 export const SYSTEMS = ['mac', 'win', 'linux', 'cros', 'other'];
 export const LANGS = ['en', 'ru', 'es', 'de', 'fr', 'pt', 'it', 'pl', 'uk', 'zh', 'ja'];
@@ -47,13 +57,14 @@ const ID = /^[0-9a-f]{32}$/;
 const isInt = (/** @type {any} */ n, /** @type {number} */ max) => Number.isInteger(n) && n >= 0 && n <= max;
 
 /** The keys of a report, in the order they are written. */
-export const REPORT_KEYS = ['v', 'id', 'app', 'br', 'os', 'lang', 'look', 'layout', 'mode', 'age', 'act', 'first', 'ft', 'fl'];
+export const REPORT_KEYS = ['v', 'id', 'app', 'br', 'os', 'lang', 'look', 'layout', 'mode', 'age', 'act', 'first', 'ft', 'fl', 'x'];
 
 /**
  * Check a report. Strict on purpose: an unknown key, a value outside its list or a number outside its range makes the whole report invalid.
- * @param {any} r @returns {{ ok: true } | { ok: false, why: string }}
+ * @param {any} r @param {{ id: string, arms: string[] }[]} [experiments] the experiments that may be running (default: EXPERIMENTS)
+ * @returns {{ ok: true } | { ok: false, why: string }}
  */
-export function validateReport(r) {
+export function validateReport(r, experiments = EXPERIMENTS) {
   const bad = (/** @type {string} */ why) => ({ ok: /** @type {const} */ (false), why });
   if (!r || typeof r !== 'object' || Array.isArray(r)) return bad('not an object');
   for (const k of Object.keys(r)) if (!REPORT_KEYS.includes(k)) return bad('unknown key ' + k);
@@ -76,6 +87,10 @@ export function validateReport(r) {
   }
   if ('fl' in r) { // optional: an earlier version of EyeTime does not send it
     if (!Array.isArray(r.fl) || r.fl.length > FLAGS.length || !r.fl.every((f) => FLAGS.includes(f)) || new Set(r.fl).size !== r.fl.length) return bad('flags');
+  }
+  if ('x' in r) { // optional: the arms of the experiments that are running, "id:arm", at most one per experiment
+    const known = new Set(experiments.flatMap((e) => e.arms.map((a) => `${e.id}:${a}`)));
+    if (!Array.isArray(r.x) || r.x.length > Math.max(1, experiments.length) || !r.x.every((a) => typeof a === 'string' && known.has(a)) || new Set(r.x.map((a) => a.split(':')[0])).size !== r.x.length) return bad('experiments');
   }
   if (JSON.stringify(r).length > LIMITS.bytes) return bad('too big');
   return { ok: true };
