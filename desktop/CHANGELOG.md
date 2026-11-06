@@ -12,6 +12,7 @@ Every `## x.y.z` section becomes the release notes of the tag `desktop-vx.y.z`. 
 - A bigger list of well-known sites and programs, so that a name like Pinterest or Epic Games really closes it
 - Automation: when a program comes to the front, a normal session can start by itself
 - A quiet Windows notification for eye breaks and a note before bedtime
+- Safer: the service decides who may ask it for what, the data folder is closed to ordinary users, PINs are stored with Argon2id, and updates must carry the release signature
 
 ## 0.1.0
 
