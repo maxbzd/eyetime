@@ -16,6 +16,10 @@ Every `## x.y.z` section becomes the release notes of the tag `desktop-vx.y.z`. 
 - The update key can be changed without leaving anybody behind: the app trusts a list of keys (see SECURITY.md)
 - The installer and the programs can be signed with a certificate when the project has one (a warning in the build until then)
 
+## 0.2.1
+
+- Fixed: the window of the uninstaller and of the setup did not open when EyeTime sat in Program Files (it showed a white window and a WebView2 data folder error)
+
 ## 0.2.0
 
 - The app updates itself: a glowing chip appears when a new version is out, and one click installs it
