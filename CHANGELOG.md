@@ -16,6 +16,8 @@
 - **Report intake** (what the door accepted and refused, by day), **coverage of the sample** against the store's own numbers (typed in by the owner), a **Telegram digest and alarms** (cron), **deletion of installs idle for 400 days**.
 - **`docs/TRACKING-PLAN.md`** lists every counter and flag with the page that reads it (generated; `npm run check` keeps it current), and **an end-to-end test** runs many simulated people through the real client code, the collector and the D1 store and checks the dashboard's numbers against what they did.
 - Dashboard: ten pages, drawn anew in a Linear / Attio style.
+- **The question about sharing anonymous numbers is now a note, not a strip**: written in the maker's own voice, with three plain promises (never sold, never used for money, nothing personal), the exact report one click away and an honest "no" that is never asked about again. Eleven languages.
+- **The Windows app becomes a second product in the same collector** (`pr: "win"`), only if the person says yes; see `docs/MEASUREMENT.md`. The dashboard gets an *Extension | Windows* switch and a Windows page.
 
 ## 3.8.0 — 2026-11-06 — Lighter, stricter, easier to trust
 
