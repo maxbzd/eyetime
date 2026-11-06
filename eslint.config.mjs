@@ -1,7 +1,7 @@
 // One place for the rules. They are about mistakes (undefined names, unused variables, a name that hides another, == instead of ===, var),
 // not about taste: layout is left alone. Every rule is an error: a warning that nobody has to fix stays for ever.
 
-const browser = ['chrome', 'window', 'document', 'location', 'localStorage', 'sessionStorage', 'navigator', 'console', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
+const browser = ['chrome', 'indexedDB', 'window', 'document', 'location', 'localStorage', 'sessionStorage', 'navigator', 'console', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
   'URL', 'URLSearchParams', 'Blob', 'Image', 'Intl', 'CSS', 'fetch', 'AbortController', 'TextDecoder', 'TextEncoder', 'MutationObserver', 'history', 'IntersectionObserver',
   'AudioContext', 'self', 'process', 'crypto', 'Response', 'Request', 'structuredClone', 'DOMParser', 'btoa', 'atob'];
 
