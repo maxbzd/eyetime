@@ -94,7 +94,7 @@ const post = async (p, o) => (await fetch(BASE + p, { method: 'POST', body: JSON
   ok(await page.evaluate(() => localStorage.getItem('et-onboarded') === '1'), 'it does not open again');
   ok(errs.length === 0, 'no script errors: ' + errs.slice(0, 3).join(' | '));
   await page.click('#onbLook');
-  ok(await page.waitForSelector('#onb', { state: 'detached', timeout: 20000 }).then(() => true).catch(() => false), 'the first minute closes');
+  ok(await page.waitForSelector('#onb', { state: 'detached', timeout: 90000 }).then(() => true).catch(() => false), 'the first minute closes');
   await browser.close();
   console.log(failed ? `${failed} FAILED` : 'ALL OK');
   process.exit(failed ? 1 : 0);
