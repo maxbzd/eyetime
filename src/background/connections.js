@@ -2,7 +2,7 @@
 // Tasks go through shared/sync/run.js `syncTasks`; a calendar brings its busy times in and puts planned focus blocks out (`syncBlocks`).
 // A failure is written into the connection's status (shown in Settings); a refused sign-in pauses it until the person signs in again; a service that asks to slow down is left alone for that long.
 
-import { listConnections, patchConnection, getSecrets, setSecrets, makeDeps, writeBusy } from '../shared/connections.js';
+import { listConnections, patchConnection, getSecrets, setSecrets, makeDeps, writeBusy, vaultState, VaultLockedError } from '../shared/connections.js';
 import { syncTasks, syncBlocks, SyncError } from '../shared/sync/run.js';
 import { PROVIDERS } from '../shared/sync/providers/index.js';
 import { getSettings, onChange } from '../shared/storage.js';
@@ -37,6 +37,7 @@ async function syncOne(/** @type {any} */ conn, { force = false } = {}) {
   const def = PROVIDERS[conn.provider], now = Date.now();
   if (!def) return;
   if (!force && conn.status && (conn.status.needsAuth || (conn.status.retryAt && conn.status.retryAt > now))) return;
+  if (conn.status && conn.status.needsUnlock && (await vaultState()) === 'locked') return; // still locked: nothing to try until the passphrase is given
   /** @type {any} */ const status = { at: now, ok: true };
   try {
     const secrets = (await getSecrets(conn.id)) || {};
@@ -54,7 +55,8 @@ async function syncOne(/** @type {any} */ conn, { force = false } = {}) {
     if (errs.length) { status.ok = false; status.error = 'other'; status.detail = errs[0]; }
   } catch (e) {
     status.ok = false;
-    if (e instanceof SyncError) { status.error = e.kind; status.detail = e.message; if (e.kind === 'auth') status.needsAuth = true; if (e.kind === 'rate') status.retryAt = now + (e.retryAfter || 60) * 1000; }
+    if (e instanceof VaultLockedError) { status.error = 'locked'; status.needsUnlock = true; } // not a failure of the service: the passphrase has not been given since the browser started
+    else if (e instanceof SyncError) { status.error = e.kind; status.detail = e.message; if (e.kind === 'auth') status.needsAuth = true; if (e.kind === 'rate') status.retryAt = now + (e.retryAfter || 60) * 1000; }
     else { status.error = 'other'; status.detail = errorText(e).slice(0, 160); logError('connections:' + conn.provider, e); }
   }
   const still = await patchConnection(conn.id, (c) => { c.status = status; });

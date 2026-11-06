@@ -46,11 +46,18 @@ allow, and credit in the release notes if you want it. Please give us the time t
 
 ## Secrets kept by the extension
 
-Tokens and passwords of the connected services (Todoist, Notion, CalDAV) are kept in `chrome.storage.local`, which the browser stores unencrypted in the profile folder.
-They are never synced, never in a backup and never in the usage report; *Disconnect* deletes them. We have not added encryption on top of this on purpose: a key that the extension
-can read by itself is stored next to what it protects, so it would add the look of protection and not the thing. Real protection would need a passphrase the person types at
-each browser start, which we judged worse for the people this is for. Use an access token with the least rights the service offers (and an app-specific password for CalDAV, never
-the account password). If your threat model includes someone who can read your browser profile, do not connect services.
+Tokens and passwords of the connected services (Todoist, Notion, CalDAV) are kept in `chrome.storage.local`, which the browser stores unencrypted in the profile folder. They are never
+synced, never in a backup and never in the usage report; *Disconnect* deletes them.
+
+**Optional passphrase** (Settings → Data & privacy → Connected services). With it, each connection's details are one AES-256-GCM message, bound to the id of the connection, under a key
+made from the passphrase with PBKDF2-SHA256 (600 000 rounds, random salt) (`src/shared/vault.js`, `scripts-dev/tests/vault.test.mjs`). After the passphrase is given, the key is kept in
+`chrome.storage.session` (memory only, gone when the browser closes), so the connections can keep syncing in the background; after a browser start they wait, without an error, until the
+passphrase is given. A forgotten passphrase cannot be recovered: the sealed details are deleted and each service asks to sign in again (tasks, history and settings are untouched).
+
+What it protects against: what can be read from the profile folder alone (a copy of the browser's files, a disk backup, malware that reads files but does not run inside the browser).
+What it does not: code that runs inside the browser as the person while it is unlocked, and a weak passphrase (the key derivation makes each guess cost a fraction of a second, no more;
+only length is required, eight characters, and a long one is better). Without a passphrase nothing is hidden: use an access token with the least rights the service offers (and an
+app-specific password for CalDAV, never the account password), or set one.
 
 ## Changing the update signing key
 

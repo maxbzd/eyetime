@@ -7,7 +7,7 @@ import { send } from '../ui/api.js';
 import { dropdown } from '../ui/dropdown.js';
 import { row, toggle } from './ui.js';
 import { t, fmtDate, fmtTime } from '../shared/i18n.js';
-import { listConnections, saveConnection, patchConnection, removeConnection, newConnId, getSecrets, setSecrets, MAX_CONNECTIONS } from '../shared/connections.js';
+import { listConnections, saveConnection, patchConnection, removeConnection, newConnId, getSecrets, setSecrets, MAX_CONNECTIONS, vaultState, enableVault, unlockWith, lockVault, disableVault, changePassphrase, resetVault, passphraseProblem, WrongPassphraseError } from '../shared/connections.js';
 import { PROVIDERS, providerList } from '../shared/sync/providers/index.js';
 import { SyncError } from '../shared/sync/run.js';
 import { track } from '../shared/usage-store.js';
@@ -22,6 +22,7 @@ const have = (/** @type {string[]} */ origins) => chrome.permissions.contains({ 
 export function statusLine(/** @type {any} */ c, now = Date.now()) {
   const s = c.status || {};
   if (!s.at) return t('cn.never');
+  if (s.needsUnlock) return t('cn.err.locked');
   if (s.needsAuth) return t('cn.err.auth');
   if (s.ok === false) {
     const when = s.retryAt && s.retryAt > now ? fmtTime(new Date(s.retryAt)) : '';
@@ -35,12 +36,12 @@ export function statusLine(/** @type {any} */ c, now = Date.now()) {
 
 export function connectionsGroup() {
   const list = h('div', { class: 'card list' });
-  const onStore = (/** @type {any} */ ch, /** @type {string} */ area) => { if (area === 'local' && ch.conns) { if (!list.isConnected) chrome.storage.onChanged.removeListener(onStore); else paint(); } };
+  const onStore = (/** @type {any} */ ch, /** @type {string} */ area) => { if ((area === 'local' && (ch.conns || ch.vault)) || (area === 'session' && ch.vaultKey)) { if (!list.isConnected) chrome.storage.onChanged.removeListener(onStore); else paint(); } };
   chrome.storage.onChanged.addListener(onStore);
 
   async function paint() {
     const conns = Object.values(await listConnections());
-    const rows = conns.map((c) => connectionRow(c, paint));
+    const rows = [await vaultRow(paint), ...conns.map((c) => connectionRow(c, paint))];
     rows.push(row({
       title: conns.length ? t('cn.add') : t('cn.empty'), desc: conns.length ? '' : t('cn.desc'),
       control: conns.length >= MAX_CONNECTIONS ? null : h('button', { class: 'btn', type: 'button', id: 'cnAdd', onclick: () => openConnect(paint) }, icon('plus'), t('cn.add')),
@@ -49,6 +50,71 @@ export function connectionsGroup() {
   }
   paint();
   return h('div', { id: 'connections' }, h('h3', { class: 'group-title', text: t('cn.title') }), list);
+}
+
+/* ---------- the passphrase for the sign-in details ---------- */
+
+/**
+ * A small dialog with password fields. `fields`: [{ id, label }]; `check(values)` returns a message to show in place (the dialog stays open) or '' to go on; it may throw
+ * to say a thing went wrong. Resolves with the values, or null when cancelled.
+ * @param {{ title: string, body?: string, fields: { id: string, label: string }[], confirm: string, danger?: boolean, check?: (v: Record<string, string>) => Promise<string> | string }} o
+ */
+function passphraseDialog({ title, body = '', fields, confirm, danger = false, check = () => '' }) {
+  return new Promise((resolve) => {
+    const inputs = Object.fromEntries(fields.map((f) => [f.id, h('input', { class: 'input', type: 'password', id: 'vault-' + f.id, autocomplete: f.id === 'old' || f.id === 'pass' ? 'current-password' : 'new-password', maxlength: 256, 'aria-label': f.label, placeholder: f.label })]));
+    const msg = h('p', { class: 'hint', role: 'alert', id: 'vaultMsg' });
+    const go = h('button', { class: 'btn ' + (danger ? 'btn-danger-solid' : 'btn-primary'), type: 'submit', text: confirm });
+    const dlg = h('dialog', { class: 'dialog' }, h('form', { method: 'dialog' },
+      h('div', { class: 'dialog-body stack gap-3' }, h('h3', { text: title }), body ? h('p', { class: 'muted-2', text: body }) : null, ...fields.map((f) => inputs[f.id]), msg),
+      h('div', { class: 'dialog-actions' }, h('button', { class: 'btn btn-ghost', type: 'button', text: t('common.cancel'), onclick: () => dlg.close('no') }), go)));
+    dlg.querySelector('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const values = Object.fromEntries(fields.map((f) => [f.id, /** @type {HTMLInputElement} */ (inputs[f.id]).value]));
+      go.disabled = true; msg.textContent = '';
+      try { const problem = await check(values); if (problem) { msg.textContent = problem; go.disabled = false; return; } } catch { msg.textContent = t('common.error'); go.disabled = false; return; }
+      dlg.dataset.values = JSON.stringify(values); dlg.close('yes');
+    });
+    dlg.addEventListener('close', () => { resolve(dlg.returnValue === 'yes' ? JSON.parse(dlg.dataset.values || '{}') : null); dlg.remove(); });
+    document.body.append(dlg); dlg.showModal(); /** @type {HTMLElement} */ (inputs[fields[0].id]).focus();
+  });
+}
+
+const newPassphraseProblem = (/** @type {Record<string, string>} */ v) => (passphraseProblem(v.pass) ? t('cn.vault.short', { n: 8 }) : v.pass !== v.pass2 ? t('cn.vault.mismatch') : '');
+
+/** The first row: the passphrase is off, set (and given since the browser started), or set and still to be given. */
+async function vaultRow(/** @type {() => void} */ repaint) {
+  const state = await vaultState();
+  const wrong = (/** @type {unknown} */ e) => (e instanceof WrongPassphraseError ? t('cn.vault.wrong') : t('common.error'));
+  const done = (/** @type {string} */ key) => { toast(t(key)); send('vault:unlocked').catch(() => {}); repaint(); };
+  const btn = (/** @type {string} */ id, /** @type {string} */ label, /** @type {() => Promise<void>} */ run, cls = 'btn') => h('button', { class: cls, type: 'button', id, onclick: run, text: label });
+
+  if (state === 'off') {
+    return row({ title: t('cn.vault.title'), desc: t('cn.vault.desc'), control: btn('vaultSet', t('cn.vault.set'), async () => {
+      const v = await passphraseDialog({ title: t('cn.vault.setTitle'), body: t('cn.vault.setBody'), fields: [{ id: 'pass', label: t('cn.vault.pass') }, { id: 'pass2', label: t('cn.vault.pass2') }], confirm: t('cn.vault.set'), check: newPassphraseProblem });
+      if (v) { await enableVault(v.pass); done('cn.vault.isOn'); }
+    }) });
+  }
+  if (state === 'locked') {
+    return row({ title: t('cn.vault.titleLocked'), desc: t('cn.vault.descLocked'), control: h('div', { class: 'row gap-2' },
+      btn('vaultUnlock', t('cn.vault.unlock'), async () => {
+        const v = await passphraseDialog({ title: t('cn.vault.unlock'), fields: [{ id: 'pass', label: t('cn.vault.pass') }], confirm: t('cn.vault.unlock'), check: async (x) => { try { await unlockWith(x.pass); return ''; } catch (e) { return wrong(e); } } });
+        if (v) done('cn.vault.unlocked');
+      }, 'btn btn-primary'),
+      btn('vaultForgot', t('cn.vault.forgot'), async () => {
+        if (await confirmDialog({ title: t('cn.vault.forgotTitle'), body: t('cn.vault.forgotBody'), confirm: t('cn.vault.forgotGo'), danger: true })) { await resetVault(); send('conn:arm').catch(() => {}); toast(t('cn.vault.wasReset')); repaint(); }
+      }, 'btn btn-ghost')) });
+  }
+  return row({ title: t('cn.vault.titleOn'), desc: t('cn.vault.descOn'), control: h('div', { class: 'row gap-2' },
+    btn('vaultLock', t('cn.vault.lock'), async () => { await lockVault(); toast(t('cn.vault.locked')); repaint(); }),
+    btn('vaultChange', t('cn.vault.change'), async () => {
+      const v = await passphraseDialog({ title: t('cn.vault.change'), fields: [{ id: 'old', label: t('cn.vault.old') }, { id: 'pass', label: t('cn.vault.pass') }, { id: 'pass2', label: t('cn.vault.pass2') }], confirm: t('cn.vault.change'),
+        check: async (x) => { const p = newPassphraseProblem(x); if (p) return p; try { await changePassphrase(x.old, x.pass); return ''; } catch (e) { return wrong(e); } } });
+      if (v) done('cn.vault.changed');
+    }),
+    btn('vaultOff', t('cn.vault.off'), async () => {
+      const v = await passphraseDialog({ title: t('cn.vault.off'), body: t('cn.vault.offBody'), fields: [{ id: 'pass', label: t('cn.vault.pass') }], confirm: t('cn.vault.off'), check: async (x) => { try { await disableVault(x.pass); return ''; } catch (e) { return wrong(e); } } });
+      if (v) done('cn.vault.isOff');
+    }, 'btn btn-ghost')) });
 }
 
 function connectionRow(/** @type {any} */ c, /** @type {() => void} */ repaint) {
