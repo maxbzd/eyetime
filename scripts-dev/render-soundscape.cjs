@@ -1,5 +1,5 @@
 // Renders the generative sound to audio files so it can be listened to without a browser extension:
-//   node scripts-dev/render-soundscape.cjs [--engine mood|rhythm|method|evolve] [--modes focus,calm,sleep | triplet,pump,...] [--seconds 150] [--seed 1] [--intensity 0.8] [--out /tmp/dir]
+//   node scripts-dev/render-soundscape.cjs [--engine mood|rhythm|method|evolve|skyline|gfm] [--modes focus,calm,sleep | triplet,pump,...] [--seconds 150] [--seed 1] [--intensity 0.8] [--out /tmp/dir]
 // It runs the real engine (src/shared/soundscape/engine.js) in Chromium on an OfflineAudioContext, writes a WAV (and an MP3
 // when ffmpeg is there) and prints the peak and the loudness per 10 s so clipping or dropouts show up as numbers.
 const http = require('http'), fs = require('fs'), path = require('path'), cp = require('child_process');
@@ -31,12 +31,16 @@ const server = http.createServer((req, res) => {
       const { createEngine } = await import(base + '/src/shared/soundscape/engine.js');
       const { createRhythmEngine, loadSamples } = await import(base + '/src/shared/soundscape/rhythm.js');
       const { createEvolvingEngine } = await import(base + '/src/shared/soundscape/evolve.js');
+      const { createSkylineEngine } = await import(base + '/src/shared/soundscape/skyline.js');
+      const { createPieceEngine } = await import(base + '/src/shared/soundscape/gfm.js');
       const methods = await import(base + '/src/shared/soundscape/methods.js').catch(() => null);
       const { seeded } = await import(base + '/src/shared/soundscape/theory.js');
       const { sessionIntensity } = await import(base + '/src/shared/soundscape/session.js');
       const rate = 44100, ctx = new OfflineAudioContext(2, rate * seconds, rate);
-      const samples = engineKind === 'rhythm' || engineKind === 'evolve' ? await loadSamples(ctx, base + '/src/audio/samples/') : undefined;
-      const eng = engineKind === 'evolve' ? createEvolvingEngine(ctx, { preset: mode, rng: seeded(seed), volume: 0.8, samples })
+      const samples = engineKind === 'rhythm' || engineKind === 'evolve' || engineKind === 'skyline' || engineKind === 'gfm' ? await loadSamples(ctx, base + '/src/audio/samples/') : undefined;
+      const eng = engineKind === 'gfm' ? createPieceEngine(ctx, { piece: mode, rng: seeded(seed), volume: 0.8, samples })
+        : engineKind === 'skyline' ? createSkylineEngine(ctx, { preset: mode, rng: seeded(seed), volume: 0.8, samples })
+        : engineKind === 'evolve' ? createEvolvingEngine(ctx, { preset: mode, rng: seeded(seed), volume: 0.8, samples })
         : engineKind === 'rhythm' ? createRhythmEngine(ctx, { variant: mode, rng: seeded(seed), volume: 0.8, samples })
         : engineKind === 'method' ? methods.createMethod(ctx, mode, { rng: seeded(seed), volume: 0.8 })
         : createEngine(ctx, { mode, rng: seeded(seed), intensity, volume: 0.8 });

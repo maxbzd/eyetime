@@ -19,7 +19,15 @@ loudness-normalised and encoded to Ogg Vorbis by scripts-dev/build-samples.mjs.
 |---|---|---|
 | `piano-*.ogg` | "VS Upright Nr. 1", VS Chamber Orchestra: Community Edition (Versilian Studios; Simon Dalzell of Ivy Audio) | CC0 1.0 |
 | `harp-*.ogg` | Harp, VS Chamber Orchestra: Community Edition (Versilian Studios) | CC0 1.0 |
+| `violin-*.ogg` | Violin Section, sustained with vibrato, VS Chamber Orchestra: Community Edition (Versilian Studios) | CC0 1.0 |
 | `cello-*.ogg` | Cello Section, sustained with vibrato, VS Chamber Orchestra: Community Edition (Versilian Studios; recorded by Sam Gossner and Simon Dalzell) | CC0 1.0 |
 
 Source: https://github.com/sgossner/VSCO-2-CE (CC0 1.0 Universal; credit to the authors and Versilian Studios is encouraged and given here).
-The idea of notes on independent random periods comes from generative.fm by Alex Bainter (MIT); no code or sample of it is included.
+
+## Pieces after generative.fm
+
+`src/shared/soundscape/skyline.js` and `gfm.js` are our own implementations of the ideas of four pieces of generative.fm by Alex Bainter
+(Skyline, Drones 2, Homage, Apoapsis, Nakaii; code MIT, https://github.com/generative-music/pieces-alex-bainter): instrument samples pitched down
+by octaves, re-triggered at random intervals, through long reverbs, slow filters and echoes. The pieces are described there as data; no code or
+sample of generative.fm is included (its lo-fi drum samples are not used, the drums are synthesised).
+The idea of notes on independent random periods is theirs, and Brian Eno's before.
