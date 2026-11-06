@@ -6,8 +6,8 @@
 //!   GET  /world what the pretend computer looks like now
 
 use eyetime_core::ipc::{parse_request, Fg, Request, Win};
-use eyetime_helper::sim::{Fake, World};
 use eyetime_helper::os::Proc;
+use eyetime_helper::sim::{Fake, World};
 use eyetime_helper::supervisor::Supervisor;
 use serde_json::{json, Value};
 use std::io::{BufRead, BufReader, Read, Write};
@@ -22,11 +22,27 @@ struct Scene {
 
 fn main() {
     let dir = std::env::args().nth(1).unwrap_or_else(|| ".".into());
-    let port: u16 = std::env::args().nth(2).and_then(|p| p.parse().ok()).unwrap_or(8131);
-    let world = Arc::new(Mutex::new(World { wall: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis() as i64).unwrap_or(1_793_786_400_000), mono: 1_000_000, hosts: "127.0.0.1 localhost\r\n".into(), hosts_writable: true, ..Default::default() }));
+    let port: u16 = std::env::args()
+        .nth(2)
+        .and_then(|p| p.parse().ok())
+        .unwrap_or(8131);
+    let world = Arc::new(Mutex::new(World {
+        wall: std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_millis() as i64)
+            .unwrap_or(1_793_786_400_000),
+        mono: 1_000_000,
+        hosts: "127.0.0.1 localhost\r\n".into(),
+        hosts_writable: true,
+        ..Default::default()
+    }));
     let fake = Fake(world.clone());
     let sup = Arc::new(Mutex::new(Supervisor::new(fake.clone())));
-    let scene = Arc::new(Mutex::new(Scene { fg: None, windows: vec![], idle: 0 }));
+    let scene = Arc::new(Mutex::new(Scene {
+        fg: None,
+        windows: vec![],
+        idle: 0,
+    }));
 
     {
         let (sup, world, scene) = (sup.clone(), world.clone(), scene.clone());
@@ -39,9 +55,26 @@ fn main() {
             }
             let mut s = sup.lock().unwrap();
             let sc = scene.lock().unwrap();
-            let fg = sc.fg.as_ref().map(|e| Fg { exe: e.clone(), title: "x".into(), pid: 1 });
-            let windows = sc.windows.iter().map(|(e, p)| Win { exe: e.clone(), title: "t".into(), pid: *p }).collect();
-            s.handle(Request::Observe { fg, idle_secs: sc.idle, windows, screen_locked: false });
+            let fg = sc.fg.as_ref().map(|e| Fg {
+                exe: e.clone(),
+                title: "x".into(),
+                pid: 1,
+            });
+            let windows = sc
+                .windows
+                .iter()
+                .map(|(e, p)| Win {
+                    exe: e.clone(),
+                    title: "t".into(),
+                    pid: *p,
+                })
+                .collect();
+            s.handle(Request::Observe {
+                fg,
+                idle_secs: sc.idle,
+                windows,
+                screen_locked: false,
+            });
             s.tick();
         });
     }
@@ -56,7 +89,13 @@ fn main() {
     }
 }
 
-fn serve(mut conn: TcpStream, sup: &Arc<Mutex<Supervisor<Fake>>>, world: &Arc<Mutex<World>>, scene: &Arc<Mutex<Scene>>, dir: &str) -> std::io::Result<()> {
+fn serve(
+    mut conn: TcpStream,
+    sup: &Arc<Mutex<Supervisor<Fake>>>,
+    world: &Arc<Mutex<World>>,
+    scene: &Arc<Mutex<Scene>>,
+    dir: &str,
+) -> std::io::Result<()> {
     let mut r = BufReader::new(conn.try_clone()?);
     let mut first = String::new();
     r.read_line(&mut first)?;
@@ -78,8 +117,19 @@ fn serve(mut conn: TcpStream, sup: &Arc<Mutex<Supervisor<Fake>>>, world: &Arc<Mu
     let (method, path) = (parts.next().unwrap_or(""), parts.next().unwrap_or("/"));
     let (code, ctype, out): (u16, &str, Vec<u8>) = match (method, path) {
         ("POST", "/req") => match parse_request(&body) {
-            Ok(req) => (200, "application/json", serde_json::to_vec(&sup.lock().unwrap().handle(req)).unwrap()),
-            Err(e) => (200, "application/json", serde_json::to_vec(&json!({"ok": false, "code": "bad_request", "message": e, "data": null})).unwrap()),
+            Ok(req) => (
+                200,
+                "application/json",
+                serde_json::to_vec(&sup.lock().unwrap().handle(req)).unwrap(),
+            ),
+            Err(e) => (
+                200,
+                "application/json",
+                serde_json::to_vec(
+                    &json!({"ok": false, "code": "bad_request", "message": e, "data": null}),
+                )
+                .unwrap(),
+            ),
         },
         ("POST", "/sim") => {
             let v: Value = serde_json::from_str(&body).unwrap_or(Value::Null);
@@ -101,7 +151,9 @@ fn serve(mut conn: TcpStream, sup: &Arc<Mutex<Supervisor<Fake>>>, world: &Arc<Mu
                     };
                 }
                 if matches!(s.phase, Phase::Ready | Phase::Installing) {
-                    s.path = Some(std::path::PathBuf::from("C:/ProgramData/EyeTime/update/EyeTime-Setup.exe"));
+                    s.path = Some(std::path::PathBuf::from(
+                        "C:/ProgramData/EyeTime/update/EyeTime-Setup.exe",
+                    ));
                 }
                 if let Some(p) = u["pct"].as_u64() {
                     s.pct = p as u32;
@@ -115,7 +167,14 @@ fn serve(mut conn: TcpStream, sup: &Arc<Mutex<Supervisor<Fake>>>, world: &Arc<Mu
                 if let Some(ver) = u["version"].as_str() {
                     s.info = Some(eyetime_core::update::UpdateInfo {
                         version: ver.into(),
-                        notes: u["notes"].as_array().map(|n| n.iter().filter_map(|x| x.as_str().map(String::from)).collect()).unwrap_or_default(),
+                        notes: u["notes"]
+                            .as_array()
+                            .map(|n| {
+                                n.iter()
+                                    .filter_map(|x| x.as_str().map(String::from))
+                                    .collect()
+                            })
+                            .unwrap_or_default(),
                         url: "x".into(),
                         sha256: "0".repeat(64),
                         size: u["size"].as_u64().unwrap_or(0),
@@ -135,7 +194,13 @@ fn serve(mut conn: TcpStream, sup: &Arc<Mutex<Supervisor<Fake>>>, world: &Arc<Mu
             {
                 let mut w = world.lock().unwrap();
                 if let Some(ps) = v["procs"].as_array() {
-                    w.procs = ps.iter().map(|p| Proc { exe: p[0].as_str().unwrap_or("").into(), pid: p[1].as_u64().unwrap_or(0) as u32 }).collect();
+                    w.procs = ps
+                        .iter()
+                        .map(|p| Proc {
+                            exe: p[0].as_str().unwrap_or("").into(),
+                            pid: p[1].as_u64().unwrap_or(0) as u32,
+                        })
+                        .collect();
                     w.killed.clear();
                 }
                 if let Some(j) = v["jump"].as_i64() {
@@ -150,7 +215,15 @@ fn serve(mut conn: TcpStream, sup: &Arc<Mutex<Supervisor<Fake>>>, world: &Arc<Mu
                 sc.fg = v["fg"].as_str().map(|s| s.to_string());
             }
             if let Some(ws) = v["windows"].as_array() {
-                sc.windows = ws.iter().map(|p| (p[0].as_str().unwrap_or("").into(), p[1].as_u64().unwrap_or(0) as u32)).collect();
+                sc.windows = ws
+                    .iter()
+                    .map(|p| {
+                        (
+                            p[0].as_str().unwrap_or("").into(),
+                            p[1].as_u64().unwrap_or(0) as u32,
+                        )
+                    })
+                    .collect();
             }
             if let Some(i) = v["idle"].as_u64() {
                 sc.idle = i as u32;

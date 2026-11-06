@@ -21,16 +21,65 @@ pub enum Request {
     /// the eight keys the screens keep
     GetState,
     /// Changes to the setup. While a locked block runs, anything that loosens it is refused.
-    SetState { keys: HashMap<String, Value>, #[serde(default)] pin: Option<String> },
-    StartSession { name: String, minutes: u32, level: u8, #[serde(default)] blocks: Vec<String>, #[serde(default)] scene: String, #[serde(default)] allow_breaks: bool, #[serde(default)] dnd: bool, #[serde(default)] mute: bool, #[serde(default)] close_now: bool },
+    SetState {
+        keys: HashMap<String, Value>,
+        #[serde(default)]
+        pin: Option<String>,
+    },
+    StartSession {
+        name: String,
+        minutes: u32,
+        level: u8,
+        #[serde(default)]
+        blocks: Vec<String>,
+        #[serde(default)]
+        scene: String,
+        #[serde(default)]
+        allow_breaks: bool,
+        #[serde(default)]
+        dnd: bool,
+        #[serde(default)]
+        mute: bool,
+        #[serde(default)]
+        close_now: bool,
+    },
     /// Ask to be let out of something. The helper answers with what the person must do.
-    Challenge { action: String, #[serde(default)] target: Option<String>, #[serde(default)] minutes: Option<u32> },
+    Challenge {
+        action: String,
+        #[serde(default)]
+        target: Option<String>,
+        #[serde(default)]
+        minutes: Option<u32>,
+    },
     /// The answer. If it is right the helper does what the challenge was for.
-    Complete { challenge_id: String, #[serde(default)] answer: String, #[serde(default)] pin: Option<String>, #[serde(default)] partner_code: Option<String> },
-    SetPin { #[serde(default)] old: Option<String>, new: String },
-    SetPartnerPin { #[serde(default)] old: Option<String>, new: String },
+    Complete {
+        challenge_id: String,
+        #[serde(default)]
+        answer: String,
+        #[serde(default)]
+        pin: Option<String>,
+        #[serde(default)]
+        partner_code: Option<String>,
+    },
+    SetPin {
+        #[serde(default)]
+        old: Option<String>,
+        new: String,
+    },
+    SetPartnerPin {
+        #[serde(default)]
+        old: Option<String>,
+        new: String,
+    },
     /// the browser extension: which address is in front (none when the browser is in the background)
-    Site { #[serde(default)] host: Option<String>, #[serde(default)] incognito: bool, #[serde(default)] browser: String },
+    Site {
+        #[serde(default)]
+        host: Option<String>,
+        #[serde(default)]
+        incognito: bool,
+        #[serde(default)]
+        browser: String,
+    },
     Decision,
     Usage,
     /// end a break and take back any "unblocked for a while" that was granted
@@ -39,13 +88,24 @@ pub enum Request {
     UpdateCheck,
     /// download the newer version and install it (it waits while a locked block runs)
     UpdateInstall,
-    UpdateSetAuto { on: bool },
+    UpdateSetAuto {
+        on: bool,
+    },
     /// the "what is new" was shown
     UpdateAck,
     /// the installer and the window ask before uninstalling
     Uninstall,
     /// the little agent in the person's session: what it sees, every couple of seconds. The answer is what it should do.
-    Observe { #[serde(default)] fg: Option<Fg>, #[serde(default)] idle_secs: u32, #[serde(default)] windows: Vec<Win>, #[serde(default)] screen_locked: bool },
+    Observe {
+        #[serde(default)]
+        fg: Option<Fg>,
+        #[serde(default)]
+        idle_secs: u32,
+        #[serde(default)]
+        windows: Vec<Win>,
+        #[serde(default)]
+        screen_locked: bool,
+    },
 }
 
 /// Who is on the other end of the pipe, as the service itself finds out (the program's real file and whether it runs elevated), never as the
@@ -67,7 +127,14 @@ impl Role {
         match self {
             Role::Admin => true,
             Role::Window => !matches!(req, Request::Observe { .. }),
-            Role::Agent => matches!(req, Request::Observe { .. } | Request::Site { .. } | Request::Decision | Request::Ping | Request::Status),
+            Role::Agent => matches!(
+                req,
+                Request::Observe { .. }
+                    | Request::Site { .. }
+                    | Request::Decision
+                    | Request::Ping
+                    | Request::Status
+            ),
             Role::Other => matches!(req, Request::Ping | Request::Status),
         }
     }
@@ -180,16 +247,34 @@ pub struct Response {
 
 impl Response {
     pub fn ok(data: impl Serialize) -> Response {
-        Response { ok: true, code: String::new(), message: String::new(), data: serde_json::to_value(data).unwrap_or(Value::Null) }
+        Response {
+            ok: true,
+            code: String::new(),
+            message: String::new(),
+            data: serde_json::to_value(data).unwrap_or(Value::Null),
+        }
     }
     pub fn done() -> Response {
-        Response { ok: true, ..Default::default() }
+        Response {
+            ok: true,
+            ..Default::default()
+        }
     }
     pub fn err(code: &str, message: impl Into<String>) -> Response {
-        Response { ok: false, code: code.into(), message: message.into(), data: Value::Null }
+        Response {
+            ok: false,
+            code: code.into(),
+            message: message.into(),
+            data: Value::Null,
+        }
     }
     pub fn err_with(code: &str, message: impl Into<String>, data: impl Serialize) -> Response {
-        Response { ok: false, code: code.into(), message: message.into(), data: serde_json::to_value(data).unwrap_or(Value::Null) }
+        Response {
+            ok: false,
+            code: code.into(),
+            message: message.into(),
+            data: serde_json::to_value(data).unwrap_or(Value::Null),
+        }
     }
 }
 
@@ -210,7 +295,11 @@ mod tests {
 
     #[test]
     fn requests_round_trip_and_unknown_ones_are_refused() {
-        let r = Request::Challenge { action: "end_session".into(), target: None, minutes: Some(5) };
+        let r = Request::Challenge {
+            action: "end_session".into(),
+            target: None,
+            minutes: Some(5),
+        };
         let s = serde_json::to_string(&r).unwrap();
         assert!(s.contains("\"op\":\"challenge\""));
         assert_eq!(parse_request(&s).unwrap(), r);
@@ -221,15 +310,31 @@ mod tests {
 
     #[test]
     fn short_forms_fill_in_defaults() {
-        let r = parse_request(r#"{"op":"start_session","name":"x","minutes":25,"level":1}"#).unwrap();
-        assert!(matches!(r, Request::StartSession { allow_breaks: false, .. }));
+        let r =
+            parse_request(r#"{"op":"start_session","name":"x","minutes":25,"level":1}"#).unwrap();
+        assert!(matches!(
+            r,
+            Request::StartSession {
+                allow_breaks: false,
+                ..
+            }
+        ));
         let r = parse_request(r#"{"op":"site","host":"youtube.com"}"#).unwrap();
-        assert!(matches!(r, Request::Site { incognito: false, .. }));
+        assert!(matches!(
+            r,
+            Request::Site {
+                incognito: false,
+                ..
+            }
+        ));
     }
 
     #[test]
     fn a_challenge_never_carries_its_answer() {
-        let p = crate::model::Protect { friction: "type".into(), ..Default::default() };
+        let p = crate::model::Protect {
+            friction: "type".into(),
+            ..Default::default()
+        };
         let c = Challenge::new(&p, "break", 0, 1, 0);
         let v = challenge_data(&c);
         assert!(v.get("answer").is_none());

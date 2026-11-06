@@ -22,30 +22,189 @@ fn brands() -> &'static [Entry] {
 }
 
 /// the 12 categories of the interface
-pub const CATEGORY_NAMES: [&str; 12] = ["Social media", "Video", "Streaming", "Messengers", "News", "Games", "Shopping", "Adult", "AI chats", "Forums", "Gambling", "Email"];
+pub const CATEGORY_NAMES: [&str; 12] = [
+    "Social media",
+    "Video",
+    "Streaming",
+    "Messengers",
+    "News",
+    "Games",
+    "Shopping",
+    "Adult",
+    "AI chats",
+    "Forums",
+    "Gambling",
+    "Email",
+];
 
 pub fn category_domains(name: &str) -> &'static [&'static str] {
     match name {
-        "Social media" => &["instagram.com", "facebook.com", "tiktok.com", "x.com", "twitter.com", "snapchat.com", "pinterest.com", "tumblr.com", "linkedin.com", "vk.com", "ok.ru", "threads.net", "bsky.app", "mastodon.social"],
-        "Video" => &["youtube.com", "youtu.be", "twitch.tv", "vimeo.com", "dailymotion.com", "rutube.ru", "bilibili.com", "kick.com"],
-        "Streaming" => &["netflix.com", "primevideo.com", "disneyplus.com", "hulu.com", "hbomax.com", "max.com", "kinopoisk.ru", "ivi.ru", "okko.tv", "crunchyroll.com"],
-        "Messengers" => &["web.telegram.org", "web.whatsapp.com", "discord.com", "messenger.com", "viber.com", "slack.com", "signal.org", "skype.com"],
-        "News" => &["news.google.com", "bbc.com", "cnn.com", "nytimes.com", "theguardian.com", "foxnews.com", "reuters.com", "lenta.ru", "rbc.ru", "meduza.io", "news.ycombinator.com", "buzzfeed.com", "dailymail.co.uk"],
-        "Games" => &["steampowered.com", "steamcommunity.com", "epicgames.com", "roblox.com", "miniclip.com", "poki.com", "crazygames.com", "itch.io", "battle.net", "leagueoflegends.com", "minecraft.net"],
-        "Shopping" => &["amazon.com", "ebay.com", "aliexpress.com", "temu.com", "shein.com", "etsy.com", "wildberries.ru", "ozon.ru", "walmart.com", "target.com"],
-        "Adult" => &["pornhub.com", "xvideos.com", "xnxx.com", "xhamster.com", "redtube.com", "youporn.com", "onlyfans.com", "chaturbate.com", "stripchat.com"],
-        "AI chats" => &["chatgpt.com", "chat.openai.com", "gemini.google.com", "claude.ai", "perplexity.ai", "character.ai", "poe.com", "copilot.microsoft.com"],
-        "Forums" => &["reddit.com", "quora.com", "4chan.org", "pikabu.ru", "habr.com", "stackexchange.com", "disqus.com", "9gag.com"],
-        "Gambling" => &["bet365.com", "stake.com", "1xbet.com", "pokerstars.com", "draftkings.com", "fanduel.com", "betway.com", "parimatch.com", "fonbet.ru", "olimpbet.ru"],
-        "Email" => &["mail.google.com", "outlook.live.com", "outlook.office.com", "mail.yahoo.com", "mail.ru", "e.mail.ru", "proton.me"],
+        "Social media" => &[
+            "instagram.com",
+            "facebook.com",
+            "tiktok.com",
+            "x.com",
+            "twitter.com",
+            "snapchat.com",
+            "pinterest.com",
+            "tumblr.com",
+            "linkedin.com",
+            "vk.com",
+            "ok.ru",
+            "threads.net",
+            "bsky.app",
+            "mastodon.social",
+        ],
+        "Video" => &[
+            "youtube.com",
+            "youtu.be",
+            "twitch.tv",
+            "vimeo.com",
+            "dailymotion.com",
+            "rutube.ru",
+            "bilibili.com",
+            "kick.com",
+        ],
+        "Streaming" => &[
+            "netflix.com",
+            "primevideo.com",
+            "disneyplus.com",
+            "hulu.com",
+            "hbomax.com",
+            "max.com",
+            "kinopoisk.ru",
+            "ivi.ru",
+            "okko.tv",
+            "crunchyroll.com",
+        ],
+        "Messengers" => &[
+            "web.telegram.org",
+            "web.whatsapp.com",
+            "discord.com",
+            "messenger.com",
+            "viber.com",
+            "slack.com",
+            "signal.org",
+            "skype.com",
+        ],
+        "News" => &[
+            "news.google.com",
+            "bbc.com",
+            "cnn.com",
+            "nytimes.com",
+            "theguardian.com",
+            "foxnews.com",
+            "reuters.com",
+            "lenta.ru",
+            "rbc.ru",
+            "meduza.io",
+            "news.ycombinator.com",
+            "buzzfeed.com",
+            "dailymail.co.uk",
+        ],
+        "Games" => &[
+            "steampowered.com",
+            "steamcommunity.com",
+            "epicgames.com",
+            "roblox.com",
+            "miniclip.com",
+            "poki.com",
+            "crazygames.com",
+            "itch.io",
+            "battle.net",
+            "leagueoflegends.com",
+            "minecraft.net",
+        ],
+        "Shopping" => &[
+            "amazon.com",
+            "ebay.com",
+            "aliexpress.com",
+            "temu.com",
+            "shein.com",
+            "etsy.com",
+            "wildberries.ru",
+            "ozon.ru",
+            "walmart.com",
+            "target.com",
+        ],
+        "Adult" => &[
+            "pornhub.com",
+            "xvideos.com",
+            "xnxx.com",
+            "xhamster.com",
+            "redtube.com",
+            "youporn.com",
+            "onlyfans.com",
+            "chaturbate.com",
+            "stripchat.com",
+        ],
+        "AI chats" => &[
+            "chatgpt.com",
+            "chat.openai.com",
+            "gemini.google.com",
+            "claude.ai",
+            "perplexity.ai",
+            "character.ai",
+            "poe.com",
+            "copilot.microsoft.com",
+        ],
+        "Forums" => &[
+            "reddit.com",
+            "quora.com",
+            "4chan.org",
+            "pikabu.ru",
+            "habr.com",
+            "stackexchange.com",
+            "disqus.com",
+            "9gag.com",
+        ],
+        "Gambling" => &[
+            "bet365.com",
+            "stake.com",
+            "1xbet.com",
+            "pokerstars.com",
+            "draftkings.com",
+            "fanduel.com",
+            "betway.com",
+            "parimatch.com",
+            "fonbet.ru",
+            "olimpbet.ru",
+        ],
+        "Email" => &[
+            "mail.google.com",
+            "outlook.live.com",
+            "outlook.office.com",
+            "mail.yahoo.com",
+            "mail.ru",
+            "e.mail.ru",
+            "proton.me",
+        ],
         _ => &[],
     }
 }
 
 pub fn category_exes(name: &str) -> &'static [&'static str] {
     match name {
-        "Games" => &["steam.exe", "epicgameslauncher.exe", "battle.net.exe", "riotclientservices.exe", "leagueclient.exe", "minecraftlauncher.exe", "origin.exe", "ubisoftconnect.exe", "gog galaxy.exe"],
-        "Messengers" => &["telegram.exe", "whatsapp.exe", "discord.exe", "viber.exe", "signal.exe", "skype.exe", "slack.exe"],
+        "Games" => &[
+            "steam.exe",
+            "epicgameslauncher.exe",
+            "battle.net.exe",
+            "riotclientservices.exe",
+            "leagueclient.exe",
+            "minecraftlauncher.exe",
+            "origin.exe",
+            "ubisoftconnect.exe",
+            "gog galaxy.exe",
+        ],
+        "Messengers" => &[
+            "telegram.exe",
+            "whatsapp.exe",
+            "discord.exe",
+            "viber.exe",
+            "signal.exe",
+            "skype.exe",
+            "slack.exe",
+        ],
         "Streaming" => &["netflix.exe", "spotify.exe"],
         _ => &[],
     }
@@ -53,7 +212,9 @@ pub fn category_exes(name: &str) -> &'static [&'static str] {
 
 fn brand(name: &str) -> Option<&'static Entry> {
     let n = name.trim().to_lowercase();
-    brands().iter().find(|b| b.n.to_lowercase() == n || b.a.iter().any(|a| *a == n))
+    brands()
+        .iter()
+        .find(|b| b.n.to_lowercase() == n || b.a.iter().any(|a| *a == n))
 }
 
 /// A name or an address in the interface's list becomes the addresses it stands for.
@@ -96,8 +257,38 @@ pub fn item_exes(it: &Item) -> Vec<String> {
 
 /// Programs that must never be closed whatever the list says: the system itself and EyeTime.
 pub const NEVER_CLOSE: &[&str] = &[
-    "system", "registry", "smss.exe", "csrss.exe", "wininit.exe", "winlogon.exe", "services.exe", "lsass.exe", "svchost.exe", "dwm.exe", "explorer.exe", "fontdrvhost.exe", "sihost.exe", "taskhostw.exe", "ctfmon.exe", "audiodg.exe", "searchhost.exe", "startmenuexperiencehost.exe",
-    "shellexperiencehost.exe", "textinputhost.exe", "runtimebroker.exe", "applicationframehost.exe", "msedgewebview2.exe", "eyetime.exe", "eyetime-helper.exe", "eyetime-setup.exe", "conhost.exe", "wudfhost.exe", "dllhost.exe", "securityhealthsystray.exe", "lockapp.exe", "logonui.exe",
+    "system",
+    "registry",
+    "smss.exe",
+    "csrss.exe",
+    "wininit.exe",
+    "winlogon.exe",
+    "services.exe",
+    "lsass.exe",
+    "svchost.exe",
+    "dwm.exe",
+    "explorer.exe",
+    "fontdrvhost.exe",
+    "sihost.exe",
+    "taskhostw.exe",
+    "ctfmon.exe",
+    "audiodg.exe",
+    "searchhost.exe",
+    "startmenuexperiencehost.exe",
+    "shellexperiencehost.exe",
+    "textinputhost.exe",
+    "runtimebroker.exe",
+    "applicationframehost.exe",
+    "msedgewebview2.exe",
+    "eyetime.exe",
+    "eyetime-helper.exe",
+    "eyetime-setup.exe",
+    "conhost.exe",
+    "wudfhost.exe",
+    "dllhost.exe",
+    "securityhealthsystray.exe",
+    "lockapp.exe",
+    "logonui.exe",
 ];
 
 pub fn never_close(exe: &str) -> bool {
@@ -106,16 +297,64 @@ pub fn never_close(exe: &str) -> bool {
 }
 
 /// Browsers: the ones whose private windows can be closed.
-pub const BROWSERS: &[&str] = &["chrome.exe", "msedge.exe", "firefox.exe", "brave.exe", "opera.exe", "vivaldi.exe", "yandex.exe", "browser.exe"];
+pub const BROWSERS: &[&str] = &[
+    "chrome.exe",
+    "msedge.exe",
+    "firefox.exe",
+    "brave.exe",
+    "opera.exe",
+    "vivaldi.exe",
+    "yandex.exe",
+    "browser.exe",
+];
 /// Windows tools used to undo a block: closed in Frozen sessions (Task Manager is handled through the policy as well).
-pub const TOOLS_CLOSED_WHEN_FROZEN: &[&str] = &["taskmgr.exe", "systemsettings.exe", "regedit.exe", "mmc.exe", "control.exe", "perfmon.exe", "resmon.exe", "procexp.exe", "procexp64.exe", "processhacker.exe"];
+pub const TOOLS_CLOSED_WHEN_FROZEN: &[&str] = &[
+    "taskmgr.exe",
+    "systemsettings.exe",
+    "regedit.exe",
+    "mmc.exe",
+    "control.exe",
+    "perfmon.exe",
+    "resmon.exe",
+    "procexp.exe",
+    "procexp64.exe",
+    "processhacker.exe",
+];
 /// Tools that open the way around a block.
-pub const VPN_AND_PROXY: &[&str] = &["openvpn.exe", "nordvpn.exe", "expressvpn.exe", "protonvpn.exe", "windscribe.exe", "wireguard.exe", "tailscale.exe", "psiphon3.exe", "tor.exe", "v2rayn.exe", "clash.exe", "cloudflare warp.exe", "warp-svc.exe", "hotspotshield.exe", "surfshark.exe", "mullvad vpn.exe"];
+pub const VPN_AND_PROXY: &[&str] = &[
+    "openvpn.exe",
+    "nordvpn.exe",
+    "expressvpn.exe",
+    "protonvpn.exe",
+    "windscribe.exe",
+    "wireguard.exe",
+    "tailscale.exe",
+    "psiphon3.exe",
+    "tor.exe",
+    "v2rayn.exe",
+    "clash.exe",
+    "cloudflare warp.exe",
+    "warp-svc.exe",
+    "hotspotshield.exe",
+    "surfshark.exe",
+    "mullvad vpn.exe",
+];
 
 /// Is this window title a private window of a browser? (English and Russian wording of Chrome, Edge, Firefox, Brave, Opera, Vivaldi, Yandex.)
 pub fn is_private_title(title: &str) -> bool {
     let t = title.to_lowercase();
-    ["incognito", "inprivate", "private browsing", "(private)", "\u{2014} private", "- private", "инкогнито", "приватн"].iter().any(|k| t.contains(k))
+    [
+        "incognito",
+        "inprivate",
+        "private browsing",
+        "(private)",
+        "\u{2014} private",
+        "- private",
+        "инкогнито",
+        "приватн",
+    ]
+    .iter()
+    .any(|k| t.contains(k))
 }
 
 #[cfg(test)]
@@ -123,14 +362,25 @@ mod tests {
     use super::*;
     #[test]
     fn the_catalog_knows_the_well_known_by_any_of_their_names() {
-        let it = |n: &str| Item { name: n.into(), ..Default::default() };
+        let it = |n: &str| Item {
+            name: n.into(),
+            ..Default::default()
+        };
         assert!(item_domains(&it("Pinterest")).contains(&"pinterest.com".to_string()));
-        assert!(item_domains(&it("Twitter")).contains(&"x.com".to_string()), "another name of the same thing");
+        assert!(
+            item_domains(&it("Twitter")).contains(&"x.com".to_string()),
+            "another name of the same thing"
+        );
         assert!(item_domains(&it("пикабу")).contains(&"pikabu.ru".to_string()));
         assert!(item_exes(&it("Epic Games")).contains(&"epicgameslauncher.exe".to_string()));
         assert!(item_exes(&it("google chrome")).contains(&"chrome.exe".to_string()));
         assert!(brands().len() > 100, "the list was read");
-        assert!(brands().iter().all(|b| b.x.iter().all(|e| e.ends_with(".exe") && !never_close(e))), "no program of the list is one the system needs");
+        assert!(
+            brands()
+                .iter()
+                .all(|b| b.x.iter().all(|e| e.ends_with(".exe") && !never_close(e))),
+            "no program of the list is one the system needs"
+        );
     }
 
     #[test]
@@ -144,13 +394,32 @@ mod tests {
     }
     #[test]
     fn brands_and_addresses() {
-        let it = Item { name: "YouTube".into(), kind: "site".into(), ..Default::default() };
+        let it = Item {
+            name: "YouTube".into(),
+            kind: "site".into(),
+            ..Default::default()
+        };
         assert!(item_domains(&it).contains(&"youtu.be".to_string()));
-        let it = Item { name: "https-less.example.com".into(), kind: "site".into(), ..Default::default() };
-        assert_eq!(item_domains(&it), vec!["https-less.example.com".to_string()]);
-        let it = Item { name: "Slack".into(), kind: "app".into(), ..Default::default() };
+        let it = Item {
+            name: "https-less.example.com".into(),
+            kind: "site".into(),
+            ..Default::default()
+        };
+        assert_eq!(
+            item_domains(&it),
+            vec!["https-less.example.com".to_string()]
+        );
+        let it = Item {
+            name: "Slack".into(),
+            kind: "app".into(),
+            ..Default::default()
+        };
         assert_eq!(item_exes(&it), vec!["slack.exe".to_string()]);
-        let it = Item { name: "My Game".into(), kind: "app".into(), ..Default::default() };
+        let it = Item {
+            name: "My Game".into(),
+            kind: "app".into(),
+            ..Default::default()
+        };
         assert_eq!(item_exes(&it), vec!["mygame.exe".to_string()]);
     }
     #[test]

@@ -5,7 +5,11 @@ use crate::model::{Now, Rule};
 pub fn parse_hm(s: &str) -> Option<u16> {
     let (h, m) = s.split_once(':')?;
     let (h, m): (u16, u16) = (h.trim().parse().ok()?, m.trim().parse().ok()?);
-    if h < 24 && m < 60 { Some(h * 60 + m) } else { None }
+    if h < 24 && m < 60 {
+        Some(h * 60 + m)
+    } else {
+        None
+    }
 }
 
 /// If the rule is running now: minutes left until it ends. Overnight rules (23:00 to 06:00) belong to the day they start on.
@@ -18,10 +22,18 @@ pub fn active_for(rule: &Rule, now: &Now) -> Option<u32> {
     let yesterday = (now.weekday + 6) % 7;
     if a == b {
         // the same time twice means all day, every chosen day
-        return if rule.days.contains(&now.weekday) { Some(1440 - cur as u32) } else { None };
+        return if rule.days.contains(&now.weekday) {
+            Some(1440 - cur as u32)
+        } else {
+            None
+        };
     }
     if b > a {
-        return if rule.days.contains(&now.weekday) && cur >= a && cur < b { Some((b - cur) as u32) } else { None };
+        return if rule.days.contains(&now.weekday) && cur >= a && cur < b {
+            Some((b - cur) as u32)
+        } else {
+            None
+        };
     }
     // overnight
     if rule.days.contains(&now.weekday) && cur >= a {
@@ -59,10 +71,20 @@ pub fn next_start_in(rule: &Rule, now: &Now) -> Option<u32> {
 mod tests {
     use super::*;
     fn now(weekday: u8, hm: &str) -> Now {
-        Now { ms: 0, weekday, minute: parse_hm(hm).unwrap(), day: "2026-11-04".into() }
+        Now {
+            ms: 0,
+            weekday,
+            minute: parse_hm(hm).unwrap(),
+            day: "2026-11-04".into(),
+        }
     }
     fn rule(from: &str, to: &str, days: &[u8]) -> Rule {
-        Rule { from: from.into(), to: to.into(), days: days.to_vec(), ..Default::default() }
+        Rule {
+            from: from.into(),
+            to: to.into(),
+            days: days.to_vec(),
+            ..Default::default()
+        }
     }
     #[test]
     fn plain_window() {
