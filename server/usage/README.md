@@ -4,19 +4,22 @@ The receiving end of EyeTime's **optional, anonymous usage report** (see `docs/M
 It is a single endpoint, `POST /v1/usage`, that accepts exactly what `src/shared/usage-schema.js` allows and refuses everything else.
 
 ```
-handler.js        the endpoint as plain functions over a store (request → response); the only logic
+handler.js        the endpoints as plain functions over a store (request → response): the report, forget, the dashboard page, its numbers, the public totals
+stats.js          the formulas behind the dashboard: plain functions from a snapshot of the store to one JSON object (no storage, no clock of its own)
+dashboard.html    the dashboard: one file, no library, Russian and English
+demo-data.js      a made-up population for trying the page and for the tests
 memory-store.js   a store in memory (tests, a quick local try)
 d1-store.js       the same store on Cloudflare D1 (SQLite)
 worker.js         the Cloudflare Worker that wires the two
-schema.sql        the three tables
-queries.sql       the questions: activation, retention D1/D7/D30, feature adoption, setup
+schema.sql        the four tables (installs, firsts, usage_weeks, flags)
+queries.sql       quick questions for a console (the dashboard is the reference)
 wrangler.toml     the Worker's settings (logs and analytics of the collector itself are off)
 ```
 
 ## What it will not do
 
 - It does not store or log an IP address, a header, a cookie or a user agent, and a test checks that nothing of the kind is stored. The handler looks at two headers only to decide whether to answer, and keeps neither: `Content-Type` and `Content-Length` (a body announced as too big is refused unread), and `Origin`.
-- It does not accept an unknown field, a value outside its list, or a body over 4 KB.
+- It does not accept an unknown field, a value outside its list, or a body over 8 KB.
 - It accepts one report per install per six hours (HTTP 429 otherwise).
 - It accepts a browser request only from an extension (`chrome-extension://…`, `moz-extension://…`): a web page gets 403, so a page cannot be made to send reports. (A program that is not a browser can say anything in `Origin`; this is about web pages, not about a determined script.)
 - It takes at most 1000 installs that report for the first time per hour in all (HTTP 429 with `Retry-After`; `MAX_NEW_PER_HOUR` in `handler.js`). The six-hour rule holds only for an id it has seen, so without this limit a script could fill the database with made-up ids. Installs that are already known keep reporting. For a real flood put a Cloudflare rate-limiting rule in front of the Worker too (dashboard: Security → WAF → Rate limiting rules); that cannot be set from this repository.
@@ -29,7 +32,8 @@ You need a Cloudflare account and `npx wrangler login`.
 ```bash
 cd server/usage
 npx wrangler d1 create eyetime-usage            # copy the database_id it prints into wrangler.toml
-npx wrangler d1 execute eyetime-usage --remote --file schema.sql
+npx wrangler d1 execute eyetime-usage --remote --file schema.sql     # an existing database made before the `flags` table: run it again, every statement is IF NOT EXISTS
+openssl rand -base64 24 | npx wrangler secret put DASH_TOKEN         # the key to the dashboard: at least 16 characters; keep it in a password manager
 npx wrangler deploy                              # prints https://eyetime-usage.<you>.workers.dev
 ```
 
@@ -41,13 +45,17 @@ export const USAGE_ENDPOINT = 'https://eyetime-usage.<you>.workers.dev/v1/usage'
 
 and release. Until that line is filled, no build can send anything and the settings screen says so.
 
-Read the numbers:
+## The dashboard
 
-```bash
-npx wrangler d1 execute eyetime-usage --remote --command "$(sed -n '/-- name: retention/,/^$/p' queries.sql | grep -v '^--')"
-```
+Open `https://eyetime-usage.<you>.workers.dev/` and enter the key. (A bookmark `…/#t=<key>` signs in at once and removes the key from the address bar; the key is kept in that tab only and goes only to this address.)
 
-(or paste any query from `queries.sql` into the D1 console).
+- Without `DASH_TOKEN` (or with one shorter than 16 characters) the numbers do not exist: `GET /v1/stats` answers 404. A wrong key is 401 and the comparison is constant-time. The page itself holds no data and is served with a strict policy (`default-src 'none'`, own origin only, no framing, no referrer).
+- `GET /v1/stats?days=28`, `?range=all`, `?from=2026-10-01&to=2026-10-31` answer for a period (a malformed one is a 400, never silently another period); the dashboard's period bar uses these.
+- **Public statistics** (optional): `npx wrangler secret put PUBLIC_STATS` with the value `1` (or `[vars] PUBLIC_STATS = "1"` in `wrangler.toml`) turns on `GET /v1/public-stats` for anyone (cached five minutes, CORS open): totals over at least 50 installs only. `…/?public` shows them with the same page.
+- Rotating the key: `wrangler secret put DASH_TOKEN` again; the old one stops working at once.
+- Try the page with made-up people, before any real report: `node scripts-dev/dashboard-preview.mjs`, then open `http://127.0.0.1:8787/?demo`.
+
+For a console: any query of `queries.sql` can be pasted into the D1 console (`wrangler d1 execute eyetime-usage --remote --command "…"`); the dashboard's rules are stricter (see `docs/MEASUREMENT.md`).
 
 ## Run it locally without Cloudflare
 

@@ -10,7 +10,7 @@
 
 import { getRaw, setRaw, getSettings, withLock } from './storage.js';
 import { USAGE_ENDPOINT } from './usage-config.js';
-import { normalizeUsage, record, buildReport, subtractPeriod, reportDue, detectEnv, newId, modeOf, shouldAsk } from './usage.js';
+import { normalizeUsage, record, buildReport, subtractPeriod, reportDue, detectEnv, newId, modeOf, shouldAsk, flagsOf } from './usage.js';
 import { validateReport } from './usage-schema.js';
 
 export const haveEndpoint = (/** @type {string} */ e = USAGE_ENDPOINT) => /^https:\/\/[^\s]+$/.test(e);
@@ -45,8 +45,9 @@ const setShare = (/** @type {Partial<Share>} */ patch) => withLock('usageShare',
 /** Everything a report says about the setup, read from the settings. */
 async function context(/** @type {string} */ id) {
   const s = await getSettings();
+  const raw = await getRaw(['syncSettings', 'syncTasks', 'syncEnc', 'tasks', 'habits', 'conns', 'calendarSubs']);
   const env = detectEnv(typeof navigator !== 'undefined' ? navigator.userAgent : '', typeof navigator !== 'undefined' ? /** @type {any} */ (navigator).userAgentData?.platform || navigator.platform : '');
-  return { id, app: chrome.runtime.getManifest().version, ...env, lang: s.language, look: s.appearance.look, layout: s.newtab.layout || 'today', mode: modeOf(s.appearance.mode) };
+  return { id, app: chrome.runtime.getManifest().version, ...env, lang: s.language, look: s.appearance.look, layout: s.newtab.layout || 'today', mode: modeOf(s.appearance.mode), flags: flagsOf(s, raw) };
 }
 
 /** The report that would be sent now, as the text Settings shows. Before sharing is on the id is a row of zeros (it is made when sharing is switched on). */

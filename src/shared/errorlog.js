@@ -3,6 +3,9 @@
 // A tiny local error log (last 20 entries, in storage). Nothing is ever sent anywhere: it only feeds the diagnostic report
 // that the person can read, copy and attach to a bug report themselves (Settings → About).
 
+import { track } from './usage-store.js';
+import { errorFeature } from './usage.js';
+
 const KEY = 'errorLog';
 const MAX = 20;
 
@@ -25,6 +28,7 @@ export function addEntry(list, entry) {
 }
 
 export async function logError(src, err) {
+  track(errorFeature(src)); // only the count by place: the text of the error stays in the local log
   try {
     const msg = scrub(err && (err.stack || err.message) || err);
     const { [KEY]: list } = await chrome.storage.local.get(KEY);
