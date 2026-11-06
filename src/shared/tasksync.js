@@ -4,13 +4,17 @@
 // chrome.storage.sync keeps the last write per key, so a device that writes before it has seen our push must not make our new tasks look deleted.
 // `base` (id → stable JSON of what this device last synced) tells an edit from no change; edits to the same task merge field by field.
 
+import { SEALED_VERSION, SEALED_CHUNK_CHARS, sealText, openText, splitText, sealContext, declare, declaredEnc } from './syncseal.js';
+
 export const T_META = 'st:meta';
 export const tChunk = (i) => `st:${i}`;
 export const T_CHUNK_CHARS = 2500;  // ×3 bytes for CJK stays below the 8 KB per-item limit
 export const T_MAX_CHUNKS = 10;
 export const T_MAX_BYTES = 40_000;  // measured in bytes (CJK is 3 per character): leaves the settings payload its room in the ~100 KB total
 export const TOMB_KEEP_MS = 30 * 86_400_000, TOMB_MAX = 200;
-export const T_VERSION = 1;
+export const T_VERSION = 1;               // a plain payload
+export const T_MAX_VERSION = SEALED_VERSION; // the newest this version understands (2 = sealed, see syncseal.js)
+export const T_MAX_SEALED_CHUNKS = 6;
 export const DONE_KEEP_MS = 3 * 86_400_000; // a finished task travels for three days, then stays only where it was finished
 
 /** Keys sorted, so the same task always serializes the same way on every device. */
@@ -32,7 +36,7 @@ export function sameTasks(a, b) {
 const bytes = (s) => new TextEncoder().encode(s).length;
 
 /** → { items, count } for storage.sync.set, or null when even the open tasks alone do not fit. `del` = tombstones { id: deletedAt }. */
-export function packTasks(tasks, ts, del = {}, now = Date.now()) {
+export function packTasks(tasks, ts, del = {}, now = Date.now(), off = 0) {
   const keep = (tasks || []).filter((x) => syncable(x, now));
   const tombs = Object.fromEntries(Object.entries(del || {}).sort((a, b) => b[1] - a[1]).slice(0, TOMB_MAX));
   const json = JSON.stringify({ tasks: keep, del: tombs });
@@ -45,7 +49,20 @@ export function packTasks(tasks, ts, del = {}, now = Date.now()) {
     parts.push(json.slice(at, end)); at = end;
   }
   if (parts.length > T_MAX_CHUNKS) return null;
-  const items = { [T_META]: { v: T_VERSION, n: parts.length, ts } };
+  const items = { [T_META]: { v: T_VERSION, n: parts.length, ts, ...(off ? { off } : {}) } };
+  parts.forEach((p, i) => { items[tChunk(i)] = p; });
+  return { items, count: parts.length };
+}
+
+/** Like packTasks, sealed under `key` for the encryption `info`. */
+export async function packTasksSealed(tasks, ts, key, info, del = {}, now = Date.now()) {
+  const keep = (tasks || []).filter((x) => syncable(x, now));
+  const tombs = Object.fromEntries(Object.entries(del || {}).sort((a, b) => b[1] - a[1]).slice(0, TOMB_MAX));
+  const json = JSON.stringify({ tasks: keep, del: tombs });
+  if (bytes(json) > T_MAX_BYTES) return null;
+  const parts = splitText(await sealText(key, sealContext('tasks', ts), json), T_MAX_SEALED_CHUNKS, SEALED_CHUNK_CHARS);
+  if (!parts) return null;
+  const items = { [T_META]: { v: SEALED_VERSION, n: parts.length, ts, enc: declare(info) } };
   parts.forEach((p, i) => { items[tChunk(i)] = p; });
   return { items, count: parts.length };
 }
@@ -53,19 +70,34 @@ export function packTasks(tasks, ts, del = {}, now = Date.now()) {
 /** Version found in storage.sync (0 = none). A newer one than we understand must not be touched. */
 export function remoteTasksVersion(all) { const m = all && all[T_META]; return m && typeof m.v === 'number' ? m.v : 0; }
 
-/** → { tasks, del, ts } or null when absent, incomplete or corrupt. */
-export function unpackTasks(all) {
-  const meta = all && all[T_META];
-  if (!meta || meta.v !== T_VERSION || !(meta.n > 0) || meta.n > T_MAX_CHUNKS) return null;
-  let json = '';
-  for (let i = 0; i < meta.n; i++) { const part = all[tChunk(i)]; if (typeof part !== 'string') return null; json += part; }
+/** The checks and the shape of a tasks payload, whether it was plain or sealed. */
+function tasksFrom(json, ts) {
   try {
     const p = JSON.parse(json);
     if (!p || !Array.isArray(p.tasks) || !p.tasks.every((x) => x && typeof x.id === 'string' && typeof x.text === 'string')) return null;
     const del = {};
     for (const [id, at] of Object.entries(p.del && typeof p.del === 'object' ? p.del : {})) if (typeof at === 'number') del[id] = at;
-    return { tasks: p.tasks, del, ts: Number(meta.ts) || 0 };
+    return { tasks: p.tasks, del, ts };
   } catch { return null; }
+}
+
+/** → { tasks, del, ts, off } or null when absent, incomplete or corrupt. (Plain payloads only; a sealed one is unpackTasksSealed.) */
+export function unpackTasks(all) {
+  const meta = all && all[T_META];
+  if (!meta || meta.v !== T_VERSION || !(meta.n > 0) || meta.n > T_MAX_CHUNKS) return null;
+  let json = '';
+  for (let i = 0; i < meta.n; i++) { const part = all[tChunk(i)]; if (typeof part !== 'string') return null; json += part; }
+  const r = tasksFrom(json, Number(meta.ts) || 0);
+  return r && { ...r, off: Number(meta.off) || 0 };
+}
+
+/** The sealed counterpart: null when absent or incomplete; throws when the key is not the one or the payload was changed or put back with another time. */
+export async function unpackTasksSealed(all, key) {
+  const meta = all && all[T_META];
+  if (!declaredEnc(meta) || !(meta.n > 0) || meta.n > T_MAX_SEALED_CHUNKS) return null;
+  let text = '';
+  for (let i = 0; i < meta.n; i++) { const part = all[tChunk(i)]; if (typeof part !== 'string') return null; text += part; }
+  return tasksFrom(await openText(key, sealContext('tasks', Number(meta.ts) || 0), text), Number(meta.ts) || 0);
 }
 
 export function staleTaskKeys(all, count) {

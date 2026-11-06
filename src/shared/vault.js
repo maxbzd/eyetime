@@ -89,6 +89,14 @@ export async function openSecrets(/** @type {Uint8Array} */ key, /** @type {stri
   return JSON.parse(dec.decode(await open(key, sealed, AAD(id))));
 }
 
+/**
+ * Bytes sealed under a key and a context string (what the message belongs to: a connection, a sync payload and its time). Another context, another key or one changed
+ * bit and opening throws. Used by the sync encryption, which has its own key from its own passphrase.
+ */
+export const sealBytes = (/** @type {Uint8Array} */ key, /** @type {string} */ context, /** @type {Uint8Array} */ bytes) => seal(key, bytes, AAD(context));
+export const openBytes = (/** @type {Uint8Array} */ key, /** @type {string} */ context, /** @type {Sealed} */ sealed) => open(key, sealed, AAD(context));
+export { toB64, fromB64 };
+
 /* ---------- the key in memory ---------- */
 
 const SESSION_KEY = 'vaultKey';

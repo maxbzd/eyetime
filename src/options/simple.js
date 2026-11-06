@@ -42,7 +42,7 @@ export const ADV = {
   // Data & privacy
   calendar: { paths: ['calendar'], raw: ['calendar', 'calendarSrc', 'calendarSubs'] },
   tasksIO: {},
-  sync: { raw: ['syncSettings', 'syncTasks'] },
+  sync: { raw: ['syncSettings', 'syncTasks', 'syncEnc'] },
   backupMore: {},
 };
 
