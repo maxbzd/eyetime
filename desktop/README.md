@@ -18,6 +18,33 @@ macOS and Linux are not part of this yet.
 | `extension/` | `EyeTime Bridge`, a small Chrome / Edge / Brave extension. It tells the service which page is in front and closes pages the service says are closed: single pages, words in the address or title, exceptions, and "everything but my list". It decides nothing itself, and closes nothing when the service is not there. Talks to the service through the helper's native host (`eyetime-helper.exe`, started by the browser). |
 | `tests/` | `e2e_real.cjs` drives the screens against the real service logic on a pretend computer. |
 
+## Who talks to whom
+
+```mermaid
+flowchart LR
+  subgraph session["The person's session"]
+    W["window<br/>eyetime.exe (Tauri)"]
+    A["screen agent<br/>helper --agent"]
+    N["native host<br/>helper --native-host"]
+    B["browser + EyeTime Bridge"]
+  end
+  P(("named pipe<br/>roles by the real file of the client"))
+  S["service<br/>helper --service<br/>(system rights)"]
+  H[("hosts file<br/>one managed block")]
+  Proc[("process table<br/>the system's own")]
+  D[("C:/ProgramData/EyeTime<br/>state, PIN hashes, updates<br/>system + administrators only")]
+  GH["GitHub releases<br/>installer + Ed25519 signature"]
+  W -- "everything but observe" --> P
+  A -- "observe, site, decision" --> P
+  B <--> N
+  N -- "site, decision" --> P
+  P --> S
+  S --> H
+  S -- "ask to close, then close by force<br/>only if it still is that program" --> Proc
+  S --> D
+  S -- "newest release, checked and signed" --> GH
+```
+
 ## How a block works
 
 1. The screens keep their setup in the same eight keys as always (`et-rules`, `et-items`, `et-limits`, `et-auto`, `et-cats`, `et-kw`, `et-ex`, `et-protect`). Every change goes to the service, which keeps the real copy. The window starts from the service's copy.
@@ -46,6 +73,8 @@ Frozen closes everything except Windows itself and EyeTime, and also Task Manage
 - **Restarts.** A running session survives a restart. The clock cannot be rolled back across one.
 - **Hosts file watch.** Edits to the block are undone within two seconds.
 - **Private windows** (Incognito, InPrivate) are closed while a block runs. **VPN and proxy tools** are closed. Firefox's own DNS is switched off by policy so that it cannot step around the hosts file.
+- **The pipe cannot be used to starve the service.** A program the service does not know by its real file gets four connections at once and ten seconds of silence before it is cut; the window, the agent, the browser's host and administrator tools get room and no time limit; nobody gets more than 64 connections.
+- **A program is closed only if it is still that program.** The process number is checked against the program's file name on the same handle that closes it, so a number that went to another program in between is left alone. (Programs are matched by the name of their file: a renamed copy of a blocked program is not caught. Matching by publisher or file hash is not done yet.)
 - **The service guards itself.** Stopping it is refused during a locked block (and, with the watchdog on, without permission). It restarts by itself if killed. It also starts in Safe Mode. Uninstalling needs the same permission (Settings → Allow uninstalling), and never happens during a locked block.
 - **Always allowed list** wins over every block, except in a frozen session.
 
@@ -59,7 +88,7 @@ Frozen closes everything except Windows itself and EyeTime, and also Task Manage
 - Home shows dashes until something has been counted (no invented perfect score). Do Not Disturb turns off pop-up notifications.
 - Needs the Microsoft WebView2 runtime (part of Windows 11 and of up-to-date Windows 10; the installer and the window both use it).
 - Some antivirus programs warn when a program edits the hosts file. That is what blocking sites at system level means.
-- The installer is not signed. Windows SmartScreen will warn about an unknown publisher until it is.
+- The installer is not signed with a certificate yet. Windows SmartScreen will warn about an unknown publisher until it is. The release workflow signs the programs and the installer as soon as the repository has the secrets `WINDOWS_CERT_PFX_BASE64` and `WINDOWS_CERT_PASSWORD` (it warns while they are missing); even then SmartScreen builds its trust over time.
 - **Checked on real Windows by the CI.** Each push builds on a Windows machine, installs the installer silently, and checks the service, the pipe, the hosts file, the window (clicked through over its debugging port, with pictures), the native host, and the uninstall. It has not been run on every Windows version or with every antivirus, so try it in a virtual machine first.
 
 ## If you ever get stuck
@@ -96,7 +125,7 @@ cargo build --release -p eyetime-setup              # EyeTime-Setup.exe with the
 
 The installed app looks at this repository's GitHub releases about every six hours (and when you press *Check now* in Settings), picks the newest `desktop-v*` release that is newer than the running version, and shows a glowing chip in the title bar. Then:
 
-- **What is trusted.** An update is run only if all of this holds: the asset `EyeTime-Setup.exe` is from a release of `maxbzd/eyetime` and is downloaded from `github.com/maxbzd/eyetime/releases/download/`; its size and SHA-256 are the announced ones; and the file `EyeTime-Setup.exe.sig` carries an **Ed25519 signature over this version and this exact file, made with the release key**. The public half of the key is built into the app (`core/src/update.rs`); the private half is only in the repository secret `UPDATE_SIGNING_KEY` and is used only by the release job. So a stolen release account is not enough to get a program run on every computer. What is still true: whoever can change the release workflow can read that secret, and the installer is not code-signed with a certificate (Windows SmartScreen may warn on a hand-started install).
+- **What is trusted.** An update is run only if all of this holds: the asset `EyeTime-Setup.exe` is from a release of `maxbzd/eyetime` and is downloaded from `github.com/maxbzd/eyetime/releases/download/`; its size and SHA-256 are the announced ones; and the file `EyeTime-Setup.exe.sig` carries an **Ed25519 signature over this version and this exact file, made with the release key**. The public half of the key is built into the app (`core/src/update.rs`, as a list so that the key can be replaced without stranding anyone: see `SECURITY.md`); the private half is only in the repository secret `UPDATE_SIGNING_KEY` and is used only by the release job. So a stolen release account is not enough to get a program run on every computer. What is still true: whoever can change the release workflow can read that secret, and the installer is not code-signed with a certificate (Windows SmartScreen may warn on a hand-started install).
 - **When it installs.** By hand (*Update now*): at once, unless a locked block is running, then it waits and says so. Automatically (on by default, switch in Settings → About): only when no session or block is running. The window comes back by itself and tells what is new, once.
 - **If it fails.** The files are replaced by the same installer as a first install; if it cannot finish, the old service is started again, the app says "The update did not finish" and nothing is lost. The log is `C:\ProgramData\EyeTime\update.log`.
 - **Publishing.** Bump `version` in `desktop/Cargo.toml`, add a `## x.y.z` section with `- ` points to `desktop/CHANGELOG.md`, then push the tag `desktop-vx.y.z`. The repository needs the secret `UPDATE_SIGNING_KEY` (the private key, made once with `cargo run -p eyetime-core --bin eyetime-sign -- --gen`; the public key goes into `core/src/update.rs`). The workflow `desktop-release.yml` builds, tries the installer on a real Windows runner and publishes the release.
@@ -111,6 +140,6 @@ The service listens on a named pipe that every signed-in person can open, so it 
 | the installed window (`eyetime.exe`) | everything except speaking for the agent |
 | the installed helper in a session (the screen agent, the browser's native host) | `observe`, `site`, `decision`, `ping`, `status` |
 | the system or a program started as an administrator (the installer, the checks) | everything |
-| any other program of a signed-in person | `ping`, `status` |
+| any other program of a signed-in person | `ping`, `status`; four connections at once, cut after ten seconds without a finished request |
 
 Programs to close are always taken from the system's own process table; what an agent says about a process (its name or number) is never trusted. The folder `C:\ProgramData\EyeTime` (state, PIN hashes, downloaded updates) is readable only by the system and administrators. Setup applies these rights by well-known SIDs and stops if one of them cannot be applied.

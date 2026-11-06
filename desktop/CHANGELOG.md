@@ -2,6 +2,16 @@
 
 Every `## x.y.z` section becomes the release notes of the tag `desktop-vx.y.z`. Only the lines that start with `- ` are shown in the app, so keep each point short.
 
+## Unreleased
+
+- The window can no longer be made to run script by a name it shows: no inline script is allowed, and names of programs, rules and sites are escaped before they are shown
+- The service limits what an unknown program can do with its pipe: a few connections, a few seconds
+- A program is closed by force only if it is still the program that was meant (a process number can be given to another program in between)
+- State and the hosts file are written so that a power cut leaves the old file or the new one, never half of one
+- The installer and the app start Windows tools by their full path, so a file planted beside the installer cannot be run with administrator rights
+- The update key can be changed without leaving anybody behind: the app trusts a list of keys (see SECURITY.md)
+- The installer and the programs can be signed with a certificate when the project has one (a warning in the build until then)
+
 ## 0.2.0
 
 - The app updates itself: a glowing chip appears when a new version is out, and one click installs it
