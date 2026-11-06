@@ -65,7 +65,10 @@ fn rule_loosened(a: &Rule, b: &Rule) -> bool {
     // some minute of the day that was covered is not any more
     let covered = |r: &Rule| -> Vec<bool> {
         let mut v = vec![false; 1440];
-        if let (Some(f), Some(t)) = (crate::schedule::parse_hm(&r.from), crate::schedule::parse_hm(&r.to)) {
+        if let (Some(f), Some(t)) = (
+            crate::schedule::parse_hm(&r.from),
+            crate::schedule::parse_hm(&r.to),
+        ) {
             let mut m = f as usize;
             loop {
                 v[m] = true;
@@ -82,7 +85,14 @@ fn rule_loosened(a: &Rule, b: &Rule) -> bool {
 }
 
 fn limit_loosened(a: &Limit, b: &Limit) -> bool {
-    (!b.on && a.on) || b.amount > a.amount && a.kind != "cool" || (a.kind == "cool" && (b.amount > a.amount || b.cool < a.cool)) || b.kind != a.kind || b.per != a.per && period_rank(&b.per) > period_rank(&a.per) || act_rank(&b.act) < act_rank(&a.act) || b.name != a.name || b.scope != a.scope
+    (!b.on && a.on)
+        || b.amount > a.amount && a.kind != "cool"
+        || (a.kind == "cool" && (b.amount > a.amount || b.cool < a.cool))
+        || b.kind != a.kind
+        || b.per != a.per && period_rank(&b.per) > period_rank(&a.per)
+        || act_rank(&b.act) < act_rank(&a.act)
+        || b.name != a.name
+        || b.scope != a.scope
 }
 fn period_rank(p: &str) -> u8 {
     match p {
@@ -125,14 +135,22 @@ pub fn loosens(old: &State, new: &State) -> Vec<String> {
         }
     }
     for a in old.items.iter().filter(|i| item_rank(i) == 2) {
-        match new.items.iter().find(|b| b.name == a.name && b.kind == a.kind) {
+        match new
+            .items
+            .iter()
+            .find(|b| b.name == a.name && b.kind == a.kind)
+        {
             None => out.push(format!("taken off the list: {}", a.name)),
             Some(b) if item_rank(b) < 2 => out.push(format!("no longer distracting: {}", a.name)),
             _ => {}
         }
     }
     for b in new.items.iter().filter(|i| i.g == "allow") {
-        if !old.items.iter().any(|a| a.name == b.name && a.kind == b.kind && a.g == "allow") {
+        if !old
+            .items
+            .iter()
+            .any(|a| a.name == b.name && a.kind == b.kind && a.g == "allow")
+        {
             out.push(format!("now always allowed: {}", b.name));
         }
     }
@@ -155,7 +173,10 @@ pub fn loosens(old: &State, new: &State) -> Vec<String> {
     if q.level < p.level {
         out.push("protection level lowered".into());
     }
-    if friction_rank(&q.friction) < friction_rank(&p.friction) || (q.friction == "wait" && p.friction == "wait" && q.wait_sec < p.wait_sec) || (q.type_len < p.type_len && q.friction == "type") {
+    if friction_rank(&q.friction) < friction_rank(&p.friction)
+        || (q.friction == "wait" && p.friction == "wait" && q.wait_sec < p.wait_sec)
+        || (q.type_len < p.type_len && q.friction == "type")
+    {
         out.push("friction weakened".into());
     }
     if (p.pin_on && !q.pin_on) || (p.grow && !q.grow) || (p.reset_streak && !q.reset_streak) {
@@ -194,12 +215,19 @@ pub const MAX_FROZEN_MIN: u32 = 8 * 60;
 pub fn unsafe_setup(state: &State) -> Vec<String> {
     let mut out = Vec::new();
     let keys_ok = state.protect.emerg >= 1 && state.protect.emerg_week >= 1;
-    for r in state.rules.iter().filter(|r| r.on && r.kind == "schedule" && r.level >= 2) {
+    for r in state
+        .rules
+        .iter()
+        .filter(|r| r.on && r.kind == "schedule" && r.level >= 2)
+    {
         if !keys_ok {
             out.push(format!("no_escape: {}", r.name));
         }
         if r.level >= 3 {
-            let (f, t) = (crate::schedule::parse_hm(&r.from), crate::schedule::parse_hm(&r.to));
+            let (f, t) = (
+                crate::schedule::parse_hm(&r.from),
+                crate::schedule::parse_hm(&r.to),
+            );
             let len = match (f, t) {
                 (Some(f), Some(t)) if f == t => 1440u32,
                 (Some(f), Some(t)) if t > f => (t - f) as u32,
@@ -286,9 +314,25 @@ mod tests {
 
     fn base() -> State {
         State {
-            rules: vec![Rule { id: "r".into(), name: "Work".into(), level: 2, breaks: false, ..Default::default() }],
-            limits: vec![Limit { id: "l".into(), name: "YouTube".into(), amount: 30, ..Default::default() }],
-            items: vec![Item { name: "YouTube".into(), kind: "site".into(), g: "dis".into(), ..Default::default() }],
+            rules: vec![Rule {
+                id: "r".into(),
+                name: "Work".into(),
+                level: 2,
+                breaks: false,
+                ..Default::default()
+            }],
+            limits: vec![Limit {
+                id: "l".into(),
+                name: "YouTube".into(),
+                amount: 30,
+                ..Default::default()
+            }],
+            items: vec![Item {
+                name: "YouTube".into(),
+                kind: "site".into(),
+                g: "dis".into(),
+                ..Default::default()
+            }],
             keywords: vec!["casino".into()],
             ..Default::default()
         }
@@ -302,9 +346,17 @@ mod tests {
         b.rules[0].to = "18:00".into();
         b.limits[0].amount = 20;
         b.keywords.push("poker".into());
-        b.items.push(Item { name: "Reddit".into(), kind: "site".into(), g: "dis".into(), ..Default::default() });
+        b.items.push(Item {
+            name: "Reddit".into(),
+            kind: "site".into(),
+            g: "dis".into(),
+            ..Default::default()
+        });
         b.protect.level = 1;
-        b.rules.push(Rule { id: "new".into(), ..Default::default() });
+        b.rules.push(Rule {
+            id: "new".into(),
+            ..Default::default()
+        });
         b.rules[0].days = vec![0, 1, 2, 3, 4, 5];
         b.rules[0].from = "08:00".into();
         assert_eq!(loosens(&a, &b), Vec::<String>::new());
@@ -316,23 +368,62 @@ mod tests {
         let cases: Vec<(&str, Box<dyn Fn(&mut State)>)> = vec![
             ("remove rule", Box::new(|s| s.rules.clear())),
             ("rule off", Box::new(|s| s.rules[0].on = false)),
-            ("shorter window", Box::new(|s| s.rules[0].to = "12:00".into())),
-            ("later start", Box::new(|s| s.rules[0].from = "10:00".into())),
+            (
+                "shorter window",
+                Box::new(|s| s.rules[0].to = "12:00".into()),
+            ),
+            (
+                "later start",
+                Box::new(|s| s.rules[0].from = "10:00".into()),
+            ),
             ("fewer days", Box::new(|s| s.rules[0].days = vec![0])),
             ("lower level", Box::new(|s| s.rules[0].level = 0)),
             ("breaks on", Box::new(|s| s.rules[0].breaks = true)),
             ("limit longer", Box::new(|s| s.limits[0].amount = 90)),
             ("limit removed", Box::new(|s| s.limits.clear())),
-            ("limit only warns", Box::new(|s| s.limits[0].act = "warn".into())),
-            ("limit retargeted", Box::new(|s| s.limits[0].name = "Other".into())),
-            ("limit period widened", Box::new(|s| s.limits[0].per = "week".into())),
+            (
+                "limit only warns",
+                Box::new(|s| s.limits[0].act = "warn".into()),
+            ),
+            (
+                "limit retargeted",
+                Box::new(|s| s.limits[0].name = "Other".into()),
+            ),
+            (
+                "limit period widened",
+                Box::new(|s| s.limits[0].per = "week".into()),
+            ),
             ("item removed", Box::new(|s| s.items.clear())),
             ("item neutral", Box::new(|s| s.items[0].g = "neu".into())),
-            ("item allowed", Box::new(|s| s.items.push(Item { name: "Z".into(), kind: "site".into(), g: "allow".into(), ..Default::default() }))),
+            (
+                "item allowed",
+                Box::new(|s| {
+                    s.items.push(Item {
+                        name: "Z".into(),
+                        kind: "site".into(),
+                        g: "allow".into(),
+                        ..Default::default()
+                    })
+                }),
+            ),
             ("word removed", Box::new(|s| s.keywords.clear())),
-            ("exception added", Box::new(|s| s.exceptions.push("youtube.com".into()))),
-            ("friction weaker", Box::new(|s| s.protect.friction = "none".into())),
-            ("tamper guard off", Box::new(|s| s.protect.tam = Tamper { hosts: false, ..Default::default() })),
+            (
+                "exception added",
+                Box::new(|s| s.exceptions.push("youtube.com".into())),
+            ),
+            (
+                "friction weaker",
+                Box::new(|s| s.protect.friction = "none".into()),
+            ),
+            (
+                "tamper guard off",
+                Box::new(|s| {
+                    s.protect.tam = Tamper {
+                        hosts: false,
+                        ..Default::default()
+                    }
+                }),
+            ),
             ("more keys", Box::new(|s| s.protect.emerg = 99)),
         ];
         let mut a = a;

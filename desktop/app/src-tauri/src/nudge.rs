@@ -9,7 +9,10 @@ fn idle_secs() -> u64 {
     use windows_sys::Win32::System::SystemInformation::GetTickCount;
     use windows_sys::Win32::UI::Input::KeyboardAndMouse::{GetLastInputInfo, LASTINPUTINFO};
     unsafe {
-        let mut li = LASTINPUTINFO { cbSize: std::mem::size_of::<LASTINPUTINFO>() as u32, dwTime: 0 };
+        let mut li = LASTINPUTINFO {
+            cbSize: std::mem::size_of::<LASTINPUTINFO>() as u32,
+            dwTime: 0,
+        };
         if GetLastInputInfo(&mut li) == 0 {
             return 0;
         }
@@ -29,7 +32,10 @@ fn local_now() -> (u32, u32) {
     unsafe {
         let mut t: SYSTEMTIME = std::mem::zeroed();
         GetLocalTime(&mut t);
-        (t.wHour as u32 * 60 + t.wMinute as u32, t.wYear as u32 * 400 + t.wMonth as u32 * 31 + t.wDay as u32)
+        (
+            t.wHour as u32 * 60 + t.wMinute as u32,
+            t.wYear as u32 * 400 + t.wMonth as u32 * 31 + t.wDay as u32,
+        )
     }
 }
 #[cfg(not(windows))]
@@ -38,7 +44,11 @@ fn local_now() -> (u32, u32) {
 }
 
 fn xml(s: &str) -> String {
-    s.replace('&', "&amp;").replace('<', "&lt;").replace('>', "&gt;").replace('"', "&quot;").replace('\'', "&apos;")
+    s.replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+        .replace('\'', "&apos;")
 }
 
 /// A Windows toast under the name "EyeTime" (the name is registered for the current user: no installer rights needed).
@@ -55,7 +65,16 @@ pub fn toast(title: &str, body: &str) {
         xml(body).replace('\'', "''")
     );
     let _ = std::process::Command::new("powershell")
-        .args(["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-WindowStyle", "Hidden", "-Command", &script])
+        .args([
+            "-NoProfile",
+            "-NonInteractive",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-WindowStyle",
+            "Hidden",
+            "-Command",
+            &script,
+        ])
         .creation_flags(0x0800_0000)
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::null())
@@ -87,22 +106,37 @@ pub fn start() {
             if active >= every {
                 active = 0;
                 if ru {
-                    toast("Перерыв для глаз", "Посмотрите вдаль на 6 метров на 20 секунд.");
+                    toast(
+                        "Перерыв для глаз",
+                        "Посмотрите вдаль на 6 метров на 20 секунд.",
+                    );
                 } else {
-                    toast("Eye break", "Look at something 20 feet away for 20 seconds.");
+                    toast(
+                        "Eye break",
+                        "Look at something 20 feet away for 20 seconds.",
+                    );
                 }
             }
             if let Some(bed) = s["bed"].as_str() {
                 let mut p = bed.split(':');
-                if let (Some(h), Some(m)) = (p.next().and_then(|x| x.parse::<u32>().ok()), p.next().and_then(|x| x.parse::<u32>().ok())) {
+                if let (Some(h), Some(m)) = (
+                    p.next().and_then(|x| x.parse::<u32>().ok()),
+                    p.next().and_then(|x| x.parse::<u32>().ok()),
+                ) {
                     let (now, day) = local_now();
                     // the evening note comes at the chosen time, once a day
                     if now == (h * 60 + m) % 1440 && bed_day != day {
                         bed_day = day;
                         if ru {
-                            toast("Вечерний режим", "Пора сбавить обороты: экран и свет мягче, скоро спать.");
+                            toast(
+                                "Вечерний режим",
+                                "Пора сбавить обороты: экран и свет мягче, скоро спать.",
+                            );
                         } else {
-                            toast("Wind down", "Time to slow down: softer light, and sleep is near.");
+                            toast(
+                                "Wind down",
+                                "Time to slow down: softer light, and sleep is near.",
+                            );
                         }
                     }
                 }

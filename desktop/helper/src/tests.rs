@@ -15,7 +15,13 @@ use crate::sim::{Fake, World};
 const T0: i64 = 1_793_786_400_000;
 
 fn world() -> (Fake, Supervisor<Fake>) {
-    let w = Arc::new(Mutex::new(World { wall: T0, mono: 1_000_000, hosts: "127.0.0.1 localhost\r\n".into(), hosts_writable: true, ..Default::default() }));
+    let w = Arc::new(Mutex::new(World {
+        wall: T0,
+        mono: 1_000_000,
+        hosts: "127.0.0.1 localhost\r\n".into(),
+        hosts_writable: true,
+        ..Default::default()
+    }));
     let f = Fake(w);
     let s = Supervisor::new(f.clone());
     (f, s)
@@ -33,7 +39,10 @@ fn advance(f: &Fake, s: &mut Supervisor<Fake>, secs: i64) {
 }
 
 fn set(s: &mut Supervisor<Fake>, keys: Value) -> Response {
-    s.handle(Request::SetState { keys: serde_json::from_value::<HashMap<String, Value>>(keys).unwrap(), pin: None })
+    s.handle(Request::SetState {
+        keys: serde_json::from_value::<HashMap<String, Value>>(keys).unwrap(),
+        pin: None,
+    })
 }
 
 fn setup(s: &mut Supervisor<Fake>) {
@@ -52,7 +61,17 @@ fn setup(s: &mut Supervisor<Fake>) {
 }
 
 fn start(s: &mut Supervisor<Fake>, minutes: u32, level: u8) -> Response {
-    s.handle(Request::StartSession { name: "Deep work".into(), minutes, level, blocks: vec![], scene: "".into(), allow_breaks: true, dnd: false, mute: false, close_now: false })
+    s.handle(Request::StartSession {
+        name: "Deep work".into(),
+        minutes,
+        level,
+        blocks: vec![],
+        scene: "".into(),
+        allow_breaks: true,
+        dnd: false,
+        mute: false,
+        close_now: false,
+    })
 }
 
 fn status(s: &mut Supervisor<Fake>) -> Status {
@@ -60,20 +79,38 @@ fn status(s: &mut Supervisor<Fake>) -> Status {
 }
 
 fn proc(pid: u32, exe: &str) -> Proc {
-    Proc { pid, exe: exe.into() }
+    Proc {
+        pid,
+        exe: exe.into(),
+    }
 }
 
 #[test]
 fn a_session_closes_sites_and_programs_and_ends_by_itself() {
     let (f, mut s) = world();
     setup(&mut s);
-    f.0.lock().unwrap().procs = vec![proc(10, "steam.exe"), proc(11, "notepad.exe"), proc(12, "explorer.exe")];
+    f.0.lock().unwrap().procs = vec![
+        proc(10, "steam.exe"),
+        proc(11, "notepad.exe"),
+        proc(12, "explorer.exe"),
+    ];
     advance(&f, &mut s, 4);
-    assert!(f.0.lock().unwrap().killed.is_empty(), "nothing is closed before a session");
+    assert!(
+        f.0.lock().unwrap().killed.is_empty(),
+        "nothing is closed before a session"
+    );
     assert!(start(&mut s, 25, 1).ok);
     advance(&f, &mut s, 4);
-    assert!(f.0.lock().unwrap().killed.is_empty(), "first it is asked to close, so that it can offer to save");
-    let asked = s.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![], screen_locked: false });
+    assert!(
+        f.0.lock().unwrap().killed.is_empty(),
+        "first it is asked to close, so that it can offer to save"
+    );
+    let asked = s.handle(Request::Observe {
+        fg: None,
+        idle_secs: 0,
+        windows: vec![],
+        screen_locked: false,
+    });
     assert_eq!(asked.data["closePids"], json!([10]));
     advance(&f, &mut s, 16);
     let w = f.0.lock().unwrap();
@@ -83,13 +120,20 @@ fn a_session_closes_sites_and_programs_and_ends_by_itself() {
     drop(w);
     advance(&f, &mut s, 25 * 60);
     let w = f.0.lock().unwrap();
-    assert!(!w.hosts.contains(hosts::BEGIN), "the hosts file is clean again");
+    assert!(
+        !w.hosts.contains(hosts::BEGIN),
+        "the hosts file is clean again"
+    );
     drop(w);
     assert!(status(&mut s).session.is_none());
     assert_eq!(status(&mut s).streak_days, 1);
     assert_eq!(*status(&mut s).focus_minutes.last().unwrap(), 25);
     let t = status(&mut s).totals;
-    assert_eq!((t.focus_min, t.sessions, t.best_streak), (25, 1, 1), "what was done is counted for the profile");
+    assert_eq!(
+        (t.focus_min, t.sessions, t.best_streak),
+        (25, 1, 1),
+        "what was done is counted for the profile"
+    );
     assert!(!t.since_day.is_empty());
 }
 
@@ -112,34 +156,74 @@ fn a_locked_session_cannot_be_ended_or_loosened_but_an_emergency_key_opens_it() 
     start(&mut s, 60, 2);
     advance(&f, &mut s, 4);
     // no way out by asking
-    assert_eq!(s.handle(Request::Challenge { action: "end_session".into(), target: None, minutes: None }).code, "locked");
-    assert_eq!(s.handle(Request::Challenge { action: "break".into(), target: None, minutes: Some(5) }).code, "locked");
+    assert_eq!(
+        s.handle(Request::Challenge {
+            action: "end_session".into(),
+            target: None,
+            minutes: None
+        })
+        .code,
+        "locked"
+    );
+    assert_eq!(
+        s.handle(Request::Challenge {
+            action: "break".into(),
+            target: None,
+            minutes: Some(5)
+        })
+        .code,
+        "locked"
+    );
     // no way out by editing
     let r = set(&mut s, json!({"et-items": []}));
     assert_eq!(r.code, "locked");
-    let r = set(&mut s, json!({"et-protect": {"friction":"none","emerg":3,"emergWeek":1}}));
+    let r = set(
+        &mut s,
+        json!({"et-protect": {"friction":"none","emerg":3,"emergWeek":1}}),
+    );
     assert_eq!(r.code, "locked");
     // adding more to the list is fine
     assert!(set(&mut s, json!({"et-kw": ["casino"]})).ok);
     assert!(status(&mut s).decision.locked());
 
     // the emergency key: a challenge, the right answer after the pause
-    let c = s.handle(Request::Challenge { action: "emergency".into(), target: None, minutes: None });
+    let c = s.handle(Request::Challenge {
+        action: "emergency".into(),
+        target: None,
+        minutes: None,
+    });
     assert!(c.ok, "{c:?}");
     let id = c.data["id"].as_str().unwrap().to_string();
     assert!(c.data.get("answer").is_none());
-    let early = s.handle(Request::Complete { challenge_id: id.clone(), answer: "x".into(), pin: None, partner_code: None });
+    let early = s.handle(Request::Complete {
+        challenge_id: id.clone(),
+        answer: "x".into(),
+        pin: None,
+        partner_code: None,
+    });
     assert_eq!(early.code, "early");
     advance(&f, &mut s, 4);
-    let wrong = s.handle(Request::Complete { challenge_id: id, answer: "x".into(), pin: None, partner_code: None });
+    let wrong = s.handle(Request::Complete {
+        challenge_id: id,
+        answer: "x".into(),
+        pin: None,
+        partner_code: None,
+    });
     assert_eq!(wrong.code, "wrong");
 }
 
 fn answer_for(s: &mut Supervisor<Fake>, action: &str, target: Option<&str>) -> (String, String) {
     // the test peeks at the pending challenge the way a person reads the text on the screen
-    let c = s.handle(Request::Challenge { action: action.into(), target: target.map(|t| t.into()), minutes: Some(5) });
+    let c = s.handle(Request::Challenge {
+        action: action.into(),
+        target: target.map(|t| t.into()),
+        minutes: Some(5),
+    });
     assert!(c.ok, "{c:?}");
-    (c.data["id"].as_str().unwrap().to_string(), c.data["prompt"].as_str().unwrap().to_string())
+    (
+        c.data["id"].as_str().unwrap().to_string(),
+        c.data["prompt"].as_str().unwrap().to_string(),
+    )
 }
 
 #[test]
@@ -150,7 +234,12 @@ fn typing_the_text_ends_a_soft_session_and_the_streak_resets() {
     advance(&f, &mut s, 4);
     let (id, text) = answer_for(&mut s, "end_session", None);
     advance(&f, &mut s, 4);
-    let r = s.handle(Request::Complete { challenge_id: id, answer: text, pin: None, partner_code: None });
+    let r = s.handle(Request::Complete {
+        challenge_id: id,
+        answer: text,
+        pin: None,
+        partner_code: None,
+    });
     assert!(r.ok, "{r:?}");
     assert!(status(&mut s).session.is_none());
     advance(&f, &mut s, 2);
@@ -166,17 +255,43 @@ fn emergency_key_with_the_right_text_releases_even_a_frozen_session_and_is_count
     advance(&f, &mut s, 4);
     {
         let w = f.0.lock().unwrap();
-        assert!(w.taskmgr && w.killed.contains(&20), "frozen: task manager locked and closed (tools are not asked)");
+        assert!(
+            w.taskmgr && w.killed.contains(&20),
+            "frozen: task manager locked and closed (tools are not asked)"
+        );
     }
     // allow-only needs a sight of the screen to know what is open
-    s.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![Win { exe: "notepad.exe".into(), title: "".into(), pid: 21 }], screen_locked: false });
+    s.handle(Request::Observe {
+        fg: None,
+        idle_secs: 0,
+        windows: vec![Win {
+            exe: "notepad.exe".into(),
+            title: "".into(),
+            pid: 21,
+        }],
+        screen_locked: false,
+    });
     advance(&f, &mut s, 12);
-    s.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![Win { exe: "notepad.exe".into(), title: "".into(), pid: 21 }], screen_locked: false });
+    s.handle(Request::Observe {
+        fg: None,
+        idle_secs: 0,
+        windows: vec![Win {
+            exe: "notepad.exe".into(),
+            title: "".into(),
+            pid: 21,
+        }],
+        screen_locked: false,
+    });
     advance(&f, &mut s, 2);
     assert!(f.0.lock().unwrap().killed.contains(&21));
     let (id, text) = answer_for(&mut s, "emergency", None);
     advance(&f, &mut s, 4);
-    let r = s.handle(Request::Complete { challenge_id: id, answer: text, pin: None, partner_code: None });
+    let r = s.handle(Request::Complete {
+        challenge_id: id,
+        answer: text,
+        pin: None,
+        partner_code: None,
+    });
     assert!(r.ok, "{r:?}");
     advance(&f, &mut s, 2);
     let st = status(&mut s);
@@ -186,7 +301,15 @@ fn emergency_key_with_the_right_text_releases_even_a_frozen_session_and_is_count
     assert!(!f.0.lock().unwrap().taskmgr);
     // a second one in the same week is refused
     start(&mut s, 60, 2);
-    assert_eq!(s.handle(Request::Challenge { action: "emergency".into(), target: None, minutes: None }).code, "no_keys");
+    assert_eq!(
+        s.handle(Request::Challenge {
+            action: "emergency".into(),
+            target: None,
+            minutes: None
+        })
+        .code,
+        "no_keys"
+    );
 }
 
 #[test]
@@ -221,7 +344,14 @@ fn a_restart_keeps_the_session_and_cannot_roll_the_clock_back() {
     s.shutdown(true);
     let store = f.0.lock().unwrap().store.clone();
     // the computer starts again: the monotonic clock starts over, and the person set the wall clock back two hours
-    let w = Arc::new(Mutex::new(World { wall: T0 - 2 * 3_600_000, mono: 5_000, hosts: f.0.lock().unwrap().hosts.clone(), hosts_writable: true, store, ..Default::default() }));
+    let w = Arc::new(Mutex::new(World {
+        wall: T0 - 2 * 3_600_000,
+        mono: 5_000,
+        hosts: f.0.lock().unwrap().hosts.clone(),
+        hosts_writable: true,
+        store,
+        ..Default::default()
+    }));
     let f2 = Fake(w);
     let mut s2 = Supervisor::new(f2.clone());
     advance(&f2, &mut s2, 4);
@@ -239,20 +369,59 @@ fn a_restart_keeps_the_session_and_cannot_roll_the_clock_back() {
 fn the_pin_guards_loosening_and_locks_out_guessing() {
     let (f, mut s) = world();
     setup(&mut s);
-    assert!(s.handle(Request::SetPin { old: None, new: "4821".into() }).ok);
-    assert!(set(&mut s, json!({"et-protect": {"friction":"type","emerg":3,"emergWeek":1,"pinOn":true}})).ok);
-    assert_eq!(s.handle(Request::SetPin { old: Some("0000".into()), new: "1111".into() }).code, "pin");
+    assert!(
+        s.handle(Request::SetPin {
+            old: None,
+            new: "4821".into()
+        })
+        .ok
+    );
+    assert!(
+        set(
+            &mut s,
+            json!({"et-protect": {"friction":"type","emerg":3,"emergWeek":1,"pinOn":true}})
+        )
+        .ok
+    );
+    assert_eq!(
+        s.handle(Request::SetPin {
+            old: Some("0000".into()),
+            new: "1111".into()
+        })
+        .code,
+        "pin"
+    );
     // loosening now needs the PIN
     let weaker = json!({"et-items": []});
     assert_eq!(set(&mut s, weaker.clone()).code, "pin");
-    let r = s.handle(Request::SetState { keys: serde_json::from_value(weaker).unwrap(), pin: Some("4821".into()) });
+    let r = s.handle(Request::SetState {
+        keys: serde_json::from_value(weaker).unwrap(),
+        pin: Some("4821".into()),
+    });
     assert!(r.ok, "{r:?}");
     for _ in 0..2 {
-        s.handle(Request::SetPin { old: Some("1".into()), new: "2222".into() });
+        s.handle(Request::SetPin {
+            old: Some("1".into()),
+            new: "2222".into(),
+        });
     }
     advance(&f, &mut s, 2);
-    assert_eq!(s.handle(Request::SetPin { old: Some("9999".into()), new: "2222".into() }).code, "pin");
-    assert_eq!(s.handle(Request::SetPin { old: Some("4821".into()), new: "2222".into() }).code, "pin_locked");
+    assert_eq!(
+        s.handle(Request::SetPin {
+            old: Some("9999".into()),
+            new: "2222".into()
+        })
+        .code,
+        "pin"
+    );
+    assert_eq!(
+        s.handle(Request::SetPin {
+            old: Some("4821".into()),
+            new: "2222".into()
+        })
+        .code,
+        "pin_locked"
+    );
     let _ = Pin::default();
 }
 
@@ -260,9 +429,21 @@ fn the_pin_guards_loosening_and_locks_out_guessing() {
 fn what_is_in_front_is_counted_and_a_daily_limit_closes_it() {
     let (f, mut s) = world();
     setup(&mut s);
-    set(&mut s, json!({"et-limits": [{"id":"l1","name":"Steam","scope":"app","kind":"time","amount":2,"per":"day","on":true,"act":"block"}]}));
+    set(
+        &mut s,
+        json!({"et-limits": [{"id":"l1","name":"Steam","scope":"app","kind":"time","amount":2,"per":"day","on":true,"act":"block"}]}),
+    );
     f.0.lock().unwrap().procs = vec![proc(30, "steam.exe")];
-    let obs = Request::Observe { fg: Some(Fg { exe: "Steam.exe".into(), title: "Steam".into(), pid: 30 }), idle_secs: 0, windows: vec![], screen_locked: false };
+    let obs = Request::Observe {
+        fg: Some(Fg {
+            exe: "Steam.exe".into(),
+            title: "Steam".into(),
+            pid: 30,
+        }),
+        idle_secs: 0,
+        windows: vec![],
+        screen_locked: false,
+    };
     for _ in 0..100 {
         s.handle(obs.clone());
         advance(&f, &mut s, 2);
@@ -277,7 +458,15 @@ fn what_is_in_front_is_counted_and_a_daily_limit_closes_it() {
     // a break lifts it for a while
     let (id, text) = answer_for(&mut s, "unblock", Some("l1"));
     advance(&f, &mut s, 4);
-    assert!(s.handle(Request::Complete { challenge_id: id, answer: text, pin: None, partner_code: None }).ok);
+    assert!(
+        s.handle(Request::Complete {
+            challenge_id: id,
+            answer: text,
+            pin: None,
+            partner_code: None
+        })
+        .ok
+    );
     assert!(!status(&mut s).decision.active());
 }
 
@@ -285,7 +474,16 @@ fn what_is_in_front_is_counted_and_a_daily_limit_closes_it() {
 fn being_away_is_not_screen_time() {
     let (f, mut s) = world();
     setup(&mut s);
-    let away = Request::Observe { fg: Some(Fg { exe: "steam.exe".into(), title: "".into(), pid: 30 }), idle_secs: 600, windows: vec![], screen_locked: false };
+    let away = Request::Observe {
+        fg: Some(Fg {
+            exe: "steam.exe".into(),
+            title: "".into(),
+            pid: 30,
+        }),
+        idle_secs: 600,
+        windows: vec![],
+        screen_locked: false,
+    };
     for _ in 0..10 {
         s.handle(away.clone());
         advance(&f, &mut s, 2);
@@ -299,20 +497,67 @@ fn being_away_is_not_screen_time() {
 fn allow_only_closes_open_windows_that_are_not_on_the_list() {
     let (f, mut s) = world();
     setup(&mut s);
-    set(&mut s, json!({"et-items": [{"name":"VS Code","type":"app","g":"allow"}]}));
-    s.handle(Request::StartSession { name: "Only code".into(), minutes: 30, level: 1, blocks: vec!["Everything".into()], scene: "".into(), allow_breaks: false, dnd: false, mute: false, close_now: false });
-    f.0.lock().unwrap().procs = vec![proc(40, "code.exe"), proc(41, "game.exe"), proc(42, "svchost.exe")];
+    set(
+        &mut s,
+        json!({"et-items": [{"name":"VS Code","type":"app","g":"allow"}]}),
+    );
+    s.handle(Request::StartSession {
+        name: "Only code".into(),
+        minutes: 30,
+        level: 1,
+        blocks: vec!["Everything".into()],
+        scene: "".into(),
+        allow_breaks: false,
+        dnd: false,
+        mute: false,
+        close_now: false,
+    });
+    f.0.lock().unwrap().procs = vec![
+        proc(40, "code.exe"),
+        proc(41, "game.exe"),
+        proc(42, "svchost.exe"),
+    ];
     s.handle(Request::Observe {
-        fg: Some(Fg { exe: "code.exe".into(), title: "x".into(), pid: 40 }),
+        fg: Some(Fg {
+            exe: "code.exe".into(),
+            title: "x".into(),
+            pid: 40,
+        }),
         idle_secs: 0,
-        windows: vec![Win { exe: "code.exe".into(), title: "".into(), pid: 40 }, Win { exe: "game.exe".into(), title: "".into(), pid: 41 }],
+        windows: vec![
+            Win {
+                exe: "code.exe".into(),
+                title: "".into(),
+                pid: 40,
+            },
+            Win {
+                exe: "game.exe".into(),
+                title: "".into(),
+                pid: 41,
+            },
+        ],
         screen_locked: false,
     });
     for _ in 0..12 {
         s.handle(Request::Observe {
-            fg: Some(Fg { exe: "code.exe".into(), title: "x".into(), pid: 40 }),
+            fg: Some(Fg {
+                exe: "code.exe".into(),
+                title: "x".into(),
+                pid: 40,
+            }),
             idle_secs: 0,
-            windows: vec![Win { exe: "code.exe".into(), title: "".into(), pid: 40 }, Win { exe: "game.exe".into(), title: "".into(), pid: 41 }],
+            windows: vec![
+                Win {
+                    exe: "code.exe".into(),
+                    title: "".into(),
+                    pid: 40,
+                },
+                Win {
+                    exe: "game.exe".into(),
+                    title: "".into(),
+                    pid: 41,
+                },
+            ],
             screen_locked: false,
         });
         advance(&f, &mut s, 2);
@@ -326,7 +571,12 @@ fn vpn_tools_and_private_windows_follow_the_guards() {
     setup(&mut s);
     f.0.lock().unwrap().procs = vec![proc(50, "NordVPN.exe")];
     start(&mut s, 30, 1);
-    let r = s.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![], screen_locked: false });
+    let r = s.handle(Request::Observe {
+        fg: None,
+        idle_secs: 0,
+        windows: vec![],
+        screen_locked: false,
+    });
     assert!(r.ok);
     assert_eq!(r.data["closePrivate"], true);
     advance(&f, &mut s, 20);
@@ -337,11 +587,35 @@ fn vpn_tools_and_private_windows_follow_the_guards() {
 fn the_extension_is_told_what_is_closed() {
     let (f, mut s) = world();
     setup(&mut s);
-    assert_eq!(s.handle(Request::Site { host: Some("youtube.com".into()), incognito: false, browser: "chrome".into() }).data["blocked"], false);
+    assert_eq!(
+        s.handle(Request::Site {
+            host: Some("youtube.com".into()),
+            incognito: false,
+            browser: "chrome".into()
+        })
+        .data["blocked"],
+        false
+    );
     start(&mut s, 30, 1);
     advance(&f, &mut s, 2);
-    assert_eq!(s.handle(Request::Site { host: Some("www.youtube.com".into()), incognito: false, browser: "chrome".into() }).data["blocked"], true);
-    assert_eq!(s.handle(Request::Site { host: Some("docs.google.com".into()), incognito: false, browser: "chrome".into() }).data["blocked"], false);
+    assert_eq!(
+        s.handle(Request::Site {
+            host: Some("www.youtube.com".into()),
+            incognito: false,
+            browser: "chrome".into()
+        })
+        .data["blocked"],
+        true
+    );
+    assert_eq!(
+        s.handle(Request::Site {
+            host: Some("docs.google.com".into()),
+            incognito: false,
+            browser: "chrome".into()
+        })
+        .data["blocked"],
+        false
+    );
     assert!(status(&mut s).ext_connected);
 }
 
@@ -352,7 +626,15 @@ fn uninstalling_needs_permission_and_not_during_a_lock() {
     assert_eq!(s.handle(Request::Uninstall).code, "challenge");
     let (id, text) = answer_for(&mut s, "uninstall", None);
     advance(&f, &mut s, 4);
-    assert!(s.handle(Request::Complete { challenge_id: id, answer: text, pin: None, partner_code: None }).ok);
+    assert!(
+        s.handle(Request::Complete {
+            challenge_id: id,
+            answer: text,
+            pin: None,
+            partner_code: None
+        })
+        .ok
+    );
     assert!(s.handle(Request::Uninstall).ok);
     start(&mut s, 30, 2);
     advance(&f, &mut s, 2);
@@ -376,7 +658,13 @@ fn unknown_state_keys_are_ignored_and_the_state_survives_a_restart() {
     s.shutdown(true);
     let store = f.0.lock().unwrap().store.clone();
     assert!(!store.as_ref().unwrap().contains("evil"));
-    let f2 = Fake(Arc::new(Mutex::new(World { wall: T0, mono: 1, store, hosts_writable: true, ..Default::default() })));
+    let f2 = Fake(Arc::new(Mutex::new(World {
+        wall: T0,
+        mono: 1,
+        store,
+        hosts_writable: true,
+        ..Default::default()
+    })));
     let mut s2 = Supervisor::new(f2);
     assert_eq!(s2.handle(Request::GetState).data["et-kw"], json!(["poker"]));
 }
@@ -399,17 +687,37 @@ fn normal_sessions_can_be_left_without_ceremony_and_resume_takes_back_breaks() {
     setup(&mut s);
     start(&mut s, 30, 0);
     advance(&f, &mut s, 2);
-    let c = s.handle(Request::Challenge { action: "end_session".into(), target: None, minutes: None });
+    let c = s.handle(Request::Challenge {
+        action: "end_session".into(),
+        target: None,
+        minutes: None,
+    });
     assert_eq!(c.data["kind"], "none");
     let id = c.data["id"].as_str().unwrap().to_string();
-    assert!(s.handle(Request::Complete { challenge_id: id, answer: "".into(), pin: None, partner_code: None }).ok);
+    assert!(
+        s.handle(Request::Complete {
+            challenge_id: id,
+            answer: "".into(),
+            pin: None,
+            partner_code: None
+        })
+        .ok
+    );
     assert!(status(&mut s).session.is_none());
 
     // a break, then "block again"
     start(&mut s, 30, 1);
     let (id, text) = answer_for(&mut s, "break", None);
     advance(&f, &mut s, 4);
-    assert!(s.handle(Request::Complete { challenge_id: id, answer: text, pin: None, partner_code: None }).ok);
+    assert!(
+        s.handle(Request::Complete {
+            challenge_id: id,
+            answer: text,
+            pin: None,
+            partner_code: None
+        })
+        .ok
+    );
     assert!(!status(&mut s).decision.active());
     assert!(s.handle(Request::Resume).ok);
     advance(&f, &mut s, 2);
@@ -420,7 +728,16 @@ fn normal_sessions_can_be_left_without_ceremony_and_resume_takes_back_breaks() {
 fn distracting_time_is_counted_apart() {
     let (f, mut s) = world();
     setup(&mut s);
-    let fg = |exe: &str| Request::Observe { fg: Some(Fg { exe: exe.into(), title: "".into(), pid: 9 }), idle_secs: 0, windows: vec![], screen_locked: false };
+    let fg = |exe: &str| Request::Observe {
+        fg: Some(Fg {
+            exe: exe.into(),
+            title: "".into(),
+            pid: 9,
+        }),
+        idle_secs: 0,
+        windows: vec![],
+        screen_locked: false,
+    };
     for _ in 0..10 {
         s.handle(fg("steam.exe"));
         advance(&f, &mut s, 2);
@@ -440,12 +757,18 @@ fn a_setup_without_a_way_out_is_refused_by_the_helper() {
     assert!(set(&mut s, json!({"et-protect": {"emerg": 0, "emergWeek": 0}})).ok);
     assert_eq!(start(&mut s, 30, 2).code, "no_escape");
     assert!(start(&mut s, 30, 1).ok, "a soft session is always fine");
-    let r = set(&mut s, json!({"et-rules": [{"id":"r","name":"Always","level":2,"from":"00:00","to":"00:00","days":[0,1,2,3,4,5,6]}]}));
+    let r = set(
+        &mut s,
+        json!({"et-rules": [{"id":"r","name":"Always","level":2,"from":"00:00","to":"00:00","days":[0,1,2,3,4,5,6]}]}),
+    );
     assert_eq!(r.code, "no_escape");
     // with a key it is allowed; a frozen rule has to be short
     assert!(set(&mut s, json!({"et-protect": {"emerg": 3, "emergWeek": 1}})).ok);
     assert!(set(&mut s, json!({"et-rules": [{"id":"r","name":"Always","level":2,"from":"00:00","to":"00:00","days":[0,1,2,3,4,5,6]}]})).ok);
-    let r = set(&mut s, json!({"et-rules": [{"id":"r","name":"Always","level":3,"from":"00:00","to":"00:00","days":[0,1,2,3,4,5,6]}]}));
+    let r = set(
+        &mut s,
+        json!({"et-rules": [{"id":"r","name":"Always","level":3,"from":"00:00","to":"00:00","days":[0,1,2,3,4,5,6]}]}),
+    );
     assert_eq!(r.code, "no_escape");
     let _ = f;
 }
@@ -470,8 +793,17 @@ use eyetime_core::update::UpdateInfo;
 fn ready_update(s: &Supervisor<Fake>, wanted: bool, manual: bool) {
     let mut u = s.upd.lock().unwrap();
     u.phase = Phase::Ready;
-    u.info = Some(UpdateInfo { version: "9.9.9".into(), notes: vec!["Faster".into()], url: "x".into(), sha256: "0".repeat(64), size: 5, sig_url: String::new() });
-    u.path = Some(std::path::PathBuf::from("C:/ProgramData/EyeTime/update/EyeTime-Setup-0.2.0.exe"));
+    u.info = Some(UpdateInfo {
+        version: "9.9.9".into(),
+        notes: vec!["Faster".into()],
+        url: "x".into(),
+        sha256: "0".repeat(64),
+        size: 5,
+        sig_url: String::new(),
+    });
+    u.path = Some(std::path::PathBuf::from(
+        "C:/ProgramData/EyeTime/update/EyeTime-Setup-0.2.0.exe",
+    ));
     u.want_install = wanted;
     u.manual = manual;
 }
@@ -484,10 +816,17 @@ fn an_automatic_update_waits_for_a_quiet_moment_and_a_manual_one_does_not() {
     advance(&f, &mut s, 4);
     ready_update(&s, true, false);
     advance(&f, &mut s, 4);
-    assert!(f.0.lock().unwrap().launched.is_empty(), "not in the middle of a session");
+    assert!(
+        f.0.lock().unwrap().launched.is_empty(),
+        "not in the middle of a session"
+    );
     ready_update(&s, true, true);
     advance(&f, &mut s, 2);
-    assert_eq!(f.0.lock().unwrap().launched.len(), 1, "asked for by hand: now");
+    assert_eq!(
+        f.0.lock().unwrap().launched.len(),
+        1,
+        "asked for by hand: now"
+    );
     assert_eq!(s.upd.lock().unwrap().phase, Phase::Installing);
     // the service may be stopped by the installer, and keeps its blocks while it is
     assert!(s.may_stop() && s.stopping_for_update());
@@ -514,7 +853,10 @@ fn when_nothing_is_running_an_update_that_is_ready_installs_by_itself_unless_it_
     assert!(s.handle(Request::UpdateSetAuto { on: false }).ok);
     ready_update(&s, false, false);
     advance(&f, &mut s, 6);
-    assert!(f.0.lock().unwrap().launched.is_empty(), "automatic updates are off: nothing happens without a click");
+    assert!(
+        f.0.lock().unwrap().launched.is_empty(),
+        "automatic updates are off: nothing happens without a click"
+    );
     assert!(s.handle(Request::UpdateSetAuto { on: true }).ok);
     ready_update(&s, true, false);
     advance(&f, &mut s, 4);
@@ -541,15 +883,40 @@ fn after_the_update_the_window_is_reopened_once_and_told_what_is_new_until_it_ha
     // the new version starts (here the same code is "the new version": its number is the one that was announced)
     let mut p: crate::supervisor::Persist = serde_json::from_str(store.as_ref().unwrap()).unwrap();
     p.pending_update.as_mut().unwrap().to = crate::supervisor::VERSION.into();
-    let f2 = Fake(Arc::new(Mutex::new(World { wall: T0 + 60_000, mono: 5000, store: Some(serde_json::to_string(&p).unwrap()), hosts_writable: true, ..Default::default() })));
+    let f2 = Fake(Arc::new(Mutex::new(World {
+        wall: T0 + 60_000,
+        mono: 5000,
+        store: Some(serde_json::to_string(&p).unwrap()),
+        hosts_writable: true,
+        ..Default::default()
+    })));
     let mut s2 = Supervisor::new(f2.clone());
-    let o = s2.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![], screen_locked: false });
+    let o = s2.handle(Request::Observe {
+        fg: None,
+        idle_secs: 0,
+        windows: vec![],
+        screen_locked: false,
+    });
     assert_eq!(o.data["launchApp"], true);
-    assert_eq!(s2.p.uninstall_ok_until_ms, 0, "the permission to stop the service does not outlive the update");
-    let o = s2.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![], screen_locked: false });
+    assert_eq!(
+        s2.p.uninstall_ok_until_ms, 0,
+        "the permission to stop the service does not outlive the update"
+    );
+    let o = s2.handle(Request::Observe {
+        fg: None,
+        idle_secs: 0,
+        windows: vec![],
+        screen_locked: false,
+    });
     assert_eq!(o.data["launchApp"], false, "only once");
-    assert_eq!(status(&mut s2).update.updated.as_ref().unwrap().to, crate::supervisor::VERSION);
-    assert!(status(&mut s2).update.updated.is_some(), "stays until acknowledged");
+    assert_eq!(
+        status(&mut s2).update.updated.as_ref().unwrap().to,
+        crate::supervisor::VERSION
+    );
+    assert!(
+        status(&mut s2).update.updated.is_some(),
+        "stays until acknowledged"
+    );
     s2.handle(Request::UpdateAck);
     assert!(status(&mut s2).update.updated.is_none());
 }
@@ -562,9 +929,20 @@ fn an_update_that_did_not_finish_is_reported_and_nothing_is_opened() {
     advance(&f, &mut s, 2);
     s.shutdown(true);
     let store = f.0.lock().unwrap().store.clone(); // the announced version differs from the running one: it did not take
-    let f2 = Fake(Arc::new(Mutex::new(World { wall: T0 + 60_000, mono: 5000, store, hosts_writable: true, ..Default::default() })));
+    let f2 = Fake(Arc::new(Mutex::new(World {
+        wall: T0 + 60_000,
+        mono: 5000,
+        store,
+        hosts_writable: true,
+        ..Default::default()
+    })));
     let mut s2 = Supervisor::new(f2);
-    let o = s2.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![], screen_locked: false });
+    let o = s2.handle(Request::Observe {
+        fg: None,
+        idle_secs: 0,
+        windows: vec![],
+        screen_locked: false,
+    });
     assert_eq!(o.data["launchApp"], false);
     assert!(status(&mut s2).update.error.contains("did not finish"));
 }
@@ -575,7 +953,16 @@ fn an_automatic_update_brings_the_window_back_only_if_it_was_open() {
         let (f, mut s) = world();
         setup(&mut s);
         if open {
-            s.handle(Request::Observe { fg: None, idle_secs: 0, windows: vec![eyetime_core::ipc::Win { exe: "eyetime.exe".into(), title: "EyeTime".into(), pid: 7 }], screen_locked: false });
+            s.handle(Request::Observe {
+                fg: None,
+                idle_secs: 0,
+                windows: vec![eyetime_core::ipc::Win {
+                    exe: "eyetime.exe".into(),
+                    title: "EyeTime".into(),
+                    pid: 7,
+                }],
+                screen_locked: false,
+            });
         }
         ready_update(&s, true, false);
         advance(&f, &mut s, 4);
@@ -596,7 +983,10 @@ fn an_installer_that_never_finished_is_given_up_on_and_can_be_tried_again() {
     let st = status(&mut s);
     assert!(st.update.error.contains("did not finish"));
     assert_eq!(st.update.state, "available");
-    assert!(!s.may_stop() || !s.state.protect.tam.watchdog, "the permission to stop is gone");
+    assert!(
+        !s.may_stop() || !s.state.protect.tam.watchdog,
+        "the permission to stop is gone"
+    );
 }
 
 #[test]
@@ -605,16 +995,32 @@ fn an_automation_starts_a_normal_session_when_its_program_comes_to_the_front() {
     setup(&mut s);
     assert!(set(&mut s, json!({"et-auto": [{"id":"a1","when":"app","wv":"VS Code","then":"start","tv":"Deep work, 50 min","on":true}, {"id":"a2","when":"wifi","wv":"Office","then":"rule","tv":"Work","on":true}]})).ok);
     let look = |s: &mut Supervisor<Fake>, exe: &str| {
-        s.handle(Request::Observe { fg: Some(Fg { exe: exe.into(), title: "x".into(), pid: 5 }), idle_secs: 0, windows: vec![], screen_locked: false });
+        s.handle(Request::Observe {
+            fg: Some(Fg {
+                exe: exe.into(),
+                title: "x".into(),
+                pid: 5,
+            }),
+            idle_secs: 0,
+            windows: vec![],
+            screen_locked: false,
+        });
     };
     look(&mut s, "notepad.exe");
     assert!(status(&mut s).session.is_none(), "another program: nothing");
     look(&mut s, "code.exe");
     let st = status(&mut s);
     let ses = st.session.expect("the program opened: a session starts");
-    assert_eq!((ses.name.as_str(), ses.level), ("Deep work", 0), "a normal one, that can be ended");
+    assert_eq!(
+        (ses.name.as_str(), ses.level),
+        ("Deep work", 0),
+        "a normal one, that can be ended"
+    );
     assert_eq!((ses.ends_at_ms - ses.started_at_ms) / 60_000, 50);
-    assert!(ses.blocks.contains(&"YouTube".to_string()), "it closes what the person called distracting");
+    assert!(
+        ses.blocks.contains(&"YouTube".to_string()),
+        "it closes what the person called distracting"
+    );
     // it ends by the person's hand, and coming back to the program does not start it again within the hour
     s.p.session = None;
     look(&mut s, "notepad.exe");
@@ -623,7 +1029,10 @@ fn an_automation_starts_a_normal_session_when_its_program_comes_to_the_front() {
     advance(&f, &mut s, 61 * 60);
     look(&mut s, "notepad.exe");
     look(&mut s, "code.exe");
-    assert!(status(&mut s).session.is_some(), "after an hour it can start again");
+    assert!(
+        status(&mut s).session.is_some(),
+        "after an hour it can start again"
+    );
 }
 
 #[test]
@@ -632,23 +1041,56 @@ fn an_agent_cannot_make_the_service_close_what_it_names() {
     // another real process under the name of an allowed program, and a process number that does not exist
     let (f, mut s) = world();
     setup(&mut s);
-    set(&mut s, json!({"et-items": [{"name":"VS Code","type":"app","g":"allow"}]}));
-    s.handle(Request::StartSession { name: "Only code".into(), minutes: 30, level: 1, blocks: vec!["Everything".into()], scene: "".into(), allow_breaks: false, dnd: false, mute: false, close_now: false });
-    f.0.lock().unwrap().procs = vec![proc(40, "code.exe"), proc(60, "winlogon.exe"), proc(61, "wsc_av.exe"), proc(62, "svchost.exe")];
+    set(
+        &mut s,
+        json!({"et-items": [{"name":"VS Code","type":"app","g":"allow"}]}),
+    );
+    s.handle(Request::StartSession {
+        name: "Only code".into(),
+        minutes: 30,
+        level: 1,
+        blocks: vec!["Everything".into()],
+        scene: "".into(),
+        allow_breaks: false,
+        dnd: false,
+        mute: false,
+        close_now: false,
+    });
+    f.0.lock().unwrap().procs = vec![
+        proc(40, "code.exe"),
+        proc(60, "winlogon.exe"),
+        proc(61, "wsc_av.exe"),
+        proc(62, "svchost.exe"),
+    ];
     for _ in 0..14 {
         s.handle(Request::Observe {
             fg: None,
             idle_secs: 0,
             windows: vec![
-                Win { exe: "x.exe".into(), title: "".into(), pid: 60 },        // the real program is winlogon.exe: never closed
-                Win { exe: "code.exe".into(), title: "".into(), pid: 61 },     // claims to be allowed; the real one is not and is closed only if it really is not on the list
-                Win { exe: "x.exe".into(), title: "".into(), pid: 9999 },      // there is no such process
+                Win {
+                    exe: "x.exe".into(),
+                    title: "".into(),
+                    pid: 60,
+                }, // the real program is winlogon.exe: never closed
+                Win {
+                    exe: "code.exe".into(),
+                    title: "".into(),
+                    pid: 61,
+                }, // claims to be allowed; the real one is not and is closed only if it really is not on the list
+                Win {
+                    exe: "x.exe".into(),
+                    title: "".into(),
+                    pid: 9999,
+                }, // there is no such process
             ],
             screen_locked: false,
         });
         advance(&f, &mut s, 2);
     }
     let killed = f.0.lock().unwrap().killed.clone();
-    assert!(!killed.contains(&60), "a system process is never closed because a request said so");
+    assert!(
+        !killed.contains(&60),
+        "a system process is never closed because a request said so"
+    );
     assert!(!killed.contains(&9999));
 }

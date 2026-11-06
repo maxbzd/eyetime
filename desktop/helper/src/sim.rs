@@ -50,7 +50,11 @@ impl Os for Fake {
     }
     fn processes(&self) -> Vec<Proc> {
         let w = self.0.lock().unwrap();
-        w.procs.iter().filter(|p| !w.killed.contains(&p.pid)).cloned().collect()
+        w.procs
+            .iter()
+            .filter(|p| !w.killed.contains(&p.pid))
+            .cloned()
+            .collect()
     }
     fn terminate(&self, pid: u32) -> bool {
         self.0.lock().unwrap().killed.push(pid);
@@ -83,8 +87,11 @@ impl Os for Fake {
     }
     fn log(&self, _line: &str) {}
     fn launch_update(&self, installer: &std::path::Path) -> io::Result<()> {
-        self.0.lock().unwrap().launched.push(installer.to_path_buf());
+        self.0
+            .lock()
+            .unwrap()
+            .launched
+            .push(installer.to_path_buf());
         Ok(())
     }
 }
-
