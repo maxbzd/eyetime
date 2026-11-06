@@ -89,3 +89,7 @@ install the new release by hand. An app that has taken that release ignores ever
 - Versions of the tools are fixed (`package-lock.json`, `desktop/Cargo.lock`, `desktop/rust-toolchain.toml`); CI installs from the lock and fails if it does not match.
 - `npm audit` and `cargo deny` (advisories, licences, sources) run on every change; Dependabot proposes updates; CodeQL scans JavaScript, Python and Rust.
 - The extension has **no runtime dependencies**: everything in it is code in this repository, plus the ONNX Runtime and two models whose licences are in `src/newtab/ml/`.
+
+## The Windows service's rights
+
+The helper service runs as the system, because it has to write the hosts file, close programs of any user and start the agent in the signed-in person's session. Its token is trimmed (`sc privs`) to `SeTcb`, `SeAssignPrimaryToken`, `SeIncreaseQuota` (starting the agent as the person), `SeChangeNotify`, `SeCreateGlobal` and `SeImpersonate`: not `SeDebug`, `SeLoadDriver`, `SeBackup`, `SeRestore`, `SeTakeOwnership`, `SeCreateToken`, `SeSecurity` or the rest. `SeTcb` is the one that is still strong (it is what `WTSQueryUserToken` demands); removing it would mean starting the agent another way (a per-user autostart), which is not done yet. The Windows test (`desktop/tests/smoke.ps1`) lists the privileges and runs the whole install, block, update and uninstall with the trimmed token.

@@ -38,6 +38,11 @@ Check ($svc -and $svc.Status -eq "Running") "the service is running ($($svc.Stat
 Check (Test-Path "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\EyeTime.lnk") "the Start menu shortcut exists"
 Check ($null -ne (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\EyeTime" -ErrorAction SilentlyContinue)) "listed in Apps and features"
 
+Write-Host "== least privilege: the service keeps only the rights it uses"
+$privs = (& "$env:SystemRoot\System32\sc.exe" qprivs EyeTimeHelper) -join " "
+Check ($privs -match "SeTcbPrivilege" -and $privs -match "SeAssignPrimaryTokenPrivilege" -and $privs -match "SeIncreaseQuotaPrivilege") "the service has the rights it needs ($($privs -replace '\s+',' '))"
+Check (-not ($privs -match "SeDebugPrivilege|SeLoadDriverPrivilege|SeBackupPrivilege|SeRestorePrivilege|SeTakeOwnershipPrivilege|SeCreateTokenPrivilege|SeSecurityPrivilege")) "and not the ones it does not"
+
 Write-Host "== the helper answers"
 try {
   $pong = Ask @{ op = "ping" }
@@ -57,7 +62,9 @@ Check (-not ($progAcl | Where-Object { $_.Sid -in @("S-1-5-32-545", "S-1-1-0", "
 
 Write-Host "== a real block: the hosts file"
 try {
-  $items = @(@{ name = "YouTube"; type = "site"; g = "dis"; color = ""; domain = ""; exe = "" })
+  # a program that is blocked: ping.exe (a console program with no window to ask politely, so the service closes it after the grace time, with the rights it has left)
+  $victim = Start-Process -FilePath "$env:SystemRoot\System32\PING.EXE" -ArgumentList "-t", "127.0.0.1" -PassThru -WindowStyle Hidden
+  $items = @(@{ name = "YouTube"; type = "site"; g = "dis"; color = ""; domain = ""; exe = "" }, @{ name = "Ping"; type = "app"; g = "dis"; color = ""; domain = ""; exe = "ping.exe" })
   $r = Ask @{ op = "set_state"; keys = @{ "et-items" = $items } }
   Check ($r.ok) "set_state accepted ($($r.code))"
   $r = Ask @{ op = "start_session"; name = "smoke"; minutes = 5; level = 1; blocks = @(); scene = ""; allow_breaks = $false; dnd = $false; mute = $false; close_now = $false }
@@ -67,6 +74,8 @@ try {
   Check ($hosts -match "EYETIME BEGIN" -and $hosts -match "youtube\.com") "the hosts file has the block"
   Check (Test-Path "$env:ProgramData\EyeTime\hosts.original") "the original hosts file was kept"
   Check ($hosts -match "localhost") "the rest of the hosts file is still there"
+  for ($i = 0; $i -lt 30 -and (Get-Process -Id $victim.Id -ErrorAction SilentlyContinue); $i++) { Start-Sleep -Seconds 1 }
+  Check (-not (Get-Process -Id $victim.Id -ErrorAction SilentlyContinue)) "a blocked program is closed by the service (ping.exe, pid $($victim.Id))"
   # the way out: a Timeout session asks for the chosen challenge; the default is a short hold
   $c = Ask @{ op = "challenge"; action = "end_session" }
   Check ($c.ok) "a challenge is given ($($c.data.kind))"

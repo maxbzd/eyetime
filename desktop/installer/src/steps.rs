@@ -8,7 +8,9 @@ use std::io::{BufRead, BufReader, Write};
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
-pub const SERVICE: &str = "EyeTimeHelper";
+/// What the service keeps of the system's rights (see the setup step that applies it)
+pub const SERVICE_PRIVILEGES: &str = "SeTcbPrivilege/SeAssignPrimaryTokenPrivilege/SeIncreaseQuotaPrivilege/SeChangeNotifyPrivilege/SeCreateGlobalPrivilege/SeImpersonatePrivilege";
+const SERVICE: &str = "EyeTimeHelper";
 const PIPE: &str = r"\\.\pipe\eyetime-helper";
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// the fixed id of the browser extension (its manifest carries the key this comes from)
@@ -306,6 +308,14 @@ fn do_install(desktop: bool, upgrade: bool, emit: Emit) -> Result<(), Stop> {
         ],
     );
     let _ = run("sc", &["failureflag", SERVICE, "1"]);
+    // least privilege: the service runs as the system, but its token keeps only what it uses (starting the agent in the person's session needs the first three;
+    // the folder checks need the last two). The rest of what the system can do (debug any process, load a driver, read or write any file regardless of its rights,
+    // take ownership, create tokens...) is taken from it, so that a flaw in the service cannot use them. Said plainly in SECURITY.md.
+    if let Err(e) = run("sc", &["privs", SERVICE, SERVICE_PRIVILEGES]) {
+        return Err(Stop::Failed(format!(
+            "the service could not be limited to the rights it needs: {e}"
+        )));
+    }
     // 3. protect
     step(emit, 3, 66);
     let data = data_dir();
