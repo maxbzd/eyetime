@@ -32,6 +32,7 @@ jobs:
         run: |
           cargo clippy --locked -p eyetime-core -p eyetime-helper --all-targets -- -D warnings
           cargo clippy --locked -p eyetime-helper --all-targets --target x86_64-pc-windows-gnu -- -D warnings
+          cargo clippy --locked -p eyetime-setup --target x86_64-pc-windows-gnu -- -D warnings   # the installer runs as an administrator: it is linted like the rest
       - run: cargo test --locked -p eyetime-core -p eyetime-helper
       - name: The Windows code compiles (checked, not run)
         run: cargo check --locked -p eyetime-helper -p eyetime-setup --target x86_64-pc-windows-gnu
