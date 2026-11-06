@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Insights → Patterns: one day hour by hour — time by site type — with the focus sessions laid on a lane underneath.
 
 import { h, icon } from '../ui/dom.js';

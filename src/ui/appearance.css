@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
 /* Look cards (live miniatures) and accent swatches */
 .looks { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--s-4); }
 .looks.compact { grid-template-columns: repeat(2, 1fr); gap: var(--s-2); }
@@ -41,5 +43,5 @@
 .looks-wrap { display: grid; gap: var(--s-4); }
 .looks-classic > summary { cursor: pointer; padding: var(--s-2) 0 var(--s-3); font-weight: 600; color: var(--text-2); list-style: none; }
 .looks-classic > summary::-webkit-details-marker { display: none; }
-.looks-classic > summary::before { content: '›'; display: inline-block; margin-right: 8px; transition: transform .15s; }
+.looks-classic > summary::before { content: '›'; display: inline-block; margin-right: 8px; transition: transform .153s; }
 .looks-classic[open] > summary::before { transform: rotate(90deg); }

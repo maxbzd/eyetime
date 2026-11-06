@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // "Learn" topics for the dock: a topic is a title, a note and a list of links with a status. Pure functions — storage lives in the callers.
 // Time per topic comes from the day records EyeTime already keeps (seconds per host), matched against the hosts of the topic's links.
 

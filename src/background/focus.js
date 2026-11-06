@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Focus sessions: start / stop / finish. The running session is stored under `focus`; an alarm ends it.
 
 import { getSettings, getRaw, setRaw, updateDay, updateSettings, getCollection, updateCollection } from '../shared/storage.js';

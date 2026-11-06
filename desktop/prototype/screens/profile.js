@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 /* Profile: who you are in numbers, and the shelf of gemstones you earn for habits. A gem can be put on as the colour of the whole app. */
 (() => {
   const ET = window.ET, { $, $$, clamp, wait, reduced, toast, store, countTo } = ET;

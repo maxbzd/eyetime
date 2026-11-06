@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Redirects tabs to the block page when policy says so. Uses only `tabs` + `webNavigation`
 // (no content script on every page, no all-sites host permission).
 

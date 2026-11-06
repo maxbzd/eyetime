@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The window's screens through axe (WCAG 2.1 A and AA, best practices), in the real mode (the pretend computer behind it), each screen in both languages. With no flag a serious or
 // critical finding fails; `--report` only lists. (Driving the window with the keyboard alone and with a screen reader is not covered by this test: axe cannot say whether a screen is pleasant to use that way.)
 //   cargo build -p eyetime-helper --bin eyetime-sim && ./target/debug/eyetime-sim prototype 8131 &  then:  node desktop/tests/a11y_real.cjs   (needs playwright and axe-core)

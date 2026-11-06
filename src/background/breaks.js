@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Eye care: 20-20-20 reminders counted in *active* screen time (not wall-clock), plus a bedtime nudge.
 // State lives in storage.session: eye = { since: activeSecondsSinceBreak, due: bool, notifiedAt }
 

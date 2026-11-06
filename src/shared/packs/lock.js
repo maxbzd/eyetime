@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Lock — themes that borrow the calm of a phone lock screen: a photograph, a big clock of frosted glass between the photo and its foreground, and three round "complications"
 // under it (the day's goal, tasks, and a Focus ring you tap to start or stop). The page's own buttons hide until the mouse moves.
 // Everything is data (see packs/kit.js); the photos are listed in shared/frames.js.

@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
 /* ---------- backgrounds: classes .bgx-<id> are applied to the live layer (.bg) and to the drawer's preview tiles ---------- */
 :root { --g-strength: 78%; --hero-fg: var(--text); --hero-fg-2: var(--text-2); }
 :root[data-scheme="dark"] { --g-strength: 30%; }

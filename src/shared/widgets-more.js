@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The widgets beyond the first fifteen (pure): what exists, its categories and sizes, and how each one's settings are validated.
 // Every widget has three sizes (S, M, L). `w` = [min, max, default] width in px on the 1440 px window and `sizes` = [S, M, L]; the widget itself adapts with container queries.
 

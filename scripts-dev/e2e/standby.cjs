@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The night clock: off by default; when on, Home turns into a huge dim clock after the quiet time (here forced through the palette command / the page address),
 // any key or real mouse movement brings Home back, and the clock keeps its place within the screen while it drifts.
 //   node scripts-dev/e2e/standby.cjs

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The scene engine: draws a validated scene (shared/scene/schema.js) and keeps it alive.
 //   mountScene(host, scene, opts)  → the world behind Home      mountUi(host, ui, opts) → a custom widget (the same nodes, in a box)
 // Shapes and text are SVG; particles are a canvas. Every number, colour and text may be a formula, evaluated here by closures (shared/scene/expr.js),

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The services EyeTime can connect to. Each entry describes itself (for Settings) and builds the provider the runner talks to (see run.js).
 //
 //   id, label            what it is called

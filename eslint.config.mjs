@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // One place for the rules. They are about mistakes (undefined names, unused variables, a name that hides another, == instead of ===, var),
 // not about taste: layout is left alone. Every rule is an error: a warning that nobody has to fix stays for ever.
 

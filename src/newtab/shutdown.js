@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // "Close the day": a two-minute evening ritual. Research behind it: unfinished work keeps intruding until you make a concrete plan for it
 // (Masicampo & Baumeister 2011), "ready to resume" notes cut attention residue (Leroy & Glomb), and ending the day on a small win plus a
 // next-day plan is the strongest daily habit in Amabile & Kramer's diary study. Everything it writes stays on this device.

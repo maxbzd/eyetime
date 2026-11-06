@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The passphrase for the sign-in details, end to end through storage (against a pretend browser): what is written, what is readable when, what a backup holds.
 import test, { beforeEach } from 'node:test';
 import assert from 'node:assert/strict';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // One synchronisation, start to finish: read both sides, plan (pairs.js), write to the service, write to the tasks, remember what was agreed.
 // It knows nothing about the browser or any service: both come in as `deps` and `provider`, so the same code is tested with an in-memory fake and runs with real ones.
 //

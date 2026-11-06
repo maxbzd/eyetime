@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
 :root { --bg: #efeee9; --surface: #fff; --text: #171612; --text2: #454541; --border: #e6e4de; --accent: #171612; --accent-fg: #fff; --soft: #e5e5e5; --shadow: 0 18px 40px -20px rgba(20,20,19,.2); color-scheme: light; }
 @media (prefers-color-scheme: dark) { :root { --bg: #0b0b0c; --surface: #151517; --text: #f2f1ec; --text2: #c6c5c1; --border: #232326; --accent: #d2f56b; --accent-fg: #12160a; --soft: #2a3117; --shadow: 0 18px 40px -18px rgba(0,0,0,.7); color-scheme: dark; } }
 * { box-sizing: border-box; } html { scroll-behavior: smooth; }

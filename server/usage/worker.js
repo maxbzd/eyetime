@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Cloudflare Worker entry: POST /v1/usage. Binds a D1 database as `DB` (see wrangler.toml). Nothing is logged: no IP address, no header, no body.
 
 import { handle } from './handler.js';

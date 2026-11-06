@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Task sync end to end. The browser's storage.sync stands in for the cloud: this script plays "the other device" by writing the payload another browser would.
 //   node scripts-dev/e2e/tasksync.cjs
 const { launch } = require('./lib.cjs');

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Realistic demo data for the store screenshots and the demo video (30 days of browsing, sessions, tasks, habits).
 
 /** Sample texts per language (tasks, habits, if-then plan, palette query) so localized store screenshots do not mix languages. */

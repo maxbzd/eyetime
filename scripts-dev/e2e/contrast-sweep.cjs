@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Rendered-contrast sweep: every visible text node vs. its effective background, on every page, for every look × scheme.
 //   node scripts-dev/e2e/contrast-sweep.cjs [look,look…]      (needs Playwright + Chromium like the e2e run)
 const { launch } = require('./lib.cjs');

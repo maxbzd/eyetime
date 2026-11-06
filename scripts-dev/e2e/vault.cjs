@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The passphrase for the sign-in details, in Settings → Data & privacy → Connected services: set it, see the details sealed, "restart the browser" (the key in memory is
 // dropped), meet the locked state, fail and then succeed to unlock, change it, turn it off, and the forgotten-passphrase way out.
 //   node scripts-dev/e2e/vault.cjs

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Classic (non-module) script loaded synchronously in <head> of every page: applies the user's look before first paint
 // (no flash). The look is resolved by src/shared/looks.js on the settings page / whenever settings change and cached in
 // localStorage as { mode, schedule, scale, css, light:{vars,attrs}, dark:{vars,attrs} }; here we only pick the scheme and paint.

@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
 /* EyeTime design tokens. See docs/DESIGN.md. These are the *fallback* (Calm) values: the theme engine (src/shared/looks.js,
    applied by theme-init.js before first paint) overrides them per look. Scheme is <html data-scheme="light|dark">. */
 
@@ -144,23 +146,23 @@
   --page-bg: none;
 
   /* ---------- Calm · light (bone paper, soft ink) ---------- */
-  --accent: #171612; --accent-hover: #14130f; --accent-fg: #ffffff; --accent-text: #171612; --accent-soft: #e5e5e5; --accent-ring: rgba(23, 22, 18, .38);
-  --bg: #efeee9; --surface: #ffffff; --surface-2: #f5f4f0; --surface-3: #ebe9e3; --border: #e6e4de; --border-strong: #cfccc3;
+  --accent: #171612; --accent-hover: #14130f; --accent-fg: #ffffff; --accent-text: #171612; --accent-soft: #e5e5e4; --accent-ring: rgba(23, 22, 18, .38);
+  --bg: #efeee9; --surface: #ffffff; --surface-2: #f4f5f0; --surface-3: #ebe9e3; --border: #e6e4df; --border-strong: #ceccc3;
   --text: #171612; --text-2: #454541; --text-3: #6c6b69; --overlay: rgba(20, 16, 12, .45);
   --shadow-1: 0 1px 0 rgba(20, 20, 19, .03);
   --shadow-2: 0 1px 2px rgba(20, 20, 19, .04), 0 18px 40px -20px rgba(20, 20, 19, .16);
   --shadow-3: 0 2px 6px rgba(20, 20, 19, .05), 0 40px 100px -24px rgba(20, 20, 19, .28);
   --productive: #2d6cdf; --productive-text: #2163db; --productive-soft: #e6edfb;
-  --neutral: #9a948c; --neutral-text: #716b63; --neutral-soft: #f3f2f1;
-  --distracting: #e0483f; --distracting-text: #cb2a21; --distracting-soft: #fbe9e8;
+  --neutral: #9a948c; --neutral-text: #716b63; --neutral-soft: #f2f2f0;
+  --distracting: #e0483f; --distracting-text: #cb2a21; --distracting-soft: #fbe8e8;
   --warning: #d98a00; --warning-text: #976000; --warning-soft: #faf1e0;
-  --success: #1f9d6b; --success-text: #187b54; --success-soft: #e4f3ed;
+  --success: #1f9d6b; --success-text: #187b54; --success-soft: #e5f2ec;
   --danger: #e0483f; --danger-fg: #14100d; --danger-hover: #c13e36;
-  --grid: #ececec; --bar-empty: #efefee;
+  --grid: #ecedec; --bar-empty: #efefef;
 
   /* the signal: one stroke of lime for "now" — a running focus, today's progress, the start button.
      Calm only; every other look maps it onto its own accent (below). Text on it is always --signal-fg. */
-  --signal: #cdf05c; --signal-fg: #12160a; --signal-ink: #4b6a00; --signal-soft: #eef8cf;
+  --signal: #cdf05c; --signal-fg: #12160a; --signal-ink: #4b6a00; --signal-soft: #eef9ce;
 
   /* cards */
   --card-bg: var(--surface); --card-border: var(--border); --card-shadow: var(--shadow-1); --card-blur: 0px;
@@ -168,18 +170,18 @@
 
 :root[data-scheme="dark"] {
   color-scheme: dark;
-  --accent: #d2f56b; --accent-hover: #b9d85e; --accent-fg: #14100d; --accent-text: #d2f56b; --accent-soft: #353b25; --accent-ring: rgba(210, 245, 107, .38);
-  --bg: #0b0b0c; --surface: #151517; --surface-2: #1e1e21; --surface-3: #29292c; --border: #232326; --border-strong: #3a3a3e;
+  --accent: #d2f56b; --accent-hover: #b9d85e; --accent-fg: #14100d; --accent-text: #d2f56b; --accent-soft: #353a25; --accent-ring: rgba(210, 245, 107, .38);
+  --bg: #0b0b0c; --surface: #151517; --surface-2: #1f1e20; --surface-3: #28282c; --border: #222227; --border-strong: #3b3b3f;
   --text: #f2f1ec; --text-2: #c6c5c1; --text-3: #9a9997; --overlay: rgba(0, 0, 0, .62);
   --shadow-1: 0 0 0 1px rgba(255, 255, 255, .03); --shadow-2: 0 1px 0 rgba(255, 255, 255, .04) inset, 0 18px 40px -18px rgba(0, 0, 0, .7); --shadow-3: 0 40px 100px -24px rgba(0, 0, 0, .85), 0 0 0 1px rgba(255, 255, 255, .06);
-  --productive: #4a89ee; --productive-text: #538fef; --productive-soft: #1e293c;
-  --neutral: #9a948c; --neutral-text: #9a948c; --neutral-soft: #2c2b2b;
-  --distracting: #e8584f; --distracting-text: #e96158; --distracting-soft: #392021;
-  --warning: #f2b233; --warning-text: #f2b233; --warning-soft: #3b301c;
-  --success: #3ddc97; --success-text: #3ddc97; --success-soft: #1c372d;
+  --productive: #4a89ee; --productive-text: #538fef; --productive-soft: #1e283d;
+  --neutral: #9a948c; --neutral-text: #9a948c; --neutral-soft: #2c2b2a;
+  --distracting: #e8584f; --distracting-text: #e96158; --distracting-soft: #382021;
+  --warning: #f2b233; --warning-text: #f2b233; --warning-soft: #3b311c;
+  --success: #3ddc97; --success-text: #3ddc97; --success-soft: #1c362c;
   --danger: #e8584f; --danger-fg: #14100d; --danger-hover: #c84c44;
-  --grid: #2b2b2c; --bar-empty: #2b2b2c;
-  --signal: #d2f56b; --signal-fg: #12160a; --signal-ink: #d2f56b; --signal-soft: #2a3117;
+  --grid: #2b2a2d; --bar-empty: #2a2a2d;
+  --signal: #d2f56b; --signal-fg: #13170a; --signal-ink: #d2f56b; --signal-soft: #2b3017;
 }
 /* any other look: the signal is that look's accent */
 :root[data-look]:not([data-look="calm"]) { --signal: var(--accent); --signal-fg: var(--accent-fg); --signal-ink: var(--accent-text); --signal-soft: var(--accent-soft); }

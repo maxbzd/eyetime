@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The text a person can copy into a bug report: versions, counts and recent errors — no site names, tasks, notes or goals.
 // It is built on demand and shown before anything leaves the page; EyeTime never sends it by itself.
 import { LANGUAGES } from './locales/languages.js';

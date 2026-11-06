@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Optional settings sync across the person's browsers (chrome.storage.sync). Off by default; only settings travel —
 // never browsing history, tasks, notes or the companion token. Newest deliberate edit wins. Event-driven: a 30 s alarm batches bursts of changes.
 //

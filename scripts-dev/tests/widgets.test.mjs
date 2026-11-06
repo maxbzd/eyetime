@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { WIDGET_KINDS, WORLD_ZONES, normalizeWidgets, normalizeCfg, defaultCfg, newWidgetId, countdownLeft, periodProgress, zoneCity, zoneClock, MAX_WIDGETS } from '../../src/shared/widgets.js';

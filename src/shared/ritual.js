@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The daily ritual, the pure part: which part of the day it is, what to offer in the morning, what the evening says, and the small record of the day (`day.rt`).
 //
 //   morning  — "what matters today?": up to three things, with times that fit the calendar; or "not today"

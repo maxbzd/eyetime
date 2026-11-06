@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The wallpapers of Home · Today: one a day, in turn; a veil that keeps white type readable; every file is where the code says it is.
 import test from 'node:test';
 import assert from 'node:assert/strict';

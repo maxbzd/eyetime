@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Generates src/ui/icons.js: only the Lucide icons the code actually references.
 //
 //   npm i --no-save lucide-static && node scripts-dev/build-icons.mjs

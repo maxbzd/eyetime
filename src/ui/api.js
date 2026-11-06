@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Page -> service worker calls.
 
 /** send('focus:start', { minutes: 25 }) -> response from src/background/messages.js */

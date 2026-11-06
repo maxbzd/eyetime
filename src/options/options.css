@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
 .settings-layout { max-width: 1160px; margin: 0 auto; padding: var(--s-8) var(--s-6) 96px; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: var(--s-10); align-items: start; }
 .side-wrap { position: sticky; top: 84px; } .side { display: flex; flex-direction: column; gap: 2px; }
 .side a { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px; color: var(--text-2); font-weight: 560; font-size: var(--fs-md); }

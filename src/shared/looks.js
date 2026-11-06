@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The theme engine (pure). A *look* is a small palette (bg / surface / text / accent per scheme) plus a character
 // (fonts, corner radii, card style, shadow style). Every other token — borders, secondary text, tints, semantic
 // colours — is DERIVED, and contrast is enforced in code (see color.js), so any look, any accent a user picks and any

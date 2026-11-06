@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! The named pipe the window, the agent and the browser extension talk to, and the loop that ticks the supervisor.
 
 use crate::limits::Limiter;

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Widget stacks on Home: the card that is on top follows the hour, the dots switch it by hand, the editor panel reorders and adds cards.
 //   node scripts-dev/e2e/stack.cjs
 const { launch } = require('./lib.cjs');

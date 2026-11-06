@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The packages that are shipped: built twice they are the same bytes; the zip is a valid zip whose every file is exactly the staged file; the bundles hold what they must.
 import test from 'node:test';
 import assert from 'node:assert/strict';

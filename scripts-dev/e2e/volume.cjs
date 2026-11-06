@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The 3D photo end to end: the depth model runs on this device (WebAssembly in a worker), the depth map is stored beside the photo, the page draws the photo with WebGL,
 // near and far slide differently with the pointer, the clock can go behind the nearest part, a missing WebGL or a new photo falls back to the flat photo.
 //   node scripts-dev/e2e/volume.cjs

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: FSL-1.1-ALv2
+# Copyright 2026 maxbzd
 name: Pages
 # Publishes site/ (the project page + privacy policy) to GitHub Pages on every push to main that touches it.
 # One-time setup by the repository owner: Settings → Pages → Build and deployment → Source: "GitHub Actions".

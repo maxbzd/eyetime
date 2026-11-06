@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The widget catalogue (pure): which widgets exist, how a saved widget is validated, and the small calculations they share.
 // A widget instance is { id, kind, cfg, skin? }; where it sits on Home is kept with the other blocks in newtab.canvas.items under the same id.
 

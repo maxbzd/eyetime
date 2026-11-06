@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Home · Today: two whispers in the top corners — today's focus against the goal, and the next eye break. Nothing else.
 
 import { h, svg, icon, clear } from '../../ui/dom.js';

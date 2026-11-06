@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Runs the unit tests with coverage of src/ and fails when the totals drop under the floor.
 //   npm run coverage
 // Only the logic that is plain JavaScript (src/shared) is reached by these tests; pages, the service worker and the content scripts are covered by the browser

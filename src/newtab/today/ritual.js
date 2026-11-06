@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Home · Today: the day as one story, under the line of intent.
 //
 //   morning  a card: "What matters today?" — your open tasks, up to three chosen, with times that fit your calendar, one button to start the day (or "not today")

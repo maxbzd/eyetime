@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Monday-morning digest of the last completed week, shown as a notification (can be switched off).
 
 import { getSettings, getDays, getRaw, setRaw, getCollection } from '../shared/storage.js';

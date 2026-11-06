@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // EyeTime feed control — runs only on YouTube, Instagram, TikTok and VK.
 //  1) hides Shorts / recommendations / comments / the home feed when switched on in Settings
 //  2) after a limit of short-video scrolling in one visit: turns the page grayscale, pauses video and asks

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Pieces of the plan → focus → review loop shared by the popup and the new tab.
 
 import { h, icon } from './dom.js';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The night clock ("StandBy"): after a while with no mouse, key or touch, Home is replaced by a huge dim clock on black, like a bedside clock.
 // It drifts a little every minute so no pixel stays lit (burn-in), and any movement brings Home back.
 

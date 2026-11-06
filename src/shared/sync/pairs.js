@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Two-way synchronisation of one kind of thing (tasks, calendar blocks) between this device and a service, as a pure plan: what to create, change and delete on each side.
 //
 // The method is the one every serious sync tool uses: a three-way merge against what both sides looked like the last time they agreed (the "base", kept in the link of each pair).

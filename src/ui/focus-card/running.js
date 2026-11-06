@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The running view: the countdown ring, what was held back, pause / extend / end, and a few ideas for the break.
 
 import { h, svg, icon, clear, toast } from '../dom.js';

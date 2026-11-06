@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The Home widgets: small cards the user adds from the gallery (main focus, day rings, countdown, world clocks, day / week / year progress,
 // a mantra, the next meeting, the week in focus time, one big number, the eye-break timer, a sticky note).
 // Everything is computed on this device. Each widget is built by `build(root, api)` and may return { update(cfg), destroy() }.

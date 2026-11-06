@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Right-click menu (page and toolbar icon): classify or block the current site, start / stop focus.
 import { getSettings, updateSettings, getRaw } from '../shared/storage.js';
 import { applyMenuAction } from '../shared/menu.js';

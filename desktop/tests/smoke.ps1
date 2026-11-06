@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: FSL-1.1-ALv2
+# Copyright 2026 maxbzd
 # A real Windows check of the real thing: install silently, look at the service, the pipe, the hosts file, the window, then remove it.
 # Run by .github/workflows/desktop.yml on a Windows machine. Writes what it sees to $Out (screenshots, logs).
 param([string]$Setup, [string]$Out = "smoke-out")

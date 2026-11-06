@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
 .today-head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-3); }
 .today-total { font-size: 32px; font-weight: 650; letter-spacing: -.03em; line-height: 1.1; }
 .delta-note { font-size: var(--fs-xs); color: var(--text-3); text-align: right; max-width: 140px; line-height: 1.35; }

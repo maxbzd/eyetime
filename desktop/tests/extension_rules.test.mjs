@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The extension's decision logic, with plain Node: node --test desktop/tests/extension_rules.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';

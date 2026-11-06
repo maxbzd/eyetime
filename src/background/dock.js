@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The dock: a small tab on the edge of web pages that opens EyeTime's side panel (src/dock/). It needs access to websites, which the person grants
 // in Settings (an optional permission: asked on the click, never at install). Everything stays on the device; the page script only draws the tab
 // and an extension iframe — it reads nothing from the page except its address and title when the person saves it.

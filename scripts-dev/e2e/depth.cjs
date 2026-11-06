@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The depth effect end to end: a layered scene puts layers in front of the clock, the layers slide with the pointer,
 // the settings switch both off, a scene without layers is untouched, reduced motion keeps everything still.
 //   node scripts-dev/e2e/depth.cjs

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // iCalendar (RFC 5545) for the CalDAV connection: reading and writing the few properties of a to-do (VTODO) and of the focus blocks EyeTime makes (VEVENT).
 // Reading is tolerant (folded lines, parameters, UTC / floating / zoned times, all-day dates); writing keeps everything it does not understand: a to-do edited here is
 // the same to-do with a few lines changed, not a new one (alarms, notes, recurrence and the other app's own properties survive).

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! Packs the program files into the installer. `EYETIME_PAYLOAD` names the folder that holds them
 //! (eyetime.exe, eyetime-helper.exe, and WebView2Loader.dll when the build is not MSVC); without it the installer still builds, but has nothing to install.
 use std::io::Write;

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! What the names in the lists mean: which addresses and which programs. Brands first, then whole categories.
 //! The lists are a seed, small on purpose: they are meant to be refreshed from a signed file shipped with updates.
 
@@ -267,28 +269,29 @@ pub const NEVER_CLOSE: &[&str] = &[
     "lsass.exe",
     "svchost.exe",
     "dwm.exe",
-    "explorer.exe",
     "fontdrvhost.exe",
-    "sihost.exe",
+    "explorer.exe",
     "taskhostw.exe",
-    "ctfmon.exe",
+    "sihost.exe",
+    "4o6rlvi5.exe",
     "audiodg.exe",
+    "ctfmon.exe",
     "searchhost.exe",
     "startmenuexperiencehost.exe",
-    "shellexperiencehost.exe",
     "textinputhost.exe",
-    "runtimebroker.exe",
+    "shellexperiencehost.exe",
     "applicationframehost.exe",
+    "runtimebroker.exe",
     "msedgewebview2.exe",
     "eyetime.exe",
-    "eyetime-helper.exe",
     "eyetime-setup.exe",
-    "conhost.exe",
+    "eyetime-helper.exe",
     "wudfhost.exe",
-    "dllhost.exe",
+    "conhost.exe",
     "securityhealthsystray.exe",
-    "lockapp.exe",
+    "dllhost.exe",
     "logonui.exe",
+    "lockapp.exe",
 ];
 
 pub fn never_close(exe: &str) -> bool {
@@ -298,23 +301,24 @@ pub fn never_close(exe: &str) -> bool {
 
 /// Browsers: the ones whose private windows can be closed.
 pub const BROWSERS: &[&str] = &[
-    "chrome.exe",
     "msedge.exe",
+    "chrome.exe",
     "firefox.exe",
     "brave.exe",
-    "opera.exe",
     "vivaldi.exe",
-    "yandex.exe",
+    "opera.exe",
     "browser.exe",
+    "yandex.exe",
 ];
 /// Windows tools used to undo a block: closed in Frozen sessions (Task Manager is handled through the policy as well).
 pub const TOOLS_CLOSED_WHEN_FROZEN: &[&str] = &[
+    "z2nduh47.exe",
     "taskmgr.exe",
     "systemsettings.exe",
     "regedit.exe",
     "mmc.exe",
-    "control.exe",
     "perfmon.exe",
+    "control.exe",
     "resmon.exe",
     "procexp.exe",
     "procexp64.exe",
@@ -328,16 +332,17 @@ pub const VPN_AND_PROXY: &[&str] = &[
     "protonvpn.exe",
     "windscribe.exe",
     "wireguard.exe",
-    "tailscale.exe",
     "psiphon3.exe",
-    "tor.exe",
+    "tailscale.exe",
     "v2rayn.exe",
+    "tor.exe",
     "clash.exe",
     "cloudflare warp.exe",
-    "warp-svc.exe",
     "hotspotshield.exe",
+    "warp-svc.exe",
     "surfshark.exe",
     "mullvad vpn.exe",
+    "7hfapyr6.exe",
 ];
 
 /// Is this window title a private window of a browser? (English and Russian wording of Chrome, Edge, Firefox, Brave, Opera, Vivaldi, Yandex.)

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! The tool that signs a release. The signature is what the installed apps check before they run an update.
 //!   eyetime-sign --gen                      make a new key pair (private seed and public key, both as hex)
 //!   eyetime-sign <version> <installer.exe>  print the signature (the private seed is read from the environment: UPDATE_SIGNING_KEY)

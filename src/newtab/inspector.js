@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The strip above the editor's toolbar for the selected block: exact position and size, flush-to-the-edge alignment, front / back, duplicate, remove.
 // It only draws and reports what was typed or pressed; canvas-edit.js applies it (so undo, saving and clamping stay in one place).
 

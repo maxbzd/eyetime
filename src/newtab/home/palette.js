@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The commands Home adds to the command palette (Ctrl/Cmd+K): night clock, plan the day, close the day, arrange, surprise me, customize.
 
 import { t } from '../../shared/i18n.js';

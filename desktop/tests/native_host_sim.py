@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: FSL-1.1-ALv2
+# Copyright 2026 maxbzd
 """Stands in for `eyetime-helper.exe --native-host` in the tests on Linux: the browser's framed messages go to the simulator over HTTP.
 The real one (helper/src/agent.rs) forwards to the Windows named pipe the same way and refuses anything but site/decision/ping/status."""
 import json, struct, sys, urllib.request

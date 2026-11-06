@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Three figures for the Home hero: focus vs the daily goal, tasks done today, and today's screen time (its productive share).
 // Vital draws them as rings, Ledger as stat tiles; the other looks keep the element empty and hidden.
 

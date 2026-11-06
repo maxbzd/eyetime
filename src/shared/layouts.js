@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Layouts of Home (pure): the default arrangement plus named variants that switch on by themselves — while a focus session runs, or at certain hours.
 // A layout only holds the Home settings that differ (HOME_KEYS); everything it leaves out is read from the default.
 

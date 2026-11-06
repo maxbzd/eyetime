@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Tasks in and out as plain text: a Markdown checklist (round-trips through quick add) or CSV (for spreadsheets). Pure.
 
 import { taskFromInput, newTaskId } from './tasks.js';

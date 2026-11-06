@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Shared top bar for full-page surfaces.
 import { h, icon } from './dom.js';
 import { t } from '../shared/i18n.js';

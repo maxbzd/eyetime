@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The person's own photograph and what is made from it (the cut-out subject and the depth map): kept in IndexedDB, not in chrome.storage.local.
 //
 // Why: they are megabytes of data URL. In chrome.storage.local they shared the 10 MB cap with the whole history, were copied into a change event for every open page

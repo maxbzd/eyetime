@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // "Today" summary: total, split by site type, top sites and the eye-break row. Shared by popup and new tab.
 
 import { h, icon, favicon, clear } from './dom.js';

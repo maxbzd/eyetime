@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Settings → General → Weather: off until the person says yes (that is also when the browser asks for access to Open-Meteo), then a city, the unit and the rain effect.
 
 import { h, icon, toast } from '../ui/dom.js';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Which text colour reads on a photo: light or dark (pure; the picture is sampled in the page).
 // The clock is big text, but the greeting and buttons are small, so the stricter 4.5:1 is the bar: a sample cell "carries" white text when its
 // luminance is at most ~0.18 and black text when it is at least ~0.18 (the two thresholds meet, so every cell favours one of them).

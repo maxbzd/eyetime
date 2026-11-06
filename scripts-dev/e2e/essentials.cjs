@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Settings show the essentials first: advanced groups and rows are hidden (and listed in a note), "All settings" and search show everything, what the person already uses
 // stays visible, and "Make it calm again" brings back the designed look with an Undo.
 //   node scripts-dev/e2e/essentials.cjs

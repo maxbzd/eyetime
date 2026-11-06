@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // One-way migration from EyeTime 1.x storage to the 2.0 layout. Pure: takes the raw `chrome.storage.local`
 // snapshot and returns what to write. Nothing from the old data is lost that still has a home in 2.0.
 

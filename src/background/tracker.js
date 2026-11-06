@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Screen-time tracker. Event-driven (tab/window/idle events + a 30 s alarm) — no timers, so it survives
 // MV3 service-worker suspension. The "current target" lives in storage.session; every sync() closes the
 // previous interval (credits the seconds) and opens the next one.

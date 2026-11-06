@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Liquid — colour that drifts, glass that bends it. Orbs that gather when you focus; a pebble that fills as the day's goal does.
 
 import { text, rect, group, full, grad, radial, customWidget } from '../kit.js';

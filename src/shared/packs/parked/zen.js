@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Zen — an ink-wash garden. Layered mountains in mist, a vermilion sun like a seal, ripples on still water.
 
 import { text, ellipse, full, customWidget } from '../kit.js';

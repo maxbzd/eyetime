@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Settings → Data & privacy → Sync: "Encrypt synced data with a passphrase". The cloud of the browser account then holds only ciphertext (shared/syncseal.js).
 // Four states: none; set here and given this session; set here and still to be given (after a restart); set on another device and not yet given here.
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The sync passphrase on this device (storage side of shared/syncseal.js). Stored on disk: the vault meta and the time it was set (nothing secret). Kept only in memory
 // (chrome.storage.session, gone when the browser closes): the key. After a restart the sync waits for the passphrase; nothing is lost, and nothing is uploaded in the clear.
 

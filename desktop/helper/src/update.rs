@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! The network half of updates: look for a newer version now and then, and fetch it when the person (or the automatic setting) asks.
 //! It only talks; whether and when the new installer runs is decided by the supervisor, with the same care as everything else.
 

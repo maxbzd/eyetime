@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Two browsers that share one cloud (chrome.storage.sync) and a passphrase: what the cloud can see, what each device does without the key, after a restart, when the passphrase
 // changes, when encryption is switched off, and when someone with write access to the cloud changes or rolls back a copy.
 import test, { mock, beforeEach } from 'node:test';

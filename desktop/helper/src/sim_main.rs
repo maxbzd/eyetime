@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! eyetime-sim: the helper's brain on a pretend computer, behind a tiny web server, so that the screens can be tried
 //! (with a browser, on any machine) against the real logic. Not part of the product.
 //!   eyetime-sim <folder with the screens> [port]

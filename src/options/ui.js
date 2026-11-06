@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Building blocks for the settings page.
 import { h, icon, clear } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';

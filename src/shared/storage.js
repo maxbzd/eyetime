@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // chrome.storage.local access layer shared by the service worker and every page.
 //
 // Layout

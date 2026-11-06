@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The "custom" widget: a widget a theme drew with the scene language (nodes, formulas, data). It sits on Home like any other widget (position, size, card skin).
 
 import { mountUi } from './scene/engine.js';

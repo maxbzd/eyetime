@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: FSL-1.1-ALv2
+# Copyright 2026 maxbzd
 name: Desktop release
 # Builds the installer on Windows, tries it for real, signs it and publishes it as a release "desktop-v<version>".
 # Two signatures, in this order: Authenticode of the programs and the installer (the secrets WINDOWS_CERT_PFX_BASE64 and WINDOWS_CERT_PASSWORD; without them a warning),

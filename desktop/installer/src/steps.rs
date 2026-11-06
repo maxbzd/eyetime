@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! What installing and removing really do. Each step is a plain, visible action: files, a service, a few registry values, shortcuts.
 //! Nothing is hidden and nothing outside these paths is touched. Windows commands are run through the tools Windows ships with
 //! (sc, reg, icacls, powershell), so that what happens is easy to read and to check by hand.

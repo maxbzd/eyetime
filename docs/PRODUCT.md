@@ -1,6 +1,6 @@
 # EyeTime 2.0 — product brief
 
-> Focus, screen time and eye care for your browser. Free, open source, private by design.
+> Focus, screen time and eye care for your browser. Free, source-available, private by design.
 
 This document is the source of truth for *what* EyeTime is and *why*. Design tokens and
 component rules live in [DESIGN.md](DESIGN.md); engineering notes in [ARCHITECTURE.md](ARCHITECTURE.md).

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Calendar subscription end to end: a local HTTP server plays the calendar host; the extension runs from a copy whose manifest already holds
 // the host permission (a real user grants it in the browser's prompt, which automation cannot click).   node scripts-dev/e2e/calendar.cjs
 const fs = require('fs');

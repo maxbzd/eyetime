@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The production build of the extension: what is shipped is not the source tree but a smaller, faster copy of it.
 //   node scripts-dev/build.mjs <dir>     (npm run build calls it for each package; <dir> already holds a copy of src/, _locales/, icons/)
 //

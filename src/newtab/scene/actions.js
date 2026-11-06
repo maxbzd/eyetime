@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The few things a scene may do when someone clicks it. Only these verbs exist (shared/scene/schema.js ACTIONS); a scene cannot ask for anything else.
 
 import { send } from '../../ui/api.js';

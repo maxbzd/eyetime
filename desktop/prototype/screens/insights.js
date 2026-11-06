@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 /* Insights: the score and what it is made of, six habits against your own average, the week, the hours that work, where the time went. */
 (() => {
   const ET = window.ET, { $, $$, clamp, lerp, wait, reduced, countTo, easeExpo } = ET;

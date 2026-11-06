@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Ready-made Home themes ("starters") and "Surprise me": a whole look in one tap — appearance, background, clock type, card skin, widgets and where they sit.
 // Pure data and functions (no DOM). Everything goes through sanitizeHome, so a starter can never put an invalid value into the settings.
 // The themes are the packs in ./packs: Lock: real photographs (shared/frames.js) with a glass clock between the photo and its foreground and three round complications.

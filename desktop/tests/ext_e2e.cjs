@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The browser extension in a real Chromium, talking through a native host to the real helper logic (the simulator).
 // Needs: eyetime-sim running on 8131 (cargo build -p eyetime-helper --bin eyetime-sim; ./target/debug/eyetime-sim prototype 8131), playwright.
 const { chromium } = require('playwright');

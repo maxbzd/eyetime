@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Records the product demo (store/demo.mp4 + store/demo.gif):  node scripts-dev/e2e/demo.cjs
 // One scripted walkthrough with the realistic demo data: add a task by typing, start a focus session, the pause page,
 // the insights, another photo of the day. Needs Playwright + Chromium + ffmpeg.

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: FSL-1.1-ALv2
+# Copyright 2026 maxbzd
 name: Release
 # Publishes a GitHub release (zips for Chrome and Firefox + notes from CHANGELOG.md) when the version in manifest.json has no release yet.
 # Runs on a push to main that touches manifest.json or this file, on a pushed v* tag, or manually from the Actions tab.

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // A clean browser for one research session: a fresh profile with EyeTime installed and nothing configured, so every participant is a first-time user.
 //   node scripts-dev/research/session.cjs --id P07 [--lang en] [--ext dist/chrome] [--record] [--width 1440 --height 900] [--dark]
 // The build under test is the folder with manifest.json (repo root by default, or the unpacked package: `npm run build`, then unzip dist/eyetime-chrome.zip).

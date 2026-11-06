@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Runs the depth model off the page's main thread (so the page stays responsive while it works).
 // Everything is local: the engine (ONNX Runtime Web, WebAssembly) and the model (Depth Anything V2 Small, 8-bit) are files of this extension.
 //   in:  { id, data: Float32Array (1×3×h×w), w, h }      out: { id, depth: Float32Array (h×w) } or { id, error }

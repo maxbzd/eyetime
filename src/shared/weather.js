@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Optional weather (off until the person turns it on). Open-Meteo needs no key and no account; the only thing sent is the rounded coordinates of the chosen city.
 // Pure helpers: validation, request addresses, what the answer means. Fetching and caching are in newtab/weather.js.
 

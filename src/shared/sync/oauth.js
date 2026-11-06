@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Signing in to Google and Microsoft from the browser, without a server of ours: the browser's own sign-in window (chrome.identity.launchWebAuthFlow), and tokens kept on this device.
 //   Microsoft: authorization code with PKCE (a public client: no secret), a refresh token renews the access.
 //   Google:    the implicit flow (an access token for an hour, renewed by asking again without a window while the person is signed in to Google in the browser): Google's web clients

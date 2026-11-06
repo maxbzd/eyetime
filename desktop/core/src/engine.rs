@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! The decision: given what the person set up, the time, the usage and the running session, what is closed right now, and how hard.
 //! Pure function, no clock, no disk. The helper calls it every few seconds and carries the result out.
 

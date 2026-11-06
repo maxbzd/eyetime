@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Settings → Data & privacy → Calendar: an imported file, up to three subscriptions by link, and what meetings do (warning, quiet).
 
 import { h, icon, toast } from '../ui/dom.js';

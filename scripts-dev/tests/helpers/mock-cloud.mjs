@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Small Google (Calendar + Tasks) and Microsoft Graph (To Do + Calendar) services for the adapters' tests: the same paths, methods and fields the adapters use.
 const send = (status, data) => new Response(data === undefined ? null : JSON.stringify(data), { status, headers: { 'content-type': 'application/json' } });
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The first minute ("The Door"), walked through with a real mouse in the app against the real helper logic (the simulator),
 // with pictures of every act. Needs eyetime-sim on 8131 (a fresh one: the helper must have no setup yet).
 const { chromium } = require('playwright');

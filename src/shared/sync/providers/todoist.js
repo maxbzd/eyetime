@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Todoist, tasks only. The person pastes their API token (Todoist → Settings → Integrations → Developer); nothing else is needed and no sign-in page is involved.
 // Speaks Todoist's API v1 (https://developer.todoist.com/api/v1): everything that depends on its shape is in this file.
 //

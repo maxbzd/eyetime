@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sanitizeScene, sanitizeUi, CAPS, countNodes, nameAllowed } from '../../src/shared/scene/schema.js';

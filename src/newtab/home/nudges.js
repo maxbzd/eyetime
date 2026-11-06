@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The two gentle prompts under the hero: save a backup, and the day loop (plan · review · goal).
 
 import { $, h, icon, clear, toast } from '../../ui/dom.js';

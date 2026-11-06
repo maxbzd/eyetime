@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Small helpers for writing theme packs (data only): they return plain nodes of the scene language.
 
 export const text = (x, y, size, t, o = {}) => ({ t: 'text', x, y, size, text: t, ...o });

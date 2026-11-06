@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Small helpers shared by the widget files: element shortcuts, a "keeps itself up to date" wrapper, number formatting.
 
 import { h, clear } from '../ui/dom.js';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The customize drawer (ready themes, the rows of Home, a way to the editor) and the arrangement editor it opens.
 
 import { $, h, icon, clear, toast } from '../../ui/dom.js';

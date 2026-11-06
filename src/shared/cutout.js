@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The subject cut-out of a photo, the parts that need no browser (pure, so they can be tested): turning pixels into the model's input,
 // turning its output into a clean mask, and judging whether a mask is usable.
 // The model is U²-Net (small): input 1×3×320×320 (RGB, scaled to 0..1 by the brightest value, then normalised), output a saliency map of the same size.

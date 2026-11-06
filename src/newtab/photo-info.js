@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // What the page needs to know about the photo background: which text colour reads on it, its size, and a soft (blurred) copy for the glass clock.
 
 import { relLuminance, pickTextTone } from '../shared/phototone.js';

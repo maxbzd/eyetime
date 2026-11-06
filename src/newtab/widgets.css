@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
 /* Home widgets: small cards that adapt to their own width (container queries), in the grid and on the free-form Home. */
 .wgt { container-type: inline-size; padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-2); border-radius: var(--r-lg); min-width: 0; }
 .wgt .wg-label { font-size: var(--fs-xs); font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }

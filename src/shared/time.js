@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Date helpers. All keys are *local* calendar days ("YYYY-MM-DD") so "today" matches the user's wall clock in any time zone.
 
 const pad = (n) => String(n).padStart(2, '0');

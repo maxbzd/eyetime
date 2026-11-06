@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Card skins end to end: the theme's skin reaches every card, a widget can have its own, liquid glass gets its refraction filter (Chrome), the panels set them, bad values are cleaned.
 //   node scripts-dev/e2e/skins.cjs
 const { launch } = require('./lib.cjs');

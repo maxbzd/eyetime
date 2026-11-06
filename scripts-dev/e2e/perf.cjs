@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Load checks: a year of heavy data and a crowded browser. Prints the numbers and fails when one passes its budget.
 //   node scripts-dev/e2e/perf.cjs
 // Budgets leave room for slow CI machines (about 3× a developer machine). What a page loads at start is counted exactly, without a browser, in scripts-dev/tests/weight.test.mjs.

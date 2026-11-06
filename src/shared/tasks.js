@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Task creation from one line of text ("Write the report 14:30 45m ! #work"), shared by Home and the command palette.
 
 import { parseQuickAdd } from './quickadd.js';

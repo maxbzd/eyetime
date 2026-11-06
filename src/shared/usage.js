@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Usage measurement, the pure part. EyeTime counts, on the device and always, which of its own features get used and on how many days;
 // the numbers go nowhere unless the person switches "Share anonymous usage" on (see usage-store.js, background/usage.js and PRIVACY.md).
 //

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Quotes: on Home under the greeting, on the pause page and the break screen, before a session starts (when switched on) — each in the language of the interface,
 // each switchable in Settings, and the Home quote is a block the editor can move.
 //   node scripts-dev/e2e/quotes.cjs

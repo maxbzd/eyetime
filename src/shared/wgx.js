@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The calculations behind the new widgets (pure, so they can be tested): the moon, sunrise and sunset, clock hands, calendar grids, the focus heat map.
 // Nothing here knows about the page or about the network; all of it is arithmetic on a date.
 

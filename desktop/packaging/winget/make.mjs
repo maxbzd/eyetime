@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The three manifest files that winget-pkgs wants for EyeTime for Windows, made from the numbers of a release.
 //   node desktop/packaging/winget/make.mjs <version> <sha256-of-EyeTime-Setup.exe> <outdir> [owner/repo]
 // The release workflow runs it, validates the result with `winget validate`, and attaches it to the release; submitting it to https://github.com/microsoft/winget-pkgs

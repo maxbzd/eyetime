@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Visual regression: the main screens in English, Russian, German and Polish, light and dark, with a frozen clock and the realistic demo data.
 //   node scripts-dev/e2e/visual.cjs            compare with scripts-dev/e2e/visual-baseline/*.png
 //   node scripts-dev/e2e/visual.cjs --update   rewrite the baseline (after a change you meant to make)

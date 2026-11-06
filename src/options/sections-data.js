@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Settings → Data & privacy: calendar, tasks in/out, settings sync, backup, privacy, danger zone.
 
 import { syncEncRow } from './sync-enc-row.js';

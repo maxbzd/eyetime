@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // "Essentials / All settings": which settings are for everybody and which are for the few who go looking. Pure data and functions (no DOM), so the list can be tested against the defaults.
 //
 // Each entry is a setting (or a group of them) that is hidden in the essentials view. It stays visible there when the person has already changed it from the default

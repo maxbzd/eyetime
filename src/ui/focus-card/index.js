@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The focus-session control, shared by the popup (compact) and the new tab (large).
 // It owns its own state: it reads settings + the running session from storage and re-renders on change. See session.js (state, actions), idle.js and running.js (views).
 

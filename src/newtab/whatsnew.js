@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // "What's new" card on Home: three short lines about the release you just got. Set by the worker on a minor update; one click dismisses it for good.
 
 import { h, icon, clear } from '../ui/dom.js';

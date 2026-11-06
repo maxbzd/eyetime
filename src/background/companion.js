@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Optional desktop companion (see /companion). Off by default; when enabled in Settings → Tracking the worker
 // pulls aggregated per-app seconds from http://127.0.0.1:8765 using a pairing token. Read-only: the companion
 // can never change browser behaviour, and the extension never sends anything to it.

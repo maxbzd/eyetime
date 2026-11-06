@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Runs the end-to-end suites listed in suites.json: several at a time on one machine, or split over CI machines.
 //
 //   node scripts-dev/e2e/run.mjs                      every suite, one after another

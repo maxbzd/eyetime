@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Brutal — a sticker board. Graph paper, loud shapes with hard shadows, numbers you cannot miss.
 
 import { text, rect, ellipse, group, full, customWidget } from '../kit.js';

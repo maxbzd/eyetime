@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Builds store packages in dist/:  eyetime-chrome.zip (Chrome + Edge, MV3)  and  eyetime-firefox.zip (Firefox AMO).
 //   npm run build
 // What is shipped is the production build of src/ (scripts/build.mjs: bundled and minified), not the source tree; EYETIME_BUILD=source ships the tree as it is (for a bug that
@@ -11,7 +13,7 @@ import { writeZip, filesUnder } from './zip.mjs';
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = process.env.EYETIME_DIST ? path.resolve(process.env.EYETIME_DIST) : path.join(root, 'dist'); // EYETIME_DIST: build somewhere else (the tests, the verification of a release)
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
-const INCLUDE = ['src', '_locales', 'icons', 'LICENSE'];
+const INCLUDE = ['src', '_locales', 'icons', 'LICENSE', 'NOTICE'];
 const SKIP = /(\.md$|\.d\.ts$|icon512\.png$)/;
 // the translations are read as data at run time (locales/data/*.json); only English (the fallback) and the list of names are code there, the other .js files are for the tools and the tests
 // earlier experiments kept for reference (nothing imports them): they are not part of what is shipped

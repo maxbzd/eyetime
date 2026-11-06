@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // A depth map from one photo, the parts that need no browser (pure, so they can be tested): the size the model wants, the pixels it eats,
 // what its answer is turned into (an 8-bit picture, bright = near) and whether that answer is believable.
 // The model is Depth Anything V2 (Small, Apache-2.0), run locally: input 1×3×H×W (ImageNet-normalised, H and W multiples of 14), output 1×H×W of relative inverse depth (bigger = nearer).

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! Everything the helper does to the computer, in one place. The real one is in `os_windows.rs`; the tests use a pretend one.
 
 use std::io;

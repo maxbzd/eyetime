@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // 简体中文。机器翻译并经审阅，欢迎纠正。
 // Plural forms: other (Chinese has a single plural category).
 export const zh = {
@@ -156,7 +158,7 @@ export const zh = {
   'opt.groupDanger': '危险区域', 'opt.reset': '删除所有数据', 'opt.resetDesc': '从本设备上移除设置、任务、笔记和统计数据。', 'opt.resetBtn': '全部删除',
   'opt.resetTitle': '全部删除？', 'opt.resetBody': '此操作无法撤销。如果以后可能需要，请先导出备份。', 'opt.resetConfirm': '全部删除', 'opt.resetDone': '所有数据已删除',
 
-  'about.version': '版本 {v}', 'about.tagline': '免费开源 · MIT 许可证', 'about.source': '源代码', 'about.report': '反馈问题', 'about.privacy': '隐私政策',
+  'about.version': '版本 {v}', 'about.tagline': '免费 · 源码可见 · FSL-1.1-ALv2', 'about.source': '源代码', 'about.report': '反馈问题', 'about.privacy': '隐私政策',
   'about.shortcuts': '键盘快捷键', 'about.scFocus': '开始或停止专注时段', 'about.scPopup': '打开 EyeTime', 'about.scChange': '更改快捷键', 'about.scBtn': '打开快捷键设置',
 
   /* onboarding */
@@ -288,7 +290,7 @@ export const zh = {
   'insights.timeline': '一天详情', 'insights.timelineSub': '按小时显示，下方是你的专注时段', 'insights.firstLast': '活跃时间 {from} – {to}', 'insights.prevDay': '前一天', 'insights.nextDay': '后一天', 'insights.focusLane': '专注时段', 'insights.noSessionsDay': '这一天没有专注时段',
   'wrapped.title': '我的 EyeTime 一周', 'wrapped.focusOf': '的专注时间', 'wrapped.goalDays': '达成目标天数', 'wrapped.activeDays': '活跃天数', 'wrapped.distraction': '分心占比', 'wrapped.breaks': '护眼休息',
   'wrapped.msgGoal': '稳定的一周——有 {n} 天达成每日目标。', 'wrapped.msgUp': '专注时间比上周增加了 {pct}%。', 'wrapped.msgBest': '最佳的一天：{day}，专注 {time}。', 'wrapped.msgSteady': '每一个专注的小时都算数。期待下一个。',
-  'wrapped.footer': 'EyeTime · 免费开源', 'wrapped.share': '分享为图片', 'wrapped.preview': '你的一周图片', 'wrapped.privacy': '仅包含总数——没有网站名称，也没有任务标题。', 'wrapped.save': '下载 PNG', 'wrapped.copy': '复制', 'wrapped.copied': '图片已复制',
+  'wrapped.footer': 'EyeTime · 免费', 'wrapped.share': '分享为图片', 'wrapped.preview': '你的一周图片', 'wrapped.privacy': '仅包含总数——没有网站名称，也没有任务标题。', 'wrapped.save': '下载 PNG', 'wrapped.copy': '复制', 'wrapped.copied': '图片已复制',
   'prod.remindBest': '在 {time} 提醒我专注', 'prod.remindSet': '提醒已设置：工作日 {time}', 'prod.remindHave': '你在 {time} 前后已经有一个提醒了。',
   'habits.ideas': '可以从这些开始：',
   'opt.syncIncompatible': '同步的设置来自更新版本的 EyeTime。请更新此浏览器后再同步。',
@@ -314,11 +316,11 @@ export const zh = {
   'plan.booked': '所有事项都已安排——没有需要再排的了。', 'nav.main': '主导航', 'opt.sections': '设置分区', 'ap.fontSystem': '系统',
   'wn.title': 'EyeTime {v} 新功能', 'wn.i1': "一天成为首页上的一个故事：早上用一张卡片选出今天最重要的事，工作时是一行安静的提示，晚上用一张卡片收束这一天。", 'wn.i2': "已连接的服务：让任务与 Todoist、Notion 和 CalDAV（iCloud、Fastmail、Nextcloud）保持同步，并在计划里看到日历中的忙碌时段。设置 → 数据与隐私。", 'wn.i3': "设置默认只显示常用项，“恢复平静”一键找回设计好的外观。", 'wn.more': '全部更新', 'wn.ok': '知道了',
   'opt.ideaTitle': '提个建议', 'opt.ideaDesc': '缺了什么，或有什么烦心的地方？提一个简短的 GitHub issue。这里不会发送任何内容。', 'opt.ideaBtn': '提个建议',
-  'opt.calSubTitle': '订阅日历链接', 'opt.calSubDesc': '粘贴你日历的私密 iCal 地址（Google：设置 → 你的日历 → “iCal 格式的私密地址”）。EyeTime 每小时直接通过你的浏览器下载一次——不会联系其他任何地方。该地址只保存在本设备上：不同步，也不会进入备份。', 'opt.calSubPh': 'https://…/basic.ics', 'opt.calSubBtn': '订阅', 'opt.calUnsub': '取消订阅', 'opt.calSubOk': { other: '已订阅 {host} · 未来 14 天内有 {n} 个事件 · 更新于 {time}' }, 'opt.calSubWait': '已订阅 {host} · 正在等待首次下载…', 'opt.calBadUrl': '这看起来不是日历地址。请使用 https://（或 webcal://）链接。', 'opt.calDenied': '浏览器没有授予访问该地址的权限。', 'opt.calErr.permission': '不再拥有此地址的权限——请取消订阅后重新订阅。', 'opt.calErr.http': '日历服务器返回了错误（{status}）。一小时后重试。', 'opt.calErr.network': '无法连接日历服务器。一小时后重试。', 'opt.calErr.format': '该地址没有返回日历文件。', 'opt.calErr.size': '日历文件太大。', 'opt.calErr.invalid': '保存的地址无效——请取消订阅后重新订阅。',
+  'opt.calSubTitle': '订阅日历链接', 'opt.calSubDesc': '粘贴你日历的私密 iCal 地址（Google：设置 → ‌‌​‌‌‌​​‌​‌‌‌‌​​你的日历 → “iCal 格式的私密地址”）。EyeTime 每小时直接通过你的浏览器下载一次——不会联系其他任何地方。该地址只保存在本设备上：不同步，也不会进入备份。', 'opt.calSubPh': 'https://…/basic.ics', 'opt.calSubBtn': '订阅', 'opt.calUnsub': '取消订阅', 'opt.calSubOk': { other: '已订阅 {host} · 未来 14 天内有 {n} 个事件 · 更新于 {time}' }, 'opt.calSubWait': '已订阅 {host} · 正在等待首次下载…', 'opt.calBadUrl': '这看起来不是日历地址。请使用 https://（或 webcal://）链接。', 'opt.calDenied': '浏览器没有授予访问该地址的权限。', 'opt.calErr.permission': '不再拥有此地址的权限——请取消订阅后重新订阅。', 'opt.calErr.http': '日历服务器返回了错误（{status}）。一小时后重试。', 'opt.calErr.network': '无法连接日历服务器。一小时后重试。', 'opt.calErr.format': '该地址没有返回日历文件。', 'opt.calErr.size': '日历文件太大。', 'opt.calErr.invalid': '保存的地址无效——请取消订阅后重新订阅。',
   'tasks.dueToday': '今天', 'tasks.dueTomorrow': '明天', 'tasks.overdue': '已逾期', 'tasks.dueTip': '截止日期',
   'prod.projects': '按项目', 'prod.projectsSub': '按所专注任务的 #标签统计专注时间', 'prod.projectsNew': '新', 'prod.projectsSessions': { other: '{n} 个专注时段' }, 'prod.projectsUntagged': '{time} 没有项目', 'prod.projectsNone': '给任务加上 #标签（“报告 #work”）并开始专注——EyeTime 就会显示你的专注都花在了哪里。',
   'weekly.goals': '每周目标：已完成 {done} / {total}', 'weekly.project': '专注最多：#{tag}（{time}）',
-  'opt.groupTasks': '任务', 'opt.tasksExport': '导出任务', 'opt.tasksExportDesc': '把任务列表导出为 Markdown 清单，或可用于电子表格的 CSV。日期、时长、优先级、#标签和重复设置都会保留。', 'opt.tasksImport': '导入任务', 'opt.tasksImportDesc': '来源可以是 Markdown 清单、纯文本列表（每行一个任务——“45m !”这类快速添加写法同样有效），或带有“text”列的 CSV。已有的任务会被跳过。', 'opt.tasksImportBtn': '导入', 'opt.tasksNone': '没有可添加的内容：这些任务已在你的列表中。', 'opt.tasksEmpty': '在该文件中没有找到任务。', 'opt.tasksConfirmTitle': { other: '导入 {n} 个任务？' }, 'opt.tasksConfirmBody': '前几项：{sample}。已在你的列表中而被跳过：{skipped}。', 'opt.tasksDone': { other: '已导入 {n} 个任务' },
+  'opt.groupTasks': '任务', 'opt.tasksExport': '导出任务', 'opt.tasksExportDesc': '把任务列表导出为 Markdown 清单，或可用于电子表格的 CSV。日期、时长、优先级、#标签和重复设置都会保留。', 'opt.tasksImport': '导入任务', 'opt.tasksImportDesc': '来源可以是 Markdown 清单、纯文本列表（每行一个任务——“45m !”这类快速添加写法同样有效），或带有“text”列的 ​‌‌​‌‌‌‌‌‌​​​‌​‌CSV。已有的任务会被跳过。', 'opt.tasksImportBtn': '导入', 'opt.tasksNone': '没有可添加的内容：这些任务已在你的列表中。', 'opt.tasksEmpty': '在该文件中没有找到任务。', 'opt.tasksConfirmTitle': { other: '导入 {n} 个任务？' }, 'opt.tasksConfirmBody': '前几项：{sample}。已在你的列表中而被跳过：{skipped}。', 'opt.tasksDone': { other: '已导入 {n} 个任务' },
   'opt.streakGrace': '每周允许漏掉一天', 'opt.streakGraceDesc': '任意七天中有一天未达目标，不会中断连续天数——生病的一天不算失败。',
   'opt.calErr.redirect': '该地址重定向到另一个网站，而 EyeTime 无权访问。请使用直接的日历链接。',
   'opt.tasksBig': '该文件对任务列表来说太大了（超过 2 MB）。',

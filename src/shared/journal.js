@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Markdown journal: one section per day with focus time, sessions and the "what went well" line.
 // Totals only — no site names or task titles beyond the goals the person typed for their own sessions.
 

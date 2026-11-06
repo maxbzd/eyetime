@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The reference collector for EyeTime's optional anonymous usage report. Plain functions over a small store, so the same code runs in a Cloudflare Worker (worker.js, D1),
 // in a test (memory-store.js) or behind any other server. It accepts exactly what src/shared/usage-schema.js allows and nothing else, keeps no IP address or header,
 // and forgets an id on request.

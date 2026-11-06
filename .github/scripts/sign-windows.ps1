@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: FSL-1.1-ALv2
+# Copyright 2026 maxbzd
 # Signs Windows programs with a code-signing certificate (Authenticode), so that Windows shows the publisher's name instead of "unknown publisher".
 #   ./sign-windows.ps1 file1.exe file2.exe
 # The certificate comes from two repository secrets: WINDOWS_CERT_PFX_BASE64 (the .pfx file, base64) and WINDOWS_CERT_PASSWORD.

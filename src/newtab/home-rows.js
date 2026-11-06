@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The customize drawer as a short list of rows. Each row shows what is chosen now and opens (one at a time) to all of its options:
 // nothing was taken away, the options are only folded until you want them. The same controls as the arrangement editor uses.
 

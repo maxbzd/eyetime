@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Runs the subject-segmentation model off the page's main thread (so the page stays responsive while it works).
 // Everything is local: the engine (ONNX Runtime Web, WebAssembly) and the model (U²-Net small) are files of this extension.
 //   in:  { id, data: Float32Array (1×3×size×size), size }      out: { id, mask: Float32Array (size×size) } or { id, error }

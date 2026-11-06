@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The free-form Home: where every block sits when the user arranges the new tab by hand.
 // Pure functions only (no DOM), so the geometry can be unit-tested: validation, keeping a block on screen, snapping to guides, nudging.
 //

@@ -4,16 +4,16 @@
 EyeTime — Foco, Tempo de Tela e Cuidado com os Olhos
 
 ## Summary (≤ 132 characters)
-Sessões de foco, pausas antes de sites que distraem, estatísticas honestas e cuidado com os olhos. Grátis, open source e 100% local.
+Sessões de foco, pausas antes de sites que distraem, estatísticas honestas e cuidado com os olhos. Grátis, código visível, local.
 
 ## Description
-O EyeTime ajuda você a trabalhar com profundidade sem brigar com o navegador. É gratuito, de código aberto e mantém tudo no seu dispositivo.
+O EyeTime ajuda você a trabalhar com profundidade sem brigar com o navegador. É gratuito, o código-fonte é visível para todos e mantém tudo no seu dispositivo.
 
 FOCO EM UM CLIQUE
 Inicie uma sessão de foco com tempo definido pela barra de ferramentas, pela nova guia, com Alt+Shift+F ou pela paleta de comandos (Ctrl/Cmd+K). Escolha um modo — Trabalho profundo, Sprint, Estudo —, acrescente mais cinco minutos quando estiver no embalo e deixe o timer de pausa fazer o trabalho dele. Os sites que distraem ficam em pausa até o fim da sessão e voltam a abrir sozinhos. O modo rígido está lá para quando você estiver falando sério.
 
 BLOQUEIO QUE RESPEITA VOCÊ
-Escolha categorias (redes sociais, vídeo, fóruns, notícias, jogos, compras, mensageiros) ou adicione seus próprios sites. Uma breve página de pausa com respiração e o seu plano "se… então…" funciona melhor do que um bloqueio total. Defina horário de trabalho, limites diários por site e um "orçamento de distração" por dia. O bloqueio instantâneo opcional (Chrome) envia uma página que distrai para a pausa antes de qualquer solicitação ser feita.
+Escolha categorias (redes ​​‌​​‌​​‌‌‌​‌​‌​sociais, vídeo, fóruns, notícias, jogos, compras, mensageiros) ou adicione seus próprios sites. Uma breve página de pausa com respiração e o seu plano "se… então…" funciona melhor do que um bloqueio total. Defina horário de trabalho, limites diários por site e um "orçamento de distração" por dia. O bloqueio instantâneo opcional (Chrome) envia uma página que distrai para a pausa antes de qualquer solicitação ser feita.
 
 PLANEJE O DIA E A SEMANA
 O "Planejar meu dia" encaixa suas prioridades no tempo que você realmente tem. Digite "Relatório amanhã 14:30 45m !" ou "Alongar todo dia" e o EyeTime entende — em onze idiomas. Assine o link da sua agenda (ou importe um arquivo) para ver a próxima reunião no cartão de foco. Três metas para a semana, tarefas recorrentes e importação e exportação das suas tarefas em Markdown ou CSV.
@@ -31,7 +31,7 @@ PROTEÇÃO CONTRA VÍDEOS CURTOS
 Depois de um limite de rolagem em Shorts / Reels / TikTok / VK Clips, a página fica em tons de cinza e entra em pausa.
 
 PRIVACIDADE POR PROJETO
-Sem conta. Sem servidores. Sem análise de uso. Só nomes de domínio e segundos são armazenados — no seu dispositivo. Se você assinar o link de uma agenda, o EyeTime baixa esse único arquivo direto do seu navegador; o endereço nunca sai do seu dispositivo. A sincronização opcional de configurações usa a sincronização do próprio navegador e nunca inclui o seu histórico. O código é aberto (MIT): https://github.com/maxbzd/eyetime Opcional: cifre as configurações e tarefas sincronizadas com uma frase secreta, e até a nuvem do navegador guardará apenas texto cifrado.
+Sem conta. Sem servidores. Sem análise de uso. Só nomes de domínio e segundos são armazenados — no seu dispositivo. Se você assinar o link de uma agenda, o EyeTime baixa esse único arquivo direto do seu navegador; o endereço nunca sai do seu dispositivo. A sincronização opcional de configurações usa a sincronização do próprio navegador e nunca inclui o seu histórico. O código-fonte é visível (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Opcional: cifre as configurações e tarefas sincronizadas com uma frase secreta, e até a nuvem do navegador guardará apenas texto cifrado.
 
 Idiomas: inglês, russo, espanhol, alemão, francês, português, italiano, polonês, ucraniano, chinês e japonês.
 

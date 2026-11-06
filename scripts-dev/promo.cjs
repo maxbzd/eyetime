@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Store promo tiles (store/promo/marquee-1400x560.png, small-tile-440x280.png) from the logo, the new tab screenshot and the Insights screenshot:  node scripts-dev/promo.cjs
 // Needs Playwright + Chromium; run scripts-dev/e2e/screenshots.cjs first so the screenshots are current.
 const { chromium } = require('playwright');

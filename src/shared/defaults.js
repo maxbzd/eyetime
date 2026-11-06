@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 import { DEFAULT_PRESETS_ON, PRESET_IDS } from './catalog.js';
 
 export const SCHEMA_VERSION = 3;

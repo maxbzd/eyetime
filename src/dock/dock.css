@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
 /* The dock panel: OLED black, in the same language as the edge notch — white on black, hairlines, soft tints. It ignores the person's look on purpose (the notch is always black). */
 :root[data-scheme="dark"] { color-scheme: dark;
   --bg: #000; --surface: #0c0c0e; --surface-2: #131316; --surface-3: #1b1b1f; --text: #f5f5f7; --text-2: #a8a8ae; --text-3: #8e8e95;

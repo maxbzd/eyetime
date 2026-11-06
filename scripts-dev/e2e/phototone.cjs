@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The text colour on a photo background: Auto reads the picture and picks white or black, and the person can force either.
 //   node scripts-dev/e2e/phototone.cjs
 const { launch } = require('./lib.cjs');

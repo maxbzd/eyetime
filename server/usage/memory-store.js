@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The store of handler.js kept in memory: for tests, and a way to try the collector without a database. Same behaviour as d1-store.js.
 
 export class MemoryStore {

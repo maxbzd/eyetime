@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! The real computer. Everything here is thin: ask Windows, do what the supervisor said.
 
 use crate::os::{image_file_name, Os, Proc};

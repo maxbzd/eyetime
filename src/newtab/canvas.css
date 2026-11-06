@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
 /* Free-form Home: every block is fixed to the window, placed by its centre (percent) and scaled with the window width (--k). */
 .greet-block { display: contents; }
 body[data-layout="canvas"] { overflow: hidden; height: 100vh; }

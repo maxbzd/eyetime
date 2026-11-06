@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Phosphor — a mainframe terminal that never sleeps. Scan lines, a slow beam, a little digital rain; a log that talks about your day.
 
 import { text, rect, group, full, grad, radial, customWidget } from '../kit.js';

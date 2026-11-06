@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Settings → Blocking: "Instant blocking". The browser itself sends a distracting tab to the pause page, before any request is made (see shared/dnr.js).
 // It needs access to websites, an optional permission that is asked for here, at the click, and given back when this is switched off (unless the Dock still uses it).
 

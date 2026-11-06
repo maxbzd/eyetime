@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Tiny fuzzy matcher for the command palette: subsequence match with bonuses for word starts and consecutive characters.
 
 /** score > 0 when every query character appears in order in `text`; higher is better. 0 = no match. */

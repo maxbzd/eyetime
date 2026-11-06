@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Settings → About: version, links, report a problem, suggest an idea, shortcuts.
 
 import { h, icon, toast, clear } from '../ui/dom.js';

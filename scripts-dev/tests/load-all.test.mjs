@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Every module of src/shared loads on its own in Node (they are plain logic, with no browser in them), and each one is therefore counted by the coverage
 // report: without this the report only lists the files that some test happens to import, and the percentage says more than it should.
 import test from 'node:test';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Unknown sites sorted by the browser's on-device model, end to end — with a FAKE model (this automation cannot run Chrome's real Gemini Nano):
 // off by default and never asked; asked only about busy unknown sites with address + title; verdicts shape reports and are marked; garbage answers are dropped;
 // a download is never started on its own; states of the model are told in Settings.   node scripts-dev/e2e/siteai.cjs

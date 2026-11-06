@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! Quiet reminders from the window's own process (which lives in the tray when the window is closed):
 //! an eye break every N minutes of real work at the screen, and a soft note before bedtime. A Windows notification, nothing more.
 

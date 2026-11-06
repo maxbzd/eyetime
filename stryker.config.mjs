@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Mutation testing: Stryker changes the logic a little (a `<` becomes `<=`, a `+` a `-`, a condition `true`) and runs the tests; a change that no test notices is a
 // "survivor" — a place where the code can be wrong and the tests would still pass. Coverage says a line ran; this says whether a test would notice if it were wrong.
 //   npm run mutation              the pure logic of src/shared that matters most (about ten minutes)

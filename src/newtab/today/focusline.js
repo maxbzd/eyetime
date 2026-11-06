@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Home · Today: one quiet line under the clock. "What is your main focus right now?" — type, press Enter, the session starts.
 // The length sits beside it as a small pill (a click steps through your lengths). While a session runs the clock becomes the
 // countdown (#countdown) and this line becomes what you are working on, with three small controls that show on hover.

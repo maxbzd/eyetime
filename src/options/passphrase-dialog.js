@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The dialog that asks for a passphrase (or two, or an old and a new one), shared by the vault of connected services and by the encryption of synced data.
 // It is a <dialog>, so the keyboard, the focus and the escape key are the browser's; the check runs before it closes and its message stays in the dialog.
 

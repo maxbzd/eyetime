@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Contrast of white type on every wallpaper of Home · Today, measured on real screenshots (the page with its text hidden, the veil as it is).
 // Prints the extra veil each wallpaper needs ([centre, top, bottom], 0..1) to reach the targets; `--check` exits 1 if a wallpaper is below them.
 //   centre (the clock, the greeting, the line of intent: large type) ≥ 3.2:1, top / bottom (small type in the corners and under the clock) ≥ 4.5:1.

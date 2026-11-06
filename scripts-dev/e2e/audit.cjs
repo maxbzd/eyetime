@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Visual audit: screenshots every surface/state into a folder.
 //   node scripts-dev/e2e/audit.cjs <outDir> [look=calm] [mode=light] [lang=en] [seed=0|1]
 // seed=0 is a brand-new profile (what a new user really sees); seed=1 adds 30 days of realistic data.

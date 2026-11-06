@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Plays 'start' / 'end' sounds and the ambient focus sound. Chrome: through an offscreen document (service workers have no
 // Web Audio). Firefox: its background is an event page with Web Audio, so the same synthesis code is called directly.
 

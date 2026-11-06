@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // End-to-end encryption of what is kept in the browser's own sync storage (chrome.storage.sync): the settings and the task list.
 //
 // Without it the text travels as plain JSON to the account's cloud (Google's or Mozilla's), where the provider can read it. With a sync passphrase it is compressed and sealed with

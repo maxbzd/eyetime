@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Regenerates the preview pictures of the ready-made themes (src/newtab/starters/<id>.jpg): each starter applied to a profile with demo data at 1440x900, at a fixed morning time, shrunk to 480x300.
 //   node scripts-dev/starter-shots.cjs        (run it after changing a starter in src/shared/starters.js)
 const fs = require('fs');

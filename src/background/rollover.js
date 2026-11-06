@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Repeating tasks: reopen finished daily / weekday / weekly tasks when their day has come (Home does it too; this covers the popup,
 // the palette and reminders when Home was not opened today). Runs at worker start and just after every local midnight.
 

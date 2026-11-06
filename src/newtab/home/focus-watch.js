@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The running session on the page: the tab title shows the countdown, and a focus layout switches on while one runs.
 
 import { getRaw, onChange } from '../../shared/storage.js';

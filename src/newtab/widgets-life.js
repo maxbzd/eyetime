@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Widgets for the day itself: tasks, habits, a counter, calendars (month, agenda, week strip), the body (breathing, water, mood, focus sound) and the look of the page (quote, label, photo, orb, quick links).
 
 import { icon, favicon } from '../ui/dom.js';

@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.8.1 — 2026-11-06 — One licence
+
+- **The whole repository is now under the Functional Source License (FSL-1.1-ALv2), no longer MIT.** The code stays open to read, run and change for any purpose except a competing commercial product; every version becomes Apache 2.0 two years after it is released. The name "EyeTime" and the logo are not licensed. `LICENSE` is the official text, `NOTICE` says what is third-party and plain words, every source file carries a two-line header, and `npm run check` keeps all of it true (`scripts-dev/license-check.mjs`). The wording "open source" is gone from the app, the listings and the site: it is source-available.
+- Versions before 3.8.1 were published under the MIT licence and stay so for anyone who already has them.
+
 ## 3.8.0 — 2026-11-06 — Lighter, stricter, easier to trust
 
 ### Faster to open

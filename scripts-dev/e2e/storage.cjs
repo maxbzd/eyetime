@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Storage meter and "Free up space": old days lose their hour-by-hour detail, recent days and totals stay; Settings shows the numbers.
 //   node scripts-dev/e2e/storage.cjs
 const { launch } = require('./lib.cjs');

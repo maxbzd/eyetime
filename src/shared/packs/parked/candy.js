@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Candy — a sticker party. Floating bubbles, spinning stars and sparkles; a smiley that cheers for your goal, lollipops for the week.
 
 import { text, rect, ellipse, group, full, grad, radial, customWidget } from '../kit.js';

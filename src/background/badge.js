@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Toolbar badge: minutes left while a focus session runs, otherwise today's screen time.
 
 import { getRaw, dayStorageKey } from '../shared/storage.js';

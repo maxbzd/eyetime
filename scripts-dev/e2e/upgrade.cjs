@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Regression crawl: (1) a profile upgraded from v2.2.0 (old-shaped settings, old tasks without estimates, 20 days of data) and
 // (2) a brand-new empty profile. Every extension page, every Insights tab × range and every Settings section is opened;
 // any console/page error fails the run. Empty and legacy states are where "works on my data" bugs hide.

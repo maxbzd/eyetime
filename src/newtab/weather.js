@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Loading the weather for Home: one request at a time, kept for half an hour, and the last good answer is shown when the network is away.
 // It asks Open-Meteo only when the person has turned the weather on, chosen a city and granted access (Settings → General → Weather).
 

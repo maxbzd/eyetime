@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Ink — slow smoke and hairlines. Black and ivory with a thread of champagne; a chronograph and a page of roman numerals.
 
 import { text, rect, ellipse, group, full, customWidget } from '../kit.js';

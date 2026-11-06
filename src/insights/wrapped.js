@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // "My week" card: a 1080×1350 PNG drawn on a canvas from the same data as the weekly review.
 // Contains no site names or task titles — only totals — so it is safe to share.
 

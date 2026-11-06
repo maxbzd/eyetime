@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Message router: pages talk to the worker only for things that need worker-side effects
 // (alarms, tab redirects, notifications). Plain preference changes are written to storage directly.
 

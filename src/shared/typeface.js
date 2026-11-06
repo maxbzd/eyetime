@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The Home type designer's model (pure): which faces exist, how a saved style is validated, and which CSS declarations a style means.
 // A style only holds what the user changed; anything left out (null / default) keeps the look's own typography.
 

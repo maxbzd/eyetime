@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { phase, eveningMinutes, candidates, setPriorities, applyTimes, todaysThree, nextUp, closing, tomorrowPicks, rtOf } from '../../src/shared/ritual.js';

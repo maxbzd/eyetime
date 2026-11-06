@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // A small XML reader for WebDAV answers (the service worker has no DOMParser). Well-formed XML only, which is what CalDAV servers send.
 // Names are kept without their namespace prefix: `D:href`, `d:href` and `href` are all "href".
 

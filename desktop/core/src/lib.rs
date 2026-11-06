@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 //! EyeTime core: everything that can be decided without touching the computer. The helper does the touching.
 
 pub mod catalog;

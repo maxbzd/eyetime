@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { normalizeCanvas, clampCenter, snapRect, nudge, resizeStep, stretchStep, stretchDrag, itemFromRect, seedItems, canvasScale, reorder, alignItem, sizeValue, withSize, CANVAS_BLOCKS } from '../../src/shared/canvas.js';

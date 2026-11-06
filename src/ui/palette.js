@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Command palette (Ctrl/Cmd+K) for the full-page surfaces: type to find a command, a task, a setting or a look, Enter to run it.
 // Everything it does is also reachable by hand — the palette only makes the frequent things one keystroke away.
 

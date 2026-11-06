@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // The whole widget catalogue: every kind builds at S, M and L without errors or overflow, the gallery shows categories, the size row resizes, and the interactive ones work (counter, water, mood, habit, to-do, breathing, sound).
 //   node scripts-dev/e2e/catalogue.cjs
 const { launch } = require('./lib.cjs');

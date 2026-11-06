@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: FSL-1.1-ALv2
+// Copyright 2026 maxbzd
 // Display name of a focus mode: the person's own name, else the built-in translation, else a neutral label (never a raw i18n key).
 import { t } from './i18n.js';
 
