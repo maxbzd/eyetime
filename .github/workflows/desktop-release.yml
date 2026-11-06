@@ -95,11 +95,19 @@ jobs:
           }
           cargo run --release -p eyetime-core --bin eyetime-sign -- $env:VER EyeTime-Setup.exe | Set-Content -NoNewline -Encoding ascii EyeTime-Setup.exe.sig
           if ((Get-Content EyeTime-Setup.exe.sig -Raw).Trim().Length -ne 128) { throw "The signature was not made." }
+      - name: winget manifests (made, checked by winget itself, attached to the release for submission to winget-pkgs)
+        shell: pwsh
+        run: |
+          $sha = (Get-FileHash EyeTime-Setup.exe -Algorithm SHA256).Hash
+          node packaging/winget/make.mjs $env:VER $sha winget-out
+          winget validate --manifest "winget-out/manifests/m/maxbzd/EyeTime/$env:VER"
+          if ($LASTEXITCODE -ne 0) { throw "winget does not accept the manifests." }
+          Compress-Archive -Path "winget-out/manifests" -DestinationPath winget-manifests.zip
       - name: Publish
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $files = @("EyeTime-Setup.exe")
+          $files = @("EyeTime-Setup.exe", "winget-manifests.zip")
           if (Test-Path EyeTime-Setup.exe.sig) { $files += "EyeTime-Setup.exe.sig" }
           gh release create "desktop-v$env:VER" @files --target "${{ github.sha }}" --title "EyeTime for Windows $env:VER" --notes-file notes.md
