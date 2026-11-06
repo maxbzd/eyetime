@@ -9,3 +9,17 @@ Ambient focus sounds are short seamless loops cut and loudness-normalised from p
 | `forest.ogg` | "Park ambiences" (birds) — https://opengameart.org/content/park-ambiences | CC0 |
 
 Brown noise and the session start/end sounds are synthesised in `src/background/offscreen.js`.
+
+## Instrument samples (src/audio/samples)
+
+Short notes of an upright piano, a harp and a cello section, used by the generative focus sound (src/shared/soundscape). Cut to a few seconds,
+loudness-normalised and encoded to Ogg Vorbis by scripts-dev/build-samples.mjs.
+
+| Files | Source | License |
+|---|---|---|
+| `piano-*.ogg` | "VS Upright Nr. 1", VS Chamber Orchestra: Community Edition (Versilian Studios; Simon Dalzell of Ivy Audio) | CC0 1.0 |
+| `harp-*.ogg` | Harp, VS Chamber Orchestra: Community Edition (Versilian Studios) | CC0 1.0 |
+| `cello-*.ogg` | Cello Section, sustained with vibrato, VS Chamber Orchestra: Community Edition (Versilian Studios; recorded by Sam Gossner and Simon Dalzell) | CC0 1.0 |
+
+Source: https://github.com/sgossner/VSCO-2-CE (CC0 1.0 Universal; credit to the authors and Versilian Studios is encouraged and given here).
+The idea of notes on independent random periods comes from generative.fm by Alex Bainter (MIT); no code or sample of it is included.
