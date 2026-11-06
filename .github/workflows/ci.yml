@@ -46,6 +46,9 @@ jobs:
       - run: node scripts-dev/verify-build.mjs
       - run: npm i --no-save playwright@1.56.1 && npx playwright install --with-deps chromium
       - run: EXT=$PWD/dist/chrome node scripts-dev/e2e/dist.cjs
+      # the two features that need a real browser against a real server or cloud, on the package that is uploaded to the store (not the source tree)
+      - run: EXT=$PWD/dist/chrome node scripts-dev/e2e/instant.cjs
+      - run: EXT=$PWD/dist/chrome node scripts-dev/e2e/syncenc.cjs
   companion:
     runs-on: ubuntu-24.04
     steps:
