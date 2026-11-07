@@ -68,7 +68,7 @@ async function seed(page) {
     for (const s of secs) { const id = await s.getAttribute('id'); await s.screenshot({ path: `${OUT}/options-${id}.png` }); }
     await p.close(); }
   if (want('onboarding')) { const p = await open('src/onboarding/onboarding.html', { width: 1280, height: 820 });
-    for (let i = 1; i <= 5; i++) { await shot(`onboarding-${i}`, p); const nxt = p.locator('#card .btn-primary').first(); if (i < 5) { await nxt.click(); await p.waitForTimeout(500); } }
+    for (let i = 1; i <= 3; i++) { await shot(`onboarding-${i}`, p); const nxt = p.locator('#card .btn-primary').first(); if (i < 3) { await nxt.click(); await p.waitForTimeout(500); } }
     await p.close(); }
   if (want('break')) { const p = await open('src/break/break.html', { width: 1280, height: 800 }); await shot('break', p); await p.waitForTimeout(3000); await shot('break-2', p); await p.close(); }
   if (want('blocked')) { // block pages
