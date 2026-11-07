@@ -25,6 +25,7 @@ A polish release on top of 3.9.0: the first session and its dialog behave in the
 - **The page after removal says "Sent" only when the collector took the message**; otherwise it says that nothing was stored and that it can be tried again.
 
 ### Texts and documents
+- **The README and the project page no longer carry the 30-second demo clip** (a 256-colour GIF, and a short MP4 with the same footage on the page). It was soft and stuttering next to the sharp screenshots, so the README now leads with the real pictures of the product and the project page with the full-size screenshot of Home. The recording script (`scripts-dev/e2e/demo.cjs`) stays for a better demo later.
 - The Russian README says 11 languages (it said 6) and `store-check.mjs` now guards that line too; the body of `docs/FEEDBACK.md` matches what is built (a rating after a finished session once 7 days of use have passed, one question in 30 days, "Not now" and "Don't ask for ratings" on every card, the store-review invitation marked as planned).
 
 ### Under the hood

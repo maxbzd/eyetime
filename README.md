@@ -16,8 +16,6 @@ Free, with source code you can read and check, and 100% local — no account, no
 
 <img src="store/screenshots/1-home.png" alt="EyeTime home: the wallpaper of the day, the time and one line — what is your focus?" width="860">
 
-<img src="store/demo.gif" alt="EyeTime in 30 seconds: add a task by typing, start a focus session, the calm pause page, insights, switching the look" width="860">
-
 </div>
 
 ---
