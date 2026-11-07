@@ -34,6 +34,7 @@ A release about the moment that matters most to a new person: the end of the fir
 - **"min" instead of "minutes" in the short-video dialog** in English, German, Spanish, French, Italian and Portuguese, so the line fits one row.
 
 ### Texts and documents
+- **All the pictures are taken again from the current build:** the screenshots in the READMEs, the project page's set and the five store screenshots in each of the 11 languages. The onboarding picture shows the real first run (what pulls your attention away, with the pause preview), and a new one shows the end of the first session. Five pictures nobody linked to (the dock series and a second insights view) are removed.
 - `docs/FEEDBACK.md`: the table rows for the question of fit and for the pause question now describe what the code does (a finished session as the trigger, thumbs only with no free text, the 30-day budget after an answer and 60 days after a closed card), and rules 2 and 4 say that the quiet is one for all questions and that showing a question starts the budget at once.
 - `store-check.mjs` compares the number of languages in the Russian README with the product's own list (it only forbade "6" before).
 

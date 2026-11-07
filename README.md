@@ -70,7 +70,8 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 <img src="store/screenshots/13-week-card.png" width="420" alt="Shareable My week card">
 <img src="store/screenshots/5-settings.png" width="860" alt="Settings page">
 <img src="store/screenshots/4-home-dark.png" width="860" alt="Home page in dark mode">
-<img src="store/screenshots/6-onboarding.png" width="860" alt="Onboarding">
+<img src="store/screenshots/6-onboarding.png" width="860" alt="Onboarding: what pulls your attention away, and how a pause will look">
+<img src="store/screenshots/6b-first-session.png" width="860" alt="The end of the first focus session: what was held back, and a quick way to make it yours">
 
 </details>
 

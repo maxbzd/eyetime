@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
 // Regenerates store/screenshots/*.png with realistic demo data:  node scripts-dev/e2e/screenshots.cjs
-// (6-onboarding.png, the dock and the demo video are made by their own scripts.) Requires Playwright + Chromium like the e2e run.
+// (6-onboarding.png and 6b-first-session.png come from `SHOTS=<dir> node scripts-dev/e2e/onboarding.cjs`, resized to 1600 px wide: ob-2-chosen and ob-5-done.) Requires Playwright + Chromium like the e2e run.
 const { launch } = require('./lib.cjs');
 const path = require('path');
 const OUT = path.join(__dirname, '../../store/screenshots');
@@ -22,7 +22,7 @@ const { seed } = require('./seed.cjs');
   p = await open('src/popup/popup.html?site=github.com', { width: 380, height: 600 }); await shot('2-focus.png', p); await p.close();
   await app.sw.evaluate(() => chrome.storage.local.set({ focus: null }));
 
-  p = await open('src/insights/insights.html', { width: 1280, height: 1100 }); await p.evaluate(() => localStorage.setItem('et-itab', 'overview')); await p.reload(); await shot('3-insights.png', p); await p.evaluate(() => localStorage.setItem('et-itab', 'focus')); await p.reload(); await p.waitForTimeout(800); await p.screenshot({ path: path.join(OUT, '3b-insights-focus.png') }); await p.close();
+  p = await open('src/insights/insights.html', { width: 1280, height: 1100 }); await p.evaluate(() => localStorage.setItem('et-itab', 'overview')); await p.reload(); await shot('3-insights.png', p); await p.close();
 
   await seed(seedPage, { look: 'calm', mode: 'dark', background: 'photo', clockStyle: 'thin', layout: 'today', frame: 'dusk' });
   p = await open('src/newtab/newtab.html'); await p.addStyleTag({ content: '#nudge { display: none !important }' }); await shot('4-home-dark.png', p); await p.close();
