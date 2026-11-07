@@ -22,7 +22,7 @@ UCZCIWE STATYSTYKI
 Czas według strony, godziny i dnia; oś czasu dnia z sesjami skupienia; czas skupienia według projektu (#tag); trafność szacunków (plan a rzeczywistość); Twoje najlepsze godziny skupienia; „co Cię wciąga” — kiedy kusi Cię strona, z limitem jednym dotknięciem; przegląd tygodnia i obraz „Mój tydzień” do udostępnienia. Przeklasyfikuj dowolną stronę jako produktywną, neutralną lub rozpraszającą jednym dotknięciem. Eksport do CSV lub dziennika Markdown.
 
 SPOKOJNA NOWA KARTA
-Zegar, karta skupienia z dziennym celem, zadania z priorytetami, nawyki, notatki i szybkie linki. 16 stylów, dowolny kolor akcentu, 22 tła, prawdziwe dźwięki otoczenia. Jasny i ciemny motyw. Wyłączysz ją w każdej chwili.
+Zegar, karta skupienia z dziennym celem, zadania z priorytetami, nawyki, notatki i szybkie linki. 16 stylów, dowolny kolor akcentu, 22 tła ze zdjęciami, prawdziwe dźwięki otoczenia. Jasny i ciemny motyw. Wyłączysz ją w każdej chwili.
 
 DBAJ O OCZY
 Przypomnienia 20-20-20 oparte na prawdziwym, aktywnym czasie przed ekranem i prowadzona, 20-sekundowa strona przerwy.

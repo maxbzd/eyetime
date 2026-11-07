@@ -58,6 +58,8 @@ const { launch } = require('./lib.cjs');
   // 2. the coach while it runs
   const coach = ob.locator('#fsCoach');
   ok(await coach.count() === 1 && /You’re in focus/.test(await coach.innerText()) && /Closed until the timer ends/.test(await coach.innerText()), 'a small card on the new tab says what is closed');
+  const closedN = Number((/(\d+)/.exec(await coach.innerText()) || [])[1]);
+  ok(closedN > 5, 'the card counts the sites that are closed, not the kinds chosen (two kinds and one of their own would say 3): ' + closedN);
   await shot(ob, 'ob-4-coach');
   ok(outside.length === 0, 'until now no request left this computer: ' + [...new Set(outside)].join(' '));
   const [site] = await Promise.all([app.ctx.waitForEvent('page'), coach.getByRole('link', { name: /closed site/ }).click()]);
@@ -66,12 +68,17 @@ const { launch } = require('./lib.cjs');
   await site.close();
   ok(await ob.locator('#fsCoach').count() === 0 && (await get('obFirst')).coachSeen === true, 'the coach goes once it has been used, and does not come back');
 
-  // 3. the session ends: one dialog, the real number, the choices applied live
+  // 3. the session ends WITH THE TAB OPEN: the worker clears `focus` first and writes the finished session a moment later (the audit of 3.9.0 found the dialog lost in exactly this order)
+  await o.evaluate(async () => { const { focus } = await chrome.storage.local.get('focus'); await chrome.storage.local.set({ focus: { ...focus, endsAt: Date.now() + 1500 } }); }); // the end is near; the page notes it while it runs
+  await ob.waitForTimeout(900);
+  await o.evaluate(async () => { await new Promise((r) => setTimeout(r, 1000)); await chrome.storage.local.remove('focus'); }); // the session ends: nothing is running, and the record is not there yet
+  await ob.waitForTimeout(3000);
+  ok(await ob.locator('#fsDone').count() === 0 && (await get('obFirst')).stage === 'run', 'the matter is not closed in the moment before the finished session is written: ' + JSON.stringify((await get('obFirst')).stage));
   await o.evaluate(async () => {
-    const { obFirst } = await chrome.storage.local.get('obFirst'); const st = await import('/src/shared/storage.js');
+    const { obFirst } = await chrome.storage.local.get('obFirst');
     const k = new Date(); const key = 'd:' + k.getFullYear() + '-' + String(k.getMonth() + 1).padStart(2, '0') + '-' + String(k.getDate()).padStart(2, '0');
     const d = (await chrome.storage.local.get(key))[key] || {}; d.ss = [...(d.ss || []), { id: 'first', t: obFirst.at + 1000, m: 5, p: 5, g: 'x', k: 'focus', c: true, r: 3 }];
-    await chrome.storage.local.set({ [key]: d }); await chrome.storage.local.remove('focus'); void st;
+    await chrome.storage.local.set({ [key]: d });
   });
   await ob.waitForSelector('#fsDone[open]', { timeout: 8000 });
   const dlg = await ob.locator('#fsDone').innerText();

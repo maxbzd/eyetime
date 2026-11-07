@@ -88,14 +88,18 @@ for (const [file, w, h] of [['store/promo/small-tile-440x280.png', 440, 280], ['
 // 6. the numbers in the texts are the numbers in the code, and a text that says "no analytics" stops being true the day the collector's address is filled in (audit 3.8.1)
 {
   const imp = (p) => import(pathToFileURL(path.join(root, p)).href);
-  const [{ CLASSIC_LOOK_IDS }, { FRAMES }, { WIDGET_KIND_IDS }, { USAGE_ENDPOINT }] = await Promise.all([imp('src/shared/looks.js'), imp('src/shared/frames.js'), imp('src/shared/widgets.js'), imp('src/shared/usage-config.js')]);
-  const looks = CLASSIC_LOOK_IDS.length, frames = Object.keys(FRAMES).length, widgets = WIDGET_KIND_IDS.length;
+  const [{ CLASSIC_LOOK_IDS }, { FRAMES }, { WIDGET_KINDS }, { USAGE_ENDPOINT }] = await Promise.all([imp('src/shared/looks.js'), imp('src/shared/frames.js'), imp('src/shared/widgets.js'), imp('src/shared/usage-config.js')]);
+  const looks = CLASSIC_LOOK_IDS.length, frames = Object.keys(FRAMES).length, widgets = Object.values(WIDGET_KINDS).filter((k) => !k.hidden).length; // what the gallery shows: a person can count these (a hidden kind is not one of them; the audit of 3.9.0 counted 46 against 47)
   for (const l of fs.readdirSync(path.join(root, 'store/listing')).filter((f) => f.endsWith('.md'))) {
     const line = read('store/listing/' + l).split('\n')[24] || '';
     ok(new RegExp(`(^|\\D)${looks}(\\D|$)`).test(line) && new RegExp(`(^|\\D)${frames}(\\D|$)`).test(line), `store/listing/${l} line 25 should say ${looks} looks and ${frames} backdrops (the code has ${looks} and ${frames})`);
   }
   ok(read('README.md').includes(`${widgets} widgets`), `README.md should say ${widgets} widgets (the code has ${widgets})`);
   ok(read('site/index.html').includes(`${looks} looks`), `site/index.html should say ${looks} looks`);
+  const { STARTER_IDS } = await imp('src/shared/starters.js');
+  const words = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+  ok(read('README.md').includes(`${words[STARTER_IDS.length]} ready themes`) || !/ready themes/.test(read('README.md')), `README.md should say ${words[STARTER_IDS.length]} ready themes (the panel of ready themes has ${STARTER_IDS.length})`);
+  ok(!/Одиннадцать стилей/.test(read('README_RU.md')) || looks === 11, `README_RU.md says eleven looks, the code has ${looks}`);
   if (USAGE_ENDPOINT) for (const f of ['site/index.html', 'store/listing/en.md', 'README.md']) ok(!/no analytics/i.test(read(f)), `${f} says "no analytics" but the collector has an address (docs/MEASUREMENT.md: change the sentence in the same release)`);
 }
 

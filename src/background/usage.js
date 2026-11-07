@@ -9,7 +9,7 @@ import { logError } from '../shared/errorlog.js';
 
 const ALARM = 'usage-report';
 
-/** The page the browser opens after EyeTime is removed: one question, five clicks, no text and no identifier (site/uninstall.html). It carries the version and nothing else. */
+/** The page the browser opens after EyeTime is removed: one question with seven answers, counted by day with no identifier; the optional words that may follow are a message to the maker, sent only on Send (site/uninstall.html). It carries the version and nothing else. */
 export const UNINSTALL_PAGE = 'https://maxbzd.github.io/eyetime/uninstall.html';
 
 /**
