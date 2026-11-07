@@ -37,6 +37,19 @@ Refuses: pre-ticked or default consent; confirm-shaming ("No, I don't care about
 
 The size difference between the "Yes" and the two refusal buttons (the yes is full width and filled; the refusals are half width and outlined) is a **look hierarchy**, the usual primary / secondary pattern. Some data protection authorities (for example the French CNIL for cookie banners) are strict that a refusal must be *as easy* as an acceptance; it is, in clicks, place and height, but a stricter reading of "equal prominence" would ask for equal buttons. If a lawyer advises that, set `.ask-yes` and `.ask-refuse .btn` to the same style: it costs a few points of conversion, not the product.
 
+## Messages to the maker (feedback)
+
+| Rule | Source | What EyeTime does |
+|---|---|---|
+| A message is something the person **chose to send**; no hidden collection | GDPR Art. 5(1)(a), 6(1)(b)/(f) | Sent by an explicit click; the form says where it goes and asks not to write anything personal (Art. 13 point-of-collection text, `fb.privacy`). Notice in `PRIVACY.md`, "Messages to the maker". |
+| **Free text can hold anything**, including special categories | Art. 9 | The form says not to; the dashboard shows text as text only; nothing is used except to read, answer and improve EyeTime. The owner can delete any message (`DELETE /v1/feedback/:id`). |
+| **Retention without a date** (the owner chose "keep until deleted") | Art. 5(1)(e) | A defensible basis exists only with safeguards: the person can delete their own message with a ticket (`/v1/feedback/forget`), deletion on request is promised in the notice, the reply address is erased when answered or after 90 days, the owner's answers are erased 14 days after delivery. **Owner action:** review the pile once a year and delete what is no longer useful; the notice says the messages are kept until deleted, never "forever". |
+| A **new pseudonymous identifier** (the ticket) | Art. 4(1), 13 | Disclosed in the notice and on the form (`fb.replyHint`). It is random, per message, **never ticked for the person**, never combined with the usage ID, and only its hash is stored. Polling stores no caller identity (no IP, no log). |
+| ePrivacy Art. 5(3): access to terminal equipment | Directive 2002/58/EC | The ticket and the outbox are the app's own storage, written because the person asked for an answer and read only to deliver it. Polling happens only while such a message exists. |
+| **No consent gating**: questions must not cost the person anything | EDPB 03/2022 (dark patterns) | One-tap; "Not now" and *Don't ask for ratings* are real buttons in plain sight; 60-day quiet; at most one question in 30 days; none during a session. The store-review link (if added) is shown to everyone regardless of the rating (no review gating; FTC Consumer Reviews rule 2024). |
+| **Children** | Art. 8 | The questions carry no usage ID and no free text is required; the notice says not to write personal details. |
+| **Replies** | Art. 5(1)(c) | The answer text is written by the owner, at most three per message, 1000 characters; the person never sees other people's messages or the owner's notes. |
+
 ## Other places
 
 | Law | What matters here | Status |

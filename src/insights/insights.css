@@ -348,3 +348,4 @@ button.tag { appearance: none; padding-right: 9px; font-family: inherit; border:
 .bars .bar { border-radius: 6px 6px 3px 3px; }
 .bars .bar.best { background: var(--signal) !important; box-shadow: 0 0 0 1px color-mix(in srgb, var(--signal-fg) 12%, transparent) inset; }
 .scope .segmented, .page-head .segmented { background: color-mix(in srgb, var(--text) 6%, transparent); }
+.fb-week:empty { display: none; } .fb-week { margin-top: var(--s-4); }

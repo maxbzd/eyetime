@@ -243,6 +243,12 @@ test('page after removal: a few words and an address become a message of the kin
   assert.equal((await go({ reason: 'broken', text: 'Не открывалась новая вкладка', contact: 'me@example.com', app: '3.8.1' })).status, 204);
   const rows = await fb.all();
   assert.equal(rows.length, 1); assert.equal(rows[0].kind, 'leaving'); assert.deepEqual(rows[0].tags, ['broken']); assert.equal(rows[0].contact, 'me@example.com'); assert.equal(rows[0].ctx.app, '3.8.1');
+  // words added afterwards: stored, not counted a second time
+  const total = () => [...st.uninstalls.values()].reduce((a, b) => a + b, 0), tallied = total();
+  assert.equal((await go({ reason: 'slow', text: 'Стало медленнее после обновления', more: true })).status, 204);
+  assert.equal((await fb.all()).length, 2); assert.equal(total(), tallied);
+  assert.equal((await go({ reason: 'slow', more: true })).status, 400); // nothing added
+  assert.equal((await go({ reason: 'slow', text: 'ещё', more: false })).status, 400);
   assert.equal((await go({ reason: 'broken', text: 'x\u0000y' })).status, 400);
   assert.equal((await go({ reason: 'broken', contact: 'nope' })).status, 400);
   assert.equal((await go({ reason: 'broken', app: 'x' })).status, 400);
