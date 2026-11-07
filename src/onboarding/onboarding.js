@@ -7,6 +7,7 @@
 // Everything else the old flow asked (look, theme, daily goal, eye breaks, work hours) is applied with sensible defaults and asked after the first session, on the page itself
 // (newtab/home/first-session.js), where the person can see what they are choosing. Nothing here asks for an account, a permission or a notification, and every screen can be skipped.
 
+import { patchObFirst } from '../shared/first-session-state.js';
 import { dropdown } from '../ui/dropdown.js';
 import { bootPage } from '../ui/page.js';
 import { $, h, icon, clear } from '../ui/dom.js';
@@ -46,7 +47,7 @@ async function finish(startFirst) {
     const obFirst = { at: Date.now(), minutes: pick.minutes, sites: closedDomains(pick).length, host: host || '', blocks0: usage.total.block_page || 0, stage: 'run', sid: '' };
     await setRaw({ obFirst });
     const started = await send('focus:start', { minutes: pick.minutes, goal: pick.goal.trim().slice(0, 120), strict: false, remember: false }); // the first session of five minutes is not the person's choice of a usual length
-    if (started && typeof started.id === 'string') await setRaw({ obFirst: { ...obFirst, sid: started.id } }); // which session it is: a second one must not be taken for it
+    if (started && typeof started.id === 'string') await patchObFirst({ sid: started.id }); // which session it is: a second one must not be taken for it
   }
   location.href = chrome.runtime.getURL('src/newtab/newtab.html');
 }

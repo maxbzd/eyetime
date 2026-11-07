@@ -8,13 +8,14 @@
 
 import { h, icon } from '../../ui/dom.js';
 import { t, fmtDuration } from '../../shared/i18n.js';
-import { getRaw, setRaw, getDays, getSettings, updateSettings, onChange } from '../../shared/storage.js';
+import { getRaw, getDays, getSettings, updateSettings, onChange } from '../../shared/storage.js';
 import { getUsage } from '../../shared/usage-store.js';
 import { isFocusLive } from '../../shared/blocking.js';
 import { looksGallery } from '../../ui/appearance.js';
 import { send } from '../../ui/api.js';
 import { rangeKeys } from '../../shared/time.js';
 import { seg, sw } from './opts.js';
+import { patchObFirst } from '../../shared/first-session-state.js';
 import { firstSessionPlan, sessionSince } from '../../shared/first-session-plan.js';
 import { openTour } from './tour.js';
 
@@ -24,7 +25,7 @@ const remove = (/** @type {string} */ id) => { const el = document.getElementByI
 
 function coach(/** @type {any} */ o) {
   if (document.getElementById(COACH) || o.coachSeen) return;
-  const close = async () => { const { obFirst } = await getRaw('obFirst'); if (obFirst) await setRaw({ obFirst: { ...obFirst, coachSeen: true } }); card.classList.add('leaving'); setTimeout(() => card.remove(), 240); };
+  const close = async () => { await patchObFirst({ coachSeen: true }); card.classList.add('leaving'); setTimeout(() => card.remove(), 240); };
   const card = h('aside', { id: COACH, class: 'fbc float fs-coach', role: 'dialog', 'aria-modal': 'false', 'aria-label': t('fs.coachTitle') },
     h('div', { class: 'fbc-reply-head' }, h('span', { class: 'fbc-ico on' }, icon('target')), h('b', { text: t('fs.coachTitle') })),
     o.sites > 0 ? h('p', { class: 'fbc-quote', text: t('fs.coachSites', { n: o.sites }) }) : null,
@@ -60,7 +61,7 @@ async function celebrate(/** @type {any} */ o, /** @type {any} */ ses) {
     h('div', { class: 'dialog-actions' },
       h('button', { class: 'btn btn-lg', type: 'button', onclick: () => { dlg.close(); openTour(); } }, icon('sliders-horizontal'), t('fs.more')), // the long way: the rest of what EyeTime can do, one short step at a time
       h('button', { class: 'btn btn-primary btn-lg', type: 'button', onclick: () => dlg.close() }, t('fs.tuneDone'))));
-  dlg.addEventListener('close', async () => { celebrating = false; dlg.remove(); const { obFirst } = await getRaw('obFirst'); if (obFirst) await setRaw({ obFirst: { ...obFirst, stage: 'closed' } }); });
+  dlg.addEventListener('close', async () => { celebrating = false; dlg.remove(); await patchObFirst({ stage: 'closed' }); });
   document.body.append(dlg); dlg.showModal();
 }
 
@@ -75,13 +76,13 @@ export async function paintFirstSession() {
   if (plan === 'none') { remove(COACH); return false; }
   if (plan === 'coach') {
     // `seen`: it has been running, so a stop before its end is an early stop, not a late start; `endsAt` tells a natural end from a stop (it moves when the person adds five minutes)
-    if (!obFirst.seen || obFirst.endsAt !== focus.endsAt) await setRaw({ obFirst: { ...obFirst, seen: true, endsAt: focus.endsAt } });
+    if (!obFirst.seen || obFirst.endsAt !== focus.endsAt) await patchObFirst({ seen: true, endsAt: focus.endsAt });
     coach(obFirst); return !obFirst.coachSeen;
   }
   remove(COACH);
   if (plan === 'wait') { retry = setTimeout(paintFirstSession, 1500); return false; } // the worker clears the session a moment before it writes the finished one: look again, do not close
-  if (plan === 'close') { const open = /** @type {HTMLDialogElement | null} */ (document.getElementById(DONE)); if (open && open.open) open.close(); await setRaw({ obFirst: { ...obFirst, stage: 'closed' } }); return false; } // stopped early or never started: nothing to celebrate, nothing to say
-  if (obFirst.stage === 'run') await setRaw({ obFirst: { ...obFirst, stage: 'done', m: ses.m } });
+  if (plan === 'close') { const open = /** @type {HTMLDialogElement | null} */ (document.getElementById(DONE)); if (open && open.open) open.close(); await patchObFirst({ stage: 'closed' }); return false; } // stopped early or never started: nothing to celebrate, nothing to say
+  if (obFirst.stage === 'run') await patchObFirst({ stage: 'done', m: ses.m });
   await celebrate(obFirst, ses || (obFirst.m ? { m: obFirst.m } : null));
   return true;
 }
