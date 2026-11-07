@@ -58,7 +58,7 @@ const arg = (name) => { const i = process.argv.indexOf(name); return i < 0 ? nul
 
   const mp4 = path.join(WORK, 'demo.mp4');
   cp.execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(FPS), '-start_number', String(from), '-i', path.join(frames, 'f%05d.png'),
-    '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-movflags', '+faststart', '-an', mp4], { stdio: 'inherit' });
+    '-c:v', 'libx264', '-preset', 'veryslow', '-crf', '22', '-pix_fmt', 'yuv420p', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-movflags', '+faststart', '-an', mp4], { stdio: 'inherit' });
   const poster = Math.min(to, Math.round(6.2 * FPS));
   cp.execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', path.join(frames, `f${String(poster).padStart(5, '0')}.png`), '-vf', 'scale=1600:-2', '-q:v', '3', path.join(WORK, 'demo-poster.jpg')]);
   if (!arg('--frames')) { fs.copyFileSync(mp4, path.join(ROOT, 'store/demo.mp4')); fs.copyFileSync(path.join(WORK, 'demo-poster.jpg'), path.join(ROOT, 'store/demo-poster.jpg')); }

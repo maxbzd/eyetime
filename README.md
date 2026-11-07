@@ -16,6 +16,10 @@ Free, with source code you can read and check, and 100% local — no account, no
 
 <img src="store/screenshots/1-home.png" alt="EyeTime home: the wallpaper of the day, the time and one line — what is your focus?" width="860">
 
+<a href="https://maxbzd.github.io/eyetime/#demo"><img src="store/demo-poster.jpg" alt="Watch the 36-second demo: the new tab, a focus session, the pause page, insights and looks" width="860"></a>
+
+▶ **Watch the 36-second demo** on the [project page](https://maxbzd.github.io/eyetime/#demo)
+
 </div>
 
 ---

@@ -15,6 +15,10 @@
 
 <img src="store/screenshots/1-home.png" alt="Главная EyeTime: обои дня, время и строка «на чём вы сосредоточены?»" width="860">
 
+<a href="https://maxbzd.github.io/eyetime/#demo"><img src="store/demo-poster.jpg" alt="Смотреть демо на 36 секунд: новая вкладка, фокус-сессия, страница паузы, статистика и стили" width="860"></a>
+
+▶ **Смотреть демо (36 секунд)** на [странице проекта](https://maxbzd.github.io/eyetime/#demo)
+
 </div>
 
 ---
