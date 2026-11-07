@@ -457,4 +457,8 @@ export const en = {
   "fb.wkLine": "What made it so? (optional)",
   "fb.menu": "Write to the maker",
   "fb.menuHint": "Ideas, problems, kind words",
+  "fb.pauseQ": "Did this pause help?",
+  "fb.pauseYes": "Yes",
+  "fb.pauseNo": "No",
+  "wn.fromYou": "from your messages",
 };

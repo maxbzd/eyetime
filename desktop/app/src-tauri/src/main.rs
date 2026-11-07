@@ -182,6 +182,16 @@ fn open_target(kind: String) -> Result<(), String> {
             ]);
             c
         }
+        "feedback" => {
+            let mut c = std::process::Command::new(eyetime_core::sys::system32("cmd"));
+            c.args([
+                "/c",
+                "start",
+                "",
+                "https://github.com/maxbzd/eyetime/issues/new/choose",
+            ]);
+            c
+        }
         "edge_extensions" => {
             let mut c = std::process::Command::new(eyetime_core::sys::system32("cmd"));
             c.args(["/c", "start", "", "msedge", "edge://extensions"]);

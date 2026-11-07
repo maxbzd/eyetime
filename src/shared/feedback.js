@@ -60,6 +60,10 @@ export function promptPlan({ fb, endpoint, activeDays, consentAt = null, midSess
 /** May the week's mood be asked inside Insights? Once a week, after the first 7 days, only with a collector, and not after "Don't ask for ratings". The person has come to look at their week themselves, so this does not use the 30-day budget. */
 export const weekMoodDue = (/** @type {FbState} */ fb, /** @type {boolean} */ endpoint, /** @type {number} */ activeDays, now = Date.now()) => endpoint && !fb.never && activeDays >= FB_TIMING.minActiveDays && fb.weekDone !== weekKey(now);
 
+/** May "Did this pause help?" be shown on the pause page? The same quiet as the other questions (collector, a week of use, one question in 30 days, 60 days after "Not now", never after "Don't ask"). */
+export const pauseThumbsDue = (/** @type {FbState} */ fb, /** @type {boolean} */ endpoint, /** @type {number} */ activeDays, now = Date.now()) =>
+  endpoint && !fb.never && activeDays >= FB_TIMING.minActiveDays && !(fb.snoozeUntil && now < fb.snoozeUntil) && !(fb.lastAt && now - fb.lastAt < FB_TIMING.budgetMs);
+
 /* ---------- the state in storage ---------- */
 export async function getFb() { const { fbState } = await getRaw('fbState'); return normalizeFb(fbState); }
 /** Change the state under a lock; `fn` gets a copy and returns the new one (or nothing to keep the copy it changed). */

@@ -122,7 +122,6 @@ const { launch } = require('./lib.cjs');
   await home.locator('.fbc.float').getByRole('button', { name: 'Not now' }).click(); await home.waitForTimeout(600);
   const snooze = (await get('fbState')); ok(snooze.snoozeUntil > Date.now() + 55 * 86_400_000 && !snooze.never, '"Not now" is quiet for sixty days: ' + JSON.stringify(snooze.snoozeUntil));
   await prime({ fbState: { outbox: [], lastAt: Date.now() - 100 * 86_400_000, pmfAt: Date.now() - 100 * 86_400_000, never: false } }); await home.reload(); await home.waitForTimeout(2600);
-  if (process.env.DEBUGFB) console.log('DBG', await home.locator('.fbc').count(), JSON.stringify(await home.locator('.fbc').first().evaluate((e) => [e.className, e.innerText])), JSON.stringify(await get('fbState')), JSON.stringify(await get('usageShare')));
   await home.locator('.fbc.float').getByRole('button', { name: /Don.t ask for ratings/ }).click(); await home.waitForTimeout(600);
   ok((await get('fbState')).never === true, '"Don\'t ask for ratings" is for good');
   await prime({}); await home.reload(); await home.waitForTimeout(2400); ok(await home.locator('.fbc.float').count() === 0, 'and the door to write stays open while no question comes');
@@ -131,6 +130,19 @@ const { launch } = require('./lib.cjs');
   await o.evaluate(() => chrome.runtime.sendMessage({ type: 'focus:start', minutes: 25, goal: '' })); await o.waitForTimeout(600);
   await home.reload(); await home.waitForTimeout(2400); ok(await home.locator('.fbc.float').count() === 0, 'no question during a focus session');
   await o.evaluate(() => chrome.runtime.sendMessage({ type: 'focus:stop' })); await o.waitForTimeout(500);
+
+  // the pause page: "Did this pause help?", one tap, only when the rules allow
+  await home.close(); // (an open new tab repaints and may ask a question of its own)
+  await prime({ fbState: { outbox: [] } });
+  await o.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((x) => { x.blocking.always = []; x.blocking.custom = ['reddit.com']; x.blocking.friction.enabled = true; x.blocking.friction.seconds = 5; }); });
+  const pause = await app.ctx.newPage(); pause.on('pageerror', (e) => bad.push('pageerror: ' + e));
+  await pause.goto(ext('src/blocked/blocked.html?u=http%3A%2F%2Freddit.com%2F&r=friction&a=pause')); await pause.waitForTimeout(1800);
+  ok(await pause.locator('.fb-pause').count() === 1 && /Did this pause help/.test(await pause.locator('.fb-pause').innerText()), 'the pause page asks whether it helped, quietly');
+  await shot(pause, 'fb-pause');
+  await pause.locator('.fb-pause').getByRole('button', { name: 'Yes' }).click(); await pause.waitForTimeout(700);
+  const pl = hits[hits.length - 1].body; ok(pl.kind === 'pause' && pl.via === 'pause_page' && pl.rating === 1, 'the answer left: ' + JSON.stringify(pl));
+  await pause.reload(); await pause.waitForTimeout(1800); ok(await pause.locator('.fb-pause').count() === 0, 'and the next pause is quiet');
+  await pause.close();
 
   // 4. delete a message: on the collector, and from the list
   await o.evaluate(async (m) => { await chrome.storage.local.set({ fbState: { outbox: [{ t: m.ticket, ts: Date.now(), kind: 'idea', text: m.text, answers: [] }] } }); }, msg);
