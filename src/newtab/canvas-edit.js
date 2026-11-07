@@ -307,7 +307,21 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
     const f = buildFrame(id); frames.set(id, f); layer.append(f); syncFrames(); raf();
     closePanel(); f.focus({ preventScroll: true }); persist(); syncTray();
   }
-  const addWidget = (kind) => createWidget(kind, defaultCfg(kind), { x: 50, y: 50, w: WIDGET_KINDS[kind].w[2] });
+  /** Where a new block of about this size (px) can go without lying on what is already there: the free place nearest the middle, or the middle moved a little for each block already put there. */
+  function freeSpot(/** @type {number} */ w, /** @type {number} */ hgt) {
+    const v = view(), taken = [];
+    for (const id of presentBlocks()) { const el = blockEl(id); const r = el && (blockMeta(id).kind === 'text' ? textBox(el) : boxOf(el)); if (r && r.width && r.height) taken.push(r); }
+    const GAP = 12, spots = [];
+    for (let y = 20; y <= 85; y += 5) for (let x = 12; x <= 88; x += 4) spots.push({ x, y, d: Math.hypot(x - 50, (y - 50) * 1.4) });
+    spots.sort((a, b) => a.d - b.d);
+    for (const s of spots) {
+      const l = s.x / 100 * v.w - w / 2, tp = s.y / 100 * v.h - hgt / 2;
+      if (l < GAP || tp < GAP || l + w > v.w - GAP || tp + hgt > v.h - GAP) continue;
+      if (!taken.some((r) => l < r.right + GAP && l + w + GAP > r.left && tp < r.bottom + GAP && tp + hgt + GAP > r.top)) return { x: s.x, y: s.y };
+    }
+    const n = Object.keys(items).length; return { x: 50 + (n % 6) * 3, y: 50 + (n % 6) * 4 };
+  }
+  const addWidget = (kind) => { const w = WIDGET_KINDS[kind].w[2]; return createWidget(kind, defaultCfg(kind), { ...freeSpot(w * canvasScale(view().w), w * 0.6 * canvasScale(view().w)), w }); };
   async function duplicateWidget(id) {
     const src = (await effectiveNow()).newtab.widgets.find((w) => w.id === id), at = items[id];
     if (!src || !at) return;
@@ -317,7 +331,8 @@ export async function startEditing(settings, { onExit } = /** @type {{ onExit?: 
   function addBlock(id) {
     if (items[id]) return;
     const before = clone(items), b = blockMeta(id);
-    items[id] = normalizeCanvas({ on: true, items: { [id]: { x: 50, y: 50, [b.kind === 'text' ? 's' : 'w']: b.def } } }).items[id];
+    const k = canvasScale(view().w), at = b.kind === 'text' ? freeSpot(420 * k, 130 * k) : freeSpot(b.def * k, 300 * k);
+    items[id] = normalizeCanvas({ on: true, items: { [id]: { ...at, [b.kind === 'text' ? 's' : 'w']: b.def } } }).items[id];
     apply(); clampItem(id); placeBlock(id, items[id]); raf(); commit(before); syncTray();
     frames.get(id)?.focus({ preventScroll: true });
   }

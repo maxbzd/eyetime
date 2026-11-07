@@ -61,7 +61,11 @@ const arg = (name) => { const i = process.argv.indexOf(name); return i < 0 ? nul
     '-c:v', 'libx264', '-preset', 'veryslow', '-crf', '22', '-pix_fmt', 'yuv420p', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-movflags', '+faststart', '-an', mp4], { stdio: 'inherit' });
   const poster = Math.min(to, Math.round(6.2 * FPS));
   cp.execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', path.join(frames, `f${String(poster).padStart(5, '0')}.png`), '-vf', 'scale=1600:-2', '-q:v', '3', path.join(WORK, 'demo-poster.jpg')]);
-  if (!arg('--frames')) { fs.copyFileSync(mp4, path.join(ROOT, 'store/demo.mp4')); fs.copyFileSync(path.join(WORK, 'demo-poster.jpg'), path.join(ROOT, 'store/demo-poster.jpg')); }
+  if (!arg('--frames')) {
+    fs.copyFileSync(mp4, path.join(ROOT, 'store/demo.mp4')); fs.copyFileSync(path.join(WORK, 'demo-poster.jpg'), path.join(ROOT, 'store/demo-poster.jpg'));
+    const version = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.json'), 'utf8')).version; // store-check compares this with the product's version
+    fs.writeFileSync(path.join(ROOT, 'store/demo.json'), JSON.stringify({ _: 'Written by scripts-dev/e2e/demo-video.cjs: the version of the product the demo was rendered from. store-check fails when the minor version moves on, so the demo is made again with each minor release.', version, renderedAt: new Date().toISOString().slice(0, 10) }, null, 2) + '\n');
+  }
   console.log('video:', mp4, (fs.statSync(mp4).size / 1e6).toFixed(1) + ' MB');
   if (!process.argv.includes('--keep')) fs.rmSync(frames, { recursive: true, force: true });
 })();

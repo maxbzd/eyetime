@@ -18,13 +18,17 @@ export function notesModule() {
   const save = () => setCollection('captures', notes.slice(0, MAX_CAPTURES)); // the same cap as every other place that adds a note
   const LIMIT = 5;
 
+  const moving = new Set();
   async function toTask(n) {
-    const tasks = await getCollection('tasks', []);
-    tasks.unshift(taskFromInput(n.text, tasks).task); // a note like "Call Anna 16:45 30m" keeps its time and length when it becomes a task
-    await setCollection('tasks', tasks);
-    // the note is taken out of the list as it is stored NOW and by its id: the copy this page holds may have been replaced meanwhile by the one that arrived from storage (other objects, the same notes),
-    // and removing "this very object" from it left the note behind, as a task and as a note at once
-    notes = (await getCollection('captures', [])).filter((x) => x.id !== n.id); await save(); render(); toast(t('notes.movedToTasks'));
+    if (moving.has(n.id)) return; moving.add(n.id); // a double click on the button is one task, not two
+    try {
+      const tasks = await getCollection('tasks', []);
+      tasks.unshift(taskFromInput(n.text, tasks).task); // a note like "Call Anna 16:45 30m" keeps its time and length when it becomes a task
+      await setCollection('tasks', tasks);
+      // the note is taken out of the list as it is stored NOW and by its id: the copy this page holds may have been replaced meanwhile by the one that arrived from storage (other objects, the same notes),
+      // and removing "this very object" from it left the note behind, as a task and as a note at once
+      notes = (await getCollection('captures', [])).filter((x) => x.id !== n.id); await save(); render(); toast(t('notes.movedToTasks'));
+    } finally { moving.delete(n.id); }
   }
 
   function render() {

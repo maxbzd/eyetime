@@ -26,11 +26,12 @@ const remove = (/** @type {string} */ id) => { const el = document.getElementByI
 function coach(/** @type {any} */ o) {
   if (document.getElementById(COACH) || o.coachSeen) return;
   const close = async () => { await patchObFirst({ coachSeen: true }); card.classList.add('leaving'); setTimeout(() => card.remove(), 240); };
+  const tryIt = async () => { await patchObFirst({ coachSeen: true, tried: (Number(o.tried) || 0) + 1 }); card.classList.add('leaving'); setTimeout(() => card.remove(), 240); }; // the visit the person makes on purpose to see the pause is not a temptation held back: the dialog will not count it
   const card = h('aside', { id: COACH, class: 'fbc float fs-coach', role: 'dialog', 'aria-modal': 'false', 'aria-label': t('fs.coachTitle') },
     h('div', { class: 'fbc-reply-head' }, h('span', { class: 'fbc-ico on' }, icon('target')), h('b', { text: t('fs.coachTitle') })),
     o.sites > 0 ? h('p', { class: 'fbc-quote', text: t('fs.coachSites', { n: o.sites }) }) : null,
     h('div', { class: 'fbc-actions' },
-      o.host ? h('a', { class: 'btn btn-primary btn-sm', href: 'https://' + o.host, target: '_blank', rel: 'noopener', onclick: close }, icon('external-link'), t('fs.coachTry')) : null,
+      o.host ? h('a', { class: 'btn btn-primary btn-sm', href: 'https://' + o.host, target: '_blank', rel: 'noopener', onclick: tryIt }, icon('external-link'), t('fs.coachTry')) : null,
       h('button', { class: 'btn btn-sm', type: 'button', onclick: close }, t('fs.ok'))));
   document.body.append(card);
 }
@@ -39,7 +40,7 @@ let celebrating = false; // the dialog is built after a few awaits: a second cal
 async function celebrate(/** @type {any} */ o, /** @type {any} */ ses) {
   if (celebrating || document.getElementById(DONE)) return;
   celebrating = true;
-  const usage = await getUsage(), held = Math.max(0, (typeof o.blocksEnd === 'number' ? o.blocksEnd : usage.total.block_page || 0) - (o.blocks0 || 0));
+  const usage = await getUsage(), held = Math.max(0, (typeof o.blocksEnd === 'number' ? o.blocksEnd : usage.total.block_page || 0) - (o.blocks0 || 0) - (Number(o.tried) || 0));
   const s = await getSettings(), ap = s.appearance;
   const set = (/** @type {(a: any) => void} */ fn) => updateSettings((x) => { fn(x.appearance); });
   const changed = () => send('settings:changed');

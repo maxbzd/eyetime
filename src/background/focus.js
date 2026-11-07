@@ -9,6 +9,7 @@ import { isFocusActive, isFocusLive } from '../shared/blocking.js';
 import { dayKey } from '../shared/time.js';
 import { isFirstSession } from '../shared/first-session-plan.js';
 import { patchObFirst } from '../shared/first-session-state.js';
+import { logError } from '../shared/errorlog.js';
 import { resolveLocale, setLocale, t, fmtDuration } from '../shared/i18n.js';
 import { updateEstLog } from '../shared/tasks.js';
 import { sweepTabs } from './blocker.js';
@@ -115,7 +116,7 @@ export async function stopFocus() {
   // before this function reaches its questions. `stopped` tells the tab that this was a stop, not the planned end.
   const { obFirst } = await getRaw('obFirst');
   const first = isFirstSession(obFirst, focus);
-  if (first) await patchObFirst({ stopped: true });
+  if (first) { try { await patchObFirst({ stopped: true }); } catch (e) { logError('focus:first-mark', e); } } // the mark is a courtesy to the page: a failed write must not leave the session running
   await chrome.alarms.clear('focus-end'); await chrome.alarms.clear('focus-resume');
   await setRaw({ focus: null });
   track('focus_stop');
@@ -169,7 +170,7 @@ export async function finishFocus() {
   const { obFirst } = await getRaw('obFirst');
   const first = isFirstSession(obFirst, focus);
   // the count of held-back pages for the dialog is taken at the end of the session itself (not whenever the dialog is drawn: pages stopped afterwards are not this session's)
-  if (first) await patchObFirst({ blocksEnd: (await getUsage()).total.block_page || 0 });
+  if (first) { try { await patchObFirst({ blocksEnd: (await getUsage()).total.block_page || 0 }); } catch (e) { logError('focus:first-count', e); } } // the same: a failed count must not stop the session from ending
   await setRaw({ focus: null });
   track('focus_done'); track(lengthFeature(focus.minutes));
   setAmbient('off');
