@@ -21,3 +21,24 @@ dialog.fs-done .dialog-body { max-height: none; overflow: visible; -webkit-mask-
 .fs-looks { grid-auto-columns: 128px; }
 .fs-done { overflow-y: auto; }
 dialog.fs-done .dialog-actions { position: sticky; bottom: 0; padding-top: var(--s-4); background: linear-gradient(to bottom, transparent, var(--surface) 38%); }
+
+/* the guided set-up (home/tour.js) and the quiet tip (home/tip-card.js) */
+.tour-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.tour-dots { display: flex; gap: 6px; }
+.tour-dot { inline-size: 26px; block-size: 4px; border-radius: 4px; background: var(--border-strong, var(--border)); transition: background .2s; }
+.tour-dot.on { background: var(--accent); }
+.tour-count { font-size: var(--fs-sm); font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); }
+.tour-title { font-size: 30px; }
+.tour-body { display: flex; flex-direction: column; min-block-size: 200px; }
+.tour .dialog-actions { justify-content: space-between; }
+.tour .dialog-actions [hidden] { display: none; }
+.tour-go { text-decoration: none; color: inherit; border-radius: var(--r-md, 10px); }
+.tour-go:hover, .tour-go:focus-visible { background: var(--surface-2); }
+.tour-go-ico { display: grid; place-items: center; inline-size: 34px; block-size: 34px; border-radius: 50%; background: var(--surface-2); flex: none; font-size: 18px; }
+.tour-go > div { flex: 1; min-inline-size: 0; }
+.tour-go-arrow { color: var(--text-3); font-size: 18px; flex: none; }
+.tip-head { display: flex; flex-direction: column; min-inline-size: 0; } .tip-head small { color: var(--text-3); font-size: var(--fs-xs, 12px); font-weight: 650; letter-spacing: .06em; text-transform: uppercase; }
+.tip-off { align-self: flex-start; background: none; border: 0; padding: 4px 2px; color: var(--text-3); font: inherit; font-size: var(--fs-sm); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.tip-off:hover, .tip-off:focus-visible { color: var(--text-2); }
+.tip-card { display: flex; flex-direction: column; gap: var(--s-3); }
+.tip-card .fbc-quote { -webkit-line-clamp: 6; }
