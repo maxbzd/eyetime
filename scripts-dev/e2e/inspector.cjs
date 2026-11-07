@@ -95,7 +95,7 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
 
   // clicking the empty page deselects
   await p.locator('.cv-frame[data-block="tasks"]').focus(); await p.waitForTimeout(300);
-  await p.mouse.click(30, 450); await p.waitForTimeout(300);
+  await p.mouse.click(12, 10); await p.waitForTimeout(300); // the top edge: nothing is laid there, whichever side the cards slid to
   ok(await p.locator('.cv-insp').count() === 0 && await p.locator('.cv-frame.is-sel').count() === 0, 'a click on the empty page deselects');
 
   // the "More" menu
