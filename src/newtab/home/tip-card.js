@@ -24,6 +24,6 @@ export async function showTip(/** @type {string} */ id) {
     h('div', { class: 'fbc-actions' },
       h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: async () => { await writeTips(id, 'show'); gone(); openTour({ at: id }); } }, t('tip.show')),
       h('button', { class: 'btn btn-sm', type: 'button', onclick: async () => { await writeTips(id, 'later'); gone(); } }, t('tip.later'))),
-    h('button', { class: 'tip-off', type: 'button', onclick: async () => { await writeTips(id, 'off'); await updateSettings((s) => { s.tips = { on: false }; }); gone(); } }, t('tip.off'))); // the same switch as in Settings, where they can be brought back
+    h('button', { class: 'tip-off', type: 'button', onclick: async () => { await updateSettings((s) => { s.tips = { on: false }; }); gone(); } }, t('tip.off'))); // the one switch of tips, the one in Settings, where they can be brought back
   document.body.append(card);
 }

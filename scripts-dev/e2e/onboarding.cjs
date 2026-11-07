@@ -105,6 +105,17 @@ const { launch } = require('./lib.cjs');
   if (process.env.DEBUGOB) console.log('OBF', JSON.stringify(await get('obFirst')), Date.now());
   ok(await ob2.locator('#fsDone').count() === 0 && (await get('obFirst')).stage === 'closed', 'a first session that was stopped early closes the matter without a word');
 
+  // 4b. the same, stopped after more than two minutes WITH THE TAB OPEN: no dialog and no "how did it go?" (the open tab used to close the matter first, and the question came after)
+  await fresh(); const ob2b = await app.ctx.newPage(); await ob2b.goto(ext('src/onboarding/onboarding.html')); await ob2b.waitForSelector('.step-hello');
+  await ob2b.getByRole('button', { name: /Get started/ }).click(); await ob2b.getByRole('button', { name: 'Social networks' }).click();
+  await ob2b.getByRole('button', { name: 'Next' }).click(); await ob2b.waitForSelector('#goalIn'); await ob2b.locator('.go').click(); await ob2b.waitForSelector('#fsCoach', { timeout: 8000 });
+  await o.evaluate(async () => { const { focus } = await chrome.storage.local.get('focus'); await chrome.storage.local.set({ focus: { ...focus, startedAt: focus.startedAt - 150_000 } }); });
+  await ob2b.waitForTimeout(600);
+  await o.evaluate(() => chrome.runtime.sendMessage({ type: 'focus:stop' })); await ob2b.waitForTimeout(1500);
+  ok(await ob2b.locator('#fsDone').count() === 0 && (await get('obFirst')).stage === 'closed', 'stopped after two and a half minutes: no dialog, the matter is closed');
+  ok(!(await get('review')) && await ob2b.locator('.review, #reviewCard, [data-review]').count() === 0, 'and no "how did it go?" card was put up: ' + JSON.stringify(await get('review')));
+  ok((await get('obFirst')).stopped === true, 'the worker marked it as a stop');
+
   // 5. skipping, and "I'll choose later", and the second way out of the last screen
   await fresh(); const ob3 = await app.ctx.newPage(); await ob3.goto(ext('src/onboarding/onboarding.html')); await ob3.waitForSelector('.step-hello');
   await ob3.locator('#skip').click(); await ob3.waitForTimeout(1200);

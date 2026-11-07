@@ -67,3 +67,11 @@ test('a second session is not taken for the first', () => {
   assert.equal(isFirstSession(ob({ sid: 'one' }), { id: 'one' }), true); assert.equal(isFirstSession(ob({ sid: 'one' }), { id: 'two' }), false);
   assert.equal(isFirstSession(ob({ stage: 'closed', sid: 'one' }), { id: 'one' }), false); assert.equal(isFirstSession(null, { id: 'one' }), false);
 });
+
+test('a stop marked by the worker closes the matter at once, also in the last seconds before the planned end', () => {
+  const stopped = ob({ stopped: true });
+  assert.equal(plan({ obFirst: stopped, live: false, ses: null, now: END - 2_000 }), 'close', 'two seconds before the end: a stop, not an end, so there is no record to wait for');
+  assert.equal(plan({ obFirst: stopped, live: false, ses: null, now: END + 100 }), 'close');
+  assert.equal(plan({ obFirst: ob(), live: false, ses: null, now: END - 2_000 }), 'wait', 'without the mark, near the end, the record is still awaited');
+  assert.equal(plan({ obFirst: stopped, live: false, ses, now: END }), 'celebrate', 'a finished record always wins');
+});

@@ -27,7 +27,7 @@ export function general({ s, save, refresh }) {
     adv(siteAiGroup(s, save, refresh), 'smartSites'),
     group(t('opt.groupNotify'),
       row({ title: t('opt.badge'), desc: t('opt.badgeDesc'), control: toggle(s.tracking.badge, (v) => save((x) => { x.tracking.badge = v; }), t('opt.badge')) }),
-      row({ title: t('opt.tips'), desc: t('opt.tipsDesc'), control: toggle(s.tips.on, async (v) => { await save((x) => { x.tips = { on: v }; }); if (v) { const { tipState } = await chrome.storage.local.get('tipState'); if (tipState && tipState.off) await chrome.storage.local.set({ tipState: { ...tipState, off: false } }); } }, t('opt.tips')) }), // switching them on again lifts "No more tips"
+      row({ title: t('opt.tips'), desc: t('opt.tipsDesc'), control: toggle(s.tips.on, (v) => save((x) => { x.tips = { on: v }; }), t('opt.tips')) }), // "No more tips" on the card is this switch
       row({ title: t('opt.weekly'), desc: t('opt.weeklyDesc'), control: toggle(s.weeklyReport, (v) => save((x) => { x.weeklyReport = v; }), t('opt.weekly')) })));
 }
 

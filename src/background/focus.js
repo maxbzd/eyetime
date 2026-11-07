@@ -13,7 +13,7 @@ import { updateEstLog } from '../shared/tasks.js';
 import { sweepTabs } from './blocker.js';
 import { updateBadge } from './badge.js';
 import { playChime, setAmbient } from './audio.js';
-import { track } from '../shared/usage-store.js';
+import { track, getUsage } from '../shared/usage-store.js';
 import { lengthFeature } from '../shared/usage.js';
 
 const ICON = 'icons/icon128.png';
@@ -110,6 +110,11 @@ export async function extendFocus(minutes = 5) {
 export async function stopFocus() {
   const { focus } = await getRaw('focus');
   if (!focus) return;
+  // Whether this is the session the onboarding started is decided HERE, before anything is cleared: an open new tab reacts to the cleared session at once, and may close the onboarding's matter
+  // before this function reaches its questions. `stopped` tells the tab that this was a stop, not the planned end.
+  const { obFirst } = await getRaw('obFirst');
+  const first = isFirstSession(obFirst, focus);
+  if (first) await setRaw({ obFirst: { ...obFirst, stopped: true } });
   await chrome.alarms.clear('focus-end'); await chrome.alarms.clear('focus-resume');
   await setRaw({ focus: null });
   track('focus_stop');
@@ -120,8 +125,7 @@ export async function stopFocus() {
   if (sec >= MIN_CREDIT_SEC) {
     await updateDay(sessionDay(focus), (d) => { d.fs = (d.fs || 0) + sec; addSession(d, makeSessionEntry(focus, { sec, completed: false })); });
     await creditTask(focus, sec);
-    const { obFirst } = await getRaw('obFirst');
-    if (settings.focus.review && !isFirstSession(obFirst, focus)) await setRaw({ review: reviewOf(focus, sec, false) }); // the first session, stopped, is not asked about either: it ends in silence
+    if (settings.focus.review && !first) await setRaw({ review: reviewOf(focus, sec, false) }); // the first session, stopped, is not asked about either: it ends in silence
   }
   await updateBadge(settings);
 }
@@ -161,6 +165,10 @@ export async function reviewSession({ id, rating, done, resume = '' }) {
 export async function finishFocus() {
   const { focus } = await getRaw('focus');
   if (!focus || isFocusLive(focus)) return; // still running, or paused (a paused session waits for its resume)
+  const { obFirst } = await getRaw('obFirst');
+  const first = isFirstSession(obFirst, focus);
+  // the count of held-back pages for the dialog is taken at the end of the session itself (not whenever the dialog is drawn: pages stopped afterwards are not this session's)
+  if (first) await setRaw({ obFirst: { ...obFirst, blocksEnd: (await getUsage()).total.block_page || 0 } });
   await setRaw({ focus: null });
   track('focus_done'); track(lengthFeature(focus.minutes));
   setAmbient('off');
@@ -168,8 +176,7 @@ export async function finishFocus() {
   await updateDay(sessionDay(focus), (d) => { d.fs = (d.fs || 0) + focus.minutes * 60; d.fc = (d.fc || 0) + 1; sessionsToday = d.fc; addSession(d, makeSessionEntry(focus, { sec: focus.minutes * 60, completed: true })); });
   await creditTask(focus, focus.minutes * 60);
   const settings = await getSettings();
-  const { obFirst } = await getRaw('obFirst');
-  if (settings.focus.review && !isFirstSession(obFirst, focus)) await setRaw({ review: reviewOf(focus, focus.minutes * 60, true) }); // the first session of the onboarding ends with its own dialog: not two questions at once
+  if (settings.focus.review && !first) await setRaw({ review: reviewOf(focus, focus.minutes * 60, true) }); // the first session of the onboarding ends with its own dialog: not two questions at once
   await setLocale(resolveLocale(settings.language));
   if (settings.focus.sound) playChime('end');
   const fresh = Date.now() - focus.endsAt < 2 * 60_000; // a session that ended long ago (browser was closed) gets no rest

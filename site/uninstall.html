@@ -33,6 +33,7 @@
       <li><button type="button" data-reason="temporary"><span data-en>Only removed for now</span><span data-ru>Удалил временно</span></button></li>
       <li><button type="button" data-reason="other"><span data-en>Something else</span><span data-ru>Другое</span></button></li>
     </ul>
+    <p id="failed" class="note" hidden><span data-en>Could not send this now. Nothing was stored; you can choose again.</span><span data-ru>Сейчас не удалось отправить. Ничего не сохранено; можно выбрать ещё раз.</span></p>
     <div class="done" id="done" hidden>
       <p><span data-en>Thank you. That helps make it better.</span><span data-ru>Спасибо, это помогает сделать лучше.</span></p>
       <form id="more" class="more">
@@ -56,9 +57,11 @@
   if (!url) { list.hidden = true; ask.querySelector('p').hidden = true; return; } // no collector: nothing to ask and nothing to send
   list.addEventListener('click', function (e) {
     var b = e.target.closest('button[data-reason]'); if (!b) return;
-    list.hidden = true; ask.querySelector('p').hidden = true; done.hidden = false;
-    reason = b.getAttribute('data-reason');
-    try { fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ reason: reason }), credentials: 'omit', referrerPolicy: 'no-referrer', keepalive: true }).catch(function () {}); } catch (x) {}
+    var failed = document.getElementById('failed'); failed.hidden = true;
+    var picked = b.getAttribute('data-reason');
+    // the thanks is said only when the collector took the answer; otherwise the list stays, with a word that nothing was stored
+    var fail = function () { failed.hidden = false; };
+    try { fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ reason: picked }), credentials: 'omit', referrerPolicy: 'no-referrer', keepalive: true }).then(function (r) { if (!r.ok) throw 0; reason = picked; list.hidden = true; ask.querySelector('p').hidden = true; done.hidden = false; }).catch(fail); } catch (x) { fail(); }
   });
   // a few words afterwards, if the person wants: sent as one more request (the reason is not counted twice)
   document.getElementById('more').addEventListener('submit', function (e) {

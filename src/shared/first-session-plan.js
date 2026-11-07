@@ -30,6 +30,7 @@ export function firstSessionPlan({ obFirst, live, ses, now, focusId = '' }) {
   if (obFirst.stage === 'done') return 'celebrate';
   if (live) return 'coach';
   if (ses) return 'celebrate';
+  if (obFirst.stopped) return 'close'; // the worker says it was a stop, whenever it happened: nothing to wait for
   if (obFirst.seen) {
     const end = Number(obFirst.endsAt) || 0;
     if (end && now >= end - END_SLACK_MS && now < end + SETTLE_MS) return 'wait'; // ran to its end: the record is being written

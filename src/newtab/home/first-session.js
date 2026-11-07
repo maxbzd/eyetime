@@ -38,7 +38,7 @@ let celebrating = false; // the dialog is built after a few awaits: a second cal
 async function celebrate(/** @type {any} */ o, /** @type {any} */ ses) {
   if (celebrating || document.getElementById(DONE)) return;
   celebrating = true;
-  const usage = await getUsage(), held = Math.max(0, (usage.total.block_page || 0) - (o.blocks0 || 0));
+  const usage = await getUsage(), held = Math.max(0, (typeof o.blocksEnd === 'number' ? o.blocksEnd : usage.total.block_page || 0) - (o.blocks0 || 0));
   const s = await getSettings(), ap = s.appearance;
   const set = (/** @type {(a: any) => void} */ fn) => updateSettings((x) => { fn(x.appearance); });
   const changed = () => send('settings:changed');
@@ -80,7 +80,7 @@ export async function paintFirstSession() {
   }
   remove(COACH);
   if (plan === 'wait') { retry = setTimeout(paintFirstSession, 1500); return false; } // the worker clears the session a moment before it writes the finished one: look again, do not close
-  if (plan === 'close') { await setRaw({ obFirst: { ...obFirst, stage: 'closed' } }); return false; } // stopped early or never started: nothing to celebrate, nothing to say
+  if (plan === 'close') { const open = /** @type {HTMLDialogElement | null} */ (document.getElementById(DONE)); if (open && open.open) open.close(); await setRaw({ obFirst: { ...obFirst, stage: 'closed' } }); return false; } // stopped early or never started: nothing to celebrate, nothing to say
   if (obFirst.stage === 'run') await setRaw({ obFirst: { ...obFirst, stage: 'done', m: ses.m } });
   await celebrate(obFirst, ses || (obFirst.m ? { m: obFirst.m } : null));
   return true;
