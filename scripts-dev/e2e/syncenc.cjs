@@ -71,7 +71,10 @@ const { launch } = require('./lib.cjs');
   ok(!(await cloud()).includes('secret-site'), 'still nothing readable after the change');
 
   // 6. turn it off: plain copies again, and the cloud says which encryption they replace
-  await o.click('#syncEncOff'); await o.locator('dialog[open] button[value=yes]').click();
+  await o.click('#syncEncOff'); await o.waitForSelector('dialog[open] #vault-pass');
+  await type('#vault-pass', 'not the passphrase'); await submit(); // switching it off needs the passphrase
+  ok(await o.locator('dialog[open]').count() === 1 && await o.locator('#syncEncOff').count() === 1, 'a wrong passphrase does not switch the encryption off');
+  await type('#vault-pass', 'a different long phrase'); await submit();
   await o.waitForSelector('#syncEncSet', { timeout: 15000 });
   await o.waitForTimeout(800);
   all = await cloud();
