@@ -42,7 +42,7 @@ swap('<script>\n', `<script>${shim}</script>\n<script>\n`);
 if (artifact) {
   html = html.replace(/<!doctype html>\s*/i, '').replace(/<html[^>]*>\s*/i, '').replace(/<\/html>\s*/i, '').replace(/<head>\s*/i, '').replace(/<\/head>\s*/i, '').replace(/<body>\s*/i, '').replace(/<\/body>\s*/i, '');
   html = html.replace(/<meta charset="utf-8">\s*/i, '').replace(/<meta name="viewport"[^>]*>\s*/i, '').replace(/<meta name="robots"[^>]*>\s*/i, '').replace(/<meta name="color-scheme"[^>]*>\s*/i, '');
-  html = html.replace(/<title>[^<]*<\/title>/, '<title>EyeTime Dashboard</title>\n<meta name="claude:viewport-fit-sides" content="cover">');
+  html = html.replace(/<title>[^<]*<\/title>/, '<title>EyeTime Dashboard</title>');
   // side gutters that also clear a system bar, the sticky bits below the safe area, and a one-screen app sized by its frame (100%) instead of 100vh
   const gutter = 'padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));';
   const sub = (re, to) => { if (!re.test(html)) throw new Error('dashboard.html changed, cannot find: ' + re); html = html.replace(re, to); };
