@@ -12,4 +12,6 @@ export function isMinorUpdate(prev, cur) {
 }
 
 export const WN_ITEMS = ['wn.i1', 'wn.i2', 'wn.i3'];
+/** The lines above that came from what people wrote to the maker: they get a small "from your messages" tag. Fill it in when a release does something somebody asked for. */
+export const WN_FROM_YOU = /** @type {string[]} */ ([]);
 export const RELEASES_URL = 'https://github.com/maxbzd/eyetime/releases';

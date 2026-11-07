@@ -69,3 +69,11 @@ h1 { font-family: var(--font-serif); font-weight: 400; font-size: clamp(40px, 5.
 /* short windows (a laptop with a toolbar is ~650 px of page): everything must be reachable without scrolling */
 @media (max-height: 780px) { .stage { gap: 10px; padding-bottom: 28px; } h1 { font-size: 40px; } .quote { display: none; } .orb { width: 84px; height: 84px; margin: 0; } .breath { margin: 0; } .lead { font-size: 16px; } .actions { margin-top: 8px; } .top { padding-block: 10px; } }
 @media (max-height: 640px) { .plan { display: none; } .why { margin-top: 0; } }
+
+/* "Did this pause help?" (feedback.js pauseThumbsDue): one quiet line under the quote */
+.fb-pause { display: flex; align-items: center; justify-content: center; gap: var(--s-2); flex-wrap: wrap; margin-top: var(--s-5); color: var(--text-3); font-size: var(--fs-sm); animation: fb-pause-in var(--t-slow) var(--ease) both; }
+.fb-pause.leaving { opacity: 0; transition: opacity var(--t-med); }
+.fb-pause-x { display: grid; place-items: center; width: 28px; height: 28px; border: 0; background: none; color: var(--text-3); border-radius: 50%; cursor: pointer; }
+.fb-pause-x:hover { background: var(--surface-2); color: var(--text); }
+@keyframes fb-pause-in { from { opacity: 0; transform: translateY(6px); } }
+@media (prefers-reduced-motion: reduce) { .fb-pause { animation: none; } }

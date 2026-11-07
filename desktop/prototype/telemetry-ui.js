@@ -24,6 +24,7 @@
       later: 'Maybe later', laterBye: "Okay. I'll ask again in a few weeks.", thanksT: 'Thank you', policy: 'Privacy details', settings: 'Settings', close: 'Close',
       yes: "Yes, I'll help", no: 'No, thanks', show: 'Show exactly what is sent', hide: 'Hide', sign: '— the person who makes EyeTime',
       thanks: 'Thank you! From now on EyeTime sends it on its own, once a week: nothing to confirm. You can see what is sent, or stop, in Settings.', bye: "Of course. I won't ask again.",
+      wrT: 'Write to the maker', wrD: 'An idea, a problem or a kind word. Opens a page on GitHub (public there: please do not write anything personal).', wrBtn: 'Write',
       setT: 'Share anonymous numbers', setD: 'Once a week EyeTime sends a few counts on its own. Never names of programs or sites. Off unless you turn it on.', setSee: 'Show what would be sent', setHide: 'Hide',
       setNote: 'This is the whole next report. It is built on your computer and sent over HTTPS without cookies.', setLast: (d) => `Last report: ${d}`, setNever: 'Nothing has been sent yet.',
     },
@@ -40,6 +41,7 @@
       later: 'Может, позже', laterBye: 'Хорошо. Спрошу ещё раз через несколько недель.', thanksT: 'Спасибо', policy: 'Подробнее о приватности', settings: 'Настройки', close: 'Закрыть',
       yes: 'Да, помогу', no: 'Нет, спасибо', show: 'Показать, что именно отправляется', hide: 'Скрыть', sign: '— тот, кто делает EyeTime',
       thanks: 'Спасибо! Дальше EyeTime отправляет всё сам, раз в неделю: подтверждать ничего не нужно. Что именно уходит — видно в Настройках, там же можно остановить.', bye: 'Конечно. Больше не спрошу.',
+      wrT: 'Написать автору', wrD: 'Идея, проблема или доброе слово. Откроется страница на GitHub (там она публичная: пожалуйста, не пишите ничего личного).', wrBtn: 'Написать',
       setT: 'Делиться анонимными числами', setD: 'Раз в неделю EyeTime сам отправляет несколько счётчиков. Никаких названий программ и сайтов. Выключено, пока вы не включите.', setSee: 'Показать, что будет отправлено', setHide: 'Скрыть',
       setNote: 'Это весь следующий отчёт. Он собирается на вашем компьютере и уходит по HTTPS без куки.', setLast: (d) => `Последний отчёт: ${d}`, setNever: 'Пока ничего не отправлялось.',
     },
@@ -146,9 +148,23 @@
     see.textContent = pre.hidden ? L().setSee : L().setHide;
   }
 
+  /* a way to write to the maker, always there (the app has no message server: it opens a draft on GitHub) */
+  function paintWrite() {
+    const grp = document.getElementById('etbUpdGroup') || (document.getElementById('sUpd') && document.getElementById('sUpd').closest('.st-group'));
+    if (!grp) return;
+    let row = document.getElementById('wrRow');
+    if (!row) {
+      row = el('div', 'st-row'); row.id = 'wrRow';
+      const t = el('div', 't'); t.append(el('b'), el('span'));
+      const c = el('div', 'c'); const b = el('button', 'btn-s'); b.type = 'button'; c.append(b); row.append(t, c); grp.append(row);
+      b.onclick = () => window.__TAURI__.core.invoke('open_target', { kind: 'feedback' }).catch(() => {});
+    }
+    const [t1, t2] = row.querySelectorAll('.t b, .t span'); t1.textContent = L().wrT; t2.textContent = L().wrD; row.querySelector('button').textContent = L().wrBtn;
+  }
+
   const running = () => { const st = ETB.getStatus && ETB.getStatus(); return !!(st && st.session); };
-  async function look() { await get(); paintRow(); if (v && v.ask && !running() && !document.hidden) showAsk(v.n || 1, !!v.final); }
+  async function look() { await get(); paintRow(); paintWrite(); if (v && v.ask && !running() && !document.hidden) showAsk(v.n || 1, !!v.final); }
   setTimeout(look, 9000); setInterval(look, 5 * 60 * 1000);
   document.addEventListener('et-settings-shown', look);
-  ET.langHooks.push(() => { paintRow(); });
+  ET.langHooks.push(() => { paintRow(); paintWrite(); });
 })();

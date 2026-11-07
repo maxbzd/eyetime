@@ -457,4 +457,8 @@ export const zh = {
   "fb.wkLine": "为什么这样？（可选）",
   "fb.menu": "给作者留言",
   "fb.menuHint": "想法、问题、感谢",
+  "fb.pauseQ": "这次暂停有帮助吗？",
+  "fb.pauseYes": "有",
+  "fb.pauseNo": "没有",
+  "wn.fromYou": "来自你们的留言",
 };

@@ -457,4 +457,8 @@ export const ja = {
   "fb.wkLine": "その理由は？（任意）",
   "fb.menu": "作者にメッセージ",
   "fb.menuHint": "アイデア、問題、感謝",
+  "fb.pauseQ": "この一時停止は役に立ちましたか？",
+  "fb.pauseYes": "はい",
+  "fb.pauseNo": "いいえ",
+  "wn.fromYou": "皆さんのメッセージから",
 };
