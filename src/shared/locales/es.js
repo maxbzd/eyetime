@@ -542,4 +542,5 @@ export const es = {
   "fb.thanksDraft": "El borrador está abierto",
   "fb.errPopup": "El navegador bloqueó la ventana. Permite las ventanas emergentes de esta página e inténtalo de nuevo; tu texto sigue aquí.",
   "fb.thanksDraftBody": "Aún no se ha enviado nada. Pulsa «Submit new issue» en GitHub y el autor lo leerá.",
+  "cv.empty": "Esta disposición está vacía. Abre «Personalizar inicio» y añade los bloques que quieras.",
 };

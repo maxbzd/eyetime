@@ -22,13 +22,22 @@ A release about the moment that matters most to a new person: the end of the fir
 ### The page after removal
 - **Step one, the reason, is confirmed too.** "Thank you" appears only when the collector took the answer; if it refused or the network failed, the list stays and a line says that nothing was stored and that you can choose again (the optional words step already worked this way).
 
+### Notes, canvas and look
+- **A note turned into a task is moved, not copied.** "Make a task" in the notes module removed the note by its position in a list that could already have changed, so the note stayed beside the new task. It now re-reads the stored notes and removes the one with that id; deleting a note works the same way. The `tour` check covers the path from a note to a task.
+- **An empty canvas says what to do.** A canvas layout with no block on it showed a bare page; it now carries a short hint pointing at the widget panel (`cv.empty`, translated into all 11 languages).
+- **The widget gallery opens on "All"** instead of on the first category, so the first thing seen is the whole set.
+- **The backup reminder on the Today layout is a small pill** that gives up its place on short windows (under 560 px high) instead of covering the day.
+- **The first line of the onboarding no longer carries a focus frame** when the page opens; keyboard focus still shows on every control.
+- **The dock's second design has readable group titles** (white at 64 %, enough contrast on the dark glass).
+- **"min" instead of "minutes" in the short-video dialog** in English, German, Spanish, French, Italian and Portuguese, so the line fits one row.
+
 ### Texts and documents
 - `docs/FEEDBACK.md`: the table rows for the question of fit and for the pause question now describe what the code does (a finished session as the trigger, thumbs only with no free text, the 30-day budget after an answer and 60 days after a closed card), and rules 2 and 4 say that the quiet is one for all questions and that showing a question starts the budget at once.
 - `store-check.mjs` compares the number of languages in the Russian README with the product's own list (it only forbade "6" before).
 
 ### Under the hood
 - 626 unit tests (620 before). New: the first-session plan for a marked stop; the worker replays a stopped first session against a page that closes the matter first; the count taken at the end of a finished session; the patching of the first session's state with several writers; a slow start waited for; a five-minute try that does not change the usual length (the earlier check ran a 25-minute session against a 25-minute default and could not tell).
-- End-to-end: `onboarding` stops a first session after two and a half minutes with the tab open and expects no dialog, no card and the mark; `tour` presses "Start 5 min" with a 25-minute strict setup, and checks that "No more tips" is the Settings switch and that switching it on brings tips back.
+- End-to-end: `feedback` no longer depends on the hour it runs at (after 18:00 the evening review strip comes first, by design). `onboarding` stops a first session after two and a half minutes with the tab open and expects no dialog, no card and the mark; `tour` presses "Start 5 min" with a 25-minute strict setup, and checks that "No more tips" is the Settings switch and that switching it on brings tips back.
 
 ## 3.9.1 — 2026-11-07 — Smoother first minutes, tips you control, calmer questions
 

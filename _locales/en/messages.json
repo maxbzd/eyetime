@@ -18,7 +18,7 @@
     "message": "Time to stop scrolling"
   },
   "feedBody": {
-    "message": "You’ve been watching short videos for {n} minutes. The page is paused and in grayscale so you can choose what’s next."
+    "message": "You’ve been watching short videos for {n} min. The page is paused and in grayscale so you can choose what’s next."
   },
   "feedLeave": {
     "message": "Close this tab"

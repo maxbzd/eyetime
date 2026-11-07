@@ -543,4 +543,5 @@ export const zh = {
   "fb.thanksDraft": "草稿已打开",
   "fb.errPopup": "浏览器拦截了窗口。请允许此页面的弹出窗口后重试；你写的内容还在。",
   "fb.thanksDraftBody": "尚未发送任何内容。请在 GitHub 上点击“Submit new issue”，作者就会看到。",
+  "cv.empty": "这个布局还是空的。打开“自定义主页”，添加你想要的内容块。",
 };

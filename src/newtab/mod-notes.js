@@ -22,7 +22,9 @@ export function notesModule() {
     const tasks = await getCollection('tasks', []);
     tasks.unshift(taskFromInput(n.text, tasks).task); // a note like "Call Anna 16:45 30m" keeps its time and length when it becomes a task
     await setCollection('tasks', tasks);
-    notes = notes.filter((x) => x !== n); save(); render(); toast(t('notes.movedToTasks'));
+    // the note is taken out of the list as it is stored NOW and by its id: the copy this page holds may have been replaced meanwhile by the one that arrived from storage (other objects, the same notes),
+    // and removing "this very object" from it left the note behind, as a task and as a note at once
+    notes = (await getCollection('captures', [])).filter((x) => x.id !== n.id); await save(); render(); toast(t('notes.movedToTasks'));
   }
 
   function render() {
@@ -35,7 +37,7 @@ export function notesModule() {
         h('span', { class: 'txt', text: n.text }),
         h('span', { class: 'acts' },
           h('button', { type: 'button', 'data-tip': t('notes.toTask'), 'aria-label': t('notes.toTask'), onclick: () => toTask(n) }, icon('list-plus')),
-          h('button', { type: 'button', 'aria-label': t('common.remove'), onclick: () => { const i = notes.indexOf(n); notes.splice(i, 1); save(); render(); toast(t('notes.removed'), { action: t('common.undo'), onAction: () => { notes.splice(i, 0, n); save(); render(); } }); } }, icon('x'))))))
+          h('button', { type: 'button', 'aria-label': t('common.remove'), onclick: () => { const i = notes.findIndex((x) => x.id === n.id); if (i < 0) return; notes.splice(i, 1); save(); render(); toast(t('notes.removed'), { action: t('common.undo'), onAction: () => { notes.splice(i, 0, n); save(); render(); } }); } }, icon('x'))))))
         : h('div', { class: 'hint', text: t('notes.empty') }),
       notes.length > LIMIT ? h('button', { class: 'more-link', type: 'button', onclick: () => { showAll = !showAll; render(); } }, showAll ? t('mod.showLess') : t('mod.showAll', { n: notes.length })) : null);
   }

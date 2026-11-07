@@ -106,3 +106,6 @@ body { min-height: 100vh; display: flex; flex-direction: column; }
 .step-dist .prev-t { font-size: 19px; } .step-dist .prev-l, .step-dist .prev-site { font-size: 10.5px; } .step-dist .prev-b .p { font-size: 10.5px; } .step-dist .prev-b .q { font-size: 10px; }
 .step-dist .prev-none { margin: 0; text-align: left; max-width: none; padding: var(--s-4); border-radius: var(--r-lg); border: 1px dashed var(--border-strong); }
 @media (max-width: 760px) { .step-dist { grid-template-columns: 1fr; } .step-dist .dist-l, .step-dist .prev-slot { grid-column: 1; grid-row: auto; } }
+
+/* the heading takes the focus when a step opens (for screen readers); it is not a field, so it gets no frame */
+.step h1:focus, .step h1:focus-visible { outline: none; }

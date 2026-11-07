@@ -543,4 +543,5 @@ export const en = {
   "fb.thanksDraft": "The draft is open",
   "fb.errPopup": "The browser blocked the window. Allow pop-ups for this page and try again; your words are still here.",
   "fb.thanksDraftBody": "Nothing has been sent yet. Press “Submit new issue” on GitHub, and the author will read it.",
+  "cv.empty": "This arrangement is empty. Open “Customize Home” and add the blocks you want.",
 };

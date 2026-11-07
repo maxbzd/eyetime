@@ -3,7 +3,8 @@
 // Applies the user's free-form arrangement to the Home page (the editor itself is in canvas-edit.js and loads only when it is used).
 // Each movable block gets its position and size as CSS variables; newtab.css / canvas.css do the rest.
 
-import { $ } from '../ui/dom.js';
+import { $, h } from '../ui/dom.js';
+import { t } from '../shared/i18n.js';
 import { normalizeCanvas, clampCenter, blockMeta, CANVAS_IDS, CANVAS_MIN_WIDTH, canvasScale } from '../shared/canvas.js';
 import { WIDGET_ID_RE } from '../shared/widgets.js';
 import { alignClockFill } from './type-apply.js';
@@ -65,6 +66,11 @@ export function applyCanvas(settings) {
     else el.classList.add('cv-hidden', 'cv-item');
   }
   if (active) window.requestAnimationFrame(() => presentBlocks().forEach((id) => { const el = blockEl(id); if (el && c.items[id]) keepOnScreen(el); }));
+  // an arrangement with no block on it is a blank page: say so, and say what to do
+  const empty = active && !presentBlocks().some((id) => c.items[id] && blockEl(id));
+  const hint = document.getElementById('cvEmpty');
+  if (empty && !hint) document.body.append(h('div', { id: 'cvEmpty', class: 'cv-empty', role: 'note' }, h('p', { text: t('cv.empty') }), h('button', { class: 'btn', type: 'button', onclick: () => document.getElementById('customize')?.click() }, t('sc.customize'))));
+  else if (!empty && hint) hint.remove();
 }
 
 export { CANVAS_MIN_WIDTH };

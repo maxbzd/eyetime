@@ -156,6 +156,11 @@ body[data-layout="today"]:has(#gs:not([hidden])) .quote, body[data-layout="today
 /* the evening nudge is one row: icon, a sentence, two buttons, a close */
 body[data-layout="today"] #nudge:not([hidden]) { display: flex; flex-wrap: nowrap; align-items: center; gap: 10px; width: fit-content; max-width: min(760px, 100%); }
 body[data-layout="today"] #nudge .nudge-text { flex: 1 1 auto; min-width: 0; }
+/* the reminder to save a backup: one compact pill (icon, a line or two of text, the buttons) — it used to wrap into a tall block with the buttons under the text, which reached down toward the clock */
+body[data-layout="today"] .backup-nudge:not([hidden]) { display: flex; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: 10px; }
+body[data-layout="today"] .backup-nudge .nudge-text { flex: 1 1 auto; min-width: 0; font-size: 13px; line-height: 1.35; }
+body[data-layout="today"] .backup-nudge .btn { flex: none; }
+@media (max-height: 560px) { body[data-layout="today"] .backup-nudge:not([hidden]) { display: none; } } /* a short window: the clock first */
 body[data-layout="today"] #nudge .btn { flex: none; }
 @media (max-width: 760px) { body[data-layout="today"] #nudge:not([hidden]) { flex-wrap: wrap; border-radius: 26px; } }
 

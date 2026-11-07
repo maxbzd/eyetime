@@ -95,6 +95,8 @@ const { launch } = require('./lib.cjs');
   await shot(page, 'fb-page-answer');
 
   // 3. the small question: only at a good moment, then quiet
+  // after 18:00 the evening review strip is shown first (by design), so the result would depend on the hour the suite runs at: today's review strip is set aside, as a person closing it would
+  await app.ctx.addInitScript(() => { try { const k = new Date(), p = (n) => String(n).padStart(2, '0'); localStorage.setItem('et-nudge-off', k.getFullYear() + '-' + p(k.getMonth() + 1) + '-' + p(k.getDate()) + ':review'); } catch { /* none */ } });
   const prime = (extra) => o.evaluate(async (extra) => {
     const { usage } = await chrome.storage.local.get('usage'); usage.days = [0, 1, 2, 3, 4, 5, 6, 7, 8]; await chrome.storage.local.set({ usage });
     const k = new Date(); const key = 'd:' + k.getFullYear() + '-' + String(k.getMonth() + 1).padStart(2, '0') + '-' + String(k.getDate()).padStart(2, '0');

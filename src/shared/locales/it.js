@@ -542,4 +542,5 @@ export const it = {
   "fb.thanksDraft": "La bozza è aperta",
   "fb.errPopup": "Il browser ha bloccato la finestra. Consenti i pop-up per questa pagina e riprova; il tuo testo è ancora qui.",
   "fb.thanksDraftBody": "Non è stato ancora inviato nulla. Premi «Submit new issue» su GitHub e l’autore lo leggerà.",
+  "cv.empty": "Questa disposizione è vuota. Apri «Personalizza la home» e aggiungi i blocchi che vuoi.",
 };
