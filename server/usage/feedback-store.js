@@ -76,6 +76,12 @@ export class MemoryFeedbackStore {
     return out;
   }
   async remove(/** @type {number} */ id) { const n = this.rows.length; this.rows = this.rows.filter((x) => x.id !== id); this.replies = this.replies.filter((x) => x.fid !== id); return this.rows.length < n; }
+  /** The person deletes their own messages, with the tickets only they hold. Returns how many were deleted. */
+  async forgetTickets(/** @type {string[]} */ tickets) {
+    let n = 0;
+    for (const t of tickets) { const h = await ticketHash(t), r = this.rows.find((x) => x.tk === h); if (r && (await this.remove(r.id))) n++; }
+    return n;
+  }
   /** Erase reply addresses older than `days`. Returns how many. */
   async scrubContacts(/** @type {number} */ now, days = 90) { let n = 0; for (const r of this.rows) if (r.contact && r.ts < now - days * DAY_MS) { r.contact = null; n++; } return n; }
   /** Erase answers that were handed over long ago (or never asked for), and with the last answer the ticket hash: the way back to the device closes. Returns how many answers. */
@@ -138,6 +144,11 @@ export class D1FeedbackStore {
     return out;
   }
   async remove(/** @type {number} */ id) { const had = await this.get(id); if (!had) return false; await this.db.prepare('DELETE FROM feedback_replies WHERE fid = ?').bind(id).run(); await this.db.prepare('DELETE FROM feedback WHERE id = ?').bind(id).run(); return true; }
+  async forgetTickets(/** @type {string[]} */ tickets) {
+    let n = 0;
+    for (const t of tickets) { const r = await this.db.prepare('SELECT id FROM feedback WHERE tk = ?').bind(await ticketHash(t)).first(); if (r && (await this.remove(r.id))) n++; }
+    return n;
+  }
   async scrubContacts(/** @type {number} */ now, days = 90) {
     const r = await this.db.prepare('SELECT COUNT(*) AS n FROM feedback WHERE contact IS NOT NULL AND ts < ?').bind(now - days * DAY_MS).first();
     await this.db.prepare('UPDATE feedback SET contact = NULL WHERE contact IS NOT NULL AND ts < ?').bind(now - days * DAY_MS).run();

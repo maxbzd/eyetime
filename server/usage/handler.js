@@ -190,13 +190,18 @@ export async function handle(req, store, now = Date.now(), opts = {}) {
   if (url.pathname.startsWith('/v1/feedback') && opts.feedback) {
     const fb = opts.feedback;
     // from EyeTime itself (an extension page): one message, or the question "has the author answered?"
-    if ((url.pathname === '/v1/feedback' && req.method !== 'GET') || url.pathname === '/v1/feedback/replies') {
+    if ((url.pathname === '/v1/feedback' && req.method !== 'GET') || url.pathname === '/v1/feedback/replies' || url.pathname === '/v1/feedback/forget') {
       if (origin && !isExtensionOrigin(origin)) return door('wrong_origin', reply(403));
       if (req.method === 'OPTIONS') return reply(204);
       if (req.method !== 'POST') return reply(405);
       if (!/^application\/json\b/i.test(req.headers.get('content-type') || '')) return door('bad_type', reply(415));
       const b = await readJson(req, FB_LIMITS.bytes + 512);
       if (b === undefined) return door('bad_json', reply(400));
+      if (url.pathname === '/v1/feedback/forget') { // the person deletes a message of theirs, by the ticket only they hold
+        if (!validatePoll(b)) return reply(400);
+        await fb.forgetTickets(b.t);
+        return reply(204);
+      }
       if (url.pathname === '/v1/feedback/replies') {
         if (!validatePoll(b)) return reply(400);
         const found = await fb.takeReplies(b.t, now);
