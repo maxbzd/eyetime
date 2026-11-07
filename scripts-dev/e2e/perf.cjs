@@ -32,12 +32,16 @@ const BUDGET = { homeMs: 1500, insightsMs: 2500, optionsMs: 1500, storageMB: 6, 
   out.storageMB = await page.evaluate(async () => (await chrome.storage.local.getBytesInUse(null)) / 1048576);
   if (out.storageMB > BUDGET.storageMB) bad.push(`a year of dense data takes ${out.storageMB.toFixed(1)} MB (budget ${BUDGET.storageMB})`);
 
-  const timed = async (label, url, ready, budget, prep) => {
-    const p = await app.ctx.newPage(); const t0 = Date.now();
-    await p.goto(ext(url)); if (prep) { await p.evaluate(prep); await p.reload(); }
-    await p.waitForSelector(ready, { timeout: 20000 }).catch(() => bad.push(label + ': never became ready'));
-    out[label] = Date.now() - t0; if (out[label] > budget) bad.push(`${label} took ${out[label]} ms (budget ${budget})`);
-    await p.close();
+  const timed = async (label, url, ready, budget, prep, runs = 1) => { // runs > 1: the median (a crowded machine swings one load by +-50 %, the same code gave 1.1-1.9 s)
+    const times = [];
+    for (let r = 0; r < runs; r++) {
+      const p = await app.ctx.newPage(); const t0 = Date.now();
+      await p.goto(ext(url)); if (prep) { await p.evaluate(prep); await p.reload(); }
+      await p.waitForSelector(ready, { timeout: 20000 }).catch(() => bad.push(label + ': never became ready'));
+      times.push(Date.now() - t0);
+      await p.close();
+    }
+    out[label] = times.sort((x, y) => x - y)[Math.floor(times.length / 2)]; if (out[label] > budget) bad.push(`${label} took ${out[label]} ms (budget ${budget})`);
   };
   await timed('homeMs', 'src/newtab/newtab.html', '#goalToday', BUDGET.homeMs);
   await timed('insightsMs', 'src/insights/insights.html?range=30', '.kpi', BUDGET.insightsMs);
@@ -53,7 +57,7 @@ const BUDGET = { homeMs: 1500, insightsMs: 2500, optionsMs: 1500, storageMB: 6, 
   out.workerMs = Date.now() - t0;
   if (out.workerMs > BUDGET.workerMs) bad.push(`the worker took ${out.workerMs} ms to answer with ${BUDGET.tabsOpen} tabs open (budget ${BUDGET.workerMs})`);
   if (reply && reply.error) bad.push('the worker did not answer: ' + reply.error);
-  await timed('homeBusyMs', 'src/newtab/newtab.html', '#goalToday', BUDGET.homeMs);
+  await timed('homeBusyMs', 'src/newtab/newtab.html', '#goalToday', BUDGET.homeMs, undefined, 5);
 
   console.log(Object.entries(out).map(([k, v]) => `${k}=${typeof v === 'number' ? (k.endsWith('MB') ? v.toFixed(2) : Math.round(v)) : v}`).join('  '));
   console.log(bad.length ? 'FAIL perf\n  ' + bad.join('\n  ') : 'PASS perf: a year of data and ' + BUDGET.tabsOpen + ' tabs within budget');
