@@ -91,7 +91,8 @@ async function renderFooter() {
     ? h('div', { class: 'paused-banner' }, icon('pause'), h('span', { class: 'grow', text: t('track.pausedBanner', { time: fmtTime(new Date(pausedUntil), settings.newtab.clock24 ?? undefined) }) }),
         h('button', { class: 'btn btn-sm', type: 'button', onclick: async () => { await send('tracking:pause', { minutes: 0 }); renderFooter(); } }, icon('play'), t('track.resumeShort')))
     : null;
-  clear(el, banner, h('div', { class: 'foot-row' }, h('div', { class: 'capture grow' }, input)), pause ? h('div', { class: 'foot-row' }, pause) : null);
+  const write = h('button', { class: 'btn btn-ghost btn-sm', type: 'button', title: t('fb.menuHint'), onclick: () => { chrome.tabs.create({ url: chrome.runtime.getURL('src/feedback/feedback.html') }); window.close(); } }, icon('message-circle'), t('fb.menu'));
+  clear(el, banner, h('div', { class: 'foot-row' }, h('div', { class: 'capture grow' }, input)), h('div', { class: 'foot-row' }, pause, write));
 }
 
 (async function main() {

@@ -15,7 +15,7 @@ import path from 'node:path';
 
 /** the scripts that pages and the browser load by path; each is a root of a bundle */
 const MODULE_ENTRIES = [
-  'src/popup/popup.js', 'src/newtab/newtab.js', 'src/options/options.js', 'src/insights/insights.js', 'src/onboarding/onboarding.js', 'src/blocked/blocked.js',
+  'src/popup/popup.js', 'src/newtab/newtab.js', 'src/options/options.js', 'src/insights/insights.js', 'src/onboarding/onboarding.js', 'src/blocked/blocked.js', 'src/feedback/feedback.js',
   'src/break/break.js', 'src/dock/dock.js', 'src/ui/wall.js', 'src/background/index.js', 'src/background/offscreen.js',
 ];
 /** classic scripts (no imports, one file each, wrapped so that they leak no names) */

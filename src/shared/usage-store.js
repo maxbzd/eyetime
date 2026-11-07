@@ -116,7 +116,7 @@ export async function wantsToAsk(now = Date.now()) {
 }
 
 /** Did a focus session end (completed) in the last half hour? Then the person has just got something out of EyeTime. */
-async function justFinishedSession(now) {
+export async function justFinishedSession(now = Date.now()) {
   try {
     const keys = [dayKey(new Date(now)), dayKey(addDays(new Date(now), -1))];
     for (const [, day] of await getDays(keys)) for (const s of (day && day.ss) || []) if (s && s.c && s.t + (s.m || 0) * 60_000 > now - ASK_TIMING.peakMs && s.t <= now) return true;

@@ -1,0 +1,35 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
+/* the small questions (feedback-card.js): a card in a corner of the new tab, or in the flow of a page */
+.fbc { position: relative; padding: var(--s-5); border-radius: var(--r-xl); border: var(--border-w) solid var(--border); background: radial-gradient(120% 70% at 0% 0%, var(--accent-soft), transparent 62%), var(--surface); color: var(--text); box-shadow: var(--shadow-2); animation: fbc-in var(--t-slow) var(--ease) both; }
+.fbc.float { position: fixed; inset-inline-end: var(--s-6); bottom: var(--s-6); z-index: 55; width: min(360px, calc(100vw - 2 * var(--s-4))); box-shadow: var(--shadow-3); }
+.fbc.leaving { animation: fbc-out var(--t-med) var(--ease) forwards; pointer-events: none; }
+@keyframes fbc-in { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes fbc-out { to { opacity: 0; transform: translateY(8px) scale(.98); } }
+.fbc-body { display: flex; flex-direction: column; gap: var(--s-4); }
+.fbc-title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 24px; line-height: 1.15; letter-spacing: -.01em; text-wrap: balance; }
+.fbc-faces { display: grid; gap: var(--s-2); }
+.fbc-faces.n3 { grid-template-columns: repeat(3, 1fr); } .fbc-faces.n4 { grid-template-columns: repeat(4, 1fr); } .fbc-faces.n5 { grid-template-columns: repeat(5, 1fr); }
+.fbc-face { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: var(--s-3) 2px; border-radius: var(--r-lg); border: var(--border-w) solid var(--border); background: var(--surface); color: var(--text-2); font-size: var(--fs-xs); font-weight: 560; line-height: 1.2; text-align: center; transition: transform var(--t-fast) var(--ease), border-color var(--t-fast), background var(--t-fast), color var(--t-fast); cursor: pointer; }
+.fbc-face:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-text); transform: translateY(-2px); }
+.fbc-face:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.fbc-ico { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--surface-2); font-size: 20px; }
+.fbc-ico.on { background: var(--accent); color: var(--accent-fg); }
+.fbc-picked { display: flex; align-items: center; gap: var(--s-3); } .fbc-picked b { flex: 1; font-weight: 600; }
+.fbc-why { font-size: var(--fs-sm); color: var(--text-2); margin-bottom: calc(-1 * var(--s-2)); }
+.fbc-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.fbc-actions { display: flex; gap: var(--s-2); } .fbc-actions .btn-primary { min-width: 110px; justify-content: center; }
+.fbc-err { color: var(--danger-text, #c0352b); font-size: var(--fs-sm); }
+.fbc-foot { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-4); align-items: baseline; }
+.fbc-link { padding: 2px 0; border: 0; background: none; color: var(--text-2); font: inherit; font-size: var(--fs-xs); font-weight: 560; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--border-strong); cursor: pointer; }
+.fbc-link:hover { color: var(--text); }
+.fbc-note { flex-basis: 100%; font-size: var(--fs-xs); color: var(--text-3); }
+.fbc-thanks { display: flex; align-items: center; gap: var(--s-3); padding-block: var(--s-3); }
+.fbc-check { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: var(--accent-fg); font-size: 20px; animation: fbc-pop .45s var(--ease) both; }
+@keyframes fbc-pop { from { transform: scale(.4); opacity: 0; } 60% { transform: scale(1.12); } }
+.fbc.reply { display: flex; flex-direction: column; gap: var(--s-3); }
+.fbc-reply-head { display: flex; align-items: center; gap: var(--s-3); } .fbc-reply-head b { font-weight: 600; }
+.fbc-quote { margin: 0; color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; font-size: var(--fs-md); line-height: 1.5; }
+@media (max-width: 600px) { .fbc.float { inset-inline: var(--s-3); bottom: var(--s-3); width: auto; } }
+@media (prefers-reduced-motion: reduce) { .fbc, .fbc-check { animation: none; } .fbc-face { transition: none; } .fbc-face:hover { transform: none; } }
+.fbc .chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }

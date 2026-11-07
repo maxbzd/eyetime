@@ -59,6 +59,10 @@ Everything the optional anonymous usage report can carry, one row per name, with
 | `err_blocker` | An error in the blocker. | Quality (health), Scorecard |
 | `err_sync` | An error in sync. | Quality (health), Scorecard |
 | `err_other` | An error from somewhere else. | Quality (health), Scorecard |
+| `fb_shown` | A small question (a rating, the question of fit) was put in front of the person. | Feedback (is it too much) |
+| `fb_answered` | The person answered a small question. | Feedback (is it too much) |
+| `fb_dismissed` | The person closed a small question or said "Not now". | Feedback (is it too much) |
+| `fb_written` | The person wrote a message (idea, problem or kind word). The words are not in the report. | Feedback |
 
 ## Setup flags (what is switched on)
 

@@ -50,6 +50,7 @@ async function commands(extra) {
   else add('focus', { icon: 'pause' }, t('track.pause'), () => send('tracking:pause', { minutes: 60 }), { keys: ['tracking', 'stop'] });
 
   // go to
+  add('go', { icon: 'message-circle' }, t('fb.menu'), () => { location.href = url('src/feedback/feedback.html'); }, { keys: ['feedback', 'idea', 'bug', 'problem', 'write', 'author', 'maker', 'contact'], hint: t('fb.menuHint') });
   add('go', { icon: 'house' }, t('nav.home'), () => { location.href = url('src/newtab/newtab.html'); }, { keys: ['home', 'new tab'] });
   for (const tab of ITABS) add('go', { icon: 'chart-column' }, `${t('nav.insights')} · ${t('itab.' + tab)}`, () => { try { localStorage.setItem('et-itab', tab); } catch { /* ignore */ } location.href = url('src/insights/insights.html'); }, { keys: ['stats', 'insights', 'statistics'] });
   for (const s of SECTIONS) add('go', { icon: 'settings' }, `${t('nav.settings')} · ${t('sec.' + s)}`, () => { location.href = url('src/options/options.html#' + s); }, { keys: ['settings', 'options', 'preferences'] });

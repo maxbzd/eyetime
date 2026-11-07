@@ -172,7 +172,7 @@ export async function handle(req, store, now = Date.now(), opts = {}) {
     if (req.method !== 'POST') return new Response(null, { status: 405, headers: cors });
     if (!/^application\/json\b/i.test(req.headers.get('content-type') || '')) return new Response(null, { status: 415, headers: cors });
     const b = await readJson(req, 2048);
-    const extra = isObject(b) && Object.keys(b).every((k) => (opts.feedback ? ['reason', 'text', 'contact', 'app'] : ['reason']).includes(k)); // more than the reason only where there is a store for it
+    const extra = isObject(b) && Object.keys(b).every((k) => (opts.feedback ? ['reason', 'text', 'contact', 'app', 'more'] : ['reason']).includes(k)); // more than the reason only where there is a store for it
     if (!extra || !UNINSTALL_REASONS.includes(b.reason) || !store.tallyUninstall) return new Response(null, { status: 400, headers: cors });
     // a few words and an address are optional: they become a message of the kind "leaving" (the reason is its tag), only where a feedback store is set up
     const written = typeof b.text === 'string' && b.text.trim() ? b.text : undefined, contact = typeof b.contact === 'string' && b.contact.trim() ? b.contact.trim() : undefined;
@@ -181,6 +181,10 @@ export async function handle(req, store, now = Date.now(), opts = {}) {
     if (opts.feedback && (written || contact)) {
       msg = { v: 1, kind: 'leaving', via: 'removal', tags: [b.reason], ...(written ? { text: written } : {}), ...(contact ? { contact } : {}), ctx: { app: b.app || '0.0.0' } };
       if (!validateFeedback(msg).ok) return new Response(null, { status: 400, headers: cors });
+    }
+    if ('more' in b) { // a few words added after the reason was counted: stored as a message, not counted again
+      if (b.more !== true || !msg) return new Response(null, { status: 400, headers: cors });
+      return new Response(null, { status: (await opts.feedback.add(msg, now, FB_LIMITS.perDay)) === null ? 429 : 204, headers: cors });
     }
     const counted = await store.tallyUninstall(b.reason, now);
     if (counted && msg) await opts.feedback.add(msg, now);

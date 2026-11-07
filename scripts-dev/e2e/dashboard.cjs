@@ -12,17 +12,21 @@ try { ({ chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright')); } c
 const SRC = path.join(__dirname, '../..');
 const TOKEN = 'dashboard-e2e-token-0123456789';
 const DAY = 86400000;
-const PAGES = ['overview', 'growth', 'activation', 'retention', 'audience', 'features', 'experiments', 'product', 'quality', 'method'];
+const PAGES = ['overview', 'growth', 'activation', 'retention', 'audience', 'feedback', 'features', 'experiments', 'product', 'quality', 'method'];
 
 (async () => {
   const { handle } = await import(path.join(SRC, 'server/usage/handler.js'));
   const { MemoryStore } = await import(path.join(SRC, 'server/usage/memory-store.js'));
   const { makeDemoSnapshot } = await import(path.join(SRC, 'server/usage/demo-data.js'));
+  const { makeDemoFeedback } = await import(path.join(SRC, 'server/usage/demo-feedback.js'));
+  const { MemoryFeedbackStore } = await import(path.join(SRC, 'server/usage/feedback-store.js'));
   const html = fs.readFileSync(path.join(SRC, 'server/usage/dashboard.html'), 'utf8');
   const store = new MemoryStore(); store.snapshot = async () => makeDemoSnapshot(Date.now());
-  const opts = { dashToken: TOKEN, publicStats: true, dashboardHtml: html, demo: (now) => makeDemoSnapshot(now) };
+  const feedback = new MemoryFeedbackStore(); feedback.rows = makeDemoFeedback(Date.now()).reverse().map(({ can_reply, replies, ...r }) => ({ ...r, tk: can_reply ? 'e2e-' + r.id : null })); feedback.seq = feedback.rows.length;
+  const opts = { dashToken: TOKEN, publicStats: true, dashboardHtml: html, demo: (now) => makeDemoSnapshot(now), feedback, demoFeedback: makeDemoFeedback };
   const server = http.createServer(async (rq, rs) => {
-    const res = await handle(new Request(`http://127.0.0.1${rq.url}`, { method: rq.method, headers: rq.headers }), store, Date.now(), opts);
+    const chunks = []; for await (const c of rq) chunks.push(c);
+    const res = await handle(new Request(`http://127.0.0.1${rq.url}`, { method: rq.method, headers: rq.headers, body: chunks.length && !['GET', 'HEAD'].includes(rq.method) ? Buffer.concat(chunks) : undefined }), store, Date.now(), opts);
     rs.writeHead(res.status, Object.fromEntries(res.headers)); rs.end(Buffer.from(await res.arrayBuffer()));
   }).listen(0, '127.0.0.1');
   await new Promise((r) => server.once('listening', r));
@@ -179,6 +183,24 @@ const PAGES = ['overview', 'growth', 'activation', 'retention', 'audience', 'fea
   await p.goto(base + '/?demo#features'); await p.waitForSelector('.frow'); await p.focus('.frow >> nth=0'); ok(await p.evaluate(() => document.getElementById('tip').classList.contains('on')), 'a row shows its tooltip on keyboard focus');
   await p.goto(base + '/?demo#growth'); await p.waitForSelector('svg.chart rect.hit[tabindex]'); await p.focus('svg.chart rect.hit[tabindex] >> nth=0'); await p.keyboard.press('ArrowLeft'); ok(await p.evaluate(() => document.getElementById('tip').classList.contains('on')), 'a line chart reads with the arrow keys');
   ok(await p.$$eval('button, summary, input, select', (els) => els.every((e) => ((e.getAttribute('aria-label') || e.textContent || e.getAttribute('placeholder') || '') + (e.labels && e.labels.length ? 'x' : '')).trim().length > 0)), 'every control has a name');
+  await p.context().close();
+
+  // 9. the Feedback page, as the owner: read, open, mark, answer (the answer reaches the collector and shows as sent)
+  p = await open('/?pr=ext#t=' + TOKEN); await ready(p);
+  await p.click('nav.pages a[href="#feedback"]'); await p.waitForSelector('.pmf .big');
+  ok(/%/.test(await p.innerText('.pmf .big')) && await p.$('.gauge .tick') !== null, 'feedback: the fit score and the 40 % line');
+  await p.click('.chip:has-text("Ideas")'); await p.waitForFunction(() => document.querySelectorAll('.msg').length > 0 && [...document.querySelectorAll('.msg .tag.kind')].every((x) => /Ideas/.test(x.textContent)));
+  const open1 = p.locator('.msg', { has: p.locator('.tag.warn', { hasText: 'can be answered' }) }).first();
+  await open1.locator('.row').click(); await p.waitForSelector('.msg .compose textarea');
+  await p.fill('.msg .compose textarea', 'Thank you, this is planned.'); await p.click('.msg .compose button.primary');
+  await p.waitForSelector('.msg .bubble'); ok(/planned/.test(await p.innerText('.msg .bubble')), 'feedback: the answer is in the thread, so it was stored');
+  const found = await p.evaluate(async (tk) => (await (await fetch('/v1/feedback?q=planned', { headers: { authorization: 'Bearer ' + tk } })).json()).matching, TOKEN);
+  ok(found === 0, 'feedback: the search looks in the message, not in the answer');
+  await p.click('.msg .acts .btn:has-text("Starred")'); await p.waitForFunction(() => /Starred/.test(document.querySelector('.msg .top').textContent));
+  await p.fill('.fbtools input[type=search]', 'zzzz-nothing'); await p.waitForSelector('text=Nothing found');
+  await p.context().close();
+  p = await open('/?demo#feedback'); await ready(p); await p.waitForSelector('.pmf .big');
+  ok((await p.$$('.msg')).length > 3 && /made up/.test(await p.innerText('main')), 'feedback: the demo shows made-up messages and says so');
   await p.context().close();
 
   await browser.close(); server.close();

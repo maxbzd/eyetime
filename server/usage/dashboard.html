@@ -687,6 +687,8 @@ Object.assign(MORE, {
   fb_loading: ['Загружаю сообщения…', 'Loading the messages…'], fb_err: ['Не получилось сохранить. Попробуйте ещё раз.', 'Could not save. Try again.'], fb_demo: ['Это придуманные сообщения. Ответы и пометки в демо живут только на этой странице.', 'These messages are made up. Answers and marks in the demo live only on this page.'],
   fb_off_h: ['Сообщения не подключены', 'Messages are not set up'], fb_off: ['Сборщик сообщений здесь не включён. Создайте базу для сообщений (server/usage/README.md, раздел про feedback.sql) — тогда они появятся здесь.', 'The message collector is not switched on here. Create the database for messages (server/usage/README.md, the part about feedback.sql) and they will appear here.'],
   fb_k_new: ['Новые', 'New'], fb_k_total: ['всего', 'in all'], fb_k_wait: ['Ждут ответа', 'Waiting for an answer'], fb_k_wait_sub: ['просили ответить', 'asked to be answered'], fb_k_done: ['Сделано по идеям и проблемам', 'Done from ideas and problems'], fb_k_done_sub: ['отмечено «сделано»', 'marked “done”'], fb_k_pause: ['Пауза помогла', 'The pause helped'],
+  fb_cards_h: ['Не слишком ли часто спрашиваем', 'Are we asking too often'], fb_cards_q: ['Маленькие вопросы в расширении: сколько показано, на сколько ответили, сколько закрыли. Закрывают чаще, чем отвечают, — спрашиваем лишнее.', 'The small questions in the extension: how many were shown, answered, closed. If more are closed than answered, we ask too much.'],
+  fb_cards_shown: ['Показано', 'Shown'], fb_cards_ans: ['Ответили', 'Answered'], fb_cards_dis: ['Закрыли', 'Closed'], fb_cards_warn: ['Закрывают чаще, чем отвечают. Спрашивайте реже или короче: тишина важнее ответов.', 'More are closed than answered. Ask less often or shorter: quiet matters more than answers.'],
   fb_pmf_h: ['Подходит ли EyeTime людям', 'Does EyeTime fit people'], fb_pmf_q: ['Один вопрос: «Сильно ли вы расстроились бы, если бы EyeTime исчез?». Хорошим знаком считается 40% и больше «очень расстроился бы».', 'One question: “How would you feel if EyeTime were gone?”. 40% or more “very disappointed” is the usual sign of a product people need.'],
   fb_pmf_score: ['Очень расстроились бы', 'Very disappointed'], fb_pmf_target: ['Цель: {v}', 'Target: {v}'], fb_pmf_very: ['очень', 'very'], fb_pmf_some: ['немного', 'somewhat'], fb_pmf_not: ['нет', 'not'],
   fb_pmf_few: ['Ответов пока {n}: нужно хотя бы 30, чтобы доверять цифре.', 'So far {n} answers: you need at least 30 to trust the figure.'], fb_pmf_above: ['Выше цели, и это не случайность: нижняя граница интервала выше 40%.', 'Above the target, and not by chance: the lower bound of the interval is above 40%.'], fb_pmf_below: ['Ниже цели, и это не случайность: верхняя граница интервала ниже 40%.', 'Below the target, and not by chance: the upper bound of the interval is below 40%.'], fb_pmf_unsure: ['Пока нельзя сказать, выше цели или ниже: интервал накрывает 40%. Нужно больше ответов.', 'Cannot tell yet whether it is above or below the target: the interval covers 40%. More answers are needed.'],
@@ -1485,6 +1487,13 @@ function pageFeedback() {
     kpi({ lab: t('fb_k_wait'), val: num(sm.waiting_reply), sub: t('fb_k_wait_sub') }),
     kpi({ lab: t('fb_k_done'), val: num(sm.done), sub: t('fb_k_done_sub') }),
     kpi({ lab: t('fb_k_pause'), val: sm.pause.helped.n ? pct(sm.pause.helped.pct) : '—', frac: sm.pause.helped.pct, sub: `${num(sm.pause.helped.k)} ${t('of')} ${num(sm.pause.helped.n)}`, low: sm.pause.helped.n < 30 })));
+  // is it too much? the small questions must be answered more than they are closed
+  const cd = state.s && state.s.cards;
+  if (cd && cd.shown) out.push(block(t('fb_cards_h'), t('fb_cards_q'), h('div', { class: 'grid g3' },
+    kpi({ lab: t('fb_cards_shown'), val: num(cd.shown), low: cd.shown < 30 }),
+    kpi({ lab: t('fb_cards_ans'), val: pct(cd.answer_rate), frac: cd.answer_rate, sub: `${num(cd.answered)} ${t('of')} ${num(cd.shown)}`, low: cd.shown < 30 }),
+    kpi({ lab: t('fb_cards_dis'), val: pct(cd.dismiss_rate), frac: cd.dismiss_rate, sub: `${num(cd.dismissed)} ${t('of')} ${num(cd.shown)}`, low: cd.shown < 30 })),
+    cd.shown >= 30 && cd.dismiss_rate > cd.answer_rate ? h('div', { class: 'banner warn' }, h('span', null, t('fb_cards_warn'))) : null));
   // the question of fit
   const v = pmfVerdict(p.score);
   out.push(block(t('fb_pmf_h'), t('fb_pmf_q'), h('div', { class: 'grid g2' },
