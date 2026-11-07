@@ -114,6 +114,10 @@ for (const [name, make] of stores()) {
     assert.equal(await s.scrubReplies(T0 + 200 * DAY), 2); assert.equal((await s.get(id3)).can_reply, false); assert.deepEqual(await s.takeReplies([t3]), []);
     // addresses: erased after 90 days
     assert.equal(await s.scrubContacts(T0 + 89 * DAY), 0); assert.equal(await s.scrubContacts(T0 + 91 * DAY), 1); assert.equal((await s.get(other)).contact, null);
+    // the person deletes their own message with the ticket they hold; a wrong ticket deletes nothing
+    const t4 = newTicket(), id4 = await s.add(msg({ ticket: t4 }), T0); await s.addReply(id4, 'bye', T0 + 1);
+    assert.equal(await s.forgetTickets([newTicket()]), 0); assert.ok(await s.get(id4));
+    assert.equal(await s.forgetTickets([t4]), 1); assert.equal(await s.get(id4), null); assert.deepEqual(await s.takeReplies([t4]), []);
     // deleting a message deletes its answers
     assert.equal(await s.remove(id2), true); assert.equal(await s.get(id2), null); assert.deepEqual(await s.takeReplies([t2]), []); assert.equal(await s.remove(id2), false);
   });
@@ -211,6 +215,12 @@ test('routes: the owner reads, sorts and answers; the answer comes back by ticke
   const body = await res.json();
   assert.equal(body.r.length, 1); assert.equal(body.r[0].text, 'Спасибо! Тёмная пауза выйдет в 3.9.'); assert.equal(body.r[0].t, t);
   assert.deepEqual(Object.keys(body.r[0]).sort(), ['id', 't', 'text', 'ts']);
+  // the person deletes their message
+  const t5 = newTicket(); await handle(req('/v1/feedback', msg({ ticket: t5, text: 'Удалите это потом' })), st, T0 + 3, opts);
+  assert.equal((await handle(req('/v1/feedback/forget', { v: 1, t: [t5] }, { origin: 'https://evil.example' }), st, T0, opts)).status, 403);
+  assert.equal((await handle(req('/v1/feedback/forget', { v: 1, t: [] }), st, T0, opts)).status, 400);
+  assert.equal((await handle(req('/v1/feedback/forget', { v: 1, t: [t5] }), st, T0, opts)).status, 204);
+  assert.equal((await fb.all()).some((x) => x.text === 'Удалите это потом'), false);
   // delete
   assert.equal((await owner('/v1/feedback/1', undefined, 'DELETE')).status, 204);
   assert.equal((await owner('/v1/feedback/1', undefined, 'DELETE')).status, 404);
