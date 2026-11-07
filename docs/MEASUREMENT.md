@@ -83,7 +83,7 @@ The queries in `queries.sql` are the quick ones for a console. **The dashboard i
 - **The north star: sessions finished per active week** (a finished focus session per install active that week). One number that rises when more people come back *and* when they get something done, which neither installs nor opens can show. The overview draws it by week next to its minutes estimate.
 - **Events on the charts.** The owner adds a note on a day ("Release 3.8.1", "Post on Habr") from the *Event* menu; it becomes a mark on every weekly chart and a row in the Growth page, so a jump is read against what was done. Notes are the owner's, written through `POST /v1/notes`, up to 300 of up to 80 characters.
 - **Targets are the owner's.** *Targets* in the scorecard edits the numbers it is measured against (`PUT /v1/targets`, stored in the collector); the return and activation rates can be given a target too and then get a row. Defaults below.
-- **Why people leave.** When the extension is removed the browser opens one page on the project's site (`site/uninstall.html`) with seven buttons. A click sends only `{ "reason": … }` from a fixed list; the collector counts it per day and keeps no identifier, and the page sets no cookie and stores nothing. The extension asks for that page only when a collector exists (`setUninstallURL`), so a build without one asks nothing. The Retention page shows the reasons and the removal share of the store's user count.
+- **Why people leave.** When the extension is removed the browser opens one page on the project's site (`site/uninstall.html`) with seven buttons. A click sends only `{ "reason": … }` from a fixed list; the collector counts it per day and keeps no identifier; a second, optional step (a few words, an email only for an answer) is sent only on Send and is a message to the maker like any other, and the page sets no cookie and stores nothing. The extension asks for that page only when a collector exists (`setUninstallURL`), so a build without one asks nothing. The Retention page shows the reasons and the removal share of the store's user count.
 - **Coverage of the sample.** The people who share are not all the people. The owner types in the store's weekly users (`PUT /v1/store-stats`, or the form under *Coverage of the sample* on the Audience page) and the dashboard shows what share of them reports. Under 10 % the dashboard says to read the figures as a small, selected group.
 - **Report intake.** The collector counts, by day and without ids, what it accepted and what it refused and why (a bad report, too soon, too big, a web page, a flood). The Quality page shows it; a sudden refusal rate means a version that sends something the schema does not know, and the digest warns about it.
 - **Days of the week** of the active days (the retention page), so a Tuesday dip is not read as a trend.
@@ -129,7 +129,7 @@ A row with too little data (under 50 installs, 30 sessions, 100 tab opens) shows
 
 ### What the dashboard does not cover
 
-The numbers come from **the browser extension only**. The Windows app (`desktop/`) sends nothing: its only network use is the update check. Reporting from it would need its own opt-in, its own list of counters (blocks by kind, programs closed, unlock attempts, service restarts) and a decision about the promise made to the people who pay for it; see the end of this page. It is a decision for the owner and has not been made. Nothing outside the app is measured either (the site, the store page, downloads): the Chrome Web Store dashboard and the GitHub release counts already answer *how many came*, and this dashboard answers *what they did*.
+The numbers come from **the browser extension and, only where a person has said yes, the Windows app** (`desktop/`; a second product, `pr: "win"`, with its own counters and its own page: see the Windows section of this page; its collector address is empty in this build, so today it sends nothing but the update check). Nothing outside the apps is measured either (the site, the store page, downloads): the Chrome Web Store dashboard and the GitHub release counts already answer *how many came*, and this dashboard answers *what they did*.
 
 ## Targets for the first quarter
 
@@ -137,7 +137,7 @@ Targets are a way to notice, not a verdict. They are proposals to replace with t
 
 | Metric | First baseline | Aim by the end of the quarter |
 |---|---|---|
-| Opt-in to sharing | whatever it is | ≥ 20 % of the installs that finished a first session (the ask is shown once, after the first finished session, never again once answered) |
+| Opt-in to sharing | whatever it is | ≥ 20 % of the installs that finished a first session (up to three asks, three weeks apart, each after a finished session; any answer but "maybe later" ends them) |
 | Activation (focus session on day 1) | measure | + 10 points over the baseline |
 | D7 retention | measure | + 5 points |
 | Features used by < 5 % of active installs | list them | decide for each: promote, simplify or remove |

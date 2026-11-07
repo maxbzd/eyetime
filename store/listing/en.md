@@ -22,7 +22,7 @@ HONEST STATISTICS
 Time per site, hour and day; a day timeline with your focus sessions; focus time by project (#tag); estimate accuracy (planned vs. actual); your best focus hours; "what pulls you" — when a site tempts you, with a one-tap limit; a weekly review and a shareable "My week" picture. Re-classify any site as productive, neutral or distracting with one tap. Export CSV or a Markdown journal.
 
 A CALM NEW TAB
-Clock, focus card with a daily goal, tasks with priorities, habits, notes and quick links. 16 looks, any accent colour, 22 backdrops, real ambient sounds. Light and dark. Switch it off any time.
+Clock, focus card with a daily goal, tasks with priorities, habits, notes and quick links. 16 looks, any accent colour, 22 photo backgrounds, real ambient sounds. Light and dark. Switch it off any time.
 
 LOOK AFTER YOUR EYES
 20-20-20 reminders based on real, active screen time and a guided 20-second break page.

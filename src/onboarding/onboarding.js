@@ -24,6 +24,9 @@ const pick = { presets: /** @type {Record<string, boolean>} */ ({}), custom: /**
 /** The sites the person named: kinds first (their domains), then their own. The first of them is the one the previews and the first session talk about. */
 export const chosenHosts = (/** @type {{ presets: Record<string, boolean>, custom: string[] }} */ p) => [...new Set([...p.custom, ...PRESET_IDS.filter((id) => p.presets[id]).map((id) => PRESETS[id].domains[0] === 'youtu.be' ? 'youtube.com' : PRESETS[id].domains[0])])];
 
+/** Every domain the first session will hold back: the kinds' whole lists and the person's own (a count of kinds says "2" for what is really dozens of sites). */
+export const closedDomains = (/** @type {{ presets: Record<string, boolean>, custom: string[] }} */ p) => [...new Set([...p.custom, ...PRESET_IDS.filter((id) => p.presets[id]).flatMap((id) => PRESETS[id].domains)])];
+
 function progress() {
   clear($('#dots'), STEPS.map((_, i) => h('li', { class: i === step ? 'on' : i < step ? 'done' : '' })));
   $('#stepLabel').textContent = t('ob.v2.step', { a: step + 1, b: STEPS.length });
@@ -40,8 +43,8 @@ async function finish(startFirst) {
   await send('settings:changed');
   if (startFirst) {
     const [host] = chosenHosts(pick), usage = await getUsage();
-    await setRaw({ obFirst: { at: Date.now(), minutes: pick.minutes, sites: hosts, host: host || '', blocks0: usage.total.block_page || 0, stage: 'run' } });
-    await send('focus:start', { minutes: pick.minutes, goal: pick.goal.trim().slice(0, 120), strict: false });
+    await setRaw({ obFirst: { at: Date.now(), minutes: pick.minutes, sites: closedDomains(pick).length, host: host || '', blocks0: usage.total.block_page || 0, stage: 'run' } });
+    await send('focus:start', { minutes: pick.minutes, goal: pick.goal.trim().slice(0, 120), strict: false, remember: false }); // the first session of five minutes is not the person's choice of a usual length
   }
   location.href = chrome.runtime.getURL('src/newtab/newtab.html');
 }
@@ -71,7 +74,7 @@ const views = {
     const err = h('div', { class: 'hint', style: { color: 'var(--distracting-text)' } });
     const custom = h('div', { class: 'chips' });
     const prev = h('div', { class: 'prev-slot', 'aria-live': 'polite' });
-    const drawPrev = () => { const [host] = chosenHosts(pick); clear(prev, host ? pausePreview(host) : h('p', { class: 'prev-none', text: t('ob.v2.prevNone') })); };
+    const drawPrev = () => { const [host, ...more] = chosenHosts(pick); clear(prev, host ? pausePreview(host) : h('p', { class: 'prev-none', text: t('ob.v2.prevNone') }), host && more.length ? h('p', { class: 'prev-also', text: t('ob.v2.prevAlso', { sites: more.slice(0, 4).join(', ') }) }) : null); }; // the preview shows one site: the line under it names the others, so "Social" and a closed reddit.com do not look like a fault
     const drawCustom = () => { clear(custom, pick.custom.map((d) => h('span', { class: 'chip chip-x' }, h('span', { class: 'chip-t', text: d }), h('button', { type: 'button', 'aria-label': t('common.remove') + ' ' + d, onclick: () => { pick.custom = pick.custom.filter((x) => x !== d); drawCustom(); } }, icon('x'))))); drawPrev(); };
     const addDomain = () => {
       const d = parseUserDomain(input.value);
@@ -96,7 +99,7 @@ const views = {
     const start = h('button', { class: 'btn btn-primary btn-lg go', type: 'button', onclick: () => finish(true) }, icon('play'), t('ob.startFirst', { time: fmtDuration(pick.minutes * 60) }));
     const mins = h('div', { class: 'segmented', role: 'group', 'aria-label': t('ob.focusLen') }, [5, 10, 25].map((m) => h('button', { type: 'button', 'aria-pressed': String(pick.minutes === m), text: fmtDuration(m * 60), onclick: (e) => { pick.minutes = m; e.currentTarget.parentElement.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === e.currentTarget))); start.lastChild.textContent = t('ob.startFirst', { time: fmtDuration(m * 60) }); } })));
     return h('div', { class: 'step' },
-      h('h1', { text: t('ob.v2.firstTitle') }), h('p', { class: 'lead', text: t('ob.v2.firstLead') }),
+      h('h1', { text: t('ob.v2.firstTitle') }), h('p', { class: 'lead', text: t(chosenHosts(pick).length ? 'ob.v2.firstLead' : 'ob.v2.firstLeadNone') }), // nothing chosen: nothing is promised
       h('div', { class: 'field' }, h('label', { class: 'q', for: 'goalIn', text: t('ob.v2.goalQ') }), Object.assign(goal, { id: 'goalIn' }),
         h('div', { class: 'chips sugg' }, [['ob.v2.g1', 'pencil'], ['ob.v2.g2', 'book-open'], ['ob.v2.g3', 'list-checks']].map(([k, ico]) => h('button', { class: 'chip', type: 'button', onclick: () => { pick.goal = t(k); goal.value = pick.goal; goal.focus(); } }, icon(ico), t(k))))),
       h('div', { class: 'opt' }, h('div', {}, h('b', { text: t('ob.focusLen') }), h('span', { class: 'd', text: t('ob.v2.lenD') })), mins),
@@ -114,6 +117,7 @@ function render() {
   clear($('#card'), views[STEPS[step]]());
   $('#card').scrollIntoView({ block: 'nearest' });
   $('#skip').hidden = step === STEPS.length - 1;
+  $('#skip').textContent = t(step === 0 ? 'ob.skip' : 'ob.v2.saveExit'); // on the first screen it skips; later it keeps what was chosen so far, and says so
   const focusEl = $('#card').querySelector('h1'); if (focusEl) { focusEl.tabIndex = -1; if (step > 0) focusEl.focus({ preventScroll: true }); }
 }
 

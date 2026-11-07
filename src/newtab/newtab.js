@@ -34,6 +34,7 @@ import { openTour } from './home/tour.js';
 import { watchFocus } from './home/focus-watch.js';
 import { track } from '../shared/usage-store.js';
 import { speedFeature } from '../shared/usage.js';
+import { logError } from '../shared/errorlog.js';
 
 let homeOff; // whether this page was opened with the home page switched off
 
@@ -45,7 +46,7 @@ async function applySettings(rawIn, first = false) {
   state.settings = s;
   if (state.todayOn !== undefined && state.todayOn !== isToday(s)) mountHome(); // Today ⇄ another arrangement: the focus parts of the page change in place
   state.standby?.rearm?.();
-  paintClock(); scheduleClock(); applyType(s); await applyBackground();
+  paintClock(); scheduleClock(); applyType(s); await applyBackground().catch((e) => logError('background', e));
   syncBlocks(s, first, prev);
   if (!first && !$('#drawer').hidden) drawDrawer();
   applySkins();
@@ -76,7 +77,7 @@ const visibleAtStart = typeof document !== 'undefined' && document.visibilitySta
   track('newtab_view');
   await morningPlan();
   installHomePalette();
-  paintClock(); scheduleClock(); applyType(state.settings); await applyBackground();
+  paintClock(); scheduleClock(); applyType(state.settings); await applyBackground().catch((e) => logError('background', e));
   let rz = 0; window.addEventListener('resize', () => { clearTimeout(rz); rz = window.setTimeout(() => { paintClock(); applyCanvas(state.settings); }, 120); });
   mountHome(); installPanel();
   setTimeout(() => autoGuess().catch(() => {}), 5000); // experimental, off by default: the on-device model learns about the few most used unknown sites

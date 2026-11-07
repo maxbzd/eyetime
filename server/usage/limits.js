@@ -3,7 +3,7 @@
 // The numbers the collector holds itself to, in one place for the handler and both stores.
 
 /** Kinds of things the collector counts about its own door, by day and never by who: the way to see that reports are failing without keeping a log of anyone. */
-export const INGEST_KINDS = ['accepted', 'forgot', 'bad_report', 'bad_json', 'bad_type', 'too_big', 'wrong_origin', 'too_soon', 'flood'];
+export const INGEST_KINDS = ['accepted', 'forgot', 'bad_report', 'bad_json', 'bad_type', 'too_big', 'wrong_origin', 'too_soon', 'flood', 'bad_feedback'];
 
 /** A day's answers to the question after removal, in all: a script cannot swamp the counts with one request after another. */
 export const MAX_UNINSTALLS_PER_DAY = 2000;

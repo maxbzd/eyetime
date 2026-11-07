@@ -161,7 +161,9 @@ export async function sendReport({ now = Date.now(), fetchImpl = fetchWithTimeou
   await setShare({ lastTryAt: now });
   let res;
   try { res = await fetchImpl(endpoint, post(report)); } catch { return { sent: false, why: 'network' }; }
-  if (!res.ok && res.status !== 429) return { sent: false, why: 'status ' + res.status }; // 429: the collector has this week's report already
+  if (!res.ok && res.status !== 429) return { sent: false, why: 'status ' + res.status };
+  // 429 without "retry-after": the collector has this week's report already. With it (the hour's room for new installs is full) the report was NOT taken: it stays, and goes at the next try
+  if (res.status === 429 && res.headers && res.headers.get && res.headers.get('retry-after')) return { sent: false, why: 'busy' };
   await withLock('usage', async () => {
     const { usage: stored, meta } = await getRaw(['usage', 'meta']);
     await setRaw({ usage: res.ok ? subtractPeriod(normalizeUsage(stored, meta?.installedAt || now), report.ft) : normalizeUsage(stored, meta?.installedAt || now) });

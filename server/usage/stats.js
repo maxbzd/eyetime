@@ -365,7 +365,7 @@ export function computeStats(snap, now = Date.now(), { recentDays = 90, from: fr
   // ---- notes for the charts, the door's own counters, and why people leave ----
   const notes = (snap.notes || []).filter((n) => n.day >= isoDay(to - 7 * trend - 7) && n.day <= isoDay(to)).map((n) => ({ id: n.id, day: n.day, text: n.text }));
   const doorDays = Array.from({ length: 28 }, (_, k) => isoDay(today - 27 + k));
-  const REJECTED = ['bad_report', 'bad_json', 'bad_type', 'too_big', 'wrong_origin'], THROTTLED = ['too_soon', 'flood'];
+  const REJECTED = ['bad_report', 'bad_json', 'bad_type', 'too_big', 'wrong_origin', 'bad_feedback'], THROTTLED = ['too_soon', 'flood'];
   const door = doorDays.map((day) => { const by = Object.fromEntries((snap.ingest || []).filter((r) => r.day === day).map((r) => [r.kind, r.n])); const tot = (/** @type {string[]} */ ks) => ks.reduce((a, k) => a + (by[k] || 0), 0); return { day, accepted: by.accepted || 0, forgot: by.forgot || 0, rejected: tot(REJECTED), throttled: tot(THROTTLED), by }; });
   const door7 = door.slice(-7), got = door7.reduce((a, d) => a + d.accepted + d.rejected, 0);
   const ingest = { days: door, accepted_7d: door7.reduce((a, d) => a + d.accepted, 0), rejected_7d: door7.reduce((a, d) => a + d.rejected, 0), rejected_share_7d: got ? door7.reduce((a, d) => a + d.rejected, 0) / got : null, reasons_7d: [...REJECTED, ...THROTTLED].map((kind) => ({ id: kind, k: door7.reduce((a, d) => a + (d.by[kind] || 0), 0) })) };

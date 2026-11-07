@@ -63,11 +63,23 @@ test('state: what a card does to the rules', async () => {
   await F.fbDismissed({ never: true }, T0); assert.equal((await F.getFb()).never, true);
   mem = {}; await F.fbAnswered('pmf', T0); s = await F.getFb(); assert.deepEqual([s.pmfAt, s.lastAt, s.snoozeUntil], [T0, T0, null]);
   await F.fbAnswered('session', T0 + DAY); assert.equal((await F.getFb()).pmfAt, T0, 'a rating is not an answer to the question of fit');
-  assert.equal(F.weekMoodDue(F.normalizeFb(null), true, 10, T0), true);
-  await F.fbWeekDone(T0); assert.equal(F.weekMoodDue(await F.getFb(), true, 10, T0 + 2 * DAY), false, 'once a week');
-  assert.equal(F.weekMoodDue(await F.getFb(), true, 10, T0 + 8 * DAY), true);
-  assert.equal(F.weekMoodDue(F.normalizeFb(null), true, 3, T0), false); assert.equal(F.weekMoodDue(F.normalizeFb(null), false, 10, T0), false);
-  assert.equal(F.weekMoodDue({ ...F.normalizeFb(null), never: true }, true, 10, T0), false);
+  const fresh = () => F.normalizeFb(null);
+  assert.equal(F.weekMoodDue(fresh(), true, 10, T0), true);
+  mem = {}; await F.fbWeekDone(T0); assert.equal(F.weekMoodDue(await F.getFb(), true, 10, T0 + 2 * DAY), false, 'once a week');
+  assert.equal(F.weekMoodDue(await F.getFb(), true, 10, T0 + 8 * DAY), true, 'the week after, when nothing else was asked');
+  assert.equal(F.weekMoodDue(fresh(), true, 3, T0), false); assert.equal(F.weekMoodDue(fresh(), false, 10, T0), false);
+  assert.equal(F.weekMoodDue({ ...fresh(), never: true }, true, 10, T0), false);
+  // the week's mood is a question like the others: the audit of 3.9.0 found it outside the budget
+  assert.equal(F.weekMoodDue({ ...fresh(), lastAt: T0 - 5 * DAY }, true, 10, T0), false, 'not within 30 days of another question');
+  assert.equal(F.weekMoodDue({ ...fresh(), lastAt: T0 - 31 * DAY }, true, 10, T0), true);
+  assert.equal(F.weekMoodDue({ ...fresh(), snoozeUntil: T0 + DAY }, true, 10, T0), false, 'not within 60 days of "Not now"');
+  assert.equal(F.weekMoodDue(fresh(), true, 10, T0, T0 - 10 * DAY), false, 'not soon after the question about anonymous numbers');
+  assert.equal(F.weekMoodDue(fresh(), true, 10, T0, T0 - 40 * DAY), true);
+  // the same for "Did this pause help?", and never while a session is on
+  assert.equal(F.pauseThumbsDue(fresh(), true, 10, T0), true);
+  assert.equal(F.pauseThumbsDue(fresh(), true, 10, T0, T0 - 10 * DAY), false);
+  assert.equal(F.pauseThumbsDue(fresh(), true, 10, T0, null, true), false, 'not in a focus session');
+  mem = {}; await F.fbDismissed({}, T0); assert.equal(F.weekMoodDue(await F.getFb(), true, 10, T0 + 20 * DAY), false, 'a closed question of any kind: quiet');
   assert.deepEqual(F.normalizeFb('junk'), F.normalizeFb(null));
   assert.deepEqual(F.normalizeFb({ outbox: [{ t: 'bad', ts: 1 }, { t: newTicket(), ts: 5, kind: 'nope', text: 'x', answers: [{ id: 1, text: 'a' }, { id: 'x' }] }] }).outbox.map((x) => [x.kind, x.answers.length]), [['idea', 1]]);
 });

@@ -5,7 +5,7 @@ Usage numbers say *what* people do. This is the other half: *what they think, wh
 1. get as much of the **right** feedback as possible, in a form that can be acted on;
 2. never annoy: ask rarely, at good moments, in one tap, so that people **want** to answer.
 
-Status: **design only** (a clickable mock-up exists). Nothing here is built yet. Where it says "owner decision" the owner has to say yes first.
+Status: **built in 3.9.0** (see "What was decided and built" at the end). The design below is kept as it was reasoned; where the code differs the end section says so, and in short: a rating needs no count of sessions (7 active days and a finished session), the quiet after the consent question is 30 days (not 14), there is no global kill switch but each card has "Not now" and "Don't ask for ratings", no store-review invitation and no door at the end of *What's new* are built yet, and the week's mood is inside the same 30-day budget as everything else.
 
 ## What the research and the best products agree on
 

@@ -141,3 +141,16 @@ test('backup: the desktop helper token never leaves the device, and its switch c
   const stored = (await chrome.storage.local.get('settings')).settings;
   assert.equal(stored.companion.token, 'SECRET-TEST-TOKEN-12345', 'and the live settings are untouched by an export');
 });
+
+test('backup: a file made before the token was kept out (3.8.1 and older) does not bring it back, in either format', async () => {
+  fresh();
+  const { importAll } = await import('../../src/shared/storage.js');
+  await importAll({ app: 'eyetime', version: 2, data: { settings: { companion: { enabled: true, token: 'OLD-TOKEN-FROM-381' } } } });
+  let s = (await chrome.storage.local.get('settings')).settings;
+  assert.equal(s.companion.token, ''); assert.equal(s.companion.enabled, false);
+  assert.ok(!JSON.stringify(await chrome.storage.local.get(null)).includes('OLD-TOKEN-FROM-381'), 'nowhere in storage');
+  fresh();
+  await importAll({ app: 'eyetime', version: 3, data: { settings: { companion: { enabled: true, token: 'OLD-TOKEN-FROM-381' } } } });
+  s = (await chrome.storage.local.get('settings')).settings;
+  assert.equal(s.companion.token, ''); assert.equal(s.companion.enabled, false);
+});

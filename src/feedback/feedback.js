@@ -58,8 +58,11 @@ async function submit() {
   if (!endpoint) { // no collector: a draft on GitHub, in public, with the same words
     const body = form.text.trim() + (form.ctxOn ? '\n\n— ' + (await ctxLine()) : '');
     const q = new URLSearchParams({ title: (form.kind === 'idea' ? 'Idea: ' : form.kind === 'problem' ? 'Bug: ' : 'Kind word: ') + form.text.trim().split('\n')[0].slice(0, 60), body });
-    window.open('https://github.com/maxbzd/eyetime/issues/new?' + q.toString(), '_blank', 'noopener');
+    const win = window.open('https://github.com/maxbzd/eyetime/issues/new?' + q.toString(), '_blank'); // no "noopener" here: it makes window.open answer null always, and a blocked pop-up could not be told from an opened one
+    if (win) win.opener = null;
+    if (!win) { form.error = t('fb.err'); return view(); } // blocked: nothing was written, nothing is counted, and the words stay
     await track('fb_written');
+    form.text = ''; thanks(false); // the draft is open on GitHub: the form says so by being empty and thankful
     return;
   }
   const mail = form.mailOpen && form.kind !== 'kudos' && form.mail.trim() ? form.mail.trim() : undefined;

@@ -32,8 +32,8 @@ export function startFocus(p) {
   return next;
 }
 
-/** @param {{ minutes: number, goal?: string, strict?: boolean, taskId?: string, scope?: string, mode?: string }} p */
-async function startFocusNow({ minutes, goal = '', strict = false, taskId = '', scope = undefined, mode = '' }) {
+/** @param {{ minutes: number, goal?: string, strict?: boolean, taskId?: string, scope?: string, mode?: string, remember?: boolean }} p  remember: false keeps the last-used length and scope as they were (the onboarding's first session is not a choice of them) */
+async function startFocusNow({ minutes, goal = '', strict = false, taskId = '', scope = undefined, mode = '', remember = true }) {
   const { focus: running } = await getRaw('focus');
   if (running && isFocusLive(running)) return { ok: false, error: 'active' }; // running, or paused
   const settings = await getSettings();
@@ -46,7 +46,7 @@ async function startFocusNow({ minutes, goal = '', strict = false, taskId = '', 
   track('focus_start');
   await chrome.alarms.clear('rest-end');
   await chrome.alarms.create('focus-end', { when: session.endsAt });
-  await updateSettings((s) => { s.focus.minutes = session.minutes; s.focus.strict = session.strict; s.focus.scope = session.scope; if (modeCfg) s.focus.mode = modeCfg.id; }, { touch: false });
+  if (remember) await updateSettings((s) => { s.focus.minutes = session.minutes; s.focus.strict = session.strict; s.focus.scope = session.scope; if (modeCfg) s.focus.mode = modeCfg.id; }, { touch: false });
 
   if (/^https?:\/\//.test(settings.focus.openUrl || '')) chrome.tabs.create({ url: settings.focus.openUrl, active: false }).catch(() => {});
   if (settings.focus.sound) playChime('start');
@@ -166,7 +166,8 @@ export async function finishFocus() {
   await updateDay(sessionDay(focus), (d) => { d.fs = (d.fs || 0) + focus.minutes * 60; d.fc = (d.fc || 0) + 1; sessionsToday = d.fc; addSession(d, makeSessionEntry(focus, { sec: focus.minutes * 60, completed: true })); });
   await creditTask(focus, focus.minutes * 60);
   const settings = await getSettings();
-  if (settings.focus.review) await setRaw({ review: reviewOf(focus, focus.minutes * 60, true) });
+  const { obFirst } = await getRaw('obFirst');
+  if (settings.focus.review && !(obFirst && obFirst.stage === 'run')) await setRaw({ review: reviewOf(focus, focus.minutes * 60, true) }); // the first session of the onboarding ends with its own dialog: not two questions at once
   await setLocale(resolveLocale(settings.language));
   if (settings.focus.sound) playChime('end');
   const fresh = Date.now() - focus.endsAt < 2 * 60_000; // a session that ended long ago (browser was closed) gets no rest
