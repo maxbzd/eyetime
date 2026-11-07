@@ -74,11 +74,11 @@ export async function paintFirstSession() {
   if (!obFirst || obFirst.stage === 'closed') { remove(COACH); return false; }
   const live = !!focus && isFocusLive(focus);
   if (obFirst.stage === 'run') {
-    if (live) { coach(obFirst); return !obFirst.coachSeen; }
+    if (live) { if (!obFirst.seen) await setRaw({ obFirst: { ...obFirst, seen: true } }); coach(obFirst); return !obFirst.coachSeen; } // `seen`: it has been running, so a stop without a finish is an early stop, not a late start
     remove(COACH);
     const ses = sessionSince(await getDays(rangeKeys(2)), obFirst.at);
     if (ses) { await setRaw({ obFirst: { ...obFirst, stage: 'done', m: ses.m } }); await celebrate(obFirst, ses); return true; }
-    if (Date.now() - obFirst.at > GRACE_MS) await setRaw({ obFirst: { ...obFirst, stage: 'closed' } }); // stopped early or never started: nothing to celebrate, nothing to say
+    if (obFirst.seen || Date.now() - obFirst.at > GRACE_MS) await setRaw({ obFirst: { ...obFirst, stage: 'closed' } }); // stopped early or never started: nothing to celebrate, nothing to say
     return false;
   }
   remove(COACH);
