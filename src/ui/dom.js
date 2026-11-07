@@ -93,12 +93,12 @@ export function toast(message, { action, onAction, ms = action ? 7000 : 3200 } =
   const el = h('div', { class: 'toast' }, h('span', { text: message }), action ? h('button', { type: 'button', text: action, onclick: () => { onAction?.(); close(); } }) : null);
   let timer = 0, held = false;
   const close = () => { clearTimeout(timer); el.classList.add('out'); setTimeout(() => el.remove(), 220); };
-  const arm = () => { clearTimeout(timer); timer = setTimeout(() => { if (held) arm(); else close(); }, ms); };
+  const arm = (/** @type {number} */ wait = ms) => { clearTimeout(timer); timer = setTimeout(() => { if (held) arm(); else close(); }, wait); };
   if (action) {
     el.addEventListener('pointerenter', () => { held = true; });
-    el.addEventListener('pointerleave', () => { held = false; arm(); });
+    el.addEventListener('pointerleave', () => { held = false; arm(2500); }); // after the pointer goes, a few more seconds, not the whole time again
     el.addEventListener('focusin', () => { held = true; });
-    el.addEventListener('focusout', () => { held = false; arm(); });
+    el.addEventListener('focusout', () => { held = false; arm(2500); });
   }
   toastHost.append(el);
   arm();

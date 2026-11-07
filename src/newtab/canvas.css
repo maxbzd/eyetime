@@ -77,7 +77,7 @@ body.cv-editing .nt-top, body.cv-editing .kbd-hint { display: none; }
 .cv-frame.is-sel { z-index: 1; } /* the selected block's handles stay reachable when frames overlap */
 body.cv-editing .nt-corners { visibility: hidden; }
 /* the cards that flow above the arrangement (first days, what is new, the day's nudge, the backup reminder) are not part of it, and over a block being moved they only get in the way */
-body.cv-editing .gs, body.cv-editing .wn, body.cv-editing .nudge, body.cv-editing .backup-nudge { visibility: hidden; }
+body.cv-editing .gs, body.cv-editing .wn, body.cv-editing .nudge, body.cv-editing .backup-nudge, body.cv-editing .td-ritual, body.cv-editing .cv-empty { visibility: hidden; }
 
 /* ---------- the block inspector (above the toolbar) ---------- */
 .cv-insp { pointer-events: auto; display: flex; align-items: center; gap: var(--s-2); padding: 6px 10px; border-radius: var(--r-full); background: color-mix(in srgb, var(--surface) 88%, transparent); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid var(--border-strong); box-shadow: var(--shadow-3); width: max-content; max-width: calc(100vw - 24px); flex-wrap: wrap; justify-content: center; animation: cv-pop var(--t-fast) var(--ease); }

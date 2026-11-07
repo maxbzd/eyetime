@@ -63,10 +63,13 @@ const { launch } = require('./lib.cjs');
   ok(closedN > 5, 'the card counts the sites that are closed, not the kinds chosen (two kinds and one of their own would say 3): ' + closedN);
   await shot(ob, 'ob-4-coach');
   ok(outside.length === 0, 'until now no request left this computer: ' + [...new Set(outside)].join(' '));
+  const tryHref = await coach.getByRole('link', { name: /closed site/ }).getAttribute('href');
   const [site] = await Promise.all([app.ctx.waitForEvent('page'), coach.getByRole('link', { name: /closed site/ }).click()]);
   await site.waitForTimeout(1500);
   ok(/blocked\.html/.test(site.url()) || /Fake site/.test(await site.title().catch(() => '')) === false, 'opening a chosen site during the session shows the closed page: ' + site.url().slice(0, 70));
   await site.close();
+  ok((await get('obFirst')).tried === 1, 'the look made on purpose is marked, so that the dialog will not count it');
+  const real = await app.ctx.newPage(); await real.goto(tryHref).catch(() => {}); await real.waitForTimeout(1500); await real.close(); // a visit that is NOT a look: a real temptation, held back
   ok(await ob.locator('#fsCoach').count() === 0 && (await get('obFirst')).coachSeen === true, 'the coach goes once it has been used, and does not come back');
 
   // 3. the session ends WITH THE TAB OPEN: the worker clears `focus` first and writes the finished session a moment later

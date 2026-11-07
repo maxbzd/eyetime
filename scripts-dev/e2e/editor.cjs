@@ -143,6 +143,7 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   const wid = ws[0] && ws[0].id;
   ok(!!(await canvas()).items[wid], 'the new widget has a place on Home');
   ok(await p.locator(`.cv-frame[data-block="${wid}"]`).count() === 1, 'the new widget has a frame');
+  ok(await p.evaluate((id) => { const f = document.querySelector(`.cv-frame[data-block="${id}"]`).getBoundingClientRect(); return [...document.querySelectorAll('.cv-frame')].filter((x) => x.dataset.block !== id).every((o) => { const r = o.getBoundingClientRect(); return !(Math.min(f.right, r.right) - Math.max(f.left, r.left) > 4 && Math.min(f.bottom, r.bottom) - Math.max(f.top, r.top) > 4); }); }, wid), 'a new widget does not land on the blocks that are already there');
   await p.waitForSelector('.cv-panel input[type="date"]', { timeout: 3000 }).catch(() => {});
   ok(await p.locator('.cv-panel input[type="date"]').count() === 1, 'the widget settings panel opens for the new widget');
   await p.fill('.cv-panel input[maxlength="60"]', 'Launch'); await p.waitForTimeout(700);

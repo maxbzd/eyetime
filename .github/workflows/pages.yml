@@ -6,7 +6,7 @@ name: Pages
 on:
   push:
     branches: [main]
-    paths: [site/**, PRIVACY.md, store/screenshots/**, icons/logo.svg, scripts-dev/build-site.mjs, .github/workflows/pages.yml]
+    paths: [site/**, PRIVACY.md, store/screenshots/**, store/demo.mp4, store/demo-poster.jpg, icons/logo.svg, scripts-dev/build-site.mjs, .github/workflows/pages.yml]
   workflow_dispatch:
 permissions:
   contents: read
