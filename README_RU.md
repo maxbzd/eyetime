@@ -15,8 +15,6 @@
 
 <img src="store/screenshots/1-home.png" alt="Главная EyeTime: обои дня, время и строка «на чём вы сосредоточены?»" width="860">
 
-<img src="store/demo.gif" alt="EyeTime за 30 секунд: задача текстом, фокус-сессия, спокойная пауза, аналитика, смена стиля" width="860">
-
 </div>
 
 ---
