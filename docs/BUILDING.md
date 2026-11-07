@@ -21,7 +21,7 @@ EYETIME_BUILD=source node scripts-dev/pack.mjs     # the same zips with the sour
 ## Check that a release is what the source says
 
 ```bash
-git checkout v3.8.1 && npm ci
+git checkout v3.9.0 && npm ci
 node scripts-dev/verify-build.mjs --against ~/Downloads/eyetime-chrome.zip
 ```
 

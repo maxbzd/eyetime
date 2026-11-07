@@ -33,7 +33,7 @@ The best feedback arrives when a person wants to give it. So the door is always 
 | Problem | "What happened, and what did you expect? If you remember: after which action." | Triage first; version / browser / system / language come with it. |
 | Kind word | "What do you like? It really helps." | Read, thanked, shown (without a name, with permission) in the store text and in the changelog. |
 
-The context travels as a **visible chip** the person can remove: "Sent with: EyeTime 3.8.1 · Chrome · Windows · ru". Never the anonymous usage ID. A reply address is optional ("I'd like an answer"), used only to reply and deleted after.
+The context travels as a **visible chip** the person can remove: "Sent with: EyeTime 3.9.0 · Chrome · Windows · ru". Never the anonymous usage ID. A reply address is optional ("I'd like an answer"), used only to reply and deleted after.
 
 ### Asked at good moments (push, rarely)
 
