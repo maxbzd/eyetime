@@ -35,6 +35,10 @@ async function clearAll() {
   await chrome.alarms.clear(ALARM);
 }
 
+/** Are the rules the browser holds the same as the ones just built? (Same order, ids and content; the browser may give its own copies back with the keys in another order.) */
+const canon = (/** @type {any} */ v) => JSON.stringify(v, (_k, x) => (x && typeof x === 'object' && !Array.isArray(x) ? Object.fromEntries(Object.entries(x).sort(([a], [b]) => (a < b ? -1 : 1))) : x));
+export const sameRules = (/** @type {any[]} */ have, /** @type {any[]} */ want) => have.length === want.length && canon([...have].sort((a, b) => a.id - b.id)) === canon([...want].sort((a, b) => a.id - b.id));
+
 async function run() {
   const dnr = api(); if (!dnr) return;
   try {
@@ -42,9 +46,10 @@ async function run() {
     const ctx = await loadContext();
     const { dynamic, session, truncated } = buildRules(ctx, blockedBase());
     const [dyn, ses] = await Promise.all([dnr.getDynamicRules(), dnr.getSessionRules()]);
-    // one call each: the browser swaps the whole set at once, so there is no moment with half of the rules
-    await dnr.updateDynamicRules({ removeRuleIds: dyn.map((r) => r.id), addRules: dynamic });
-    await dnr.updateSessionRules({ removeRuleIds: ses.map((r) => r.id), addRules: session });
+    // one call each: the browser swaps the whole set at once, so there is no moment with half of the rules; and when the rules are already exactly these (a change of look,
+    // language or dock position leads here too), nothing is sent to the browser at all
+    if (!sameRules(dyn, dynamic)) await dnr.updateDynamicRules({ removeRuleIds: dyn.map((r) => r.id), addRules: dynamic });
+    if (!sameRules(ses, session)) await dnr.updateSessionRules({ removeRuleIds: ses.map((r) => r.id), addRules: session });
     const at = nextChange(ctx);
     if (at) await chrome.alarms.create(ALARM, { when: at + 500 }); else await chrome.alarms.clear(ALARM);
     await setRaw({ instantTruncated: truncated || 0 });

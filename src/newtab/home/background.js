@@ -52,8 +52,8 @@ export async function applyBackground() {
     const newtabBg = paths ? chrome.runtime.getURL(paths.photo) : await getPhoto('bg');
     document.documentElement.style.setProperty('--photo-shade', String(frame ? FRAMES[frame].shade : 1));
     if (newtabBg) {
+      document.documentElement.style.setProperty('--photo', `url(${newtabBg})`); // the photo goes on first: measuring it (a small canvas, the tone, the soft copy) comes after, not before
       const info = await getPhotoInfo(newtabBg);
-      document.documentElement.style.setProperty('--photo', `url(${newtabBg})`);
       if (info.soft) document.documentElement.style.setProperty('--photo-soft', `url(${info.soft})`);
       if (today && !frame) setVeil(info.tone === 'dark' ? [0.4, 0.45, 0.3] : [0.18, 0.22, 0.14]); // their own photo: a light one needs more veil under white type
       photoTone = n.photoText === 'light' || n.photoText === 'dark' ? n.photoText : frame ? FRAMES[frame].tone : info.tone;
