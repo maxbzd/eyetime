@@ -68,7 +68,7 @@ A release about the moment that matters most to a new person: the end of the fir
 - `store-check.mjs` compares the number of languages in the Russian README with the product's own list (it only forbade "6" before).
 
 ### Under the hood
-- 638 unit tests (620 in 3.9.1). New: the first-session plan for a marked stop; the worker replays a stopped first session against a page that closes the matter first; the count taken at the end of a finished session; the patching of the first session's state with several writers; a slow start waited for; a five-minute try that does not change the usual length (the earlier check ran a 25-minute session against a 25-minute default and could not tell).
+- 639 unit tests (620 in 3.9.1). New: the first-session plan for a marked stop; the worker replays a stopped first session against a page that closes the matter first; the count taken at the end of a finished session; the patching of the first session's state with several writers; a slow start waited for; a five-minute try that does not change the usual length (the earlier check ran a 25-minute session against a 25-minute default and could not tell).
 - End-to-end: `feedback` no longer depends on the hour it runs at (after 18:00 the evening review strip comes first, by design). `onboarding` stops a first session after two and a half minutes with the tab open and expects no dialog, no card and the mark; `tour` presses "Start 5 min" with a 25-minute strict setup, and checks that "No more tips" is the Settings switch and that switching it on brings tips back.
 
 ## 3.9.1 — 2026-11-07 — Smoother first minutes, tips you control, calmer questions
