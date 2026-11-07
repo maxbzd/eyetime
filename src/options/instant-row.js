@@ -18,7 +18,8 @@ export function instantRow(/** @type {any} */ s, /** @type {Function} */ save, /
     let has = true;
     try { has = await chrome.permissions.contains({ origins: ORIGINS }); } catch { /* no permissions API */ }
     const test = (chrome.runtime.getManifest().host_permissions || []).length > 0; // test builds declare the permission up front
-    status.textContent = on && !has && !test ? t('opt.instantNoAccess') : '';
+    const { instantTruncated = 0 } = await chrome.storage.local.get('instantTruncated');
+    status.textContent = on && !has && !test ? t('opt.instantNoAccess') : on && instantTruncated > 0 ? t('opt.instantOverflow', { n: instantTruncated }) : '';
     status.classList.toggle('warn', !!status.textContent);
   })();
 
@@ -35,5 +36,6 @@ export function instantRow(/** @type {any} */ s, /** @type {Function} */ save, /
 
   const r = row({ adv: 'instant', title: t('opt.instant'), desc: t('opt.instantDesc'), control: toggle(on, turn, t('opt.instant')) });
   r.querySelector('.setting-text').append(status);
+  if (on) r.querySelector('.setting-text').append(h('div', { class: 'setting-desc', text: t('opt.instantCovers') })); // what the browser's rules do not cover (limits, the budget, guessed sites)
   return r;
 }

@@ -31,11 +31,14 @@ const fromB64 = (/** @type {string} */ s) => Uint8Array.from(atob(s), (c) => c.c
 /** @typedef {{ iv: string, ct: string }} Sealed */
 /** @typedef {{ v: 1, kdf: string, iter: number, salt: string, check: Sealed }} VaultMeta */
 
+const WEAK = new Set(['password', 'password1', 'password12', 'password123', 'passw0rd', '12345678', '123456789', '1234567890', '987654321', 'qwertyui', 'qwertyuiop', 'qwerty123', 'qwerty1234', 'iloveyou', 'letmein1', 'abcd1234', 'abc12345', 'admin123', 'welcome1', '1q2w3e4r', 'zaq12wsx', 'йцукенгш', 'пароль123']);
+
 /** Why a passphrase is not accepted (a code for the screen to word), or '' when it is. Length only: rules about symbols make people choose worse ones. */
 export function passphraseProblem(/** @type {unknown} */ p) {
   if (typeof p !== 'string') return 'type';
   if ([...p.normalize('NFKC')].length < MIN_PASSPHRASE) return 'short';
   if (p.length > 256) return 'long';
+  if (WEAK.has(p.normalize('NFKC').toLowerCase()) || new Set([...p]).size < 3) return 'weak'; // the passwords everyone tries first, and one or two characters repeated
   return '';
 }
 

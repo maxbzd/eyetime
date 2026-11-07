@@ -49,7 +49,7 @@ test('vault: the check blob cannot be taken for the details of a connection, wha
 
 test('vault: passphrases: eight characters at least (counted as people count them), never a non-string, and a vault this version cannot read is refused', async () => {
   assert.equal(passphraseProblem('short'), 'short'); assert.equal(passphraseProblem('1234567'), 'short');
-  assert.equal(passphraseProblem('12345678'), ''); assert.equal(passphraseProblem('日本語日本語日本語'), '');
+  assert.equal(passphraseProblem('12345678'), 'weak', 'the passwords everyone tries first are refused'); assert.equal(passphraseProblem('aaaaaaaaaa'), 'weak'); assert.equal(passphraseProblem('Tr0ub4dor&3x'), ''); assert.equal(passphraseProblem('日本語日本語日本語'), '');
   assert.equal(passphraseProblem('😀😀😀😀😀😀😀'), 'short', 'seven emoji are seven characters');
   assert.equal(passphraseProblem(null), 'type'); assert.equal(passphraseProblem('x'.repeat(300)), 'long');
   await assert.rejects(createVault('short', FAST), /passphrase: short/);

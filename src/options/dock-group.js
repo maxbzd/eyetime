@@ -29,7 +29,7 @@ export function dockGroup(s, save, refresh = () => {}) {
       return save((x) => { x.dock.enabled = true; }, true);
     }
     await save((x) => { x.dock.enabled = false; }, true);
-    try { await chrome.permissions.remove({ origins: DOCK_ORIGINS }); } catch { /* nothing to withdraw */ }
+    if (!(s.blocking && s.blocking.instant)) { try { await chrome.permissions.remove({ origins: DOCK_ORIGINS }); } catch { /* nothing to withdraw */ } } // instant blocking is the only other thing that uses it
     // a calendar link that relied on this broad access shows its "needs access" state: unsubscribing and subscribing again asks for that one site
   }
 

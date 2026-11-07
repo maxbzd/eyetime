@@ -6,6 +6,7 @@
 // the icons exist at the sizes the stores want, every permission and optional host is justified in store/LISTING.md, no remote code. Listing: summary at most 132 characters,
 // every language has its file. Pictures: each language has the five screenshots (store/screenshots/<lang>/, made by e2e/store-shots.cjs), 1280×800 or 640×400 without transparency, with a caption each; the tiles have their sizes.
 import fs from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 
 const root = path.join(path.dirname(new URL(import.meta.url).pathname), '..');
@@ -84,5 +85,20 @@ for (const [file, w, h] of [['store/promo/small-tile-440x280.png', 440, 280], ['
   ok(i && i.w === w && i.h === h, `${file} must be ${w}×${h}`);
   ok(i && !i.alpha, `${file} must have no transparency`);
 }
+// 6. the numbers in the texts are the numbers in the code, and a text that says "no analytics" stops being true the day the collector's address is filled in (audit 3.8.1)
+{
+  const imp = (p) => import(pathToFileURL(path.join(root, p)).href);
+  const [{ CLASSIC_LOOK_IDS }, { FRAMES }, { WIDGET_KIND_IDS }, { USAGE_ENDPOINT }] = await Promise.all([imp('src/shared/looks.js'), imp('src/shared/frames.js'), imp('src/shared/widgets.js'), imp('src/shared/usage-config.js')]);
+  const looks = CLASSIC_LOOK_IDS.length, frames = Object.keys(FRAMES).length, widgets = WIDGET_KIND_IDS.length;
+  for (const l of fs.readdirSync(path.join(root, 'store/listing')).filter((f) => f.endsWith('.md'))) {
+    const line = read('store/listing/' + l).split('\n')[24] || '';
+    ok(new RegExp(`(^|\\D)${looks}(\\D|$)`).test(line) && new RegExp(`(^|\\D)${frames}(\\D|$)`).test(line), `store/listing/${l} line 25 should say ${looks} looks and ${frames} backdrops (the code has ${looks} and ${frames})`);
+  }
+  ok(read('README.md').includes(`${widgets} widgets`), `README.md should say ${widgets} widgets (the code has ${widgets})`);
+  ok(read('site/index.html').includes(`${looks} looks`), `site/index.html should say ${looks} looks`);
+  if (USAGE_ENDPOINT) for (const f of ['site/index.html', 'store/listing/en.md', 'README.md']) ok(!/no analytics/i.test(read(f)), `${f} says "no analytics" but the collector has an address (docs/MEASUREMENT.md: change the sentence in the same release)`);
+}
+
 if (bad.length) { console.error('✗ store check\n  ' + bad.join('\n  ')); process.exit(1); }
 console.log(`✓ store check: ${locales.length} manifest languages, ${man.permissions.length} permissions justified, listings in ${langs.length} languages, pictures within the stores' limits`);
+

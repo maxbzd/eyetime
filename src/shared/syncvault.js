@@ -57,8 +57,9 @@ export async function changeSyncPassphrase(/** @type {string} */ oldPassphrase, 
 }
 
 /** Switch encryption off: the next sync writes plain copies that say which encryption they replace, so that the other devices follow. */
-export async function disableSyncEncryption() {
+export async function disableSyncEncryption(/** @type {string} */ passphrase) {
   const info = await getSyncEnc();
+  if (info) await keyFor(info, passphrase); // like the vault of services: taking the encryption off needs the passphrase (WrongPassphraseError otherwise)
   await chrome.storage.session.remove(KEY);
   await setRaw({ syncEnc: null, syncNeeds: null, syncEncOff: info ? info.rot : 0, settingsUpdatedAt: Date.now() });
 }

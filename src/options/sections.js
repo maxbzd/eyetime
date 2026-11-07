@@ -252,6 +252,7 @@ export function tracking({ s, save, refresh }) {
       if (!ok) { toast(t('opt.compDenied')); refresh(); return; }
     }
     await save((x) => { x.companion.enabled = on; }, true);
+    if (!on) { try { await chrome.permissions.remove({ origins: ['http://127.0.0.1:8765/*'] }); } catch { /* nothing to withdraw */ } }
   }
   const tokenIn = h('input', { class: 'input input-sm token', style: { width: '240px' }, placeholder: t('opt.compTokenPh'), value: comp.token, spellcheck: false, 'aria-label': t('opt.compToken'), onchange: (e) => save((x) => { x.companion.token = e.target.value.trim(); }, true) });
 

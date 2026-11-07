@@ -8,6 +8,7 @@ import { getSettings, updateDay } from '../shared/storage.js';
 import { dayKey, toMinutes } from '../shared/time.js';
 import { resolveLocale, setLocale, t } from '../shared/i18n.js';
 import { track } from '../shared/usage-store.js';
+import { logError } from '../shared/errorlog.js';
 
 const session = () => chrome.storage.session;
 const NATURAL_BREAK_SEC = 5 * 60; // being away this long counts as a rest
@@ -49,8 +50,8 @@ async function notifyBreak(settings) {
   try { await chrome.notifications.create('eye-break', opts); } catch { /* Firefox: no buttons */ delete opts.buttons; await chrome.notifications.create('eye-break', opts); }
 }
 
-export function openBreakPage() {
-  return chrome.tabs.create({ url: chrome.runtime.getURL('src/break/break.html') });
+export async function openBreakPage() {
+  try { return await chrome.tabs.create({ url: chrome.runtime.getURL('src/break/break.html') }); } catch (e) { logError('break:open', e); return null; } // a window that cannot open is no reason for an unhandled rejection
 }
 
 /** The user finished the guided break. */

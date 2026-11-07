@@ -8,6 +8,7 @@ import { h, icon, clear } from '../ui/dom.js';
 import { t, fmtDuration, fmtNumber, fmtDate, weekdayName, getLocale } from '../shared/i18n.js';
 import { getSettings, updateSettings, getDays, getCollection, getRaw, onChange } from '../shared/storage.js';
 import { send } from '../ui/api.js';
+import { logError } from '../shared/errorlog.js';
 import { dayKey, rangeKeys } from '../shared/time.js';
 import { nextEvent } from '../shared/ics.js';
 import { makeClassifier } from '../shared/classify.js';
@@ -365,7 +366,7 @@ export function createWidgetHost() {
       const root = h('section', { class: 'card wgt wgt-' + w.kind, id: 'wgt-' + w.id, 'data-kind': w.kind, 'aria-label': widgetName(w.kind) });
       const entry = { el: root, kind: w.kind, cfg, current: w.cfg, inst: null };
       live.set(w.id, entry);
-      entry.inst = DEFS[w.kind].build(root, { id: w.id, cfg: () => entry.current, save: saver(w.id, w.kind) }) || null;
+      try { entry.inst = DEFS[w.kind].build(root, { id: w.id, cfg: () => entry.current, save: saver(w.id, w.kind) }) || null; } catch (e) { root.hidden = true; logError('widget:' + w.kind, e); } // a broken widget is left out; the others are drawn
     }
     return list.map((w) => live.get(w.id).el);
   }
@@ -376,7 +377,8 @@ export function createWidgetHost() {
 export function previewWidget(kind) {
   const root = h('div', { class: 'card wgt wgt-' + kind + ' wgt-preview', 'aria-hidden': 'true' });
   const cfg = normalizeCfg(kind, {});
-  const inst = DEFS[kind].build(root, { id: 'preview', cfg: () => cfg, save: () => {} });
+  let inst = null;
+  try { inst = DEFS[kind].build(root, { id: 'preview', cfg: () => cfg, save: () => {} }); } catch (e) { logError('widget:' + kind, e); }
   return { el: root, destroy: () => inst?.destroy?.() };
 }
 

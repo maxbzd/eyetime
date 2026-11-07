@@ -55,11 +55,11 @@ export function makePhotos(backend, local) {
 
   async function getPhoto(/** @type {string} */ kind) {
     check(kind);
-    const v = await be.get(kind);
+    let v; try { v = await be.get(kind); } catch { v = undefined; } // no IndexedDB (a private window, disabled storage): there is no photo, and the page must still come up
     if (v !== undefined) return v;
     const old = (await area().get(LEGACY[kind]))[LEGACY[kind]];
     if (old === undefined) return null;
-    await be.set(kind, old); await area().remove(LEGACY[kind]); // moved, not copied: the storage gets its room back
+    try { await be.set(kind, old); await area().remove(LEGACY[kind]); } catch { /* it stays where it was */ } // moved, not copied: the storage gets its room back
     return old;
   }
   return {
@@ -69,7 +69,7 @@ export function makePhotos(backend, local) {
     async setPhoto(/** @type {string} */ kind, /** @type {any} */ value) { check(kind); await be.set(kind, value); await area().remove(LEGACY[kind]); await bump(); },
     async removePhotos(/** @type {string[]} */ kinds) { kinds.forEach(check); await be.del(kinds); await area().remove(kinds.map((k) => LEGACY[k])); await bump(); },
     /** everything (a reset of all data) */
-    async clearPhotos() { await be.clear(); await area().remove(Object.values(LEGACY)); },
+    async clearPhotos() { try { await be.clear(); } catch { /* nothing to clear */ } await area().remove(Object.values(LEGACY)); await bump(); }, // the other open tabs learn of it
   };
 }
 
