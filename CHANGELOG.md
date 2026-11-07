@@ -4,6 +4,10 @@
 
 The first run is now three light screens and a real first session; the person can write to the maker and get the answer back inside EyeTime; the optional anonymous numbers and the dashboard that reads them are in the code, but no collector address is set in this release, so nothing is sent; and two audits of 3.8.1 were checked and fixed.
 
+### Finding the rest: a guided set-up and quiet tips
+- **"Set up in detail"**, offered after the first session (and in the command palette, and in Settings → General): six short steps (your day on Home · limits · a rhythm for work · make Home yours · evenings · your other tools), each with the real controls applied at once, each skippable. What needs the browser's permission is a link into Settings: the tour never asks for one.
+- **Quiet tips about features you have not met**: one small card, at most once a week, never in the first week, never during a session, never about something you already use, each shown once; *Show me* opens the tour at that step, *Not now* is respected, *No more tips* is for good. Nothing is counted or sent.
+
 ### Fixes from the 3.8.1 audit
 - **The desktop helper's token is no longer written to a backup file** (the switch comes back off and the token empty), and switching the helper off withdraws its `127.0.0.1` access.
 - **Task and calendar sync holds deletions when a service answers with nothing and two or more tasks were linked** (before, only four or more were protected); one linked task whose counterpart is gone is still a plain deletion.

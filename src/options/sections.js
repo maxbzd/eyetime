@@ -21,7 +21,8 @@ const mins = (list) => list.map((m) => [m, t('opt.minutes', { n: m })]);
 export function general({ s, save, refresh }) {
   return sec('general', sectionHead(t('sec.general'), t('sec.generalDesc')),
     group(null,
-      row({ title: t('opt.language'), control: select([['auto', t('opt.auto')], ...Object.entries(LANGUAGES)], s.language, (v) => save((x) => { x.language = v; }, true), { label: t('opt.language') }) })),
+      row({ title: t('opt.language'), control: select([['auto', t('opt.auto')], ...Object.entries(LANGUAGES)], s.language, (v) => save((x) => { x.language = v; }, true), { label: t('opt.language') }) }),
+      row({ title: t('tour.open'), desc: t('tour.openD'), control: h('a', { class: 'btn', href: chrome.runtime.getURL('src/newtab/newtab.html?tour'), target: '_blank', rel: 'noopener' }, icon('sliders-horizontal'), t('tour.start')) })),
     adv(dockGroup(s, save, refresh), 'dock'),
     adv(siteAiGroup(s, save, refresh), 'smartSites'),
     group(t('opt.groupNotify'),

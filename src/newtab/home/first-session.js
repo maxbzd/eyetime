@@ -14,6 +14,8 @@ import { isFocusLive } from '../../shared/blocking.js';
 import { looksGallery } from '../../ui/appearance.js';
 import { send } from '../../ui/api.js';
 import { rangeKeys } from '../../shared/time.js';
+import { seg, sw } from './opts.js';
+import { openTour } from './tour.js';
 
 const COACH = 'fsCoach', DONE = 'fsDone';
 const GRACE_MS = 60_000; // the worker needs a moment to start the session the onboarding asked for
@@ -46,10 +48,6 @@ async function celebrate(/** @type {any} */ o, /** @type {any} */ ses) {
   const usage = await getUsage(), held = Math.max(0, (usage.total.block_page || 0) - (o.blocks0 || 0));
   const s = await getSettings(), ap = s.appearance;
   const set = (/** @type {(a: any) => void} */ fn) => updateSettings((x) => { fn(x.appearance); });
-  const seg = (/** @type {string} */ label, /** @type {[any, string][]} */ opts, /** @type {any} */ cur, /** @type {(v: any) => void} */ on) => h('div', { class: 'opt' }, h('b', { text: label }),
-    h('div', { class: 'segmented', role: 'group', 'aria-label': label }, opts.map(([v, text]) => h('button', { type: 'button', 'aria-pressed': String(cur === v), text, onclick: (e) => { on(v); e.currentTarget.parentElement.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === e.currentTarget))); } }))));
-  const sw = (/** @type {string} */ label, /** @type {string} */ desc, /** @type {boolean} */ on, /** @type {(v: boolean) => void} */ fn) => h('div', { class: 'opt' }, h('div', {}, h('b', { text: label }), h('span', { class: 'd', text: desc })),
-    h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: on, 'aria-label': label, onchange: (e) => fn(e.target.checked) }), h('span', { class: 'track' }), h('span', { class: 'thumb' })));
   const changed = () => send('settings:changed');
   const dlg = h('dialog', { id: DONE, class: 'dialog dialog-wide fs-done', 'aria-labelledby': 'fsDoneT' },
     h('div', { class: 'dialog-body' },
@@ -63,7 +61,9 @@ async function celebrate(/** @type {any} */ o, /** @type {any} */ ses) {
       seg(t('ob.goal'), [[0, t('common.off')], [60, fmtDuration(3600)], [120, fmtDuration(7200)], [180, fmtDuration(10800)]], s.focus.dailyGoal, (v) => updateSettings((x) => { x.focus.dailyGoal = v; })),
       sw(t('ob.eye'), t('ob.eyeD'), !!s.eye.enabled, async (v) => { await updateSettings((x) => { x.eye.enabled = v; x.eye.notify = v; }); changed(); }),
       sw(t('ob.schedule'), t('ob.scheduleD'), !!s.blocking.schedule.enabled, async (v) => { await updateSettings((x) => { x.blocking.schedule.enabled = v; }); changed(); })),
-    h('div', { class: 'dialog-actions' }, h('button', { class: 'btn btn-primary btn-lg', type: 'button', onclick: () => dlg.close() }, t('fs.tuneDone'))));
+    h('div', { class: 'dialog-actions' },
+      h('button', { class: 'btn btn-lg', type: 'button', onclick: () => { dlg.close(); openTour(); } }, icon('sliders-horizontal'), t('fs.more')), // the long way: the rest of what EyeTime can do, one short step at a time
+      h('button', { class: 'btn btn-primary btn-lg', type: 'button', onclick: () => dlg.close() }, t('fs.tuneDone'))));
   dlg.addEventListener('close', async () => { celebrating = false; dlg.remove(); const { obFirst } = await getRaw('obFirst'); if (obFirst) await setRaw({ obFirst: { ...obFirst, stage: 'closed' } }); });
   document.body.append(dlg); dlg.showModal();
 }
