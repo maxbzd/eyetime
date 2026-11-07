@@ -23,15 +23,31 @@ export async function http(url, { method = 'GET', headers = {}, body = null, tim
   if (res.ok || accept.includes(res.status)) return res;
   if (res.status === 401 || res.status === 403) throw new SyncError('sign-in refused (' + res.status + ')', 'auth', { status: res.status });
   if (res.status === 429) { const wait = Number(res.headers.get('retry-after')); throw new SyncError('too many requests', 'rate', { status: 429, retryAfter: wait > 0 ? wait : 60 }); }
-  const text = await res.text().catch(() => '');
+  const text = await bodyText(res, 4096).catch(() => ''); // only the start of an error is of use
   throw new SyncError(`${method} ${new URL(url).host} → ${res.status} ${text.slice(0, 100)}`.trim(), 'other', { status: res.status });
+}
+
+const MAX_BODY = 10_000_000;
+/** The body of an answer as text, but not more than `max` bytes: a server that never stops (or answers with a gigabyte) must not fill the worker's memory. */
+export async function bodyText(/** @type {Response} */ res, max = MAX_BODY) {
+  if (Number(res.headers && res.headers.get && res.headers.get('content-length')) > max) throw new SyncError('the answer is too big', 'other');
+  if (!res.body || !res.body.getReader) { const t = await res.text(); if (t.length > max) throw new SyncError('the answer is too big', 'other'); return t; }
+  const reader = res.body.getReader(), dec = new TextDecoder(); let total = 0, out = '';
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > max) { reader.cancel().catch(() => {}); throw new SyncError('the answer is too big', 'other'); }
+    out += dec.decode(value, { stream: true });
+  }
+  return out + dec.decode();
 }
 
 /** JSON in, JSON out (an empty answer is `null`). */
 export async function json(/** @type {string} */ url, /** @type {Parameters<typeof http>[1] & { data?: any }} */ o = {}) {
   const { data, ...rest } = o;
   const res = await http(url, { ...rest, headers: { accept: 'application/json', ...(data !== undefined ? { 'content-type': 'application/json' } : {}), ...(rest.headers || {}) }, body: data !== undefined ? JSON.stringify(data) : rest.body });
-  const text = await res.text();
+  const text = await bodyText(res);
   if (!text) return null;
   try { return JSON.parse(text); } catch { throw new SyncError('the answer was not JSON', 'other', { status: res.status }); }
 }

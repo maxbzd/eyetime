@@ -8,7 +8,7 @@
 //
 // Apple Reminders note: lists that were "upgraded" in iOS 13 and later are no longer visible to CalDAV; the older lists are.
 
-import { http } from '../http.js';
+import { http, bodyText } from '../http.js';
 import { SyncError } from '../run.js';
 import { parseXml, find, findAll, textOf, escapeXml } from '../xml.js';
 import { parseVtodo, buildVtodo, patchVtodo, buildVevent, parseOurEvent, component, UID_PREFIX } from '../ical.js';
@@ -21,6 +21,12 @@ const basic = (/** @type {string} */ user, /** @type {string} */ pass) => 'Basic
 const rand = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
 const dayCompact = (/** @type {string} */ d) => d.replace(/-/g, '');
 
+/** The password goes in a header that is only encoded, not hidden: it is sent over https, or to this computer itself (a server of one's own on 127.0.0.1), never in the open over a network. */
+export function assertSecure(/** @type {string} */ u) {
+  let x; try { x = new URL(u); } catch { throw new SyncError('not an address', 'other'); }
+  if (x.protocol === 'https:' || (x.protocol === 'http:' && /^(localhost|127\.\d+\.\d+\.\d+|\[::1\])$/.test(x.hostname))) return;
+  throw new SyncError('the server address must start with https://', 'other');
+}
 const origin = (/** @type {string} */ u) => { try { return new URL(u).origin + '/*'; } catch { return ''; } };
 
 export const caldav = {
@@ -138,8 +144,9 @@ export const caldav = {
 /** A WebDAV request whose answer is read as XML. */
 function reqer(/** @type {string} */ auth, /** @type {any} */ env) {
   return async (/** @type {string} */ url, /** @type {string} */ method, /** @type {string} */ depth, /** @type {string} */ body) => {
+    assertSecure(url);
     const res = await http(url, { method, headers: { authorization: auth, depth, ...XML }, body, fetchImpl: env.fetchImpl });
-    const text = await res.text();
+    const text = await bodyText(res);
     try { return parseXml(text); } catch { throw new SyncError('the server did not answer with XML', 'other'); }
   };
 }

@@ -125,6 +125,7 @@ export function deepMerge(base, patch) {
   if (!isPlain(base) || !isPlain(patch)) return patch === undefined ? clone(base) : clone(patch);
   const out = {};
   for (const k of new Set([...Object.keys(base), ...Object.keys(patch)])) {
+    if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue; // a file or a synced copy must not reach the prototype of the settings
     out[k] = k in patch ? (isPlain(base[k]) ? deepMerge(base[k], patch[k]) : clone(patch[k])) : clone(base[k]);
   }
   return out;

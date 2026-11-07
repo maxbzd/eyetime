@@ -95,7 +95,7 @@ test('the person\'s allow list beats a rule, and a more specific allowed site be
 test('more domains than the browser takes rules for: the rest is counted and left to the tab blocker', () => {
   const s = clone(DEFAULT_SETTINGS); s.blocking.custom = Array.from({ length: 1200 }, (_, i) => `site${i}.example.org`);
   const { dynamic, truncated } = buildRules(ctxOf(s), BASE);
-  assert.equal(dynamic.length, DNR.MAX_REGEX_RULES);
+  assert.equal(dynamic.filter((r) => r.condition.regexFilter).length, DNR.MAX_REGEX_RULES); // the budget is of rules with an expression; the one rule for frames has none
   assert.ok(truncated > 300);
 });
 
@@ -150,4 +150,20 @@ test('COMPLETENESS for the sites in a list: what the blocker stops by a list, a 
       assert.equal(!!rule && rule.action.type === 'redirect', d.action !== 'allow', `seed ${seed} ${host}`);
     }
   }
+});
+
+test('a blocked site in a frame of an allowed page is not loaded, and an exception still wins', () => {
+  const s = clone(DEFAULT_SETTINGS); s.blocking.custom = ['tube.test']; s.blocking.always = ['tube.test']; s.blocking.allow = ['docs.tube.test'];
+  const { dynamic } = buildRules(ctxOf(s), BASE);
+  const frame = (u) => applyRules(dynamic, u, null, 'sub_frame');
+  assert.equal(frame('https://tube.test/embed/1')?.action.type, 'block', 'the frame is stopped');
+  assert.equal(frame('https://www.tube.test/embed/1')?.action.type, 'block', 'a subdomain too');
+  assert.equal(frame('https://docs.tube.test/x')?.action.type, 'allow', 'the person\'s allow list beats it');
+  assert.equal(frame('https://other.test/'), null, 'other sites are not touched');
+});
+
+test('when the browser takes fewer rules than there are domains, the exceptions are kept and the redirects give way', () => {
+  const s = clone(DEFAULT_SETTINGS); s.blocking.custom = Array.from({ length: 1200 }, (_, i) => `site${i}.example.org`); s.blocking.allow = ['a.site1.example.org', 'b.site2.example.org'];
+  const { dynamic } = buildRules(ctxOf(s), BASE);
+  assert.ok(dynamic.some((r) => r.action.type === 'allow' && r.condition.regexFilter.includes('a\\.site1')), 'the exception under a blocked parent survived the cut');
 });

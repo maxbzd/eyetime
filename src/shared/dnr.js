@@ -56,28 +56,33 @@ export function buildRules(ctx, blockedBase) {
     if (r.action !== 'allow') redirects.set(d, { reason: r.reason || '', action: r.action });
   }
 
+  // The rules that let a site through come FIRST: when there are more domains than the browser takes, it is the redirects that are left to the tab blocker, never the exceptions
+  // (an allowed subdomain under a blocked parent would otherwise be sent to the block page).
+  const redirectKeys = [...redirects.keys()];
+  const allows = [];
+  for (const d of [...domains].sort()) {
+    const listed = matchesAny(d, b.allow);
+    const underBlocked = !redirects.has(d) && redirectKeys.some((p) => d.endsWith('.' + p));
+    if (!listed && !underBlocked) continue;
+    allows.push({ priority: (listed ? DNR.PRIORITY_ALLOW_LIST : 10) + labels(d), action: { type: 'allow' }, condition: { regexFilter: domainRegex(d), resourceTypes: ['main_frame', 'sub_frame'] } });
+  }
   const dynamic = [];
   let id = 1, truncated = 0;
-  const regexRoom = () => dynamic.length < DNR.MAX_REGEX_RULES;
+  for (const r of allows.slice(0, DNR.MAX_REGEX_RULES)) dynamic.push({ id: id++, ...r });
   for (const [d, { reason, action }] of redirects) {
-    if (!regexRoom()) { truncated++; continue; }
+    if (dynamic.length >= DNR.MAX_REGEX_RULES) { truncated++; continue; }
     dynamic.push({ id: id++, priority: 10 + labels(d), action: { type: 'redirect', redirect: { regexSubstitution: target(blockedBase, reason, action) } }, condition: { regexFilter: domainRegex(d), resourceTypes: ['main_frame'] } });
   }
-  // a site that is allowed although a parent domain is not (docs.google.com under a blocked google.com), and everything on the person's allow list
-  for (const d of [...domains].sort()) {
-    if (!regexRoom()) break;
-    const listed = matchesAny(d, b.allow);
-    const underBlocked = !redirects.has(d) && [...redirects.keys()].some((p) => d.endsWith('.' + p));
-    if (!listed && !underBlocked) continue;
-    dynamic.push({ id: id++, priority: (listed ? DNR.PRIORITY_ALLOW_LIST : 10) + labels(d), action: { type: 'allow' }, condition: { regexFilter: domainRegex(d), resourceTypes: ['main_frame'] } });
-  }
+  // A blocked site put in a frame of an allowed page loads all the same, and a frame cannot be sent to the block page (it is not an address the web may open), so it is simply not loaded.
+  // One rule for all the domains (`requestDomains` also covers their subdomains, and costs nothing of the budget of expressions); the allow rules above are of higher priority.
+  if (redirectKeys.length) dynamic.push({ id: id++, priority: 1, action: { type: 'block' }, condition: { requestDomains: redirectKeys, resourceTypes: ['sub_frame'] } });
 
   // "continue" also opens 30 seconds for the redirect chain in that one tab (youtu.be → youtube.com)
   const session = [];
   for (const [k, until] of Object.entries(passes)) {
     if (!k.startsWith(REDIRECT_GRACE + ':') || !(until > now)) continue;
     const tabId = Number(k.slice(REDIRECT_GRACE.length + 1));
-    if (Number.isInteger(tabId) && tabId >= 0) session.push({ id: DNR.GRACE_BASE_ID + tabId, priority: DNR.PRIORITY_GRACE, action: { type: 'allow' }, condition: { tabIds: [tabId], resourceTypes: ['main_frame'] } });
+    if (Number.isInteger(tabId) && tabId >= 0) session.push({ id: DNR.GRACE_BASE_ID + tabId, priority: DNR.PRIORITY_GRACE, action: { type: 'allow' }, condition: { tabIds: [tabId], resourceTypes: ['main_frame', 'sub_frame'] } });
   }
   return { dynamic, session, truncated };
 }
@@ -106,11 +111,13 @@ export function nextChange(/** @type {{ settings: any, focus: any, passes: Recor
 }
 
 /** Which rule would the browser apply to this address: the one with the highest priority among those that match (for the tests; the browser does this itself). */
-export function applyRules(/** @type {any[]} */ rules, /** @type {string} */ url, /** @type {number | null} */ tabId = null) {
+export function applyRules(/** @type {any[]} */ rules, /** @type {string} */ url, /** @type {number | null} */ tabId = null, /** @type {string} */ type = 'main_frame') {
   let best = null;
   for (const r of rules) {
     const c = r.condition;
+    if (c.resourceTypes && !c.resourceTypes.includes(type)) continue;
     if (c.tabIds && !c.tabIds.includes(tabId)) continue;
+    if (c.requestDomains) { let host = ''; try { host = new URL(url).hostname; } catch { /* no address */ } if (!c.requestDomains.some((d) => host === d || host.endsWith('.' + d))) continue; }
     if (c.regexFilter && !new RegExp(c.regexFilter).test(url)) continue;
     if (!best || r.priority > best.priority) best = r;
   }

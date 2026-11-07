@@ -19,7 +19,8 @@ export async function pullCompanion() {
     const data = await res.json();
     if (data.date === dayKey() && data.apps && typeof data.apps === 'object') {
       await updateDay(data.date, (day) => {
-        for (const [app, sec] of Object.entries(data.apps)) if (typeof sec === 'number' && sec >= 0) day.a[String(app).slice(0, 80)] = Math.max(day.a[app] || 0, Math.round(sec));
+        // a name with control characters is not a name
+        for (const [app, sec] of Object.entries(data.apps)) if (typeof sec === 'number' && sec >= 0 && !/[\u0000-\u001f\u007f]/.test(app)) day.a[String(app).slice(0, 80)] = Math.max(day.a[app] || 0, Math.round(sec));
       });
     }
     return { state: 'ok', app: data.activeApp || null };

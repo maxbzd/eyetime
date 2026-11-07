@@ -42,6 +42,7 @@ export function h(tag, props, ...children) {
       if (v === undefined || v === null || v === false) continue;
       if (k === 'class') el.className = v;
       else if (k === 'text') el.textContent = v;
+      else if (k === 'innerHTML' || k === 'outerHTML' || k === 'srcdoc') continue; // text goes in as text; there is no way to hand h() markup
       else if (k === 'dataset') Object.assign(el.dataset, v);
       else if (k === 'aria') for (const [a, av] of Object.entries(v)) el.setAttribute('aria-' + a, av);
       else if (k === 'style' && typeof v === 'object') for (const [sk, sv] of Object.entries(v)) { if (sk.startsWith('--')) el.style.setProperty(sk, sv); else el.style[sk] = sv; }

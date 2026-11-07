@@ -22,7 +22,7 @@ const { launch } = require('./lib.cjs');
   // 1. set a passphrase (too short, then not matching, then right)
   await o.click('#vaultSet'); await o.waitForSelector('dialog[open] #vault-pass');
   await type('#vault-pass', 'short'); await type('#vault-pass2', 'short'); await o.click('dialog[open] button[type=submit]');
-  ok(/8/.test(await o.textContent('#vaultMsg')), 'a short passphrase is refused in place, naming the length: ' + await o.textContent('#vaultMsg'));
+  ok(/12/.test(await o.textContent('#vaultMsg')), 'a short passphrase is refused in place, naming the length: ' + await o.textContent('#vaultMsg'));
   await type('#vault-pass', 'correct horse battery'); await type('#vault-pass2', 'correct horse batterx'); await o.click('dialog[open] button[type=submit]');
   ok((await o.textContent('#vaultMsg')).length > 3, 'two different phrases are refused in place');
   await type('#vault-pass2', 'correct horse battery'); await o.click('dialog[open] button[type=submit]');

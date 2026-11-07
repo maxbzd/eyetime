@@ -241,7 +241,9 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     d = data_dir()
-    token = load_token(os.path.join(d, "companion-token.txt"), rotate=args.new_token)
+    token_path = os.path.join(d, "companion-token.txt")
+    fresh = args.new_token or not os.path.exists(token_path)  # the token is shown when it is made, and on request: not at every start (a log or a screenshot would carry it)
+    token = load_token(token_path, rotate=args.new_token)
     if args.show_token:
         print(token)
         return 0
@@ -254,7 +256,10 @@ def main(argv=None):
     tracker.start()
     server = ThreadingHTTPServer((HOST, PORT), make_handler(store, token))
     print("EyeTime companion is running. It only reads which app is in front — nothing else.")
-    print(f"Pairing token (paste it into EyeTime → Settings → Tracking): {token}")
+    if fresh:
+        print(f"Pairing token (paste it into EyeTime → Settings → Tracking): {token}")
+    else:
+        print("The pairing token was shown when it was made. To see it again: eyetime_companion.py --show-token")
     print("Press Ctrl+C to stop.")
     try:
         server.serve_forever()

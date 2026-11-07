@@ -27,7 +27,7 @@ export function isScheduleActive(schedule, now = new Date()) {
 export const REDIRECT_GRACE = '*redirect';
 /** The redirect window belongs to the tab that pressed "continue": another tab, or another site opened at once, gets no free pass. */
 export const redirectGraceKey = (tabId) => `${REDIRECT_GRACE}:${tabId}`;
-export const REDIRECT_GRACE_MS = 30_000;
+export const REDIRECT_GRACE_MS = 10_000; // a redirect chain takes a second or two; a longer window is only a window for the next blocked site to slip through in that tab
 
 /**
  * Decide what to do when the user opens `host`.

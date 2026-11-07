@@ -29,7 +29,7 @@ export function weatherGroup(s, save, refresh) {
     if (q.length < 2) return;
     results.replaceChildren(h('div', { class: 'setting-desc', text: t('wx.loading') }));
     try {
-      const res = await fetch(geocodeUrl(q, getLocale()), { credentials: 'omit', referrerPolicy: 'no-referrer' });
+      const res = await fetch(geocodeUrl(q, getLocale()), { credentials: 'omit', referrerPolicy: 'no-referrer', signal: (() => { const c = new AbortController(); setTimeout(() => c.abort(), 8000); return c.signal; })() }); // like the forecast: a server that does not answer does not hold the box
       if (!res.ok) throw new Error('http ' + res.status);
       const list = parseGeocode(await res.json());
       results.replaceChildren(...(list.length

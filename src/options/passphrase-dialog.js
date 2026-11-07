@@ -5,7 +5,7 @@
 
 import { h } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
-import { passphraseProblem } from '../shared/vault.js';
+import { passphraseProblem, MIN_PASSPHRASE } from '../shared/vault.js';
 
 /**
  * @param {{ title: string, body?: string, fields: { id: string, label: string }[], confirm: string, danger?: boolean, check?: (values: Record<string, string>) => string | Promise<string> }} o
@@ -31,4 +31,4 @@ export function passphraseDialog({ title, body = '', fields, confirm, danger = f
   });
 }
 
-export const newPassphraseProblem = (/** @type {Record<string, string>} */ v) => { const p = passphraseProblem(v.pass); return p === 'weak' ? t('cn.vault.weak') : p ? t('cn.vault.short', { n: 8 }) : v.pass !== v.pass2 ? t('cn.vault.mismatch') : ''; };
+export const newPassphraseProblem = (/** @type {Record<string, string>} */ v) => { const p = passphraseProblem(v.pass); return p === 'weak' ? t('cn.vault.weak') : p ? t('cn.vault.short', { n: MIN_PASSPHRASE }) : v.pass !== v.pass2 ? t('cn.vault.mismatch') : ''; };

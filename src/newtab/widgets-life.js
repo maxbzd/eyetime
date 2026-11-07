@@ -8,6 +8,7 @@ import { t, fmtNumber, fmtDate, weekdayName, getLocale, fmtDuration } from '../s
 import { getSettings, getCollection, setCollection, updateCollection, getDays } from '../shared/storage.js';
 import { dayKey, addDays, rangeKeys, parseKey } from '../shared/time.js';
 import { updateEstLog } from '../shared/tasks.js';
+import { safeHref } from '../shared/settings-clean.js';
 import { pickQuote, renderQuote } from '../shared/quotepick.js';
 import { monthGrid, breathAt, BREATH } from '../shared/wgx.js';
 import { el, h, clearKeep as clear, live, motionOk } from './widget-kit.js';
@@ -265,7 +266,7 @@ export const LIFE_DEFS = {
         if (!links.length) { clear(root, el('div', 'wg-label', t('wg.k.links')), el('div', 'wg-sub', t('wg.links.none')), settingsLink('', t('wg.links.add'))); return; }
         clear(root, el('div', 'lk-grid', links.map((l) => {
           let host = ''; try { host = new URL(l.url).hostname; } catch { /* a broken link still shows its title */ }
-          return h('a', { class: 'lk-tile', href: l.url, title: l.title }, favicon(host.replace(/^www\./, ''), 'fav'), el('span', 'lk-t', l.title));
+          return h('a', { class: 'lk-tile', href: safeHref(l.url) || undefined, title: l.title }, favicon(host.replace(/^www\./, ''), 'fav'), el('span', 'lk-t', l.title));
         })));
       };
       return live(draw, { watch: ['settings'] });
