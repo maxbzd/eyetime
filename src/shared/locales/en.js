@@ -538,4 +538,9 @@ export const en = {
   "ob.v2.firstLeadNone": "Start small: a few minutes is enough to feel it. No sites are closed yet, because none were chosen; you can pick them in Settings whenever you like.",
   "ob.v2.saveExit": "Save and finish",
   "ob.v2.prevAlso": "Also held back, for example: {sites}",
+  "opt.tips": "Tips about features",
+  "opt.tipsDesc": "A small card now and then about something you have not met yet: at most once a week, never in the first week, never during a session.",
+  "fb.thanksDraft": "The draft is open",
+  "fb.errPopup": "The browser blocked the window. Allow pop-ups for this page and try again; your words are still here.",
+  "fb.thanksDraftBody": "Nothing has been sent yet. Press “Submit new issue” on GitHub, and the author will read it.",
 };

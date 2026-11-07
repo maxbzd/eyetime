@@ -538,4 +538,9 @@ export const pt = {
   "ob.v2.firstLeadNone": "Comece pequeno: alguns minutos bastam para sentir. Nenhum site está fechado ainda, porque você não escolheu nenhum; dá para escolher nas configurações quando quiser.",
   "ob.v2.saveExit": "Salvar e concluir",
   "ob.v2.prevAlso": "Também barrados, por exemplo: {sites}",
+  "opt.tips": "Dicas sobre recursos",
+  "opt.tipsDesc": "De vez em quando, um cartão pequeno sobre algo que você ainda não conhece: no máximo uma vez por semana, nunca na primeira semana nem durante uma sessão.",
+  "fb.thanksDraft": "O rascunho está aberto",
+  "fb.errPopup": "O navegador bloqueou a janela. Permita pop-ups para esta página e tente de novo; seu texto continua aqui.",
+  "fb.thanksDraftBody": "Nada foi enviado ainda. Clique em “Submit new issue” no GitHub e o autor vai ler.",
 };

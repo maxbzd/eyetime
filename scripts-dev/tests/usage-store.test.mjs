@@ -154,3 +154,13 @@ test('backup: a file made before the token was kept out (3.8.1 and older) does n
   s = (await chrome.storage.local.get('settings')).settings;
   assert.equal(s.companion.token, ''); assert.equal(s.companion.enabled, false);
 });
+
+test('backup: the choice about tips travels with it ("No more tips" is not undone by a restore), and tips are on by default', async () => {
+  fresh();
+  const { importAll } = await import('../../src/shared/storage.js');
+  const { DEFAULT_SETTINGS } = await import('../../src/shared/defaults.js');
+  assert.deepEqual(DEFAULT_SETTINGS.tips, { on: true });
+  await importAll({ app: 'eyetime', version: 3, data: { settings: { tips: { on: false } }, tipState: { off: true, last: 5, seen: {} } } });
+  const all = await chrome.storage.local.get(null);
+  assert.equal(all.settings.tips.on, false); assert.equal(all.tipState.off, true);
+});

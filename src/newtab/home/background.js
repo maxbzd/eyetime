@@ -16,6 +16,7 @@ import { describeCode } from '../../shared/weather.js';
 import { canvasActive } from '../canvas.js';
 import { alignClockFill } from '../type-apply.js';
 import { BACKGROUNDS } from '../home-controls.js';
+import { logError } from '../../shared/errorlog.js';
 import { getPhotoInfo, clearPhotoInfo, photoKey } from '../photo-info.js';
 import { mount3d, unmount3d } from '../gl3d.js';
 import { applyDepth } from '../depth.js';
@@ -87,7 +88,7 @@ export async function applyBackground() {
 
 /** "Next photo" on Today: how many wallpapers to skip today (kept for the day, then it starts over). */
 function wallSkip() { try { const v = JSON.parse(localStorage.getItem('et-wall-skip') || 'null'); return v && v.day === dayKey() ? v.n : 0; } catch { return 0; } }
-function nextWall() { track('wall_next'); try { localStorage.setItem('et-wall-skip', JSON.stringify({ day: dayKey(), n: wallSkip() + 1 })); } catch { /* private mode */ } applyBackground(); }
+function nextWall() { track('wall_next'); try { localStorage.setItem('et-wall-skip', JSON.stringify({ day: dayKey(), n: wallSkip() + 1 })); } catch { /* private mode */ } applyBackground().catch((e) => logError('background', e)); }
 /** Bottom-left on Today: who took the photo, and a way to see another one. */
 function paintCredit(frame) {
   const el = $('#tdCredit');

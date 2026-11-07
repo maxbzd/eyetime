@@ -43,8 +43,10 @@ async function finish(startFirst) {
   await send('settings:changed');
   if (startFirst) {
     const [host] = chosenHosts(pick), usage = await getUsage();
-    await setRaw({ obFirst: { at: Date.now(), minutes: pick.minutes, sites: closedDomains(pick).length, host: host || '', blocks0: usage.total.block_page || 0, stage: 'run' } });
-    await send('focus:start', { minutes: pick.minutes, goal: pick.goal.trim().slice(0, 120), strict: false, remember: false }); // the first session of five minutes is not the person's choice of a usual length
+    const obFirst = { at: Date.now(), minutes: pick.minutes, sites: closedDomains(pick).length, host: host || '', blocks0: usage.total.block_page || 0, stage: 'run', sid: '' };
+    await setRaw({ obFirst });
+    const started = await send('focus:start', { minutes: pick.minutes, goal: pick.goal.trim().slice(0, 120), strict: false, remember: false }); // the first session of five minutes is not the person's choice of a usual length
+    if (started && typeof started.id === 'string') await setRaw({ obFirst: { ...obFirst, sid: started.id } }); // which session it is: a second one must not be taken for it
   }
   location.href = chrome.runtime.getURL('src/newtab/newtab.html');
 }

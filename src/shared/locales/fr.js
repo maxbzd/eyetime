@@ -538,4 +538,9 @@ export const fr = {
   "ob.v2.firstLeadNone": "Commencez petit : quelques minutes suffisent pour le sentir. Aucun site n’est encore fermé, car vous n’en avez pas choisi ; vous pourrez le faire dans les réglages quand vous voulez.",
   "ob.v2.saveExit": "Enregistrer et terminer",
   "ob.v2.prevAlso": "Également freinés, par exemple : {sites}",
+  "opt.tips": "Astuces sur les fonctions",
+  "opt.tipsDesc": "De temps en temps, une petite carte sur ce que vous ne connaissez pas encore : au plus une fois par semaine, jamais la première semaine ni pendant une session.",
+  "fb.thanksDraft": "Le brouillon est ouvert",
+  "fb.errPopup": "Le navigateur a bloqué la fenêtre. Autorisez les fenêtres pop-up pour cette page et réessayez ; votre texte est toujours là.",
+  "fb.thanksDraftBody": "Rien n’a encore été envoyé. Cliquez sur « Submit new issue » sur GitHub et l’auteur le lira.",
 };

@@ -44,6 +44,7 @@
         <button type="submit"><span data-en>Send</span><span data-ru>Отправить</span></button>
       </form>
       <p id="sent" hidden><span data-en>Sent. Thank you.</span><span data-ru>Отправлено. Спасибо.</span></p>
+      <p id="notsent" hidden><span data-en>Could not send this now. Nothing was stored; you can try again.</span><span data-ru>Сейчас не удалось отправить. Ничего не сохранено; можно попробовать ещё раз.</span></p>
     </div>
   </main>
 </div>
@@ -66,8 +67,9 @@
     if (!reason || (!text && !mail)) return;
     var body = { reason: reason, more: true }; if (text) body.text = text; if (mail) body.contact = mail;
     var v = /[?&]v=(\d{1,3}\.\d{1,3}\.\d{1,3})(?:&|$)/.exec(location.search); if (v) body.app = v[1];
-    try { fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), credentials: 'omit', referrerPolicy: 'no-referrer', keepalive: true }).catch(function () {}); } catch (x) {}
-    e.target.hidden = true; document.getElementById('sent').hidden = false;
+    var form = e.target, ok = document.getElementById('sent'), no = document.getElementById('notsent'); no.hidden = true;
+    // "Sent" is said only when the collector took it
+    try { fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), credentials: 'omit', referrerPolicy: 'no-referrer', keepalive: true }).then(function (r) { if (!r.ok) throw 0; form.hidden = true; ok.hidden = false; }).catch(function () { no.hidden = false; }); } catch (x) { no.hidden = false; }
   });
 })();
 </script>

@@ -235,7 +235,7 @@ export async function exportAll() {
   delete all.tasksBase; delete all.tasksTomb; delete all.tasksSyncStatus; // device-level sync bookkeeping
   delete all.calendarSub; delete all.calendarSubs; delete all.calendarSrc; // calendar addresses are secrets: they never leave this device, not even in a backup file
   delete all.conns; delete all.connSecrets; delete all.vault; for (const k of Object.keys(all)) if (k.startsWith('cl:')) delete all[k]; // connections to other services: their passwords and tokens stay on this device
-  // the desktop helper's token is a secret of this device, like the passwords of connected services: a backup file keeps the setting off and the token empty (audit 3.8.1)
+  // the desktop helper's token is a secret of this device, like the passwords of connected services: a backup file keeps the setting off and the token empty
   if (all.settings) all.settings = scrubCompanion(all.settings);
   delete all.usage; delete all.usageShare; delete all.expSeed; delete all.fbState; // the usage counters and the consent belong to this browser, not to the person: a backup restored elsewhere must not carry the anonymous id
   return { app: 'eyetime', version: 2, exportedAt: new Date().toISOString(), data: all };
@@ -267,7 +267,7 @@ export async function importAll(payload) {
   const ver = data.meta?.schemaVersion || (data.settings && typeof data.settings === 'object' && !looksLikeV1(data) ? SCHEMA_VERSION : 0);
   const m = ver >= 2 ? null : migrate(data);
   // never trust a file blindly: keep only the keys EyeTime itself writes
-  const KNOWN = new Set(['settings', 'meta', 'tasks', 'habits', 'captures', 'topics', 'weekPlan', 'weekPlanPrev', 'estLog']);
+  const KNOWN = new Set(['settings', 'meta', 'tasks', 'habits', 'captures', 'topics', 'weekPlan', 'weekPlanPrev', 'estLog', 'tipState']);
   const clean = {};
   for (const [k, v] of Object.entries(data)) if (KNOWN.has(k) || /^d:\d{4}-\d{2}-\d{2}$/.test(k)) clean[k] = v;
   if (clean.topics) clean.topics = sanitizeTopics(clean.topics); // a file is never trusted: known shape, clean addresses

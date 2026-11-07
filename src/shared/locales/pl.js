@@ -538,4 +538,9 @@ export const pl = {
   "ob.v2.firstLeadNone": "Zacznij od małego: kilka minut wystarczy, by to poczuć. Żadna strona nie jest jeszcze zamknięta, bo żadnej nie wybrano; możesz to zrobić w ustawieniach, kiedy zechcesz.",
   "ob.v2.saveExit": "Zapisz i zakończ",
   "ob.v2.prevAlso": "Zatrzymane są też na przykład: {sites}",
+  "opt.tips": "Wskazówki o funkcjach",
+  "opt.tipsDesc": "Od czasu do czasu mała karta o czymś, czego jeszcze nie znasz: najwyżej raz w tygodniu, nigdy w pierwszym tygodniu ani podczas sesji.",
+  "fb.thanksDraft": "Szkic jest otwarty",
+  "fb.errPopup": "Przeglądarka zablokowała okno. Zezwól na wyskakujące okna dla tej strony i spróbuj ponownie; Twój tekst nadal tu jest.",
+  "fb.thanksDraftBody": "Nic jeszcze nie zostało wysłane. Kliknij „Submit new issue” na GitHubie, a autor to przeczyta.",
 };

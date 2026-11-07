@@ -108,6 +108,7 @@ export const DEFAULT_SETTINGS = {
     canvas: { on: false, items: {} }, // the free-form arrangement (see shared/canvas.js); off = the look's own layout
   },
 
+  tips: { on: true },     // quiet tips about features not yet met (shared/tips.js): one small card at most once a week; off here or by "No more tips"
   weeklyReport: true,
   ritual: { on: true, eveningAt: '18:00' }, // the daily ritual on Home: choose what matters in the morning, close the day in the evening (shared/ritual.js)
   dock: { enabled: false, side: 'right', y: 0.4, hidden: [], design: 2 }, // the edge tab on web pages (needs the optional access to websites)

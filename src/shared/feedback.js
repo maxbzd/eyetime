@@ -63,12 +63,13 @@ const quiet = (/** @type {FbState} */ fb, /** @type {number | null} */ consentAt
   !(fb.snoozeUntil && now < fb.snoozeUntil) && !(fb.lastAt && now - fb.lastAt < FB_TIMING.budgetMs) && !(consentAt && now - consentAt < FB_TIMING.budgetMs);
 
 /** May the week's mood be asked inside Insights? Once a week at most, after the first 7 days, only with a collector, not after "Don't ask for ratings", and **inside the same budget as every other question**:
- *  one in 30 days, none for 60 days after "Not now", none soon after the question about anonymous numbers (the audit of 3.9.0 found this one outside it). */
-export const weekMoodDue = (/** @type {FbState} */ fb, /** @type {boolean} */ endpoint, /** @type {number} */ activeDays, now = Date.now(), /** @type {number | null} */ consentAt = null) =>
-  endpoint && !fb.never && activeDays >= FB_TIMING.minActiveDays && fb.weekDone !== weekKey(now) && quiet(fb, consentAt, now);
+ *  one in 30 days, none for 60 days after "Not now", none soon after the question about anonymous numbers. */
+export const weekMoodDue = (/** @type {FbState} */ fb, /** @type {boolean} */ endpoint, /** @type {number} */ activeDays, now = Date.now(), /** @type {number | null} */ consentAt = null, midSession = false) =>
+  endpoint && !fb.never && !midSession && activeDays >= FB_TIMING.minActiveDays && fb.weekDone !== weekKey(now) && quiet(fb, consentAt, now);
 
 /** May "Did this pause help?" be shown on the pause page? The same quiet as the other questions (collector, a week of use, one question in 30 days, 60 days after "Not now", never after "Don't ask",
  *  not soon after the question about numbers) and never while a focus session is on. */
+// (the week's mood above is held to the same: not in a session, even when it is Insights that is open)
 export const pauseThumbsDue = (/** @type {FbState} */ fb, /** @type {boolean} */ endpoint, /** @type {number} */ activeDays, now = Date.now(), /** @type {number | null} */ consentAt = null, midSession = false) =>
   endpoint && !fb.never && !midSession && activeDays >= FB_TIMING.minActiveDays && quiet(fb, consentAt, now);
 
@@ -80,7 +81,7 @@ export function updateFb(/** @type {(s: FbState) => FbState | void} */ fn) {
 }
 export const fbShown = (now = Date.now()) => updateFb((s) => { s.lastAt = now; });
 /** A closed card or "Not now": quiet for 60 days; `never` is "Don't ask for ratings" (the door to write stays open). */
-export const fbDismissed = (/** @type {{ never?: boolean }} */ o = {}, now = Date.now()) => updateFb((s) => { s.lastAt = now; s.snoozeUntil = now + FB_TIMING.snoozeMs; if (o.never) s.never = true; });
+export const fbDismissed = (/** @type {{ never?: boolean, kind?: string }} */ o = {}, now = Date.now()) => updateFb((s) => { s.lastAt = now; s.snoozeUntil = now + FB_TIMING.snoozeMs; if (o.never) s.never = true; if (o.kind === 'pmf') s.pmfAt = now; }); // a question of fit that was closed was asked: the next is a rating, the question of fit comes back in 90 days (otherwise whoever always says "Not now" is asked it again and again, and never the rating)
 export const fbAnswered = (/** @type {string} */ kind, now = Date.now()) => updateFb((s) => { s.lastAt = now; if (kind === 'pmf') s.pmfAt = now; });
 export const fbWeekDone = (now = Date.now()) => updateFb((s) => { s.weekDone = weekKey(now); });
 

@@ -60,9 +60,9 @@ async function submit() {
     const q = new URLSearchParams({ title: (form.kind === 'idea' ? 'Idea: ' : form.kind === 'problem' ? 'Bug: ' : 'Kind word: ') + form.text.trim().split('\n')[0].slice(0, 60), body });
     const win = window.open('https://github.com/maxbzd/eyetime/issues/new?' + q.toString(), '_blank'); // no "noopener" here: it makes window.open answer null always, and a blocked pop-up could not be told from an opened one
     if (win) win.opener = null;
-    if (!win) { form.error = t('fb.err'); return view(); } // blocked: nothing was written, nothing is counted, and the words stay
+    if (!win) { form.error = t('fb.errPopup'); return view(); } // blocked: nothing was written, nothing is counted, and the words stay
     await track('fb_written');
-    form.text = ''; thanks(false); // the draft is open on GitHub: the form says so by being empty and thankful
+    form.text = ''; thanks(false, true); // the draft is open on GitHub: nothing has been sent until the person presses Submit there, and the page says so
     return;
   }
   const mail = form.mailOpen && form.kind !== 'kudos' && form.mail.trim() ? form.mail.trim() : undefined;
@@ -79,9 +79,9 @@ async function submit() {
   await history();
 }
 
-function thanks(withAnswer) {
+function thanks(withAnswer, draft = false) {
   const card = $('#card');
-  clear(card, h('div', { class: 'badge-big', 'aria-hidden': 'true' }, icon('check')), h('h1', { text: t('fb.thanks') }), withAnswer ? h('p', { class: 'lead', text: t('fb.thanksReply') }) : null,
+  clear(card, h('div', { class: 'badge-big', 'aria-hidden': 'true' }, icon('check')), h('h1', { text: t(draft ? 'fb.thanksDraft' : 'fb.thanks') }), withAnswer ? h('p', { class: 'lead', text: t('fb.thanksReply') }) : draft ? h('p', { class: 'lead', text: t('fb.thanksDraftBody') }) : null,
     h('button', { class: 'btn', type: 'button', onclick: () => { Object.assign(form, { text: '', areas: [], answerHere: false, mail: '', mailOpen: false, error: '' }); view(); } }, t('fb.again')));
   card.classList.add('thanks');
   const b = card.querySelector('button'); if (b) b.focus({ preventScroll: true });

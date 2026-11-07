@@ -538,4 +538,9 @@ export const de = {
   "ob.v2.firstLeadNone": "Fang klein an: ein paar Minuten reichen, um es zu spüren. Noch ist keine Seite gesperrt, weil keine gewählt wurde; das geht jederzeit in den Einstellungen.",
   "ob.v2.saveExit": "Speichern und beenden",
   "ob.v2.prevAlso": "Ebenfalls gebremst, zum Beispiel: {sites}",
+  "opt.tips": "Tipps zu Funktionen",
+  "opt.tipsDesc": "Hin und wieder eine kleine Karte zu etwas, das Sie noch nicht kennen: höchstens einmal pro Woche, nie in der ersten Woche, nie während einer Sitzung.",
+  "fb.thanksDraft": "Der Entwurf ist geöffnet",
+  "fb.errPopup": "Der Browser hat das Fenster blockiert. Erlauben Sie Pop-ups für diese Seite und versuchen Sie es erneut; Ihr Text ist noch da.",
+  "fb.thanksDraftBody": "Noch nichts ist gesendet. Klicken Sie auf GitHub auf „Submit new issue“, dann liest der Autor es.",
 };

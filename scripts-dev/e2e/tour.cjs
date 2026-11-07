@@ -21,7 +21,7 @@ const { launch } = require('./lib.cjs');
   const settings = () => get('settings');
   const prime = (installedDaysAgo, extra = {}) => o.evaluate(async ([ago, extra]) => {
     const st = await import('/src/shared/storage.js');
-    await st.updateSettings((s) => { s.onboarded = true; s.language = 'en'; });
+    await st.updateSettings((s) => { s.onboarded = true; s.language = 'en'; s.newtab.layout = 'today'; });
     const { usage, meta } = await chrome.storage.local.get(['usage', 'meta']);
     usage.days = [0, 1, 2, 3, 4, 5, 6, 7, 8];
     await chrome.storage.local.set({ usage, meta: { ...meta, installedAt: Date.now() - ago * 86_400_000 }, ...extra });
@@ -98,6 +98,13 @@ const { launch } = require('./lib.cjs');
   await prime(3);
   let p = await open('src/newtab/newtab.html'); await p.waitForSelector('main.nt'); await p.waitForTimeout(2500);
   ok(await p.locator('.tip-card').count() === 0, 'no tip in the first week');
+  // the "Add a task" button of the first days' card: on Today the field is in the side panel, which the button has to open
+  await o.evaluate(async () => { await chrome.storage.local.set({ tasks: [] }); });
+  await p.reload(); await p.waitForSelector('.gs-step'); await p.waitForTimeout(800);
+  await p.locator('.gs-step', { hasText: 'Write down one task' }).getByRole('button').click(); await p.waitForTimeout(900);
+  ok(await p.evaluate(() => { const i = document.querySelector('#mod-tasks input'); return !!i && i.offsetParent !== null && document.activeElement === i; }), 'the button shows the task field and puts the cursor in it');
+  await p.keyboard.type('Buy milk'); await p.keyboard.press('Enter'); await p.waitForTimeout(500);
+  ok(((await get('tasks')) || []).some((x) => x.text === 'Buy milk'), 'and what is typed there becomes a task');
   await p.close();
   await prime(20);
   await o.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.blocking.budget.enabled = false; s.focus.ambient = 'off'; s.standby.on = false; s.newtab.layout = 'today'; }); });
@@ -123,6 +130,13 @@ const { launch } = require('./lib.cjs');
   await p.reload(); await p.waitForSelector('main.nt'); await p.waitForTimeout(2500);
   ok(await p.locator('.tip-card').count() === 0, 'and for good, however long ago the last one was');
   await p.close();
+  // "No more tips" is the switch in Settings, and it can be turned back on there
+  await o.reload(); await o.waitForTimeout(700);
+  ok((await settings()).tips.on === false, '"No more tips" switches the tips off in Settings too');
+  const tipsRow = o.locator('#general .setting', { hasText: 'Tips about features' });
+  ok(await tipsRow.count() === 1 && await tipsRow.locator('input').isChecked() === false, 'Settings → General shows the tips switched off');
+  await tipsRow.locator('.switch').click(); await o.waitForTimeout(600);
+  ok((await settings()).tips.on === true && (await get('tipState')).off === false, 'switching it on lifts "No more tips"');
 
   ok(outside.length === 0, 'no request left the device: ' + outside.slice(0, 3).join(', '));
   console.log(bad.length ? 'FAIL tour\n  ' + bad.join('\n  ') : 'tour: all checks passed');
