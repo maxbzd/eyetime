@@ -263,7 +263,7 @@ test('client: the page after removal is set only when there is a collector to co
 
 test('stats: how the people who agreed split between the wordings of the question is the conversion of each', async () => {
   const { consentSplit } = await import('../../server/usage/stats.js');
-  const even = consentSplit([{ arm: 'long', installs: 100 }, { arm: 'short', installs: 100 }]);
+  const even = consentSplit([{ arm: 'personal', installs: 100 }, { arm: 'practical', installs: 100 }]);
   assert.equal(even.leader, null); assert.ok(even.p > 0.99 && even.enough);
   const short = consentSplit([{ arm: 'long', installs: 220 }, { arm: 'short', installs: 280 }]);
   assert.equal(short.leader, 'short'); assert.ok(short.p < 0.01 && Math.abs(short.arms[1].share - 0.56) < 1e-9);
