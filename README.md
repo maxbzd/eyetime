@@ -10,7 +10,7 @@ Free, with source code you can read and check, and 100% local — no account, no
 [![License: FSL-1.1-ALv2](https://img.shields.io/badge/license-FSL--1.1--ALv2-orange.svg)](LICENSE)
 [![CI](https://github.com/maxbzd/eyetime/actions/workflows/ci.yml/badge.svg)](https://github.com/maxbzd/eyetime/actions/workflows/ci.yml)
 [![Privacy: local-first](https://img.shields.io/badge/privacy-local--first-2d6cdf.svg)](PRIVACY.md)
-[![Manifest V3](https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4.svg)]()
+[![Manifest V3](https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4.svg)](https://developer.chrome.com/docs/extensions/develop/migrate/what-is-mv3)
 
 [English](README.md) · [Русский](README_RU.md)
 
@@ -107,7 +107,7 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 | Your settings, tasks, notes, habits | Anything about you — there is no account |
 | (optional) per-app seconds from the desktop companion | Analytics, crash reports, ads — none |
 
-Permissions are minimal and each one is explained in **Settings → Data & privacy**. EyeTime makes no network requests of its own. Four things you can turn on reach out, and only to the address you give: the desktop companion (`127.0.0.1`), a connected service (Todoist, Notion, CalDAV: the service's own address, straight from your browser), a calendar subscription (your calendar's link, fetched about once an hour) and the optional weather (Open-Meteo, a free service without accounts; only the rounded coordinates of the city you pick are sent). See [PRIVACY.md](PRIVACY.md).
+Permissions are minimal and each one is explained in **Settings → Data & privacy**. EyeTime makes no network requests of its own. Four things you can turn on reach out, and only to the address you give: the desktop companion (`127.0.0.1`), a connected service (Todoist, Notion, CalDAV: the service's own address, straight from your browser), a calendar subscription (your calendar's link, fetched about once an hour) and the optional weather (Open-Meteo, a free service without accounts; only the rounded coordinates of the city you pick are sent). Two more are optional and only with your yes: the weekly anonymous numbers, and a message to the author when you press Send; both need a collector address in the build (the first public release has none). See [PRIVACY.md](PRIVACY.md).
 
 ## EyeTime for Windows (desktop app)
 

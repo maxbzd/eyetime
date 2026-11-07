@@ -136,3 +136,11 @@ test('chooseMode: when to seal, ask, follow or replace', async () => {
   assert.deepEqual(chooseMode({ enc: mine, remoteMeta: { v: 1, off: 99 } }), { mode: 'sealed', info: mine }, 'an "off" for an older encryption does not undo this one');
   assert.equal(SEALED_CHUNK_CHARS, 7000); assert.equal(sealContext('tasks', 5), 'sync:tasks:5');
 });
+
+test('a compressed payload that unpacks to far more than the cap is refused while it is being read', async () => {
+  const key = await (await import('../../src/shared/syncseal.js')).newEncryption('correct horse battery', Date.now(), 1000).then((e) => e.key);
+  const big = 'a'.repeat(3_000_000); // compresses to a few KB and unpacks to 3 MB: over the 2 MB cap
+  const sealed = await sealText(key, 'ctx', big);
+  await assert.rejects(() => openText(key, 'ctx', sealed), /too large/);
+  assert.equal(await openText(key, 'ctx', await sealText(key, 'ctx', 'small')), 'small');
+});

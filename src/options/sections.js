@@ -50,6 +50,7 @@ export function home({ s, save, refresh }) {
       s.standby.on ? [
         row({ title: t('sb.after'), control: select([5, 10, 15, 30, 60].map((m) => [m, t('opt.minutes', { n: m })]), s.standby.after, (v) => save((x) => { x.standby.after = Number(v); }), { label: t('sb.after') }) }),
         row({ title: t('sb.style'), control: segmented(['red', 'amber', 'white'].map((v) => [v, t('sb.' + v)]), s.standby.style, (v) => save((x) => { x.standby.style = v; }), t('sb.style')) }),
+        row({ title: t('sb.now'), control: h('button', { class: 'btn', type: 'button', onclick: () => chrome.tabs.create({ url: chrome.runtime.getURL('src/newtab/newtab.html?standby') }) }, icon('moon'), t('sb.now')) }), // the night clock, shown now (it was only in the palette)
         row({ title: t('sb.seconds'), control: toggle(s.standby.seconds, (v) => save((x) => { x.standby.seconds = v; }), t('sb.seconds')) }),
       ] : null));
 }

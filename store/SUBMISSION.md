@@ -15,7 +15,7 @@ Repository → Settings → Pages → *Build and deployment* → Source: **GitHu
 5. Submit. Review usually takes from hours to a few days.
 
 ## 2. Chrome Web Store (one-time developer fee, currently about 5 USD — check the current price)
-1. Register at https://chrome.google.com/webstore/devconsole (pay the fee, verify the e-mail).
+1. Register at https://chromewebstore.google.com/developer/dashboard (pay the fee, verify the e-mail).
 2. *Add new item* → upload `eyetime-chrome.zip` from the latest release.
 3. *Store listing*: paste name/summary/description from `store/listing/<lang>.md` (EN, RU, ES, DE, FR, PT, IT, PL, UK, ZH-CN, JA; each language with its own screenshots), category *Productivity*, upload the screenshots, small promo tile `store/promo`.
 4. *Privacy practices*: single purpose, every row of the permission table, "no remote code", privacy policy URL, and the data usage:
