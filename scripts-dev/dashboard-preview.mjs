@@ -18,7 +18,7 @@ const TOKEN = 'preview-token-0123456789';
 store.snapshot = async () => makeDemoSnapshot(Date.now());
 // the owner's view has messages you can really answer: the made-up ones, each with a ticket (the answer is handed out at POST /v1/feedback/replies, ticket "ticket-<id>")
 const feedback = new MemoryFeedbackStore();
-feedback.rows = makeDemoFeedback(Date.now()).reverse().map((r) => { const { can_reply, replies, ...row } = r; return { ...row, tk: can_reply ? 'preview-' + r.id : null }; });
+feedback.rows = makeDemoFeedback(Date.now()).reverse().map((r) => { const { can_reply, replies: _answers, ...row } = r; void _answers; return { ...row, tk: can_reply ? 'preview-' + r.id : null }; });
 feedback.seq = feedback.rows.length;
 const opts = { dashToken: TOKEN, publicStats: true, dashboardHtml: html, demo: (/** @type {number} */ now) => makeDemoSnapshot(now), feedback, demoFeedback: makeDemoFeedback };
 
