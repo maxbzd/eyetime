@@ -236,7 +236,7 @@ export async function exportAll() {
   delete all.calendarSub; delete all.calendarSubs; delete all.calendarSrc; // calendar addresses are secrets: they never leave this device, not even in a backup file
   delete all.conns; delete all.connSecrets; delete all.vault; for (const k of Object.keys(all)) if (k.startsWith('cl:')) delete all[k]; // connections to other services: their passwords and tokens stay on this device
   // the desktop helper's token is a secret of this device, like the passwords of connected services: a backup file keeps the setting off and the token empty (audit 3.8.1)
-  if (all.settings && all.settings.companion) all.settings = { ...all.settings, companion: { ...all.settings.companion, enabled: false, token: '' } };
+  if (all.settings) all.settings = scrubCompanion(all.settings);
   delete all.usage; delete all.usageShare; delete all.expSeed; delete all.fbState; // the usage counters and the consent belong to this browser, not to the person: a backup restored elsewhere must not carry the anonymous id
   return { app: 'eyetime', version: 2, exportedAt: new Date().toISOString(), data: all };
 }
@@ -252,6 +252,12 @@ function sanitizeEvents(list, timed) {
     out.push(ev);
   }
   return out;
+}
+
+/** The desktop helper's token is a secret of one device: it never leaves in a backup file, and a file that already carries one (made before this was so) does not bring it back. */
+export function scrubCompanion(/** @type {any} */ settings) {
+  if (!settings || typeof settings !== 'object' || !settings.companion) return settings;
+  return { ...settings, companion: { ...settings.companion, enabled: false, token: '' } };
 }
 
 export async function importAll(payload) {
@@ -271,13 +277,14 @@ export async function importAll(payload) {
   await dropCalendarPermission({ keepBroad: !!(data.settings && ((data.settings.dock && data.settings.dock.enabled) || (data.settings.blocking && data.settings.blocking.instant))) });
   await area().clear();
   if (m) {
-    const out = { settings: m.settings, meta: m.meta, tasks: m.tasks, captures: m.captures };
+    const out = { settings: scrubCompanion(m.settings), meta: m.meta, tasks: m.tasks, captures: m.captures };
     if (m.habits) out.habits = m.habits;
     for (const [k, rec] of Object.entries(m.days)) out[dayStorageKey(k)] = rec;
     if (events.length || allDay.length) Object.assign(out, { calendar: events, calendarDays: allDay, calendarSrc: { file: { events, allDay } } });
     await area().set(out);
   } else {
     if (ver === 2 && clean.settings) clean.settings = upgradeSettingsV2(clean.settings);
+    if (clean.settings) clean.settings = scrubCompanion(clean.settings);
     if (clean.meta) clean.meta = { ...clean.meta, schemaVersion: 2 };
     await area().set(clean);
   }

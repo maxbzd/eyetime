@@ -33,7 +33,7 @@ export function questionCard({ kind, float = false, onGone }) {
   const gone = () => { card.classList.add('leaving'); setTimeout(() => { card.remove(); onGone && onGone(); }, 240); };
   const closeNow = async (/** @type {{ never?: boolean }} */ o = {}) => {
     await track('fb_dismissed');
-    if (kind === 'week' && !o.never) await fbWeekDone(); else await fbDismissed(o);
+    await fbDismissed(o); if (kind === 'week') await fbWeekDone(); // a closed card is quiet for 60 days, whatever it was
     gone();
   };
   const footer = () => h('div', { class: 'fbc-foot' }, h('button', { class: 'fbc-link', type: 'button', onclick: () => closeNow() }, t('fb.not')), h('button', { class: 'fbc-link', type: 'button', onclick: () => closeNow({ never: true }) }, t('fb.never')), h('span', { class: 'fbc-note', text: t('fb.cardNote') }));
@@ -56,7 +56,7 @@ export function questionCard({ kind, float = false, onGone }) {
       busy = false;
       if (!res.ok) { send.disabled = false; err.hidden = false; return; }
       await track('fb_answered');
-      if (kind === 'week') await fbWeekDone(); else await fbAnswered(kind);
+      await fbAnswered(kind); if (kind === 'week') await fbWeekDone();
       thanks();
     } }, t('fb.cardSend'));
     const back = h('button', { class: 'fbc-link', type: 'button', onclick: step1 }, '←');
@@ -68,7 +68,7 @@ export function questionCard({ kind, float = false, onGone }) {
     setTimeout(() => card.isConnected && gone(), 2600);
   };
   step1();
-  track('fb_shown'); if (kind !== 'week') fbShown();
+  track('fb_shown'); fbShown();
   return card;
 }
 

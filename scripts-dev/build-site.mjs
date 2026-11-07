@@ -16,7 +16,7 @@ fs.copyFileSync(path.join(root, 'icons/logo.svg'), path.join(out, 'logo.svg'));
 fs.copyFileSync(path.join(root, 'store/demo.mp4'), path.join(out, 'demo.mp4'));
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const inline = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`(.+?)`/g, '<code>$1</code>').replace(/&lt;(https?:\/\/[^&]+)&gt;/g, '<a href="$1">$1</a>').replace(/\*(.+?)\*/g, '<em>$1</em>');
+const inline = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`(.+?)`/g, '<code>$1</code>').replace(/&lt;(https?:\/\/[^&]+)&gt;/g, '<a href="$1">$1</a>').replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, text, href) => `<a href="${/^https?:/.test(href) ? href : /^[\w./#-]+\.md(#[\w-]+)?$/.test(href) ? 'https://github.com/maxbzd/eyetime/blob/main/' + href : '#'}">${text}</a>`).replace(/\*(.+?)\*/g, '<em>$1</em>');
 const lines = fs.readFileSync(path.join(root, 'PRIVACY.md'), 'utf8').split('\n');
 const html = []; let list = false;
 for (let i = 0; i < lines.length; i++) {

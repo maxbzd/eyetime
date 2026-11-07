@@ -12,7 +12,8 @@ import { showQuote } from '../ui/quote.js';
 import { clock } from '../shared/focus.js';
 import { dayKey } from '../shared/time.js';
 import { usageOf } from '../shared/policy.js';
-import { track, getUsage } from '../shared/usage-store.js';
+import { track, getUsage, getShare } from '../shared/usage-store.js';
+import { isFocusLive } from '../shared/blocking.js';
 import { getFb, pauseThumbsDue, feedbackEndpoint, buildMessage, sendMessage, feedbackContext, fbAnswered, fbShown, fbDismissed } from '../shared/feedback.js';
 
 const params = new URLSearchParams(location.search);
@@ -183,8 +184,9 @@ async function render() {
 /** "Did this pause help?": one tap, shown rarely and only where there is a collector (see pauseThumbsDue); answered or closed, it stays quiet for a month (a closed one for two). */
 async function pauseThumbs() {
   try {
-    const [fb, u] = await Promise.all([getFb(), getUsage()]);
-    if (!pauseThumbsDue(fb, !!feedbackEndpoint(), u.days.length)) return;
+    const [fb, u, share, { focus }] = await Promise.all([getFb(), getUsage(), getShare(), getRaw('focus')]);
+    const consentAt = Math.max(share.askedAt || 0, share.deferredAt || 0, share.optInAt || 0) || null;
+    if (!pauseThumbsDue(fb, !!feedbackEndpoint(), u.days.length, Date.now(), consentAt, !!focus && isFocusLive(focus))) return;
     const slot = $('#quote'); if (!slot || !slot.parentElement) return;
     const row = h('div', { class: 'fb-pause', role: 'group', 'aria-label': t('fb.pauseQ') });
     const done = () => { row.classList.add('leaving'); setTimeout(() => row.remove(), 240); };

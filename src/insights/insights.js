@@ -19,7 +19,7 @@ import { makeClassifier } from '../shared/classify.js';
 import { loadGuess } from '../shared/guessstore.js';
 import { summarize, delta, insights as computeInsights, focusStreak, suggestLimit } from '../shared/stats.js';
 import { rangeKeys, addDays, dayKey, parseKey } from '../shared/time.js';
-import { track, getUsage } from '../shared/usage-store.js';
+import { track, getUsage, getShare } from '../shared/usage-store.js';
 import { questionCard } from '../ui/feedback-card.js';
 import { getFb, weekMoodDue, feedbackEndpoint } from '../shared/feedback.js';
 
@@ -146,8 +146,9 @@ function weekMoodSlot() {
   if (weekCard) { slot.append(weekCard); return slot; }
   (async () => {
     try {
-      const [fb, u] = await Promise.all([getFb(), getUsage()]);
-      if (!weekMoodDue(fb, !!feedbackEndpoint(), u.days.length)) return;
+      const [fb, u, share] = await Promise.all([getFb(), getUsage(), getShare()]);
+      const consentAt = Math.max(share.askedAt || 0, share.deferredAt || 0, share.optInAt || 0) || null;
+      if (!weekMoodDue(fb, !!feedbackEndpoint(), u.days.length, Date.now(), consentAt)) return;
       weekCard = questionCard({ kind: 'week', onGone: () => { weekCard = null; } });
       slot.append(weekCard);
     } catch { /* no state: no question */ }

@@ -13,6 +13,7 @@
 import { getRaw, setRaw, withLock, getSettings } from './storage.js';
 import { USAGE_ENDPOINT } from './usage-config.js';
 import { validateFeedback, validatePoll, newTicket, daysBucket, FB_LIMITS, FB_REPLY_KINDS } from './feedback-schema.js';
+import { resolveLocale } from './i18n.js';
 import { detectEnv } from './usage.js';
 
 const DAY = 86_400_000, HOUR = 3_600_000;
@@ -57,12 +58,19 @@ export function promptPlan({ fb, endpoint, activeDays, consentAt = null, midSess
   return !fb.pmfAt || now - fb.pmfAt >= FB_TIMING.pmfEveryMs ? 'pmf' : 'session';
 }
 
-/** May the week's mood be asked inside Insights? Once a week, after the first 7 days, only with a collector, and not after "Don't ask for ratings". The person has come to look at their week themselves, so this does not use the 30-day budget. */
-export const weekMoodDue = (/** @type {FbState} */ fb, /** @type {boolean} */ endpoint, /** @type {number} */ activeDays, now = Date.now()) => endpoint && !fb.never && activeDays >= FB_TIMING.minActiveDays && fb.weekDone !== weekKey(now);
+/** The quiet every small question keeps: one question of any kind in 30 days (the consent question counts), nothing for 60 days after "Not now". */
+const quiet = (/** @type {FbState} */ fb, /** @type {number | null} */ consentAt, /** @type {number} */ now) =>
+  !(fb.snoozeUntil && now < fb.snoozeUntil) && !(fb.lastAt && now - fb.lastAt < FB_TIMING.budgetMs) && !(consentAt && now - consentAt < FB_TIMING.budgetMs);
 
-/** May "Did this pause help?" be shown on the pause page? The same quiet as the other questions (collector, a week of use, one question in 30 days, 60 days after "Not now", never after "Don't ask"). */
-export const pauseThumbsDue = (/** @type {FbState} */ fb, /** @type {boolean} */ endpoint, /** @type {number} */ activeDays, now = Date.now()) =>
-  endpoint && !fb.never && activeDays >= FB_TIMING.minActiveDays && !(fb.snoozeUntil && now < fb.snoozeUntil) && !(fb.lastAt && now - fb.lastAt < FB_TIMING.budgetMs);
+/** May the week's mood be asked inside Insights? Once a week at most, after the first 7 days, only with a collector, not after "Don't ask for ratings", and **inside the same budget as every other question**:
+ *  one in 30 days, none for 60 days after "Not now", none soon after the question about anonymous numbers (the audit of 3.9.0 found this one outside it). */
+export const weekMoodDue = (/** @type {FbState} */ fb, /** @type {boolean} */ endpoint, /** @type {number} */ activeDays, now = Date.now(), /** @type {number | null} */ consentAt = null) =>
+  endpoint && !fb.never && activeDays >= FB_TIMING.minActiveDays && fb.weekDone !== weekKey(now) && quiet(fb, consentAt, now);
+
+/** May "Did this pause help?" be shown on the pause page? The same quiet as the other questions (collector, a week of use, one question in 30 days, 60 days after "Not now", never after "Don't ask",
+ *  not soon after the question about numbers) and never while a focus session is on. */
+export const pauseThumbsDue = (/** @type {FbState} */ fb, /** @type {boolean} */ endpoint, /** @type {number} */ activeDays, now = Date.now(), /** @type {number | null} */ consentAt = null, midSession = false) =>
+  endpoint && !fb.never && !midSession && activeDays >= FB_TIMING.minActiveDays && quiet(fb, consentAt, now);
 
 /* ---------- the state in storage ---------- */
 export async function getFb() { const { fbState } = await getRaw('fbState'); return normalizeFb(fbState); }
@@ -82,7 +90,7 @@ export async function feedbackContext(/** @type {boolean} */ full = true, active
   const app = chrome.runtime.getManifest().version;
   if (!full) return { app };
   const env = detectEnv(typeof navigator !== 'undefined' ? navigator.userAgent : '', typeof navigator !== 'undefined' ? /** @type {any} */ (navigator).userAgentData?.platform || navigator.platform : '');
-  const lang = (await getSettings()).language;
+  const lang = resolveLocale((await getSettings()).language); // "auto" is a setting, not a language: say the one in use
   return { app, ...env, ...(/^[a-z0-9-]{1,24}$/.test(lang) ? { lang } : {}), pr: /** @type {'ext'} */ ('ext'), days: daysBucket(activeDays) };
 }
 
