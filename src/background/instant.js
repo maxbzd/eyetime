@@ -8,7 +8,7 @@
 
 import { loadContext } from '../shared/policy.js';
 import { buildRules, nextChange } from '../shared/dnr.js';
-import { getSettings } from '../shared/storage.js';
+import { getSettings, setRaw } from '../shared/storage.js';
 import { logError } from '../shared/errorlog.js';
 
 const ALARM = 'instant-sync';
@@ -47,6 +47,7 @@ async function run() {
     await dnr.updateSessionRules({ removeRuleIds: ses.map((r) => r.id), addRules: session });
     const at = nextChange(ctx);
     if (at) await chrome.alarms.create(ALARM, { when: at + 500 }); else await chrome.alarms.clear(ALARM);
+    await setRaw({ instantTruncated: truncated || 0 });
     if (truncated) logError('instant:rules', new Error(`${truncated} domain(s) are left to the tab blocker (the browser takes ${dynamic.length} rules with an expression)`));
   } catch (e) {
     logError('instant:sync', e);

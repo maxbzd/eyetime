@@ -3,7 +3,7 @@
 // Settings → Data & privacy → Sync: "Encrypt synced data with a passphrase". The cloud of the browser account then holds only ciphertext (shared/syncseal.js).
 // Four states: none; set here and given this session; set here and still to be given (after a restart); set on another device and not yet given here.
 
-import { h, toast, confirmDialog } from '../ui/dom.js';
+import { h, toast } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { row } from './ui.js';
 import { t } from '../shared/i18n.js';
@@ -59,9 +59,9 @@ export function syncEncRow() {
   }
   function offButton() {
     return btn('syncEncOff', t('opt.syncEncOff'), async () => {
-      if (!(await confirmDialog({ title: t('opt.syncEncOff'), body: t('opt.syncEncOffBody'), confirm: t('opt.syncEncOff'), danger: true }))) return;
-      await disableSyncEncryption();
-      await after('opt.syncEncIsOff');
+      const v = await passphraseDialog({ title: t('opt.syncEncOff'), body: t('opt.syncEncOffBody'), fields: [{ id: 'pass', label: t('cn.vault.pass') }], confirm: t('opt.syncEncOff'), danger: true,
+        check: async (x) => { try { await disableSyncEncryption(x.pass); return ''; } catch (e) { return wrong(e); } } }); // taking it off needs the passphrase, like the vault of services
+      if (v) await after('opt.syncEncIsOff');
     }, 'btn btn-ghost');
   }
   paint();

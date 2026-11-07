@@ -145,3 +145,23 @@ test('the plan alone: a link whose item is gone on both sides is dropped; unlink
   const p = planPairs({ local: new Map(), remote: new Map([['r1', { text: 'x' }]]), links: { gone: { remoteId: 'zz', base: { text: 'y' }, lc: 0 } }, fields: ['text'] });
   assert.deepEqual(Object.keys(p.links), []); assert.equal(p.createLocal.length, 1);
 });
+
+test('a short list is not wiped by an empty answer either (two or three linked tasks; one linked task is a plain deletion)', async () => {
+  for (const n of [2, 3]) {
+    const svc = new FakeService(), dev = new FakeDevice(Array.from({ length: n }, (_, i) => T('s' + i)));
+    await run(svc, dev);
+    svc.items.clear();
+    const r = await run(svc, dev);
+    assert.equal(r.unsafe, true, n + ' task(s): an empty answer is held'); assert.equal(dev.tasks.length, n, 'nothing deleted');
+    const r2 = await run(svc, dev, { allowMassDelete: true });
+    assert.equal(r2.deletedLocal, n, 'deleted when the person says yes');
+  }
+});
+
+test('one linked task whose counterpart is gone is a deletion, not a broken answer', async () => {
+  const svc = new FakeService(), dev = new FakeDevice([T('only')]);
+  await run(svc, dev);
+  svc.items.clear();
+  const r = await run(svc, dev);
+  assert.notEqual(r.unsafe, true); assert.equal(r.deletedLocal, 1);
+});

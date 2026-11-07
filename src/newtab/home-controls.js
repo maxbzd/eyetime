@@ -20,8 +20,10 @@ export const CLOCKS = ['thin', 'bold', 'mono', 'serif', 'compact', 'stacked', 'n
 export const LAYOUTS = ['today', 'center', 'split', 'minimal'];
 
 /** Downscale a user photo so storage stays small. */
+export const MAX_PHOTO_BYTES = 40 * 1024 * 1024;
 export function fileToDataUrl(file, maxW = 1920) {
   return new Promise((resolve, reject) => {
+    if (file.size > MAX_PHOTO_BYTES) { reject(new Error('photo too large')); return; } // decoding a very large picture can stall or crash the tab
     const img = new Image();
     img.onload = () => {
       const k = Math.min(1, maxW / img.width);

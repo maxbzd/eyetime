@@ -10,7 +10,8 @@
   const site = is('youtube.com') ? 'yt' : is('instagram.com') ? 'ig' : is('tiktok.com') ? 'tt' : (is('vk.com') || is('vkvideo.ru')) ? 'vk' : null;
   if (!site) return;
 
-  const msg = (k) => chrome.i18n.getMessage(k);
+  const FALLBACK = { feedTitle: 'Time to stop scrolling', feedBody: 'You’ve been watching short videos for {n} minutes. The page is paused and in grayscale so you can choose what’s next.', feedLeave: 'Close this tab', feedMore: '5 more minutes' };
+  const msg = (k) => chrome.i18n.getMessage(k) || FALLBACK[k] || '';
   const DEFAULT = { shortLimit: true, shortMinutes: 3, hideShorts: false, hideRecs: false, hideComments: false, hideHome: false };
   let feed = { ...DEFAULT };
   let lockEl = null, pauseId = null, extraSec = 0;

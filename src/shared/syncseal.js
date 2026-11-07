@@ -28,9 +28,17 @@ async function deflate(/** @type {Uint8Array} */ bytes) {
   return new Uint8Array(await new Response(stream).arrayBuffer());
 }
 async function inflate(/** @type {Uint8Array} */ bytes, max = 2_000_000) {
-  const stream = new Blob([/** @type {BlobPart} */ (bytes)]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
-  const out = new Uint8Array(await new Response(stream).arrayBuffer());
-  if (out.length > max) throw new Error('sealed payload is too large'); // a compression bomb is refused after one read, and the cap is checked before anything is parsed
+  const reader = new Blob([/** @type {BlobPart} */ (bytes)]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader();
+  const parts = []; let size = 0;
+  for (;;) { // read in pieces and stop at the cap: a compression bomb is never held in memory whole
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.length;
+    if (size > max) { await reader.cancel(); throw new Error('sealed payload is too large'); }
+    parts.push(value);
+  }
+  const out = new Uint8Array(size); let at = 0;
+  for (const p of parts) { out.set(p, at); at += p.length; }
   return out;
 }
 

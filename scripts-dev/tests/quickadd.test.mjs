@@ -155,3 +155,13 @@ test('review fixes (Chinese / Japanese): ordinary words and past days are not da
   assert.equal(parseQuickAdd('大后天交报告', WED).due, '2026-10-24');
   assert.equal(parseQuickAdd('每周一开会 下周五交', WED).due, '2026-10-30');
 });
+
+test('quick add: the sign of priority may touch the estimate ("45м!", "45m!")', () => {
+  let r = parseQuickAdd('Отчёт 14:30 45м!', NOW);
+  assert.deepEqual([r.text, r.at, r.est, r.priority], ['Отчёт', '14:30', 45, true]);
+  r = parseQuickAdd('Call Sam 20m!', NOW);
+  assert.deepEqual([r.text, r.est, r.priority], ['Call Sam', 20, true]);
+  r = parseQuickAdd('Read 2h, then sleep', NOW);
+  assert.equal(r.est, 120);
+  r = parseQuickAdd('3m3 is a name', NOW); assert.ok(!r.est, 'a unit inside a word is not an estimate');
+});

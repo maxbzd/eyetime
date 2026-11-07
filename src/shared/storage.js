@@ -220,8 +220,8 @@ export async function ensureSchema() {
 /* ---------- export / import / reset ---------- */
 
 /** A calendar subscription's browser permission goes away with its data (reset / restoring a backup), not only with the Unsubscribe button. */
-async function dropCalendarPermission() {
-  try { await chrome.permissions.remove({ origins: DOCK_ORIGINS }); } catch { /* none granted */ }
+async function dropCalendarPermission({ keepBroad = false } = {}) {
+  if (!keepBroad) { try { await chrome.permissions.remove({ origins: DOCK_ORIGINS }); } catch { /* none granted */ } } // the broad access of the Dock and of instant blocking: kept when the settings being restored still use it
   try {
     const raw = await area().get(['calendarSubs', 'calendarSub']);
     const subs = Array.isArray(raw.calendarSubs) ? raw.calendarSubs : raw.calendarSub ? [raw.calendarSub] : [];
@@ -235,6 +235,8 @@ export async function exportAll() {
   delete all.tasksBase; delete all.tasksTomb; delete all.tasksSyncStatus; // device-level sync bookkeeping
   delete all.calendarSub; delete all.calendarSubs; delete all.calendarSrc; // calendar addresses are secrets: they never leave this device, not even in a backup file
   delete all.conns; delete all.connSecrets; delete all.vault; for (const k of Object.keys(all)) if (k.startsWith('cl:')) delete all[k]; // connections to other services: their passwords and tokens stay on this device
+  // the desktop helper's token is a secret of this device, like the passwords of connected services: a backup file keeps the setting off and the token empty (audit 3.8.1)
+  if (all.settings && all.settings.companion) all.settings = { ...all.settings, companion: { ...all.settings.companion, enabled: false, token: '' } };
   delete all.usage; delete all.usageShare; delete all.expSeed; delete all.fbState; // the usage counters and the consent belong to this browser, not to the person: a backup restored elsewhere must not carry the anonymous id
   return { app: 'eyetime', version: 2, exportedAt: new Date().toISOString(), data: all };
 }
@@ -266,7 +268,7 @@ export async function importAll(payload) {
   // meetings travel in a backup (the subscription links never do): they come back as the imported calendar, until a link is added again
   const events = sanitizeEvents(data.calendar, true), allDay = sanitizeEvents(data.calendarDays, false);
   if (events.length || allDay.length) Object.assign(clean, { calendar: events, calendarDays: allDay, calendarSrc: { file: { events, allDay } } });
-  await dropCalendarPermission();
+  await dropCalendarPermission({ keepBroad: !!(data.settings && ((data.settings.dock && data.settings.dock.enabled) || (data.settings.blocking && data.settings.blocking.instant))) });
   await area().clear();
   if (m) {
     const out = { settings: m.settings, meta: m.meta, tasks: m.tasks, captures: m.captures };
