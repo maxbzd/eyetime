@@ -543,4 +543,5 @@ export const pt = {
   "fb.thanksDraft": "O rascunho está aberto",
   "fb.errPopup": "O navegador bloqueou a janela. Permita pop-ups para esta página e tente de novo; seu texto continua aqui.",
   "fb.thanksDraftBody": "Nada foi enviado ainda. Clique em “Submit new issue” no GitHub e o autor vai ler.",
+  "cv.empty": "Este arranjo está vazio. Abra “Personalizar o Início” e adicione os blocos que quiser.",
 };

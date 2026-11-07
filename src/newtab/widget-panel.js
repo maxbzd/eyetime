@@ -19,7 +19,7 @@ const head = (title, onClose) => h('div', { class: 'ty-head' }, h('h3', { text: 
 
 /** The gallery: every kind as a live miniature, in categories; choosing one calls `onAdd(kind)`. Returns { el, destroy }. */
 export function buildGallery({ onAdd, onClose }) {
-  let previews = [], cat = WIDGET_CATS[0];
+  let previews = [], cat = 'all'; // the whole gallery first: opening on one category made it look as if there were ten widgets
   const grid = h('div', { class: 'wg-tiles' });
   const chips = h('div', { class: 'wg-cats', role: 'group', 'aria-label': t('wg.title') });
   function fill() {

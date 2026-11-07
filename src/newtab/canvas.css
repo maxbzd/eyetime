@@ -109,3 +109,8 @@ body.cv-editing .nt-corners { visibility: hidden; }
 .sk-row { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); font-size: var(--fs-sm); } .sk-fine summary { cursor: pointer; font-size: var(--fs-sm); color: var(--text-2); padding: 4px 0; }
 .wg-cats { display: flex; flex-wrap: wrap; gap: 6px; }
 .wg-cats .chip { display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-2); font-size: var(--fs-xs); cursor: pointer; } .wg-cats .chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-text); }
+
+/* the free-form arrangement with nothing on it: a line and a way in, instead of a blank page */
+.cv-empty { position: fixed; inset: 0; z-index: 2; display: grid; place-content: center; justify-items: center; gap: 14px; padding: var(--s-6); text-align: center; color: var(--text-2); pointer-events: none; }
+.cv-empty p { margin: 0; max-width: 34ch; font-size: var(--fs-lg); text-wrap: balance; }
+.cv-empty .btn { pointer-events: auto; }

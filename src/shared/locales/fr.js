@@ -543,4 +543,5 @@ export const fr = {
   "fb.thanksDraft": "Le brouillon est ouvert",
   "fb.errPopup": "Le navigateur a bloqué la fenêtre. Autorisez les fenêtres pop-up pour cette page et réessayez ; votre texte est toujours là.",
   "fb.thanksDraftBody": "Rien n’a encore été envoyé. Cliquez sur « Submit new issue » sur GitHub et l’auteur le lira.",
+  "cv.empty": "Cette disposition est vide. Ouvrez « Personnaliser l’accueil » et ajoutez les blocs voulus.",
 };

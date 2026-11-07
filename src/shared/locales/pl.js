@@ -543,4 +543,5 @@ export const pl = {
   "fb.thanksDraft": "Szkic jest otwarty",
   "fb.errPopup": "Przeglądarka zablokowała okno. Zezwól na wyskakujące okna dla tej strony i spróbuj ponownie; Twój tekst nadal tu jest.",
   "fb.thanksDraftBody": "Nic jeszcze nie zostało wysłane. Kliknij „Submit new issue” na GitHubie, a autor to przeczyta.",
+  "cv.empty": "Ten układ jest pusty. Otwórz „Dostosuj stronę startową” i dodaj bloki, które chcesz.",
 };

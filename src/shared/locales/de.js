@@ -543,4 +543,5 @@ export const de = {
   "fb.thanksDraft": "Der Entwurf ist geöffnet",
   "fb.errPopup": "Der Browser hat das Fenster blockiert. Erlauben Sie Pop-ups für diese Seite und versuchen Sie es erneut; Ihr Text ist noch da.",
   "fb.thanksDraftBody": "Noch nichts ist gesendet. Klicken Sie auf GitHub auf „Submit new issue“, dann liest der Autor es.",
+  "cv.empty": "Diese Anordnung ist noch leer. Öffnen Sie „Startseite anpassen“ und fügen Sie Blöcke hinzu.",
 };

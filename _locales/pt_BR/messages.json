@@ -18,7 +18,7 @@
     "message": "Hora de parar de rolar a tela"
   },
   "feedBody": {
-    "message": "Você está assistindo a vídeos curtos há {n} minutos. A página foi pausada e ficou em tons de cinza para você escolher o que fazer a seguir."
+    "message": "Você está assistindo a vídeos curtos há {n} min. A página foi pausada e ficou em tons de cinza para você escolher o que fazer a seguir."
   },
   "feedLeave": {
     "message": "Fechar esta aba"

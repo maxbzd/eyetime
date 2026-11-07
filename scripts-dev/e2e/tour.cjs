@@ -24,7 +24,7 @@ const { launch } = require('./lib.cjs');
     await st.updateSettings((s) => { s.onboarded = true; s.language = 'en'; s.newtab.layout = 'today'; });
     const { usage, meta } = await chrome.storage.local.get(['usage', 'meta']);
     usage.days = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-    await chrome.storage.local.set({ usage, meta: { ...meta, installedAt: Date.now() - ago * 86_400_000 }, ...extra });
+    await chrome.storage.local.set({ usage, tasks: [], captures: [], meta: { ...meta, installedAt: Date.now() - ago * 86_400_000 }, ...extra }); // no open tasks: the day's own nudge (plan, goal, review) goes before a tip, by design
     await chrome.storage.local.remove(['tipState', 'obFirst', 'gsDismissed']);
   }, [installedDaysAgo, extra]);
   const open = async (url) => { const p = await app.ctx.newPage(); p.on('pageerror', (e) => bad.push('pageerror: ' + e)); p.on('console', (m) => { if (m.type() === 'error') bad.push('console: ' + m.text()); }); await p.goto(ext(url)); return p; };
@@ -98,6 +98,17 @@ const { launch } = require('./lib.cjs');
   await prime(3);
   let p = await open('src/newtab/newtab.html'); await p.waitForSelector('main.nt'); await p.waitForTimeout(2500);
   ok(await p.locator('.tip-card').count() === 0, 'no tip in the first week');
+  // a note turned into a task right after it was written leaves nothing behind (it used to stay as a note too: the page held another copy of the list than the one it saved)
+  await o.evaluate(async () => { await chrome.storage.local.set({ captures: [], tasks: [] }); });
+  await p.reload(); await p.waitForSelector('.gs-step'); await p.waitForTimeout(800);
+  await p.locator('#tdPanelBtn').click(); await p.waitForTimeout(400);
+  const noteIn = p.locator('#mod-notes textarea');
+  await noteIn.click(); await noteIn.fill('Call Anna 16:45 30m'); await noteIn.press('Enter');
+  await p.locator('#mod-notes .note [data-tip], #mod-notes .note button').first().click(); // the first button of a note: "Make it a task"
+  await p.waitForTimeout(1200);
+  ok((await get('captures') || []).length === 0, 'the note is gone from the notes: ' + JSON.stringify(await get('captures')));
+  ok(((await get('tasks')) || []).some((x) => /Call Anna/.test(x.text)), 'and it is a task');
+  ok(await p.locator('#mod-notes .note').count() === 0, 'and from the screen');
   // "Start 5 min" on the first-days card is a try: it does not turn the usual length (and strictness) into five minutes
   await o.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.focus.minutes = 25; s.focus.strict = true; }); await chrome.storage.local.remove('focus'); });
   await p.reload(); await p.waitForSelector('.gs-step'); await p.waitForTimeout(800);

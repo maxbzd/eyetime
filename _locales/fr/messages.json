@@ -18,7 +18,7 @@
     "message": "Il est temps d’arrêter de scroller"
   },
   "feedBody": {
-    "message": "Tu regardes des vidéos courtes depuis {n} minutes. La page est en pause et en niveaux de gris pour que tu choisisses la suite."
+    "message": "Tu regardes des vidéos courtes depuis {n} min. La page est en pause et en niveaux de gris pour que tu choisisses la suite."
   },
   "feedLeave": {
     "message": "Fermer cet onglet"

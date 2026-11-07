@@ -18,7 +18,7 @@
     "message": "Hora de dejar de hacer scroll"
   },
   "feedBody": {
-    "message": "Llevas {n} minutos viendo vídeos cortos. La página está en pausa y en escala de grises para que elijas qué sigue."
+    "message": "Llevas {n} min viendo vídeos cortos. La página está en pausa y en escala de grises para que elijas qué sigue."
   },
   "feedLeave": {
     "message": "Cerrar esta pestaña"

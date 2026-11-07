@@ -18,7 +18,7 @@
     "message": "Zeit, mit dem Scrollen aufzuhören"
   },
   "feedBody": {
-    "message": "Du schaust seit {n} Minuten Kurzvideos. Die Seite ist pausiert und grau, damit du entscheiden kannst, was als Nächstes kommt."
+    "message": "Du schaust seit {n} Min. Kurzvideos. Die Seite ist pausiert und grau, damit du entscheiden kannst, was als Nächstes kommt."
   },
   "feedLeave": {
     "message": "Diesen Tab schließen"
