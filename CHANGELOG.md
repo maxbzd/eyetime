@@ -25,6 +25,7 @@ A release about the moment that matters most to a new person: the end of the fir
 ### Notes, canvas and look
 - **A note turned into a task is moved, not copied.** "Make a task" in the notes module removed the note by its position in a list that could already have changed, so the note stayed beside the new task. It now re-reads the stored notes and removes the one with that id; deleting a note works the same way. The `tour` check covers the path from a note to a task.
 - **An empty canvas says what to do.** A canvas layout with no block on it showed a bare page; it now carries a short hint pointing at the widget panel (`cv.empty`, translated into all 11 languages).
+- **A toast with "Undo" stays for seven seconds and waits while the pointer or the keyboard is on it** (it used to vanish after three, which is short for reaching a button, and let an end-to-end check miss it on a slow machine). Plain toasts keep their three seconds.
 - **The widget gallery opens on "All"** instead of on the first category, so the first thing seen is the whole set.
 - **The backup reminder on the Today layout is a small pill** that gives up its place on short windows (under 560 px high) instead of covering the day.
 - **The first line of the onboarding no longer carries a focus frame** when the page opens; keyboard focus still shows on every control.

@@ -86,13 +86,21 @@ export function favicon(host, cls = '') {
 
 /* ---------- toast ---------- */
 let toastHost;
-/** @param {string} message @param {{ action?: string, onAction?: () => void, ms?: number }} [o] */
-export function toast(message, { action, onAction, ms = 3200 } = {}) {
+/** A toast with an action (Undo) stays longer and does not close while the pointer or the keyboard is on it: a person needs time to reach the button. @param {string} message @param {{ action?: string, onAction?: () => void, ms?: number }} [o] */
+export function toast(message, { action, onAction, ms = action ? 7000 : 3200 } = {}) {
   if (!toastHost) { toastHost = h('div', { class: 'toasts', role: 'status', 'aria-live': 'polite' }); document.body.append(toastHost); }
   const el = h('div', { class: 'toast' }, h('span', { text: message }), action ? h('button', { type: 'button', text: action, onclick: () => { onAction?.(); close(); } }) : null);
-  const close = () => { el.classList.add('out'); setTimeout(() => el.remove(), 220); };
+  let timer = 0, held = false;
+  const close = () => { clearTimeout(timer); el.classList.add('out'); setTimeout(() => el.remove(), 220); };
+  const arm = () => { clearTimeout(timer); timer = setTimeout(() => { if (held) arm(); else close(); }, ms); };
+  if (action) {
+    el.addEventListener('pointerenter', () => { held = true; });
+    el.addEventListener('pointerleave', () => { held = false; arm(); });
+    el.addEventListener('focusin', () => { held = true; });
+    el.addEventListener('focusout', () => { held = false; arm(); });
+  }
   toastHost.append(el);
-  setTimeout(close, ms);
+  arm();
 }
 
 /**
