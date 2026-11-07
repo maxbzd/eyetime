@@ -51,5 +51,5 @@
     {"id": "visual-rest", "file": "visual.cjs", "env": {"VISUAL_LANGS": "ru,de,pl"}, "weight": 125, "artifact": "visual"}
   ],
   "_tools": "Helpers and generators that are not tests (scripts-dev/check.mjs insists that every other *.cjs here is a suite).",
-  "tools": ["lib.cjs", "dist.cjs", "seed.cjs", "demo.cjs", "screenshots.cjs", "store-shots.cjs", "audit.cjs", "audit2.cjs", "contrast-sweep.cjs", "wall-contrast.cjs"]
+  "tools": ["lib.cjs", "dist.cjs", "seed.cjs", "demo-shots.cjs", "demo-video.cjs", "screenshots.cjs", "store-shots.cjs", "audit.cjs", "audit2.cjs", "contrast-sweep.cjs", "wall-contrast.cjs"]
 }
