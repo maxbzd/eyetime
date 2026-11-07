@@ -8,6 +8,7 @@ import { h, icon, clear } from '../../ui/dom.js';
 import { t, fmtDuration } from '../../shared/i18n.js';
 import { getSettings, updateSettings } from '../../shared/storage.js';
 import { send } from '../../ui/api.js';
+import { track } from '../../shared/usage-store.js';
 import { seg, sw } from './opts.js';
 import { openDrawer, openEditor } from './drawer.js';
 
@@ -64,6 +65,7 @@ const BODY = {
 /** Open the guided set-up, at a step (a tip opens it at its own). */
 export async function openTour(/** @type {{ at?: string }} */ { at = 'day' } = {}) {
   if (document.getElementById('tour')) return;
+  track('tour_open'); // a count only, and only if the person shares anonymous numbers
   let i = Math.max(0, TOUR_STEPS.indexOf(at));
   const dots = h('div', { class: 'tour-dots', 'aria-hidden': 'true' }, TOUR_STEPS.map(() => h('span', { class: 'tour-dot' })));
   const count = h('span', { class: 'tour-count' }), title = h('h2', { id: 'tourT', class: 'fs-title tour-title' }), lead = h('p', { class: 'fs-lead' }), body = h('div', { class: 'tour-body' });

@@ -38,6 +38,7 @@ const { launch } = require('./lib.cjs');
   await nt.waitForSelector('#tour[open]'); await nt.waitForTimeout(400);
   ok(/Step 1 of 6/i.test(await step(nt)), 'the tour says where it is: ' + await step(nt));
   ok(await nt.locator('#tour .dialog-actions .btn:not(.btn-primary)').isHidden(), 'no "Back" on the first step');
+  ok(await nt.evaluate(async () => { const { getUsage } = await import('/src/shared/usage-store.js'); const u = await getUsage(); return JSON.stringify(u).includes('"tour_open"'); }), 'opening the guided set-up is counted (a count only; sent only if the person shares anonymous numbers)');
   await shot(nt, 'tour-1-day');
   await nt.locator('#tour .segmented button', { hasText: 'Centered' }).click(); await nt.waitForTimeout(300);
   ok((await settings()).newtab.layout === 'center', 'a choice in the tour is the setting, at once: layout ' + (await settings()).newtab.layout);

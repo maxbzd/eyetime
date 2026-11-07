@@ -16,7 +16,7 @@ export const GROUPS = {
   blocking: ['block_page', 'block_continue'],
   eyes: ['eye_break_done', 'eye_break_skip'],
   planning: ['task_add', 'task_done', 'habit_check', 'shutdown_done', 'plan_done', 'ritual_plan', 'ritual_skip', 'connection_add'],
-  home: ['newtab_view', 'popup_open', 'insights_view', 'settings_view', 'palette_open', 'drawer_open', 'editor_open', 'starter_apply', 'wall_next', 'standby_open'],
+  home: ['newtab_view', 'popup_open', 'insights_view', 'settings_view', 'palette_open', 'drawer_open', 'editor_open', 'starter_apply', 'wall_next', 'standby_open', 'tour_open'],
 };
 export const ADOPTION = Object.values(GROUPS).flat();
 /**
