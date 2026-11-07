@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
 import { bootPage } from '../ui/page.js';
-import { $, favicon, clear, h } from '../ui/dom.js';
+import { $, favicon, clear, h, icon } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { t, fmtDuration, fmtTime } from '../shared/i18n.js';
 import { evaluate } from '../shared/policy.js';
@@ -12,6 +12,8 @@ import { showQuote } from '../ui/quote.js';
 import { clock } from '../shared/focus.js';
 import { dayKey } from '../shared/time.js';
 import { usageOf } from '../shared/policy.js';
+import { track, getUsage } from '../shared/usage-store.js';
+import { getFb, pauseThumbsDue, feedbackEndpoint, buildMessage, sendMessage, feedbackContext, fbAnswered, fbShown, fbDismissed } from '../shared/feedback.js';
 
 const params = new URLSearchParams(location.search);
 // Sent here by the browser's own rule (instant blocking): the address of the page is everything after `&u=`, as it was typed (not encoded), with its #fragment in the hash
@@ -122,6 +124,7 @@ async function render() {
       $('#whyNote').textContent = chosen === 'habit' || chosen === 'bored' ? t('block.why.nudge') : '';
     } })));
     note.textContent = t('block.passNote', { n: decision.passMinutes });
+    pauseThumbs();
     waitThen(cont, decision.seconds || wait, t('block.continue'));
     cont.hidden = false;
     cont.onclick = async () => { if (chosen) await send('pause:reason', { reason: chosen }); await send('pass:grant', { rule: decision.rule, minutes: decision.passMinutes }); release(); };
@@ -176,3 +179,23 @@ async function render() {
   chrome.storage.onChanged.addListener((c, area) => { if (area === 'local' && (c.focus || c.passes || c.settings)) render(); });
   setInterval(check, 5000); // schedule windows and limits change without storage events
 })();
+
+/** "Did this pause help?": one tap, shown rarely and only where there is a collector (see pauseThumbsDue); answered or closed, it stays quiet for a month (a closed one for two). */
+async function pauseThumbs() {
+  try {
+    const [fb, u] = await Promise.all([getFb(), getUsage()]);
+    if (!pauseThumbsDue(fb, !!feedbackEndpoint(), u.days.length)) return;
+    const slot = $('#quote'); if (!slot || !slot.parentElement) return;
+    const row = h('div', { class: 'fb-pause', role: 'group', 'aria-label': t('fb.pauseQ') });
+    const done = () => { row.classList.add('leaving'); setTimeout(() => row.remove(), 240); };
+    const answer = async (rating) => {
+      const built = buildMessage({ kind: 'pause', rating, ctx: await feedbackContext(true, u.days.length) });
+      if (built.ok && (await sendMessage(built.msg)).ok) { await track('fb_answered'); await fbAnswered('pause'); } else await fbShown();
+      done();
+    };
+    row.append(h('span', { text: t('fb.pauseQ') }), h('button', { class: 'chip', type: 'button', onclick: () => answer(1) }, t('fb.pauseYes')), h('button', { class: 'chip', type: 'button', onclick: () => answer(0) }, t('fb.pauseNo')),
+      h('button', { class: 'fb-pause-x', type: 'button', 'aria-label': t('fb.not'), onclick: async () => { await track('fb_dismissed'); await fbDismissed(); done(); } }, icon('x')));
+    slot.parentElement.append(row);
+    await track('fb_shown'); await fbShown();
+  } catch { /* a question must never get in the way of a pause */ }
+}

@@ -457,4 +457,8 @@ export const pt = {
   "fb.wkLine": "Por quê? (opcional)",
   "fb.menu": "Escrever ao autor",
   "fb.menuHint": "Ideias, problemas, palavras gentis",
+  "fb.pauseQ": "Esta pausa ajudou?",
+  "fb.pauseYes": "Sim",
+  "fb.pauseNo": "Não",
+  "wn.fromYou": "das suas mensagens",
 };
