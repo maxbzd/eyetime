@@ -7,6 +7,7 @@
 
 import { computeStats } from './stats.js';
 import { dayOf } from './limits.js';
+import { feedbackSummary } from './feedback-stats.js';
 
 /** The cron expression of the weekly digest (Monday, 06:00 UTC); the other trigger only looks for alerts. */
 export const WEEKLY_CRON = '0 6 * * 1';
@@ -18,7 +19,7 @@ export const DEFAULT_RETENTION_DAYS = 400;
 const T = {
   ru: {
     head: 'EyeTime · неделя {a} — {b}', active: 'Активны: {n}', activeChange: '{p} к прошлой неделе', fresh: 'Новых установок: {n}', star: 'Завершено сессий на активного: {v} (≈ {m} мин фокуса)',
-    d7: 'Возврат на 2-й неделе: {v}', stick: 'Липкость: {v}', health: 'Состояние: {ok} в норме, {warn} внимание, {bad} плохо', look: 'Посмотрите: {list}', door: 'Приём отчётов за неделю: принято {a}, отклонено {r}', open: 'Панель: {url}',
+    d7: 'Возврат на 2-й неделе: {v}', stick: 'Липкость: {v}', health: 'Состояние: {ok} в норме, {warn} внимание, {bad} плохо', look: 'Посмотрите: {list}', door: 'Приём отчётов за неделю: принято {a}, отклонено {r}', open: 'Панель: {url}', msgs: 'Сообщения: новых {n}, ждут ответа {w}', msgsTop: 'чаще всего просят: {theme} ({k})',
     na: 'мало данных', alertHead: '⚠ EyeTime: нужно посмотреть',
     sc: { speed: 'Скорость новой вкладки', finish: 'Сессии доходят до конца', early: 'Ранние остановки', err: 'Установки с ошибками', quick: 'Приток против оттока', upd: 'Люди на свежей версии', stick: 'Липкость', goal_d1: 'Цель: возврат на след. день', goal_d7: 'Цель: возврат на 2-й неделе', goal_d30: 'Цель: возврат на 5-й неделе', goal_act: 'Цель: первая сессия за неделю' },
     alerts: {
@@ -28,7 +29,7 @@ const T = {
   },
   en: {
     head: 'EyeTime · week {a} — {b}', active: 'Active: {n}', activeChange: '{p} vs last week', fresh: 'New installs: {n}', star: 'Finished sessions per active install: {v} (about {m} min of focus)',
-    d7: 'Back in week 2: {v}', stick: 'Stickiness: {v}', health: 'Health: {ok} fine, {warn} to watch, {bad} bad', look: 'Look at: {list}', door: 'Reports this week: {a} accepted, {r} refused', open: 'Dashboard: {url}',
+    d7: 'Back in week 2: {v}', stick: 'Stickiness: {v}', health: 'Health: {ok} fine, {warn} to watch, {bad} bad', look: 'Look at: {list}', door: 'Reports this week: {a} accepted, {r} refused', open: 'Dashboard: {url}', msgs: 'Messages: {n} new, {w} waiting for an answer', msgsTop: 'asked for most: {theme} ({k})',
     na: 'low data', alertHead: '⚠ EyeTime: needs a look',
     sc: { speed: 'New tab speed', finish: 'Sessions reach the end', early: 'Early stops', err: 'Installs with errors', quick: 'Inflow vs outflow', upd: 'People on the newest version', stick: 'Stickiness', goal_d1: 'Goal: back the next day', goal_d7: 'Goal: back in week 2', goal_d30: 'Goal: back in week 5', goal_act: 'Goal: first session in a week' },
     alerts: {
@@ -49,9 +50,9 @@ function lastWeeks(/** @type {any} */ s) {
 
 /**
  * The weekly digest as text. `lang` is "ru" or "en"; `url` is the address of the dashboard (optional).
- * @param {any} s statistics from computeStats @param {{ lang?: string, url?: string }} [o]
+ * @param {any} s statistics from computeStats @param {{ lang?: string, url?: string, fb?: any }} [o] fb: feedbackSummary of the messages (optional)
  */
-export function buildDigest(s, { lang = 'ru', url = '' } = {}) {
+export function buildDigest(s, { lang = 'ru', url = '', fb = null } = {}) {
   const L = T[/** @type {'ru' | 'en'} */ (lang === 'en' ? 'en' : 'ru')], { last, before } = lastWeeks(s), lines = [];
   lines.push(fill(L.head, { a: last ? last.from.slice(5) : '', b: last ? last.to.slice(5) : '' }));
   if (last) lines.push(fill(L.active, { n: last.active }) + (before && before.active >= 20 ? ' (' + fill(L.activeChange, { p: (last.active >= before.active ? '+' : '−') + Math.abs(Math.round(((last.active - before.active) / before.active) * 100)) + '%' }) + ')' : ''));
@@ -65,6 +66,11 @@ export function buildDigest(s, { lang = 'ru', url = '' } = {}) {
   const look = rows.filter((/** @type {any} */ r) => r.status === 'warn' || r.status === 'bad').map((/** @type {any} */ r) => (L.sc[r.id] || r.id));
   if (look.length) lines.push(fill(L.look, { list: look.join(', ') }));
   if (s.ingest) lines.push(fill(L.door, { a: s.ingest.accepted_7d, r: s.ingest.rejected_7d }));
+  if (fb && fb.total) {
+    lines.push(fill(L.msgs, { n: fb.new, w: fb.waiting_reply }));
+    const top = (fb.ideas || []).find((/** @type {any} */ x) => x.open > 0);
+    if (top && top.k >= 3) lines.push(fill(L.msgsTop, { theme: top.theme, k: top.k }));
+  }
   if (url) lines.push(fill(L.open, { url }));
   return lines.join('\n');
 }
@@ -86,14 +92,16 @@ export function findAlerts(s, lang = 'ru') {
 
 /**
  * One run of the cron trigger: housekeeping, then (when a bot is configured) the weekly digest and any alert that has not been sent in the last few days.
- * @param {{ store: any, now: number, env: Record<string, any>, cron?: string, fetchImpl?: typeof fetch }} o
- * @returns {Promise<{ purged: number | null, digest: boolean, alerts: string[], errors: string[] }>}
+ * @param {{ store: any, now: number, env: Record<string, any>, cron?: string, fetchImpl?: typeof fetch, feedback?: any }} o
+ * @returns {Promise<{ purged: number | null, digest: boolean, alerts: string[], errors: string[], scrubbed?: { contacts: number, replies: number } }>}
  */
-export async function runScheduled({ store, now, env, cron = '', fetchImpl = fetch }) {
+export async function runScheduled({ store, now, env, cron = '', fetchImpl = fetch, feedback = null }) {
   const out = { purged: /** @type {number | null} */ (null), digest: false, alerts: /** @type {string[]} */ ([]), errors: /** @type {string[]} */ ([]) };
   const weekly = cron === WEEKLY_CRON;
   const keep = Number(env.RETENTION_DAYS) >= 30 ? Number(env.RETENTION_DAYS) : DEFAULT_RETENTION_DAYS;
   if (weekly && store.purge) { try { out.purged = await store.purge(now, keep); } catch (e) { out.errors.push('purge'); } }
+  // the messages to the maker: reply addresses are erased after 90 days and answers after they were handed over (the messages themselves stay until the owner or the person asks for them to go)
+  if (weekly && feedback) { try { out.scrubbed = { contacts: await feedback.scrubContacts(now), replies: await feedback.scrubReplies(now) }; } catch { out.errors.push('scrub'); } }
   const token = env.TG_BOT_TOKEN, chat = env.TG_CHAT_ID;
   if (!token || !chat || !store.snapshot) return out;
   const lang = env.DIGEST_LANG === 'en' ? 'en' : 'ru';
@@ -104,7 +112,8 @@ export async function runScheduled({ store, now, env, cron = '', fetchImpl = fet
     } catch { return false; }
   };
   const s = computeStats(await store.snapshot(), now, { recentDays: 28 });
-  if (weekly) { if (await send(buildDigest(s, { lang, url: env.DASH_URL || '' }))) out.digest = true; else out.errors.push('digest'); }
+  let fbSum = null; if (feedback) { try { fbSum = feedbackSummary(await feedback.all(), now); } catch { /* the digest is not the messages */ } }
+  if (weekly) { if (await send(buildDigest(s, { lang, url: env.DASH_URL || '', fb: fbSum }))) out.digest = true; else out.errors.push('digest'); }
   for (const a of findAlerts(s, lang)) {
     const key = 'alert:' + a.id, last = await store.getSetting(key), day = dayOf(now);
     if (last && (Date.parse(day) - Date.parse(last)) / 86_400_000 < ALERT_QUIET_DAYS) continue;

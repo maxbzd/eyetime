@@ -28,3 +28,10 @@ crons = ["0 6 * * 1", "30 */6 * * *"]
 binding = "DB"
 database_name = "eyetime-usage"
 database_id = "REPLACE-WITH-THE-ID-FROM-wrangler-d1-create"
+
+# Messages to the maker (ideas, problems, kind words, answers to the small questions, and the owner's answers): best in a database of their own, because it is text that people typed.
+# Create it with `npx wrangler d1 create eyetime-feedback`, apply feedback.sql, and uncomment this. Without it the messages share DB (apply feedback.sql there).
+# [[d1_databases]]
+# binding = "FEEDBACK_DB"
+# database_name = "eyetime-feedback"
+# database_id = "REPLACE-WITH-THE-ID-FROM-wrangler-d1-create"

@@ -14,6 +14,8 @@ demo-data.js      a made-up population for trying the page and for the tests
 memory-store.js   a store in memory (tests, a quick local try)
 d1-store.js       the same store on Cloudflare D1 (SQLite)
 worker.js         the Cloudflare Worker that wires the two
+feedback.sql      the table of messages to the maker and the owner's answers (see below and docs/FEEDBACK.md)
+feedback-store.js / feedback-stats.js / demo-feedback.js   their store (memory and D1), the numbers over them, a made-up set for trying the page
 schema.sql        the tables (installs, firsts, usage_weeks, flags, experiments, ingest, uninstalls, notes, store_stats, settings); `installs.pr` says which product a row is (ext | win)
 queries.sql       quick questions for a console (the dashboard is the reference)
 wrangler.toml     the Worker's settings (logs and analytics of the collector itself are off)
@@ -39,6 +41,15 @@ npx wrangler d1 execute eyetime-usage --remote --file schema.sql     # an existi
 openssl rand -base64 24 | npx wrangler secret put DASH_TOKEN         # the key to the dashboard: at least 16 characters; keep it in a password manager
 npx wrangler deploy                              # prints https://eyetime-usage.<you>.workers.dev
 ```
+
+Messages to the maker (optional; see `docs/FEEDBACK.md`) are text that people typed, so keep them in a database of their own:
+
+```bash
+npx wrangler d1 create eyetime-feedback         # copy its id into the commented FEEDBACK_DB block of wrangler.toml and uncomment it
+npx wrangler d1 execute eyetime-feedback --remote --file feedback.sql
+```
+
+Without `FEEDBACK_DB` they go to `DB` (apply `feedback.sql` there). They are kept until you or the person asks for them to go; D1 Time Travel keeps 30 days of point-in-time restore, and `wrangler d1 export eyetime-feedback --remote --output backup.sql` makes a copy you hold yourself. A reply address is erased once answered and after 90 days; your answers (shown inside EyeTime to the person who asked) are erased 14 days after they were handed over.
 
 Then put the address in `src/shared/usage-config.js`:
 
