@@ -1,9 +1,8 @@
 # Changelog
 
-## 3.8.1 — 2026-11-06 — One licence
+## 3.9.0 — 2026-11-07 — The first minutes, and a way to answer you
 
-- **The whole repository is now under the Functional Source License (FSL-1.1-ALv2), no longer MIT.** The code stays open to read, run and change for any purpose except a competing commercial product; every version becomes Apache 2.0 two years after it is released. The name "EyeTime" and the logo are not licensed. `LICENSE` is the official text, `NOTICE` says what is third-party and plain words, every source file carries a two-line header, and `npm run check` keeps all of it true (`scripts-dev/license-check.mjs`). The wording "open source" is gone from the app, the listings and the site: it is source-available.
-- Versions before 3.8.1 were published under the MIT licence and stay so for anyone who already has them.
+The first run is now three light screens and a real first session; the person can write to the maker and get the answer back inside EyeTime; the optional anonymous numbers and the dashboard that reads them are in the code, but no collector address is set in this release, so nothing is sent; and two audits of 3.8.1 were checked and fixed.
 
 ### Fixes from the 3.8.1 audit
 - **The desktop helper's token is no longer written to a backup file** (the switch comes back off and the token empty), and switching the helper off withdraws its `127.0.0.1` access.
@@ -39,6 +38,11 @@
 - **The question about sharing anonymous numbers is now a note, not a strip**: written in the maker's own voice, with three plain promises (never sold, never used for money, nothing personal), the exact report one click away and an honest "no" that is never asked about again. Eleven languages.
 - **The question about sharing is built for conversion and for the law**: it is asked right after a finished session (or after a week of waiting), never during work; "Maybe later" brings it back after three weeks with other words, up to three asks, the third says it is the last and its "No, thanks" is final, and a plain "Don't ask again" link is there on the first two; the first ask has two voices (an experiment whose winner is read from how the people who agreed split between them); the text now says plainly that after a yes EyeTime sends the numbers on its own once a week; the refusal is a real, bordered, readable button; a link opens the full notice; the thank-you says where the switch is. A consent now carries a version, and a change of what is sent stops reports until the person agrees again. `PRIVACY.md` has the full notice (controller, basis, recipients, transfers, retention, rights, children, California, the Chrome Web Store Limited Use statement) and `docs/COMPLIANCE.md` is the review, with what is left to the owner.
 - **The Windows app becomes a second product in the same collector** (`pr: "win"`), only if the person says yes; see `docs/MEASUREMENT.md`. The dashboard gets an *Extension | Windows* switch and a Windows page.
+
+## 3.8.1 — 2026-11-06 — One licence
+
+- **The whole repository is now under the Functional Source License (FSL-1.1-ALv2), no longer MIT.** The code stays open to read, run and change for any purpose except a competing commercial product; every version becomes Apache 2.0 two years after it is released. The name "EyeTime" and the logo are not licensed. `LICENSE` is the official text, `NOTICE` says what is third-party and plain words, every source file carries a two-line header, and `npm run check` keeps all of it true (`scripts-dev/license-check.mjs`). The wording "open source" is gone from the app, the listings and the site: it is source-available.
+- Versions before 3.8.1 were published under the MIT licence and stay so for anyone who already has them.
 
 ## 3.8.0 — 2026-11-06 — Lighter, stricter, easier to trust
 
