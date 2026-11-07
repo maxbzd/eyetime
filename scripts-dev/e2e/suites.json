@@ -11,6 +11,7 @@
     {"id": "a11y-3", "file": "a11y.cjs", "args": ["--strict"], "env": {"PART": "3/3"}, "weight": 125},
     {"id": "feedback", "file": "feedback.cjs", "weight": 40},
     {"id": "feedback-nocollector", "file": "feedback.cjs", "env": {"NOENDPOINT": "1"}, "weight": 12},
+    {"id": "onboarding", "file": "onboarding.cjs", "weight": 45},
     {"id": "keyboard", "file": "keyboard.cjs", "weight": 42},
     {"id": "blocking", "file": "blocking.cjs", "weight": 37},
     {"id": "instant", "file": "instant.cjs", "weight": 30},

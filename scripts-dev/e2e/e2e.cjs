@@ -27,19 +27,18 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   await ob.waitForSelector('.step');
   await ob.click('text=Get started'); await ob.waitForSelector('.chips .chip');
   await ob.click('.chips .chip >> nth=3'); // news on
-  await ob.click('text=Next'); await ob.waitForSelector('.opt');
-  await ob.click('#card .segmented button >> nth=2'); // 50m
-  await ob.click('text=Next'); await ob.waitForSelector('.ob-looks');   // new step: pick a look (applies instantly)
-  await ob.locator('.ob-looks .look-card', { hasText: 'Midnight' }).click(); await sleep(500);
-  ok((await get('settings')).appearance.look === 'midnight', 'look picked during onboarding is applied and saved');
-  await ob.click('text=Next'); await ob.waitForSelector('text=You’re all set');
+  ok(await ob.locator('.prev').count() === 1, 'a preview of the pause appears as soon as a kind of site is chosen');
+  await ob.click('text=Next'); await ob.waitForSelector('#goalIn');   // the first focus: what, and for how long
+  await ob.fill('#goalIn', 'Write the report');
+  await ob.click('#card .segmented button >> nth=1'); // 10 minutes
   await ob.click('text=Start my first');
   await sleep(1500);
-  const st1 = await get('settings'); const focus = await get('focus');
+  const st1 = await get('settings'); const focus = await get('focus'); const first = await get('obFirst');
   ok(st1.onboarded === true, 'onboarded flag saved');
-  ok(st1.blocking.presets.news === true, 'distraction choice saved (news on)');
-  ok(st1.focus.minutes === 50, 'focus length saved');
-  ok(focus && focus.minutes === 50, 'first focus session started from onboarding');
+  ok(st1.blocking.presets.news === true && st1.blocking.presets.social === false, 'distraction choice saved: exactly what was chosen (news on, the starting set off)');
+  ok(st1.focus.minutes === 25, 'the default session length is not changed by a first session of ten minutes');
+  ok(focus && focus.minutes === 10 && focus.goal === 'Write the report', 'first focus session started from onboarding, with its goal', JSON.stringify(focus));
+  ok(first && first.stage === 'run' && first.minutes === 10, 'the first session is remembered, to be celebrated when it ends');
   ok(ob.url().includes('newtab.html'), 'landed on new tab after onboarding');
   await send(ob, { type: 'focus:stop' });
   ok(!(await get('focus')), 'focus stopped');

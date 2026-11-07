@@ -135,7 +135,7 @@ async function seed(page, level) {
   });
 
   /* ---------- Onboarding ---------- */
-  await scene('onboarding', async () => { await set({ onboarded: false }); const p = await open('src/onboarding/onboarding.html', 1280, 860); for (let i = 1; i <= 5; i++) { await snap(`onboarding-${i}`, p); if (i < 5) { await p.locator('#card .btn-primary').first().click(); await p.waitForTimeout(500); } } await p.close(); await set({ onboarded: true }); });
+  await scene('onboarding', async () => { await set({ onboarded: false }); const p = await open('src/onboarding/onboarding.html', 1280, 860); for (let i = 1; i <= 3; i++) { await snap(`onboarding-${i}`, p); if (i < 3) { await p.locator('#card .btn-primary').first().click(); await p.waitForTimeout(500); } } await p.close(); await set({ onboarded: true }); });
 
   /* ---------- Block pages & break ---------- */
   const bu = (r, u = 'http://reddit.com/') => `src/blocked/blocked.html?u=${encodeURIComponent(u)}&r=${r}&a=${r === 'friction' ? 'pause' : 'block'}`;

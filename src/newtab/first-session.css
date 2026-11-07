@@ -1,0 +1,23 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
+/* the first session on the new tab (home/first-session.js): a small coach while it runs, and one dialog when it is done */
+.fs-done { width: min(720px, calc(100vw - 2 * var(--s-4))); max-height: calc(100vh - 2 * var(--s-6)); overflow-y: auto; }
+.fs-done .dialog-body { gap: var(--s-4); }
+.fs-badge { display: grid; place-items: center; inline-size: 56px; block-size: 56px; aspect-ratio: 1; align-self: flex-start; border-radius: 50%; background: var(--accent); color: var(--accent-fg); font-size: 28px; animation: fs-pop .55s var(--ease) both; }
+@keyframes fs-pop { from { transform: scale(.4); opacity: 0; } 60% { transform: scale(1.12); } }
+.fs-title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 34px; line-height: 1.1; letter-spacing: -.01em; text-wrap: balance; }
+.fs-lead { margin: 0; color: var(--text-2); font-size: var(--fs-lg); text-wrap: pretty; }
+.fs-held { margin: 0; display: flex; align-items: center; gap: var(--s-2); color: var(--success-text, var(--text-2)); font-weight: 560; font-size: var(--fs-md); }
+.fs-sub { margin: var(--s-3) 0 0; font-size: var(--fs-sm); font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); }
+.fs-done .dialog-body > * { flex: none; }
+.fs-looks { display: grid; grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 148px; gap: var(--s-3); overflow-x: auto; padding: 4px 4px 10px; margin: -4px; scroll-snap-type: x proximity; }
+.fs-looks > * { scroll-snap-align: start; }
+.fs-done .opt { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); padding: var(--s-2) 0; }
+.fs-done .opt + .opt { border-top: 1px solid var(--border); }
+.fs-done .opt b { font-weight: 600; display: block; } .fs-done .opt .d { color: var(--text-3); font-size: var(--fs-sm); }
+.fs-done .dialog-actions { padding-top: var(--s-3); }
+@media (prefers-reduced-motion: reduce) { .fs-badge { animation: none; } }
+dialog.fs-done .dialog-body { max-height: none; overflow: visible; -webkit-mask-image: none; mask-image: none; padding-bottom: var(--s-3); }
+.fs-looks { grid-auto-columns: 128px; }
+.fs-done { overflow-y: auto; }
+dialog.fs-done .dialog-actions { position: sticky; bottom: 0; padding-top: var(--s-4); background: linear-gradient(to bottom, transparent, var(--surface) 38%); }
