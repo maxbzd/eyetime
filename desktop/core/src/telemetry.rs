@@ -75,9 +75,9 @@ const MAX_AGE: i64 = 4000;
 pub const ASK_AFTER_DAYS: usize = 3;
 /// The version of what a "yes" covers (the list of fields, the purpose, the recipients). Raise it when any of those changes: reports stop until the person has agreed again.
 pub const CONSENT_VERSION: u32 = 1;
-/// "Not now" waits this long, and the question comes once more; never a third time.
+/// "Maybe later" waits this long, and the question comes again with other words: three asks in all, the third is the last.
 pub const LATER_MS: i64 = 21 * DAY_MS;
-pub const MAX_DEFERRALS: u32 = 1;
+pub const MAX_DEFERRALS: u32 = 2;
 /// A good moment is right after a finished session; failing that, once the question has waited this long.
 pub const PEAK_MS: i64 = 30 * 60_000;
 pub const PATIENCE_MS: i64 = 7 * DAY_MS;
@@ -219,7 +219,7 @@ impl Telemetry {
         self.eligible_ms = 0;
     }
 
-    /// "Not now": the question comes back once, after three weeks, at a good moment; the second "not now" is a "no".
+    /// "Maybe later": the question comes back, with other words, after three weeks, at a good moment; the third ask is the last (it has no such button), and a third "later" would be a "no".
     pub fn defer(&mut self, now_ms: i64) {
         if self.deferrals >= MAX_DEFERRALS {
             self.decline(now_ms);
@@ -230,8 +230,8 @@ impl Telemetry {
         self.eligible_ms = 0;
     }
 
-    /// The plan for the question now: None (do not show), or Some(final), where `final` is the second and last time (no "Not now" any more).
-    pub fn ask_plan(&self, have_collector: bool, now_ms: i64) -> Option<bool> {
+    /// The plan for the question now: None (do not show), or Some((n, final)): which ask this is (1 to 3) and whether it is the last (no "Maybe later" any more).
+    pub fn ask_plan(&self, have_collector: bool, now_ms: i64) -> Option<(u32, bool)> {
         if !have_collector {
             return None;
         }
@@ -241,7 +241,7 @@ impl Telemetry {
         }
         let peak = self.last_done_ms > 0 && now_ms - self.last_done_ms <= PEAK_MS;
         let patient = self.eligible_ms > 0 && now_ms - self.eligible_ms >= PATIENCE_MS;
-        (stale || peak || patient).then_some(self.deferrals >= MAX_DEFERRALS)
+        (stale || peak || patient).then_some((self.deferrals + 1, self.deferrals >= MAX_DEFERRALS))
     }
 
     /// Is a report due? Weekly; the first one a day after switching on; a failed try waits six hours.
@@ -479,7 +479,7 @@ mod tests {
         let now = MS + 4 * DAY_MS;
         t.record("ses_done", now, 0); // a session just finished: a good moment
         assert_eq!(t.ask_plan(false, now), None, "no collector, no question");
-        assert_eq!(t.ask_plan(true, now), Some(false));
+        assert_eq!(t.ask_plan(true, now), Some((1, false)));
         assert!(!t.due(MS + 40 * DAY_MS, true), "no yes, nothing is due");
         t.decline(now);
         assert_eq!(t.ask_plan(true, now), None, "a no is final");
@@ -519,7 +519,7 @@ mod tests {
         t.record("ses_done", day4 + 3_600_000, 0);
         assert_eq!(
             t.ask_plan(true, day4 + 3_600_000 + PEAK_MS - 1),
-            Some(false),
+            Some((1, false)),
             "right after a finished session"
         );
         assert_eq!(
@@ -529,10 +529,10 @@ mod tests {
         );
         assert_eq!(
             t.ask_plan(true, t.eligible_ms + PATIENCE_MS),
-            Some(false),
+            Some((1, false)),
             "after a week of waiting it is asked anyway"
         );
-        // "not now": not an answer; waits three weeks; comes once more as the last time
+        // "maybe later": not an answer; waits three weeks; comes again with other words; the third ask is the last
         let said = day4 + 7_200_000;
         t.defer(said);
         assert_eq!((t.asked_ms, t.deferrals), (0, 1));
@@ -544,13 +544,22 @@ mod tests {
         t.record("ses_done", said + LATER_MS + 1, 0);
         assert_eq!(
             t.ask_plan(true, said + LATER_MS + 2),
-            Some(true),
-            "once more, and it is the last time"
+            Some((2, false)),
+            "the second ask still has \"maybe later\""
         );
         t.defer(said + LATER_MS + 2);
+        assert_eq!(t.deferrals, 2);
+        let third = said + 2 * LATER_MS + 10;
+        t.record("ses_done", third, 0);
+        assert_eq!(
+            t.ask_plan(true, third + 1),
+            Some((3, true)),
+            "the third ask is the last: no \"maybe later\""
+        );
+        t.decline(third + 2);
         assert!(
-            t.asked_ms > 0 && t.ask_plan(true, said + 3 * LATER_MS).is_none(),
-            "a second \"not now\" is a \"no\""
+            t.asked_ms > 0 && t.ask_plan(true, said + 9 * LATER_MS).is_none(),
+            "\"No, thanks\" on the last ask is final"
         );
     }
 
@@ -568,7 +577,7 @@ mod tests {
         );
         assert_eq!(
             t.ask_plan(true, MS + 40 * DAY_MS),
-            Some(false),
+            Some((1, false)),
             "and the question comes back"
         );
         t.enable(MS + 41 * DAY_MS, ID);

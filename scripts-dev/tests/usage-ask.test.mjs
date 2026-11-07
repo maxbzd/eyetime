@@ -24,15 +24,17 @@ test('ask: only to someone who finished a session and came back, and only with a
   assert.equal(shouldAsk(qualified(), { on: false, askedAt: T0 }, true, T0 + 90 * DAY), false, 'a "no" is final');
 });
 
-test('ask: "Not now" waits three weeks, comes once more, and the second "not now" is a no', async () => {
+test('ask: "Maybe later" waits three weeks and the question comes back twice, never a fourth time', async () => {
   const u = qualified(), d = T0 + DAY;
   assert.equal(shouldAsk(u, { on: false, deferredAt: d }, true, d + 20 * DAY), false);
   assert.equal(shouldAsk(u, { on: false, deferredAt: d }, true, d + 22 * DAY), true);
   mem = {}; await deferAsk(d); let s = await getShare();
-  assert.deepEqual([s.deferrals, s.deferredAt, s.askedAt], [1, d, null], 'a first "not now" is not an answer');
+  assert.deepEqual([s.deferrals, s.deferredAt, s.askedAt], [1, d, null], 'a first "maybe later" is not an answer');
   await deferAsk(d + 22 * DAY); s = await getShare();
-  assert.ok(s.askedAt > 0, 'a second "not now" is a "no": the question is never asked a third time');
-  assert.equal(ASK_TIMING.maxDeferrals, 1);
+  assert.deepEqual([s.deferrals, s.askedAt], [2, null], 'nor is a second: three asks in all');
+  assert.equal(ASK_TIMING.maxDeferrals, 2);
+  await deferAsk(d + 44 * DAY); s = await getShare();
+  assert.ok(s.askedAt > 0, 'a third "later" cannot happen (the third ask has no such button); if it did it would be a "no"');
 });
 
 test('ask: a good moment is right after a finished session, or after a week of waiting', () => {
@@ -60,8 +62,8 @@ test('consent: a "yes" is for what it was given for, so a changed scope asks aga
 
 test('ask: the wording is an experiment that is measured by who agreed, and it is listed where the collector can see it', async () => {
   const e = EXPERIMENTS.find((x) => x.id === 'ask-copy');
-  assert.ok(e && e.measures === 'consent' && e.arms[0] === 'long' && e.arms.includes('short'), JSON.stringify(EXPERIMENTS));
-  const rep = { v: 1, id: 'a'.repeat(32), app: '3.8.1', br: 'chrome', os: 'win', lang: 'en', look: 'calm', layout: 'today', mode: 'auto', age: 5, act: [0], first: {}, ft: {}, x: ['ask-copy:short'] };
+  assert.ok(e && e.measures === 'consent' && e.arms[0] === 'personal' && e.arms.includes('practical'), JSON.stringify(EXPERIMENTS));
+  const rep = { v: 1, id: 'a'.repeat(32), app: '3.8.1', br: 'chrome', os: 'win', lang: 'en', look: 'calm', layout: 'today', mode: 'auto', age: 5, act: [0], first: {}, ft: {}, x: ['ask-copy:practical'] };
   assert.deepEqual(validateReport(rep), { ok: true });
   assert.equal(validateReport({ ...rep, x: ['ask-copy:other'] }).ok, false);
   mem = {}; assert.equal(await wantsToAsk(T0), false, 'no collector in this build');
@@ -71,7 +73,8 @@ test('the card: every way of saying no is a visible button, and nothing is pre-t
   const src = readFileSync(new URL('../../src/newtab/home/usage-ask.js', import.meta.url), 'utf8');
   const css = readFileSync(new URL('../../src/newtab/newtab.css', import.meta.url), 'utf8');
   assert.doesNotMatch(src, /checked|setInterval|countdown|spots? left|only today|hurry/i, 'no pre-ticked box, no timer, no pressure');
-  assert.match(src, /us\.askNo/); assert.match(src, /us\.askLater/); assert.match(src, /us\.askPolicy/);
+  assert.match(src, /us\.askNo/); assert.match(src, /us\.askLater/); assert.match(src, /us\.askNever/); assert.match(src, /us\.askPolicy/);
+  assert.match(src, /us\.askAgain/, 'a "maybe later" says that it will be asked again');
   const refuse = /\.ask-refuse \.btn \{([^}]*)\}/.exec(css)[1];
   assert.match(refuse, /height: 44px/); assert.match(refuse, /border-color: var\(--border-strong\)/); assert.match(refuse, /color: var\(--text\)/);
   assert.doesNotMatch(refuse, /opacity|display: none|visibility|font-size: (?:[0-9]|10|11)px/, 'a refusal is never faded, hidden or tiny');

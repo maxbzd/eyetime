@@ -290,12 +290,12 @@ body[data-layout="split"] .hero .clock { white-space: nowrap; font-size: clamp(5
 .nudge { flex-wrap: wrap; justify-content: center; max-width: 100%; border-radius: min(var(--r-full), 22px); } .nudge .nudge-text { min-width: 0; }
 
 /* the one-time question about anonymous usage numbers (usage-ask.js): a note in the corner, not a banner */
-.ask { position: fixed; inset-inline-end: var(--s-6); bottom: var(--s-6); z-index: 60; width: min(372px, calc(100vw - 2 * var(--s-4))); max-height: calc(100vh - 2 * var(--s-6)); overflow-y: auto; padding: var(--s-6); border-radius: var(--r-xl); border: var(--border-w) solid var(--border); background: radial-gradient(120% 70% at 0% 0%, var(--accent-soft), transparent 62%), var(--surface); color: var(--text); box-shadow: var(--shadow-3); animation: ask-in var(--t-slow) var(--ease) both; }
+.ask { position: fixed; inset-inline-end: var(--s-6); bottom: var(--s-6); z-index: 60; width: min(372px, calc(100vw - 2 * var(--s-4))); max-height: calc(100vh - 2 * var(--s-6)); overflow-y: auto; padding: var(--s-5) var(--s-6); border-radius: var(--r-xl); border: var(--border-w) solid var(--border); background: radial-gradient(120% 70% at 0% 0%, var(--accent-soft), transparent 62%), var(--surface); color: var(--text); box-shadow: var(--shadow-3); animation: ask-in var(--t-slow) var(--ease) both; }
 .ask.leaving { animation: ask-out var(--t-med) var(--ease) forwards; pointer-events: none; }
 @keyframes ask-in { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
 @keyframes ask-out { to { opacity: 0; transform: translateY(10px) scale(.98); } }
-.ask-badge { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--r-full); background: var(--accent); color: var(--accent-fg); margin-bottom: var(--s-4); } .ask-badge .ico { font-size: 20px; }
-.ask-title { margin: 0 0 var(--s-2); font-family: var(--font-serif); font-weight: 400; font-size: 28px; line-height: 1.12; letter-spacing: -.01em; text-wrap: balance; }
+.ask-badge { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--r-full); background: var(--accent); color: var(--accent-fg); margin-bottom: var(--s-3); } .ask-badge .ico { font-size: 20px; }
+.ask-title { margin: 0 0 var(--s-2); font-family: var(--font-serif); font-weight: 400; font-size: 27px; line-height: 1.12; letter-spacing: -.01em; text-wrap: balance; }
 .ask-lead { margin: 0 0 var(--s-4); color: var(--text-2); font-size: var(--fs-md); line-height: 1.55; text-wrap: pretty; }
 .ask-promises { list-style: none; margin: 0 0 var(--s-4); padding: 0; display: grid; gap: var(--s-3); }
 .ask-promises li { display: grid; grid-template-columns: 32px 1fr; gap: var(--s-3); align-items: start; font-size: var(--fs-sm); line-height: 1.5; color: var(--text-2); } .ask-promises strong { color: var(--text); font-weight: 650; }
@@ -306,7 +306,7 @@ body[data-layout="split"] .hero .clock { white-space: nowrap; font-size: clamp(5
 .ask-yes { width: 100%; height: 48px; justify-content: center; font-size: var(--fs-md); }
 .ask-refuse { display: flex; gap: var(--s-2); } .ask-refuse .btn { flex: 1 1 0; height: 44px; justify-content: center; border-color: var(--border-strong); color: var(--text); background: transparent; }
 .ask-refuse .btn:hover { background: var(--surface-2); }
-.ask-links { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-4); } .ask-last { margin: 0 0 var(--s-2); text-align: center; }
+.ask-links { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-4); } .ask-again { margin: 0 0 var(--s-2); text-align: center; }
 .ask-show { display: inline-flex; align-items: center; gap: 6px; padding: 4px 2px; margin: 0 0 var(--s-2); border: 0; background: none; color: var(--text-2); font: inherit; font-size: var(--fs-xs); font-weight: 560; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--border-strong); } .ask-show:hover { color: var(--text); }
 .ask-show .ico { font-size: 14px; } .ask-show[aria-expanded="true"] .ico:last-child { transform: rotate(180deg); }
 .ask-preview { margin: 0 0 var(--s-3); padding: var(--s-3); max-height: 190px; overflow: auto; border-radius: var(--r-md); background: var(--surface-2); border: var(--border-w) solid var(--border); font: 11px/1.5 var(--font-mono); color: var(--text-2); white-space: pre-wrap; word-break: break-all; } .ask-preview[hidden], .ask-fine[hidden] { display: none; }

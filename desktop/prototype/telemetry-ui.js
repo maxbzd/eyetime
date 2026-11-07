@@ -13,32 +13,34 @@
   const TX = {
     en: {
       title: 'May I ask you a small favour?',
-      lead: 'EyeTime is made by one person, and I have no way of knowing whether it really helps you. If you agree, once a week it will send a few anonymous numbers, so I can see what to fix next.',
-      p1: 'Never sold. Not to advertisers, not to anyone.',
-      p2: 'Never used for money. No ads, no profiles. The numbers only help me make EyeTime better.',
-      p3: 'Nothing personal. Just counts, like how many times something was closed. No program names, sites, paths, window titles, PINs or codes, no name, no account.',
-      note: 'You can read the exact report first, and turn this off with one click, whenever you like.',
-      leadS: 'EyeTime is made by one person. Once a week it can send a few anonymous numbers, so I can see what to fix next.',
+      lead: "EyeTime is a one-person project, so I can't see whether it really helps you. If you agree, EyeTime will send a few anonymous numbers on its own, once a week, and I'll know what to fix next.",
+      title2: 'Can I ask again?',
+      lead2: "A few weeks ago you said maybe later, and that's fine. What I fix next depends on these numbers, so I'm asking once more. If you agree, EyeTime will send a few anonymous counts on its own, once a week.",
+      title3: 'My last question about this',
+      lead3: "I won't ask again after this. If you agree, EyeTime will send a few anonymous counts on its own, once a week, and they decide what I fix and what I remove. If not, that's completely fine.",
+      note: 'After you agree it all happens on its own, once a week. Nothing to confirm, and you can stop any time in Settings.',
+      never: "Don't ask again", again: '“Maybe later”: I\'ll ask again in a few weeks, three times at most.',
       p1s: 'Never sold, never used for ads or money.', p2s: 'Nothing personal. Just counts: no program names, sites, paths, PINs, name or account.',
-      later: 'Not now', last: 'This is the last time I ask.', laterBye: "Okay. I'll ask once more in a few weeks, and never again after that.", thanksT: 'Thank you', policy: 'Privacy details', settings: 'Settings', close: 'Close',
+      later: 'Maybe later', laterBye: "Okay. I'll ask again in a few weeks.", thanksT: 'Thank you', policy: 'Privacy details', settings: 'Settings', close: 'Close',
       yes: "Yes, I'll help", no: 'No, thanks', show: 'Show exactly what is sent', hide: 'Hide', sign: '— the person who makes EyeTime',
-      thanks: 'Thank you, truly. You can see what is sent, and stop, in Settings.', bye: "Of course. I won't ask again.",
-      setT: 'Share anonymous numbers', setD: 'Once a week, a few counts. Never names of programs or sites. Off unless you turn it on.', setSee: 'Show what would be sent', setHide: 'Hide',
+      thanks: 'Thank you! From now on EyeTime sends it on its own, once a week: nothing to confirm. You can see what is sent, or stop, in Settings.', bye: "Of course. I won't ask again.",
+      setT: 'Share anonymous numbers', setD: 'Once a week EyeTime sends a few counts on its own. Never names of programs or sites. Off unless you turn it on.', setSee: 'Show what would be sent', setHide: 'Hide',
       setNote: 'This is the whole next report. It is built on your computer and sent over HTTPS without cookies.', setLast: (d) => `Last report: ${d}`, setNever: 'Nothing has been sent yet.',
     },
     ru: {
       title: 'Можно попросить вас об одном маленьком одолжении?',
-      lead: 'EyeTime делает один человек, и я не могу узнать, правда ли он вам помогает. Если вы согласитесь, раз в неделю он будет отправлять несколько анонимных чисел — так я пойму, что исправлять в первую очередь.',
-      p1: 'Ничего не продаётся. Ни рекламодателям, ни кому-либо ещё.',
-      p2: 'Не ради заработка. Никакой рекламы и профилей: цифры нужны только затем, чтобы EyeTime становился лучше.',
-      p3: 'Ничего личного. Только счётчики, например сколько раз что-то было закрыто. Никаких названий программ, сайтов, путей, заголовков окон, PIN-кодов, ни имени, ни аккаунта.',
-      note: 'Точный отчёт можно прочитать до отправки, а выключить всё — одним нажатием в любой момент.',
-      leadS: 'EyeTime делает один человек. Раз в неделю он может отправлять несколько анонимных чисел — так я пойму, что исправлять.',
+      lead: 'EyeTime — проект одного человека, поэтому я не вижу, помогает ли он вам на самом деле. Если вы согласитесь, EyeTime сам, раз в неделю, будет отправлять несколько анонимных чисел — так я пойму, что исправлять.',
+      title2: 'Можно спросить ещё раз?',
+      lead2: 'Несколько недель назад вы ответили «может, позже» — это нормально. От этих чисел зависит, что я исправляю дальше, поэтому спрашиваю ещё раз. Если согласитесь, EyeTime сам, раз в неделю, будет отправлять несколько анонимных счётчиков.',
+      title3: 'Мой последний вопрос об этом',
+      lead3: 'После этого я больше не спрошу. Если вы согласитесь, EyeTime сам, раз в неделю, будет отправлять несколько анонимных счётчиков — по ним я решаю, что исправить, а что убрать. Если нет — это тоже совершенно нормально.',
+      note: 'После вашего согласия всё происходит само, раз в неделю. Ничего подтверждать не нужно, остановить можно в любой момент в Настройках.',
+      never: 'Больше не спрашивать', again: '«Может, позже»: спрошу ещё раз через несколько недель, всего не больше трёх раз.',
       p1s: 'Ничего не продаётся и не идёт на рекламу или заработок.', p2s: 'Ничего личного. Только счётчики: без названий программ, сайтов, путей, PIN-кодов, имени и аккаунта.',
-      later: 'Не сейчас', last: 'Это последний раз, когда я спрашиваю.', laterBye: 'Хорошо. Спрошу ещё один раз через несколько недель, а потом больше никогда.', thanksT: 'Спасибо', policy: 'Подробнее о приватности', settings: 'Настройки', close: 'Закрыть',
+      later: 'Может, позже', laterBye: 'Хорошо. Спрошу ещё раз через несколько недель.', thanksT: 'Спасибо', policy: 'Подробнее о приватности', settings: 'Настройки', close: 'Закрыть',
       yes: 'Да, помогу', no: 'Нет, спасибо', show: 'Показать, что именно отправляется', hide: 'Скрыть', sign: '— тот, кто делает EyeTime',
-      thanks: 'Спасибо, правда. Что отправляется и как остановить, видно в Настройках.', bye: 'Конечно. Больше не спрошу.',
-      setT: 'Делиться анонимными числами', setD: 'Раз в неделю несколько счётчиков. Никаких названий программ и сайтов. Выключено, пока вы не включите.', setSee: 'Показать, что будет отправлено', setHide: 'Скрыть',
+      thanks: 'Спасибо! Дальше EyeTime отправляет всё сам, раз в неделю: подтверждать ничего не нужно. Что именно уходит — видно в Настройках, там же можно остановить.', bye: 'Конечно. Больше не спрошу.',
+      setT: 'Делиться анонимными числами', setD: 'Раз в неделю EyeTime сам отправляет несколько счётчиков. Никаких названий программ и сайтов. Выключено, пока вы не включите.', setSee: 'Показать, что будет отправлено', setHide: 'Скрыть',
       setNote: 'Это весь следующий отчёт. Он собирается на вашем компьютере и уходит по HTTPS без куки.', setLast: (d) => `Последний отчёт: ${d}`, setNever: 'Пока ничего не отправлялось.',
     },
   };
@@ -46,7 +48,7 @@
   const pretty = (text) => { try { return JSON.stringify(JSON.parse(text), null, 2); } catch { return String(text); } };
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const svg = (d) => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('viewBox', '0 0 24 24'); const p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.setAttribute('d', d); s.append(p); return s; };
-  const ICON = { sprout: 'M7 20h10M10 20c5.5-2.5.8-6.4 3-10M9.5 9.4c1.1.8 1.8 2.2 2.3 3.6-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.9ZM14.1 6a3.5 3.5 0 0 0-.8 4.1c1.6-.1 2.9-.9 3.7-2-.3-1.8-1.7-2.5-2.9-2.1Z', ban: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM5.6 5.6l12.8 12.8', lock: 'M6 11h12v9H6zM8 11V8a4 4 0 0 1 8 0v3', eye: 'M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12ZM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z' };
+  const ICON = { sprout: 'M7 20h10M10 20c5.5-2.5.8-6.4 3-10M9.5 9.4c1.1.8 1.8 2.2 2.3 3.6-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.9ZM14.1 6a3.5 3.5 0 0 0-.8 4.1c1.6-.1 2.9-.9 3.7-2-.3-1.8-1.7-2.5-2.9-2.1Z', ban: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM5.6 5.6l12.8 12.8', lock: 'M6 11h12v9H6zM8 11V8a4 4 0 0 1 8 0v3', x: 'M6 6l12 12M18 6L6 18', eye: 'M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12ZM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z' };
 
   const css = document.createElement('style');
   css.textContent = `
@@ -90,11 +92,11 @@
   }
   function leave() { if (!card) return; const c = card; card = null; c.classList.add('leaving'); setTimeout(() => c.remove(), 280); }
 
-  function showAsk(final) {
+  function showAsk(n, final) {
     if (card || document.getElementById('telAsk')) return;
     const x = L(), c = el('aside', 'tel-card'); c.id = 'telAsk'; c.setAttribute('role', 'dialog'); c.setAttribute('aria-modal', 'false'); c.setAttribute('aria-labelledby', 'telAskT');
     const badge = el('div', 'tel-badge'); badge.append(svg(ICON.sprout)); badge.setAttribute('aria-hidden', 'true');
-    const title = el('h2', 'tel-title', x.title); title.id = 'telAskT';
+    const title = el('h2', 'tel-title', n >= 3 ? x.title3 : n === 2 ? x.title2 : x.title); title.id = 'telAskT';
     const list = el('ul', 'tel-list'); list.append(promise('ban', x.p1s), promise('lock', x.p2s));
     const pre = el('pre', 'tel-pre'); pre.hidden = true; pre.tabIndex = 0;
     const fine2 = el('p', 'tel-fine', L().setNote); fine2.hidden = true;
@@ -116,8 +118,9 @@
     no.type = 'button'; no.onclick = async () => { await set('telemetry_decline'); leave(); ET.toast(L().bye); };
     const row = el('div', 'tel-no'); if (later) row.append(later); row.append(no);
     const act = el('div', 'tel-act'); act.append(yes, row);
-    const links = el('div', 'tel-links'); links.append(show, policy);
-    c.append(badge, title, el('p', 'tel-lead', x.leadS), list, el('p', 'tel-fine', x.note), act, final ? el('p', 'tel-fine tel-last', x.last) : document.createComment(''), links, fine2, pre, el('p', 'tel-sign', x.sign));
+    const never = final ? null : el('button', 'tel-show'); if (never) { never.type = 'button'; never.append(svg(ICON.x), el('span', null, x.never)); never.onclick = async () => { await set('telemetry_decline'); leave(); ET.toast(L().bye); }; }
+    const links = el('div', 'tel-links'); links.append(show, policy); if (never) links.append(never);
+    c.append(badge, title, el('p', 'tel-lead', n >= 3 ? x.lead3 : n === 2 ? x.lead2 : x.lead), list, el('p', 'tel-fine', x.note), act, final ? document.createComment('') : el('p', 'tel-fine tel-last', x.again), links, fine2, pre, el('p', 'tel-sign', x.sign));
     document.body.append(c); card = c;
   }
 
@@ -144,7 +147,7 @@
   }
 
   const running = () => { const st = ETB.getStatus && ETB.getStatus(); return !!(st && st.session); };
-  async function look() { await get(); paintRow(); if (v && v.ask && !running() && !document.hidden) showAsk(!!v.final); }
+  async function look() { await get(); paintRow(); if (v && v.ask && !running() && !document.hidden) showAsk(v.n || 1, !!v.final); }
   setTimeout(look, 9000); setInterval(look, 5 * 60 * 1000);
   document.addEventListener('et-settings-shown', look);
   ET.langHooks.push(() => { paintRow(); });

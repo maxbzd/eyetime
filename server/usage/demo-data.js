@@ -39,7 +39,7 @@ export function makeDemoSnapshot(now, { installs: count = 520, seed = 11 } = {})
     const kind = r() < 0.52 ? 'leaves' : r() < 0.8 ? 'casual' : 'daily';
     const arm = parseInt(id[0], 16) % 2 ? 'short' : 'control'; // a made-up experiment: the "short" default keeps people a little more
     out.experiments.push({ id, exp: 'demo-len', arm });
-    out.experiments.push({ id, exp: 'ask-copy', arm: parseInt(id.slice(1, 3), 16) < 143 ? 'short' : 'long' }); // the wording of the question: the short one convinces a little more (made up)
+    out.experiments.push({ id, exp: 'ask-copy', arm: parseInt(id.slice(1, 3), 16) < 143 ? 'practical' : 'personal' }); // the voice of the question: the practical one convinces a little more (made up)
     const act = [0];
     for (let d = 1; d <= installAgo; d++) {
       const p = kind === 'leaves' ? 0.45 * Math.exp(-d / 1.6) : kind === 'casual' ? 0.07 + 0.3 * Math.exp(-d / 18) : 0.2 + 0.65 * Math.exp(-d / 120) + (d % 7 > 4 ? -0.15 : 0.05);

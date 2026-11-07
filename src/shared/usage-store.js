@@ -103,7 +103,7 @@ export async function forgetOnReset() {
 /** "No, thanks": final. The question is never asked again. */
 export async function declineAsk(now = Date.now()) { await setShare({ askedAt: now, deferredAt: null, eligibleAt: null }); }
 
-/** "Not now": the question comes back once, after three weeks, at a good moment; after the second "not now" it is a "no". */
+/** "Maybe later": the question comes back, with other words, after three weeks, at a good moment; the third ask is the last, so a third "later" cannot happen and would be a "no". */
 export async function deferAsk(now = Date.now()) {
   const share = await getShare();
   if (share.deferrals >= ASK_TIMING.maxDeferrals) { await declineAsk(now); return; }
@@ -125,9 +125,10 @@ async function justFinishedSession(now) {
 }
 
 /**
- * The plan for the question now: null (do not show), or `{ final, variant }`. `final` is the second and last time (no "Not now" any more); `variant` is the wording this device
- * was put in ("long" or "short", an experiment whose result is how the people who agreed split between the arms). Shown at a good moment only; the caller never asks mid-session.
- * @returns {Promise<{ final: boolean, variant: string } | null>}
+ * The plan for the question now: null (do not show), or `{ n, final, variant }`. `n` is which ask this is (1 to 3), `final` is the last one (no "Maybe later" any more); `variant` is the
+ * voice this device was put in for the first ask ("personal" or "practical", an experiment whose result is how the people who agreed split between the arms). Shown at a good moment only;
+ * the caller never asks mid-session.
+ * @returns {Promise<{ n: number, final: boolean, variant: string } | null>}
  */
 export async function askPlan(now = Date.now()) {
   if (!(await wantsToAsk(now))) return null;
@@ -137,7 +138,7 @@ export async function askPlan(now = Date.now()) {
   let share = await getShare();
   if (!share.eligibleAt) { await setShare({ eligibleAt: now }); share = { ...share, eligibleAt: now }; }
   if (!goodMoment(share, now, await justFinishedSession(now))) return null;
-  return { final: share.deferrals >= ASK_TIMING.maxDeferrals, variant: (await armOf('ask-copy')) || 'long' };
+  return { n: share.deferrals + 1, final: share.deferrals >= ASK_TIMING.maxDeferrals, variant: (await armOf('ask-copy')) || 'personal' };
 }
 
 const post = (/** @type {any} */ body) => ({ method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), credentials: /** @type {RequestCredentials} */ ('omit'), referrerPolicy: /** @type {ReferrerPolicy} */ ('no-referrer'), cache: /** @type {RequestCache} */ ('no-store') });
