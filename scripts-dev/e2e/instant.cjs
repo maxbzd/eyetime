@@ -23,7 +23,7 @@ const PORT = 8099;
   fs.writeFileSync(path.join(ext, 'manifest.json'), JSON.stringify(man));
 
   let hits = []; // the page requests that reached the site (not the icon the browser also asks for)
-  const server = http.createServer((q, r) => { if (q.url !== '/favicon.ico') hits.push(q.headers.host + q.url); r.setHeader('content-type', 'text/html'); r.end(`<title>site</title><h1>the real site</h1>${q.url}`); }).listen(PORT);
+  const server = http.createServer((q, r) => { if (q.url !== '/favicon.ico') hits.push(q.headers.host + q.url); r.setHeader('content-type', 'text/html'); if (q.url === '/framed') return r.end('<title>an allowed page</title><h1>allowed</h1><iframe src="http://www.frame.example.test:' + PORT + '/inner" width="300" height="100"></iframe>'); r.end(`<title>site</title><h1>the real site</h1>${q.url}`); }).listen(PORT);
   const ctx = await chromium.launchPersistentContext(path.join(os.tmpdir(), 'pw-instant-' + Date.now()), {
     ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : { channel: 'chromium' }), headless: true,
     args: [`--disable-extensions-except=${ext}`, `--load-extension=${ext}`, '--no-proxy-server', '--host-resolver-rules=MAP *.example.test 127.0.0.1, MAP example.test 127.0.0.1'],
@@ -105,6 +105,18 @@ const PORT = 8099;
   await page.evaluate(() => chrome.runtime.sendMessage({ type: 'focus:stop' }));
 
   // 7. off again: every rule is gone and the site opens
+  // 5. a blocked site in a frame of an allowed page is not loaded; the same page without the frame rule would have fetched it
+  await settings({ blocking: { custom: ['distract.example.test', 'frame.example.test'] } });
+  for (let i = 0; i < 40 && (await sw.evaluate(async () => (await chrome.declarativeNetRequest.getDynamicRules()).some((r) => (r.condition.requestDomains || []).includes('frame.example.test')))) === false; i++) await wait(100);
+  hits = []; const fr = await open(base('www.allowed.example.test', '/framed')); await wait(500);
+  ok(fr.url() === base('www.allowed.example.test', '/framed'), 'the allowed page itself did not open: ' + fr.url());
+  ok(!hits.some((h) => /frame\.example\.test/.test(h)), 'the blocked site in a frame was loaded: ' + hits.join(' '));
+  ok(hits.some((h) => /allowed\.example\.test/.test(h)), 'the allowed page did not load');
+  // 6. rules that are already right are not sent again (a change of language or look must not swap the rule set)
+  await sw.evaluate(() => { globalThis.__swaps = 0; const d = chrome.declarativeNetRequest, u = d.updateDynamicRules.bind(d); d.updateDynamicRules = (x) => { globalThis.__swaps++; return u(x); }; });
+  for (let i = 0; i < 3; i++) { await sw.evaluate(() => chrome.runtime.sendMessage({ type: 'instant:sync' }).catch(() => {})); await wait(300); }
+  await settings({ appearance: { accent: '#ff5500' } }); await wait(900);
+  ok((await sw.evaluate(() => globalThis.__swaps)) === 0, 'the same rules were sent again ' + (await sw.evaluate(() => globalThis.__swaps)) + ' time(s)');
   await settings({ blocking: { instant: false, friction: { enabled: false } } });
   for (let i = 0; i < 40 && (await rules()); i++) await wait(100);
   ok((await rules()) === 0, 'rules remain after the switch was turned off');

@@ -23,8 +23,8 @@ import { state } from './state.js';
 export async function paintBackupNudge() {
   const el = $('#backupNudge');
   const { lastBackupAt = 0, backupSnoozedUntil = 0, meta } = await getRaw(['lastBackupAt', 'backupSnoozedUntil', 'meta']);
-  const all = await chrome.storage.local.get(null);
-  const daysStored = Object.keys(all).filter((k) => k.startsWith('d:')).length;
+  // the days with something recorded are counted in one small key (usage.days), not by reading the whole store: a year of history is megabytes, and this runs at every new tab
+  const daysStored = (await getUsage()).days.length;
   if (!needsBackup({ now: Date.now(), installedAt: meta && meta.installedAt, lastBackupAt, daysStored, snoozedUntil: backupSnoozedUntil })) { el.hidden = true; return; }
   el.hidden = false;
   clear(el, icon('database'), h('span', { class: 'nudge-text', text: t('backup.title') + '. ' + t('backup.body') }),

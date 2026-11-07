@@ -28,12 +28,13 @@ const recent = new Map(); // tabId+url → ts: webNavigation and tabs.onUpdated 
 /** Count a temptation: the pause / block page had to step in for this host (`pa`), and whether a session was running (`fa`). */
 async function logAttempt(tabId, url, d) {
   const key = tabId + '|' + url, now = Date.now();
-  if (now - (recent.get(key) || 0) < 5000) return;
+  if (now - (recent.get(key) || 0) < 5000) return false; // the same page seen twice (the navigation and the tab update) or reloaded in a flurry is one temptation
   recent.set(key, now);
   if (recent.size > 50) for (const [k, t] of recent) if (now - t > 5000) recent.delete(k);
   const host = (d.rule || d.host || '').replace(/^www\./, '');
-  if (!host) return;
+  if (!host) return true;
   await updateDay(dayKey(), (day) => { const pa = (day.pa ||= {}); pa[host] = (pa[host] || 0) + 1; if (d.reason === 'focus') day.fa = (day.fa || 0) + 1; });
+  return true;
 }
 
 export async function checkTab(tabId, url) {
@@ -41,8 +42,7 @@ export async function checkTab(tabId, url) {
   let d;
   try { d = await evaluate(url, Date.now(), tabId); } catch (e) { logError('blocker:evaluate', e); d = failClosed(url); } // damaged settings must not open the gates
   if (d.action === 'allow') return;
-  logAttempt(tabId, url, d).catch(() => {});
-  track('block_page'); const why = blockFeature(d.reason || ''); if (why) track(why);
+  logAttempt(tabId, url, d).then((counted) => { if (counted) { track('block_page'); const why = blockFeature(d.reason || ''); if (why) track(why); } }).catch(() => {}); // counted once, with the same rule as the attempt
   // With instant blocking the browser has already sent this tab to the block page (no request left): give it a moment, and only step in if it did not
   // (a rule that was not there yet, an address the rules do not say, a decision they cannot make).
   if (COVERED.has(d.reason || '') && d.scope !== 'only-mine' && (await instantOn())) {

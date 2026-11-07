@@ -80,18 +80,22 @@
     document.documentElement.style.removeProperty('filter');
   }
 
-  setInterval(() => {
-    if (!feed.shortLimit || lockEl || document.visibilityState !== 'visible' || !inShort()) return;
+  // The second-by-second count runs only while the limit is on (on ten open tabs of a video site, a timer that does nothing is ten wake-ups a second for nothing)
+  let ticker = 0;
+  const tick = () => {
+    if (lockEl || document.visibilityState !== 'visible' || !inShort()) return;
     const sec = getSec() + 1;
     sessionStorage.setItem(KEY, String(sec));
     if (sec >= feed.shortMinutes * 60 + extraSec) lock();
-  }, 1000);
+  };
+  const syncTicker = () => { if (feed.shortLimit && !ticker) ticker = setInterval(tick, 1000); else if (!feed.shortLimit && ticker) { clearInterval(ticker); ticker = 0; } };
 
   /* ---------- settings ---------- */
   function load() {
     chrome.storage.local.get('settings').then(({ settings }) => {
       feed = { ...DEFAULT, ...(settings?.blocking?.feed || {}) };
       applyCss();
+      syncTicker();
       if (!feed.shortLimit) unlock();
     }).catch(() => {});
   }

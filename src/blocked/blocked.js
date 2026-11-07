@@ -178,7 +178,8 @@ async function render() {
   await render();
   // re-check when focus ends, a pass is granted or lists change
   chrome.storage.onChanged.addListener((c, area) => { if (area === 'local' && (c.focus || c.passes || c.settings)) render(); });
-  setInterval(check, 5000); // schedule windows and limits change without storage events
+  setInterval(() => { if (document.visibilityState === 'visible') check(); }, 5000); // schedule windows and limits change without storage events; a tab nobody looks at is not asked every 5 seconds (it checks again the moment it is shown)
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') check(); });
 })();
 
 /** "Did this pause help?": one tap, shown rarely and only where there is a collector (see pauseThumbsDue); answered or closed, it stays quiet for a month (a closed one for two). */

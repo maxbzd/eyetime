@@ -59,10 +59,11 @@ export function buildRules(ctx, blockedBase) {
   // The rules that let a site through come FIRST: when there are more domains than the browser takes, it is the redirects that are left to the tab blocker, never the exceptions
   // (an allowed subdomain under a blocked parent would otherwise be sent to the block page).
   const redirectKeys = [...redirects.keys()];
+  const hasBlockedParent = (/** @type {string} */ d) => { const parts = d.split('.'); for (let i = 1; i < parts.length; i++) if (redirects.has(parts.slice(i).join('.'))) return true; return false; }; // the parents of a domain are its own suffixes: no scan over every rule
   const allows = [];
   for (const d of [...domains].sort()) {
     const listed = matchesAny(d, b.allow);
-    const underBlocked = !redirects.has(d) && redirectKeys.some((p) => d.endsWith('.' + p));
+    const underBlocked = !redirects.has(d) && hasBlockedParent(d);
     if (!listed && !underBlocked) continue;
     allows.push({ priority: (listed ? DNR.PRIORITY_ALLOW_LIST : 10) + labels(d), action: { type: 'allow' }, condition: { regexFilter: domainRegex(d), resourceTypes: ['main_frame', 'sub_frame'] } });
   }

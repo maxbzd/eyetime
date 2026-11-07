@@ -102,7 +102,8 @@ test('the browser refuses the rules: nothing is left half done and the error is 
   await updateSettings((s) => { s.blocking.instant = true; }); await settle();
   assert.ok((await rules()).length > 0);
   const real = chrome.declarativeNetRequest.updateDynamicRules; let n = 0;
-  chrome.declarativeNetRequest.updateDynamicRules = async (o) => { if (n++ === 0) throw new Error('Rule count exceeded'); return real(o); };
+  chrome.declarativeNetRequest.updateDynamicRules = async (o) => { if (o.addRules && o.addRules.length) { n++; throw new Error('Rule count exceeded'); } return real(o); }; // refuses every swap that adds rules
+  await updateSettings((s) => { s.blocking.custom = [...s.blocking.custom, 'brand-new.example.test']; }); await settle(); // a change that makes the rules different (unchanged rules are not sent again)
   await syncInstant();
   assert.equal((await rules()).length, 0, 'no rules rather than wrong ones');
   chrome.declarativeNetRequest.updateDynamicRules = real;
@@ -130,4 +131,14 @@ test('a limit (which depends on usage) is not waited for: the blocker answers at
   const t0 = Date.now(); void t0;
   await Promise.all(chrome.webNavigation.onBeforeNavigate.fire({ tabId: t.id, frameId: 0, url: 'https://news.example/' })); await settle(120);
   assert.equal(chrome._callsTo('tabs.update').length, 1);
+});
+
+test('rules that are already exactly right are not sent to the browser again', async () => {
+  chrome._grant(WEB);
+  await updateSettings((s) => { s.blocking.instant = true; }); await settle();
+  const n0 = chrome._callsTo('dnr.updateDynamicRules').length;
+  await syncInstant(); await syncInstant();
+  assert.equal(chrome._callsTo('dnr.updateDynamicRules').length, n0, 'nothing was changed, nothing was sent');
+  await updateSettings((s) => { s.blocking.custom = [...s.blocking.custom, 'one-more.example.test']; }); await settle();
+  assert.ok(chrome._callsTo('dnr.updateDynamicRules').length > n0, 'a real change is');
 });
