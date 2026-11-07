@@ -60,18 +60,18 @@ async function boot() {
 }
 
 chrome.runtime.onInstalled.addListener(async (details) => {
-  await boot();
+  try { await boot(); } catch (e) { logError('boot:installed', e); }
   const settings = await getSettings();
   if (details.reason === 'update' && isMinorUpdate(details.previousVersion, chrome.runtime.getManifest().version)) await setRaw({ whatsNew: { version: chrome.runtime.getManifest().version, from: details.previousVersion } });
   if (details.reason === 'update') { // EyeTime 4 redesign: the old default arrangement of Home moves to the new one, once (an arrangement someone chose stays)
     const { designV } = await getRaw('designV');
     if (designV !== 4) { await updateSettings((s) => { moveHomeToToday(s); }); await setRaw({ designV: 4 }); }
   } else if (details.reason === 'install') await setRaw({ designV: 4 });
-  if (details.reason === 'install' && !settings.onboarded) chrome.tabs.create({ url: chrome.runtime.getURL('src/onboarding/onboarding.html') });
-  chrome.alarms.create('prune', { periodInMinutes: 60 * 24 });
+  if (details.reason === 'install' && !settings.onboarded) { try { await chrome.tabs.create({ url: chrome.runtime.getURL('src/onboarding/onboarding.html') }); } catch (e) { logError('install:tab', e); } }
+  try { await chrome.alarms.create('prune', { periodInMinutes: 60 * 24 }); } catch (e) { logError('install:alarm', e); }
 });
 
-chrome.runtime.onStartup.addListener(boot);
+chrome.runtime.onStartup.addListener(() => { boot().catch((e) => logError('boot:startup', e)); });
 chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'prune') pruneOldDays().then(checkStorage); });
 chrome.alarms.onAlarm.addListener(onUsageAlarm);
 chrome.alarms.onAlarm.addListener(onConnectionsAlarm);
@@ -87,4 +87,4 @@ chrome.commands.onCommand.addListener(async (cmd) => {
 });
 
 // Every cold start of the worker (it is suspended when idle) must leave state consistent.
-boot();
+boot().catch((e) => logError('boot:cold', e));

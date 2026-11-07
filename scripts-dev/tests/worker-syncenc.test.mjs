@@ -146,7 +146,9 @@ test('switching encryption off: plain copies again, and the other device follows
   await deviceReady('B', { settings: {} }); await joinWith(PASS);
 
   await on('A'); mock.timers.setTime(Date.now() + 60_000);
-  await V.disableSyncEncryption(); await both();
+  await assert.rejects(() => V.disableSyncEncryption('not the passphrase'), /passphrase|wrong/i, 'taking the encryption off needs the passphrase');
+  assert.ok(await V.getSyncEnc(), 'and a wrong one leaves it on');
+  await V.disableSyncEncryption(PASS); await both();
   assert.equal(cloud()['sync:meta'].v, 1); assert.equal(cloud()['st:meta'].v, 1);
   assert.ok(cloud()['sync:meta'].off > 0 && cloud()['st:meta'].off > 0, 'the plain copies say which encryption they replace');
   assert.ok(dump().includes(SECRET_TASK));

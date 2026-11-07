@@ -22,7 +22,7 @@ STATISTICHE ONESTE
 Tempo per sito, ora e giorno; una linea del tempo della giornata con le tue sessioni di focus; tempo di focus per progetto (#tag); precisione delle stime (previsto e reale); le tue ore di focus migliori; “cosa ti attira” — quando un sito ti tenta, con un limite a un tocco; un resoconto settimanale e un’immagine condivisibile di “La mia settimana”. Riclassifica qualsiasi sito come produttivo, neutro o distraente con un tocco. Esporta in CSV o in un diario Markdown.
 
 UNA NUOVA SCHEDA TRANQUILLA
-Orologio, scheda del focus con obiettivo giornaliero, attività con priorità, abitudini, note e link rapidi. Undici stili, qualsiasi colore di risalto, 17 sfondi, veri suoni ambientali. Chiaro e scuro. Puoi disattivarla quando vuoi.
+Orologio, scheda del focus con obiettivo giornaliero, attività con priorità, abitudini, note e link rapidi. 16 stili, qualsiasi colore di risalto, 22 sfondi, veri suoni ambientali. Chiaro e scuro. Puoi disattivarla quando vuoi.
 
 PRENDITI CURA DEI TUOI OCCHI
 Promemoria 20-20-20 basati sul tempo di schermo reale e attivo e una pagina guidata di pausa per gli occhi da 20 secondi.

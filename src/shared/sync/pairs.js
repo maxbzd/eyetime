@@ -119,7 +119,7 @@ export function planPairs(o) {
 
   // 4. safety: a service that answered with (almost) nothing, or a plan that would delete a lot, is not trusted with deletions
   const total = Object.keys(links).length, deletions = plan.deleteLocal.length + plan.deleteRemote.length;
-  if (deletions && !allowMassDelete && (deletions > Math.max(3, total * 0.34) || (total >= 4 && remote.size === 0))) {
+  if (deletions && !allowMassDelete && (deletions > Math.max(3, total * 0.34) || (total >= 2 && remote.size === 0))) {
     plan.unsafe = true; plan.held = deletions;
     for (const id of plan.deleteLocal) plan.links[id] = links[id];
     for (const d of plan.deleteRemote) plan.links[d.localId] = links[d.localId];

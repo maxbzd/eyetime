@@ -130,3 +130,14 @@ test('usage store: the code and the privacy page say the same thing', () => {
   const src = readFileSync(new URL('../../src/shared/usage-config.js', import.meta.url), 'utf8');
   assert.match(src, /USAGE_ENDPOINT = ''|USAGE_ENDPOINT = 'https:\/\//);
 });
+
+test('backup: the desktop helper token never leaves the device, and its switch comes back off', async () => {
+  fresh();
+  const { exportAll, updateSettings } = await import('../../src/shared/storage.js');
+  await updateSettings((s) => { s.companion = { enabled: true, token: 'SECRET-TEST-TOKEN-12345' }; });
+  const dump = await exportAll();
+  assert.ok(!JSON.stringify(dump).includes('SECRET-TEST-TOKEN-12345'), 'the token is not in the file');
+  assert.equal(dump.data.settings.companion.token, ''); assert.equal(dump.data.settings.companion.enabled, false);
+  const stored = (await chrome.storage.local.get('settings')).settings;
+  assert.equal(stored.companion.token, 'SECRET-TEST-TOKEN-12345', 'and the live settings are untouched by an export');
+});

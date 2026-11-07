@@ -31,4 +31,4 @@ export function passphraseDialog({ title, body = '', fields, confirm, danger = f
   });
 }
 
-export const newPassphraseProblem = (/** @type {Record<string, string>} */ v) => (passphraseProblem(v.pass) ? t('cn.vault.short', { n: 8 }) : v.pass !== v.pass2 ? t('cn.vault.mismatch') : '');
+export const newPassphraseProblem = (/** @type {Record<string, string>} */ v) => { const p = passphraseProblem(v.pass); return p === 'weak' ? t('cn.vault.weak') : p ? t('cn.vault.short', { n: 8 }) : v.pass !== v.pass2 ? t('cn.vault.mismatch') : ''; };

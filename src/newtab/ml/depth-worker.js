@@ -11,13 +11,15 @@ ort.env.wasm.wasmPaths = base;
 ort.env.wasm.numThreads = 1; // threads need a cross-origin-isolated page; one thread is fine for one picture, once
 ort.env.wasm.proxy = false;
 
+/** @type {Promise<any> | null} */ let session = null; // 26 MB of model: read and compiled once, kept for the next picture
+const getSession = () => (session ||= (async () => { const model = await (await fetch(base + 'depth-anything-v2-small-q8.onnx')).arrayBuffer(); return ort.InferenceSession.create(model, { executionProviders: ['wasm'], graphOptimizationLevel: 'all' }); })().catch((e) => { session = null; throw e; }));
+
 self.onmessage = async (e) => {
   const { id, data, w, h } = e.data || {};
   try {
-    const model = await (await fetch(base + 'depth-anything-v2-small-q8.onnx')).arrayBuffer();
-    const session = await ort.InferenceSession.create(model, { executionProviders: ['wasm'], graphOptimizationLevel: 'all' });
-    const out = await session.run({ [session.inputNames[0]]: new ort.Tensor('float32', data, [1, 3, h, w]) });
-    const depth = /** @type {Float32Array} */ (out[session.outputNames[0]].data);
+    const s = await getSession();
+    const out = await s.run({ [s.inputNames[0]]: new ort.Tensor('float32', data, [1, 3, h, w]) });
+    const depth = /** @type {Float32Array} */ (out[s.outputNames[0]].data);
     self.postMessage({ id, depth }, [depth.buffer]);
   } catch (err) {
     self.postMessage({ id, error: String((err && err.message) || err) });

@@ -52,14 +52,7 @@ Remote code: **none** (all code is in the package). The content security policy 
 - Third-party code: Lucide icons (ISC, `src/ui/LICENSE-Lucide.txt`) and bundled fonts (licenses in `src/ui/fonts`).
 
 ## Screenshots (captions)
-1. `1-home.png` — A calm new tab with a focus card, tasks and habits
-2. `2-focus.png` — A running focus session and the pause page
-3. `3-insights.png` — Honest statistics and a weekly review
-4. `4-home-dark.png` — Dark look
-5. `7-looks.png` — Eleven looks, each in light and dark
-6. `11-palette.png` — Command palette (Ctrl/Cmd+K)
-7. `12-timeline.png` — A day in detail: hours and focus sessions
-8. `13-week-card.png` — A shareable "My week" card (totals only)
+The store set is the five pictures per language in `store/screenshots/<lang>/*.jpg` (see the table above); their captions are in each `store/listing/<lang>.md`. The PNG files in the root of `store/screenshots/` are older pictures that only the README and the promo script use: do not upload them to a store.
 
 ## Keywords
 focus, pomodoro, website blocker, screen time, productivity, eye strain, 20-20-20, distraction, new tab, habits, time tracker
