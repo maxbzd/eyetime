@@ -105,3 +105,13 @@ test('the whole catalogue: every kind has a category, three growing sizes inside
   assert.equal(normalizeWidgets([{ id: 'wabc123', kind: 'moon', cfg: {} }, { id: 'wabc124', kind: 'nonsense' }]).length, 1);
   assert.equal(moreNormalizeCfg('label', { font: 'comic', weight: 5000, align: 'up' }).weight, 800);
 });
+
+test('periodProgress counts wall-clock time: noon is half a day on the days the clocks change, in any time zone', async () => {
+  const { periodProgress } = await import('../../src/shared/widgets.js');
+  for (const [y, m, d] of [[2026, 2, 8], [2026, 2, 29], [2026, 9, 25], [2026, 10, 1], [2026, 3, 5], [2026, 8, 27]]) { // the days clocks change in the US, the EU, Australia, New Zealand, Chile
+    assert.ok(Math.abs(periodProgress('day', new Date(y, m, d, 12, 0, 0)) - 0.5) < 1e-9, `${y}-${m + 1}-${d}`);
+    assert.ok(Math.abs(periodProgress('day', new Date(y, m, d, 0, 0, 0))) < 1e-9);
+  }
+  const p = periodProgress('week', new Date(2026, 2, 29, 12)); // a Sunday: six whole days and half of the seventh
+  assert.ok(Math.abs(p - 6.5 / 7) < 1e-9);
+});

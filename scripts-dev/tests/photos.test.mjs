@@ -45,3 +45,15 @@ test('photos: clearing removes everything, the legacy keys too', async () => {
   await p.setPhoto('fg', 'c'); await p.clearPhotos();
   assert.equal(be.m.size, 0); assert.equal('newtabBg' in local.data || 'newtabDepth' in local.data, false);
 });
+
+test('photos: where IndexedDB is not available a photo is simply absent (the page still comes up), and a reset tells the other tabs', async () => {
+  const broken = { get: async () => { throw new Error('no IndexedDB'); }, set: async () => { throw new Error('no IndexedDB'); }, del: async () => { throw new Error('no IndexedDB'); }, clear: async () => { throw new Error('no IndexedDB'); } };
+  const local = fakeLocal({ newtabFg: 'left-by-an-old-version' }), p = makePhotos(broken, local);
+  assert.equal(await p.getPhoto('bg'), null, 'no throw, no photo');
+  assert.equal(await p.getPhoto('fg'), 'left-by-an-old-version', 'what an earlier version left is still shown, and stays where it was');
+  assert.equal(local.data.newtabFg, 'left-by-an-old-version');
+  const fine = fakeLocal(), q = makePhotos(mapBackend(), fine);
+  await q.setPhoto('bg', 'x'); const before = fine.data[REV_KEY];
+  await new Promise((r) => setTimeout(r, 5)); await q.clearPhotos();
+  assert.ok(fine.data[REV_KEY] > before, 'clearing everything is a change the other tabs hear about');
+});
