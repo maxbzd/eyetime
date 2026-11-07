@@ -26,6 +26,7 @@ import { applyBackground, applyWeatherFx } from './home/background.js';
 import { renderModules, syncBlocks, blocksSig, applySkins } from './home/blocks.js';
 import { mountHome, installPanel } from './home/parts.js';
 import { paintNudge, paintBackupNudge } from './home/nudges.js';
+import { watchFirstSession } from './home/first-session.js';
 import { installDrawer, drawDrawer } from './home/drawer.js';
 import { installShortcuts } from './home/shortcuts.js';
 import { installHomePalette } from './home/palette.js';
@@ -84,6 +85,7 @@ const visibleAtStart = typeof document !== 'undefined' && document.visibilitySta
   mountRings($('#rings'));
   mountWhatsNew($('#wn'));
   mountGettingStarted($('#gs'), { startShortSession: async () => { const s = await getSettings(); await send('focus:start', { minutes: 5, strict: false, scope: s.focus.scope }); } });
+  watchFirstSession();
   paintNudge(); setInterval(paintNudge, 60_000); paintBackupNudge();
   onChange(['tasks', 'd:*'], paintNudge);
   renderModules(); applySkins();

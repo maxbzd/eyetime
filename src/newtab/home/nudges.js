@@ -54,7 +54,7 @@ export async function paintNudge() {
  * The one-time question "share anonymous usage numbers?": only when there is nothing else to say, never during a session, only after a finished session and a second day,
  * and only once (any answer ends it). It is a card in the corner (usage-ask.js), not a strip: it says who is asking and why. Returns whether it is on the screen.
  */
-async function paintAsks() { return (await paintUsageAsk()) || (await paintFeedback()); }
+async function paintAsks() { if (document.getElementById('fsCoach') || document.getElementById('fsDone')) return true; return (await paintUsageAsk()) || (await paintFeedback()); } // the first session's own cards go first
 
 /**
  * The small questions and the author's answers, after the question about anonymous numbers (which has priority and counts toward the same 30-day budget). The author's answer comes first
