@@ -17,9 +17,12 @@ if (!out) { console.error('usage: node scripts-dev/dashboard-demo.mjs out.html [
 const entry = `
 import { computeStats } from ${JSON.stringify(join(ROOT, 'server/usage/stats.js'))};
 import { makeDemoSnapshot } from ${JSON.stringify(join(ROOT, 'server/usage/demo-data.js'))};
-import { parsePeriod } from ${JSON.stringify(join(ROOT, 'server/usage/handler.js'))};
+import { parsePeriod, handle } from ${JSON.stringify(join(ROOT, 'server/usage/handler.js'))};
+import { makeDemoFeedback } from ${JSON.stringify(join(ROOT, 'server/usage/demo-feedback.js'))};
+import { MemoryStore } from ${JSON.stringify(join(ROOT, 'server/usage/memory-store.js'))};
 window.fetch = async (url) => {
   const u = new URL(String(url), 'http://demo.invalid');
+  if (u.pathname === '/v1/demo-feedback') return handle(new Request(u.href), new MemoryStore(), Date.now(), { demoFeedback: makeDemoFeedback }); // the same filter and numbers as the collector
   if (u.pathname !== '/v1/demo-stats') return new Response(null, { status: 404 });
   const period = parsePeriod(u);
   if (!period) return new Response('bad period', { status: 400 });

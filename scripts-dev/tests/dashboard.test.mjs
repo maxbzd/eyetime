@@ -10,7 +10,7 @@ import { INGEST_KINDS } from '../../server/usage/limits.js';
 
 const html = readFileSync(new URL('../../server/usage/dashboard.html', import.meta.url), 'utf8');
 const script = /<script>([\s\S]*)<\/script>/.exec(html)[1];
-const PAGE_IDS = ['overview', 'growth', 'activation', 'retention', 'features', 'experiments', 'product', 'quality', 'audience', 'windows', 'method'];
+const PAGE_IDS = ['overview', 'growth', 'activation', 'retention', 'features', 'experiments', 'product', 'quality', 'audience', 'windows', 'method', 'feedback'];
 const texts = new Function(script.slice(0, script.indexOf('// ───────────────────────── small helpers')) + '; return L;')();
 
 test('dashboard: nothing from the server is ever turned into HTML, nothing is run from a string', () => {
@@ -22,7 +22,7 @@ test('dashboard: it asks only its own origin, and loads nothing from outside', (
   assert.deepEqual(urls, ['http://www.w3.org/2000/svg'], 'the only URL in the script is the SVG namespace');
   assert.ok(!/<(link|img|iframe|object|embed|script)\b[^>]*\b(src|href)=/i.test(html.replace(/<script>[\s\S]*<\/script>/, '')), 'no external resource in the markup');
   assert.ok(!/@import|url\(\s*['"]?https?:/i.test(html), 'no outside style');
-  for (const m of script.matchAll(/'(\/v1\/[a-z-]+(?:\/)?)'/g)) assert.match(m[1], /^\/v1\/(stats|public-stats|demo-stats|notes\/?|store-stats|targets)$/);
+  for (const m of script.matchAll(/'(\/v1\/[a-z-]+(?:\/)?)'/g)) assert.match(m[1], /^\/v1\/(stats|public-stats|demo-stats|notes\/?|store-stats|targets|feedback\/?|demo-feedback)$/);
   assert.ok(/credentials: 'omit'/.test(script) && /referrerPolicy: 'no-referrer'/.test(script));
 });
 
@@ -46,6 +46,8 @@ test('dashboard: every feature, flag, bucket, page and setting the collector can
     he_: ['err_worker', 'err_page', 'err_blocker', 'err_sync', 'err_other'], g_: Object.keys(GROUPS), dp_: ['d1', 'd2', 'd4', 'd8', 'd15'], fs_: ['d0', 'd1', 'd2_3', 'd4_7', 'later', 'never'],
     wf_: WIN_FEATURES, wfl_: WIN_FLAGS, d_: DIMS, pg_: PAGE_IDS, q_: PAGE_IDS.filter((x) => x !== 'features' || true),
     ur_: UNINSTALL_REASONS, ig_r_: INGEST_KINDS.filter((k) => k !== 'accepted' && k !== 'forgot'), wd_: ['0', '1', '2', '3', '4', '5', '6'], tg_: Object.keys(TARGET_RANGES).map((k) => (k === 'speed_p90' ? 'speed' : k)),
+    fbk_: ['idea', 'problem', 'kudos', 'session', 'week', 'pmf', 'pause', 'leaving'], fbs_: ['new', 'read', 'starred', 'done', 'wont'], fbd_: ['d0_6', 'd7_13', 'd14_29', 'd30p'],
+    fbt_: ['focus', 'blocking', 'eyes', 'stats', 'look', 'sync', 'other', 'slow', 'hindered', 'unclear', 'timer', 'design', 'newtab'], fbr_pmf_: ['0', '1', '2'], fbr_pause_: ['0', '1'],
     use_: ['power', 'regular', 'casual', 'once', 'new', 'idle'], yn_: ['yes', 'no', 'unknown'],
     sc_: ['speed', 'finish', 'early', 'err', 'quick', 'upd', 'stick', 'goal_d1', 'goal_d7', 'goal_d30', 'goal_act'],
   };
