@@ -11,6 +11,7 @@ import { openDayPlan } from '../dayplan.js';
 import { applyStarterWith } from '../starter-panel.js';
 import { home } from '../home-config.js';
 import { openDrawer, openEditor } from './drawer.js';
+import { openTour } from './tour.js';
 
 const set = (fn) => updateSettings((x) => { fn({ ...x, newtab: home(x) }); }); // edits go to the layout in use
 
@@ -21,6 +22,7 @@ export function installHomePalette() {
     { group: 'go', icon: 'moon', label: t('sc.closeDay'), run: openShutdown, keys: ['shutdown', 'review', 'plan tomorrow'] },
     { group: 'go', icon: 'move', label: t('cv.edit'), run: openEditor, keys: ['arrange', 'move', 'drag', 'layout', 'widgets'] },
     { group: 'go', icon: 'dices', label: t('st.surprise'), run: () => applyStarterWith(set, surprise(), t('st.surprise')), keys: ['surprise', 'random', 'theme', 'shuffle'] },
+    { group: 'go', icon: 'sliders-horizontal', label: t('tour.open'), run: () => openTour(), keys: ['guided', 'guide', 'setup', 'set up', 'tour', 'tips', 'help', 'start', 'onboarding', 'настройка', 'подробная'] },
     { group: 'go', icon: 'sliders-horizontal', label: t('sc.customize'), run: openDrawer, keys: ['customize', 'layout', 'background', 'clock'] },
   ] });
 }

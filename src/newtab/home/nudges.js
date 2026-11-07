@@ -14,6 +14,9 @@ import { showUsageAsk } from './usage-ask.js';
 import { questionCard, replyCard } from '../../ui/feedback-card.js';
 import { feedbackEndpoint, getFb, pollAnswers, unreadAnswers, promptPlan } from '../../shared/feedback.js';
 import { isFocusLive } from '../../shared/blocking.js';
+import { listConnections } from '../../shared/connections.js';
+import { normalizeTips, tipPlan } from '../../shared/tips.js';
+import { showTip } from './tip-card.js';
 import { state } from './state.js';
 
 /** A gentle, snoozable reminder to save a backup file (history lives only on this device). */
@@ -54,7 +57,7 @@ export async function paintNudge() {
  * The one-time question "share anonymous usage numbers?": only when there is nothing else to say, never during a session, only after a finished session and a second day,
  * and only once (any answer ends it). It is a card in the corner (usage-ask.js), not a strip: it says who is asking and why. Returns whether it is on the screen.
  */
-async function paintAsks() { if (document.getElementById('fsCoach') || document.getElementById('fsDone')) return true; return (await paintUsageAsk()) || (await paintFeedback()); } // the first session's own cards go first
+async function paintAsks() { if (document.getElementById('fsCoach') || document.getElementById('fsDone') || document.getElementById('tour')) return true; return (await paintUsageAsk()) || (await paintFeedback()) || (await paintTip()); } // the first session's own cards go first
 
 /**
  * The small questions and the author's answers, after the question about anonymous numbers (which has priority and counts toward the same 30-day budget). The author's answer comes first
@@ -79,4 +82,18 @@ async function paintUsageAsk() {
   if (state.runningFocus && isFocusLive(state.runningFocus)) return false;
   const plan = await askPlan(); // null unless this is a good moment: right after a finished session (or, failing that, once it has waited a week)
   return plan ? showUsageAsk(plan) : false;
+}
+
+/**
+ * A quiet tip about a feature the person has not met, last in line: nothing else is asking, no session is running, and the rules in shared/tips.js say so (a week apart, never in the
+ * first week, never about something already in use). Returns whether it is on the screen.
+ */
+async function paintTip() {
+  if (document.querySelector('.fbc.float') || document.getElementById('usageAsk')) return true;
+  if (state.runningFocus && isFocusLive(state.runningFocus)) return false;
+  const [{ tipState, meta }, usage, conns] = await Promise.all([getRaw(['tipState', 'meta']), getUsage(), listConnections()]);
+  const id = tipPlan({ st: normalizeTips(tipState), now: Date.now(), installedAt: (meta && meta.installedAt) || 0, activeDays: usage.days.length, running: false, settings: state.settings, connected: Object.keys(conns).length > 0 });
+  if (!id) return false;
+  await showTip(id);
+  return true;
 }

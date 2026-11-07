@@ -12,13 +12,13 @@ const strict = process.argv.includes('--strict');
 const SCENES = [
   ['home', 'src/newtab/newtab.html'], ['popup', 'src/popup/popup.html?site=github.com'], ['insights-overview', 'src/insights/insights.html', 'overview'], ['insights-focus', 'src/insights/insights.html', 'focus'],
   ['insights-sites', 'src/insights/insights.html', 'sites'], ['insights-patterns', 'src/insights/insights.html', 'patterns'], ['settings', 'src/options/options.html'], ['break', 'src/break/break.html'],
-  ['home-running', 'src/newtab/newtab.html', null, 'running'], ['popup-running', 'src/popup/popup.html?site=github.com', null, 'running'], ['home-review', 'src/newtab/newtab.html', null, 'review'], ['popup-review', 'src/popup/popup.html', null, 'review'], ['home-rest', 'src/newtab/newtab.html', null, 'rest'],
+  ['home-running', 'src/newtab/newtab.html', null, 'running'], ['popup-running', 'src/popup/popup.html?site=github.com', null, 'running'], ['home-review', 'src/newtab/newtab.html', null, 'review'], ['popup-review', 'src/popup/popup.html', null, 'review'], ['home-rest', 'src/newtab/newtab.html', null, 'rest'], ['home-tour', 'src/newtab/newtab.html?tour'],
   ['blocked-friction', 'src/blocked/blocked.html?u=http%3A%2F%2Freddit.com%2F&r=friction&a=pause'], ['blocked-always', 'src/blocked/blocked.html?u=http%3A%2F%2Freddit.com%2F&r=always&a=block'], ['onboarding', 'src/onboarding/onboarding.html'], ['feedback', 'src/feedback/feedback.html'], ['dock-now', 'src/dock/dock.html#right/now'], ['dock-learn', 'src/dock/dock.html#right/learn'], ['dock-thoughts', 'src/dock/dock.html#right/thoughts'],
 ];
 
 (async () => {
   const found = new Map(); let serious = 0;
-  const NEW = ['home', 'popup', 'home-running', 'insights-overview', 'settings', 'onboarding', 'feedback', 'blocked-friction']; // the newer looks: the screens that carry their character
+  const NEW = ['home', 'popup', 'home-running', 'insights-overview', 'settings', 'onboarding', 'feedback', 'home-tour', 'blocked-friction']; // the newer looks: the screens that carry their character
   const PART = (process.env.PART || '1/1').split('/').map(Number); // PART=i/n runs every n-th look: the CI splits this slow script over machines
   for (const [ci, [look, mode, lang, only]] of [['calm', 'light', 'en'], ['midnight', 'dark', 'ru'], ['paper', 'light', 'pl'], ['calm', 'dark', 'ja'],
     ['obsidian', 'dark', 'ru', NEW], ['obsidian', 'light', 'en', NEW], ['void', 'dark', 'en', NEW], ['void', 'light', 'de', NEW], ['noir', 'dark', 'en', NEW], ['noir', 'light', 'pl', NEW],

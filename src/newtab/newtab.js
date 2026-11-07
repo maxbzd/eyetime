@@ -30,6 +30,7 @@ import { watchFirstSession } from './home/first-session.js';
 import { installDrawer, drawDrawer } from './home/drawer.js';
 import { installShortcuts } from './home/shortcuts.js';
 import { installHomePalette } from './home/palette.js';
+import { openTour } from './home/tour.js';
 import { watchFocus } from './home/focus-watch.js';
 import { track } from '../shared/usage-store.js';
 import { speedFeature } from '../shared/usage.js';
@@ -82,6 +83,7 @@ const visibleAtStart = typeof document !== 'undefined' && document.visibilitySta
   setInterval(() => applyWeatherFx(), 10 * 60_000); onChange(['weatherCache'], () => applyWeatherFx());
   state.standby = mountStandby({ getSettings: () => state.settings, getFocus: () => state.runningFocus });
   if (new URLSearchParams(location.search).has('standby')) state.standby.show();
+  if (new URLSearchParams(location.search).has('tour')) openTour(); // from Settings → General → Guided set-up
   mountRings($('#rings'));
   mountWhatsNew($('#wn'));
   mountGettingStarted($('#gs'), { startShortSession: async () => { const s = await getSettings(); await send('focus:start', { minutes: 5, strict: false, scope: s.focus.scope }); } });

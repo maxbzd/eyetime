@@ -55,9 +55,18 @@ Install → [1 Hello] → [2 What pulls you away?] → [3 Your first focus] → 
 4. **On the new tab, during the session.** A small card says what is held back (*Paused until the timer ends: 3*), and offers *See what a blocked site looks like* (opens one of the chosen sites). It closes itself when the session ends.
 5. **First focus done.** One card on the new tab, once: *First focus done: 5 minutes without distractions*, with the real number of times a site was held back, and then the choices that are better made now than before: **look and theme** (applied live, on the page behind the card), **daily goal**, **eye breaks**, **work hours**. The checklist ("Get started") takes it from there.
 
+## Finding the rest: the guided set-up and the quiet tips
+
+The first run is short on purpose, but EyeTime does a lot, and what lives only in Settings is not found. A question at the very start ("quick or detailed?") was weighed and refused: the person has not seen the product yet, almost everyone would pick *quick*, and those who pick *detailed* would choose blind. The long way is offered **after** the first session, and found again later:
+
+- **Guided set-up** (`src/newtab/home/tour.js`): six short steps, each with the real controls, changed **at once** on the page behind: *Your day on Home* (morning and evening cards, layout) · *Limits that hold* (the daily budget and its size) · *A rhythm for work* (break after a session, sound) · *Make Home yours* (doors into the widget editor and the looks) · *Evenings* (night clock, wind-down reminder, "show it now") · *Your other tools* (tasks and calendar, the side panel on websites, instant blocking, the command palette). What needs the browser's permission is a **link into Settings**, where the browser asks in its own words: the tour never asks for one (the e2e checks it). Every step can be skipped with Next, Back keeps the choices, Escape leaves with everything so far kept.
+- **Where it is offered:** a "Set up in detail" button in the *First focus done* dialog; the command palette (*Guided set-up*); Settings → General (a row with a button); a quiet tip.
+- **Tips** (`src/shared/tips.js`, `src/newtab/home/tip-card.js`): one small card in the corner, in the same family as the other cards, last in line (it never competes with the question about numbers, a small question or an answer from the maker). The rules are code and tests: not in the first week; not before four active days; never during a focus session; **at most one a week**; never about something already in use (a budget already on, a sound already chosen, widgets already added, the night clock already on, a service already connected); each tip once, *Not now* brings it back a single time after 45 days, *Show me* ends it, **No more tips** ends them all for good. No counters, no "3 of 8", nothing that makes a person feel behind. A tip opens the tour at its own step.
+- **Not measured** in this release: no new counter was added (the privacy notice and the tracking plan are unchanged). If the owner wants to know how often the tour is opened, it is one more entry in `usage-schema.js` and in `PRIVACY.md`.
+
 ## What was refused, on purpose
 
-- A feature tour or slides (NN/g).
+- A feature tour or slides that *tell* instead of letting the person do (NN/g). What exists since 3.9.0 is different on purpose: it is **asked for** (see "Finding the rest"), and every step holds the real control, not a picture of it.
 - A quiz that ends in an invented number, a "loading your report" bar, a countdown, a fake testimonial, a "join 4,000,000" counter.
 - An account, an email, a permission, a notification request. The first run asks for none.
 - Pre-selected distractions, pre-ticked options of any kind.
