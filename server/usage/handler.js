@@ -7,12 +7,16 @@
 import { validateReport, validateForget, LIMITS, UNINSTALL_REASONS, PRODUCTS } from '../../src/shared/usage-schema.js';
 import { computeStats, publicStats, DIMS, normalizeTargets } from './stats.js';
 import { MAX_NOTE_LENGTH } from './limits.js';
+import { validateFeedback, validatePoll, validateReplyText, FB_KINDS, FB_STATUS, FB_LIMITS } from '../../src/shared/feedback-schema.js';
+import { checkPatch } from './feedback-store.js';
+import { feedbackSummary, filterMessages } from './feedback-stats.js';
 
 export const MIN_GAP_MS = 6 * 3_600_000; // one report per install per six hours: a faulty client cannot flood the tables
 export const MAX_NEW_PER_HOUR = 1000; // installs that report for the first time, in all, per hour: a flood of made-up ids (the six-hour rule only holds for an id seen before) fills nothing past this
 const HOUR_MS = 3_600_000;
 const DAY_MS = 86_400_000;
 const MAX_BODY = 8192;
+const MESSAGES_SHOWN = 500; // the inbox shows this many at a time; the numbers above it cover all
 
 /** Only EyeTime itself (an extension page or its worker) is a browser origin that may call this. A web page is refused, so a page cannot be made to send reports. */
 export const isExtensionOrigin = (origin) => /^(chrome|moz)-extension:\/\/[a-z0-9-]{8,64}$/i.test(origin || '');
@@ -90,6 +94,13 @@ async function readJson(/** @type {Request} */ req, max = 2048) {
 }
 
 const quiet = { 'cache-control': 'no-store' };
+/** The inbox: the numbers over all messages, and the ones that match the filter (?kind= &status= &q= &written=1), newest first. */
+function inboxResponse(/** @type {any[]} */ rows, /** @type {URL} */ url, /** @type {number} */ now) {
+  const q = url.searchParams, kind = q.get('kind') || undefined, status = q.get('status') || undefined, text = q.get('q') || '';
+  if ((kind && !FB_KINDS.includes(kind)) || (status && !FB_STATUS.includes(status)) || text.length > 100) return new Response('bad filter', { status: 400, headers: quiet });
+  const shown = filterMessages(rows, { kind, status, q: text, written: q.get('written') === '1' });
+  return new Response(JSON.stringify({ summary: feedbackSummary(rows, now), messages: shown.slice(0, MESSAGES_SHOWN), matching: shown.length }), { status: 200, headers: { ...JSON_HEADERS, ...quiet } });
+}
 const isObject = (/** @type {any} */ b) => !!b && typeof b === 'object' && !Array.isArray(b);
 const count = (/** @type {any} */ v) => v === null || (Number.isInteger(v) && v >= 0 && v <= 1_000_000_000);
 
@@ -97,12 +108,14 @@ const count = (/** @type {any} */ v) => v === null || (Number.isInteger(v) && v 
  * @param {Request} req
  * @param {any} store the store (memory-store.js or d1-store.js): the report, the owner's notes, the door's counters, the settings
  * @param {number} now
- * @param {{ dashToken?: string, publicStats?: boolean, dashboardHtml?: string, demo?: (now: number) => any, experiments?: { id: string, arms: string[] }[], siteOrigins?: string[] }} [opts]
+ * @param {{ dashToken?: string, publicStats?: boolean, dashboardHtml?: string, demo?: (now: number) => any, experiments?: { id: string, arms: string[] }[], siteOrigins?: string[], feedback?: any, demoFeedback?: (now: number) => any[] }} [opts]
  *   dashToken: the secret that opens the owner's dashboard (GET /v1/stats) and lets the owner write (notes, store numbers, targets); without it the owner's side does not exist.
  *   publicStats: also answer GET /v1/public-stats (totals over many installs only, see stats.js publicStats) to anyone.
  *   dashboardHtml: the page served at / (the dashboard).
  *   demo: makes a made-up snapshot, answered at GET /v1/demo-stats (a local preview; the Worker does not pass it).
  *   experiments: the experiments a report may name (default: EXPERIMENTS of the schema).
+ *   feedback: the store of messages to the maker (feedback-store.js); without it the routes /v1/feedback do not exist and the page after removal sends the reason only.
+ *   demoFeedback: makes made-up messages, answered at GET /v1/demo-feedback (a local preview).
  *   siteOrigins: the web origins that may send the answer of the page after removal (default: the project's page).
  */
 export async function handle(req, store, now = Date.now(), opts = {}) {
@@ -158,9 +171,67 @@ export async function handle(req, store, now = Date.now(), opts = {}) {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
     if (req.method !== 'POST') return new Response(null, { status: 405, headers: cors });
     if (!/^application\/json\b/i.test(req.headers.get('content-type') || '')) return new Response(null, { status: 415, headers: cors });
-    const b = await readJson(req, 256);
-    if (!isObject(b) || Object.keys(b).join() !== 'reason' || !UNINSTALL_REASONS.includes(b.reason) || !store.tallyUninstall) return new Response(null, { status: 400, headers: cors });
-    return new Response(null, { status: (await store.tallyUninstall(b.reason, now)) ? 204 : 429, headers: cors });
+    const b = await readJson(req, 2048);
+    const extra = isObject(b) && Object.keys(b).every((k) => (opts.feedback ? ['reason', 'text', 'contact', 'app'] : ['reason']).includes(k)); // more than the reason only where there is a store for it
+    if (!extra || !UNINSTALL_REASONS.includes(b.reason) || !store.tallyUninstall) return new Response(null, { status: 400, headers: cors });
+    // a few words and an address are optional: they become a message of the kind "leaving" (the reason is its tag), only where a feedback store is set up
+    const written = typeof b.text === 'string' && b.text.trim() ? b.text : undefined, contact = typeof b.contact === 'string' && b.contact.trim() ? b.contact.trim() : undefined;
+    if (('text' in b && typeof b.text !== 'string') || ('contact' in b && typeof b.contact !== 'string') || ('app' in b && (typeof b.app !== 'string' || !/^\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(b.app)))) return new Response(null, { status: 400, headers: cors });
+    let msg = null;
+    if (opts.feedback && (written || contact)) {
+      msg = { v: 1, kind: 'leaving', via: 'removal', tags: [b.reason], ...(written ? { text: written } : {}), ...(contact ? { contact } : {}), ctx: { app: b.app || '0.0.0' } };
+      if (!validateFeedback(msg).ok) return new Response(null, { status: 400, headers: cors });
+    }
+    const counted = await store.tallyUninstall(b.reason, now);
+    if (counted && msg) await opts.feedback.add(msg, now);
+    return new Response(null, { status: counted ? 204 : 429, headers: cors });
+  }
+  // messages to the maker: what people chose to send (ideas, problems, kind words, the answers to a small question), and the owner's side: read, sort, answer. A separate store, see feedback-store.js.
+  if (url.pathname.startsWith('/v1/feedback') && opts.feedback) {
+    const fb = opts.feedback;
+    // from EyeTime itself (an extension page): one message, or the question "has the author answered?"
+    if ((url.pathname === '/v1/feedback' && req.method !== 'GET') || url.pathname === '/v1/feedback/replies') {
+      if (origin && !isExtensionOrigin(origin)) return door('wrong_origin', reply(403));
+      if (req.method === 'OPTIONS') return reply(204);
+      if (req.method !== 'POST') return reply(405);
+      if (!/^application\/json\b/i.test(req.headers.get('content-type') || '')) return door('bad_type', reply(415));
+      const b = await readJson(req, FB_LIMITS.bytes + 512);
+      if (b === undefined) return door('bad_json', reply(400));
+      if (url.pathname === '/v1/feedback/replies') {
+        if (!validatePoll(b)) return reply(400);
+        const found = await fb.takeReplies(b.t, now);
+        return reply(200, JSON.stringify({ r: found }), JSON_HEADERS);
+      }
+      const ok = validateFeedback(b);
+      if (!ok.ok) return door('bad_feedback', reply(400, ok.why));
+      const id = await fb.add(b, now, FB_LIMITS.perDay);
+      return id === null ? reply(429, null, { 'retry-after': '86400' }) : reply(204);
+    }
+    // the owner's side
+    const no = ownerDoor(req, { snapshot: true }, opts); if (no) return no;
+    if (req.method === 'GET' && url.pathname === '/v1/feedback') {
+      return inboxResponse(await fb.all(), url, now);
+    }
+    const m = /^\/v1\/feedback\/(\d{1,9})(\/reply)?$/.exec(url.pathname);
+    if (m && !m[2] && req.method === 'PATCH') {
+      const patch = checkPatch(await readJson(req, 1024));
+      if (!patch) return new Response('bad patch', { status: 400, headers: quiet });
+      return new Response(null, { status: (await fb.update(Number(m[1]), patch, now)) ? 204 : 404, headers: quiet });
+    }
+    if (m && !m[2] && req.method === 'DELETE') return new Response(null, { status: (await fb.remove(Number(m[1]))) ? 204 : 404, headers: quiet });
+    if (m && m[2] && req.method === 'POST') {
+      const b = await readJson(req, FB_LIMITS.reply * 4 + 64);
+      if (!isObject(b) || Object.keys(b).join() !== 'text' || !validateReplyText(b.text)) return new Response('bad reply', { status: 400, headers: quiet });
+      const res = await fb.addReply(Number(m[1]), b.text, now);
+      if (res === 'none') return new Response(null, { status: 404, headers: quiet });
+      if (res === 'no_ticket') return new Response('this message cannot be answered here', { status: 409, headers: quiet });
+      if (res === 'limit') return new Response('already answered the most times', { status: 409, headers: quiet });
+      return new Response(JSON.stringify({ id: res }), { status: 201, headers: { ...JSON_HEADERS, ...quiet } });
+    }
+    return new Response(null, { status: 404, headers: quiet });
+  }
+  if (req.method === 'GET' && url.pathname === '/v1/demo-feedback' && opts.demoFeedback) {
+    return inboxResponse(opts.demoFeedback(now), url, now);
   }
   // made-up figures for looking at the page before the first real report (the page asks for them with ?demo); only where the host passes a generator (a local preview), never in the Worker
   if (req.method === 'GET' && url.pathname === '/v1/demo-stats' && opts.demo) {
