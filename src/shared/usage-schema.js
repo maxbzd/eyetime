@@ -41,7 +41,7 @@ export const FLAGS = [
  * evenly over every device, so how the people who said yes split between the arms is how well each wording converted (the collector tests it, see stats.js).
  * @type {{ id: string, arms: string[], measures?: string }[]}
  */
-export const EXPERIMENTS = [{ id: 'ask-copy', arms: ['long', 'short'], measures: 'consent' }];
+export const EXPERIMENTS = [{ id: 'ask-copy', arms: ['personal', 'practical'], measures: 'consent' }];
 
 /** Why someone removed EyeTime, as the page that opens after removal offers it. One click, no text, no identifier: a count per day on the collector. */
 export const UNINSTALL_REASONS = ['slow', 'broken', 'not_useful', 'too_strict', 'other_tool', 'temporary', 'other'];

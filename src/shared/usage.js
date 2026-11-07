@@ -103,8 +103,11 @@ export const modeOf = (/** @type {string} */ m) => (m === 'light' || m === 'dark
  */
 export const CONSENT_VERSION = 1;
 
-/** The rhythm of the question: after "Not now" it waits this long and is asked once more, never a third time. A good moment is right after a finished session; failing that, a week of waiting. */
-export const ASK_TIMING = { laterMs: 21 * 86_400_000, peakMs: 30 * 60_000, patienceMs: 7 * 86_400_000, maxDeferrals: 1 };
+/**
+ * The rhythm of the question: three asks at most. After "Maybe later" it waits three weeks and is asked again, with other words; the third time is the last and says so. A good moment is
+ * right after a finished session; failing that, a week of waiting.
+ */
+export const ASK_TIMING = { laterMs: 21 * 86_400_000, peakMs: 30 * 60_000, patienceMs: 7 * 86_400_000, maxDeferrals: 2 };
 
 /** Does this stored consent cover what is sent now? A consent given before the last change of CONSENT_VERSION does not. */
 export const consentCurrent = (/** @type {any} */ share) => !!share && (share.consentV ?? 1) === CONSENT_VERSION;
