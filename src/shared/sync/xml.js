@@ -16,6 +16,7 @@ export function parseXml(/** @type {string} */ src) {
   let m;
   while ((m = re.exec(src))) {
     const top = stack[stack.length - 1];
+    if (stack.length > 64) throw new Error('XML nested too deep'); // a real answer is a few levels deep; the walk over the tree must not be a stack of tens of thousands
     if (m[1] !== undefined) top.text += m[1];
     else if (m[3]) {
       if (m[2]) { if (stack.length > 1) stack.pop(); continue; }

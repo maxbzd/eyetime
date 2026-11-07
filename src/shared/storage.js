@@ -12,6 +12,7 @@
 //   photoRev            a number bumped whenever the person's own photo (or the cut-out / depth map made from it) changes. The photo itself lives in IndexedDB (shared/photos.js);
 //                       versions before 4 kept it here as newtabBg / newtabFg / newtabDepth and it is moved the first time it is read
 
+import { cleanOutsideSettings, listOfObjects, plainOrNull } from './settings-clean.js';
 import { normalizeCalendarUrl } from './calsub.js';
 import { DEFAULT_SETTINGS, deepMerge, clone, SCHEMA_VERSION, DEFAULT_META } from './defaults.js';
 import { migrate, looksLikeV1, needsMigration, upgradeSettingsV2 } from './migrate.js';
@@ -271,23 +272,32 @@ export async function importAll(payload) {
   const clean = {};
   for (const [k, v] of Object.entries(data)) if (KNOWN.has(k) || /^d:\d{4}-\d{2}-\d{2}$/.test(k)) clean[k] = v;
   if (clean.topics) clean.topics = sanitizeTopics(clean.topics); // a file is never trusted: known shape, clean addresses
+  // the shapes the pages rely on: a list where a list belongs, an object where an object belongs (a damaged file must not leave a page that cannot draw itself)
+  for (const k of ['tasks', 'habits', 'captures', 'estLog']) if (k in clean) clean[k] = listOfObjects(clean[k]);
+  for (const k of ['weekPlan', 'weekPlanPrev']) if (k in clean && !plainOrNull(clean[k])) delete clean[k];
+  for (const k of Object.keys(clean)) if (k.startsWith('d:') && !plainOrNull(clean[k])) delete clean[k];
+  if (clean.settings && !plainOrNull(clean.settings)) delete clean.settings;
   // meetings travel in a backup (the subscription links never do): they come back as the imported calendar, until a link is added again
   const events = sanitizeEvents(data.calendar, true), allDay = sanitizeEvents(data.calendarDays, false);
   if (events.length || allDay.length) Object.assign(clean, { calendar: events, calendarDays: allDay, calendarSrc: { file: { events, allDay } } });
-  await dropCalendarPermission({ keepBroad: !!(data.settings && ((data.settings.dock && data.settings.dock.enabled) || (data.settings.blocking && data.settings.blocking.instant))) });
-  await area().clear();
+  // everything is checked and built BEFORE the old data is touched
+  let out;
   if (m) {
-    const out = { settings: scrubCompanion(m.settings), meta: m.meta, tasks: m.tasks, captures: m.captures };
-    if (m.habits) out.habits = m.habits;
-    for (const [k, rec] of Object.entries(m.days)) out[dayStorageKey(k)] = rec;
+    out = { settings: cleanOutsideSettings(scrubCompanion(m.settings)), meta: m.meta, tasks: listOfObjects(m.tasks), captures: listOfObjects(m.captures) };
+    if (m.habits) out.habits = listOfObjects(m.habits);
+    for (const [k, rec] of Object.entries(m.days)) if (plainOrNull(rec)) out[dayStorageKey(k)] = rec;
     if (events.length || allDay.length) Object.assign(out, { calendar: events, calendarDays: allDay, calendarSrc: { file: { events, allDay } } });
-    await area().set(out);
   } else {
     if (ver === 2 && clean.settings) clean.settings = upgradeSettingsV2(clean.settings);
-    if (clean.settings) clean.settings = scrubCompanion(clean.settings);
+    if (clean.settings) clean.settings = cleanOutsideSettings(scrubCompanion(clean.settings));
     if (clean.meta) clean.meta = { ...clean.meta, schemaVersion: 2 };
-    await area().set(clean);
+    out = clean;
   }
+  await dropCalendarPermission({ keepBroad: !!(data.settings && ((data.settings.dock && data.settings.dock.enabled) || (data.settings.blocking && data.settings.blocking.instant))) });
+  // replace, and if the new data cannot be written (too big, a browser failure) put the old data back: a failed import leaves the person where they were
+  const before = await area().get(null);
+  await area().clear();
+  try { await area().set(out); } catch (e) { await area().set(before); throw e; }
   await ensureSchema();
 }
 

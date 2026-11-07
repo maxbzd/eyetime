@@ -4,6 +4,7 @@
 import test, { mock, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { installFakeChrome } from './helpers/fake-chrome.mjs';
+import { REDIRECT_GRACE_MS } from '../../src/shared/blocking.js';
 
 const chrome = installFakeChrome();
 await import('../../src/background/blocker.js');
@@ -83,7 +84,7 @@ test('"continue" takes the rule away before the answer comes back, so the page c
   assert.equal(r.ok, true);
   assert.equal(await redirectFor('www.youtube.com'), null, 'no rule at the moment the answer arrives');
   const alarm = await chrome.alarms.get('instant-sync');
-  assert.equal(alarm.when, start + 30_000 + 500, 'the next change is the end of the 30 seconds of the redirect window, then the end of the pass');
+  assert.equal(alarm.when, start + REDIRECT_GRACE_MS + 500, 'the next change is the end of the redirect window (10 seconds), then the end of the pass');
   // the 30 seconds in that tab only
   const session = await chrome.declarativeNetRequest.getSessionRules();
   assert.equal(session.length, 1); assert.deepEqual(session[0].condition.tabIds, [7]);

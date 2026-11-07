@@ -47,10 +47,10 @@ test('vault: the check blob cannot be taken for the details of a connection, wha
   }
 });
 
-test('vault: passphrases: eight characters at least (counted as people count them), never a non-string, and a vault this version cannot read is refused', async () => {
-  assert.equal(passphraseProblem('short'), 'short'); assert.equal(passphraseProblem('1234567'), 'short');
-  assert.equal(passphraseProblem('12345678'), 'weak', 'the passwords everyone tries first are refused'); assert.equal(passphraseProblem('aaaaaaaaaa'), 'weak'); assert.equal(passphraseProblem('Tr0ub4dor&3x'), ''); assert.equal(passphraseProblem('日本語日本語日本語'), '');
-  assert.equal(passphraseProblem('😀😀😀😀😀😀😀'), 'short', 'seven emoji are seven characters');
+test('vault: passphrases: twelve characters at least (counted as people count them), never a non-string, and a vault this version cannot read is refused', async () => {
+  assert.equal(passphraseProblem('short'), 'short'); assert.equal(passphraseProblem('1234567'), 'short'); assert.equal(passphraseProblem('football1234'.slice(0, 11)), 'short', 'eleven is still short');
+  assert.equal(passphraseProblem('12345678'), 'short'); assert.equal(passphraseProblem('1234567890123'), 'weak', 'the passwords everyone tries first are refused'); assert.equal(passphraseProblem('aaaaaaaaaaaaaa'), 'weak'); assert.equal(passphraseProblem('abcabcabcabcabc'), 'weak', 'a short stem repeated'); assert.equal(passphraseProblem('qwertyuiopasdf'), 'weak', 'a walk along the keyboard'); assert.equal(passphraseProblem('Tr0ub4dor&3x'), ''); assert.equal(passphraseProblem('日本語日本語日本語春夏秋冬'), '');
+  assert.equal(passphraseProblem('😀😀😀😀😀😀😀'), 'short', 'seven emoji are seven characters'); assert.equal(passphraseProblem('😀😁😂🤣😃😄😅😆😉😊😋😎'), '', 'twelve different emoji are twelve characters');
   assert.equal(passphraseProblem(null), 'type'); assert.equal(passphraseProblem('x'.repeat(300)), 'long');
   await assert.rejects(createVault('short', FAST), /passphrase: short/);
   const { meta } = await createVault('correct horse battery', FAST);
@@ -58,12 +58,12 @@ test('vault: passphrases: eight characters at least (counted as people count the
 });
 
 test('vault: composed and decomposed forms of the same text are the same passphrase', async () => {
-  const { meta } = await createVault('passéword-x', FAST);       // é as one character
-  await unlockVault(meta, 'passéword-x');                        // e + combining accent
+  const { meta } = await createVault('passéword-xyzzy', FAST);       // é as one character
+  await unlockVault(meta, 'passéword-xyzzy');                        // e + combining accent
 });
 
 test('vault: the real cost of one guess is the documented one (600 000 rounds), and takes a noticeable moment', async () => {
-  assert.equal(KDF.iterations, 600_000); assert.equal(MIN_PASSPHRASE, 8);
+  assert.equal(KDF.iterations, 600_000); assert.equal(MIN_PASSPHRASE, 12);
   const t0 = performance.now();
   const { meta } = await createVault('correct horse battery');
   assert.equal(meta.iter, 600_000);

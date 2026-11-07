@@ -335,11 +335,14 @@ export function pickScheme(ap, { prefersDark = false, now = new Date() } = {}) {
   return prefersDark ? 'dark' : 'light';
 }
 
-const CSS_DENY = /@import|expression\s*\(|behavior\s*:|-moz-binding|url\(\s*['"]?\s*(?:https?:)?\/\//i;
-/** Custom CSS is local-only: anything that could fetch a remote resource is rejected. Returns { ok, css, error }. */
+const CSS_DENY = /@import|@namespace|expression\s*\(|behavior\s*:|-moz-binding|(?:-webkit-)?image-set\s*\(|cross-fade\s*\(|\bsrc\s*\(/i;
+/** CSS escapes are decoded before the browser reads a rule (`@\69mport` is `@import`, `u\72l(` is `url(`), so the check reads the text the way the browser will. */
+const cssDecode = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\\([0-9a-fA-F]{1,6})[ \t\n\r\f]?|\\([^\n])/g, (m, hex, ch) => (hex ? String.fromCodePoint(Math.min(0x10ffff, parseInt(hex, 16) || 0xfffd)) : ch));
+/** Custom CSS is local-only: anything that could fetch a remote resource is rejected. `url()` may point only at an inline `data:` image or a `#fragment`. Returns { ok, css, error }. */
 export function sanitizeCustomCss(css) {
-  const s = String(css || '').slice(0, 20000);
-  if (CSS_DENY.test(s)) return { ok: false, css: '', error: 'remote' };
+  const s = String(css || '').slice(0, 20000), d = cssDecode(s);
+  if (CSS_DENY.test(d)) return { ok: false, css: '', error: 'remote' };
+  for (const m of d.matchAll(/url\(\s*(['"]?)\s*([^'")]*)/gi)) if (!/^(?:data:image\/(?:png|jpe?g|webp|gif|avif)[;,]|#)/i.test(m[2].trim())) return { ok: false, css: '', error: 'remote' };
   return { ok: true, css: s };
 }
 

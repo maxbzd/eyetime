@@ -31,6 +31,17 @@ allow, and credit in the release notes if you want it. Please give us the time t
 - The hosts file cannot see a site reached by a number, or through a browser's own encrypted DNS: this is a limit of the method and is listed in the README.
 - A browser extension can be disabled by the person in the browser. Strict mode of the extension is a commitment, not a lock; the lock is the desktop program.
 - Reports that need the person to install something hostile themselves.
+- Ways round the browser extension's blocking that come from how a browser works, listed here so that nobody has to guess what is promised:
+  a site opened by its number (`http://142.250.74.14/`) or through a mirror, a proxy or a translator that is not in the lists; a blocked site in a frame of an allowed page
+  (stopped only while *Instant blocking* is on, because the browser lets the extension see a frame only with the optional "all sites" permission); the 10 seconds that
+  "Continue" leaves open for the redirect chain in that one tab; the short-video guard on a page (the page owns its own DOM and can remove the guard).
+  These are friction for a moment of weakness, not a wall; the lock is the desktop program.
+- A passphrase that is short or common. The length of a new passphrase is checked (12 characters, and not the passwords everyone tries first), but whoever has a copy of the
+  browser profile can try guesses offline at the speed of their own machine: PBKDF2 (the only function Web Crypto has; Argon2id is not available to an extension) makes each guess
+  cost 600 000 rounds, and no limit in the interface can slow a program that never uses the interface. The advice on the screen is the real defence: longer, four random words.
+- The key of an unlocked vault sits in `chrome.storage.session` (memory only, gone when the browser closes, not readable by web pages or content scripts) so that it survives the
+  worker being stopped; script running on one of the extension's own pages could read it, which is why such script must not exist (the policy and the tests are for that).
+- `'wasm-unsafe-eval'` in the extension's policy: needed to compile the WebAssembly of the on-device photo models, and nothing else; there is no `eval` and no `new Function`.
 
 ## What we defend against
 

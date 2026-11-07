@@ -109,7 +109,7 @@ async function applyScene(n) {
   if (!n) return;
   const [{ mountScene }, { runAction }] = await Promise.all([import('../scene/engine.js'), import('../scene/actions.js')]);
   if (sceneSig !== sig) return; // changed again while loading
-  sceneInst = mountScene($('.bg'), n.scene, { params: n.sceneParams, onAction: runAction });
+  sceneInst = mountScene($('.bg'), (await import('../../shared/scene/schema.js')).sanitizeScene(n.scene).scene, { params: n.sceneParams, onAction: runAction }); // a scene from a backup or from sync is drawn by the rules of a theme file, never as it came
 }
 
 /** Rain or snow over the background, if the person turned the weather and its effect on and it is raining or snowing where they are (or `#fx=rain|snow|thunder|drizzle` to look at one). */

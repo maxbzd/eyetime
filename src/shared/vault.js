@@ -17,7 +17,7 @@
 const enc = new TextEncoder(), dec = new TextDecoder();
 
 export const KDF = { name: 'PBKDF2-SHA256', iterations: 600_000, saltBytes: 16 };
-export const MIN_PASSPHRASE = 8;
+export const MIN_PASSPHRASE = 12; // for a NEW passphrase; one made under the old rule of 8 still unlocks (nothing checks the length of a passphrase that is only being entered)
 const CHECK_TEXT = 'eyetime-vault-v1';
 const AAD = (/** @type {string} */ id) => enc.encode('eyetime-vault-v1|' + id);
 const AAD_CHECK = enc.encode('eyetime-vault-v1#check'); // not of the form of the other one, so that no connection id can ever address the check
@@ -38,7 +38,8 @@ export function passphraseProblem(/** @type {unknown} */ p) {
   if (typeof p !== 'string') return 'type';
   if ([...p.normalize('NFKC')].length < MIN_PASSPHRASE) return 'short';
   if (p.length > 256) return 'long';
-  if (WEAK.has(p.normalize('NFKC').toLowerCase()) || new Set([...p]).size < 3) return 'weak'; // the passwords everyone tries first, and one or two characters repeated
+  const low = p.normalize('NFKC').toLowerCase();
+  if (WEAK.has(low) || new Set([...p]).size < 4 || /^(.{1,4})\1+$/.test(low) || /^(?:0123456789|1234567890|abcdefghij|qwertyuiop|asdfghjkl|zxcvbnm)/.test(low)) return 'weak'; // the passwords everyone tries first, a few characters repeated, and a walk along the keyboard or the digits
   return '';
 }
 

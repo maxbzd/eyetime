@@ -55,7 +55,7 @@ const handlers = {
   },
   'rest:skip': async () => { await endRest({ notify: false }); return { ok: true }; },
   'pass:grant': async (m, sender) => {
-    if (!isPassKey(m.rule)) return { ok: false, error: 'rule' };
+    if (!isPassKey(m.rule) || m.rule[0] === '*') return { ok: false, error: 'rule' }; // '*redirect:…' is the worker's own key for the redirect window: a page may name a domain, never that
     await grantPass(m.rule, intIn(m.minutes, PASS_MINUTES.min, PASS_MINUTES.max, PASS_MINUTES.fallback), sender.tab ? sender.tab.id : null);
     return { ok: true };
   },

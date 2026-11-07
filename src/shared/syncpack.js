@@ -3,6 +3,7 @@
 // Settings sync via chrome.storage.sync: browsers cap one item at 8 KB, so the settings JSON is split into small chunks.
 // Pure functions only — the worker does the I/O (src/background/sync.js). With a sync passphrase the payload is sealed (shared/syncseal.js) before it is chunked.
 
+import { cleanOutsideSettings } from './settings-clean.js';
 import { SEALED_VERSION, SEALED_CHUNK_CHARS, sealText, openText, splitText, sealContext, declare, declaredEnc } from './syncseal.js';
 
 export const CHUNK_CHARS = 3500;   // ×2 bytes for non-Latin text stays below the 8 KB per-item limit
@@ -54,7 +55,7 @@ export function unpack(all) {
   if (!meta || meta.v !== 1 || !(meta.n > 0) || meta.n > MAX_CHUNKS) return null;
   let json = '';
   for (let i = 0; i < meta.n; i++) { const part = all[chunkKey(i)]; if (typeof part !== 'string') return null; json += part; }
-  try { const settings = JSON.parse(json); return settings && typeof settings === 'object' ? { settings, ts: Number(meta.ts) || 0, off: Number(meta.off) || 0 } : null; } catch { return null; }
+  try { const settings = JSON.parse(json); return settings && typeof settings === 'object' && !Array.isArray(settings) ? { settings: cleanOutsideSettings(settings), ts: Number(meta.ts) || 0, off: Number(meta.off) || 0 } : null; } catch { return null; }
 }
 
 /** The sealed counterpart of unpack: { settings, ts } or null when absent or incomplete; throws when the key is not the one, or the payload was changed or put back with another time. */
@@ -64,7 +65,7 @@ export async function unpackSealed(all, key) {
   let text = '';
   for (let i = 0; i < meta.n; i++) { const part = all[chunkKey(i)]; if (typeof part !== 'string') return null; text += part; }
   const settings = JSON.parse(await openText(key, sealContext('settings', Number(meta.ts) || 0), text));
-  return settings && typeof settings === 'object' ? { settings, ts: Number(meta.ts) || 0 } : null;
+  return settings && typeof settings === 'object' && !Array.isArray(settings) ? { settings: cleanOutsideSettings(settings), ts: Number(meta.ts) || 0 } : null;
 }
 
 /** Keys of leftover chunks (a shorter payload than last time) that should be removed. */

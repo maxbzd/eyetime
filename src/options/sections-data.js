@@ -27,6 +27,7 @@ export function data({ s, save, refresh }) {
   const doExport = downloadBackup;
   async function doImport(file) {
     try {
+      if (file.size > 25_000_000) throw new Error('too big'); // a backup is a few hundred KB; the store holds 10 MB: nothing larger is read into memory
       const payload = JSON.parse(await file.text());
       const ok = await confirmDialog({ title: t('opt.importTitle'), body: t('opt.importBody'), confirm: t('opt.importConfirm'), danger: true });
       if (!ok) return;

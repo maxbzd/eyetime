@@ -164,3 +164,21 @@ test('backup: the choice about tips travels with it ("No more tips" is not undon
   const all = await chrome.storage.local.get(null);
   assert.equal(all.settings.tips.on, false); assert.equal(all.tipState.off, true);
 });
+
+test('backup: a javascript: link and a damaged list in a file do not get into the store, and a failed write puts the old data back', async () => {
+  fresh();
+  const { importAll } = await import('../../src/shared/storage.js');
+  await chrome.storage.local.set({ tasks: [{ id: 'mine', text: 'my task' }], settings: { onboarded: true } });
+  await importAll({ app: 'eyetime', version: 2, data: { settings: { newtab: { links: [{ url: 'javascript:alert(1)', title: 'x' }, { url: 'https://ok.test', title: 'ok' }] } }, tasks: 'not a list', habits: { a: 1 }, 'd:2026-01-01': 'junk', weekPlan: [1] } });
+  const all = await chrome.storage.local.get(null);
+  assert.deepEqual(all.settings.newtab.links.map((l) => l.url), ['https://ok.test/']);
+  assert.deepEqual(all.tasks, []); assert.deepEqual(all.habits, []); assert.ok(!('d:2026-01-01' in all) && !('weekPlan' in all));
+  // a write that fails halfway: the person keeps what they had
+  fresh();
+  await chrome.storage.local.set({ tasks: [{ id: 'mine', text: 'my task' }] });
+  const realSet = chrome.storage.local.set.bind(chrome.storage.local); let first = true;
+  chrome.storage.local.set = async (o) => { if (first && o.settings) { first = false; throw new Error('QUOTA_BYTES quota exceeded'); } return realSet(o); };
+  await assert.rejects(importAll({ app: 'eyetime', version: 2, data: { settings: { onboarded: true }, tasks: [{ id: 'x', text: 'from the file' }] } }), /QUOTA/);
+  chrome.storage.local.set = realSet;
+  assert.deepEqual((await chrome.storage.local.get('tasks')).tasks, [{ id: 'mine', text: 'my task' }], 'the old data is back');
+});

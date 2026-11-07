@@ -247,7 +247,7 @@ fn main() {
             // for the automatic checks only: EYETIME_DEBUG_PORT=9222 opens the window's debugging port so that a script can click through it
             let mut builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::App("home.html".into()));
             if let Some(port) = std::env::var("EYETIME_DEBUG_PORT").ok().and_then(|p| p.parse::<u16>().ok()) {
-                builder = builder.additional_browser_args(&format!("--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --remote-debugging-port={port} --remote-allow-origins=*"));
+                builder = builder.additional_browser_args(&format!("--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --remote-debugging-port={port} --remote-allow-origins=http://127.0.0.1:{port}"));
             }
             let win = builder
                 .title("EyeTime")

@@ -6,6 +6,7 @@ import { h, icon, favicon, clear } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
 import { updateSettings } from '../shared/storage.js';
 import { parseUserDomain } from '../shared/domains.js';
+import { safeHref } from '../shared/settings-clean.js';
 import { card } from './mod-common.js';
 
 /* ---------- quick links ---------- */
@@ -37,7 +38,7 @@ export function linksModule(settings) {
     clear(body, h('div', { class: 'links' },
       links.map((l, i) => {
         let host = ''; try { host = new URL(l.url).hostname; } catch { /* ignore */ }
-        return h('a', { class: 'link', href: l.url }, favicon(host.replace(/^www\./, ''), 'fav'), h('span', { class: 't', text: l.title }),
+        return h('a', { class: 'link', href: safeHref(l.url) || undefined }, favicon(host.replace(/^www\./, ''), 'fav'), h('span', { class: 't', text: l.title }),
           h('button', { class: 'x', type: 'button', 'aria-label': t('common.remove'), onclick: async (e) => { e.preventDefault(); e.stopPropagation(); await updateSettings((st) => { st.newtab.links.splice(i, 1); }); } }, icon('x')));
       }),
       h('button', { class: 'link add' + (links.length ? '' : ' alone'), type: 'button', onclick: openAdd }, h('span', { class: 'plus' }, icon('plus')), h('span', { class: 't', text: links.length ? t('links.addShort') : t('links.addFirst') }))));

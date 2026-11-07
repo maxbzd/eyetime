@@ -30,7 +30,8 @@ export function tasksToMarkdown(tasks, { title = 'EyeTime tasks' } = {}) {
   return lines.join('\n') + '\n';
 }
 
-const csvCell = (v) => { const s = String(v ?? ''); return /[",\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+// a cell that begins with = + - @ (or a tab or a return) is a formula to a spreadsheet: it is made text with a leading apostrophe (OWASP, CSV injection). Numbers are left as they are.
+const csvCell = (v) => { let s = String(v ?? ''); if (typeof v !== 'number' && /^[\s]*[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export const CSV_HEAD = ['text', 'done', 'priority', 'estimate_min', 'tags', 'repeat', 'due', 'time'];
 
 export function tasksToCsv(tasks) {

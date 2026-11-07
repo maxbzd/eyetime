@@ -98,8 +98,9 @@ export function subtractPeriod(/** @type {Usage} */ u, /** @type {Record<string,
 export const modeOf = (/** @type {string} */ m) => (m === 'light' || m === 'dark' ? m : 'auto');
 
 /**
- * The version of what a "yes" covers (the list of fields, the purpose, the recipients). Raise it when any of those changes: reports stop until the person has agreed again,
- * because a consent is for what it was given for.
+ * The version of what a "yes" covers (the kinds of data, the purpose, the recipients). Raise it when any of those changes: reports stop until the person has agreed again,
+ * because a consent is for what it was given for. One more counter of a kind the "yes" already names (a count of using a feature, with the name listed in PRIVACY.md and
+ * docs/TRACKING-PLAN.md) does not change what was agreed and does not raise it; a new KIND of data, a new purpose or a new recipient does.
  */
 export const CONSENT_VERSION = 1;
 

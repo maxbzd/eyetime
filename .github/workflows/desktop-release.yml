@@ -53,6 +53,10 @@ jobs:
       - run: rustup toolchain install
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
         with: { workspaces: desktop }
+      - name: Dependencies (advisories and licences), as in the branch CI
+        run: |
+          cargo install --locked cargo-deny@0.20.2
+          cargo deny --locked check
       - run: cargo test --locked -p eyetime-core -p eyetime-helper
       - name: Build the helper and the window
         run: cargo build --locked --release -p eyetime-helper -p eyetime
