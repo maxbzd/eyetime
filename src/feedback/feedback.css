@@ -1,0 +1,50 @@
+/* SPDX-License-Identifier: FSL-1.1-ALv2 */
+/* Copyright 2026 maxbzd */
+body { min-height: 100vh; display: flex; flex-direction: column; }
+.bg { position: fixed; inset: 0; z-index: -1; background: radial-gradient(900px 620px at 12% -5%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%), radial-gradient(800px 560px at 100% 10%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%); }
+.fb-top { display: flex; align-items: center; padding: 18px 28px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: var(--fs-lg); letter-spacing: -.02em; }
+.fb { flex: 1; display: flex; flex-direction: column; align-items: center; gap: var(--s-6); padding: var(--s-4) var(--s-4) var(--s-12); }
+.fb-card { width: min(620px, 100%); padding: var(--s-8); border-radius: var(--r-xl); box-shadow: var(--shadow-2); background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(16px); display: flex; flex-direction: column; gap: var(--s-5); animation: fb-in var(--t-slow) var(--ease) both; }
+@keyframes fb-in { from { opacity: 0; transform: translateY(10px); } }
+.fb-card h1 { font-size: 30px; letter-spacing: -.03em; line-height: 1.15; text-wrap: balance; }
+.fb-card .lead { color: var(--text-2); font-size: var(--fs-lg); text-wrap: pretty; }
+.kinds { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-3); }
+.kind { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: var(--s-4) var(--s-2); border-radius: var(--r-lg); border: var(--border-w) solid var(--border); background: var(--surface); color: var(--text-2); font-weight: 550; transition: transform var(--t-fast) var(--ease), border-color var(--t-fast), background var(--t-fast), color var(--t-fast); }
+.kind .ico { font-size: 24px; }
+.kind:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+.kind[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-text); }
+.fb-card .textarea { min-height: 150px; font-size: var(--fs-md); }
+.count { align-self: flex-end; color: var(--text-3); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; margin-top: calc(-1 * var(--s-3)); }
+.fb-label { font-weight: 600; font-size: var(--fs-sm); color: var(--text-2); margin-bottom: var(--s-2); display: block; }
+.chips { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.opt { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s-4); }
+.opt b { font-weight: 600; display: block; } .opt .d { color: var(--text-3); font-size: var(--fs-sm); }
+.mail-link { align-self: flex-start; color: var(--text-3); font-size: var(--fs-sm); text-decoration: underline; text-underline-offset: 3px; background: none; border: 0; padding: 0; }
+.ctx-line { color: var(--text-3); font-size: var(--fs-sm); margin-top: 2px; overflow-wrap: anywhere; }
+.privacy { color: var(--text-3); font-size: var(--fs-sm); text-wrap: pretty; }
+.privacy a { color: var(--text-2); }
+.send-row { display: flex; align-items: center; gap: var(--s-3); }
+.send-row .btn-primary { min-width: 140px; }
+.note-gh { padding: var(--s-4); border-radius: var(--r-lg); background: var(--surface-2); color: var(--text-2); font-size: var(--fs-sm); }
+.err { color: var(--danger-text, #c0352b); font-size: var(--fs-sm); }
+.thanks { align-items: center; text-align: center; padding-block: var(--s-10); }
+.thanks .badge-big { width: 72px; height: 72px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-text); display: grid; place-items: center; }
+.thanks .badge-big svg { width: 36px; height: 36px; stroke-dasharray: 30; stroke-dashoffset: 30; animation: fb-draw .5s .15s var(--ease) forwards; }
+@keyframes fb-draw { to { stroke-dashoffset: 0; } }
+.thanks .lead { max-width: 44ch; }
+.fb-history { width: min(620px, 100%); display: flex; flex-direction: column; gap: var(--s-3); }
+.fb-history h2 { font-size: var(--fs-lg); letter-spacing: -.02em; }
+.msg { padding: var(--s-4) var(--s-5); border-radius: var(--r-lg); border: var(--border-w) solid var(--border); background: color-mix(in srgb, var(--surface) 92%, transparent); display: flex; flex-direction: column; gap: var(--s-3); }
+.msg .head { display: flex; gap: var(--s-2); align-items: center; color: var(--text-3); font-size: var(--fs-sm); }
+.msg .head .sp { flex: 1; }
+.msg .body { white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg .wait { color: var(--text-3); font-size: var(--fs-sm); }
+.bubble { align-self: flex-start; max-width: 92%; padding: var(--s-3) var(--s-4); border-radius: 14px 14px 14px 4px; background: var(--accent-soft); color: var(--text); }
+.bubble .who { font-size: var(--fs-sm); color: var(--accent-text); font-weight: 600; display: flex; gap: 8px; align-items: center; }
+.bubble .txt { white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 2px; }
+.bubble.fresh { animation: fb-pop .5s var(--ease) both; box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent); }
+@keyframes fb-pop { from { transform: scale(.96); opacity: 0; } }
+@media (max-width: 560px) { .fb-card { padding: var(--s-5); } .fb-card h1 { font-size: 25px; } }
+@media (prefers-reduced-motion: reduce) { .fb-card, .kind, .bubble.fresh { animation: none; transition: none; } .thanks .badge-big svg { animation: none; stroke-dashoffset: 0; } }
+.chips .chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }

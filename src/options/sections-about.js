@@ -53,6 +53,7 @@ export function about({ s }) {
         link('https://github.com/maxbzd/eyetime/issues/new/choose', icon('bug'), t('about.report')),
         link('https://github.com/maxbzd/eyetime/blob/main/PRIVACY.md', icon('shield-check'), t('about.privacy')))),
     group(t('opt.groupSupport'),
+      row({ title: t('fb.menu'), desc: t('fb.menuHint'), control: h('a', { class: 'btn btn-primary', href: '../feedback/feedback.html', target: '_blank', rel: 'noopener' }, icon('message-circle'), t('fb.menu')) }),
       row({ title: t('opt.ideaTitle'), desc: t('opt.ideaDesc'), control: h('a', { class: 'btn', href: 'https://github.com/maxbzd/eyetime/issues/new?template=feature_request.md&title=Idea%3A+', target: '_blank', rel: 'noopener' }, icon('lightbulb'), t('opt.ideaBtn')) }),
       row({ title: t('opt.reportTitle'), desc: t('opt.reportDesc'), control: h('button', { class: 'btn', type: 'button', onclick: () => openReport(s) }, icon('bug'), t('opt.reportBtn')) })),
     group(t('about.shortcuts'),

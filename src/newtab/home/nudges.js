@@ -9,8 +9,10 @@ import { nudge as pickNudge, dayReview } from '../../shared/productivity.js';
 import { dayKey } from '../../shared/time.js';
 import { downloadBackup, needsBackup } from '../../ui/backup.js';
 import { openShutdown } from '../shutdown.js';
-import { askPlan } from '../../shared/usage-store.js';
+import { askPlan, wantsToAsk, getShare, getUsage, justFinishedSession } from '../../shared/usage-store.js';
 import { showUsageAsk } from './usage-ask.js';
+import { questionCard, replyCard } from '../../ui/feedback-card.js';
+import { feedbackEndpoint, getFb, pollAnswers, unreadAnswers, promptPlan } from '../../shared/feedback.js';
 import { isFocusLive } from '../../shared/blocking.js';
 import { state } from './state.js';
 
@@ -32,11 +34,11 @@ export async function paintBackupNudge() {
 const nudgeOff = (kind) => { try { return localStorage.getItem('et-nudge-off') === dayKey() + ':' + kind; } catch { return false; } };
 export async function paintNudge() {
   const el = $('#nudge');
-  if (state.todayOn && state.settings.ritual && state.settings.ritual.on) { await paintUsageAsk(); el.hidden = true; return; } // on Today the day's own card says what the nudge would
+  if (state.todayOn && state.settings.ritual && state.settings.ritual.on) { await paintAsks(); el.hidden = true; return; } // on Today the day's own card says what the nudge would
   const [[, day]] = await getDays([dayKey()]);
   const tasks = (await getCollection('tasks', [])).filter((x) => !x.done);
   const kind = pickNudge({ now: new Date(), fsSec: day?.fs || 0, goalMin: state.settings.focus.dailyGoal, openTasks: tasks.length, starred: tasks.filter((x) => x.starred).length, sessionsToday: (day?.ss || []).length });
-  if (!kind || kind === 'start' || nudgeOff(kind)) { await paintUsageAsk(); el.hidden = true; return; }
+  if (!kind || kind === 'start' || nudgeOff(kind)) { await paintAsks(); el.hidden = true; return; }
   const r = dayReview(day);
   const rated = r.avgRating ? t(r.avgRating >= 2.5 ? 'review.r3' : r.avgRating >= 1.75 ? 'review.r2' : 'review.r1').toLowerCase() : '';
   const msg = { plan: t('nudge.plan'), goal: t('nudge.goal'), review: r.sessions ? (rated ? t('nudge.review', { n: r.sessions, time: fmtDuration(r.minutes * 60) }).replace(/\.$/, '') + ' · ' + rated + '.' : t('nudge.review', { n: r.sessions, time: fmtDuration(r.minutes * 60) })) : t('nudge.reviewEmpty') }[kind];
@@ -52,6 +54,27 @@ export async function paintNudge() {
  * The one-time question "share anonymous usage numbers?": only when there is nothing else to say, never during a session, only after a finished session and a second day,
  * and only once (any answer ends it). It is a card in the corner (usage-ask.js), not a strip: it says who is asking and why. Returns whether it is on the screen.
  */
+async function paintAsks() { return (await paintUsageAsk()) || (await paintFeedback()); }
+
+/**
+ * The small questions and the author's answers, after the question about anonymous numbers (which has priority and counts toward the same 30-day budget). The author's answer comes first
+ * and always: it is something the person asked for. Never mid-session; at most one card at a time; the rules are promptPlan in shared/feedback.js.
+ */
+async function paintFeedback() {
+  if (document.querySelector('.fbc.float') || document.getElementById('usageAsk')) return true;
+  if (state.runningFocus && isFocusLive(state.runningFocus)) return false;
+  try { await pollAnswers(); } catch { /* offline */ }
+  const fb = await getFb(), unread = unreadAnswers(fb);
+  if (unread.length) { document.body.append(replyCard({ answer: unread[0] })); return true; }
+  if (!feedbackEndpoint() || (await wantsToAsk())) return false; // no collector: nothing to send to; or the question about numbers is still to be asked, and it goes first
+  const [share, usage, justFinished] = await Promise.all([getShare(), getUsage(), justFinishedSession()]);
+  const consentAt = Math.max(share.askedAt || 0, share.deferredAt || 0, share.optInAt || 0) || null;
+  const kind = promptPlan({ fb, endpoint: true, activeDays: usage.days.length, consentAt, justFinished });
+  if (!kind) return false;
+  document.body.append(questionCard({ kind, float: true }));
+  return true;
+}
+
 async function paintUsageAsk() {
   if (state.runningFocus && isFocusLive(state.runningFocus)) return false;
   const plan = await askPlan(); // null unless this is a good moment: right after a finished session (or, failing that, once it has waited a week)

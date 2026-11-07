@@ -235,6 +235,7 @@ export function computeStats(snap, now = Date.now(), { recentDays = 90, from: fr
     continue_rate: total.block_page ? Math.min(1, (total.block_continue || 0) / total.block_page) : null,
     reasons: REASONS.map((id) => ({ id, k: total[id] || 0 })),
   };
+  const cards = { shown: total.fb_shown || 0, answered: total.fb_answered || 0, dismissed: total.fb_dismissed || 0, written: total.fb_written || 0, answer_rate: total.fb_shown ? (total.fb_answered || 0) / total.fb_shown : null, dismiss_rate: total.fb_shown ? (total.fb_dismissed || 0) / total.fb_shown : null };
   const eyes = { done: total.eye_break_done || 0, skipped: total.eye_break_skip || 0, rate: (total.eye_break_done || 0) + (total.eye_break_skip || 0) ? (total.eye_break_done || 0) / ((total.eye_break_done || 0) + (total.eye_break_skip || 0)) : null };
   const speedTotal = sum(SPEEDS);
   const quantile = (/** @type {number} */ q) => { if (!speedTotal) return null; let acc = 0; for (let i = 0; i < SPEEDS.length; i++) { acc += total[SPEEDS[i]] || 0; if (acc / speedTotal >= q) return SPEED_UPPER[i]; } return OPEN_END; };
@@ -391,7 +392,7 @@ export function computeStats(snap, now = Date.now(), { recentDays = 90, from: fr
 
   const out = {
     v: 3, generated_at: now, window_days: days, range, low_sample: LOW_SAMPLE, product: filter.pr, filter: Object.fromEntries(narrow.filter((d) => d !== 'pr').map((d) => [d, filter[d]])), facets,
-    overview, weekly, lifecycle, engagement, weekday, northstar, trends, aha, releases, segments, coverage, notes, ingest, uninstalls, experiments, targets, activation, funnel, retention, cohorts, features, groups: GROUPS, sessions, blocking, eyes, speed, health, setup,
+    overview, weekly, lifecycle, engagement, weekday, northstar, trends, aha, releases, segments, coverage, notes, ingest, uninstalls, experiments, targets, activation, funnel, retention, cohorts, features, groups: GROUPS, sessions, blocking, eyes, cards, speed, health, setup,
     prev: /** @type {ReturnType<typeof before> | null} */ (null),
     compare: /** @type {Record<string, ReturnType<typeof compareProps>> | null} */ (null),
     scorecard: /** @type {ReturnType<typeof scorecard>} */ ([]),
@@ -465,7 +466,7 @@ function winBlock({ snap, recent, made, firsts, weekFrom, weekTo, mature }) {
 
 /** The answer for the Windows app: the generic parts (growth, retention, cohorts, engagement) stand; the parts that are about the extension's features are dropped, and its own block is added. */
 function asWindows(out, win) {
-  for (const k of ['funnel', 'activation', 'features', 'sessions', 'blocking', 'eyes', 'speed', 'health', 'aha', 'trends', 'segments', 'experiments', 'northstar', 'releases', 'setup', 'uninstalls', 'coverage']) out[k] = null;
+  for (const k of ['funnel', 'activation', 'features', 'sessions', 'blocking', 'eyes', 'cards', 'speed', 'health', 'aha', 'trends', 'segments', 'experiments', 'northstar', 'releases', 'setup', 'uninstalls', 'coverage']) out[k] = null;
   out.groups = {};
   out.win = win;
   out.setup = { lang: win.lang, flags: win.flags, win: true };

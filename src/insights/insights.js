@@ -19,7 +19,9 @@ import { makeClassifier } from '../shared/classify.js';
 import { loadGuess } from '../shared/guessstore.js';
 import { summarize, delta, insights as computeInsights, focusStreak, suggestLimit } from '../shared/stats.js';
 import { rangeKeys, addDays, dayKey, parseKey } from '../shared/time.js';
-import { track } from '../shared/usage-store.js';
+import { track, getUsage } from '../shared/usage-store.js';
+import { questionCard } from '../ui/feedback-card.js';
+import { getFb, weekMoodDue, feedbackEndpoint } from '../shared/feedback.js';
 
 const RANGES = { today: 1, 7: 7, 30: 30 };
 let range = new URLSearchParams(location.search).get('range') || localStorage.getItem('et-range') || '7';
@@ -135,6 +137,22 @@ function weekOfRange(plans, rows) {
   const first = mondayKey(parseKey(rows[0][0])), last = mondayKey(parseKey(rows[rows.length - 1][0]));
   const hit = plans.find((p) => p && p.week === last) || plans.find((p) => p && p.week === first);
   return hit ? hit.week : last;
+}
+
+/** The mood of the week, once a week, right under the review of it (see shared/feedback.js weekMoodDue). Decided after the page is drawn; the card is made once per page. */
+let weekCard = null;
+function weekMoodSlot() {
+  const slot = h('div', { class: 'fb-week' });
+  if (weekCard) { slot.append(weekCard); return slot; }
+  (async () => {
+    try {
+      const [fb, u] = await Promise.all([getFb(), getUsage()]);
+      if (!weekMoodDue(fb, !!feedbackEndpoint(), u.days.length)) return;
+      weekCard = questionCard({ kind: 'week', onGone: () => { weekCard = null; } });
+      slot.append(weekCard);
+    } catch { /* no state: no question */ }
+  })();
+  return slot;
 }
 
 function reviewCard(cur, prev) {
@@ -286,7 +304,7 @@ function render() {
   if (empty) { clear(root, emptyState()); return; }
 
   const views = {
-    overview: () => [renderKpis(sum, prev), range === '7' && sum.total >= 3600 && sum.activeDays >= 3 ? reviewCard(sum, prev) : null, mainChart(sum), insightsCard(sum, prev, streak)],
+    overview: () => [renderKpis(sum, prev), range === '7' && sum.total >= 3600 && sum.activeDays >= 3 ? reviewCard(sum, prev) : null, range === '7' && sum.total >= 3600 && sum.activeDays >= 3 ? weekMoodSlot() : null, mainChart(sum), insightsCard(sum, prev, streak)],
     focus: () => [focusTab({ cur: data.cur, prev: data.prev, heat: data.heat, tasks: data.tasks, estTasks: accuracyInput(data.tasks, data.estLog), settings })],
     sites: () => [triggersCard(classify)].concat(sum.topApps.length ? [h('div', { class: 'grid-2' }, sitesCard(sum), appsCard(sum))] : [sitesCard(sum)]),
     patterns: () => {

@@ -22,6 +22,8 @@ export const FEATURES = [
   'nt_u100', 'nt_u250', 'nt_u500', 'nt_u1000', 'nt_slow',
   // errors by where they came from (a count: the text of an error never leaves the device)
   'err_worker', 'err_page', 'err_blocker', 'err_sync', 'err_other',
+  // the small questions and the door to the maker (a count: what was said stays out of the report; the messages go to their own place and only when the person sends one)
+  'fb_shown', 'fb_answered', 'fb_dismissed', 'fb_written',
 ];
 
 /**

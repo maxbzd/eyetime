@@ -91,7 +91,7 @@ export function buildMessage({ kind, via, text, tags, rating, contact, ticket, c
   const VIA = /** @type {Record<string, string>} */ ({ idea: 'door', problem: 'door', kudos: 'door', session: 'after_session', week: 'week_review', pmf: 'pmf', pause: 'pause_page' });
   const msg = { v: 1, kind, via: via || VIA[kind], ...(rating !== undefined ? { rating } : {}), ...(tags && tags.length ? { tags } : {}), ...(text && text.trim() ? { text: text.trim() } : {}), ...(contact ? { contact: contact.trim() } : {}), ...(ticket ? { ticket } : {}), ctx };
   const ok = validateFeedback(msg);
-  return ok.ok ? { ok: true, msg } : { ok: false, why: ok.why };
+  return 'why' in ok ? { ok: false, why: ok.why } : { ok: true, msg };
 }
 
 const post = (/** @type {any} */ body) => ({ method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), credentials: /** @type {RequestCredentials} */ ('omit'), referrerPolicy: /** @type {ReferrerPolicy} */ ('no-referrer'), cache: /** @type {RequestCache} */ ('no-store') });
@@ -106,7 +106,7 @@ function fetchWithTimeout(/** @type {string} */ url, /** @type {RequestInit} */ 
  */
 export async function sendMessage(/** @type {any} */ msg, { endpoint = feedbackEndpoint(), fetchImpl = fetchWithTimeout, now = Date.now() } = {}) {
   if (!endpoint) return { ok: false, why: 'no collector' };
-  const ok = validateFeedback(msg); if (!ok.ok) return { ok: false, why: ok.why };
+  const ok = validateFeedback(msg); if ('why' in ok) return { ok: false, why: ok.why };
   let res;
   try { res = await fetchImpl(endpoint, post(msg)); } catch { return { ok: false, why: 'network' }; }
   if (!res.ok) return { ok: false, why: res.status === 429 ? 'busy' : 'status ' + res.status };

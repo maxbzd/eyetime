@@ -86,6 +86,9 @@ export function makeDemoSnapshot(now, { installs: count = 520, seed = 11 } = {})
       const views = out.weeks.filter((x) => x.id === id && x.week === weekNow - w && x.feature === 'newtab_view').reduce((a, x) => a + x.n, 0);
       for (const [f, wgt] of [['nt_u100', 20], ['nt_u250', 52], ['nt_u500', 22], ['nt_u1000', 5], ['nt_slow', 1]]) row(f, (views * /** @type {number} */ (wgt)) / 100);
       for (const [f, per] of [['err_worker', 0.02], ['err_page', 0.03], ['err_blocker', 0.01], ['err_sync', 0.02], ['err_other', 0.01]]) if (r() < per * activeThisWeek) row(f, 1);
+      // the small questions: shown now and then, answered more often than closed
+      if (r() < 0.05 * activeThisWeek) { row('fb_shown', 1); if (r() < 0.62) row('fb_answered', 1); else if (r() < 0.8) row('fb_dismissed', 1); }
+      if (r() < 0.006 * activeThisWeek) row('fb_written', 1);
     }
     // what is switched on (a state), with sizes in steps
     const on = new Set(Object.entries(FLAG_ODDS).filter(([, p]) => r() < p * (heavy > 0 ? 1.15 : 0.9)).map(([f]) => f));

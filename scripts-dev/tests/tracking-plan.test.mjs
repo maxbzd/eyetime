@@ -14,7 +14,7 @@ test('every counter and every flag is described, and nothing is described that d
 });
 
 test('every counter is read somewhere: adoption, or one of the pages that reads a family of counters', () => {
-  const families = /^(fl_|bp_|nt_|err_|onboarding_done)/;
+  const families = /^(fl_|bp_|nt_|err_|fb_|onboarding_done)/;
   for (const f of FEATURES) assert.ok(ADOPTION.includes(f) || families.test(f), f + ' feeds no page');
 });
 

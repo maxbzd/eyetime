@@ -8,6 +8,7 @@
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
   <style>
+    .more { display: grid; gap: 8px; margin-top: 18px; max-width: 520px; } .more label { font-weight: 600; font-size: 15px; } .more textarea, .more input { width: 100%; font: inherit; padding: 10px 12px; border-radius: 10px; border: 1px solid currentColor; background: transparent; color: inherit; } .more button { justify-self: start; font: inherit; font-weight: 600; padding: 10px 18px; border-radius: 10px; cursor: pointer; }
     .ask { max-width: 640px; padding: 56px 0 80px; }
     .ask h1 { font-size: clamp(30px, 5vw, 44px); max-width: none; text-align: left; margin: 0 0 12px; }
     .ask .why { display: grid; gap: 10px; margin: 24px 0 0; padding: 0; list-style: none; }
@@ -32,19 +33,41 @@
       <li><button type="button" data-reason="temporary"><span data-en>Only removed for now</span><span data-ru>Удалил временно</span></button></li>
       <li><button type="button" data-reason="other"><span data-en>Something else</span><span data-ru>Другое</span></button></li>
     </ul>
-    <div class="done" id="done" hidden><span data-en>Thank you. That helps make it better.</span><span data-ru>Спасибо, это помогает сделать лучше.</span></div>
+    <div class="done" id="done" hidden>
+      <p><span data-en>Thank you. That helps make it better.</span><span data-ru>Спасибо, это помогает сделать лучше.</span></p>
+      <form id="more" class="more">
+        <label for="mtext"><span data-en>If you want, add a few words (optional):</span><span data-ru>Если хотите, добавьте пару слов (по желанию):</span></label>
+        <textarea id="mtext" maxlength="1000" rows="3"></textarea>
+        <label for="mmail"><span data-en>Your email, only if you want an answer (optional):</span><span data-ru>Ваша почта, только если хотите ответ (по желанию):</span></label>
+        <input id="mmail" type="email" maxlength="120" autocomplete="email">
+        <p class="note"><span data-en>It is stored on the project's server until it is deleted; the address is erased once answered and after 90 days. Please do not write anything personal. Details in the <a href="privacy.html">privacy notice</a>.</span><span data-ru>Это хранится на сервере проекта, пока не будет удалено; адрес стирается после ответа и через 90 дней. Пожалуйста, не пишите ничего личного. Подробности — в <a href="privacy.html">политике приватности</a>.</span></p>
+        <button type="submit"><span data-en>Send</span><span data-ru>Отправить</span></button>
+      </form>
+      <p id="sent" hidden><span data-en>Sent. Thank you.</span><span data-ru>Отправлено. Спасибо.</span></p>
+    </div>
   </main>
 </div>
 <script>
 (function () {
   var html = document.documentElement, ask = document.getElementById('ask'), list = document.getElementById('why'), done = document.getElementById('done');
   html.lang = (navigator.language || 'en').toLowerCase().indexOf('ru') === 0 ? 'ru' : 'en';
-  var url = ask.getAttribute('data-collector');
+  var url = ask.getAttribute('data-collector'), reason = '';
   if (!url) { list.hidden = true; ask.querySelector('p').hidden = true; return; } // no collector: nothing to ask and nothing to send
   list.addEventListener('click', function (e) {
     var b = e.target.closest('button[data-reason]'); if (!b) return;
     list.hidden = true; ask.querySelector('p').hidden = true; done.hidden = false;
-    try { fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ reason: b.getAttribute('data-reason') }), credentials: 'omit', referrerPolicy: 'no-referrer', keepalive: true }).catch(function () {}); } catch (x) {}
+    reason = b.getAttribute('data-reason');
+    try { fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ reason: reason }), credentials: 'omit', referrerPolicy: 'no-referrer', keepalive: true }).catch(function () {}); } catch (x) {}
+  });
+  // a few words afterwards, if the person wants: sent as one more request (the reason is not counted twice)
+  document.getElementById('more').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var text = document.getElementById('mtext').value.trim(), mail = document.getElementById('mmail').value.trim();
+    if (!reason || (!text && !mail)) return;
+    var body = { reason: reason, more: true }; if (text) body.text = text; if (mail) body.contact = mail;
+    var v = /[?&]v=(\d{1,3}\.\d{1,3}\.\d{1,3})(?:&|$)/.exec(location.search); if (v) body.app = v[1];
+    try { fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), credentials: 'omit', referrerPolicy: 'no-referrer', keepalive: true }).catch(function () {}); } catch (x) {}
+    e.target.hidden = true; document.getElementById('sent').hidden = false;
   });
 })();
 </script>
