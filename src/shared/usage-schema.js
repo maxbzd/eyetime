@@ -11,7 +11,7 @@ export const FEATURES = [
   'focus_start', 'focus_done', 'focus_stop', 'focus_pause',
   'eye_break_done', 'eye_break_skip', 'block_page', 'block_continue',
   'task_add', 'task_done', 'habit_check', 'shutdown_done', 'plan_done', 'ritual_plan', 'ritual_skip', 'connection_add',
-  'palette_open', 'drawer_open', 'editor_open', 'starter_apply', 'wall_next', 'standby_open',
+  'palette_open', 'drawer_open', 'editor_open', 'starter_apply', 'wall_next', 'standby_open', 'tour_open',
   // the first run
   'onboarding_done',
   // how sessions go: finished ones by length (planned minutes), and sessions stopped in the first five minutes (the start was a mistake or the goal was too big)

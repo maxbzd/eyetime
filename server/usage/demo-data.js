@@ -18,7 +18,7 @@ const RATE = {
   focus_start: [0.35, 1.4], focus_done: [0.28, 1.15], focus_stop: [0.07, 0.25], focus_pause: [0.03, 0.2],
   eye_break_done: [0.3, 0.9], eye_break_skip: [0.25, 0.5], block_page: [0.5, 1.4], block_continue: [0.15, 0.5],
   task_add: [0.25, 0.9], task_done: [0.2, 0.8], habit_check: [0.1, 0.5], shutdown_done: [0.02, 0.2], plan_done: [0.02, 0.12], ritual_plan: [0.03, 0.2], ritual_skip: [0.05, 0.12],
-  connection_add: [0.002, 0.01], palette_open: [0.04, 0.3], drawer_open: [0.03, 0.2], editor_open: [0.004, 0.03], starter_apply: [0.002, 0.005], wall_next: [0.02, 0.1], standby_open: [0.01, 0.06],
+  connection_add: [0.002, 0.01], palette_open: [0.04, 0.3], drawer_open: [0.03, 0.2], editor_open: [0.004, 0.03], starter_apply: [0.002, 0.005], wall_next: [0.02, 0.1], standby_open: [0.01, 0.06], tour_open: [0.02, 0.12],
 };
 const FLAG_ODDS = {
   ritual: 0.7, dock: 0.06, weather: 0.08, calendar: 0.1, tasks_sync: 0.05, settings_sync: 0.07, sync_encrypted: 0.012, instant_block: 0.04, smart_sites: 0.03, connections: 0.04,

@@ -16,6 +16,9 @@ A release about the moment that matters most to a new person: the end of the fir
 - **"Start 5 min" on the first-days card is a try, and stays one.** It no longer turns your usual session length into five minutes or switches strict mode off (`focus:start` is sent with `remember: false`, as in the onboarding). A new check sets 25 minutes and strict mode, presses the button, and expects both to be unchanged.
 - A failure while redrawing the background after the system light/dark theme changes goes to the local error log (the last background call without a handler).
 
+### Anonymous numbers
+- **Opening the guided set-up is counted** (`tour_open`, a count with no content), so it is possible to see whether the tour is used. It is in the report only if the person has agreed to share anonymous numbers, like every other counter; it is listed in `PRIVACY.md`, `docs/TRACKING-PLAN.md`, the collector's plan and the dashboard (Features). It is one more counter of the same kind (a count of using a feature), so the consent version stays as it is.
+
 ### Tips
 - **One switch decides, and it travels with your settings.** "No more tips" on the card now writes only Settings → General → "Tips about features"; the page asks nothing else. Before, a second flag kept on the device could disagree with the switch after settings arrived from another device (the switch said "on", no tip ever came). The history of tips already seen stays in the backup, as before.
 

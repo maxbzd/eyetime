@@ -35,6 +35,7 @@ Everything the optional anonymous usage report can carry, one row per name, with
 | `starter_apply` | A starter setup was applied. | Features |
 | `wall_next` | The next wallpaper was asked for. | Features |
 | `standby_open` | Standby mode was opened. | Features |
+| `tour_open` | The guided set-up ("Set up in detail") was opened, from the end of the first session, the command palette, Settings or a tip. | Features |
 | `onboarding_done` | The welcome was finished. | Activation |
 | `fl_u15` | A focus session of under 15 minutes finished. | Product (session length) |
 | `fl_u25` | A focus session of 15–25 minutes finished. | Product (session length) |
