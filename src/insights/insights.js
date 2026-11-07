@@ -22,6 +22,7 @@ import { rangeKeys, addDays, dayKey, parseKey } from '../shared/time.js';
 import { track, getUsage, getShare } from '../shared/usage-store.js';
 import { questionCard } from '../ui/feedback-card.js';
 import { getFb, weekMoodDue, feedbackEndpoint } from '../shared/feedback.js';
+import { isFocusLive } from '../shared/blocking.js';
 
 const RANGES = { today: 1, 7: 7, 30: 30 };
 let range = new URLSearchParams(location.search).get('range') || localStorage.getItem('et-range') || '7';
@@ -146,9 +147,9 @@ function weekMoodSlot() {
   if (weekCard) { slot.append(weekCard); return slot; }
   (async () => {
     try {
-      const [fb, u, share] = await Promise.all([getFb(), getUsage(), getShare()]);
+      const [fb, u, share, { focus }] = await Promise.all([getFb(), getUsage(), getShare(), chrome.storage.local.get('focus')]);
       const consentAt = Math.max(share.askedAt || 0, share.deferredAt || 0, share.optInAt || 0) || null;
-      if (!weekMoodDue(fb, !!feedbackEndpoint(), u.days.length, Date.now(), consentAt)) return;
+      if (!weekMoodDue(fb, !!feedbackEndpoint(), u.days.length, Date.now(), consentAt, !!focus && isFocusLive(focus))) return;
       weekCard = questionCard({ kind: 'week', onGone: () => { weekCard = null; } });
       slot.append(weekCard);
     } catch { /* no state: no question */ }

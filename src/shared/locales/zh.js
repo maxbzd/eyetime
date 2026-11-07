@@ -538,4 +538,9 @@ export const zh = {
   "ob.v2.firstLeadNone": "从小处开始：几分钟就足以感受到。目前没有关闭任何网站，因为你还没有选择；随时可以在设置中选择。",
   "ob.v2.saveExit": "保存并完成",
   "ob.v2.prevAlso": "同样会被拦住的还有，例如：{sites}",
+  "opt.tips": "功能小提示",
+  "opt.tipsDesc": "偶尔出现一张小卡片，介绍你还没接触过的功能：每周最多一次，第一周不出现，专注期间也不出现。",
+  "fb.thanksDraft": "草稿已打开",
+  "fb.errPopup": "浏览器拦截了窗口。请允许此页面的弹出窗口后重试；你写的内容还在。",
+  "fb.thanksDraftBody": "尚未发送任何内容。请在 GitHub 上点击“Submit new issue”，作者就会看到。",
 };

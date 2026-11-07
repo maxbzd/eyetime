@@ -5,7 +5,7 @@
 
 import { h, icon } from '../../ui/dom.js';
 import { t } from '../../shared/i18n.js';
-import { getRaw, setRaw } from '../../shared/storage.js';
+import { getRaw, setRaw, updateSettings } from '../../shared/storage.js';
 import { normalizeTips, recordTip } from '../../shared/tips.js';
 import { openTour } from './tour.js';
 
@@ -24,6 +24,6 @@ export async function showTip(/** @type {string} */ id) {
     h('div', { class: 'fbc-actions' },
       h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: async () => { await writeTips(id, 'show'); gone(); openTour({ at: id }); } }, t('tip.show')),
       h('button', { class: 'btn btn-sm', type: 'button', onclick: async () => { await writeTips(id, 'later'); gone(); } }, t('tip.later'))),
-    h('button', { class: 'tip-off', type: 'button', onclick: async () => { await writeTips(id, 'off'); gone(); } }, t('tip.off')));
+    h('button', { class: 'tip-off', type: 'button', onclick: async () => { await writeTips(id, 'off'); await updateSettings((s) => { s.tips = { on: false }; }); gone(); } }, t('tip.off'))); // the same switch as in Settings, where they can be brought back
   document.body.append(card);
 }

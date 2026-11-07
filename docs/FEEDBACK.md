@@ -33,26 +33,26 @@ The best feedback arrives when a person wants to give it. So the door is always 
 | Problem | "What happened, and what did you expect? If you remember: after which action." | Triage first; version / browser / system / language come with it. |
 | Kind word | "What do you like? It really helps." | Read, thanked, shown (without a name, with permission) in the store text and in the changelog. |
 
-The context travels as a **visible chip** the person can remove: "Sent with: EyeTime 3.9.0 · Chrome · Windows · ru". Never the anonymous usage ID. A reply address is optional ("I'd like an answer"), used only to reply and deleted after.
+The context travels as a **visible chip** the person can remove: "Sent with: EyeTime 3.9.1 · Chrome · Windows · ru". Never the anonymous usage ID. A reply address is optional ("I'd like an answer"), used only to reply and deleted after.
 
 ### Asked at good moments (push, rarely)
 
 | Moment | Question | Asked |
 |---|---|---|
-| Right after a finished session | One tap (4 faces), then chips for what / why, then an optional line | After session 5, at most once per 30 days |
-| End of the weekly review | "How was the week with EyeTime?" (5 dots) + an optional line | At most once per 30 days |
+| Right after a finished session | One tap (4 faces), then chips for what / why, then an optional line | After a finished session once 7 days of use have passed; at most one question in 30 days |
+| End of the weekly review | "How was the week with EyeTime?" (5 dots) + an optional line | Inside the same budget of one question in 30 days, and never in a focus session |
 | After 7 active days, once, then every 90 days | The product-market-fit question + "what is the main thing for you?" + "what would improve it?" | Once per 90 days |
 | After a friction moment (many "continue anyway" on the pause page) | "Did the pause page help?" thumbs, optional line | At most once per 60 days |
 | After the extension is removed | The reason (already there) + an optional "what would have kept you?" + an optional address | On the page that opens after removal |
 
 ### The rules of silence
 
-1. **One global budget**: any prompt (this, the consent question, a store-review invitation) counts toward **one per 30 days**. The consent question has priority; no feedback prompt within 14 days of it.
+1. **One global budget**: any prompt (this, the consent question, a store-review invitation) counts toward **one per 30 days**. The consent question has priority; none within 30 days of it either.
 2. After "Not now" or a close: **60 days of silence** for that kind.
-3. **Never** during a focus session, never in the first 7 days, never when an error or slow tab was just shown, never while the pause page is up.
+3. **Never** during a focus session, never in the first 7 days, never when an error or slow tab was just shown. The one small question that lives on the pause page ("Did this pause help?") shows only outside a focus session.
 4. One prompt per session of use.
 5. Watch the two numbers that say it is getting annoying: dismissals ÷ shown, and views per person. If dismissals rise, ask less.
-6. A kill switch (a setting) turns every push off; the always-open door stays.
+6. Every card has "Not now" (quiet for 60 days) and "Don't ask for ratings" (for good); the always-open door to write stays. A single switch for all questions is not built.
 
 ### Why people will want to answer
 
@@ -70,7 +70,7 @@ A **Feedback** page on the dashboard, not a bare inbox:
 - the inbox: each message with its kind, rating, trigger, context chip, and the owner's tags and status (new, read, starred, *done*, won't do); *done* feeds "What's new";
 - the weekly Telegram digest gains: "N new messages, top theme X, one message worth reading".
 
-### Review in the store
+### Review in the store (planned, not built)
 
 The Chrome Web Store review matters for installs. On the thank-you of any feedback, to **everyone** and whatever the rating: "If you'd like, you can also tell others in the store" (a link). No filtering by rating, nothing hidden from the unhappy.
 

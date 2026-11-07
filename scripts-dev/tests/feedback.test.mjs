@@ -69,7 +69,7 @@ test('state: what a card does to the rules', async () => {
   assert.equal(F.weekMoodDue(await F.getFb(), true, 10, T0 + 8 * DAY), true, 'the week after, when nothing else was asked');
   assert.equal(F.weekMoodDue(fresh(), true, 3, T0), false); assert.equal(F.weekMoodDue(fresh(), false, 10, T0), false);
   assert.equal(F.weekMoodDue({ ...fresh(), never: true }, true, 10, T0), false);
-  // the week's mood is a question like the others: the audit of 3.9.0 found it outside the budget
+  // the week's mood is a question like the others and keeps the same budget
   assert.equal(F.weekMoodDue({ ...fresh(), lastAt: T0 - 5 * DAY }, true, 10, T0), false, 'not within 30 days of another question');
   assert.equal(F.weekMoodDue({ ...fresh(), lastAt: T0 - 31 * DAY }, true, 10, T0), true);
   assert.equal(F.weekMoodDue({ ...fresh(), snoozeUntil: T0 + DAY }, true, 10, T0), false, 'not within 60 days of "Not now"');
@@ -80,6 +80,12 @@ test('state: what a card does to the rules', async () => {
   assert.equal(F.pauseThumbsDue(fresh(), true, 10, T0, T0 - 10 * DAY), false);
   assert.equal(F.pauseThumbsDue(fresh(), true, 10, T0, null, true), false, 'not in a focus session');
   mem = {}; await F.fbDismissed({}, T0); assert.equal(F.weekMoodDue(await F.getFb(), true, 10, T0 + 20 * DAY), false, 'a closed question of any kind: quiet');
+  assert.equal(F.weekMoodDue(fresh(), true, 10, T0, null, true), false, 'the mood of the week not in a focus session either (Insights can be open in one)');
+  // a closed question of fit was asked: the next one is a rating, and fit comes back in 90 days (whoever always says "Not now" was asked it again and again, and never the rating)
+  mem = {}; await F.fbDismissed({ kind: 'pmf' }, T0); let fb = await F.getFb();
+  assert.equal(fb.pmfAt, T0); assert.equal(F.promptPlan({ fb, endpoint: true, activeDays: 10, justFinished: true, now: T0 + 61 * DAY }), 'session');
+  assert.equal(F.promptPlan({ fb: { ...fb, snoozeUntil: null, lastAt: null }, endpoint: true, activeDays: 10, justFinished: true, now: T0 + 91 * DAY }), 'pmf');
+  mem = {}; await F.fbDismissed({}, T0); assert.equal((await F.getFb()).pmfAt, null, 'a closed rating does not count as the question of fit');
   assert.deepEqual(F.normalizeFb('junk'), F.normalizeFb(null));
   assert.deepEqual(F.normalizeFb({ outbox: [{ t: 'bad', ts: 1 }, { t: newTicket(), ts: 5, kind: 'nope', text: 'x', answers: [{ id: 1, text: 'a' }, { id: 'x' }] }] }).outbox.map((x) => [x.kind, x.answers.length]), [['idea', 1]]);
 });

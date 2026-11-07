@@ -20,6 +20,18 @@ export function stepsState({ days, settings, tasks, paletteUsed }) {
   };
 }
 
+/** Put the cursor in the task field. On Today the tasks live in the side panel, which has to be opened first (the field stays hidden until then); when no field can be shown, the palette takes the task. */
+function addTaskHere() {
+  const btn = /** @type {HTMLElement | null} */ (document.querySelector('#tdPanelBtn'));
+  if (btn && btn.offsetParent !== null && !document.body.classList.contains('td-panel')) btn.click();
+  document.body.classList.add('show-mods');
+  setTimeout(() => {
+    const i = /** @type {HTMLInputElement | null} */ (document.querySelector('#mod-tasks input'));
+    if (!i || i.offsetParent === null) { window.dispatchEvent(new window.CustomEvent('et:palette')); return; }
+    i.scrollIntoView({ block: 'center' }); i.focus();
+  }, 250);
+}
+
 export async function mountGettingStarted(el, { startShortSession }) {
   let shown = ''; // what is on screen now: skip identical repaints (the tracker writes day records every few seconds)
   async function paint() {
@@ -43,7 +55,7 @@ export async function mountGettingStarted(el, { startShortSession }) {
       h('ol', { class: 'gs-list' },
         step('focus', 'play', { label: t('gs.tryFocus'), run: startShortSession }),
         step('classify', 'tag', { label: t('gs.openSites'), run: () => { try { localStorage.setItem('et-itab', 'sites'); } catch { /* ignore */ } location.href = '../insights/insights.html'; } }),
-        step('task', 'list-plus', { label: t('gs.addTask'), run: () => { document.body.classList.add('show-mods'); const i = document.querySelector('#mod-tasks input'); if (!i) { window.dispatchEvent(new window.CustomEvent('et:palette')); return; } i.scrollIntoView({ block: 'center' }); i.focus(); } }),
+        step('task', 'list-plus', { label: t('gs.addTask'), run: () => addTaskHere() }),
         step('palette', 'search', { label: t('gs.openPalette'), run: () => window.dispatchEvent(new window.CustomEvent('et:palette')) })));
   }
   await paint();

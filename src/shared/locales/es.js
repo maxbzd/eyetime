@@ -537,4 +537,9 @@ export const es = {
   "ob.v2.firstLeadNone": "Empieza poco a poco: unos minutos bastan para notarlo. Aún no se cierra ningún sitio, porque no elegiste ninguno; puedes hacerlo en Ajustes cuando quieras.",
   "ob.v2.saveExit": "Guardar y terminar",
   "ob.v2.prevAlso": "También se frenan, por ejemplo: {sites}",
+  "opt.tips": "Consejos sobre funciones",
+  "opt.tipsDesc": "De vez en cuando, una tarjeta pequeña sobre algo que aún no conoces: como mucho una vez por semana, nunca la primera semana ni durante una sesión.",
+  "fb.thanksDraft": "El borrador está abierto",
+  "fb.errPopup": "El navegador bloqueó la ventana. Permite las ventanas emergentes de esta página e inténtalo de nuevo; tu texto sigue aquí.",
+  "fb.thanksDraftBody": "Aún no se ha enviado nada. Pulsa «Submit new issue» en GitHub y el autor lo leerá.",
 };

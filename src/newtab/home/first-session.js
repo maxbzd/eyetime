@@ -69,8 +69,8 @@ let retry = 0;
 export async function paintFirstSession() {
   const { obFirst, focus } = await getRaw(['obFirst', 'focus']);
   const live = !!focus && isFocusLive(focus);
-  const ses = obFirst && obFirst.stage === 'run' && !live ? sessionSince(await getDays(rangeKeys(2)), obFirst.at) : null;
-  const plan = firstSessionPlan({ obFirst, live, ses, now: Date.now() });
+  const ses = obFirst && obFirst.stage === 'run' && !live ? sessionSince(await getDays(rangeKeys(2)), obFirst.at, obFirst.sid || '') : null;
+  const plan = firstSessionPlan({ obFirst, live, ses, now: Date.now(), focusId: focus ? focus.id : '' });
   clearTimeout(retry);
   if (plan === 'none') { remove(COACH); return false; }
   if (plan === 'coach') {

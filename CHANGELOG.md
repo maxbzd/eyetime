@@ -1,23 +1,54 @@
 # Changelog
 
+## 3.9.1 — 2026-11-07 — Smoother first minutes, tips you control, calmer questions
+
+A polish release on top of 3.9.0: the first session and its dialog behave in the cases people really run into, the task button on the first-days card works on the Today layout, tips get a proper switch in Settings, and every small question keeps the same quiet.
+
+### First run and first session
+- **The first session is tied to its own id.** The onboarding remembers which session it started. If a second session begins before the new tab shows the "First focus done" dialog, the coach card and the dialog no longer mix the two sessions up: the first one's moment is closed quietly, the dialog never appears in the middle of the second, and the dialog's length and count come from the session it is about.
+- **A first session stopped after two minutes or more ends in silence.** The "how did it go?" card is no longer put up for it (it was already skipped for a finished one), so the first contact with the product has no stray question.
+- **The session the onboarding starts no longer changes your usual session length.** A new `remember: false` option of `focus:start` keeps the "last used" length, scope and strictness as they were.
+- The coach card counts closed **sites**, the dialog says "without distractions" only when something was in fact held back, and "I'll choose later" promises nothing. (Shipped in 3.9.0; covered by new tests in this release.)
+
+### Home
+- **"Add a task" on the first-days card works on the Today layout.** The tasks live in the side panel there; the button now opens the panel, puts the cursor in the field, and falls back to the command palette when no field can be shown. An end-to-end test types a task through it.
+- A failure while drawing the background after a photo change or "Next photo" is written to the local error log instead of being lost as an unhandled rejection.
+
+### Tips and guided set-up
+- **Tips have a switch: Settings → General → "Tips about features".** "No more tips" on the card now flips the same switch, and turning it on again brings tips back.
+- **The choice about tips travels with a backup.** Restoring a backup no longer brings tips back for someone who switched them off, or shows the ones already seen; a new `tips` setting defaults to on.
+
+### Questions and feedback
+- **The mood of the week is never asked during a focus session**, also when Insights is open in one (like every other question).
+- **A closed "how disappointed would you be" question counts as asked.** The next one is a rating after a session, and the question of fit returns after 90 days; before, someone who always chose "Not now" was asked it again and again and never saw the rating.
+- **After a GitHub draft opens, the form says so honestly:** "The draft is open. Nothing has been sent yet: press Submit new issue on GitHub." A blocked pop-up now says that pop-ups are blocked (and keeps the words), instead of blaming the connection. Eleven languages.
+- **The page after removal says "Sent" only when the collector took the message**; otherwise it says that nothing was stored and that it can be tried again.
+
+### Texts and documents
+- The Russian README says 11 languages (it said 6) and `store-check.mjs` now guards that line too; the body of `docs/FEEDBACK.md` matches what is built (a rating after a finished session once 7 days of use have passed, one question in 30 days, "Not now" and "Don't ask for ratings" on every card, the store-review invitation marked as planned).
+
+### Under the hood
+- 620 unit tests (617 in the release before): the plan of the first session now also covers a second session and the session id; the worker test covers the questions after a stopped or finished first session and the unchanged usual length; the feedback tests cover the mood during a session and the question of fit; the backup tests cover the tips choice.
+- The end-to-end suites `onboarding` (the session id) and `tour` (the task button, the tips switch and its restore) are extended; the visual baselines are unchanged.
+
 ## 3.9.0 — 2026-11-07 — The first minutes, and a way to answer you
 
-The first run is now three light screens and a real first session; the person can write to the maker and get the answer back inside EyeTime; the optional anonymous numbers and the dashboard that reads them are in the code, but no collector address is set in this release, so nothing is sent; and two audits of 3.8.1 were checked and fixed.
+The first run is now three light screens and a real first session; the person can write to the maker and get the answer back inside EyeTime; the optional anonymous numbers and the dashboard that reads them are in the code, but no collector address is set in this release, so nothing is sent; a guided set-up and quiet tips help people find the rest; and the privacy, sync, first-run and questions code got a round of hardening.
 
-### Fixes from the audit of 3.9.0
+### A steadier first run, quiet questions that keep their word
 - **The dialog after the first session is no longer lost when the new tab is open as the session ends** (the usual case): the worker clears the session a moment before it writes the finished one, and the page used to take that moment for an early stop and close the matter for good. It now waits for the record (up to 20 seconds after the planned end); a session stopped early is still closed at once. The decision is pure and tested (`first-session-plan.js`), and the end-to-end test now ends the session in the real order.
 - **A backup made before 3.8.1 no longer brings the desktop helper's token back when it is imported** (the switch comes back off and the token empty, in both file formats).
-- **The week's mood and "Did this pause help?" keep the same quiet as every other question**: one in 30 days, 60 days after "Not now", not soon after the question about numbers, and the pause one never during a focus session. (They were outside the budget, against what this changelog and `PRIVACY.md` said.)
-- **First run, said honestly**: the card during the first session counts the sites that are closed (not the kinds chosen); with nothing chosen ("I'll choose later") the last screen promises nothing; under the preview a line names other sites that are held back (so "Social" and a closed reddit.com do not look like a fault); "5 minutes without distractions" is said only when something was in fact held back; the first session no longer turns the usual session length into five minutes, and does not add a second question on top of its own dialog; the mark of the chosen look follows the choice in that dialog; the button that skips on the first screen says "Save and finish" on the next ones.
+- **The week's mood and "Did this pause help?" keep the same quiet as every other question**: one in 30 days, 60 days after "Not now", not soon after the question about numbers, and the pause one never during a focus session.
+- **First run, said honestly**: the card during the first session counts the sites that are closed (not the kinds chosen); with nothing chosen ("I'll choose later") the last screen promises nothing; under the preview a line names other sites that are held back (so "Social" and a closed reddit.com do not look like a fault); "5 minutes without distractions" is said only when something was in fact held back; the first session no longer turns the usual session length into five minutes, and does not add a second question on top of its own dialog; the mark of the chosen look follows the choice in that dialog; the button that skips on the first screen says "Save and finish" on the second one.
 - **The page after removal** is described as it is (an optional second step with a few words), in the notice, the measurement notes and the code.
 - **Numbers a person can count**: 46 widgets (the gallery's tiles), "22 photo backgrounds" (the grid of photos); the README says "seven ready themes" and the Russian README 16 looks; `store-check.mjs` keeps all of it.
 - Smaller: the form says the language in use, not "auto", and shows a thank-you after the GitHub draft opens (a blocked pop-up is an error, not a count); a rejected message to the maker shows in the collector's intake; a report refused because the hour's room for new installs is full is kept for the next try; "show the night clock now" is in Settings also while the clock is off; a failure drawing the background is logged, not fatal; links to other documents in the published privacy page work; dead texts removed.
 
 ### Finding the rest: a guided set-up and quiet tips
 - **"Set up in detail"**, offered after the first session (and in the command palette, and in Settings → General): six short steps (your day on Home · limits · a rhythm for work · make Home yours · evenings · your other tools), each with the real controls applied at once, each skippable. What needs the browser's permission is a link into Settings: the tour never asks for one.
-- **Quiet tips about features you have not met**: one small card, at most once a week, never in the first week, never during a session, never about something you already use, each shown once; *Show me* opens the tour at that step, *Not now* is respected, *No more tips* is for good. Nothing is counted or sent.
+- **Quiet tips about features you have not met**: one small card, at most once a week, never in the first week, never during a session, never about something you already use, each shown once, or twice if *Not now* was chosen (it returns a single time after 45 days); *Show me* opens the tour at that step, *No more tips* is for good. Nothing is counted or sent.
 
-### Fixes from the 3.8.1 audit
+### Privacy, sync and resilience
 - **The desktop helper's token is no longer written to a backup file** (the switch comes back off and the token empty), and switching the helper off withdraws its `127.0.0.1` access.
 - **Task and calendar sync holds deletions when a service answers with nothing and two or more tasks were linked** (before, only four or more were protected); one linked task whose counterpart is gone is still a plain deletion.
 - **Restoring a backup or switching the Dock off no longer withdraws the browser access that the restored settings, or instant blocking, still use.**

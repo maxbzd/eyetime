@@ -7,6 +7,7 @@ import { restFor, makeSessionEntry, addSession, rateSession } from '../shared/pr
 import { createSession, createRest, elapsedMs, plannedMs, pauseSession, resumeSession, isPaused, MAX_PAUSE_MS } from '../shared/focus.js';
 import { isFocusActive, isFocusLive } from '../shared/blocking.js';
 import { dayKey } from '../shared/time.js';
+import { isFirstSession } from '../shared/first-session-plan.js';
 import { resolveLocale, setLocale, t, fmtDuration } from '../shared/i18n.js';
 import { updateEstLog } from '../shared/tasks.js';
 import { sweepTabs } from './blocker.js';
@@ -119,7 +120,8 @@ export async function stopFocus() {
   if (sec >= MIN_CREDIT_SEC) {
     await updateDay(sessionDay(focus), (d) => { d.fs = (d.fs || 0) + sec; addSession(d, makeSessionEntry(focus, { sec, completed: false })); });
     await creditTask(focus, sec);
-    if (settings.focus.review) await setRaw({ review: reviewOf(focus, sec, false) });
+    const { obFirst } = await getRaw('obFirst');
+    if (settings.focus.review && !isFirstSession(obFirst, focus)) await setRaw({ review: reviewOf(focus, sec, false) }); // the first session, stopped, is not asked about either: it ends in silence
   }
   await updateBadge(settings);
 }
@@ -167,7 +169,7 @@ export async function finishFocus() {
   await creditTask(focus, focus.minutes * 60);
   const settings = await getSettings();
   const { obFirst } = await getRaw('obFirst');
-  if (settings.focus.review && !(obFirst && obFirst.stage === 'run')) await setRaw({ review: reviewOf(focus, focus.minutes * 60, true) }); // the first session of the onboarding ends with its own dialog: not two questions at once
+  if (settings.focus.review && !isFirstSession(obFirst, focus)) await setRaw({ review: reviewOf(focus, focus.minutes * 60, true) }); // the first session of the onboarding ends with its own dialog: not two questions at once
   await setLocale(resolveLocale(settings.language));
   if (settings.focus.sound) playChime('end');
   const fresh = Date.now() - focus.endsAt < 2 * 60_000; // a session that ended long ago (browser was closed) gets no rest

@@ -33,7 +33,7 @@ export function questionCard({ kind, float = false, onGone }) {
   const gone = () => { card.classList.add('leaving'); setTimeout(() => { card.remove(); onGone && onGone(); }, 240); };
   const closeNow = async (/** @type {{ never?: boolean }} */ o = {}) => {
     await track('fb_dismissed');
-    await fbDismissed(o); if (kind === 'week') await fbWeekDone(); // a closed card is quiet for 60 days, whatever it was
+    await fbDismissed({ ...o, kind }); if (kind === 'week') await fbWeekDone(); // a closed card is quiet for 60 days, whatever it was
     gone();
   };
   const footer = () => h('div', { class: 'fbc-foot' }, h('button', { class: 'fbc-link', type: 'button', onclick: () => closeNow() }, t('fb.not')), h('button', { class: 'fbc-link', type: 'button', onclick: () => closeNow({ never: true }) }, t('fb.never')), h('span', { class: 'fbc-note', text: t('fb.cardNote') }));

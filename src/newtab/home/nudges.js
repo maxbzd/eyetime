@@ -91,6 +91,7 @@ async function paintUsageAsk() {
 async function paintTip() {
   if (document.querySelector('.fbc.float') || document.getElementById('usageAsk')) return true;
   if (state.runningFocus && isFocusLive(state.runningFocus)) return false;
+  if (state.settings.tips && state.settings.tips.on === false) return false;
   const [{ tipState, meta }, usage, conns] = await Promise.all([getRaw(['tipState', 'meta']), getUsage(), listConnections()]);
   const id = tipPlan({ st: normalizeTips(tipState), now: Date.now(), installedAt: (meta && meta.installedAt) || 0, activeDays: usage.days.length, running: false, settings: state.settings, connected: Object.keys(conns).length > 0 });
   if (!id) return false;

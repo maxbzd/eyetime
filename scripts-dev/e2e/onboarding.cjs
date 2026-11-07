@@ -51,6 +51,7 @@ const { launch } = require('./lib.cjs');
   const st = await get('settings'), focus = await get('focus'), first = await get('obFirst');
   ok(st.onboarded && st.blocking.presets.forums === true && st.blocking.presets.social === false && st.blocking.custom.includes('news.ycombinator.com'), 'exactly the choice is saved: ' + JSON.stringify(st.blocking.presets));
   ok(focus && focus.minutes === 5 && focus.goal === 'Write the first paragraph', 'the first session runs on the new tab with its goal: ' + JSON.stringify(focus));
+  ok(first && typeof first.sid === 'string' && first.sid === focus.id, 'the first session is told apart by its id: ' + JSON.stringify([first && first.sid, focus && focus.id]));
   ok(first && first.stage === 'run' && first.host && first.sites >= 1, 'the first session is remembered: ' + JSON.stringify(first));
   ok(ob.url().includes('newtab.html'), 'the page after the third screen is the real new tab');
   await ob.waitForTimeout(1200);
@@ -68,7 +69,7 @@ const { launch } = require('./lib.cjs');
   await site.close();
   ok(await ob.locator('#fsCoach').count() === 0 && (await get('obFirst')).coachSeen === true, 'the coach goes once it has been used, and does not come back');
 
-  // 3. the session ends WITH THE TAB OPEN: the worker clears `focus` first and writes the finished session a moment later (the audit of 3.9.0 found the dialog lost in exactly this order)
+  // 3. the session ends WITH THE TAB OPEN: the worker clears `focus` first and writes the finished session a moment later
   await o.evaluate(async () => { const { focus } = await chrome.storage.local.get('focus'); await chrome.storage.local.set({ focus: { ...focus, endsAt: Date.now() + 1500 } }); }); // the end is near; the page notes it while it runs
   await ob.waitForTimeout(900);
   await o.evaluate(async () => { await new Promise((r) => setTimeout(r, 1000)); await chrome.storage.local.remove('focus'); }); // the session ends: nothing is running, and the record is not there yet
@@ -77,7 +78,7 @@ const { launch } = require('./lib.cjs');
   await o.evaluate(async () => {
     const { obFirst } = await chrome.storage.local.get('obFirst');
     const k = new Date(); const key = 'd:' + k.getFullYear() + '-' + String(k.getMonth() + 1).padStart(2, '0') + '-' + String(k.getDate()).padStart(2, '0');
-    const d = (await chrome.storage.local.get(key))[key] || {}; d.ss = [...(d.ss || []), { id: 'first', t: obFirst.at + 1000, m: 5, p: 5, g: 'x', k: 'focus', c: true, r: 3 }];
+    const d = (await chrome.storage.local.get(key))[key] || {}; d.ss = [...(d.ss || []), { id: obFirst.sid || 'first', t: obFirst.at + 1000, m: 5, p: 5, g: 'x', k: 'focus', c: true, r: 3 }];
     await chrome.storage.local.set({ [key]: d });
   });
   await ob.waitForSelector('#fsDone[open]', { timeout: 8000 });

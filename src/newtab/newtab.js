@@ -94,7 +94,7 @@ const visibleAtStart = typeof document !== 'undefined' && document.visibilitySta
   renderModules(); applySkins();
   installDrawer(); installShortcuts();
   $('#moreMods').addEventListener('click', () => document.body.classList.toggle('show-mods'));
-  onChange(['photoRev'], applyBackground); // the photo and what is made from it are in IndexedDB (shared/photos.js); every write bumps this key
+  onChange(['photoRev'], () => applyBackground().catch((e) => logError('background', e))); // the photo and what is made from it are in IndexedDB (shared/photos.js); every write bumps this key
   window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', () => setTimeout(applyBackground, 0));
   watchFocus();
   // how long until the page was ready for a person (two frames after everything is mounted), counted only when the tab was in front the whole time: a background tab is throttled and says nothing about speed

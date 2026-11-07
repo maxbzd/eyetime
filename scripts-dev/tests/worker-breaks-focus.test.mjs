@@ -108,3 +108,17 @@ test('pause stops the clock and the blocking; resume moves the end by the pause;
   await focus.startFocus({ minutes: 25, strict: true });
   assert.equal((await focus.pauseFocus()).error, 'strict');
 });
+
+test('the first session of the onboarding ends without a question beside its own dialog, stopped early or finished; any other session is asked about', async () => {
+  await updateSettings((s) => { s.focus.review = true; });
+  const first = await focus.startFocus({ minutes: 25, remember: false });
+  assert.equal((await getRaw('focus')).focus.id, first.id, 'the session answers with its id');
+  assert.equal((await getRaw('settings')).settings.focus.minutes, 25, 'and the first session did not change the usual length');
+  await chrome.storage.local.set({ obFirst: { at: Date.now(), stage: 'run', sid: first.id, minutes: 5 } });
+  mock.timers.tick(10 * 60_000); await focus.stopFocus();
+  assert.equal((await getRaw('review')).review ?? null, null, 'stopped early after ten minutes: no "how did it go?"');
+  await chrome.storage.local.set({ obFirst: { at: Date.now(), stage: 'run', sid: 'some-other-session', minutes: 5 } });
+  await focus.startFocus({ minutes: 25 });
+  mock.timers.tick(10 * 60_000); await focus.stopFocus();
+  assert.ok((await getRaw('review')).review, 'a session that is not the first one is asked about, whatever the state of the onboarding');
+});
