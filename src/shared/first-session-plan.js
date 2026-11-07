@@ -36,5 +36,7 @@ export function firstSessionPlan({ obFirst, live, ses, now, focusId = '' }) {
     if (end && now >= end - END_SLACK_MS && now < end + SETTLE_MS) return 'wait'; // ran to its end: the record is being written
     return 'close';                                                               // stopped before its end: no celebration for nothing
   }
-  return now - obFirst.at > GRACE_MS ? 'close' : 'wait'; // never seen running: the start may still be on its way
+  // never seen running: the start may still be on its way (a browser that has just reopened, a worker still booting): wait out the first minute, and then the planned length of the session
+  const planned = obFirst.at + (Number(obFirst.minutes) || 0) * 60_000;
+  return now - obFirst.at > GRACE_MS && now > planned + SETTLE_MS ? 'close' : 'wait';
 }

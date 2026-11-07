@@ -75,3 +75,12 @@ test('a stop marked by the worker closes the matter at once, also in the last se
   assert.equal(plan({ obFirst: ob(), live: false, ses: null, now: END - 2_000 }), 'wait', 'without the mark, near the end, the record is still awaited');
   assert.equal(plan({ obFirst: stopped, live: false, ses, now: END }), 'celebrate', 'a finished record always wins');
 });
+
+test('a start slower than a minute (a browser that has just reopened) is waited for up to the planned length of the session', () => {
+  const o = ob({ seen: false, endsAt: undefined, minutes: 5 });
+  assert.equal(plan({ obFirst: o, live: false, ses: null, now: T0 + GRACE_MS + 1 }), 'wait', 'the minute is over, the session may still be on its way');
+  assert.equal(plan({ obFirst: o, live: false, ses: null, now: T0 + 5 * 60_000 + SETTLE_MS - 1 }), 'wait');
+  assert.equal(plan({ obFirst: o, live: false, ses: null, now: T0 + 5 * 60_000 + SETTLE_MS + 1 }), 'close', 'it never came: the matter is closed');
+  assert.equal(plan({ obFirst: o, live: false, ses, now: T0 + GRACE_MS + 1 }), 'celebrate', 'a record of the session wins at any time');
+  assert.equal(plan({ obFirst: { ...o, stopped: true }, live: false, ses: null, now: T0 + 2_000 }), 'close', 'a stop marked by the worker closes at once');
+});
