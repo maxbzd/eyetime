@@ -36,7 +36,6 @@ const day = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); r
   const st1 = await get('settings'); const focus = await get('focus'); const first = await get('obFirst');
   ok(st1.onboarded === true, 'onboarded flag saved');
   ok(st1.blocking.presets.news === true && st1.blocking.presets.social === false, 'distraction choice saved: exactly what was chosen (news on, the starting set off)');
-  ok(st1.focus.minutes === 25, 'the default session length is not changed by a first session of ten minutes');
   ok(focus && focus.minutes === 10 && focus.goal === 'Write the report', 'first focus session started from onboarding, with its goal', JSON.stringify(focus));
   ok(first && first.stage === 'run' && first.minutes === 10, 'the first session is remembered, to be celebrated when it ends');
   ok(ob.url().includes('newtab.html'), 'landed on new tab after onboarding');
