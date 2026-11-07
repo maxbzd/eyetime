@@ -60,7 +60,8 @@
 <img src="store/screenshots/9-pause-plan.png" width="420" alt="Pause page with your own if-then plan"><img src="store/screenshots/10-close-the-day.png" width="420" alt="Close the day">
 <img src="store/screenshots/5-settings.png" width="860" alt="Настройки">
 <img src="store/screenshots/4-home-dark.png" width="860" alt="Главная в тёмной теме">
-<img src="store/screenshots/6-onboarding.png" width="860" alt="Первый запуск">
+<img src="store/screenshots/6-onboarding.png" width="860" alt="Первый запуск: что отвлекает и как будет выглядеть пауза">
+<img src="store/screenshots/6b-first-session.png" width="860" alt="Конец первой фокус-сессии: сколько отвлечений удержано и быстрая настройка под себя">
 
 </details>
 
