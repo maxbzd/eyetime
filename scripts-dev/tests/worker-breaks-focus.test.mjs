@@ -8,7 +8,7 @@ import { installFakeChrome } from './helpers/fake-chrome.mjs';
 const chrome = installFakeChrome();
 const breaks = await import('../../src/background/breaks.js');
 const focus = await import('../../src/background/focus.js');
-const { updateSettings, getRaw } = await import('../../src/shared/storage.js');
+const { updateSettings, getSettings, getRaw } = await import('../../src/shared/storage.js');
 const { onActiveTime } = breaks;
 
 const start = new Date(2026, 10, 4, 10, 0, 0).getTime();
@@ -121,4 +121,28 @@ test('the first session of the onboarding ends without a question beside its own
   await focus.startFocus({ minutes: 25 });
   mock.timers.tick(10 * 60_000); await focus.stopFocus();
   assert.ok((await getRaw('review')).review, 'a session that is not the first one is asked about, whatever the state of the onboarding');
+});
+
+test('the first session: stopped, the worker marks it before it clears the session (an open new tab cannot talk it out of the answer), and no question is put up', async () => {
+  await updateSettings((s) => { s.focus.review = true; });
+  const first = await focus.startFocus({ minutes: 25, remember: false });
+  await chrome.storage.local.set({ obFirst: { at: Date.now(), stage: 'run', sid: first.id, minutes: 25 } });
+  // the new tab: the moment `focus` is cleared it closes the matter (stage 'closed'), as the real page does
+  let racing = true;
+  chrome.storage.onChanged.addListener(async (changes) => {
+    if (racing && 'focus' in changes && !changes.focus.newValue) { const { obFirst } = await getRaw('obFirst'); await chrome.storage.local.set({ obFirst: { ...obFirst, stage: 'closed' } }); }
+  });
+  mock.timers.tick(10 * 60_000); await focus.stopFocus(); await settle(120); racing = false;
+  assert.equal((await getRaw('obFirst')).obFirst.stopped, true, 'marked as a stop');
+  assert.equal((await getRaw('review')).review ?? null, null, 'no "how did it go?" for the first session, whatever the tab did meanwhile');
+});
+
+test('the first session, finished: the count of held pages is taken at its end; and a try of five minutes does not turn the usual length into five', async () => {
+  const first = await focus.startFocus({ minutes: 5, remember: false });
+  assert.equal((await getSettings()).focus.minutes, 25, 'five minutes asked without remembering: the usual twenty-five stays');
+  await chrome.storage.local.set({ obFirst: { at: Date.now(), stage: 'run', sid: first.id, minutes: 5, blocks0: 0 }, usage: { v: 1, base: 1, days: [1], first: {}, total: { block_page: 3 }, period: {} } });
+  mock.timers.tick(5 * 60_000 + 1000); await focus.finishFocus();
+  assert.equal((await getRaw('obFirst')).obFirst.blocksEnd, 3, 'the count at the end of the session');
+  await focus.startFocus({ minutes: 5 });
+  assert.equal((await getSettings()).focus.minutes, 5, 'while a session the person chose, with remembering, does change it');
 });

@@ -98,6 +98,13 @@ const { launch } = require('./lib.cjs');
   await prime(3);
   let p = await open('src/newtab/newtab.html'); await p.waitForSelector('main.nt'); await p.waitForTimeout(2500);
   ok(await p.locator('.tip-card').count() === 0, 'no tip in the first week');
+  // "Start 5 min" on the first-days card is a try: it does not turn the usual length (and strictness) into five minutes
+  await o.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.focus.minutes = 25; s.focus.strict = true; }); await chrome.storage.local.remove('focus'); });
+  await p.reload(); await p.waitForSelector('.gs-step'); await p.waitForTimeout(800);
+  await p.locator('.gs-step', { hasText: 'first focus session' }).getByRole('button').click(); await p.waitForTimeout(1200);
+  const kept = await settings();
+  ok(kept.focus.minutes === 25 && kept.focus.strict === true, 'a try of five minutes keeps the usual length and strictness: ' + kept.focus.minutes + ' ' + kept.focus.strict);
+  await o.evaluate(async () => { await chrome.runtime.sendMessage({ type: 'focus:stop' }); const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.focus.strict = false; }); });
   // the "Add a task" button of the first days' card: on Today the field is in the side panel, which the button has to open
   await o.evaluate(async () => { await chrome.storage.local.set({ tasks: [] }); });
   await p.reload(); await p.waitForSelector('.gs-step'); await p.waitForTimeout(800);
@@ -125,7 +132,7 @@ const { launch } = require('./lib.cjs');
   p = await open('src/newtab/newtab.html'); await p.waitForSelector('.tip-card', { timeout: 8000 });
   ok(/A rhythm for work/.test(await p.locator('.tip-card').innerText()), 'a week later the next tip, not the same one');
   await p.getByRole('button', { name: 'No more tips' }).click(); await p.waitForTimeout(500);
-  ok(await p.locator('.tip-card').count() === 0 && (await get('tipState')).off === true, '"No more tips" ends them');
+  ok(await p.locator('.tip-card').count() === 0 && (await get('settings')).tips.on === false, '"No more tips" ends them: it is the switch in Settings');
   await o.evaluate(async () => { const { tipState } = await chrome.storage.local.get('tipState'); tipState.last = Date.now() - 400 * 86_400_000; await chrome.storage.local.set({ tipState }); });
   await p.reload(); await p.waitForSelector('main.nt'); await p.waitForTimeout(2500);
   ok(await p.locator('.tip-card').count() === 0, 'and for good, however long ago the last one was');
@@ -136,7 +143,7 @@ const { launch } = require('./lib.cjs');
   const tipsRow = o.locator('#general .setting', { hasText: 'Tips about features' });
   ok(await tipsRow.count() === 1 && await tipsRow.locator('input').isChecked() === false, 'Settings → General shows the tips switched off');
   await tipsRow.locator('.switch').click(); await o.waitForTimeout(600);
-  ok((await settings()).tips.on === true && (await get('tipState')).off === false, 'switching it on lifts "No more tips"');
+  ok((await settings()).tips.on === true, 'switching it on brings them back');
 
   ok(outside.length === 0, 'no request left the device: ' + outside.slice(0, 3).join(', '));
   console.log(bad.length ? 'FAIL tour\n  ' + bad.join('\n  ') : 'tour: all checks passed');

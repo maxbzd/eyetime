@@ -1,4 +1,4 @@
-# Как выложить EyeTime 3.9.1 в Chrome Web Store: шаги по порядку
+# Как выложить EyeTime 3.9.2 в Chrome Web Store: шаги по порядку
 
 Контакты для формы стора и сайта: **maxbzd1600@gmail.com**, Telegram **@maxbzd**.
 Всё, что нужно вставить в формы, уже лежит в репозитории; ниже написано, откуда что брать. Названия кнопок в консоли стора Google иногда меняет, смысл остаётся.
@@ -13,7 +13,7 @@
 
 ## Шаг 1. Залить код на GitHub и дождаться релиза
 
-1. Всё уже в ветке `main` (я запушил). Workflow **Release** по изменению `manifest.json` сам создаёт релиз **v3.9.1** с файлами `eyetime-chrome.zip` и `eyetime-firefox.zip`.
+1. Всё уже в ветке `main` (я запушил). Workflow **Release** по изменению `manifest.json` сам создаёт релиз **v3.9.2** с файлами `eyetime-chrome.zip` и `eyetime-firefox.zip`.
 2. Откройте https://github.com/maxbzd/eyetime/releases и скачайте **`eyetime-chrome.zip`**. Это ровно тот файл, который тестировался в CI. Собрать самому: `npm ci && npm run build`, файл появится в `dist/`. Сборка воспроизводимая: у двух сборок одного коммита хэш одинаковый (`node scripts-dev/verify-build.mjs` это проверяет), а подлинность релизного файла проверяется командой `gh attestation verify eyetime-chrome.zip --repo maxbzd/eyetime`.
 3. Если релиза нет: Actions → *Release* → *Run workflow*.
 
@@ -93,7 +93,7 @@
 
 | Ошибка в консоли | Что делать |
 |---|---|
-| «Description exceeds 132 characters» | Не должно быть: `npm run check` это проверяет. Убедитесь, что залит `eyetime-chrome.zip` версии 3.9.1 |
+| «Description exceeds 132 characters» | Не должно быть: `npm run check` это проверяет. Убедитесь, что залит `eyetime-chrome.zip` версии 3.9.2 |
 | «Screenshots must be 1280×800 or 640×400» | Берите только файлы из `store/screenshots/<язык>/` (5 штук) |
 | Отказ из-за разрешений | Ответьте по justification из `store/LISTING.md`; при необходимости напишите, что `declarativeNetRequestWithHostAccess` и доступ к сайтам необязательные и спрашиваются по клику |
 | «Broad host permissions» | Доступ к сайтам объявлен как **optional** и не запрашивается при установке |

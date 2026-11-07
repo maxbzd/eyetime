@@ -93,7 +93,8 @@ async function paintTip() {
   if (state.runningFocus && isFocusLive(state.runningFocus)) return false;
   if (state.settings.tips && state.settings.tips.on === false) return false;
   const [{ tipState, meta }, usage, conns] = await Promise.all([getRaw(['tipState', 'meta']), getUsage(), listConnections()]);
-  const id = tipPlan({ st: normalizeTips(tipState), now: Date.now(), installedAt: (meta && meta.installedAt) || 0, activeDays: usage.days.length, running: false, settings: state.settings, connected: Object.keys(conns).length > 0 });
+  const id = tipPlan({ st: { ...normalizeTips(tipState), off: false }, // the switch in Settings is the only "off" (it travels with the settings between devices; a flag kept here could not)
+     now: Date.now(), installedAt: (meta && meta.installedAt) || 0, activeDays: usage.days.length, running: false, settings: state.settings, connected: Object.keys(conns).length > 0 });
   if (!id) return false;
   await showTip(id);
   return true;

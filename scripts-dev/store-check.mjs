@@ -99,7 +99,9 @@ for (const [file, w, h] of [['store/promo/small-tile-440x280.png', 440, 280], ['
   const { STARTER_IDS } = await imp('src/shared/starters.js');
   const words = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
   ok(read('README.md').includes(`${words[STARTER_IDS.length]} ready themes`) || !/ready themes/.test(read('README.md')), `README.md should say ${words[STARTER_IDS.length]} ready themes (the panel of ready themes has ${STARTER_IDS.length})`);
-  ok(!/\b6 язык/.test(read('README_RU.md')), 'README_RU.md says 6 languages, the product has 11');
+  const { LANGUAGES } = await imp('src/shared/locales/languages.js');
+  const langCount = Object.keys(LANGUAGES).length;
+  ok(new RegExp(`\\b${langCount} языков`).test(read('README_RU.md')), `README_RU.md should say ${langCount} языков (the product has ${langCount})`);
   ok(!/Одиннадцать стилей/.test(read('README_RU.md')) || looks === 11, `README_RU.md says eleven looks, the code has ${looks}`);
   if (USAGE_ENDPOINT) for (const f of ['site/index.html', 'store/listing/en.md', 'README.md']) ok(!/no analytics/i.test(read(f)), `${f} says "no analytics" but the collector has an address (docs/MEASUREMENT.md: change the sentence in the same release)`);
 }

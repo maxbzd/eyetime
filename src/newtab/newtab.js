@@ -87,7 +87,7 @@ const visibleAtStart = typeof document !== 'undefined' && document.visibilitySta
   if (new URLSearchParams(location.search).has('tour')) openTour(); // from Settings → General → Guided set-up
   mountRings($('#rings'));
   mountWhatsNew($('#wn'));
-  mountGettingStarted($('#gs'), { startShortSession: async () => { const s = await getSettings(); await send('focus:start', { minutes: 5, strict: false, scope: s.focus.scope }); } });
+  mountGettingStarted($('#gs'), { startShortSession: async () => { const s = await getSettings(); await send('focus:start', { minutes: 5, strict: false, scope: s.focus.scope, remember: false }); } }); // a try of five minutes is not the person's choice of a usual length
   watchFirstSession();
   paintNudge(); setInterval(paintNudge, 60_000); paintBackupNudge();
   onChange(['tasks', 'd:*'], paintNudge);
@@ -95,7 +95,7 @@ const visibleAtStart = typeof document !== 'undefined' && document.visibilitySta
   installDrawer(); installShortcuts();
   $('#moreMods').addEventListener('click', () => document.body.classList.toggle('show-mods'));
   onChange(['photoRev'], () => applyBackground().catch((e) => logError('background', e))); // the photo and what is made from it are in IndexedDB (shared/photos.js); every write bumps this key
-  window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', () => setTimeout(applyBackground, 0));
+  window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', () => setTimeout(() => applyBackground().catch((e) => logError('background', e)), 0));
   watchFocus();
   // how long until the page was ready for a person (two frames after everything is mounted), counted only when the tab was in front the whole time: a background tab is throttled and says nothing about speed
   window.requestAnimationFrame(() => window.requestAnimationFrame(() => { if (visibleAtStart && document.visibilityState === 'visible') track(speedFeature(Math.round(window.performance.now()))); }));

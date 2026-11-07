@@ -1,5 +1,33 @@
 # Changelog
 
+## 3.9.2 — 2026-11-07 — The first session ends the way it should
+
+A release about the moment that matters most to a new person: the end of the first focus session. It works the same whether the new tab is open or closed, whether the session ran out or was stopped, and whether a second one started in between. The first-days card, the tips switch and the page after removal got the same care.
+
+### The first session and its dialog
+- **A stopped first session ends in silence, also when the new tab is open.** The worker now decides "is this the session the onboarding started?" *before* it clears the running session, and leaves a mark (`stopped`) for the page. Before, an open tab reacted to the cleared session first, closed the matter, and the worker then no longer recognised the session and put up the "how did it go?" card. A test replays exactly that order, with a page that closes the matter the moment the session disappears.
+- **A stop in the last seconds before the planned end is a stop.** The page used to wait up to 20 seconds for a finished session that would never be written; with the mark it closes the matter at once, and a record that really was written still wins.
+- **The count in the dialog is the session's own.** The number of pages held back is read at the end of the session (`blocksEnd`) instead of whenever the dialog happens to be drawn, so pages stopped after the session, or in a second one, no longer inflate it. A session with nothing held back says "N minutes of focus" without a count.
+- **An open dialog closes by itself when another session takes over.** If a second session starts while "First focus done" is still on the screen, the dialog is dismissed (the matter was already closed for good; now the screen agrees).
+
+### Home
+- **"Start 5 min" on the first-days card is a try, and stays one.** It no longer turns your usual session length into five minutes or switches strict mode off (`focus:start` is sent with `remember: false`, as in the onboarding). A new check sets 25 minutes and strict mode, presses the button, and expects both to be unchanged.
+- A failure while redrawing the background after the system light/dark theme changes goes to the local error log (the last background call without a handler).
+
+### Tips
+- **One switch decides, and it travels with your settings.** "No more tips" on the card now writes only Settings → General → "Tips about features"; the page asks nothing else. Before, a second flag kept on the device could disagree with the switch after settings arrived from another device (the switch said "on", no tip ever came). The history of tips already seen stays in the backup, as before.
+
+### The page after removal
+- **Step one, the reason, is confirmed too.** "Thank you" appears only when the collector took the answer; if it refused or the network failed, the list stays and a line says that nothing was stored and that you can choose again (the optional words step already worked this way).
+
+### Texts and documents
+- `docs/FEEDBACK.md`: the table rows for the question of fit and for the pause question now describe what the code does (a finished session as the trigger, thumbs only with no free text, the 30-day budget after an answer and 60 days after a closed card), and rules 2 and 4 say that the quiet is one for all questions and that showing a question starts the budget at once.
+- `store-check.mjs` compares the number of languages in the Russian README with the product's own list (it only forbade "6" before).
+
+### Under the hood
+- 623 unit tests (620 before). New: the first-session plan for a marked stop; the worker replays a stopped first session against a page that closes the matter first; the count taken at the end of a finished session; a five-minute try that does not change the usual length (the earlier check ran a 25-minute session against a 25-minute default and could not tell).
+- End-to-end: `onboarding` stops a first session after two and a half minutes with the tab open and expects no dialog, no card and the mark; `tour` presses "Start 5 min" with a 25-minute strict setup, and checks that "No more tips" is the Settings switch and that switching it on brings tips back.
+
 ## 3.9.1 — 2026-11-07 — Smoother first minutes, tips you control, calmer questions
 
 A polish release on top of 3.9.0: the first session and its dialog behave in the cases people really run into, the task button on the first-days card works on the Today layout, tips get a proper switch in Settings, and every small question keeps the same quiet.

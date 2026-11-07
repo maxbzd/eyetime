@@ -33,7 +33,7 @@ The best feedback arrives when a person wants to give it. So the door is always 
 | Problem | "What happened, and what did you expect? If you remember: after which action." | Triage first; version / browser / system / language come with it. |
 | Kind word | "What do you like? It really helps." | Read, thanked, shown (without a name, with permission) in the store text and in the changelog. |
 
-The context travels as a **visible chip** the person can remove: "Sent with: EyeTime 3.9.1 · Chrome · Windows · ru". Never the anonymous usage ID. A reply address is optional ("I'd like an answer"), used only to reply and deleted after.
+The context travels as a **visible chip** the person can remove: "Sent with: EyeTime 3.9.2 · Chrome · Windows · ru". Never the anonymous usage ID. A reply address is optional ("I'd like an answer"), used only to reply and deleted after.
 
 ### Asked at good moments (push, rarely)
 
@@ -41,16 +41,16 @@ The context travels as a **visible chip** the person can remove: "Sent with: Eye
 |---|---|---|
 | Right after a finished session | One tap (4 faces), then chips for what / why, then an optional line | After a finished session once 7 days of use have passed; at most one question in 30 days |
 | End of the weekly review | "How was the week with EyeTime?" (5 dots) + an optional line | Inside the same budget of one question in 30 days, and never in a focus session |
-| After 7 active days, once, then every 90 days | The product-market-fit question + "what is the main thing for you?" + "what would improve it?" | Once per 90 days |
-| After a friction moment (many "continue anyway" on the pause page) | "Did the pause page help?" thumbs, optional line | At most once per 60 days |
+| Right after a finished session, once 7 active days have passed; then every 90 days (a closed one counts as asked) | The product-market-fit question + "what is the main thing for you?" + "what would improve it?" | Once per 90 days, inside the one-question-in-30-days budget |
+| On the pause page, whenever it is drawn and the quiet rules allow (never in a focus session) | "Did the pause page help?": two thumbs, no free text | Inside the same budget: one question in 30 days after an answer, 60 days after it is closed |
 | After the extension is removed | The reason (already there) + an optional "what would have kept you?" + an optional address | On the page that opens after removal |
 
 ### The rules of silence
 
 1. **One global budget**: any prompt (this, the consent question, a store-review invitation) counts toward **one per 30 days**. The consent question has priority; none within 30 days of it either.
-2. After "Not now" or a close: **60 days of silence** for that kind.
+2. After "Not now" or a close: **60 days of silence** for every question (the quiet is one for all kinds, not one per kind).
 3. **Never** during a focus session, never in the first 7 days, never when an error or slow tab was just shown. The one small question that lives on the pause page ("Did this pause help?") shows only outside a focus session.
-4. One prompt per session of use.
+4. At most one prompt at a time: showing a question starts the 30-day budget at once, so a second one cannot follow in the same session.
 5. Watch the two numbers that say it is getting annoying: dismissals ÷ shown, and views per person. If dismissals rise, ask less.
 6. Every card has "Not now" (quiet for 60 days) and "Don't ask for ratings" (for good); the always-open door to write stays. A single switch for all questions is not built.
 
