@@ -61,9 +61,9 @@
     const p = document.createElement('p'); p.textContent = msg('feedBody').replace('{n}', String(feed.shortMinutes));
     const row = document.createElement('div'); row.className = 'row';
     const leave = document.createElement('button'); leave.className = 'p'; leave.textContent = msg('feedLeave');
-    leave.addEventListener('click', () => chrome.runtime.sendMessage({ type: 'tab:close' }));
+    leave.addEventListener('click', (e) => { if (e.isTrusted) chrome.runtime.sendMessage({ type: 'tab:close' }); }); // a click the person made, not one the page made for them
     const more = document.createElement('button'); more.textContent = msg('feedMore');
-    more.addEventListener('click', () => { extraSec += 300; unlock(); });
+    more.addEventListener('click', (e) => { if (e.isTrusted) { extraSec += 300; unlock(); } });
     row.append(leave, more); card.append(h2, p, row); root.append(style, card);
     // keyboard focus stays inside the dialog (Tab cycles between its two buttons); Escape never skips the limit
     root.addEventListener('keydown', (e) => {
