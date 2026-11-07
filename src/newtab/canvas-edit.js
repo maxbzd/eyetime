@@ -47,17 +47,46 @@ function textBox(el) {
 
 /** Where every visible block is on the page right now, as editor items (text blocks start at scale 1 and are refined once placed). */
 function measureLook(present) {
-  const v = view(), k = canvasScale(v.w), items = {}, rects = {}, seed = seedItems(present);
+  const v = view(), k = canvasScale(v.w), items = {}, rects = {}, seed = seedItems(present), below = [];
   for (const id of present) {
     const el = blockEl(id), b = blockMeta(id), r = el && boxOf(el);
     if (!r || !r.width || !r.height) continue; // not shown (switched off)
-    if (r.bottom > v.h + 40) { if (seed[id]) items[id] = seed[id]; continue; } // below the fold, where a free layout cannot keep it: it gets its usual place
+    if (r.bottom > v.h + 40) { if (seed[id]) { items[id] = seed[id]; below.push({ id, h: r.height }); } continue; } // below the fold, where a free layout cannot keep it: it gets its usual place
     const tb = b.kind === 'text' ? textBox(el) : r; // a text block is as wide as its words, not as its container
     const item = { x: (tb.left + tb.width / 2) / v.w * 100, y: (r.top + r.height / 2) / v.h * 100 };
     if (b.kind === 'text') { item.s = 1; rects[id] = tb; } else item.w = r.width / k;
     items[id] = item;
   }
+  clearOfBlocks(items, below, rects, k, v);
   return { items: normalizeCanvas({ on: true, items }).items, rects };
+}
+
+/** Blocks put in their usual place must not land on what is already where it is on the page (the focus card is wider on some looks than the usual one). A block that overlaps another
+ *  slides sideways to the free space beside it; when that space is narrower than the block may be, the block that was in the way gives up some of its width instead (a card can be narrower
+ *  than it is, a block cannot be narrower than its limit). Blocks that overlap nothing stay exactly where they were. */
+function clearOfBlocks(items, below, rects, k, v) {
+  const GAP = 16, box = {};
+  for (const id of Object.keys(items)) { const el = blockEl(id), r = rects[id] || (el && boxOf(el)); if (r && r.width && r.height) box[id] = { left: r.left, right: r.right, top: r.top, bottom: r.bottom }; }
+  for (const { id, h: bh } of below) {
+    const it = items[id], b = blockMeta(id);
+    if (!it || b.kind === 'text') continue;
+    const cy = it.y / 100 * v.h, top = cy - bh / 2, bottom = cy + bh / 2, w = it.w * k;
+    let left = it.x / 100 * v.w - w / 2, right = left + w;
+    for (const [oid, o] of Object.entries(box)) {
+      if (oid === id || below.some((x) => x.id === oid) || o.bottom <= top || o.top >= bottom || o.right <= left || o.left >= right) continue;
+      const side = it.x < 50 ? 'left' : 'right', min = b.min * k;
+      const room = side === 'left' ? o.left - 2 * GAP : v.w - o.right - 2 * GAP;
+      if (room < min && blockMeta(oid).kind === 'card') { // make room by narrowing the one in the way, from the side this block is on
+        const m = blockMeta(oid), oi = items[oid], ow = (o.right - o.left) - (min - room), nw = Math.max(m.min * k, ow);
+        if (side === 'left') o.left = o.right - nw; else o.right = o.left + nw;
+        oi.w = Math.round((o.right - o.left) / k); oi.x = (o.left + o.right) / 2 / v.w * 100;
+      }
+      const room2 = side === 'left' ? o.left - 2 * GAP : v.w - o.right - 2 * GAP, nw = Math.max(min, Math.min(w, room2));
+      if (side === 'left') { right = o.left - GAP; left = Math.max(GAP, right - nw); } else { left = o.right + GAP; right = Math.min(v.w - GAP, left + nw); }
+    }
+    it.w = Math.round((right - left) / k); it.x = (left + right) / 2 / v.w * 100;
+    box[id] = { left, right, top, bottom };
+  }
 }
 
 let active = null;

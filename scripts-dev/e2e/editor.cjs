@@ -41,6 +41,9 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   ok(Object.keys(look0).every((id) => Math.abs(look0[id][0] - look1[id][0]) < 14 && Math.abs(look0[id][1] - look1[id][1]) < 14 && Math.abs(look0[id][2] - look1[id][2]) < look0[id][2] * 0.08), 'the editor opens on the positions and sizes the page already had (the words, not their container): ' + JSON.stringify([look0, look1]));
   ok(await p.locator('.cv-frame:not([hidden])').count() === 6, 'six blocks on the screen (clock, greeting, quote, focus, today, tasks): ' + await p.locator('.cv-frame:not([hidden])').count());
   ok(await p.evaluate(() => document.body.dataset.layout) === 'canvas', 'free layout on while editing');
+  { const cards = await p.evaluate(() => ['focus', 'mod-today', 'mod-tasks'].map((id) => { const e = document.getElementById(id), r = e && e.getBoundingClientRect(); return r && r.width ? { id, l: r.left, r: r.right, t: r.top, b: r.bottom } : null; }).filter(Boolean));
+    const hit = []; for (let a = 0; a < cards.length; a++) for (let b = a + 1; b < cards.length; b++) { const x = Math.min(cards[a].r, cards[b].r) - Math.max(cards[a].l, cards[b].l), y = Math.min(cards[a].b, cards[b].b) - Math.max(cards[a].t, cards[b].t); if (x > 1 && y > 1) hit.push(cards[a].id + ' on ' + cards[b].id); }
+    ok(cards.length >= 2 && !hit.length, 'the cards do not lie on one another when the editor opens: ' + JSON.stringify(hit)); }
   let c = await canvas();
   ok(c.on && Object.keys(c.items).length === 6, 'the layout is saved: ' + Object.keys(c.items));
 
