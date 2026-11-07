@@ -185,6 +185,57 @@ h3 { font-size: 12px; font-weight: 500; color: var(--ink2); margin: 0 0 8px; }
 .insights a { color: var(--ink2); white-space: nowrap; font-size: 12px; text-decoration: none; }
 .insights a:hover { color: var(--accent); }
 
+
+/* messages to the maker */
+.badge { margin-left: auto; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 600; display: grid; place-items: center; }
+.badge + kbd { margin-left: 6px; }
+.pmf .lab { font-size: 12px; color: var(--ink2); }
+.pmf .big { font-size: 44px; font-weight: 650; letter-spacing: -.04em; line-height: 1.05; margin-top: 2px; }
+.gauge { position: relative; height: 10px; background: var(--hover); border-radius: 5px; margin: 16px 0 8px; }
+.gauge i { display: block; height: 100%; border-radius: 5px; background: var(--accent); transition: width .4s ease; }
+.gauge.ok i { background: var(--good); }
+.gauge .ci { position: absolute; top: 3px; height: 4px; background: var(--ink); opacity: .28; border-radius: 2px; }
+.gauge .tick { position: absolute; top: -5px; bottom: -5px; width: 2px; margin-left: -1px; background: var(--ink); opacity: .6; border-radius: 1px; }
+.pmf .sub { font-size: 12px; color: var(--muted); }
+.pmf .verdict { margin-top: 10px; padding: 7px 10px; border-radius: 7px; background: var(--sunken); font-size: 12.5px; color: var(--ink2); }
+.pmf .verdict.good { background: var(--good-bg); color: var(--good); } .pmf .verdict.warn { background: var(--warn-bg); color: var(--warn); }
+.pmf .split { display: flex; gap: 14px; margin-top: 10px; font-size: 12px; color: var(--muted); } .pmf .split b { color: var(--ink); font-weight: 600; }
+.fbtools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.fbtools input[type=search], .fbtools select { background: var(--surface); border: 1px solid var(--line2); border-radius: 6px; height: 28px; padding: 0 8px; color: var(--ink); min-width: 0; color-scheme: inherit; }
+.fbtools input[type=search] { flex: 1 1 220px; max-width: 360px; }
+.msgs { display: grid; gap: 8px; }
+.msg { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--k, var(--line2)); border-radius: var(--radius); overflow: hidden; }
+.msg.idea { --k: var(--accent); } .msg.problem { --k: var(--warn); } .msg.kudos { --k: var(--good); } .msg.leaving { --k: var(--bad); }
+.msg.unread { background: color-mix(in srgb, var(--soft) 40%, var(--surface)); }
+.msg.dim { opacity: .6; }
+.msg .row { display: grid; gap: 6px; padding: 10px 12px; cursor: pointer; }
+.msg .row:hover { background: var(--hover); }
+.msg .top { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--muted); }
+.msg .top .sp, .msg .acts .sp { flex: 1; }
+.msg .top .rt { color: var(--ink); font-weight: 600; }
+.msg .body { font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.5; }
+.msg .body.clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.msg .body.mute { color: var(--muted); font-size: 13px; }
+.msg .chipline { display: flex; gap: 4px; flex-wrap: wrap; }
+.tag.ghost { background: transparent; border: 1px solid var(--line); color: var(--ink2); }
+.tag.kind.idea { background: var(--soft); color: var(--soft-ink); } .tag.kind.problem { background: var(--warn-bg); color: var(--warn); } .tag.kind.kudos { background: var(--good-bg); color: var(--good); } .tag.kind.leaving { background: var(--bad-bg); color: var(--bad); }
+.tag.st-starred { background: var(--warn-bg); color: var(--warn); } .tag.st-done { background: var(--good-bg); color: var(--good); } .tag.st-wont { background: var(--hover); color: var(--muted); }
+.msg .more { display: grid; gap: 10px; padding: 2px 12px 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+.msg .acts { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.msg .acts.end { justify-content: flex-end; }
+.msg .acts .btn[aria-pressed="true"] { background: var(--sel); border-color: var(--line2); font-weight: 550; }
+.btn.danger:hover { color: var(--bad); background: var(--bad-bg); }
+.msg textarea { width: 100%; background: var(--surface); border: 1px solid var(--line2); border-radius: 6px; padding: 7px 9px; color: var(--ink); font: inherit; font-size: 13px; resize: vertical; color-scheme: inherit; }
+.msg .fgrid textarea, .msg .fgrid input[type=text] { width: 100%; }
+.contact { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 12.5px; color: var(--ink2); } .contact b { color: var(--ink); font-weight: 550; user-select: all; }
+.thread { display: grid; gap: 8px; }
+.bubble { justify-self: end; max-width: min(520px, 92%); background: var(--accent); color: var(--accent-ink); border-radius: 12px 12px 3px 12px; padding: 8px 12px; }
+.bubble .bt { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13.5px; }
+.bubble .bm { font-size: 11px; opacity: .75; margin-top: 3px; }
+.compose { display: grid; gap: 6px; }
+.compose .cnt { font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { .gauge i { transition: none; } }
+
 /* bars and rows */
 .hlist { display: grid; gap: 1px; }
 .hrow { display: grid; grid-template-columns: minmax(110px, 34%) 1fr 120px; gap: 10px; align-items: center; padding: 0 8px; margin: 0 -8px; border-radius: 6px; min-height: 28px; }
@@ -630,6 +681,34 @@ Object.assign(MORE, {
   ex_consent_few: ['Согласившихся пока мало ({n}): нужно хотя бы 200, иначе разницу нельзя отличить от случая.', 'Too few people have agreed so far ({n}): at least 200 are needed, or a difference cannot be told from chance.'],
   ex_consent_share: ['доля согласившихся', 'share of those who agreed'],
 });
+
+Object.assign(MORE, {
+  pg_feedback: ['Отзывы', 'Feedback'], q_feedback: ['Что люди написали и как оценили: подходит ли EyeTime, что просят, на что жалуются. Здесь же можно ответить: ответ придёт человеку в расширение.', 'What people wrote and how they rated: does EyeTime fit, what they ask for, what they complain about. You can answer here too: the answer arrives inside the person’s extension.'],
+  fb_loading: ['Загружаю сообщения…', 'Loading the messages…'], fb_err: ['Не получилось сохранить. Попробуйте ещё раз.', 'Could not save. Try again.'], fb_demo: ['Это придуманные сообщения. Ответы и пометки в демо живут только на этой странице.', 'These messages are made up. Answers and marks in the demo live only on this page.'],
+  fb_off_h: ['Сообщения не подключены', 'Messages are not set up'], fb_off: ['Сборщик сообщений здесь не включён. Создайте базу для сообщений (server/usage/README.md, раздел про feedback.sql) — тогда они появятся здесь.', 'The message collector is not switched on here. Create the database for messages (server/usage/README.md, the part about feedback.sql) and they will appear here.'],
+  fb_k_new: ['Новые', 'New'], fb_k_total: ['всего', 'in all'], fb_k_wait: ['Ждут ответа', 'Waiting for an answer'], fb_k_wait_sub: ['просили ответить', 'asked to be answered'], fb_k_done: ['Сделано по идеям и проблемам', 'Done from ideas and problems'], fb_k_done_sub: ['отмечено «сделано»', 'marked “done”'], fb_k_pause: ['Пауза помогла', 'The pause helped'],
+  fb_pmf_h: ['Подходит ли EyeTime людям', 'Does EyeTime fit people'], fb_pmf_q: ['Один вопрос: «Сильно ли вы расстроились бы, если бы EyeTime исчез?». Хорошим знаком считается 40% и больше «очень расстроился бы».', 'One question: “How would you feel if EyeTime were gone?”. 40% or more “very disappointed” is the usual sign of a product people need.'],
+  fb_pmf_score: ['Очень расстроились бы', 'Very disappointed'], fb_pmf_target: ['Цель: {v}', 'Target: {v}'], fb_pmf_very: ['очень', 'very'], fb_pmf_some: ['немного', 'somewhat'], fb_pmf_not: ['нет', 'not'],
+  fb_pmf_few: ['Ответов пока {n}: нужно хотя бы 30, чтобы доверять цифре.', 'So far {n} answers: you need at least 30 to trust the figure.'], fb_pmf_above: ['Выше цели, и это не случайность: нижняя граница интервала выше 40%.', 'Above the target, and not by chance: the lower bound of the interval is above 40%.'], fb_pmf_below: ['Ниже цели, и это не случайность: верхняя граница интервала ниже 40%.', 'Below the target, and not by chance: the upper bound of the interval is below 40%.'], fb_pmf_unsure: ['Пока нельзя сказать, выше цели или ниже: интервал накрывает 40%. Нужно больше ответов.', 'Cannot tell yet whether it is above or below the target: the interval covers 40%. More answers are needed.'],
+  fb_pmf_days: ['Чем дольше пользуются, тем сильнее любят?', 'The longer they use it, the more they love it?'], fb_pmf_main: ['Главное для тех, кто очень расстроился бы', 'The main thing for those who would be very disappointed'], fb_pmf_note: ['Из них {n} добавили пару слов — они ниже, в сообщениях.', '{n} of them added a few words; they are below, in the messages.'],
+  fb_rate_h: ['Как проходят сессии и недели', 'How sessions and weeks go'], fb_rate_q: ['Средняя оценка по неделям: после сессии (от 1 до 4) и итог недели (от 1 до 5). Растёт — продукт становится лучше.', 'The average rating by week: after a session (1 to 4) and the week as a whole (1 to 5). Rising means the product is getting better.'],
+  fb_rate_ses: ['После сессии · {n}', 'After a session · {n}'], fb_rate_ses_s: ['Оценка сессии', 'Session rating'], fb_rate_wk: ['Итог недели · {n}', 'The week · {n}'], fb_rate_wk_s: ['Оценка недели', 'Week rating'], fb_rate_pos: ['Хорошо или отлично: {v}', 'Good or great: {v}'], fb_rate_pos_w: ['4 или 5: {v}', '4 or 5: {v}'],
+  fb_why_bad: ['Что мешало (низкие оценки)', 'What got in the way (low ratings)'], fb_why_good: ['Что понравилось (высокие оценки)', 'What worked (high ratings)'],
+  fb_themes_h: ['Что просят и на что жалуются', 'What people ask for and complain about'], fb_themes_q: ['Сообщения собраны по темам: вашим или по первой отметке. Сначала то, о чём пишут чаще всего.', 'Messages grouped by theme: yours, or the first chip. The most often mentioned first.'], fb_open_done: ['{o} открыто · {d} сделано', '{o} open · {d} done'], fb_chip_theme: ['по отметке', 'by chip'],
+  fb_leave_h: ['Почему уходят', 'Why people leave'], fb_leave_q: ['Причина с страницы после удаления.', 'The reason from the page after removal.'], fb_leave_note: ['Ответов: {n}, из них со словами: {w}.', 'Answers: {n}, of them with words: {w}.'],
+  fb_inbox_h: ['Сообщения', 'Messages'], fb_inbox_q: ['{n} подходят под фильтр. Нажмите на сообщение, чтобы открыть и ответить.', '{n} match the filter. Click a message to open it and answer.'], fb_all: ['Все', 'All'], fb_search: ['Поиск по тексту, теме, заметке', 'Search the text, theme, note'], fb_status: ['Статус', 'Status'], fb_any_status: ['Любой статус', 'Any status'], fb_written: ['Только со словами', 'Only with words'], fb_none: ['Ничего не найдено.', 'Nothing found.'], fb_more: ['Показано {n} из {m}: уточните фильтр, чтобы увидеть остальные.', 'Showing {n} of {m}: narrow the filter to see the rest.'], fb_keys: ['С клавиатуры: j и k — вниз и вверх, Enter — открыть, s — звезда, d — сделано.', 'From the keyboard: j and k move down and up, Enter opens, s stars, d marks done.'],
+  fbk_idea: ['Идеи', 'Ideas'], fbk_problem: ['Проблемы', 'Problems'], fbk_kudos: ['Добрые слова', 'Kind words'], fbk_session: ['После сессии', 'After a session'], fbk_week: ['Итог недели', 'The week'], fbk_pmf: ['Подходит ли', 'Fit'], fbk_pause: ['Страница паузы', 'Pause page'], fbk_leaving: ['Ушли', 'Left'],
+  fbs_new: ['Новое', 'New'], fbs_read: ['Прочитано', 'Read'], fbs_starred: ['Звезда', 'Starred'], fbs_done: ['Сделано', 'Done'], fbs_wont: ['Не буду', 'Won’t do'],
+  fbr_pmf_0: ['не расстроился бы', 'not disappointed'], fbr_pmf_1: ['немного расстроился бы', 'somewhat disappointed'], fbr_pmf_2: ['очень расстроился бы', 'very disappointed'], fbr_pause_0: ['пауза не помогла', 'the pause did not help'], fbr_pause_1: ['пауза помогла', 'the pause helped'],
+  fbd_d0_6: ['до 7 дней', 'under 7 days'], fbd_d7_13: ['7–13 дней', '7–13 days'], fbd_d14_29: ['14–29 дней', '14–29 days'], fbd_d30p: ['30 дней и больше', '30 days or more'],
+  fbt_focus: ['Фокус', 'Focus'], fbt_blocking: ['Блокировка', 'Blocking'], fbt_eyes: ['Глаза', 'Eyes'], fbt_stats: ['Статистика', 'Stats'], fbt_look: ['Внешний вид', 'Look'], fbt_sync: ['Синхронизация', 'Sync'], fbt_other: ['Другое', 'Other'], fbt_slow: ['Тормозило', 'It was slow'], fbt_hindered: ['Мешало', 'It got in the way'], fbt_unclear: ['Было непонятно', 'It was unclear'], fbt_timer: ['Таймер', 'Timer'], fbt_design: ['Оформление', 'Design'], fbt_newtab: ['Новая вкладка', 'New tab'],
+  fb_no_text: ['без слов, только оценка', 'no words, only a rating'], fb_answered: ['ответ отправлен', 'answered'], fb_can_reply: ['можно ответить', 'can be answered'], fb_has_contact: ['оставил(а) адрес', 'left an address'],
+  fb_quote: ['Можно процитировать', 'May be quoted'], fb_quote_tip: ['Анонимно, в списке изменений или тексте магазина', 'Anonymously, in the changelog or the store text'], fb_theme: ['Тема', 'Theme'], fb_note: ['Моя заметка', 'My note'],
+  fb_contact: ['Адрес для ответа:', 'Reply address:'], fb_copy: ['Копировать', 'Copy'], fb_mark_replied: ['Я ответил(а)', 'I replied'],
+  fb_reply_ph: ['Ответ человеку. Он придёт ему в EyeTime, когда расширение в следующий раз заглянет за ответом.', 'Your answer. It reaches the person inside EyeTime the next time the extension looks for it.'], fb_reply_send: ['Отправить', 'Send'], fb_reply_hint: ['Ctrl+Enter — отправить. Человек не узнает, кто ещё писал, и не увидит ваших заметок.', 'Ctrl+Enter sends. The person never sees who else wrote, or your notes.'], fb_sent: ['Ответ отправлен', 'Answer sent'], fb_reply_409: ['На это сообщение нельзя ответить здесь.', 'This message cannot be answered here.'], fb_reply_max: ['Уже три ответа — больше не отправить.', 'Already three answers — no more can be sent.'],
+  fb_delivered: ['дошёл {d}', 'delivered {d}'], fb_waiting: ['ждёт, пока человек откроет EyeTime', 'waiting for the person to open EyeTime'], fb_no_reply: ['Человек не оставил способа ответить.', 'The person left no way to answer.'],
+  fb_delete: ['Удалить', 'Delete'], fb_delete_sure: ['Точно удалить?', 'Really delete?'], fb_deleted: ['Сообщение удалено', 'Message deleted'],
+});
 Object.assign(PAIRS, MORE);
 const MORE_GLOSS = [
   [['Главная метрика (North Star)', 'North star'], ['Завершённые фокус-сессии на активную установку в неделю, по последней полной неделе. Минуты — оценка: длина известна только по корзинам, берётся середина корзины.', 'Finished focus sessions per active install per week, for the last full week. Minutes are an estimate: the length is known only by bucket, and the middle of the bucket is used.']],
@@ -670,11 +749,11 @@ const rangeFromUrl = () => {
 const filterFromUrl = () => Object.fromEntries(DIMS.filter((d) => params.get(d) && SLUG.test(params.get(d))).map((d) => [d, params.get(d)]));
 const PAGES = [
   { id: 'overview', grp: 'g_main', ok: () => true }, { id: 'growth', grp: 'g_people', ok: (s) => !!s.weekly }, { id: 'activation', grp: 'g_people', ok: (s) => !!s.funnel }, { id: 'retention', grp: 'g_people', ok: (s) => !!s.retention }, { id: 'audience', grp: 'g_people', ok: (s) => !!s.setup && !s.win },
-  { id: 'windows', grp: 'g_product', ok: (s) => !!s.win }, { id: 'features', grp: 'g_product', ok: (s) => !!s.features }, { id: 'experiments', grp: 'g_product', ok: (s) => !!s.experiments }, { id: 'product', grp: 'g_product', ok: (s) => !!s.sessions }, { id: 'quality', grp: 'g_product', ok: (s) => !!(s.speed || s.health) }, { id: 'method', grp: 'g_ref', ok: () => true },
+  { id: 'feedback', grp: 'g_people', ok: () => state.mode !== 'public' }, { id: 'windows', grp: 'g_product', ok: (s) => !!s.win }, { id: 'features', grp: 'g_product', ok: (s) => !!s.features }, { id: 'experiments', grp: 'g_product', ok: (s) => !!s.experiments }, { id: 'product', grp: 'g_product', ok: (s) => !!s.sessions }, { id: 'quality', grp: 'g_product', ok: (s) => !!(s.speed || s.health) }, { id: 'method', grp: 'g_ref', ok: () => true },
 ];
-const SCOPE = { windows: 'active', overview: 'active', growth: 'weeks', activation: 'made', retention: 'made', features: 'active', experiments: 'made', product: 'active', quality: 'active', audience: 'active', method: null };
+const SCOPE = { windows: 'active', overview: 'active', growth: 'weeks', activation: 'made', retention: 'made', features: 'active', experiments: 'made', product: 'active', quality: 'active', audience: 'active', method: null, feedback: null };
 const hashPage = () => { const hs = location.hash.replace(/^#/, ''); return PAGES.some((p) => p.id === hs) ? hs : 'overview'; };
-const state = { product: params.get('pr') === 'win' ? 'win' : 'ext', localNotes: [], localSeq: 0, range: rangeFromUrl(), filter: filterFromUrl(), compare: store.get('et-compare') !== '0', rangeErr: '', page: hashPage(), feature: null, group: 'all', segDim: 'lang', lang: store.get('et-lang') || (/^ru|^uk|^be/i.test(navigator.language || '') ? 'ru' : 'en'), theme: store.get('et-theme') || 'auto', s: null, mode: params.has('demo') ? 'demo' : params.has('public') ? 'public' : 'owner', err: '', first: true };
+const state = { fb: null, fbq: { kind: '', status: '', q: '', written: true }, fbOpen: null, fbDraft: {}, fbOff: false, fbBusy: false, fbErr: '', fbShown: false, product: params.get('pr') === 'win' ? 'win' : 'ext', localNotes: [], localSeq: 0, range: rangeFromUrl(), filter: filterFromUrl(), compare: store.get('et-compare') !== '0', rangeErr: '', page: hashPage(), feature: null, group: 'all', segDim: 'lang', lang: store.get('et-lang') || (/^ru|^uk|^be/i.test(navigator.language || '') ? 'ru' : 'en'), theme: store.get('et-theme') || 'auto', s: null, mode: params.has('demo') ? 'demo' : params.has('public') ? 'public' : 'owner', err: '', first: true };
 const t = (key, vars) => { let s = L[state.lang][key]; if (s == null) s = L.en[key]; if (s == null) return key; if (typeof s === 'string' && vars) for (const k in vars) s = s.split('{' + k + '}').join(String(vars[k])); return s; };
 const nf = () => new Intl.NumberFormat(state.lang === 'ru' ? 'ru-RU' : 'en-US');
 const num = (n) => nf().format(Math.round(n));
@@ -690,7 +769,7 @@ function h(tag, attrs, ...kids) {
   return el;
 }
 function svg(tag, attrs, ...kids) { const el = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs || {})) if (v != null) el.setAttribute(k, String(v)); for (const c of kids.flat()) if (c != null) el.append(c.nodeType ? c : document.createTextNode(String(c))); return el; }
-const ICONS = { windows: 'M2.5 3.5l4.7-.7v4.4H2.5zM8 2.7l5.5-.8v5.3H8zM2.5 8.8h4.7v4.4l-4.7-.7zM8 8.8h5.5v5.3L8 13.3z', overview: 'M3 3h4.5v4.5H3zM8.5 3H13v4.5H8.5zM3 8.5h4.5V13H3zM8.5 8.5H13V13H8.5z', growth: 'M2 11.5l3.5-3.5 2.5 2.5L13.5 5M10 5h3.5v3.5', activation: 'M2.5 3h11l-4.2 5v4.5l-2.6-1.2V8z', retention: 'M13 8a5 5 0 1 1-1.6-3.7M13 2.8v3.1h-3.1', audience: 'M6 7.2a2.4 2.4 0 1 0 0-4.8 2.4 2.4 0 0 0 0 4.8zM1.8 13.5c0-2.3 1.9-3.7 4.2-3.7s4.2 1.4 4.2 3.7M10.6 2.8a2.2 2.2 0 0 1 0 4.2M11.5 9.9c1.6.4 2.7 1.6 2.7 3.6', features: 'M8 2.2l5.8 2.9L8 8 2.2 5.1zM2.2 8L8 10.9 13.8 8M2.2 10.9L8 13.8l5.8-2.9', product: 'M8 4.5V8l2.2 1.4M8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12', quality: 'M1.8 8.5h3l1.8-4.6 2.8 7.6 1.8-3h3', method: 'M3.2 2.8h6.3a2 2 0 0 1 2 2v8.4H5.2a2 2 0 0 1-2-2zM5.5 6h4M5.5 8.6h4', experiments: 'M6.5 2.5h3M7 2.5V6L3.5 12.2A1.2 1.2 0 0 0 4.5 14h7a1.2 1.2 0 0 0 1-1.8L9 6V2.5M5.2 10h5.6' };
+const ICONS = { feedback: 'M2.5 3.5h11v7h-5.2L5 13v-2.5H2.5z', windows: 'M2.5 3.5l4.7-.7v4.4H2.5zM8 2.7l5.5-.8v5.3H8zM2.5 8.8h4.7v4.4l-4.7-.7zM8 8.8h5.5v5.3L8 13.3z', overview: 'M3 3h4.5v4.5H3zM8.5 3H13v4.5H8.5zM3 8.5h4.5V13H3zM8.5 8.5H13V13H8.5z', growth: 'M2 11.5l3.5-3.5 2.5 2.5L13.5 5M10 5h3.5v3.5', activation: 'M2.5 3h11l-4.2 5v4.5l-2.6-1.2V8z', retention: 'M13 8a5 5 0 1 1-1.6-3.7M13 2.8v3.1h-3.1', audience: 'M6 7.2a2.4 2.4 0 1 0 0-4.8 2.4 2.4 0 0 0 0 4.8zM1.8 13.5c0-2.3 1.9-3.7 4.2-3.7s4.2 1.4 4.2 3.7M10.6 2.8a2.2 2.2 0 0 1 0 4.2M11.5 9.9c1.6.4 2.7 1.6 2.7 3.6', features: 'M8 2.2l5.8 2.9L8 8 2.2 5.1zM2.2 8L8 10.9 13.8 8M2.2 10.9L8 13.8l5.8-2.9', product: 'M8 4.5V8l2.2 1.4M8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12', quality: 'M1.8 8.5h3l1.8-4.6 2.8 7.6 1.8-3h3', method: 'M3.2 2.8h6.3a2 2 0 0 1 2 2v8.4H5.2a2 2 0 0 1-2-2zM5.5 6h4M5.5 8.6h4', experiments: 'M6.5 2.5h3M7 2.5V6L3.5 12.2A1.2 1.2 0 0 0 4.5 14h7a1.2 1.2 0 0 0 1-1.8L9 6V2.5M5.2 10h5.6' };
 const icon = (id) => svg('svg', { class: 'ic', viewBox: '0 0 16 16', 'aria-hidden': 'true' }, svg('path', { d: ICONS[id] }));
 const nameOf = (dim, v) => (v === 'other' ? t('st_other') : dim === 'lang' ? v.toUpperCase() : dim === 'mode' ? (L[state.lang]['m_' + v] || v) : dim === 'use' ? t('use_' + v) : dim === 'session' || dim === 'blocking' ? t('yn_' + v) : v);
 
@@ -1284,7 +1363,166 @@ function pageMethod() {
   return [block(t('how_h'), null, h('div', { class: 'card' }, h('ul', { style: 'margin:0;padding-left:18px;display:grid;gap:6px' }, t('how').map((x) => h('li', null, x.split('{k}').join(String(LOW()))))))),
     block(t('gl_title'), null, h('div', { class: 'card' }, h('dl', { class: 'gl' }, items)))];
 }
-const PAGE_FN = { windows: pageWindows, overview: pageOverview, growth: pageGrowth, activation: pageActivation, retention: pageRetention, features: pageFeatures, experiments: pageExperiments, product: pageProduct, quality: pageQuality, audience: pageAudience, method: pageMethod };
+// ───────────────────────── messages to the maker ─────────────────────────
+const FB_KINDS = ['idea', 'problem', 'kudos', 'session', 'week', 'pmf', 'pause', 'leaving'], FB_STATUS = ['new', 'read', 'starred', 'done', 'wont'], FB_MAX = { session: 4, week: 5 };
+const FB_TAGS = ['focus', 'blocking', 'eyes', 'stats', 'look', 'sync', 'other', 'slow', 'hindered', 'unclear', 'timer', 'design', 'newtab'];
+const fbReasonName = (kind, tag) => (kind === 'leaving' ? t('ur_' + tag) : t('fbt_' + tag));
+const authHeaders = () => (state.mode === 'owner' ? { authorization: 'Bearer ' + (tab.get('et-token') || '') } : {});
+const fbQuery = () => { const f = state.fbq, q = new URLSearchParams(); if (f.kind) q.set('kind', f.kind); if (f.status) q.set('status', f.status); if (f.q) q.set('q', f.q); if (f.written) q.set('written', '1'); return q.toString(); };
+async function loadFb() {
+  if (state.fbBusy || state.mode === 'public') return; state.fbBusy = true;
+  const demo = state.mode === 'demo', qs = fbQuery();
+  try {
+    const r = await fetch((demo ? '/v1/demo-feedback' : '/v1/feedback') + (qs ? '?' + qs : ''), { headers: authHeaders(), cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer' });
+    if (r.status === 404) { state.fb = null; state.fbOff = true; } else if (!r.ok) { state.fbErr = t('enet'); } else { state.fb = await r.json(); state.fbOff = false; state.fbErr = ''; }
+  } catch { state.fbErr = t('enet'); }
+  finally { state.fbBusy = false; if (state.page === 'feedback' || !state.fbShown) render(); state.fbShown = true; }
+}
+/** Change one message: on the collector, or on this page only in the demo. `local` says what to show at once. */
+async function fbChange(m, patch, local) {
+  const demo = state.mode === 'demo';
+  if (!demo) {
+    try {
+      const r = await fetch('/v1/feedback/' + m.id, { method: 'PATCH', headers: { ...authHeaders(), 'content-type': 'application/json' }, body: JSON.stringify(patch), cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer' });
+      if (!r.ok) { toast(t('fb_err')); return false; }
+    } catch { toast(t('fb_err')); return false; }
+  }
+  Object.assign(m, local || patch); render(); if (!demo) loadFb();
+  return true;
+}
+async function fbReply(m, text) {
+  const demo = state.mode === 'demo', now = Date.now();
+  if (demo) { m.replies = [...(m.replies || []), { id: -now, ts: now, text, delivered_at: null }]; m.replied_at = now; m.contact = null; toast(t('fb_sent')); render(); return true; }
+  try {
+    const r = await fetch('/v1/feedback/' + m.id + '/reply', { method: 'POST', headers: { ...authHeaders(), 'content-type': 'application/json' }, body: JSON.stringify({ text }), cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer' });
+    if (r.status === 409) { toast(t('fb_reply_409')); return false; }
+    if (!r.ok) { toast(t('fb_err')); return false; }
+  } catch { toast(t('fb_err')); return false; }
+  toast(t('fb_sent')); await loadFb(); return true;
+}
+async function fbDelete(m) {
+  if (state.mode !== 'demo') {
+    try { const r = await fetch('/v1/feedback/' + m.id, { method: 'DELETE', headers: authHeaders(), cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer' }); if (!r.ok) { toast(t('fb_err')); return; } } catch { toast(t('fb_err')); return; }
+  }
+  state.fb.messages = state.fb.messages.filter((x) => x.id !== m.id); state.fbOpen = null; toast(t('fb_deleted')); render(); if (state.mode !== 'demo') loadFb();
+}
+const fbDay = (ms) => fmtDay(new Date(ms).toISOString().slice(0, 10));
+const ratingText = (m) => (m.rating == null ? null : m.kind === 'pmf' ? t('fbr_pmf_' + m.rating) : m.kind === 'pause' ? t('fbr_pause_' + m.rating) : `${m.rating} / ${FB_MAX[m.kind] || '?'}`);
+const fbCtx = (c) => [c.app && 'v' + c.app, c.br, c.os, c.lang && c.lang.toUpperCase(), c.pr === 'win' ? 'Windows' : null, c.days && t('fbd_' + c.days)].filter(Boolean);
+
+function messageCard(m, themes) {
+  const open = state.fbOpen === m.id, demo = state.mode === 'demo';
+  const written = ['idea', 'problem', 'kudos'].includes(m.kind), rt = ratingText(m);
+  const set = (status) => fbChange(m, { status });
+  const statusBtns = FB_STATUS.filter((x) => x !== 'new').map((x) => h('button', { class: 'btn', type: 'button', 'aria-pressed': m.status === x ? 'true' : 'false', title: t('fbs_' + x), onclick: () => set(m.status === x ? 'read' : x) }, t('fbs_' + x)));
+  const top = h('div', { class: 'top' }, h('span', { class: 'tag kind ' + m.kind }, t('fbk_' + m.kind)), rt && h('b', { class: 'rt' }, rt), m.status !== 'read' && m.status !== 'new' && h('span', { class: 'tag st-' + m.status }, t('fbs_' + m.status)), m.theme && h('span', { class: 'tag' }, '# ' + m.theme),
+    m.replies && m.replies.length ? h('span', { class: 'tag good' }, t('fb_answered')) : m.can_reply ? h('span', { class: 'tag warn' }, t('fb_can_reply')) : null, m.contact && h('span', { class: 'tag warn' }, t('fb_has_contact')), h('span', { class: 'sp' }), h('span', null, fbDay(m.ts)));
+  const head = h('div', { class: 'row', tabindex: '0', role: 'button', 'aria-expanded': open ? 'true' : 'false', onclick: () => toggle(), onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } else if (e.key === 'j' || e.key === 'k') { const all = $$('.msg .row'), i = all.indexOf(e.currentTarget), nx = all[i + (e.key === 'j' ? 1 : -1)]; if (nx) nx.focus(); } else if (e.key === 's') set(m.status === 'starred' ? 'read' : 'starred'); else if (e.key === 'd') set(m.status === 'done' ? 'read' : 'done'); } },
+    top, m.text ? h('div', { class: 'body' + (open ? '' : ' clamp') }, m.text) : h('div', { class: 'body mute' }, t('fb_no_text')),
+    m.tags.length ? h('div', { class: 'chipline' }, m.tags.map((x) => h('span', { class: 'tag' }, fbReasonName(m.kind, x)))) : null);
+  function toggle() { state.fbOpen = open ? null : m.id; if (!open && m.status === 'new') fbChange(m, { status: 'read' }); else render(); }
+  const el = h('article', { class: 'msg ' + m.kind + (m.status === 'new' ? ' unread' : '') + (m.status === 'wont' ? ' dim' : ''), 'data-id': m.id }, head);
+  if (!open) return el;
+  const theme = h('input', { type: 'text', list: 'fb-themes', value: m.theme || '', maxlength: '40', placeholder: t('fb_theme'), 'aria-label': t('fb_theme'), onkeydown: (e) => { if (e.key === 'Enter') e.target.blur(); } });
+  theme.addEventListener('change', () => { const v = theme.value.trim(); if (v !== (m.theme || '')) fbChange(m, { theme: v || null }); });
+  const note = h('textarea', { rows: '2', maxlength: '500', placeholder: t('fb_note'), 'aria-label': t('fb_note') }, m.note || '');
+  note.addEventListener('change', () => { if (note.value.trim() !== (m.note || '')) fbChange(m, { note: note.value.trim() || null }); });
+  const ctx = fbCtx(m.ctx || {});
+  el.append(h('div', { class: 'more' },
+    ctx.length ? h('div', { class: 'chipline' }, ctx.map((x) => h('span', { class: 'tag ghost' }, x))) : null,
+    h('div', { class: 'acts' }, statusBtns, written && h('label', { class: 'switch', title: t('fb_quote_tip') }, h('input', { type: 'checkbox', checked: m.quote_ok, onchange: (e) => fbChange(m, { quote_ok: e.target.checked }) }), t('fb_quote'))),
+    h('div', { class: 'fgrid' }, h('label', null, t('fb_theme')), theme, h('label', null, t('fb_note')), note),
+    m.contact && h('div', { class: 'contact' }, h('span', null, t('fb_contact')), h('b', null, m.contact), h('button', { class: 'btn', type: 'button', onclick: async () => { try { await navigator.clipboard.writeText(m.contact); toast(t('x_done')); } catch { toast(t('x_fail')); } } }, t('fb_copy')),
+      h('button', { class: 'btn', type: 'button', onclick: () => fbChange(m, { replied: true }, { replied_at: Date.now(), contact: null }) }, t('fb_mark_replied'))),
+    thread(m, demo),
+    h('div', { class: 'acts end' }, delButton(m))));
+  return el;
+}
+function delButton(m) {
+  const b = h('button', { class: 'btn ghost danger', type: 'button' }, t('fb_delete'));
+  b.addEventListener('click', () => { if (b.dataset.sure) { fbDelete(m); return; } b.dataset.sure = '1'; b.textContent = t('fb_delete_sure'); setTimeout(() => { delete b.dataset.sure; b.textContent = t('fb_delete'); }, 3000); });
+  return b;
+}
+/** The answers already given (and whether they have reached the person), and the box for a new one where the person left a ticket. */
+function thread(m) {
+  const out = [];
+  for (const a of m.replies || []) out.push(h('div', { class: 'bubble' }, h('div', { class: 'bt' }, a.text), h('div', { class: 'bm' }, fbDay(a.ts) + ' · ' + (a.delivered_at ? t('fb_delivered', { d: fbDay(a.delivered_at) }) : t('fb_waiting')))));
+  if (!m.can_reply) return out.length ? h('div', { class: 'thread' }, out) : (m.contact ? null : h('p', { class: 'note', style: 'margin:0' }, t('fb_no_reply')));
+  if ((m.replies || []).length >= 3) return h('div', { class: 'thread' }, out, h('p', { class: 'note', style: 'margin:0' }, t('fb_reply_max')));
+  const draft = state.fbDraft[m.id] || '', ta = h('textarea', { rows: '3', maxlength: '1000', placeholder: t('fb_reply_ph'), 'aria-label': t('fb_reply_ph') }, draft);
+  const cnt = h('span', { class: 'cnt' }, String(1000 - draft.length)), send = h('button', { class: 'btn primary', type: 'button', disabled: !draft.trim() }, t('fb_reply_send'));
+  ta.addEventListener('input', () => { state.fbDraft[m.id] = ta.value; cnt.textContent = String(1000 - ta.value.length); send.disabled = !ta.value.trim(); });
+  ta.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && ta.value.trim()) send.click(); });
+  send.addEventListener('click', async () => { send.disabled = true; if (await fbReply(m, ta.value.trim())) delete state.fbDraft[m.id]; else send.disabled = false; });
+  return h('div', { class: 'thread' }, out, h('div', { class: 'compose' }, ta, h('div', { class: 'acts' }, h('span', { class: 'note', style: 'margin:0' }, t('fb_reply_hint')), h('span', { class: 'sp' }), cnt, send)));
+}
+
+function pmfVerdict(p) {
+  if (!p.n || p.n < 30) return { cls: '', text: t('fb_pmf_few', { n: num(p.n) }) };
+  if (p.lo != null && p.lo >= 0.4) return { cls: 'good', text: t('fb_pmf_above') };
+  if (p.hi != null && p.hi < 0.4) return { cls: 'warn', text: t('fb_pmf_below') };
+  return { cls: '', text: t('fb_pmf_unsure') };
+}
+function gauge(p, target) {
+  const g = h('div', { class: 'gauge' + (p.pct != null && p.pct >= target ? ' ok' : ''), role: 'img', 'aria-label': t('fb_pmf_score') + ': ' + pct(p.pct) });
+  if (p.pct != null) g.append(h('i', { style: 'width:' + Math.min(100, p.pct * 100).toFixed(1) + '%' }));
+  if (p.lo != null) g.append(h('span', { class: 'ci', style: `left:${(p.lo * 100).toFixed(1)}%;width:${Math.max(0.5, (p.hi - p.lo) * 100).toFixed(1)}%` }));
+  g.append(h('span', { class: 'tick', style: 'left:' + target * 100 + '%', title: t('fb_pmf_target', { v: pct(target) }) }));
+  return g;
+}
+const fbShare = (list, label, total, extra = {}) => hlist(list.map((x) => ({ label: label(x), value: total ? x.k / total : 0, text: total ? pct(x.k / total) : '—', small: num(x.k), tip: [[num(x.k), label(x)]], ...extra })), { max: 1 });
+function fbTrend(list, name, color, max) {
+  const some = list.some((w) => w.avg != null);
+  return some ? lineChart({ labels: list.map((w) => dateShort(w.from)), series: [{ name, color, values: list.map((w) => w.avg) }], height: 170, yMax: max, fmt: (v) => dec(v, 1), tickEvery: 2, caption: name }) : h('p', { class: 'note', style: 'margin:0' }, t('wait'));
+}
+function pageFeedback() {
+  if (state.fbOff) return [block(t('fb_off_h'), null, h('div', { class: 'card' }, h('p', { class: 'lead', style: 'margin:0' }, t('fb_off'))))];
+  if (!state.fb) { if (!state.fbBusy) loadFb(); return [h('div', { class: 'card' }, h('p', { class: 'note', style: 'margin:0' }, state.fbErr || t('fb_loading')))]; }
+  const { summary: sm, messages, matching } = state.fb, f = state.fbq, p = sm.pmf, out = [];
+  if (state.mode === 'demo') out.push(h('p', { class: 'note' }, t('fb_demo')));
+  out.push(h('div', { class: 'grid g4' },
+    kpi({ lab: t('fb_k_new'), val: num(sm.new), sub: `${num(sm.total)} ${t('fb_k_total')}` }),
+    kpi({ lab: t('fb_k_wait'), val: num(sm.waiting_reply), sub: t('fb_k_wait_sub') }),
+    kpi({ lab: t('fb_k_done'), val: num(sm.done), sub: t('fb_k_done_sub') }),
+    kpi({ lab: t('fb_k_pause'), val: sm.pause.helped.n ? pct(sm.pause.helped.pct) : '—', frac: sm.pause.helped.pct, sub: `${num(sm.pause.helped.k)} ${t('of')} ${num(sm.pause.helped.n)}`, low: sm.pause.helped.n < 30 })));
+  // the question of fit
+  const v = pmfVerdict(p.score);
+  out.push(block(t('fb_pmf_h'), t('fb_pmf_q'), h('div', { class: 'grid g2' },
+    h('div', { class: 'card pmf' }, h('div', { class: 'lab' }, t('fb_pmf_score')), h('div', { class: 'big' }, p.score.n ? pct(p.score.pct) : '—'), gauge(p.score, p.target),
+      h('div', { class: 'sub' }, p.score.n ? `${num(p.score.k)} ${t('of')} ${num(p.score.n)}` + (p.score.lo != null ? ' · ' + t('ci95', { a: pct(p.score.lo), b: pct(p.score.hi) }) : '') : t('wait')),
+      h('div', { class: 'verdict ' + v.cls }, v.text),
+      h('div', { class: 'split' }, h('span', null, t('fb_pmf_very'), ' ', h('b', null, num(p.very))), h('span', null, t('fb_pmf_some'), ' ', h('b', null, num(p.some))), h('span', null, t('fb_pmf_not'), ' ', h('b', null, num(p.not))))),
+    h('div', { class: 'card' }, h('h3', null, t('fb_pmf_days')), p.by_days.length ? hlist(['d0_6', 'd7_13', 'd14_29', 'd30p'].map((id) => p.by_days.find((x) => x.group === id)).filter(Boolean).map((x) => ({ label: t('fbd_' + x.group), value: x.score.pct || 0, text: pct(x.score.pct), small: `${num(x.score.k)}/${num(x.n)}`, cls: x.n < 20 ? 'low' : '', tip: [[pct(x.score.pct), t('fbd_' + x.group)], x.score.lo != null ? [t('ci95', { a: pct(x.score.lo), b: pct(x.score.hi) }), ''] : null].filter(Boolean) })), { max: 1 }) : h('p', { class: 'note', style: 'margin:0' }, t('wait')),
+      h('h3', { style: 'margin-top:14px' }, t('fb_pmf_main')), p.benefits.length ? fbShare(p.benefits, (x) => t('fbt_' + x.tag), p.very) : h('p', { class: 'note', style: 'margin:0' }, t('wait'))))));
+  out.push(h('p', { class: 'note' }, t('fb_pmf_note', { n: num(p.wishes) })));
+  // how the sessions and the weeks went
+  out.push(block(t('fb_rate_h'), t('fb_rate_q'), h('div', { class: 'grid g2' },
+    h('div', { class: 'card' }, h('h3', null, t('fb_rate_ses', { n: num(sm.session.n) })), fbTrend(sm.session.weekly, t('fb_rate_ses_s'), 'var(--accent)', 4), sm.session.n ? h('div', { class: 'sub', style: 'margin-top:6px' }, t('fb_rate_pos', { v: pct(sm.session.positive.pct) })) : null),
+    h('div', { class: 'card' }, h('h3', null, t('fb_rate_wk', { n: num(sm.week.n) })), fbTrend(sm.week.weekly, t('fb_rate_wk_s'), 'var(--good)', 5), sm.week.n ? h('div', { class: 'sub', style: 'margin-top:6px' }, t('fb_rate_pos_w', { v: pct(sm.week.positive.pct) })) : null)),
+    h('div', { class: 'grid g2', style: 'margin-top:10px' },
+      h('div', { class: 'card' }, h('h3', null, t('fb_why_bad')), sm.session.why_bad.length ? fbShare(sm.session.why_bad, (x) => t('fbt_' + x.tag), sm.session.why_bad.reduce((a, x) => a + x.k, 0)) : h('p', { class: 'note', style: 'margin:0' }, t('wait'))),
+      h('div', { class: 'card' }, h('h3', null, t('fb_why_good')), sm.session.why_good.length ? fbShare(sm.session.why_good, (x) => t('fbt_' + x.tag), sm.session.why_good.reduce((a, x) => a + x.k, 0)) : h('p', { class: 'note', style: 'margin:0' }, t('wait'))))));
+  // what people ask for and complain about
+  const themeList = (list) => list.length ? hlist(list.slice(0, 8).map((x) => ({ label: x.theme, badge: x.own ? null : h('span', { class: 'tag ghost' }, t('fb_chip_theme')), value: x.k, text: num(x.k), small: t('fb_open_done', { o: x.open, d: x.done }), tip: [[num(x.k), x.theme], [t('fb_open_done', { o: x.open, d: x.done }), '']] }))) : h('p', { class: 'note', style: 'margin:0' }, t('wait'));
+  out.push(block(t('fb_themes_h'), t('fb_themes_q'), h('div', { class: 'grid g2' }, h('div', { class: 'card' }, h('h3', null, t('fbk_idea')), themeList(sm.ideas)), h('div', { class: 'card' }, h('h3', null, t('fbk_problem')), themeList(sm.problems)))));
+  if (sm.leaving.n) out.push(block(t('fb_leave_h'), t('fb_leave_q'), h('div', { class: 'card' }, sm.leaving.reasons.length ? fbShare(sm.leaving.reasons, (x) => t('ur_' + x.tag), sm.leaving.n) : null, h('p', { class: 'note' }, t('fb_leave_note', { n: num(sm.leaving.n), w: num(sm.leaving.written) })))));
+  // the inbox
+  const known = new Set([...sm.ideas, ...sm.problems].filter((x) => x.own).map((x) => x.theme));
+  const kindChip = (id, label) => h('button', { class: 'chip', type: 'button', 'aria-pressed': f.kind === id ? 'true' : 'false', onclick: () => { f.kind = id; state.fbOpen = null; loadFb(); } }, label);
+  const search = h('input', { type: 'search', value: f.q, placeholder: t('fb_search'), 'aria-label': t('fb_search'), maxlength: '100' });
+  let timer = null; search.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => { f.q = search.value.trim(); loadFb(); }, 250); });
+  const stSel = h('select', { 'aria-label': t('fb_status'), onchange: (e) => { f.status = e.target.value; loadFb(); } }, h('option', { value: '' }, t('fb_any_status')), FB_STATUS.map((x) => h('option', { value: x, selected: f.status === x }, t('fbs_' + x))));
+  const shown = messages.length;
+  out.push(block(t('fb_inbox_h'), t('fb_inbox_q', { n: num(matching) }),
+    h('div', { class: 'chips' }, kindChip('', t('fb_all')), ['idea', 'problem', 'kudos', 'leaving', 'session', 'week', 'pmf'].map((k) => kindChip(k, t('fbk_' + k)))),
+    h('div', { class: 'fbtools' }, search, stSel, h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: f.written, onchange: (e) => { f.written = e.target.checked; loadFb(); } }), t('fb_written'))),
+    h('datalist', { id: 'fb-themes' }, [...known].map((x) => h('option', { value: x }))),
+    messages.length ? h('div', { class: 'msgs' }, messages.map((m) => messageCard(m))) : h('div', { class: 'card' }, h('p', { class: 'note', style: 'margin:0' }, t('fb_none'))),
+    shown < matching ? h('p', { class: 'note' }, t('fb_more', { n: num(shown), m: num(matching) })) : null,
+    h('p', { class: 'note' }, t('fb_keys'))));
+  return out;
+}
+const PAGE_FN = { feedback: pageFeedback,  windows: pageWindows, overview: pageOverview, growth: pageGrowth, activation: pageActivation, retention: pageRetention, features: pageFeatures, experiments: pageExperiments, product: pageProduct, quality: pageQuality, audience: pageAudience, method: pageMethod };
 
 // ───────────────────────── render ─────────────────────────
 function footer() { return h('footer', { class: 'foot' }, h('div', null, t('ft')), h('div', null, t('ft2'))); }
@@ -1314,7 +1552,7 @@ function render() {
   if (!pages.some((p) => p.id === state.page)) state.page = 'overview';
   const flagged = {}; if (s.features && s.funnel) for (const r of scorecard(s)) if (r.status === 'warn' || r.status === 'bad') flagged[r.page] = r.status === 'bad' || flagged[r.page] === 'bad' ? 'bad' : 'warn';
   let lastGrp = null; const items = [];
-  pages.forEach((p, i) => { if (p.grp !== lastGrp) { items.push(h('div', { class: 'grp', 'aria-hidden': 'true' }, t(p.grp))); lastGrp = p.grp; } items.push(h('a', { href: '#' + p.id, 'aria-current': p.id === state.page ? 'page' : null }, icon(p.id), t('pg_' + p.id), flagged[p.id] && h('span', { class: 'dot ' + flagged[p.id], 'aria-label': flagged[p.id] }), h('kbd', { 'aria-hidden': 'true' }, String(i + 1)))); });
+  pages.forEach((p, i) => { if (p.grp !== lastGrp) { items.push(h('div', { class: 'grp', 'aria-hidden': 'true' }, t(p.grp))); lastGrp = p.grp; } items.push(h('a', { href: '#' + p.id, 'aria-current': p.id === state.page ? 'page' : null }, icon(p.id), t('pg_' + p.id), p.id === 'feedback' && state.fb && state.fb.summary.new > 0 && h('span', { class: 'badge', 'aria-label': t('fb_k_new') }, String(state.fb.summary.new)), flagged[p.id] && h('span', { class: 'dot ' + flagged[p.id], 'aria-label': flagged[p.id] }), h('kbd', { 'aria-hidden': 'true' }, String(i + 1)))); });
   nav.replaceChildren(...items);
   crumb.replaceChildren(h('span', null, 'EyeTime'), h('i', { 'aria-hidden': 'true' }, '/'), h('b', null, t('pg_' + state.page)));
   const c = controls(s);
@@ -1341,7 +1579,7 @@ async function load() {
     else if (!r.ok) { state.s = null; state.err = t('enet'); }
     else { state.s = await r.json(); state.rangeErr = ''; syncUrl(); }
   } catch { state.s = state.s || null; state.err = t('enet'); }
-  finally { busy = false; state.first = false; document.body.classList.remove('loading'); render(); if (state.err && state.s) $('#fresh').textContent = state.err; }
+  finally { busy = false; state.first = false; document.body.classList.remove('loading'); render(); if (state.err && state.s) $('#fresh').textContent = state.err; if (state.s && !state.fb && !state.fbOff && !state.fbBusy && state.mode !== 'public') loadFb(); }
 }
 
 // ───────────────────────── export ─────────────────────────
