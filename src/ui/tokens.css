@@ -186,11 +186,6 @@
 /* any other look: the signal is that look's accent */
 :root[data-look]:not([data-look="calm"]) { --signal: var(--accent); --signal-fg: var(--accent-fg); --signal-ink: var(--accent-text); --signal-soft: var(--accent-soft); }
 
-/* more contrast, from the system setting or from EyeTime's own (theme-init.js sets data-contrast="more" for either): the faint greys and hairlines of every look become readable.
-   (The doubled :root wins over a look's own tokens whatever the order of the files.) */
-:root[data-contrast="more"]:root:root { --border: color-mix(in srgb, var(--text) 45%, transparent); --border-strong: var(--text-2); --text-3: var(--text-2); --card-border: var(--border-strong); }
-:root[data-contrast="more"] :is(.card, .btn, .input, .chip) { border: 1px solid var(--border-strong); }
-
 @media (prefers-reduced-motion: reduce) { :root { --t-fast: 0ms; --t-med: 0ms; --t-slow: 0ms; } }
 :root[data-motion="reduced"] { --t-fast: 0ms; --t-med: 0ms; --t-slow: 0ms; }
 :root[data-motion="reduced"] *, :root[data-motion="reduced"] *::before, :root[data-motion="reduced"] *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
