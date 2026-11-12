@@ -6,7 +6,7 @@
 //
 // One form, two places: a dialog (the shortcut, the command palette, the classic arrangements of Home) and the card of the evening on Today (today/ritual.js).
 
-import { h, icon, toast } from '../ui/dom.js';
+import { h, icon, toast, openModal, retire } from '../ui/dom.js';
 import { t, fmtDuration } from '../shared/i18n.js';
 import { getDays, getCollection, setCollection, updateDay } from '../shared/storage.js';
 import { dayKey, addDays } from '../shared/time.js';
@@ -77,6 +77,6 @@ export async function openShutdown() {
     h('div', { class: 'dialog-actions' },
       h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => dlg.close(), text: t('common.cancel') }),
       h('button', { class: 'btn btn-primary', type: 'button', onclick: async () => { await commitClosing(data, form.collect()); dlg.close(); toast(t('shutdown.done')); } }, icon('moon'), t('shutdown.close'))));
-  dlg.addEventListener('close', () => dlg.remove());
-  document.body.append(dlg); dlg.showModal(); form.focus();
+  dlg.addEventListener('close', () => retire(dlg));
+  document.body.append(dlg); openModal(dlg); form.focus();
 }

@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 // Settings → About: version, links, report a problem, suggest an idea, shortcuts.
 
-import { h, icon, toast, clear } from '../ui/dom.js';
+import { h, icon, toast, clear, openModal, retire } from '../ui/dom.js';
 import { row, group, sectionHead } from './ui.js';
 import { t } from '../shared/i18n.js';
 import { buildReport, issueUrl } from '../shared/diagnostics.js';
@@ -14,12 +14,15 @@ const sec = (id, ...kids) => h('section', { class: 'sec', id }, kids);
 /** The real binding (the user may have changed it on chrome://extensions/shortcuts); falls back to the default. */
 function shortcutKeys(name, fallback) {
   const el = h('span', { class: 'shortcut' }, fallback.map((k) => h('span', { class: 'kbd', text: k })));
-  chrome.commands?.getAll?.().then((all) => {
-    const c = all.find((x) => x.name === name);
-    const keys = c && c.shortcut ? c.shortcut.split(/[+]/).filter(Boolean) : null;
-    if (c && !c.shortcut) clear(el, h('span', { class: 'muted', text: t('about.scNone') }));
-    else if (keys) clear(el, keys.map((k) => h('span', { class: 'kbd', text: k })));
-  }).catch(() => {});
+  (async () => {
+    try {
+      const all = (await chrome.commands?.getAll?.()) || [];
+      const c = all.find((x) => x.name === name);
+      const keys = c && c.shortcut ? c.shortcut.split(/[+]/).filter(Boolean) : null;
+      if (c && !c.shortcut) clear(el, h('span', { class: 'muted', text: t('about.scNone') }));
+      else if (keys) clear(el, keys.map((k) => h('span', { class: 'kbd', text: k })));
+    } catch { /* no commands API here: the row stays as it is */ }
+  })();
   return el;
 }
 
@@ -37,8 +40,8 @@ async function openReport(s) {
       h('button', { class: 'btn btn-ghost', type: 'button', onclick: async () => { await clearErrors(); dlg.close(); toast(t('opt.reportClear')); } }, t('opt.reportClear')),
       h('button', { class: 'btn', type: 'button', onclick: async () => { try { await navigator.clipboard.writeText(report); toast(t('opt.reportCopied')); } catch { area.select(); } } }, icon('copy'), t('opt.reportCopy')),
       h('a', { class: 'btn btn-primary', href: issueUrl(report), target: '_blank', rel: 'noopener', onclick: () => navigator.clipboard?.writeText(report).catch(() => {}) }, icon('arrow-up-right'), t('opt.reportOpen'))));
-  dlg.addEventListener('close', () => dlg.remove());
-  document.body.append(dlg); dlg.showModal();
+  dlg.addEventListener('close', () => retire(dlg));
+  document.body.append(dlg); openModal(dlg, { light: true });
 }
 
 export function about({ s }) {

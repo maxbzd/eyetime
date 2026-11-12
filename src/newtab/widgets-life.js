@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 // Widgets for the day itself: tasks, habits, a counter, calendars (month, agenda, week strip), the body (breathing, water, mood, focus sound) and the look of the page (quote, label, photo, orb, quick links).
 
-import { icon, favicon } from '../ui/dom.js';
+import { icon, favicon, isEnter } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { t, fmtNumber, fmtDate, weekdayName, getLocale, fmtDuration } from '../shared/i18n.js';
 import { getSettings, getCollection, setCollection, updateCollection, getDays } from '../shared/storage.js';
@@ -33,7 +33,7 @@ export const LIFE_DEFS = {
             el('span', 'wt-text', x.text), x.starred ? el('span', 'wt-star', icon('star')) : null))) : el('div', 'wg-sub', t('wg.todo.empty')),
           open.length > n ? el('div', 'wg-sub', t('wg.todo.more', { n: fmtNumber(open.length - n) })) : null,
           h('input', { class: 'input wt-add', maxlength: 200, placeholder: t('wg.todo.add'), 'aria-label': t('wg.todo.add'), onkeydown: async (e) => {
-            if (e.key !== 'Enter' || !e.target.value.trim()) return;
+            if (!isEnter(e) || !e.target.value.trim()) return;
             const { taskFromInput } = await import('../shared/tasks.js');
             const text = e.target.value; e.target.value = '';
             await updateCollection('tasks', [], (list) => { list.unshift(taskFromInput(text, list).task); });

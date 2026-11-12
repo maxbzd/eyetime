@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 // Home module: quick links.
 
-import { h, icon, favicon, clear } from '../ui/dom.js';
+import { h, icon, favicon, clear, openModal, retire } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
 import { updateSettings } from '../shared/storage.js';
 import { parseUserDomain } from '../shared/domains.js';
@@ -29,8 +29,8 @@ export function linksModule(settings) {
         await updateSettings((s) => { s.newtab.links.push({ url: new URL(u).href, title: (titleIn.value.trim() || host).slice(0, 24) }); });
         dlg.close();
       } }))));
-    dlg.addEventListener('close', () => dlg.remove());
-    document.body.append(dlg); dlg.showModal();
+    dlg.addEventListener('close', () => retire(dlg));
+    document.body.append(dlg); openModal(dlg);
   }
 
   function render(s) {

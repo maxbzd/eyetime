@@ -4,7 +4,7 @@
 // This file is only the screen: what is kept lives in shared/connections.js, the conversation with each service in shared/sync/, the schedule in background/connections.js.
 // A browser asks for permission only on a click, so the permission request is always the first thing a click does.
 
-import { h, icon, toast, confirmDialog } from '../ui/dom.js';
+import { h, icon, toast, confirmDialog, openModal, retire } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { dropdown } from '../ui/dropdown.js';
 import { row, toggle } from './ui.js';
@@ -151,8 +151,8 @@ function openConnect(done, again = null) {
   const body = h('div', { class: 'dialog-body stack gap-3' });
   const actions = h('div', { class: 'dialog-actions' });
   const dlg = h('dialog', { class: 'dialog dialog-wide', 'aria-label': t('cn.dlgTitle') }, body, actions);
-  dlg.addEventListener('close', () => dlg.remove());
-  document.body.append(dlg); dlg.showModal();
+  dlg.addEventListener('close', () => retire(dlg));
+  document.body.append(dlg); openModal(dlg);
   const cancel = h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => dlg.close(), text: t('common.cancel') });
   const message = h('p', { class: 'hint', role: 'status', style: { minHeight: '1.4em' } });
   const say = (/** @type {string} */ text, bad = true) => { message.textContent = text; message.style.color = bad ? 'var(--distracting-text)' : ''; };

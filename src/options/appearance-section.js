@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 // Settings → Appearance: looks gallery, colour mode, accent, type, shape, density, custom CSS, share/import/reset.
 
-import { h, icon, toast, confirmDialog } from '../ui/dom.js';
+import { h, icon, toast, confirmDialog, openModal, retire } from '../ui/dom.js';
 import { calmDefault, applyStarter, starterData, restoreHome } from '../shared/starters.js';
 import { row, group, advFold, toggle, select, segmented, sectionHead } from './ui.js';
 import { t } from '../shared/i18n.js';
@@ -34,8 +34,8 @@ function importDialog(onApply) {
   const dlg = h('dialog', { class: 'dialog dialog-wide' },
     h('div', { class: 'dialog-body stack gap-3' }, h('h3', { text: t('ap.importTitle') }), h('p', { class: 'muted-2', text: t('ap.importDesc') }), area, h('div', { class: 'row gap-2', style: { justifyContent: 'space-between' } }, info, paste)),
     h('div', { class: 'dialog-actions' }, h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => dlg.close(), text: t('common.cancel') }), go));
-  dlg.addEventListener('close', () => dlg.remove());
-  document.body.append(dlg); dlg.showModal(); area.focus();
+  dlg.addEventListener('close', () => retire(dlg));
+  document.body.append(dlg); openModal(dlg); area.focus();
 }
 
 export function appearance({ s, save }) {

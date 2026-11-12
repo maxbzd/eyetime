@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 // "Plan my day" dialog: proposes focus blocks for the open priorities; one confirmation schedules a reminder for each.
 
-import { h, icon, toast } from '../ui/dom.js';
+import { h, icon, toast, openModal, retire } from '../ui/dom.js';
 import { t, fmtDuration } from '../shared/i18n.js';
 import { getCollection, setCollection, updateDay } from '../shared/storage.js';
 import { loadPlanContext, proposeBlocks } from './plan-context.js';
@@ -40,7 +40,7 @@ export async function openDayPlan() {
       }
       if (n) { await setCollection('tasks', fresh); await updateDay(today, (d) => { d.rt = { ...(d.rt || {}), p: Date.now() }; }); track('plan_done'); toast(t('plan.done', { n })); }
     }
-    dlg.remove();
+    retire(dlg);
   });
-  document.body.append(dlg); dlg.showModal();
+  document.body.append(dlg); openModal(dlg);
 }

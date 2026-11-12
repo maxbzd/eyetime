@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 // Settings → General → Weather: off until the person says yes (that is also when the browser asks for access to Open-Meteo), then a city, the unit and the rain effect.
 
-import { h, icon, toast } from '../ui/dom.js';
+import { h, icon, toast, isEnter } from '../ui/dom.js';
 import { row, group, toggle, segmented } from './ui.js';
 import { t, getLocale } from '../shared/i18n.js';
 import { normalizeWeather, geocodeUrl, parseGeocode, WEATHER_ORIGINS } from '../shared/weather.js';
@@ -23,7 +23,7 @@ export function weatherGroup(s, save, refresh) {
 
   const results = h('div', { class: 'stack gap-2', 'aria-live': 'polite' });
   const input = h('input', { class: 'input', type: 'search', autocomplete: 'off', spellcheck: false, maxlength: 60, placeholder: t('wx.search'), 'aria-label': t('wx.search'),
-    onkeydown: (e) => { if (e.key === 'Enter') { e.preventDefault(); find(); } } });
+    onkeydown: (e) => { if (isEnter(e)) { e.preventDefault(); find(); } } });
   async function find() {
     const q = input.value.trim();
     if (q.length < 2) return;

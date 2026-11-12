@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 // Home module: tasks — quick add (dates, times, lengths, tags, repeats), priorities, the week strip and "Plan my day".
 
-import { h, icon, toast, clear } from '../ui/dom.js';
+import { h, icon, toast, clear, isEnter, openModal, retire } from '../ui/dom.js';
 import { t, fmtDuration, fmtDate, weekdayName } from '../shared/i18n.js';
 import { send } from '../ui/api.js';
 import { getSettings } from '../shared/storage.js';
@@ -57,7 +57,7 @@ export function tasksModule() {
       clear(preview, chips.length ? chips.map(([ico, text]) => h('span', { class: 'tagm' }, icon(ico.icon), text)) : (value.trim() ? null : h('span', { class: 'hint', text: t('tasks.qaHint') })));
     };
     const input = h('input', { class: 'input', placeholder: t('tasks.add'), 'aria-label': t('tasks.add'), maxlength: 300, oninput: (e) => drawPreview(e.target.value), onkeydown: (e) => {
-      if (e.key !== 'Enter' || !e.target.value.trim()) return;
+      if (!isEnter(e) || !e.target.value.trim()) return;
       const { task, prioDenied } = taskFromInput(e.target.value, tasks);
       tasks.unshift(task); track('task_add'); save(); render();
       if (prioDenied) toast(t('tasks.maxPriorities', { n: MAX_PRIORITIES }));
@@ -84,9 +84,9 @@ export function tasksModule() {
           const when = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm);
           x.at = timeInput.value; x.atDay = dayKey(when <= now ? addDays(now, 1) : now); save(); render();
         } else if (dlg.returnValue === 'clear') { delete x.at; delete x.atDay; save(); render(); }
-        dlg.remove();
+        retire(dlg);
       });
-      document.body.append(dlg); dlg.showModal();
+      document.body.append(dlg); openModal(dlg);
     };
     const startOn = async (x) => { const s = await getSettings(); const r = await send('focus:start', { minutes: x.est || s.focus.minutes, strict: s.focus.strict, scope: s.focus.scope, taskId: x.id }); if (r && r.ok === false) toast(t(r.error === 'active' ? 'focus.alreadyRunning' : 'common.error')); };
 
@@ -118,7 +118,7 @@ export function tasksModule() {
     const wk = mondayKey(), wItems = itemsFor(weekPlan, wk), wp = weekProgress(weekPlan, wk);
     const weekAdd = () => {
       const inp = h('input', { class: 'input input-sm', maxlength: 80, placeholder: t('week.ph'), 'aria-label': t('week.ph'), onkeydown: (e) => {
-        if (e.key === 'Enter' && e.target.value.trim()) { saveWeek(addItem(weekPlan, wk, e.target.value)); weekEditing = itemsFor(weekPlan, wk).length < MAX_WEEK_ITEMS; render(); if (weekEditing) document.querySelector('#mod-tasks .week-add input')?.focus(); }
+        if (isEnter(e) && e.target.value.trim()) { saveWeek(addItem(weekPlan, wk, e.target.value)); weekEditing = itemsFor(weekPlan, wk).length < MAX_WEEK_ITEMS; render(); if (weekEditing) document.querySelector('#mod-tasks .week-add input')?.focus(); }
         else if (e.key === 'Escape') { weekEditing = false; render(); }
       } });
       return h('div', { class: 'week-add' }, inp, h('button', { class: 'btn btn-sm', type: 'button', onclick: () => { if (inp.value.trim()) { saveWeek(addItem(weekPlan, wk, inp.value)); } weekEditing = false; render(); } }, t('week.add')));
@@ -140,7 +140,7 @@ export function tasksModule() {
       open.length ? h('button', { class: 'more-link plan-link', type: 'button', onclick: openShutdown }, icon('moon'), t('tasks.planTomorrow')) : null);
   }
 
-  Promise.all([getCollection('tasks', []), getCollection('weekPlan', null)]).then(([v, w]) => { tasks = v; weekPlan = w; render(); });
+  (async () => { [tasks, weekPlan] = await Promise.all([getCollection('tasks', []), getCollection('weekPlan', null)]); render(); })();
   onChange('weekPlan', async () => { const w = await getCollection('weekPlan', null); if (JSON.stringify(w) !== JSON.stringify(weekPlan)) { weekPlan = w; if (!root.contains(document.activeElement)) render(); } });
   onChange('tasks', async () => { const v = await getCollection('tasks', []); if (JSON.stringify(v) === JSON.stringify(tasks)) return; tasks = v; if (!root.contains(document.activeElement) || !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) render(); }); // keep memory fresh even while typing (the redraw waits only while a text field has focus), so a later save never overwrites a task added elsewhere (palette, another tab)
   return root;

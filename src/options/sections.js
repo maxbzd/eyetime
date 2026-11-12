@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 // Settings sections. Each takes ctx = { s: settings, save(fn), refresh() } and returns an element.
 
-import { h, icon, toast } from '../ui/dom.js';
+import { h, icon, toast, isEnter } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { row, group, adv, advGroup, toggle, select, segmented, domainEditor, sectionHead } from './ui.js';
 import { t, LANGUAGES, weekdayName, fmtDuration } from '../shared/i18n.js';
@@ -100,7 +100,7 @@ export function focus({ s, save, refresh }) {
   const presetsIn = h('div', { class: 'stack gap-2' },
     h('div', { class: 'dur-chips' }, s.focus.presets.map((m) => h('span', { class: 'chip chip-x' }, h('span', { class: 'chip-t', text: fmtDuration(m * 60) }), s.focus.presets.length > 1 ? h('button', { type: 'button', 'aria-label': t('common.remove') + ' ' + fmtDuration(m * 60), onclick: () => setPresets(s.focus.presets.filter((n) => n !== m)) }, icon('x')) : null)),
       s.focus.presets.length < 5 ? h('input', { class: 'input input-sm num', type: 'number', min: 1, max: 720, placeholder: t('opt.addMinutes'), 'aria-label': t('opt.addMinutes'), style: { width: '110px' }, onkeydown: (e) => {
-        if (e.key !== 'Enter') return; e.preventDefault();
+        if (!isEnter(e)) return; e.preventDefault();
         const n = Math.round(Number(e.target.value));
         if (!(n >= 1 && n <= 720)) { presetErr.textContent = t('opt.presetBad'); return; }
         if (s.focus.presets.includes(n)) { presetErr.textContent = ''; e.target.value = ''; return; }

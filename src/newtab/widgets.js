@@ -4,7 +4,7 @@
 // a mantra, the next meeting, the week in focus time, one big number, the eye-break timer, a sticky note).
 // Everything is computed on this device. Each widget is built by `build(root, api)` and may return { update(cfg), destroy() }.
 
-import { h, icon, clear } from '../ui/dom.js';
+import { h, icon, clear, isEnter } from '../ui/dom.js';
 import { t, fmtDuration, fmtNumber, fmtDate, weekdayName, getLocale } from '../shared/i18n.js';
 import { getSettings, updateSettings, getDays, getCollection, getRaw, onChange } from '../shared/storage.js';
 import { send } from '../ui/api.js';
@@ -50,7 +50,7 @@ const DEFS = {
       function draw() {
         const c = api.cfg(), live = c.day === today && c.text;
         const input = h('input', { class: 'input wf-input', maxlength: 140, placeholder: t('wg.mainfocus.ph'), 'aria-label': t('wg.k.mainfocus'),
-          onkeydown: (e) => { if (e.key === 'Enter') e.target.blur(); },
+          onkeydown: (e) => { if (isEnter(e)) e.target.blur(); },
           onblur: (e) => { const v = e.target.value.trim(); if (v) api.save({ text: v, day: today, done: false }); } });
         clear(root, el('div', 'wg-label', t('wg.k.mainfocus')),
           live

@@ -3,7 +3,7 @@
 // "My week" card: a 1080×1350 PNG drawn on a canvas from the same data as the weekly review.
 // Contains no site names or task titles — only totals — so it is safe to share.
 
-import { h, icon, toast } from '../ui/dom.js';
+import { h, icon, toast, openModal, retire } from '../ui/dom.js';
 import { t, fmtDuration, fmtDate, weekdayName, fmtNumber } from '../shared/i18n.js';
 import { parseKey, dayKey } from '../shared/time.js';
 import { wrappedStats } from '../shared/wrapped.js';
@@ -92,7 +92,7 @@ export async function openWrapped(input) {
   const save = h('a', { class: 'btn btn-primary', href: url, download: name }, icon('download'), t('wrapped.save'));
   const dlg = h('dialog', { class: 'dialog wrapped-dlg' }, h('div', { class: 'dialog-body stack gap-3' }, h('h3', { text: t('wrapped.preview') }), h('p', { class: 'muted-2', text: t('wrapped.privacy') }), h('img', { class: 'wrapped-img', src: url, alt: t('wrapped.preview') })),
     h('div', { class: 'dialog-actions' }, h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => dlg.close() }, t('common.close')), copyBtn, save));
-  dlg.addEventListener('close', () => { URL.revokeObjectURL(url); dlg.remove(); });
+  dlg.addEventListener('close', () => { URL.revokeObjectURL(url); retire(dlg); });
   document.body.append(dlg);
-  dlg.showModal();
+  openModal(dlg, { light: true });
 }

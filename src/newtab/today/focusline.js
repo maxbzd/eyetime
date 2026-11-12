@@ -5,7 +5,7 @@
 // countdown (#countdown) and this line becomes what you are working on, with three small controls that show on hover.
 // Same storage and messages as ui/focus-card.js (the popup keeps that one).
 
-import { h, icon, clear, toast, confirmDialog } from '../../ui/dom.js';
+import { h, icon, clear, toast, confirmDialog, isEnter } from '../../ui/dom.js';
 import { send } from '../../ui/api.js';
 import { t, fmtDuration, fmtTime } from '../../shared/i18n.js';
 import { getSettings, getRaw, getCollection, onChange } from '../../shared/storage.js';
@@ -50,7 +50,7 @@ export function mountFocusLine(root, countdown) {
     const go = h('button', { class: 'fl-go', type: 'button', 'aria-label': t('focus.start', { time: fmtDuration(st.minutes * 60) }), onclick: start }, icon('arrow-right'));
     const input = h('input', { class: 'fl-input', id: 'goalToday', maxlength: 140, value: st.goal, autocomplete: 'off', spellcheck: 'false', placeholder: t('td.ask'), 'aria-label': t('focus.goalPlaceholderLarge'),
       oninput: (e) => { st.goal = e.target.value; if (st.taskId && st.tasks.find((x) => x.id === st.taskId)?.text !== st.goal) st.taskId = ''; },
-      onkeydown: (e) => { if (e.key === 'Enter') start(); } });
+      onkeydown: (e) => { if (isEnter(e)) start(); } });
     // today's priorities, offered while the line is empty: one click and it is the goal
     const picks = [...st.tasks.filter((x) => x.starred), ...st.tasks.filter((x) => !x.starred)].slice(0, 2);
     const hints = picks.length ? h('div', { class: 'fl-hints' }, picks.map((x) => h('button', { type: 'button', class: 'fl-hint', title: x.text, onmousedown: (e) => e.preventDefault(), onclick: () => {

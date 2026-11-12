@@ -41,7 +41,7 @@ export function cutoutBlock() {
   const make = h('button', { class: 'btn btn-sm', type: 'button' }, icon('scissors'), t('ct.make'));
   const remove = h('button', { class: 'btn btn-sm btn-ghost', type: 'button', hidden: true }, icon('x'), t('ct.remove'));
   const sync = (has) => { make.hidden = has; remove.hidden = !has; };
-  getPhoto('fg').then((fg) => sync(!!fg));
+  (async () => sync(!!(await getPhoto('fg'))))();
   make.addEventListener('click', async () => {
     const newtabBg = await getPhoto('bg');
     if (!newtabBg) { status.textContent = t('ct.noPhoto'); return; }
@@ -69,7 +69,7 @@ export function volumeBlock(n, set) {
     row(t('v3.sway'), depth.sway, 'sway'),
     h('button', { class: 'btn btn-sm btn-ghost', type: 'button', style: { alignSelf: 'flex-start' }, onclick: async () => { await removePhotos(['depth']); await patch({ volume: false }); } }, icon('x'), t('v3.remove')));
   const sync = (ready) => { make.hidden = ready; more.hidden = !ready; };
-  getPhotos(['bg', 'depth']).then(({ bg: newtabBg, depth: newtabDepth }) => sync(!!(newtabBg && newtabDepth && newtabDepth.key === photoKey(newtabBg))));
+  (async () => { const { bg: newtabBg, depth: newtabDepth } = await getPhotos(['bg', 'depth']); sync(!!(newtabBg && newtabDepth && newtabDepth.key === photoKey(newtabBg))); })();
   make.addEventListener('click', async () => {
     const newtabBg = await getPhoto('bg');
     if (!newtabBg) { status.textContent = t('ct.noPhoto'); return; }

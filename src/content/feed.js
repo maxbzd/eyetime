@@ -92,12 +92,15 @@
 
   /* ---------- settings ---------- */
   function load() {
-    chrome.storage.local.get('settings').then(({ settings }) => {
-      feed = { ...DEFAULT, ...(settings?.blocking?.feed || {}) };
-      applyCss();
-      syncTicker();
-      if (!feed.shortLimit) unlock();
-    }).catch(() => {});
+    (async () => {
+      try {
+        const { settings } = await chrome.storage.local.get('settings');
+        feed = { ...DEFAULT, ...(settings?.blocking?.feed || {}) };
+        applyCss();
+        syncTicker();
+        if (!feed.shortLimit) unlock();
+      } catch { /* the page is going away, or the extension was reloaded */ }
+    })();
   }
   chrome.storage.onChanged.addListener((c, area) => { if (area === 'local' && c.settings) load(); });
   load();

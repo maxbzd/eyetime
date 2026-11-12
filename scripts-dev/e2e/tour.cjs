@@ -89,7 +89,7 @@ const { launch } = require('./lib.cjs');
   await nt.keyboard.press('Control+k'); await nt.waitForSelector('.pal-item'); await nt.keyboard.type('guided'); await nt.waitForTimeout(250); await nt.keyboard.press('Enter');
   await nt.waitForSelector('#tour[open]');
   ok(/Step 1 of 6/i.test(await step(nt)), 'the command palette has "Guided set-up"');
-  await nt.keyboard.press('Escape'); await nt.waitForTimeout(250);
+  await nt.keyboard.press('Escape'); await nt.waitForSelector('#tour', { state: 'detached', timeout: 3000 }).catch(() => {}); // it leaves after its closing transition
   ok(await nt.locator('#tour').count() === 0, 'Escape closes it, with everything so far kept');
   const row = await o.reload().then(() => o.waitForTimeout(600)).then(() => o.locator('#general .setting', { hasText: 'Guided set-up' }));
   ok(await row.count() === 1 && /newtab\.html\?tour/.test(await row.locator('a').getAttribute('href')), 'Settings → General has a row that starts it');

@@ -83,7 +83,7 @@ export function syncTasksNow(source = 'local') {
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === 'local') {
     if (changes.syncTasks) { syncTasksNow(); return; }
-    if (changes.tasks) getRaw('syncTasks').then(({ syncTasks }) => { if (syncTasks) chrome.alarms.create(ALARM, { delayInMinutes: 0.5 }); });
+    if (changes.tasks) (async () => { const { syncTasks } = await getRaw('syncTasks'); if (syncTasks) await chrome.alarms.create(ALARM, { delayInMinutes: 0.5 }); })();
   } else if (areaName === 'sync') {
     if (changes[T_META]) syncTasksNow('remote');
   }

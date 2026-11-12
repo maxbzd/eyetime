@@ -9,7 +9,7 @@
 //
 // The rules (which part of the day it is) are in shared/ritual.js; this file draws and writes.
 
-import { h, svg, icon, clear, toast } from '../../ui/dom.js';
+import { h, svg, icon, clear, toast, isEnter } from '../../ui/dom.js';
 import { t, fmtDuration } from '../../shared/i18n.js';
 import { getSettings, getCollection, setCollection, getDays, getRaw, updateDay, onChange } from '../../shared/storage.js';
 import { isFocusLive } from '../../shared/blocking.js';
@@ -76,7 +76,7 @@ export function mountRitual(root) {
         slot.get(x.id) ? h('span', { class: 'rt-slot num', text: slot.get(x.id).start + ' · ' + fmtDuration(slot.get(x.id).minutes * 60) }) : (x.est ? h('span', { class: 'rt-est num', text: fmtDuration(x.est * 60) }) : null));
     });
     const input = h('input', { class: 'rt-add', maxlength: 300, placeholder: t('rt.m.add'), 'aria-label': t('rt.m.add'), onkeydown: async (e) => {
-      if (e.key !== 'Enter' || !e.target.value.trim()) return;
+      if (!isEnter(e) || !e.target.value.trim()) return;
       const { task } = taskFromInput(e.target.value, st.tasks);
       task.starred = false;
       const fresh = await getCollection('tasks', []);

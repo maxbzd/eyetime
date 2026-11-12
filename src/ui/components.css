@@ -188,19 +188,31 @@ button.dd { display: flex; align-items: center; justify-content: flex-start; tex
 
 /* ---------- dialog ---------- */
 dialog.dialog { padding: 0; border: 0; border-radius: var(--r-xl); background: var(--surface); color: var(--text); box-shadow: var(--shadow-3), 0 0 0 1px color-mix(in srgb, var(--text) 6%, transparent); width: min(460px, calc(100vw - 32px)); }
-dialog.dialog::backdrop { background: var(--overlay); }
-dialog.dialog[open] { animation: dlg-in var(--t-med) var(--ease); }
+/* Entry and exit are one transition of the element itself (a modal is in the top layer, so `overlay` and `display` are carried through the animation: `retire()` in ui/dom.js takes the
+   dialog out of the page after it). The motion tokens are 0 for reduced motion, so the same rules are a plain cut there. `transition-behavior` is its own declaration, not part of the
+   shorthand, so that a browser that does not know it still reads the transition. */
+dialog.dialog, dialog.palette { opacity: 0; translate: 0 8px; scale: .98; transition-property: opacity, translate, scale, display, overlay; transition-duration: var(--t-med); transition-timing-function: var(--ease); transition-behavior: allow-discrete; }
+dialog.dialog[open], dialog.palette[open] { opacity: 1; translate: 0 0; scale: 1; }
+@starting-style { dialog.dialog[open], dialog.palette[open] { opacity: 0; translate: 0 8px; scale: .98; } }
+dialog.dialog::backdrop { background: transparent; transition-property: background-color, display, overlay; transition-duration: var(--t-med); transition-timing-function: var(--ease); transition-behavior: allow-discrete; }
+dialog.dialog[open]::backdrop { background: var(--overlay); }
+@starting-style { dialog.dialog[open]::backdrop { background: transparent; } }
+/* the page behind a modal does not scroll with it: a scroll gesture over the dialog or the backdrop stops at them */
+dialog:modal { overscroll-behavior: contain; }
+dialog::backdrop { overflow: hidden; overscroll-behavior: contain; }
 .dialog-body { padding: var(--s-8) var(--s-8) var(--s-6); display: flex; flex-direction: column; gap: var(--s-3); }
 .dialog-body h3 { font-size: var(--fs-xl); letter-spacing: -.02em; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: var(--s-2); padding: 0 var(--s-8) var(--s-6); }
-@keyframes dlg-in { from { opacity: 0; transform: translateY(8px) scale(.98); } }
 
 /* ---------- toast ---------- */
 .toasts { position: fixed; left: 50%; bottom: var(--s-6); transform: translateX(-50%); display: flex; flex-direction: column; gap: var(--s-2); z-index: 1000; pointer-events: none; }
-.toast { display: flex; align-items: center; gap: var(--s-3); padding: 11px 18px; border-radius: var(--r-full); background: var(--text); color: var(--bg); font-size: var(--fs-sm); font-weight: 560; box-shadow: var(--shadow-3); animation: toast-in var(--t-med) var(--ease); pointer-events: auto; }
+/* as a popover (top layer) the box needs the page's own rules, not the browser's: no frame, no margin, no scrolling; and it is not shown while it holds no toast */
+.toasts[popover] { inset: auto; left: 50%; bottom: var(--s-6); margin: 0; padding: 0; border: 0; background: transparent; color: inherit; overflow: visible; width: max-content; max-width: min(92vw, 560px); }
+.toasts[popover]:not(:popover-open) { display: none; }
+.toast { display: flex; align-items: center; gap: var(--s-3); padding: 11px 18px; border-radius: var(--r-full); background: var(--text); color: var(--bg); font-size: var(--fs-sm); font-weight: 560; box-shadow: var(--shadow-3); transition: opacity var(--t-med) var(--ease), translate var(--t-med) var(--ease); pointer-events: auto; }
+@starting-style { .toast { opacity: 0; translate: 0 8px; } }
 .toast button { background: transparent; border: 0; color: inherit; text-decoration: underline; font-weight: 600; padding: 0; }
 .toast.out { opacity: 0; transform: translateY(6px); transition: all var(--t-med); }
-@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
 
 /* ---------- tooltip (data-tip) ---------- */
 [data-tip] { position: relative; }

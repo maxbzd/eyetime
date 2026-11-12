@@ -6,7 +6,7 @@
 //     anything: look and theme (applied live on the page behind the dialog), daily goal, eye breaks, work hours.
 // The state is `obFirst` (set by onboarding when it starts the first session): stage run → done → closed. A session stopped early closes it without a word: no guilt, no celebration for nothing.
 
-import { h, icon } from '../../ui/dom.js';
+import { h, icon, openModal, retire } from '../../ui/dom.js';
 import { t, fmtDuration } from '../../shared/i18n.js';
 import { getRaw, getDays, getSettings, updateSettings, onChange } from '../../shared/storage.js';
 import { getUsage } from '../../shared/usage-store.js';
@@ -62,8 +62,8 @@ async function celebrate(/** @type {any} */ o, /** @type {any} */ ses) {
     h('div', { class: 'dialog-actions' },
       h('button', { class: 'btn btn-lg', type: 'button', onclick: () => { dlg.close(); openTour(); } }, icon('sliders-horizontal'), t('fs.more')), // the long way: the rest of what EyeTime can do, one short step at a time
       h('button', { class: 'btn btn-primary btn-lg', type: 'button', onclick: () => dlg.close() }, t('fs.tuneDone'))));
-  dlg.addEventListener('close', async () => { celebrating = false; dlg.remove(); await patchObFirst({ stage: 'closed' }); });
-  document.body.append(dlg); dlg.showModal();
+  dlg.addEventListener('close', async () => { celebrating = false; retire(dlg); await patchObFirst({ stage: 'closed' }); });
+  document.body.append(dlg); openModal(dlg);
 }
 
 let retry = 0;

@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 // Single-key shortcuts of Home (ignored while typing): the new tab is where work starts, so it should be drivable from the keyboard.
 
-import { $, h } from '../../ui/dom.js';
+import { $, h, openModal, retire } from '../../ui/dom.js';
 import { t } from '../../shared/i18n.js';
 import { openShutdown } from '../shutdown.js';
 import { openDrawer } from './drawer.js';
@@ -26,8 +26,8 @@ function openShortcutHelp() {
     h('div', { class: 'dialog-body stack gap-3' }, h('h3', { text: t('sc.title') }),
       h('div', { class: 'sc-list' }, SHORTCUTS.map(([key, label]) => h('div', { class: 'sc-row' }, h('span', { class: 'kbd', text: key }), h('span', { text: t(label) }))))),
     h('div', { class: 'dialog-actions' }, h('button', { class: 'btn btn-primary', value: 'ok', text: t('common.close'), autofocus: true }))));
-  dlg.addEventListener('close', () => dlg.remove());
-  document.body.append(dlg); dlg.showModal();
+  dlg.addEventListener('close', () => retire(dlg));
+  document.body.append(dlg); openModal(dlg, { light: true });
 }
 
 

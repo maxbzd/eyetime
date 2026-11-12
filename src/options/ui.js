@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
 // Building blocks for the settings page.
-import { h, icon, clear } from '../ui/dom.js';
+import { h, icon, clear, isEnter } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
 import { dropdown } from '../ui/dropdown.js';
 import { parseUserDomain } from '../shared/domains.js';
@@ -68,7 +68,7 @@ export function segmented(options, value, onChange, label) {
 export function domainEditor({ items, onAdd, onRemove, placeholder, empty }) {
   const err = h('div', { class: 'hint', style: { color: 'var(--distracting-text)', minHeight: '0' } });
   const input = h('input', { class: 'input', placeholder, 'aria-label': placeholder, spellcheck: false, autocapitalize: 'off',
-    onkeydown: (e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } } });
+    onkeydown: (e) => { if (isEnter(e)) { e.preventDefault(); add(); } } });
   function add() {
     const parts = input.value.split(/[\s,;]+/).filter(Boolean);
     if (!parts.length) return;

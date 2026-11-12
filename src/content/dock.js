@@ -190,11 +190,14 @@
   chrome.runtime.onMessage.addListener((m) => { if (m && m.type === 'dock:toggle' && host) { opener = 'focus'; setOpen(!open); } });
 
   const hiddenHere = (list) => (list || []).some((h) => location.hostname === h || location.hostname.endsWith('.' + h));
-  chrome.storage.local.get('settings').then(({ settings }) => {
-    if (settings && settings.dock) dock = { ...dock, ...settings.dock };
-    if (!dock.enabled || hiddenHere(dock.hidden)) return destroy();
-    build();
-  }).catch(() => {});
+  (async () => {
+    try {
+      const { settings } = await chrome.storage.local.get('settings');
+      if (settings && settings.dock) dock = { ...dock, ...settings.dock };
+      if (!dock.enabled || hiddenHere(dock.hidden)) return destroy();
+      build();
+    } catch { /* the page is going away, or the extension was reloaded: nothing to show */ }
+  })();
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
     if (changes.settings) {

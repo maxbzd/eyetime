@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 // Home module: quick notes.
 
-import { h, icon, toast, clear } from '../ui/dom.js';
+import { h, icon, toast, clear, isEnter } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
 import { getCollection, setCollection, onChange } from '../shared/storage.js';
 import { taskFromInput } from '../shared/tasks.js';
@@ -18,6 +18,8 @@ export function notesModule() {
   const save = () => setCollection('captures', notes.slice(0, MAX_CAPTURES)); // the same cap as every other place that adds a note
   const LIMIT = 5;
 
+  const fieldSizing = typeof CSS !== 'undefined' && CSS.supports('field-sizing', 'content'); // the browser grows the field itself (see .textarea-grow)
+  const autoGrow = (/** @type {Event} */ e) => { if (fieldSizing) return; const el = /** @type {HTMLTextAreaElement} */ (e.target); el.style.height = 'auto'; el.style.height = Math.min(160, el.scrollHeight + 2) + 'px'; };
   const moving = new Set();
   async function toTask(n) {
     if (moving.has(n.id)) return; moving.add(n.id); // a double click on the button is one task, not two
@@ -32,8 +34,8 @@ export function notesModule() {
   }
 
   function render() {
-    const input = h('textarea', { class: 'textarea textarea-grow', rows: 2, oninput: (e) => { e.target.style.height = 'auto'; e.target.style.height = Math.min(160, e.target.scrollHeight + 2) + 'px'; }, placeholder: t('notes.add'), 'aria-label': t('notes.add'), maxlength: 500, onkeydown: (e) => {
-      if (e.key === 'Enter' && !e.shiftKey && e.target.value.trim()) { e.preventDefault(); notes.unshift({ id: uid(), text: e.target.value.trim(), at: Date.now() }); save(); render(); document.querySelector('#mod-notes textarea')?.focus(); }
+    const input = h('textarea', { class: 'textarea textarea-grow', rows: 2, oninput: autoGrow, placeholder: t('notes.add'), 'aria-label': t('notes.add'), maxlength: 500, onkeydown: (e) => {
+      if (isEnter(e) && !e.shiftKey && e.target.value.trim()) { e.preventDefault(); notes.unshift({ id: uid(), text: e.target.value.trim(), at: Date.now() }); save(); render(); document.querySelector('#mod-notes textarea')?.focus(); }
     } });
     const visible = showAll ? notes : notes.slice(0, LIMIT);
     clear(body, input,
@@ -46,7 +48,7 @@ export function notesModule() {
       notes.length > LIMIT ? h('button', { class: 'more-link', type: 'button', onclick: () => { showAll = !showAll; render(); } }, showAll ? t('mod.showLess') : t('mod.showAll', { n: notes.length })) : null);
   }
 
-  getCollection('captures', []).then((v) => { notes = v; render(); });
+  (async () => { notes = await getCollection('captures', []); render(); })();
   onChange('captures', async () => { const v = await getCollection('captures', []); if (JSON.stringify(v) === JSON.stringify(notes)) return; notes = v; if (!root.contains(document.activeElement)) render(); });
   return root;
 }
