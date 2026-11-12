@@ -61,6 +61,7 @@ zip(chrome, path.join(dist, 'eyetime-chrome.zip'));
 
 const firefox = stage('firefox', (m) => {
   delete m.minimum_chrome_version;
+  m.content_security_policy = { extension_pages: m.content_security_policy.extension_pages.replace(/;\s*require-trusted-types-for[^;]*;\s*trusted-types[^;]*/, '') }; // Trusted Types are not in Firefox 142 (an unknown directive is only noise for the store's linter)
   m.permissions = m.permissions.filter((p) => !['offscreen', 'favicon', 'declarativeNetRequestWithHostAccess'].includes(p)); // Chrome-only (or, for instant blocking, not yet checked in Firefox) APIs; the code feature-detects them
   m.background = { scripts: ['src/background/index.js'], type: 'module' };
   m.browser_specific_settings = { gecko: { id: 'eyetime@maxbzd.github.io', strict_min_version: '142.0', data_collection_permissions: { required: ['none'], optional: ['technicalAndInteraction'] } } };

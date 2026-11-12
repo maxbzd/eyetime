@@ -4,12 +4,13 @@
 // It is stored next to the photo (newtabDepth, with the photo's key so a map never outlives its photo); the page then draws the photo in 3D (gl3d.js).
 
 import { depthInputSize, toDepthTensor, depthToGray, depthUsable } from '../shared/depthmap.js';
+import { ownScriptUrl } from '../shared/trusted.js';
 
 const loadImage = (src) => new Promise((resolve, reject) => { const img = new Image(); img.onload = () => resolve(img); img.onerror = () => reject(new Error('image')); img.src = src; });
 
 function infer(data, w, h) {
   return new Promise((resolve, reject) => {
-    const worker = new window.Worker(chrome.runtime.getURL('src/newtab/ml/depth-worker.js'), { type: 'module' });
+    const worker = new window.Worker(ownScriptUrl(chrome.runtime.getURL('src/newtab/ml/depth-worker.js')), { type: 'module' });
     const done = (fn, v) => { clearTimeout(timer); worker.terminate(); fn(v); }; // the model is released as soon as it has answered
     const timer = setTimeout(() => done(reject, new Error('timeout')), 180_000);
     worker.onmessage = (e) => (e.data.error ? done(reject, new Error(e.data.error)) : done(resolve, e.data.depth));

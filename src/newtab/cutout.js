@@ -4,13 +4,14 @@
 // The mask is stored next to the photo (newtabFg); the page shows the photo again, masked, in front of the clock (see depth.js / newtab.css).
 
 import { toTensor, normalizeMask, smoothstep, maskCoverage, maskSize, MODEL_SIZE } from '../shared/cutout.js';
+import { ownScriptUrl } from '../shared/trusted.js';
 
 const loadImage = (src) => new Promise((resolve, reject) => { const img = new Image(); img.onload = () => resolve(img); img.onerror = () => reject(new Error('image')); img.src = src; });
 const canvas = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
 
 function infer(data) {
   return new Promise((resolve, reject) => {
-    const worker = new window.Worker(chrome.runtime.getURL('src/newtab/ml/segment-worker.js'), { type: 'module' });
+    const worker = new window.Worker(ownScriptUrl(chrome.runtime.getURL('src/newtab/ml/segment-worker.js')), { type: 'module' });
     const done = (fn, v) => { clearTimeout(timer); worker.terminate(); fn(v); }; // the model is released as soon as it has answered
     const timer = setTimeout(() => done(reject, new Error('timeout')), 90_000);
     worker.onmessage = (e) => (e.data.error ? done(reject, new Error(e.data.error)) : done(resolve, e.data.mask));
