@@ -46,7 +46,7 @@ allow, and credit in the release notes if you want it. Please give us the time t
 ## What we defend against
 
 1. **A web page** (or anything a page can make a browser send) must not be able to read or change EyeTime's data or messages, or make an extension page run its script.
-   The extension has no `innerHTML` with data, a CSP of `script-src 'self'`, no site access by default, and checks who sent every message.
+   The extension has no `innerHTML` with data, a CSP of `script-src 'self'`, no site access by default, and checks who sent every message. Trusted Types are on for its pages (`require-trusted-types-for 'script'`, one policy `eyetime` that accepts only addresses inside the extension, used to start the two model workers): `innerHTML`, `eval`, `new Function` and a script address made from a string are refused by the browser itself, and a test keeps them out of `src/`. (The Firefox package does not carry the directive: Firefox 142 has no Trusted Types.)
 2. **Another program run by the same person** must not be able to turn the service against them. The pipe tells who is on the other end from the system (the real file of the
    connecting program and whether it is elevated), never from the request; unknown programs get a few connections and a few seconds; programs to close are taken from the
    system's own process table and checked again before they are ended.
