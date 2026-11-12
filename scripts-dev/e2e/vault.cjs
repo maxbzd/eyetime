@@ -17,14 +17,14 @@ const { launch } = require('./lib.cjs');
   });
   await o.reload(); await o.waitForSelector('#vaultSet', { timeout: 8000 });
   const dump = () => o.evaluate(async () => JSON.stringify(await chrome.storage.local.get(null)));
-  const type = async (sel, v) => { await o.locator(sel).fill(v); };
+  const type = async (sel, v) => { await o.locator('dialog[open] ' + sel).fill(v); }; // the dialog that is open: a closed one is still on the page for the length of its closing transition
 
   // 1. set a passphrase (too short, then not matching, then right)
   await o.click('#vaultSet'); await o.waitForSelector('dialog[open] #vault-pass');
   await type('#vault-pass', 'short'); await type('#vault-pass2', 'short'); await o.click('dialog[open] button[type=submit]');
-  ok(/12/.test(await o.textContent('#vaultMsg')), 'a short passphrase is refused in place, naming the length: ' + await o.textContent('#vaultMsg'));
+  ok(/12/.test(await o.textContent('dialog[open] #vaultMsg')), 'a short passphrase is refused in place, naming the length: ' + await o.textContent('dialog[open] #vaultMsg'));
   await type('#vault-pass', 'correct horse battery'); await type('#vault-pass2', 'correct horse batterx'); await o.click('dialog[open] button[type=submit]');
-  ok((await o.textContent('#vaultMsg')).length > 3, 'two different phrases are refused in place');
+  ok((await o.textContent('dialog[open] #vaultMsg')).length > 3, 'two different phrases are refused in place');
   await type('#vault-pass2', 'correct horse battery'); await o.click('dialog[open] button[type=submit]');
   await o.waitForSelector('#vaultLock', { timeout: 15000 });
   let all = await dump();
@@ -47,7 +47,7 @@ const { launch } = require('./lib.cjs');
   // 3. a wrong passphrase, then the right one
   await o.click('#vaultUnlock'); await o.waitForSelector('dialog[open] #vault-pass');
   await type('#vault-pass', 'not the passphrase'); await o.click('dialog[open] button[type=submit]');
-  await o.waitForFunction(() => document.querySelector('#vaultMsg') && document.querySelector('#vaultMsg').textContent.length > 3);
+  await o.waitForFunction(() => document.querySelector('dialog[open] #vaultMsg') && document.querySelector('dialog[open] #vaultMsg').textContent.length > 3);
   ok(await o.locator('dialog[open]').count() === 1, 'a wrong passphrase keeps the dialog open');
   await type('#vault-pass', 'correct horse battery'); await o.click('dialog[open] button[type=submit]');
   await o.waitForSelector('#vaultLock', { timeout: 15000 });
@@ -59,7 +59,7 @@ const { launch } = require('./lib.cjs');
   await o.waitForFunction(() => !document.querySelector('dialog[open]'), null, { timeout: 15000 });
   await o.evaluate(() => chrome.storage.session.remove('vaultKey')); await o.waitForSelector('#vaultUnlock');
   await o.click('#vaultUnlock'); await o.waitForSelector('dialog[open] #vault-pass'); await type('#vault-pass', 'correct horse battery'); await o.click('dialog[open] button[type=submit]');
-  await o.waitForFunction(() => document.querySelector('#vaultMsg') && document.querySelector('#vaultMsg').textContent.length > 3);
+  await o.waitForFunction(() => document.querySelector('dialog[open] #vaultMsg') && document.querySelector('dialog[open] #vaultMsg').textContent.length > 3);
   ok(true, 'the old passphrase no longer opens it');
   await type('#vault-pass', 'another long phrase'); await o.click('dialog[open] button[type=submit]'); await o.waitForSelector('#vaultLock', { timeout: 15000 });
 
