@@ -22,7 +22,7 @@ const { launch } = require('./lib.cjs');
   await o.reload(); await o.waitForSelector('#syncEncSet', { timeout: 8000 });
   const cloud = () => o.evaluate(async () => JSON.stringify(await chrome.storage.sync.get(null)));
   const sync = async () => { await o.evaluate(() => chrome.runtime.sendMessage({ type: 'sync:now' })); await o.waitForTimeout(500); };
-  const type = (sel, v) => o.locator(sel).fill(v);
+  const type = (sel, v) => o.locator('dialog[open] ' + sel).fill(v); // the open dialog: a closed one stays on the page for its closing transition
   const submit = () => o.click('dialog[open] button[type=submit]');
 
   // 1. before: plain, readable in the cloud (the old behaviour)
@@ -33,9 +33,9 @@ const { launch } = require('./lib.cjs');
   // 2. set a passphrase: too short, not matching, right
   await o.click('#syncEncSet'); await o.waitForSelector('dialog[open] #vault-pass');
   await type('#vault-pass', 'short'); await type('#vault-pass2', 'short'); await submit();
-  ok(/12/.test(await o.textContent('#vaultMsg')), 'a short passphrase is refused in place');
+  ok(/12/.test(await o.textContent('dialog[open] #vaultMsg')), 'a short passphrase is refused in place');
   await type('#vault-pass', 'correct horse battery'); await type('#vault-pass2', 'correct horse batterx'); await submit();
-  ok((await o.textContent('#vaultMsg')).length > 3, 'two different phrases are refused in place');
+  ok((await o.textContent('dialog[open] #vaultMsg')).length > 3, 'two different phrases are refused in place');
   await type('#vault-pass2', 'correct horse battery'); await submit();
   await o.waitForSelector('#syncEncChange', { timeout: 15000 });
   await o.waitForTimeout(800);
@@ -56,7 +56,7 @@ const { launch } = require('./lib.cjs');
   // 4. the wrong passphrase is refused in place, the right one unlocks
   await o.click('#syncEncUnlock'); await o.waitForSelector('dialog[open] #vault-pass');
   await type('#vault-pass', 'not the passphrase'); await submit();
-  await o.waitForFunction(() => /./.test((document.querySelector('#vaultMsg') || {}).textContent || ''), null, { timeout: 15000 });
+  await o.waitForFunction(() => /./.test((document.querySelector('dialog[open] #vaultMsg') || {}).textContent || ''), null, { timeout: 15000 });
   await type('#vault-pass', 'correct horse battery'); await submit();
   await o.waitForSelector('#syncEncChange', { timeout: 15000 });
   await o.waitForTimeout(800);
