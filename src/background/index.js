@@ -72,7 +72,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 });
 
 chrome.runtime.onStartup.addListener(() => { boot().catch((e) => logError('boot:startup', e)); });
-chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'prune') pruneOldDays().then(checkStorage); });
+chrome.alarms.onAlarm.addListener(async (a) => { if (a.name === 'prune') { try { await pruneOldDays(); await checkStorage(); } catch (e) { logError('prune', e); } } });
 chrome.alarms.onAlarm.addListener(onUsageAlarm);
 chrome.alarms.onAlarm.addListener(onConnectionsAlarm);
 watchTasks();

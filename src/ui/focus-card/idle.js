@@ -3,7 +3,7 @@
 // The idle view: the day so far, the goal field, the length, the options and the start button.
 
 import { dropdown } from '../dropdown.js';
-import { h, icon, clear, $ } from '../dom.js';
+import { h, icon, clear, $, isEnter } from '../dom.js';
 import { t, fmtDuration } from '../../shared/i18n.js';
 import { goalStrip, reviewCard } from '../day-loop.js';
 import { dayKey } from '../../shared/time.js';
@@ -22,7 +22,7 @@ export function renderIdle(ctx) {
     : h('button', { class: 'chip chip-custom', type: 'button', onclick: () => { d.custom = true; render(); $('#cm' + uid, root)?.focus(); } }, icon('plus'), t('focus.custom'));
 
   const goal = h('input', { class: 'input' + (large ? ' input-lg' : ''), id: 'goal' + uid, maxlength: 140, value: d.goal, placeholder: t(large ? 'focus.goalPlaceholderLarge' : 'focus.goalPlaceholder'), 'aria-label': t('focus.goalPlaceholder'),
-    oninput: (e) => { d.goal = e.target.value; if (d.taskId) { const task = st.tasks.find((x) => x.id === d.taskId); if (!task || task.text !== d.goal) { d.taskId = ''; taskRow.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', 'false')); } } }, onkeydown: (e) => { if (e.key === 'Enter') start(); } });
+    oninput: (e) => { d.goal = e.target.value; if (d.taskId) { const task = st.tasks.find((x) => x.id === d.taskId); if (!task || task.text !== d.goal) { d.taskId = ''; taskRow.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', 'false')); } } }, onkeydown: (e) => { if (isEnter(e)) start(); } });
   const btn = h('button', { class: 'btn btn-primary btn-lg ' + (large ? '' : 'btn-block'), id: 'sb' + uid, type: 'button', onclick: start }, icon('play'), h('span', { text: startLabel() }));
   const modes = s.modes || [];
   const modeRow = modes.length ? (large

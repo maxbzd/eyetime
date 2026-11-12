@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 // Home module: habits with streaks.
 
-import { h, icon, toast, clear } from '../ui/dom.js';
+import { h, icon, toast, clear, isEnter } from '../ui/dom.js';
 import { t, fmtNumber } from '../shared/i18n.js';
 import { getCollection, setCollection, onChange } from '../shared/storage.js';
 import { dayKey, rangeKeys, addDays } from '../shared/time.js';
@@ -39,7 +39,7 @@ export function habitsModule() {
     const doneToday = (data.log[dayKey()] || []).filter((id) => data.items.some((i) => i.id === id)).length;
     root.querySelector('.count')?.remove();
     if (data.items.length) root.querySelector('.mod-head').append(h('span', { class: 'count num', text: `${doneToday}/${data.items.length}` }));
-    const addInput = h('input', { class: 'input', placeholder: t('habits.add'), 'aria-label': t('habits.add'), maxlength: 80, onkeydown: (e) => { if (e.key === 'Enter' && e.target.value.trim()) addHabit(e.target.value); if (e.key === 'Escape') { adding = false; render(); } } });
+    const addInput = h('input', { class: 'input', placeholder: t('habits.add'), 'aria-label': t('habits.add'), maxlength: 80, onkeydown: (e) => { if (isEnter(e) && e.target.value.trim()) addHabit(e.target.value); if (e.key === 'Escape') { adding = false; render(); } } });
     clear(body,
       data.items.length ? h('div', { class: 'items' }, data.items.map((it) => {
         const on = (data.log[dayKey()] || []).includes(it.id), s = streakOf(it.id);
@@ -53,7 +53,7 @@ export function habitsModule() {
       !data.items.length ? h('div', { class: 'suggest' }, h('span', { class: 'hint', text: t('habits.ideas') }), SUGGESTIONS.map((k) => h('button', { class: 'chip', type: 'button', onclick: () => addHabit(t(k)) }, t(k)))) : null);
   }
 
-  getCollection('habits', { items: [], log: {} }).then((v) => { data = v; render(); });
+  (async () => { data = await getCollection('habits', { items: [], log: {} }); render(); })();
   onChange('habits', async () => { const v = await getCollection('habits', { items: [], log: {} }); if (!root.contains(document.activeElement)) { data = v; render(); } });
   return root;
 }

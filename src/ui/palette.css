@@ -1,9 +1,10 @@
 /* SPDX-License-Identifier: FSL-1.1-ALv2 */
 /* Copyright 2026 maxbzd */
 dialog.palette { border: 1px solid var(--border-strong); border-radius: var(--r-xl); background: var(--surface); color: var(--text); padding: 0; width: min(640px, calc(100vw - 32px)); max-height: min(560px, 80vh); box-shadow: var(--shadow-3, 0 24px 80px rgba(0,0,0,.28)); margin: 12vh auto auto; overflow: hidden; }
-dialog.palette[open] { display: flex; flex-direction: column; animation: pal-in var(--t-med) var(--ease); }
-dialog.palette::backdrop { background: color-mix(in srgb, #000 38%, transparent); backdrop-filter: blur(3px); }
-@keyframes pal-in { from { opacity: 0; transform: translateY(-8px) scale(.985); } }
+dialog.palette[open] { display: flex; flex-direction: column; } /* its entry and exit are in components.css, with the other dialogs */
+dialog.palette::backdrop { background: transparent; backdrop-filter: blur(0); transition-property: background-color, backdrop-filter, display, overlay; transition-duration: var(--t-med); transition-timing-function: var(--ease); transition-behavior: allow-discrete; }
+dialog.palette[open]::backdrop { background: color-mix(in srgb, #000 38%, transparent); backdrop-filter: blur(3px); }
+@starting-style { dialog.palette[open]::backdrop { background: transparent; backdrop-filter: blur(0); } }
 .pal-top { display: flex; align-items: center; gap: var(--s-3); padding: 0 var(--s-5); border-bottom: 1px solid var(--border); } .pal-top .ico { font-size: 18px; color: var(--text-3); flex: none; }
 .pal-input { flex: 1; height: 56px; border: 0; background: transparent; font-size: var(--fs-lg); color: var(--text); outline: none; min-width: 0; } .pal-input::placeholder { color: var(--text-3); }
 .pal-list { overflow-y: auto; padding: var(--s-2); display: flex; flex-direction: column; gap: 2px; min-height: 80px; }
@@ -15,4 +16,3 @@ dialog.palette::backdrop { background: color-mix(in srgb, #000 38%, transparent)
 .pal-hint { font-size: var(--fs-xs); color: var(--text-3); flex: none; }
 .pal-empty { padding: var(--s-8) var(--s-4); text-align: center; color: var(--text-3); }
 .pal-foot { display: flex; gap: var(--s-5); padding: var(--s-2) var(--s-5); border-top: 1px solid var(--border); font-size: var(--fs-xs); color: var(--text-3); background: var(--surface-2); } .pal-foot .kbd { margin-right: 6px; }
-@media (prefers-reduced-motion: reduce) { dialog.palette[open] { animation: none; } }

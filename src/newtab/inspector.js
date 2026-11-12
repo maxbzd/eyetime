@@ -3,7 +3,7 @@
 // The strip above the editor's toolbar for the selected block: exact position and size, flush-to-the-edge alignment, front / back, duplicate, remove.
 // It only draws and reports what was typed or pressed; canvas-edit.js applies it (so undo, saving and clamping stay in one place).
 
-import { h, icon } from '../ui/dom.js';
+import { h, icon, isEnter } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
 import { blockMeta, sizeValue } from '../shared/canvas.js';
 
@@ -19,7 +19,7 @@ export function buildInspector(o) {
   const num = (label, unit, props, onChange) => {
     const input = h('input', { class: 'input input-sm cv-num', type: 'number', inputmode: 'numeric', 'aria-label': label, ...props,
       onchange: (e) => { const v = Number(e.target.value); if (e.target.value !== '' && Number.isFinite(v)) onChange(v); else sync(); },
-      onkeydown: (e) => { if (e.key === 'Enter') e.target.blur(); e.stopPropagation(); } });
+      onkeydown: (e) => { if (isEnter(e)) e.target.blur(); e.stopPropagation(); } });
     return { input, el: h('label', { class: 'cv-field' }, h('span', { class: 'cv-fl', text: label }), input, h('span', { class: 'cv-fu', text: unit })) };
   };
   const fx = num('X', '%', { min: 0, max: 100, step: 1 }, (v) => o.onPosition('x', v));

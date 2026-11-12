@@ -83,7 +83,7 @@ export async function syncNow() {
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === 'local') {
     if (changes.syncSettings) { syncNow(); return; } // turning it off also resets the first-sync marker
-    if (changes.settingsUpdatedAt) getRaw('syncSettings').then(({ syncSettings }) => { if (syncSettings) chrome.alarms.create(ALARM, { delayInMinutes: 0.5 }); });
+    if (changes.settingsUpdatedAt) (async () => { const { syncSettings } = await getRaw('syncSettings'); if (syncSettings) await chrome.alarms.create(ALARM, { delayInMinutes: 0.5 }); })();
   } else if (areaName === 'sync') {
     if (changes['sync:meta']) syncNow();
   }

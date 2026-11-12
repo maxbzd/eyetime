@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 // The running view: the countdown ring, what was held back, pause / extend / end, and a few ideas for the break.
 
-import { h, svg, icon, clear, toast } from '../dom.js';
+import { h, svg, icon, clear, toast, isEnter } from '../dom.js';
 import { send } from '../api.js';
 import { t, fmtTime } from '../../shared/i18n.js';
 import { updateCollection } from '../../shared/storage.js';
@@ -14,7 +14,7 @@ import { remainingMs, progress, isPaused } from '../../shared/focus.js';
   const { st, large } = ctx;
     const held = st.today?.fa || 0;
     const park = h('input', { class: 'input input-sm', placeholder: t('focus.park'), 'aria-label': t('focus.park'), maxlength: 300, onkeydown: async (e) => {
-      if (e.key !== 'Enter' || !e.target.value.trim()) return;
+      if (!isEnter(e) || !e.target.value.trim()) return;
       const text = e.target.value.trim();
       await updateCollection('captures', [], (notes) => addCapture(notes, text));
       e.target.value = ''; toast(t('focus.parked'));

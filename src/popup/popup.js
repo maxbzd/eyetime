@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 import { bootPage } from '../ui/page.js';
 import { addCapture } from '../shared/productivity.js';
-import { $, h, icon, favicon, clear, toast } from '../ui/dom.js';
+import { $, h, icon, favicon, clear, toast, isEnter } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { mountFocusCard } from '../ui/focus-card.js';
 import { mountToday } from '../ui/today-card.js';
@@ -77,7 +77,7 @@ async function renderFooter() {
   const { pausedUntil = 0 } = await getRaw('pausedUntil');
   const settings = await getSettings();
   const input = h('input', { class: 'input', placeholder: t('capture.placeholder'), 'aria-label': t('capture.placeholder'), maxlength: 500, onkeydown: async (e) => {
-    if (e.key !== 'Enter' || !e.target.value.trim()) return;
+    if (!isEnter(e) || !e.target.value.trim()) return;
     const text = e.target.value.trim();
     await updateCollection('captures', [], (list) => addCapture(list, text));
     e.target.value = '';

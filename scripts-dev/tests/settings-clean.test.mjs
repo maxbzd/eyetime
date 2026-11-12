@@ -49,3 +49,11 @@ test('a task that starts like a formula is exported as text', () => {
   const lines = csv.split('\n');
   assert.ok(lines[1].startsWith('"\'=HYPERLINK'), lines[1]); assert.ok(lines[2].startsWith("'+1 call"), lines[2]); assert.ok(lines[3].startsWith("'@SUM"), lines[3]); assert.ok(lines[4].startsWith('plain'), lines[4]);
 });
+
+test('Enter that confirms a character in an input method is not an Enter that submits', async () => {
+  const { isEnter } = await import('../../src/ui/dom.js');
+  assert.equal(isEnter({ key: 'Enter', isComposing: false, keyCode: 13 }), true);
+  assert.equal(isEnter({ key: 'Enter', isComposing: true, keyCode: 229 }), false, 'Chrome and Firefox: still composing');
+  assert.equal(isEnter({ key: 'Enter', isComposing: false, keyCode: 229 }), false, 'Safari: the composition has already ended, the key code still says so');
+  assert.equal(isEnter({ key: 'a', isComposing: false, keyCode: 65 }), false);
+});

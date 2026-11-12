@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 // The dock panel (an iframe inside web pages, see src/content/dock.js): Now (focus + today's tasks), Learn (topics and links) and Thoughts.
 import { bootPage } from '../ui/page.js';
-import { $, h, icon, favicon, clear, toast, confirmDialog } from '../ui/dom.js';
+import { $, h, icon, favicon, clear, toast, confirmDialog, isEnter } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { mountFocusCard } from '../ui/focus-card.js';
 import { t, fmtDuration } from '../shared/i18n.js';
@@ -57,7 +57,7 @@ async function renderNow() {
   const tasks = (await getCollection('tasks', [])).filter((x) => !x.done);
   const top = [...tasks.filter((x) => x.starred), ...tasks.filter((x) => !x.starred)].slice(0, 6);
   const add = h('input', { class: 'field', placeholder: t('dock.addTaskPh'), 'aria-label': t('dock.addTaskPh'), maxlength: 300, onkeydown: async (e) => {
-    if (e.key !== 'Enter' || !e.target.value.trim()) return;
+    if (!isEnter(e) || !e.target.value.trim()) return;
     const value = e.target.value; e.target.value = '';
     await updateCollection('tasks', [], (cur) => [taskFromInput(value, cur).task, ...cur]);
   } });
@@ -112,7 +112,7 @@ function topicCard(topic) {
     p.total ? h('span', { class: 'chip-s', text: t('dock.progress', { done: p.done, total: p.total }) }) : null);
   if (!isOpen) return h('div', { class: 'inset-item' }, head);
   const add = h('input', { class: 'field', placeholder: t('dock.pasteLink'), 'aria-label': t('dock.pasteLink'), onkeydown: async (e) => {
-    if (e.key !== 'Enter') return;
+    if (!isEnter(e)) return;
     const v = e.target.value.trim(); if (!v) return;
     const url = cleanUrl(/^[a-z][a-z0-9+.-]*:/i.test(v) ? v : 'https://' + v);
     if (!url) { toast(t('dock.cannotSave')); return; }
@@ -123,7 +123,7 @@ function topicCard(topic) {
   const note = h('textarea', { class: 'field', rows: 3, placeholder: t('dock.notePh'), 'aria-label': t('dock.notePh'), maxlength: 2000, value: topic.note || '', onchange: (e) => saveTopics((cur) => updateTopic(cur, topic.id, { note: e.target.value })) });
   const tools = topic.id === INBOX_ID ? null : h('div', { class: 'topic-tools' },
     renaming === topic.id
-      ? h('input', { class: 'field', value: topic.title, maxlength: 80, 'aria-label': t('dock.rename'), onkeydown: (e) => { if (e.key === 'Escape') { e.stopPropagation(); renaming = ''; renderLearn(); } else if (e.key === 'Enter') { const v = e.target.value.trim(); renaming = ''; if (v) saveTopics((cur) => updateTopic(cur, topic.id, { title: v })); else renderLearn(); } } })
+      ? h('input', { class: 'field', value: topic.title, maxlength: 80, 'aria-label': t('dock.rename'), onkeydown: (e) => { if (e.key === 'Escape') { e.stopPropagation(); renaming = ''; renderLearn(); } else if (isEnter(e)) { const v = e.target.value.trim(); renaming = ''; if (v) saveTopics((cur) => updateTopic(cur, topic.id, { title: v })); else renderLearn(); } } })
       : h('button', { class: 'linkbtn', type: 'button', onclick: () => { renaming = topic.id; renderLearn(); const f = document.querySelector('.topic-tools input'); if (f) f.focus(); } }, t('dock.rename')),
     h('button', { class: 'linkbtn danger', type: 'button', onclick: async () => {
       if (!(await confirmDialog({ title: t('dock.deleteTitle', { topic: topic.title }), body: t('dock.deleteBody'), confirm: t('dock.deleteTopic'), danger: true }))) return;
@@ -137,7 +137,7 @@ function topicCard(topic) {
 function renderLearn() {
   const el = view();
   const newField = topics.length < MAX_TOPICS ? h('input', { class: 'field', placeholder: t('dock.newTopicPh'), 'aria-label': t('dock.newTopic'), maxlength: 80, onkeydown: async (e) => {
-    if (e.key !== 'Enter' || !e.target.value.trim()) return;
+    if (!isEnter(e) || !e.target.value.trim()) return;
     const tp = newTopic(e.target.value); e.target.value = ''; open = tp.id; store.set('dock-open', open);
     await saveTopics((cur) => [...cur, tp]);
   } }) : null;
@@ -156,7 +156,7 @@ async function loadLearn() {
 async function renderThoughts() {
   const list = await getCollection('captures', []);
   const add = h('input', { class: 'field', placeholder: t('dock.thoughtPh'), 'aria-label': t('dock.thoughtPh'), maxlength: 500, onkeydown: async (e) => {
-    if (e.key !== 'Enter' || !e.target.value.trim()) return;
+    if (!isEnter(e) || !e.target.value.trim()) return;
     const text = e.target.value.trim(); e.target.value = '';
     await updateCollection('captures', [], (cur) => [{ id: String(Date.now()), text, at: Date.now() }, ...cur].slice(0, 200));
   } });
@@ -181,7 +181,7 @@ async function render() {
 
 function updatePageUi() {
   const b = $('#hideHere'); b.hidden = !(page && page.host);
-  if (tab === 'learn' && !isTyping()) loadLearn().then(renderLearn);
+  if (tab === 'learn' && !isTyping()) (async () => { await loadLearn(); renderLearn(); })();
 }
 
 /** The address and title of the tab this panel sits in, from the browser itself (a page cannot make this say anything else). */

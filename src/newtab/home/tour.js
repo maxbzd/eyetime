@@ -4,7 +4,7 @@
 // (a change is applied at once, on the page behind), each skippable. It is offered after the first session, in the command palette, and by a quiet tip; it is never forced and it
 // never asks for a permission itself: what needs one is a link into Settings, where the browser asks in its own words.
 
-import { h, icon, clear } from '../../ui/dom.js';
+import { h, icon, clear, openModal, retire } from '../../ui/dom.js';
 import { t, fmtDuration } from '../../shared/i18n.js';
 import { getSettings, updateSettings } from '../../shared/storage.js';
 import { send } from '../../ui/api.js';
@@ -74,7 +74,7 @@ export async function openTour(/** @type {{ at?: string }} */ { at = 'day' } = {
   const dlg = h('dialog', { id: 'tour', class: 'dialog dialog-wide fs-done tour', 'aria-labelledby': 'tourT' },
     h('div', { class: 'dialog-body' }, h('div', { class: 'tour-head' }, dots, count), title, lead, body),
     h('div', { class: 'dialog-actions' }, back, next));
-  dlg.addEventListener('close', () => dlg.remove());
+  dlg.addEventListener('close', () => retire(dlg));
   async function draw() {
     const id = TOUR_STEPS[i], s = await getSettings();
     [...dots.children].forEach((d, k) => d.classList.toggle('on', k <= i));
@@ -85,5 +85,5 @@ export async function openTour(/** @type {{ at?: string }} */ { at = 'day' } = {
     clear(next, ...(i >= TOUR_STEPS.length - 1 ? [t('tour.done')] : [t('tour.next'), icon('arrow-right')]));
   }
   await draw();
-  document.body.append(dlg); dlg.showModal();
+  document.body.append(dlg); openModal(dlg);
 }

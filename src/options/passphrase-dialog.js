@@ -3,7 +3,7 @@
 // The dialog that asks for a passphrase (or two, or an old and a new one), shared by the vault of connected services and by the encryption of synced data.
 // It is a <dialog>, so the keyboard, the focus and the escape key are the browser's; the check runs before it closes and its message stays in the dialog.
 
-import { h } from '../ui/dom.js';
+import { h, openModal, retire } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
 import { passphraseProblem, MIN_PASSPHRASE } from '../shared/vault.js';
 
@@ -26,8 +26,8 @@ export function passphraseDialog({ title, body = '', fields, confirm, danger = f
       try { const problem = await check(values); if (problem) { msg.textContent = problem; go.disabled = false; return; } } catch { msg.textContent = t('common.error'); go.disabled = false; return; }
       dlg.dataset.values = JSON.stringify(values); dlg.close('yes');
     });
-    dlg.addEventListener('close', () => { resolve(dlg.returnValue === 'yes' ? JSON.parse(dlg.dataset.values || '{}') : null); dlg.remove(); });
-    document.body.append(dlg); dlg.showModal(); /** @type {HTMLElement} */ (inputs[fields[0].id]).focus();
+    dlg.addEventListener('close', () => { resolve(dlg.returnValue === 'yes' ? JSON.parse(dlg.dataset.values || '{}') : null); retire(dlg); });
+    document.body.append(dlg); openModal(dlg); /** @type {HTMLElement} */ (inputs[fields[0].id]).focus();
   });
 }
 

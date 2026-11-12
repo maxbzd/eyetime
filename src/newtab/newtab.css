@@ -279,7 +279,8 @@ body[data-layout="minimal"] .more-mods { display: inline-flex; }
 .kbd-hint { position: fixed; right: 20px; bottom: 14px; font-size: var(--fs-xs); color: var(--hero-fg-2); opacity: .7; display: inline-flex; gap: 6px; align-items: center; } .kbd-hint:hover { opacity: 1; }
 
 /* audit round 6 */
-.textarea-grow { resize: none; min-height: 56px; }
+.textarea-grow { resize: none; min-height: 56px; max-height: 160px; }
+@supports (field-sizing: content) { .textarea-grow { field-sizing: content; } } /* the field grows with what is typed, by itself; the script below does it only where the browser cannot */
 @media (max-width: 900px) { .kbd-hint { display: none; } }
 body[data-layout="split"] .hero .clock { white-space: nowrap; font-size: clamp(56px, 7.4vw, 108px); }
 .qa-preview { display: flex; flex-wrap: wrap; gap: 6px; min-height: 0; margin-top: -4px; } .qa-preview:empty { display: none; } .qa-preview .hint { font-size: var(--fs-xs); } .tag-hash { color: var(--accent-text); }

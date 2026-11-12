@@ -10,7 +10,7 @@
 import { patchObFirst } from '../shared/first-session-state.js';
 import { dropdown } from '../ui/dropdown.js';
 import { bootPage } from '../ui/page.js';
-import { $, h, icon, clear } from '../ui/dom.js';
+import { $, h, icon, clear, isEnter } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { t, LANGUAGES, fmtDuration } from '../shared/i18n.js';
 import { updateSettings, setRaw } from '../shared/storage.js';
@@ -85,7 +85,7 @@ const views = {
       if (!d) { err.textContent = t('domains.invalid', { v: input.value }); return; }
       err.textContent = ''; if (!pick.custom.includes(d)) pick.custom.push(d); input.value = ''; drawCustom();
     };
-    const input = h('input', { class: 'input', placeholder: t('ob.customPh'), 'aria-label': t('ob.customPh'), spellcheck: false, onkeydown: (e) => { if (e.key === 'Enter') { e.preventDefault(); addDomain(); } } });
+    const input = h('input', { class: 'input', placeholder: t('ob.customPh'), 'aria-label': t('ob.customPh'), spellcheck: false, onkeydown: (e) => { if (isEnter(e)) { e.preventDefault(); addDomain(); } } });
     drawCustom();
     return h('div', { class: 'step step-dist' },
       h('h1', { text: t('ob.distTitle') }), h('p', { class: 'lead', text: t('ob.distLead') }),
@@ -98,7 +98,7 @@ const views = {
   },
 
   first: () => {
-    const goal = h('input', { class: 'input input-lg', type: 'text', maxlength: '120', value: pick.goal, placeholder: t('ob.v2.goalPh'), 'aria-label': t('ob.v2.goalQ'), spellcheck: false, oninput: (e) => { pick.goal = e.target.value; }, onkeydown: (e) => { if (e.key === 'Enter') { e.preventDefault(); finish(true); } } });
+    const goal = h('input', { class: 'input input-lg', type: 'text', maxlength: '120', value: pick.goal, placeholder: t('ob.v2.goalPh'), 'aria-label': t('ob.v2.goalQ'), spellcheck: false, oninput: (e) => { pick.goal = e.target.value; }, onkeydown: (e) => { if (isEnter(e)) { e.preventDefault(); finish(true); } } });
     const start = h('button', { class: 'btn btn-primary btn-lg go', type: 'button', onclick: () => finish(true) }, icon('play'), t('ob.startFirst', { time: fmtDuration(pick.minutes * 60) }));
     const mins = h('div', { class: 'segmented', role: 'group', 'aria-label': t('ob.focusLen') }, [5, 10, 25].map((m) => h('button', { type: 'button', 'aria-pressed': String(pick.minutes === m), text: fmtDuration(m * 60), onclick: (e) => { pick.minutes = m; e.currentTarget.parentElement.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === e.currentTarget))); start.lastChild.textContent = t('ob.startFirst', { time: fmtDuration(m * 60) }); } })));
     return h('div', { class: 'step' },

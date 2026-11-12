@@ -3,7 +3,7 @@
 // Command palette (Ctrl/Cmd+K) for the full-page surfaces: type to find a command, a task, a setting or a look, Enter to run it.
 // Everything it does is also reachable by hand — the palette only makes the frequent things one keystroke away.
 
-import { h, icon, clear, toast } from './dom.js';
+import { h, icon, clear, toast, isEnter, openModal, retire } from './dom.js';
 import { send } from './api.js';
 import { t, fmtDuration } from '../shared/i18n.js';
 import { getSettings, updateSettings, getRaw, getCollection, setCollection } from '../shared/storage.js';
@@ -112,15 +112,14 @@ function mount(extra) {
   input.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowDown') { e.preventDefault(); sel = (sel + 1) % Math.max(1, shown.length); mark(); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); sel = (sel - 1 + shown.length) % Math.max(1, shown.length); mark(); }
-    else if (e.key === 'Enter') { e.preventDefault(); run(sel); }
+    else if (isEnter(e)) { e.preventDefault(); run(sel); }
   });
-  dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
-  dlg.addEventListener('close', () => { dlg.remove(); open = false; token++; });
+  dlg.addEventListener('close', () => { retire(dlg); open = false; token++; });
   document.body.append(dlg);
-  dlg.showModal();
+  openModal(dlg, { light: true });
   input.focus();
   const my = ++token;
-  commands(extra).then((c) => { if (my !== token) return; items = c; compute(); paint(); });
+  (async () => { const c = await commands(extra); if (my !== token) return; items = c; compute(); paint(); })();
 }
 
 /** Install the Ctrl/Cmd+K shortcut on the current page. */
