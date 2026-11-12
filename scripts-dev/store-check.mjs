@@ -106,11 +106,11 @@ for (const [file, w, h] of [['store/promo/small-tile-440x280.png', 440, 280], ['
   if (USAGE_ENDPOINT) for (const f of ['site/index.html', 'store/listing/en.md', 'README.md']) ok(!/no analytics/i.test(read(f)), `${f} says "no analytics" but the collector has an address (docs/MEASUREMENT.md: change the sentence in the same release)`);
 }
 
-// the demo video is made again with each minor release: it shows the product, and the product moves
-{
-  const demo = JSON.parse(read('store/demo.json')), minor = (v) => String(v).split('.').slice(0, 2).join('.');
-  ok(fs.existsSync(path.join(root, 'store/demo.mp4')) && fs.existsSync(path.join(root, 'store/demo-poster.jpg')), 'store/demo.mp4 and store/demo-poster.jpg must exist (node scripts-dev/e2e/demo-video.cjs)');
-  ok(minor(demo.version) === minor(man.version), `the demo video was rendered from ${demo.version}, the product is ${man.version}: render it again (node scripts-dev/e2e/demo-video.cjs)`);
+// the videos are made again with each minor release: they show the product, and the product moves
+for (const film of ['demo', 'promo']) {
+  const meta = JSON.parse(read(`store/${film}.json`)), minor = (v) => String(v).split('.').slice(0, 2).join('.');
+  ok(fs.existsSync(path.join(root, `store/${film}.mp4`)) && fs.existsSync(path.join(root, `store/${film}-poster.jpg`)), `store/${film}.mp4 and store/${film}-poster.jpg must exist (node scripts-dev/e2e/demo-video.cjs --film ${film})`);
+  ok(minor(meta.version) === minor(man.version), `the ${film} video was rendered from ${meta.version}, the product is ${man.version}: render it again (node scripts-dev/e2e/demo-video.cjs --film ${film})`);
 }
 
 if (bad.length) { console.error('✗ store check\n  ' + bad.join('\n  ')); process.exit(1); }

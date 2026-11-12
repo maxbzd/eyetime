@@ -1,0 +1,189 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: FSL-1.1-ALv2 -->
+<!-- Copyright 2026 maxbzd -->
+<!-- The short promo (for the store's video field) as a pure function of time: window.render(t) draws the frame at t seconds (demo-video.cjs --film promo steps through them and ffmpeg joins them).
+     A hook, three ideas, one call to action. The pictures are the real interface (demo-shots.cjs); everything else is motion and words. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EyeTime promo</title>
+<style>
+  @font-face { font-family: "Inter"; font-weight: 100 900; src: url(fonts/inter-latin-wght-normal.woff2) format("woff2"); }
+  @font-face { font-family: "Instrument Serif"; font-weight: 400; src: url(fonts/instrument-serif-latin-400-normal.woff2) format("woff2"); }
+  :root { --ink: #15140f; --mute: #5d5a52; --paper: #efede8; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--paper); font-family: "Inter", system-ui, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--paper); }
+  .tint { position: absolute; inset: -20%; filter: blur(70px); opacity: 0; will-change: opacity; }
+  .scene { position: absolute; inset: 0; opacity: 0; will-change: transform, opacity; transform-origin: 50% 50%; }
+  .w { display: inline-block; will-change: transform, opacity, filter; }
+  .serif { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; letter-spacing: -0.015em; }
+
+  /* the words beside a window */
+  .copy { position: absolute; }
+  .copy .eyebrow { display: flex; align-items: center; gap: 14px; font-size: 24px; font-weight: 600; letter-spacing: .02em; color: var(--mute); margin-bottom: 26px; will-change: opacity, transform; }
+  .copy .eyebrow b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .copy .eyebrow i { width: 44px; height: 2px; background: var(--ink); opacity: .35; display: block; transform-origin: 0 50%; }
+  .copy h2 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 112px; line-height: .98; letter-spacing: -0.02em; }
+  .copy p { margin-top: 28px; font-size: 32px; line-height: 1.32; font-weight: 450; color: var(--mute); letter-spacing: -0.005em; }
+
+  .win { position: absolute; scale: .8; transform-origin: 50% 0; border-radius: 18px; background: #fff; overflow: hidden; box-shadow: 0 2px 4px rgba(20,18,12,.06), 0 34px 90px -20px rgba(20,18,12,.38), 0 0 0 1px rgba(20,18,12,.08); will-change: transform; }
+  .bar { height: 36px; background: #f7f6f3; display: flex; align-items: center; padding: 0 14px; gap: 8px; border-bottom: 1px solid rgba(20,18,12,.07); }
+  .bar i { width: 11px; height: 11px; border-radius: 50%; background: #d7d4cc; display: block; }
+  .bar span { margin: 0 auto; transform: translateX(-26px); font-size: 13px; font-weight: 500; color: #7b776d; background: #eceae4; border-radius: 8px; padding: 4px 70px; }
+  .view { position: relative; overflow: hidden; background: #000; }
+  .view img { display: block; position: absolute; left: 0; top: 0; width: 1280px; }
+  .chip { position: absolute; display: flex; align-items: center; gap: 14px; padding: 15px 26px 15px 18px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 28px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; box-shadow: 0 12px 34px -8px rgba(0,0,0,.45); opacity: 0; will-change: transform, opacity; }
+  .chip b { width: 14px; height: 14px; border-radius: 50%; background: #c9f26b; display: block; }
+  .ring { position: absolute; border-radius: 999px; border: 3px solid #fff; opacity: 0; box-shadow: 0 0 0 1px rgba(0,0,0,.2), 0 0 30px rgba(255,255,255,.5); will-change: transform, opacity; }
+
+  /* the hook: windows out of focus around the edges, one question in the middle */
+  .ghost { position: absolute; width: 820px; border-radius: 16px; overflow: hidden; filter: blur(8px); opacity: .5; box-shadow: 0 30px 70px -20px rgba(20,18,12,.4); will-change: transform; }
+  .ghost img { display: block; width: 820px; }
+  .hook { position: absolute; left: 0; right: 0; text-align: center; }
+
+  .logo { position: absolute; border-radius: 22%; box-shadow: 0 30px 70px -20px rgba(20,18,12,.45); }
+  .center { position: absolute; left: 0; right: 0; text-align: center; }
+  #mark { position: absolute; left: 120px; top: 64px; display: flex; align-items: center; gap: 14px; opacity: 0; }
+  #mark img { width: 46px; height: 46px; border-radius: 22%; display: block; box-shadow: 0 6px 16px -6px rgba(20,18,12,.4); }
+  #mark span { font-family: "Instrument Serif", Georgia, serif; font-size: 44px; letter-spacing: -0.01em; line-height: 1; }
+  .btn { position: absolute; left: 50%; display: flex; align-items: center; gap: 18px; padding: 28px 58px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 44px; font-weight: 600; letter-spacing: -0.015em; white-space: nowrap; box-shadow: 0 24px 60px -18px rgba(20,18,12,.6); will-change: transform, opacity; }
+  .btn svg { width: 38px; height: 38px; display: block; }
+  .pulse { position: absolute; left: 50%; border-radius: 999px; border: 3px solid var(--ink); opacity: 0; will-change: transform, opacity; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="tint" id="tint"></div>
+
+  <!-- H: the hook -->
+  <div class="scene" id="H">
+    <div class="ghost" id="g1" style="left:-300px;top:-330px"><img src="assets/home-dark.png" alt=""></div>
+    <div class="ghost" id="g2" style="left:1400px;top:-650px"><img src="assets/insights.png" alt=""></div>
+    <div class="ghost" id="g3" style="left:-330px;top:830px"><img src="assets/home.png" alt=""></div>
+    <div class="ghost" id="g4" style="left:1380px;top:820px"><img src="assets/pause.png" alt=""></div>
+    <div class="hook serif" id="hookA" style="top:380px;font-size:158px;line-height:1"></div>
+    <div class="hook" id="hookB" style="top:600px;font-size:44px;font-weight:450;color:#5d5a52;letter-spacing:-0.01em"></div>
+  </div>
+
+  <div id="mark"><img src="icon512.png" alt=""><span>EyeTime</span></div>
+
+  <!-- 1: a calm start -->
+  <div class="scene" id="S1">
+    <div class="copy" id="cp1" style="left:120px;top:312px;width:640px"><div class="eyebrow"><b>01</b><i></i>A calm start</div><h2></h2><p></p></div>
+    <div class="win" id="win1" style="left:700px;top:206px;width:1280px"><div class="bar"><i></i><i></i><i></i><span>New tab</span></div><div class="view" style="height:800px"><img src="assets/home.png" alt=""></div>
+      <div class="ring" id="ring1" style="left:340px;top:480px;width:600px;height:90px"></div>
+    </div>
+    <div class="chip" id="chip1a" style="left:640px;top:836px"><b></b>A new photo every day</div>
+    <div class="chip" id="chip1b" style="left:1230px;top:166px"><b></b>One question: what is your focus?</div>
+  </div>
+
+  <!-- 2: focus -->
+  <div class="scene" id="S2">
+    <div class="win" id="win2a" style="left:-109px;top:214px;width:1280px;scale:.72"><div class="bar"><i></i><i></i><i></i><span>New tab</span></div><div class="view" style="height:800px"><img src="assets/home-focus.png" alt=""></div></div>
+    <div class="win" id="win2b" style="left:137px;top:486px;width:1280px;scale:.62"><div class="bar"><i></i><i></i><i></i><span>reddit.com</span></div><div class="view" style="height:800px"><img src="assets/pause.png" alt=""></div></div>
+    <div class="copy" id="cp2" style="left:1230px;top:312px;width:590px"><div class="eyebrow"><b>02</b><i></i>Focus</div><h2></h2><p></p></div>
+    <div class="chip" id="chip2a" style="left:120px;top:158px"><b></b>Focusing · 16 minutes left</div>
+    <div class="chip" id="chip2b" style="left:640px;top:438px"><b></b>A pause, with your own plan</div>
+  </div>
+
+  <!-- 3: clarity -->
+  <div class="scene" id="S3">
+    <div class="copy" id="cp3" style="left:120px;top:312px;width:640px"><div class="eyebrow"><b>03</b><i></i>Clarity</div><h2></h2><p></p></div>
+    <div class="win" id="win3" style="left:780px;top:206px;width:1280px;scale:.78"><div class="bar"><i></i><i></i><i></i><span>Insights</span></div><div class="view" style="height:800px"><img id="img3" src="assets/insights.png" alt=""></div></div>
+    <div class="chip" id="chip3a" style="left:1180px;top:156px"><b></b>Your week, in plain words</div>
+    <div class="chip" id="chip3b" style="left:740px;top:858px"><b></b>Computed on your device</div>
+  </div>
+
+  <!-- C: the close -->
+  <div class="scene" id="C">
+    <img class="logo" id="logoC" src="icon512.png" width="132" height="132" alt="" style="left:894px;top:150px">
+    <div class="center serif" id="brandC" style="top:322px;font-size:150px;line-height:1"></div>
+    <div class="center serif" id="tagC" style="top:500px;font-size:66px;line-height:1;color:#5d5a52"></div>
+    <div class="pulse" id="pulseC" style="top:660px;width:520px;height:118px;margin-left:-260px"></div>
+    <div class="btn" id="btnC" style="top:660px"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Add to Chrome</div>
+    <div class="center" id="subC" style="top:830px;font-size:32px;font-weight:450;color:#5d5a52;letter-spacing:-0.01em"></div>
+    <div class="center" id="urlC" style="top:900px;font-size:30px;font-weight:600;letter-spacing:-0.01em"></div>
+  </div>
+</div>
+
+<script>
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const E = { out: (x) => 1 - Math.pow(1 - x, 3), inOut: (x) => (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2), expo: (x) => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x)),
+  back: (x) => { const c = 1.4; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); } };
+const seg = (t, a, b, ease = E.out) => ease(clamp((t - a) / (b - a)));
+const $ = (id) => document.getElementById(id);
+
+// the timeline: [start, end] of each scene, in seconds; one scene leaves before the next arrives, so nothing shows through
+const T = { H: [0, 3.4], S1: [3.4, 8.4], S2: [8.4, 13.8], S3: [13.8, 19.0], C: [19.0, 23.6] };
+const TOTAL = 23.6;
+window.TOTAL = TOTAL;
+window.POSTER = 6.6; // the frame demo-video.cjs keeps as the picture for the video
+
+// words that rise in one after another
+function words(el, text, t, start, gap = 0.055, dur = 0.55) {
+  if (!el.dataset.built) { el.innerHTML = text.split(' ').map((w) => `<span class="w">${w}</span>`).join(' '); el.dataset.built = '1'; }
+  [...el.children].forEach((s, i) => { const p = seg(t, start + i * gap, start + i * gap + dur, E.out); s.style.opacity = p; s.style.transform = `translateY(${(1 - p) * 30}px)`; s.style.filter = `blur(${(1 - p) * 10}px)`; });
+}
+function copy(id, h, p, t, a) {
+  const el = $(id), ey = el.firstChild;
+  if (!el.dataset.built) { el.dataset.built = '1'; }
+  const e = seg(t, a, a + 0.5); ey.style.opacity = e; ey.style.transform = `translateX(${(1 - e) * -16}px)`; ey.children[1].style.transform = `scaleX(${seg(t, a + 0.1, a + 0.7, E.out)})`;
+  words(el.children[1], h, t, a + 0.12, 0.08, 0.6); words(el.children[2], p, t, a + 0.55, 0.03, 0.5);
+}
+// a scene's presence: fades and drifts in, and out
+function presence(id, t, [a, b], push = 22) {
+  const el = $(id), fin = seg(t, a, a + 0.5, E.out), fout = seg(t, b - 0.32, b, E.inOut);
+  el.style.opacity = t < a || t > b ? 0 : fin * (1 - fout);
+  el.style.transform = `scale(${1 + (1 - fin) * 0.03 - fout * 0.025}) translateY(${(1 - fin) * push}px)`;
+  return { fin, fout, on: t >= a && t <= b };
+}
+// a window rises in, turning a little toward the viewer
+function rise(el, t, a, dist = 90, dur = 1.0, turn = 9) { const p = seg(t, a, a + dur, E.out); el.style.transform = `perspective(2200px) translateY(${(1 - p) * dist}px) rotateY(${(1 - p) * turn}deg)`; return p; }
+function chip(id, t, a, hold = 99) { const el = $(id), pin = seg(t, a, a + 0.45, E.back), pout = seg(t, a + hold, a + hold + 0.3, E.inOut); el.style.opacity = clamp(pin) * (1 - pout); el.style.transform = `translateY(${(1 - pin) * 16}px) scale(${0.92 + 0.08 * pin})`; }
+function ring(id, t, a, dur = 1.8) { const el = $(id), k = clamp((t - a) / dur); el.style.opacity = t < a ? 0 : (k < .15 ? k / .15 : 1 - Math.max(0, (k - .5) / .5)) * 0.9; el.style.transform = `scale(${1 + k * 0.12})`; }
+function zoom(el, t, [a, b], from, to) { el.style.scale = (from + (to - from) * E.inOut(clamp((t - a) / (b - a)))).toFixed(5); }
+
+const TINT = { H: '#ffffff', S1: '#e9b9c8', S2: '#b9c4ea', S3: '#cfe9a0', C: '#ffffff' };
+
+window.render = function render(t) {
+  // the soft colour behind each scene
+  const tint = $('tint'); let best = 'H', bv = -1;
+  for (const k of Object.keys(T)) { const [a, b] = T[k], mid = (a + b) / 2, v = 1 - Math.abs(t - mid) / ((b - a) / 2 + 1.2); if (v > bv) { bv = v; best = k; } }
+  tint.style.background = `radial-gradient(60% 55% at 50% 58%, ${TINT[best]} 0%, rgba(239,237,232,0) 70%)`; tint.style.opacity = best === 'H' || best === 'C' ? 0.0 : clamp(bv * 0.9, 0, 0.6);
+
+  // the small mark in the corner, while the three ideas play
+  $('mark').style.opacity = seg(t, 3.6, 4.2) * (1 - seg(t, 18.65, 19.0, E.inOut));
+
+  // H: the hook. The picture is there from the first frame; the question is on screen within half a second
+  { presence('H', t, [-1, T.H[1]], 0); const d = t * 0.35;
+    const g = { g1: [40 + d * 30, 30 + d * 12, -5], g2: [-40 - d * 30, 20 - d * 10, 4], g3: [30 + d * 24, -10 - d * 14, -3], g4: [-30 - d * 26, -16 - d * 10, 5] };
+    for (const [id, [x, y, r]] of Object.entries(g)) { const e = $(id); e.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg) scale(${1 + t * 0.012})`; }
+    words($('hookA'), 'Where did your day go?', t, 0.1, 0.09, 0.62); words($('hookB'), 'EyeTime shows you. Gently.', t, 1.35, 0.06, 0.55); }
+
+  // 1: a calm start
+  { presence('S1', t, T.S1); const t0 = T.S1[0]; copy('cp1', 'Open a tab. Breathe.', 'A photo, the time, and one question.', t, t0 + 0.2);
+    const w = $('win1'); rise(w, t, t0 + 0.15); zoom(w, t, [t0, T.S1[1]], 0.86, 0.89);
+    chip('chip1a', t, t0 + 1.7, 2.7); chip('chip1b', t, t0 + 2.7, 2.2); ring('ring1', t, t0 + 2.7, 2.2); }
+  // 2: focus
+  { presence('S2', t, T.S2); const t0 = T.S2[0]; copy('cp2', 'Focus without force.', 'One click to start. Distracting sites wait, with a pause instead of a wall.', t, t0 + 0.2);
+    const a = $('win2a'), b = $('win2b'); rise(a, t, t0 + 0.15); zoom(a, t, [t0, T.S2[1]], 0.72, 0.745);
+    const pb = seg(t, t0 + 1.2, t0 + 2.2, E.out); b.style.opacity = pb; b.style.transform = `perspective(2200px) translateY(${(1 - pb) * 110}px) rotateY(${(1 - pb) * -9}deg)`; zoom(b, t, [t0 + 1.2, T.S2[1]], 0.62, 0.64);
+    chip('chip2a', t, t0 + 1.0, 2.6); chip('chip2b', t, t0 + 2.9, 2.3); }
+  // 3: clarity
+  { presence('S3', t, T.S3); const t0 = T.S3[0]; copy('cp3', 'See where the day went.', 'Plain-language insights, computed on your device.', t, t0 + 0.2);
+    const w = $('win3'); rise(w, t, t0 + 0.15); zoom(w, t, [t0, T.S3[1]], 0.78, 0.81);
+    const pan = E.inOut(clamp((t - (t0 + 1.2)) / 3.6)); $('img3').style.top = (-pan * 600) + 'px';
+    chip('chip3a', t, t0 + 1.9, 2.3); chip('chip3b', t, t0 + 3.4, 1.8); }
+  // C: the close
+  { presence('C', t, [T.C[0], 99], 0); const t0 = T.C[0];
+    const lg = $('logoC'), p = seg(t, t0 + 0.1, t0 + 0.8, E.back); lg.style.opacity = seg(t, t0 + 0.1, t0 + 0.5); lg.style.transform = `scale(${0.6 + 0.4 * p})`;
+    words($('brandC'), 'EyeTime', t, t0 + 0.4, 0.08, 0.7); words($('tagC'), 'Free. Private. Yours.', t, t0 + 0.95, 0.1, 0.65);
+    const bp = seg(t, t0 + 1.7, t0 + 2.4, E.back), btn = $('btnC'); btn.style.opacity = clamp(bp); btn.style.transform = `translateX(-50%) translateY(${(1 - bp) * 24}px) scale(${0.9 + 0.1 * bp})`;
+    const k = ((t - t0 - 2.4) / 1.7) % 1, on = t > t0 + 2.4 ? 1 : 0, pl = $('pulseC'); pl.style.opacity = on * (1 - k) * 0.45; pl.style.transform = `scale(${1 + k * 0.28}, ${1 + k * 0.5})`;
+    words($('subC'), 'No account. Your data stays on your device.', t, t0 + 2.2, 0.04, 0.55); words($('urlC'), 'maxbzd.github.io/eyetime', t, t0 + 2.9, 0.07, 0.55); }
+};
+window.render(0);
+</script>
+</body>
+</html>
