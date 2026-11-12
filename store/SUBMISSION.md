@@ -11,13 +11,13 @@ Repository → Settings → Pages → *Build and deployment* → Source: **GitHu
 1. Sign in at https://addons.mozilla.org/developers/ with a Mozilla account.
 2. *Submit a New Add-on* → **On this site** → upload `eyetime-firefox.zip` from the latest release.
 3. Source code: answer "No" (nothing is minified or generated; see reviewer notes in `store/LISTING.md`) and paste the *Firefox AMO notes* into "Notes to reviewer".
-4. Listing: name, summary, description (EN as the default; add RU, ES, DE, FR, PT, IT, PL, UK, ZH-CN, JA as locales from `store/listing/`), category *Productivity* (+ *Privacy & Security*), screenshots with the captions from `store/LISTING.md`, privacy policy URL, support URL `https://github.com/maxbzd/eyetime/issues`.
+4. Listing: name, summary, description (EN as the default; add RU, ES, DE, FR, PT, IT, PL, UK, ZH-CN, JA as locales from `store/listing/`), category *Work → Workflow & Planning* (the store's two-level list; fallback *Tools*) (+ *Privacy & Security*), screenshots with the captions from `store/LISTING.md`, privacy policy URL, support URL `https://github.com/maxbzd/eyetime/issues`.
 5. Submit. Review usually takes from hours to a few days.
 
 ## 2. Chrome Web Store (one-time developer fee, currently about 5 USD — check the current price)
 1. Register at https://chromewebstore.google.com/developer/dashboard (pay the fee, verify the e-mail).
 2. *Add new item* → upload `eyetime-chrome.zip` from the latest release.
-3. *Store listing*: paste name/summary/description from `store/listing/<lang>.md` (EN, RU, ES, DE, FR, PT, IT, PL, UK, ZH-CN, JA; each language with its own screenshots), category *Productivity*, upload the screenshots, small promo tile `store/promo`.
+3. *Store listing*: paste name/summary/description from `store/listing/<lang>.md` (EN, RU, ES, DE, FR, PT, IT, PL, UK, ZH-CN, JA; each language with its own screenshots), category *Work → Workflow & Planning* (the store's two-level list; fallback *Tools*), upload the screenshots, small promo tile `store/promo`.
 4. *Privacy practices*: single purpose, every row of the permission table, "no remote code", privacy policy URL, and the data usage:
    - **While `USAGE_ENDPOINT` in `src/shared/usage-config.js` is empty** (the default; nothing can be sent): *none collected*.
    - **Once the collector is set up and the address is in** (see `docs/MEASUREMENT.md`): tick **User activity** (the counts of EyeTime's own buttons and screens, and the days it was used), and answer the three certifications as true: the data is not sold, not used for anything unrelated to the single purpose, and not used for creditworthiness or lending. Say it is **optional and off by default** (opt-in) and that a person can read the exact report and stop at any time. The text for the field: *"Optional, off by default. If the user turns on 'Share anonymous usage numbers', EyeTime sends one report a week with counts of its own features and the days it was used, and the interface look and language. No websites, text, or identity. The user can see the exact report and stop at any time; stopping deletes it from the server."*
@@ -30,7 +30,7 @@ Repository → Settings → Pages → *Build and deployment* → Source: **GitHu
 ## 2b. Microsoft Edge Add-ons (free)
 1. Sign in at https://partner.microsoft.com/dashboard/microsoftedge/overview with a Microsoft account and register as a developer (no fee).
 2. *Create new extension* → upload the **same** `eyetime-chrome.zip` (Edge runs Chrome extensions unchanged).
-3. *Availability*: public, all markets. *Properties*: category *Productivity*, privacy policy URL `https://maxbzd.github.io/eyetime/privacy.html`, website `https://maxbzd.github.io/eyetime/`, support `https://github.com/maxbzd/eyetime/issues`.
+3. *Availability*: public, all markets. *Properties*: category *Work → Workflow & Planning* (the store's two-level list; fallback *Tools*), privacy policy URL `https://maxbzd.github.io/eyetime/privacy.html`, website `https://maxbzd.github.io/eyetime/`, support `https://github.com/maxbzd/eyetime/issues`.
 4. *Store listings*: add one listing per language (EN, RU, ES, DE, FR, PT, IT, PL, UK, ZH, JA) from `store/listing/<lang>.md`, with that language's five screenshots from `store/screenshots/<lang>/` (English: `store/screenshots/en/`).
 5. *Notes for certification*: paste the same permission justifications as for Chrome (`store/LISTING.md`). Review usually takes a few days.
 

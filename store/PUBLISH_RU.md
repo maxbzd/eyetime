@@ -36,7 +36,7 @@
 | Title | подставляется из манифеста: «EyeTime — Focus, Screen Time & Eye Care» |
 | Summary | раздел *Summary* из `store/listing/en.md` (до 132 символов) |
 | Description | раздел *Description* оттуда же, целиком |
-| Category | **Productivity** |
+| Category | **Работа и планирование** (Work → Workflow & Planning; в магазине список двухуровневый. Запасной вариант: «Инструменты») |
 | Language | English |
 | Icon (128×128) | `icons/icon128.png` |
 | Screenshots | **5 файлов** из `store/screenshots/en/` по порядку: `1-home`, `2-focus`, `3-insights`, `4-pause`, `5-looks`. Подписи не нужны (в консоли поля подписи нет), они в листинге для справки |
