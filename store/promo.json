@@ -1,5 +1,5 @@
 {
   "_": "Written by scripts-dev/e2e/demo-video.cjs: the version of the product this video was rendered from. store-check fails when the minor version moves on, so the videos are made again with each minor release.",
   "version": "3.9.2",
-  "renderedAt": "2026-11-12"
+  "renderedAt": "2026-11-13"
 }
