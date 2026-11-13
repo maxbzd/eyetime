@@ -115,10 +115,18 @@ const seg = (t, a, b, ease = E.out) => ease(clamp((t - a) / (b - a)));
 const $ = (id) => document.getElementById(id);
 
 // the timeline: [start, end] of each scene, in seconds; one scene leaves before the next arrives, so nothing shows through
-const T = { H: [0, 3.4], S1: [3.4, 8.4], S2: [8.4, 13.8], S3: [13.8, 19.0], C: [19.0, 23.6] };
-const TOTAL = 23.6;
+// The picture keeps the music's grid: one bar is 4 beats of 0.425 s (141 BPM), each scene is 3 bars, and what happens on screen lands on a beat or an eighth, so promo-sound.cjs can put a sound under every event.
+const BAR = 1.7, Q = BAR / 8; // Q is an eighth note
+const T = { H: [0, 2 * BAR], S1: [2 * BAR, 5 * BAR], S2: [5 * BAR, 8 * BAR], S3: [8 * BAR, 11 * BAR], C: [11 * BAR, 14 * BAR] };
+const TOTAL = 14 * BAR;
+const CUE = { // the moments the sound follows, in seconds
+  hookB: 6 * Q, chip1a: T.S1[0] + 8 * Q, chip1b: T.S1[0] + 12 * Q,
+  chip2a: T.S2[0] + 5 * Q, win2b: T.S2[0] + 6 * Q, chip2b: T.S2[0] + 14 * Q,
+  chip3a: T.S3[0] + 9 * Q, chip3b: T.S3[0] + 16 * Q,
+  brand: T.C[0] + 2 * Q, tag: T.C[0] + 4 * Q, button: T.C[0] + 8 * Q, sub: T.C[0] + 10 * Q, url: T.C[0] + 14 * Q };
 window.TOTAL = TOTAL;
-window.POSTER = 6.6; // the frame demo-video.cjs keeps as the picture for the video
+window.CUES = { bar: BAR, total: TOTAL, scenes: T, cue: CUE };
+window.POSTER = 6.8; // the frame demo-video.cjs keeps as the picture for the video
 
 // words that rise in one after another
 function words(el, text, t, start, gap = 0.055, dur = 0.55) {
@@ -153,35 +161,35 @@ window.render = function render(t) {
   tint.style.background = `radial-gradient(60% 55% at 50% 58%, ${TINT[best]} 0%, rgba(239,237,232,0) 70%)`; tint.style.opacity = best === 'H' || best === 'C' ? 0.0 : clamp(bv * 0.9, 0, 0.6);
 
   // the small mark in the corner, while the three ideas play
-  $('mark').style.opacity = seg(t, 3.6, 4.2) * (1 - seg(t, 18.65, 19.0, E.inOut));
+  $('mark').style.opacity = seg(t, T.S1[0] + 0.2, T.S1[0] + 0.8) * (1 - seg(t, T.C[0] - 0.35, T.C[0], E.inOut));
 
   // H: the hook. The picture is there from the first frame; the question is on screen within half a second
   { presence('H', t, [-1, T.H[1]], 0); const d = t * 0.35;
     const g = { g1: [40 + d * 30, 30 + d * 12, -5], g2: [-40 - d * 30, 20 - d * 10, 4], g3: [30 + d * 24, -10 - d * 14, -3], g4: [-30 - d * 26, -16 - d * 10, 5] };
     for (const [id, [x, y, r]] of Object.entries(g)) { const e = $(id); e.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg) scale(${1 + t * 0.012})`; }
-    words($('hookA'), 'Where did your day go?', t, 0.1, 0.09, 0.62); words($('hookB'), 'EyeTime shows you. Gently.', t, 1.35, 0.06, 0.55); }
+    words($('hookA'), 'Where did your day go?', t, 0.1, 0.09, 0.62); words($('hookB'), 'EyeTime shows you. Gently.', t, CUE.hookB, 0.06, 0.55); }
 
   // 1: a calm start
   { presence('S1', t, T.S1); const t0 = T.S1[0]; copy('cp1', 'Open a tab. Breathe.', 'A photo, the time, and one question.', t, t0 + 0.2);
     const w = $('win1'); rise(w, t, t0 + 0.15); zoom(w, t, [t0, T.S1[1]], 0.86, 0.89);
-    chip('chip1a', t, t0 + 1.7, 2.7); chip('chip1b', t, t0 + 2.7, 2.2); ring('ring1', t, t0 + 2.7, 2.2); }
+    chip('chip1a', t, CUE.chip1a, 2.7); chip('chip1b', t, CUE.chip1b, 2.2); ring('ring1', t, CUE.chip1b, 2.2); }
   // 2: focus
   { presence('S2', t, T.S2); const t0 = T.S2[0]; copy('cp2', 'Focus without force.', 'One click to start. Distracting sites wait, with a pause instead of a wall.', t, t0 + 0.2);
     const a = $('win2a'), b = $('win2b'); rise(a, t, t0 + 0.15); zoom(a, t, [t0, T.S2[1]], 0.72, 0.745);
-    const pb = seg(t, t0 + 1.2, t0 + 2.2, E.out); b.style.opacity = pb; b.style.transform = `perspective(2200px) translateY(${(1 - pb) * 110}px) rotateY(${(1 - pb) * -9}deg)`; zoom(b, t, [t0 + 1.2, T.S2[1]], 0.62, 0.64);
-    chip('chip2a', t, t0 + 1.0, 2.6); chip('chip2b', t, t0 + 2.9, 2.3); }
+    const pb = seg(t, CUE.win2b, CUE.win2b + 1.0, E.out); b.style.opacity = pb; b.style.transform = `perspective(2200px) translateY(${(1 - pb) * 110}px) rotateY(${(1 - pb) * -9}deg)`; zoom(b, t, [CUE.win2b, T.S2[1]], 0.62, 0.64);
+    chip('chip2a', t, CUE.chip2a, 2.6); chip('chip2b', t, CUE.chip2b, 2.3); }
   // 3: clarity
   { presence('S3', t, T.S3); const t0 = T.S3[0]; copy('cp3', 'See where the day went.', 'Plain-language insights, computed on your device.', t, t0 + 0.2);
     const w = $('win3'); rise(w, t, t0 + 0.15); zoom(w, t, [t0, T.S3[1]], 0.78, 0.81);
     const pan = E.inOut(clamp((t - (t0 + 1.2)) / 3.6)); $('img3').style.top = (-pan * 600) + 'px';
-    chip('chip3a', t, t0 + 1.9, 2.3); chip('chip3b', t, t0 + 3.4, 1.8); }
+    chip('chip3a', t, CUE.chip3a, 2.3); chip('chip3b', t, CUE.chip3b, 1.8); }
   // C: the close
   { presence('C', t, [T.C[0], 99], 0); const t0 = T.C[0];
     const lg = $('logoC'), p = seg(t, t0 + 0.1, t0 + 0.8, E.back); lg.style.opacity = seg(t, t0 + 0.1, t0 + 0.5); lg.style.transform = `scale(${0.6 + 0.4 * p})`;
-    words($('brandC'), 'EyeTime', t, t0 + 0.4, 0.08, 0.7); words($('tagC'), 'Free. Private. Yours.', t, t0 + 0.95, 0.1, 0.65);
-    const bp = seg(t, t0 + 1.7, t0 + 2.4, E.back), btn = $('btnC'); btn.style.opacity = clamp(bp); btn.style.transform = `translateX(-50%) translateY(${(1 - bp) * 24}px) scale(${0.9 + 0.1 * bp})`;
-    const k = ((t - t0 - 2.4) / 1.7) % 1, on = t > t0 + 2.4 ? 1 : 0, pl = $('pulseC'); pl.style.opacity = on * (1 - k) * 0.45; pl.style.transform = `scale(${1 + k * 0.28}, ${1 + k * 0.5})`;
-    words($('subC'), 'No account. Your data stays on your device.', t, t0 + 2.2, 0.04, 0.55); words($('urlC'), 'maxbzd.github.io/eyetime', t, t0 + 2.9, 0.07, 0.55); }
+    words($('brandC'), 'EyeTime', t, CUE.brand, 0.08, 0.7); words($('tagC'), 'Free. Private. Yours.', t, CUE.tag, 0.1, 0.65);
+    const bp = seg(t, CUE.button, CUE.button + 0.7, E.back), btn = $('btnC'); btn.style.opacity = clamp(bp); btn.style.transform = `translateX(-50%) translateY(${(1 - bp) * 24}px) scale(${0.9 + 0.1 * bp})`;
+    const k = ((t - CUE.button - 0.85) / (BAR / 2)) % 1, on = t > CUE.button + 0.85 ? 1 : 0, pl = $('pulseC'); pl.style.opacity = on * (1 - k) * 0.45; pl.style.transform = `scale(${1 + k * 0.28}, ${1 + k * 0.5})`;
+    words($('subC'), 'No account. Your data stays on your device.', t, CUE.sub, 0.04, 0.55); words($('urlC'), 'maxbzd.github.io/eyetime', t, CUE.url, 0.07, 0.55); }
 };
 window.render(0);
 </script>

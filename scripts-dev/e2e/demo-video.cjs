@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
 // Renders the product demo: store/demo.mp4 (1920x1080, 30 fps, no sound) and store/demo-poster.jpg.
-//   node scripts-dev/e2e/demo-video.cjs [--film demo|promo] [--keep] [--reuse] [--frames a-b] [--at t,t,...]        needs Playwright + Chromium + ffmpeg
-// --film demo (default): the 36 s walk through the product, store/demo.mp4. --film promo: the 23 s one for the store's video field, store/promo.mp4 (promo-video.html).
+//   node scripts-dev/e2e/demo-video.cjs [--film demo|promo] [--silent] [--keep] [--reuse] [--frames a-b] [--at t,t,...]        needs Playwright + Chromium + ffmpeg
+// --film demo (default): the 36 s walk through the product, store/demo.mp4. --film promo: the 23 s one for the store's video field, store/promo.mp4 (promo-video.html, with the sound of promo-sound.cjs; --silent leaves it out).
 // The pictures are taken first (demo-shots.cjs, the real interface at twice the size); the motion is demo-video.html, a function of time, so every frame is drawn exactly and the
 // result does not depend on how fast the machine is. --frames limits the render to a range (a quick look); --keep leaves the frames in /tmp/eyetime-demo-video.
 const path = require('path');
@@ -34,6 +34,7 @@ if (!['demo', 'promo'].includes(FILM)) throw new Error('--film is demo or promo'
   await probe.goto('file://' + path.join(WORK, 'index.html')); await probe.evaluate(() => document.fonts.ready);
   const total = await probe.evaluate(() => window.TOTAL);
   const count = Math.round(total * FPS);
+  const cues = await probe.evaluate(() => window.CUES || null); // the moments on screen the sound follows (the promo has sound; the demo does not)
   const posterAt = await probe.evaluate(() => window.POSTER || 6.2); // the second the video's picture is taken from
   if (arg('--at')) { // single frames, to look at: --at 1.5,6,12
     const page = await (await browser.newContext({ viewport: { width: 1920, height: 1080 } })).newPage(); await page.goto('file://' + path.join(WORK, 'index.html')); await page.evaluate(() => document.fonts.ready);
@@ -63,6 +64,12 @@ if (!['demo', 'promo'].includes(FILM)) throw new Error('--film is demo or promo'
   const mp4 = path.join(WORK, 'demo.mp4');
   cp.execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(FPS), '-start_number', String(from), '-i', path.join(frames, 'f%05d.png'),
     '-c:v', 'libx264', '-preset', 'veryslow', '-crf', '22', '-pix_fmt', 'yuv420p', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-movflags', '+faststart', '-an', mp4], { stdio: 'inherit' });
+  if (cues && !arg('--frames') && !process.argv.includes('--silent')) { // the promo's sound: made from nothing by promo-sound.cjs, matched to the picture's cues, set to -16 LUFS
+    const silent = path.join(WORK, 'silent.mp4'), wav = path.join(WORK, 'sound.wav');
+    fs.renameSync(mp4, silent); fs.writeFileSync(path.join(WORK, 'cues.json'), JSON.stringify(cues));
+    cp.execFileSync('node', [path.join(__dirname, 'promo-sound.cjs'), path.join(WORK, 'cues.json'), wav], { stdio: 'inherit' });
+    cp.execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', silent, '-i', wav, '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-af', 'loudnorm=I=-16:TP=-1.5:LRA=7', '-ar', '48000', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', mp4], { stdio: 'inherit' });
+  }
   const poster = Math.min(to, Math.round(posterAt * FPS));
   cp.execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', path.join(frames, `f${String(poster).padStart(5, '0')}.png`), '-vf', 'scale=1600:-2', '-q:v', '3', path.join(WORK, 'demo-poster.jpg')]);
   if (!arg('--frames')) {
