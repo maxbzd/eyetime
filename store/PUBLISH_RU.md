@@ -42,7 +42,7 @@
 | Screenshots | **5 файлов** из `store/screenshots/en/` по порядку: `1-home`, `2-focus`, `3-insights`, `4-pause`, `5-looks`. Подписи не нужны (в консоли поля подписи нет), они в листинге для справки |
 | Small promo tile (440×280) | `store/promo/small-tile-440x280.png` |
 | Marquee promo (1400×560) | `store/promo/marquee-1400x560.png` (по желанию) |
-| Global promo video (YouTube) | необязательно. Файл `store/promo.mp4` (24 с, 16:9, со звуком: музыка синтезирована нашим скриптом, прав третьих лиц нет) загрузите на YouTube (доступ «по ссылке» подходит, встраивание включено) и вставьте ссылку. Обложка: `store/promo-poster.jpg`. Пока ролика нет, поле можно оставить пустым |
+| Global promo video (YouTube) | необязательно. Файл `store/promo.mp4` (24 с, 16:9, со звуком: музыка синтезирована нашим скриптом, прав третьих лиц нет) загрузите на YouTube (доступ «по ссылке» подходит, встраивание включено) и вставьте ссылку. Обложка для YouTube: `store/promo-thumbnail.jpg` (1280×720; свою обложку YouTube принимает только у подтверждённого канала). Пока ролика нет, поле можно оставить пустым |
 | Official URL / Homepage | `https://maxbzd.github.io/eyetime/` |
 | Support URL | `https://github.com/maxbzd/eyetime/issues` |
 | Support email | `maxbzd1600@gmail.com` |
