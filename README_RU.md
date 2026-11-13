@@ -71,7 +71,7 @@
 
 ## Установка
 
-> EyeTime пока нет в Chrome Web Store. До публикации установка занимает минуту — из релиза или из исходников.
+> **[Добавить EyeTime в Chrome](https://chromewebstore.google.com/detail/kbkmiboobddkmngdhdihiaejahddokgf)** из Chrome Web Store (Edge, Brave и Arc ставят оттуда же). Firefox или запуск из исходников: шаги ниже, это занимает минуту.
 
 **Chrome, Edge, Brave, Arc (Chromium 120+)**
 
@@ -118,7 +118,8 @@ npm run build     # dist/eyetime-chrome.zip и dist/eyetime-firefox.zip
 ## Планы
 
 - [x] Редизайн, светлая/тёмная темы, i18n по ключам, безопасный десктопный помощник (2.0)
-- [ ] Публикация в Chrome Web Store, Edge Add-ons и Firefox AMO
+- [x] Публикация в Chrome Web Store
+- [ ] Публикация в Edge Add-ons и Firefox AMO
 - [ ] Новые языки (ES, DE, PT, UK, ZH …) — [по одному файлу](CONTRIBUTING.md#adding-a-language)
 - [ ] Помощник для macOS / Linux — [инструкция](companion/README.md#contributing-a-backend)
 - [ ] Недельный обзор внутри приложения

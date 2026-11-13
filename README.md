@@ -81,7 +81,7 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 
 ## Install
 
-> EyeTime is not in the Chrome Web Store yet. Until it is, install it in a minute from a release or from source.
+> **[Add EyeTime to Chrome](https://chromewebstore.google.com/detail/kbkmiboobddkmngdhdihiaejahddokgf)** from the Chrome Web Store (Edge, Brave and Arc install from it too). Firefox, or if you want to run it from source: use the steps below, it takes a minute.
 
 **Chrome, Edge, Brave, Arc (Chromium 120+)**
 
@@ -158,7 +158,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the architecture tour, adding a langu
 ## Roadmap
 
 - [x] Redesign, light/dark themes, key-based i18n, safer desktop companion (2.0)
-- [ ] Chrome Web Store, Edge Add-ons and Firefox AMO listings
+- [x] Chrome Web Store listing
+- [ ] Edge Add-ons and Firefox AMO listings
 - [x] Spanish, German, French and Portuguese (machine-translated — corrections welcome, see [docs/TRANSLATING.md](docs/TRANSLATING.md))
 - [ ] More languages (UK, ZH, JA, IT, PL …) — [one file each](CONTRIBUTING.md#adding-a-language)
 - [x] EyeTime for Windows: protected service, window, setup, signed self-updates (0.2)
