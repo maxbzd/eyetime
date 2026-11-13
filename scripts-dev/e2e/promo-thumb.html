@@ -1,0 +1,84 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: FSL-1.1-ALv2 -->
+<!-- Copyright 2026 maxbzd -->
+<!-- The picture a video shows in a list (promo-thumbnail.cjs renders it at 1280x720). Three variants, chosen with #a, #b or #c.
+     What it follows: few elements (words, one product picture, the mark), very large words that still read at 160 px wide, strong contrast, a plain background. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EyeTime thumbnail</title>
+<style>
+  @font-face { font-family: "Inter"; font-weight: 100 900; src: url(fonts/inter-latin-wght-normal.woff2) format("woff2"); }
+  @font-face { font-family: "Instrument Serif"; font-weight: 400; src: url(fonts/instrument-serif-latin-400-normal.woff2) format("woff2"); }
+  :root { --ink: #15140f; --paper: #efede8; --lime: #c9f26b; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; font-family: "Inter", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  #t { position: relative; width: 1280px; height: 720px; overflow: hidden; }
+  .serif { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; }
+  .card { position: absolute; border-radius: 18px; overflow: hidden; background: #000; }
+  .card img { display: block; position: absolute; left: 0; top: 0; }
+  .mark { position: absolute; left: 64px; top: 52px; display: flex; align-items: center; gap: 14px; }
+  .mark img { width: 58px; height: 58px; border-radius: 22%; display: block; }
+  .mark span { font-family: "Instrument Serif", Georgia, serif; font-size: 52px; line-height: 1; letter-spacing: -0.01em; }
+  .pill { position: absolute; display: inline-flex; align-items: center; gap: 12px; padding: 14px 26px 14px 20px; border-radius: 999px; font-size: 30px; font-weight: 650; letter-spacing: -0.01em; white-space: nowrap; }
+  .pill b { width: 14px; height: 14px; border-radius: 50%; display: block; }
+  .glow { position: absolute; border-radius: 50%; filter: blur(80px); }
+
+  /* a: warm paper, ink words */
+  #t.a { background: var(--paper); color: var(--ink); }
+  .a .glow.g1 { width: 760px; height: 620px; right: -160px; top: 40px; background: #e9b9c8; opacity: .7; }
+  .a .glow.g2 { width: 520px; height: 420px; right: 220px; bottom: -200px; background: #b9c4ea; opacity: .6; }
+  .a h1 { position: absolute; left: 64px; top: 172px; font-size: 168px; line-height: .92; letter-spacing: -0.025em; }
+  .a h1 em { font-style: normal; background: linear-gradient(transparent 58%, var(--lime) 58%, var(--lime) 88%, transparent 88%); padding: 0 10px; margin: 0 -10px; }
+  .a .card { box-shadow: 0 2px 4px rgba(20,18,12,.08), 0 40px 80px -20px rgba(20,18,12,.5), 0 0 0 1px rgba(20,18,12,.1); }
+  .a .pill { background: var(--ink); color: #fff; left: 64px; bottom: 56px; }
+  .a .pill b { background: var(--lime); }
+
+  /* b: ink, white words, one lime word: the strongest contrast */
+  #t.b { background: #11100c; color: #fff; }
+  .b .glow.g1 { width: 760px; height: 600px; right: -140px; top: 60px; background: #8f6dd6; opacity: .42; }
+  .b .glow.g2 { width: 520px; height: 420px; right: 260px; bottom: -220px; background: #e07aa0; opacity: .38; }
+  .b .glow.g3 { width: 420px; height: 300px; left: -140px; bottom: -120px; background: var(--lime); opacity: .16; }
+  .b h1 { position: absolute; left: 64px; top: 172px; font-size: 172px; line-height: .92; letter-spacing: -0.025em; }
+  .b h1 em { font-style: normal; color: var(--lime); }
+  .b .card { box-shadow: 0 50px 90px -20px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.14); }
+  .b .pill { background: var(--lime); color: var(--ink); left: 64px; bottom: 56px; }
+  .b .pill b { background: var(--ink); }
+  .b .mark span { color: #fff; }
+
+  /* c: one big number, one question */
+  #t.c { background: #11100c; color: #fff; }
+  .c .glow.g1 { width: 900px; height: 600px; left: -120px; top: 40px; background: var(--lime); opacity: .2; }
+  .c .glow.g2 { width: 600px; height: 500px; right: -140px; bottom: -180px; background: #8f6dd6; opacity: .4; }
+  .c .num { position: absolute; left: 48px; top: 40px; font-size: 420px; line-height: .9; letter-spacing: -0.04em; color: var(--lime); }
+  .c h1 { position: absolute; left: 64px; top: 500px; font-size: 104px; line-height: .98; letter-spacing: -0.02em; }
+  .c .card { box-shadow: 0 50px 90px -20px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.14); }
+</style>
+</head>
+<body>
+<div id="t" class="a">
+  <div class="glow g1"></div><div class="glow g2"></div><div class="glow g3"></div>
+  <div class="mark" id="mark"><img src="icon512.png" alt=""><span>EyeTime</span></div>
+  <div class="num serif" id="num" style="display:none">32h</div>
+  <h1 class="serif" id="h1"></h1>
+  <div class="card" id="c1"><img id="i1" src="assets/home.png" alt=""></div>
+  <div class="card" id="c2"><img id="i2" src="assets/insights.png" alt=""></div>
+  </div>
+<script>
+const v = (location.hash || '#a').slice(1), t = document.getElementById('t'), $ = (id) => document.getElementById(id);
+t.className = v;
+const place = (el, img, x, y, w, h, rot, imgW, imgY = 0) => { el.style.cssText = `left:${x}px;top:${y}px;width:${w}px;height:${h}px;transform:rotate(${rot}deg)`; img.style.width = imgW + 'px'; img.style.top = imgY + 'px'; };
+if (v === 'c') {
+  $('num').style.display = 'block'; $('mark').style.display = 'none';
+  $('h1').innerHTML = 'Where did<br>it go?'; $('h1').style.cssText = 'left:64px;top:468px;font-size:100px';
+  place($('c1'), $('i1'), 700, 60, 600, 375, 5, 600); place($('c2'), $('i2'), 640, 340, 560, 330, -4, 560, -10);
+  $('c1').style.opacity = 0.0; // the number is the picture; the insights card shows where it comes from
+  place($('c2'), $('i2'), 640, 250, 600, 400, -4, 600, -10);
+} else {
+  $('h1').innerHTML = v === 'b' ? 'Where did<br>your day<br><em>go?</em>' : 'Where did<br>your day<br><em>go?</em>';
+  place($('c1'), $('i1'), 690, 70, 640, 400, 5, 640);
+  place($('c2'), $('i2'), 670, 372, 560, 330, -4, 560, -4);
+}
+</script>
+</body>
+</html>
