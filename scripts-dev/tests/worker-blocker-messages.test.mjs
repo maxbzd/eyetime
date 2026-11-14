@@ -18,7 +18,7 @@ const redirects = () => chrome._callsTo('tabs.update').map(([, props]) => new UR
 const day = () => chrome.storage.local._all()['d:2026-11-04'] || {};
 const EXT = `chrome-extension://${chrome.runtime.id}/src/popup/popup.html`;
 /** what a page sends to the worker, and what comes back (undefined: the worker did not answer, as for a message it ignores) */
-const ask = (msg, sender = { url: EXT, tab: { id: 7 } }) => new Promise((resolve) => {
+const ask = (msg, sender = { id: chrome.runtime.id, url: EXT, tab: { id: 7 } }) => new Promise((resolve) => {
   let answered = false;
   const results = chrome.runtime.onMessage.fire(msg, sender, (r) => { answered = true; resolve(r); });
   if (!results.some((r) => r === true)) resolve(undefined);
@@ -61,7 +61,7 @@ test('during a focus session a distracting site is a hard block, and the attempt
 
 test('"continue" lets the site through for the minutes given, for that site only, and a passed site is not stopped again', async () => {
   const t = chrome._openTab('about:blank');
-  assert.deepEqual(await ask({ type: 'pass:grant', rule: 'youtube.com', minutes: 10 }, { url: EXT, tab: { id: t.id } }), { ok: true });
+  assert.deepEqual(await ask({ type: 'pass:grant', rule: 'youtube.com', minutes: 10 }, { id: chrome.runtime.id, url: EXT, tab: { id: t.id } }), { ok: true });
   chrome._calls.length = 0;
   await navigate(t.id, 'https://www.youtube.com/'); assert.deepEqual(redirects(), [], 'passed');
   const other = chrome._openTab('about:blank');
@@ -75,14 +75,14 @@ test('"continue" lets the site through for the minutes given, for that site only
 });
 
 test('messages from a web page are ignored, except the two a content script needs', async () => {
-  const page = { url: 'https://evil.example/', tab: { id: 3 } };
+  const page = { id: chrome.runtime.id, url: 'https://evil.example/', tab: { id: 3 } }; // a content script has the extension's id and the page's address
   for (const m of [{ type: 'focus:start', minutes: 5 }, { type: 'pass:grant', rule: 'youtube.com', minutes: 480 }, { type: 'tracking:pause', minutes: 600 }, { type: 'sync:now' }]) {
     assert.equal(await ask(m, page), undefined, m.type);
   }
   assert.equal((await getRaw('focus')).focus, undefined, 'nothing started');
   assert.equal((await getRaw('passes')).passes, undefined, 'nothing granted');
   const t = chrome._openTab('https://evil.example/');
-  assert.deepEqual(await ask({ type: 'tab:close' }, { url: 'https://youtube.com/', tab: { id: t.id } }), { ok: true });
+  assert.deepEqual(await ask({ type: 'tab:close' }, { id: chrome.runtime.id, url: 'https://youtube.com/', tab: { id: t.id } }), { ok: true });
   assert.equal(chrome._tabs().length, 0, 'the short-video guard may close its own tab');
   assert.deepEqual(await ask({ type: 'dock:pos', y: 0.5 }, page), { ok: true });
   assert.deepEqual(await ask({ type: 'dock:pos', y: 7 }, page), { ok: false }, 'and a place off the screen is refused');
@@ -121,4 +121,12 @@ test('opening the tabs again when a session starts: a tab that was open on a dis
   assert.equal(r.length, 1); assert.equal(r[0].searchParams.get('u'), 'https://www.youtube.com/');
   assert.equal(r[0].searchParams.get('a'), 'block');
   await updateSettings(() => {});
+});
+
+test('who may speak to the worker: this extension, from its own pages (or with no address and no tab); not another id, not a page without an address', async () => {
+  const own = { id: chrome.runtime.id };
+  assert.ok(await ask({ type: 'break:state' }, { ...own, url: EXT }) !== undefined, 'an extension page');
+  assert.equal(await ask({ type: 'pass:grant', rule: 'youtube.com', minutes: 10 }, { id: 'someone-else', url: EXT }), undefined, 'another id is ignored');
+  assert.equal(await ask({ type: 'pass:grant', rule: 'youtube.com', minutes: 10 }, { id: chrome.runtime.id, tab: { id: 3 } }), undefined, 'a tab with no address is not proof');
+  assert.equal(await ask({ type: 'pass:grant', rule: 'youtube.com', minutes: 10 }, {}), undefined, 'no id at all');
 });

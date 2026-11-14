@@ -19,7 +19,7 @@ const WEB = ['http://*/*', 'https://*/*'];
 const BLOCKED = `chrome-extension://${chrome.runtime.id}/src/blocked/blocked.html`;
 const rules = async () => chrome.declarativeNetRequest.getDynamicRules();
 const redirectFor = async (host) => { const re = (await rules()).find((r) => r.action.type === 'redirect' && new RegExp(r.condition.regexFilter).test(`https://${host}/`)); return re ? re.action.redirect.regexSubstitution : null; };
-const ask = (msg, sender = { url: `chrome-extension://${chrome.runtime.id}/src/popup/popup.html`, tab: { id: 7 } }) => new Promise((resolve) => { chrome.runtime.onMessage.fire(msg, sender, resolve); setTimeout(() => resolve('no answer'), 800); });
+const ask = (msg, sender = { id: chrome.runtime.id, url: `chrome-extension://${chrome.runtime.id}/src/popup/popup.html`, tab: { id: 7 } }) => new Promise((resolve) => { chrome.runtime.onMessage.fire(msg, sender, resolve); setTimeout(() => resolve('no answer'), 800); });
 const navigate = async (tabId, url) => { await Promise.all(chrome.webNavigation.onBeforeNavigate.fire({ tabId, frameId: 0, url })); await settle(500); };
 
 beforeEach(async () => {
