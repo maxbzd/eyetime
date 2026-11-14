@@ -1,6 +1,6 @@
 # Translating EyeTime
 
-EyeTime speaks English and Russian (written by the author) and Spanish, German, French and Portuguese (machine-translated, then reviewed). A wrong or clumsy phrase in any language is a bug — fixing one is the easiest first contribution.
+EyeTime speaks English and Russian (written by the author) and nine more languages: Spanish, German, French, Portuguese, Italian, Polish, Ukrainian, Chinese and Japanese. Those nine are machine translations that no native speaker has read yet, so corrections are especially welcome. A wrong or clumsy phrase in any language is a bug — fixing one is the easiest first contribution.
 
 ## Fix a translation
 
@@ -15,7 +15,7 @@ EyeTime speaks English and Russian (written by the author) and Spanish, German, 
 - **Plural forms.** Values written as `{ one: …, other: … }` are chosen by the language's CLDR plural rules (`Intl.PluralRules`). Provide every category your language uses (Russian: one, few, many, other; Spanish, French, Portuguese: one, many, other; German, Italian: one, other; Polish and Ukrainian: one, few, many, other; Chinese and Japanese: other only).
 - **Quick-add syntax stays as is.** The task field understands words of all eleven languages (`daily`, `weekdays`, `tomorrow`, `завтра`, `domani`, `明天`, `明日`, `!`, `~45m`, `14:30`). Words live in `src/shared/datewords.js` and `src/shared/quickadd.js`. Examples inside hints keep those tokens; translate only the words around them.
 - **Length matters.** Chips, tabs and buttons are narrow. Prefer short words; the end-to-end test `scripts-dev/e2e/upgrade.cjs` opens every page at 400 px width, 125 % zoom and with very long names in every language and fails on horizontal scrolling.
-- **Units.** `unit.h`, `unit.m`, `unit.s` are glued to numbers (`1h 5min`). Keep them short, no trailing dot.
+- **Units.** `unit.h`, `unit.m`, `unit.s` are put right after the number (`1h 5min`; Russian starts them with a no-break space: `1 ч 5 мин`). Keep them short, no trailing dot, and never a letter that means something else (Russian «м» is a metre, so the minute is «мин»).
 - **Quotes and punctuation** follow the language (German „…“, French « … » with no-break spaces).
 
 ## Add a new language

@@ -109,7 +109,7 @@
 ## Разработка
 
 ```bash
-npm run check     # синтаксис, манифест, полнота переводов, иконки + 15 юнит-тестов (Node 20+)
+npm run check     # синтаксис, манифест, полнота переводов, иконки + юнит-тесты (Node 22+)
 npm run build     # dist/eyetime-chrome.zip и dist/eyetime-firefox.zip
 ```
 
@@ -120,9 +120,9 @@ npm run build     # dist/eyetime-chrome.zip и dist/eyetime-firefox.zip
 - [x] Редизайн, светлая/тёмная темы, i18n по ключам, безопасный десктопный помощник (2.0)
 - [x] Публикация в Chrome Web Store
 - [ ] Публикация в Edge Add-ons и Firefox AMO
-- [ ] Новые языки (ES, DE, PT, UK, ZH …) — [по одному файлу](CONTRIBUTING.md#adding-a-language)
+- [x] Испанский, немецкий, французский, португальский, итальянский, польский, украинский, китайский и японский (машинный перевод, правки приветствуются); [новый язык — один файл](CONTRIBUTING.md#adding-a-language)
 - [ ] Помощник для macOS / Linux — [инструкция](companion/README.md#contributing-a-backend)
-- [ ] Недельный обзор внутри приложения
+- [x] Недельный обзор внутри приложения
 
 ## Лицензия
 
