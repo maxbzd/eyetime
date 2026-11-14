@@ -22,7 +22,7 @@ EHRLICHE STATISTIKEN
 Zeit pro Seite, Stunde und Tag; eine Tages-Timeline mit deinen Fokus-Sitzungen; Fokuszeit pro Projekt (#Tag); Schätzgenauigkeit (geplant vs. tatsächlich); deine besten Fokus-Stunden; „Was dich zieht“ — wann dich eine Seite lockt, mit Limit per Fingertipp; eine Wochenübersicht und ein teilbares Bild „Meine Woche“. Stuf jede Seite mit einem Tipp als produktiv, neutral oder ablenkend ein. Export als CSV oder Markdown-Journal.
 
 EIN RUHIGER NEUER TAB
-Uhr, Fokus-Karte mit Tagesziel, Aufgaben mit Prioritäten, Gewohnheiten, Notizen und Schnelllinks. 16 Designs, jede Akzentfarbe, 22 Foto-Hintergründe, echte Umgebungsgeräusche. Hell und dunkel. Jederzeit abschaltbar.
+Uhr, Fokus-Karte mit Tagesziel, Aufgaben mit Prioritäten, Gewohnheiten, Notizen und Schnelllinks. 16 Designs, jede Akzentfarbe, 69 Foto-Hintergründe, echte Umgebungsgeräusche. Hell und dunkel. Jederzeit abschaltbar.
 
 SCHONE DEINE AUGEN
 20-20-20-Erinnerungen, die auf deiner tatsächlichen, aktiven Bildschirmzeit beruhen, und eine geführte Pause-Seite für 20 Sekunden Augenpause.

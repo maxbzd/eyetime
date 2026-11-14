@@ -33,10 +33,10 @@ const scriptsOf = (html) => {
 const total = (g) => [...g.values()].reduce((a, b) => a + b, 0);
 const rel = (g) => [...g.keys()].map((f) => path.relative(root, f));
 
-// bytes of JavaScript read at start, with room to grow a little; the real numbers (Nov 2026) are about half of these
+// bytes of JavaScript read at start, with room to grow a little (the new tab is at 950 KB since the 69 wallpaper names went into the English words; the other languages are read as data)
 const PAGES = {
   'src/popup/popup.html': 450,
-  'src/newtab/newtab.html': 950,
+  'src/newtab/newtab.html': 960,
   'src/insights/insights.html': 450,
   'src/options/options.html': 760,
   'src/blocked/blocked.html': 400,

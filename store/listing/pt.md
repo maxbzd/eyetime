@@ -22,7 +22,7 @@ ESTATÍSTICAS HONESTAS
 Tempo por site, por hora e por dia; uma linha do tempo do dia com suas sessões de foco; tempo de foco por projeto (#tag); precisão das estimativas (planejado vs. real); suas melhores horas de foco; "o que puxa você" — quando um site tenta você, com um limite em um toque; uma revisão semanal e uma imagem compartilhável da "Minha semana". Reclassifique qualquer site como produtivo, neutro ou distrativo com um toque. Exporte em CSV ou em um diário em Markdown.
 
 UMA NOVA GUIA TRANQUILA
-Relógio, cartão de foco com meta diária, tarefas com prioridades, hábitos, notas e links rápidos. 16 visuais, qualquer cor de destaque, 22 papéis de parede com fotos e sons ambiente reais. Tema claro e escuro. Desative quando quiser.
+Relógio, cartão de foco com meta diária, tarefas com prioridades, hábitos, notas e links rápidos. 16 visuais, qualquer cor de destaque, 69 papéis de parede com fotos e sons ambiente reais. Tema claro e escuro. Desative quando quiser.
 
 CUIDE DOS SEUS OLHOS
 Lembretes 20-20-20 baseados no tempo de tela realmente ativo e uma página de pausa guiada de 20 segundos para a pausa para os olhos.

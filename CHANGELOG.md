@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Many more wallpapers
+- **47 new photo backgrounds for Home**, 61 wallpapers in all (the new tab still takes one a day, in turn, so a round is now two months). Sunsets and sunrises, mist over valleys, cloud seas, aurora and the Milky Way, calm turquoise water, lavender, golden meadows, dunes. Chosen by eye from about 300 candidates: no people, buildings or signs, a quiet middle for the clock.
+- **Where they come from.** Photographs published on Unsplash under CC0 and kept on Wikimedia Commons with that licence; every file is credited in `docs/PHOTO-CREDITS.md` and in the corner of the page. Cropped to 16:10 and recompressed (about 7 MB for the 47; the package is 42 MB).
+- **Readable type on all of them.** Each wallpaper got its veil from the contrast check (`wall-contrast.cjs`), like the earlier ones; names are written in all 11 languages.
+- **The photo list scrolls in its own box** (the Background panel stays short; it opens at the photo in use, with a soft edge that says there is more).
+- The English words grew by about 1 KB, so the budget for the new tab's script is 960 KB (was 950).
+- The promo tools (`promo-sound.cjs`, `promo-thumbnail.cjs`) are declared in the e2e runner's list, which the CI test checks.
+
 ## 3.9.2 — 2026-11-07 — The first session ends the way it should
 
 A release about the moment that matters most to a new person: the end of the first focus session. It works the same whether the new tab is open or closed, whether the session ran out or was stopped, and whether a second one started in between. The first-days card, the tips switch and the page after removal got the same care.

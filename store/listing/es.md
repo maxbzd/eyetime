@@ -22,7 +22,7 @@ ESTADÍSTICAS HONESTAS
 Tiempo por sitio, hora y día; una línea de tiempo del día con tus sesiones de enfoque; tiempo de enfoque por proyecto (#etiqueta); precisión de las estimaciones (previsto frente a real); tus mejores horas de enfoque; «qué te atrae», es decir, cuándo te tienta un sitio, con un límite a un toque; una revisión semanal y una imagen para compartir de «Mi semana». Reclasifica cualquier sitio como productivo, neutral o que distrae con un toque. Exporta a CSV o a un diario en Markdown.
 
 UNA NUEVA PESTAÑA TRANQUILA
-Reloj, tarjeta de enfoque con objetivo diario, tareas con prioridades, hábitos, notas y accesos rápidos. 16 estilos, cualquier color de acento, 22 fondos con fotos y sonidos ambientales reales. Modo claro y oscuro. Puedes desactivarla cuando quieras.
+Reloj, tarjeta de enfoque con objetivo diario, tareas con prioridades, hábitos, notas y accesos rápidos. 16 estilos, cualquier color de acento, 69 fondos con fotos y sonidos ambientales reales. Modo claro y oscuro. Puedes desactivarla cuando quieras.
 
 CUIDA TUS OJOS
 Recordatorios 20-20-20 basados en el tiempo de pantalla real y activo, y una página de pausa guiada de 20 segundos para la pausa visual.
