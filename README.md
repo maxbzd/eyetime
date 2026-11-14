@@ -147,7 +147,7 @@ No framework, no bundler, no runtime dependencies — open the folder, read the 
 ## Development
 
 ```bash
-npm run check     # syntax, manifest, i18n parity, icons + unit tests (Node 24+)
+npm run check     # syntax, manifest, i18n parity, icons + unit tests (Node 22+)
 npm run build     # dist/eyetime-chrome.zip and dist/eyetime-firefox.zip
 npm run e2e       # every end-to-end suite in Chromium, three at a time (needs Playwright; scripts-dev/e2e/README.md)
 python -m unittest -v test_companion   # in companion/
@@ -161,11 +161,11 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the architecture tour, adding a langu
 - [x] Chrome Web Store listing
 - [ ] Edge Add-ons and Firefox AMO listings
 - [x] Spanish, German, French and Portuguese (machine-translated — corrections welcome, see [docs/TRANSLATING.md](docs/TRANSLATING.md))
-- [ ] More languages (UK, ZH, JA, IT, PL …) — [one file each](CONTRIBUTING.md#adding-a-language)
+- [x] Italian, Polish, Ukrainian, Chinese and Japanese (machine-translated — corrections welcome); [another language is one file](CONTRIBUTING.md#adding-a-language)
 - [x] EyeTime for Windows: protected service, window, setup, signed self-updates (0.2)
 - [ ] Windows: network-level blocking and instant app-start events
 - [ ] macOS / Linux companion backends — [guide](companion/README.md#contributing-a-backend)
-- [ ] In-app weekly review
+- [x] In-app weekly review
 
 ## License
 
