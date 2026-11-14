@@ -335,7 +335,7 @@ export function pickScheme(ap, { prefersDark = false, now = new Date() } = {}) {
   return prefersDark ? 'dark' : 'light';
 }
 
-const CSS_DENY = /@import|@namespace|expression\s*\(|behavior\s*:|-moz-binding|(?:-webkit-)?image-set\s*\(|cross-fade\s*\(|\bsrc\s*\(/i;
+const CSS_DENY = /@import|@namespace|expression\s*\(|behavior\s*:|-moz-binding|(?:-webkit-)?image-set\s*\(|cross-fade\s*\(|\bsrc\s*\(|(?<![-\w])image\s*\(/i;
 /** CSS escapes are decoded before the browser reads a rule (`@\69mport` is `@import`, `u\72l(` is `url(`), so the check reads the text the way the browser will. */
 const cssDecode = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\\([0-9a-fA-F]{1,6})[ \t\n\r\f]?|\\([^\n])/g, (m, hex, ch) => (hex ? String.fromCodePoint(Math.min(0x10ffff, parseInt(hex, 16) || 0xfffd)) : ch));
 /** Custom CSS is local-only: anything that could fetch a remote resource is rejected. `url()` may point only at an inline `data:` image or a `#fragment`. Returns { ok, css, error }. */

@@ -40,7 +40,8 @@ export function data({ s, save, refresh }) {
   const calendarGroup = calCalendarGroup(s, save);
 
   /* tasks: Markdown / CSV out, Markdown / CSV / plain list in */
-  const download = (name, text, type) => { const url = URL.createObjectURL(new Blob([text], { type })); const a = h('a', { href: url, download: name }); document.body.append(a); a.click(); a.remove(); URL.revokeObjectURL(url); };
+  // a CSV starts with the mark that tells a spreadsheet it is UTF-8
+  const download = (name, text, type) => { const url = URL.createObjectURL(new Blob([type === 'text/csv' ? '\uFEFF' + text : text], { type })); const a = h('a', { href: url, download: name }); document.body.append(a); a.click(); a.remove(); URL.revokeObjectURL(url); };
   const taskFile = h('input', { type: 'file', accept: '.md,.markdown,.txt,.csv,text/plain,text/markdown,text/csv', hidden: true, 'aria-label': t('opt.tasksImport') });
   taskFile.onchange = async () => {
     const f = taskFile.files[0]; taskFile.value = ''; if (!f) return;

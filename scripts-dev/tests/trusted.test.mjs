@@ -28,6 +28,12 @@ test('Trusted Types: the manifest turns them on, names the one policy, and every
   const man = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
   const csp = man.content_security_policy.extension_pages;
   assert.match(csp, /require-trusted-types-for 'script'/); assert.match(csp, /trusted-types eyetime(;|$)/);
+  // nothing a theme can reach (an image, a font, a sound, a stylesheet) may be fetched from outside: the browser refuses it even if the CSS filter is ever got around
+  for (const d of ['img-src', 'font-src', 'media-src', 'style-src']) {
+    const m = csp.match(new RegExp(`(?:^|;)\\s*${d}\\s+([^;]*)`)); assert.ok(m, d + ' is set');
+    assert.ok(!/(https?:|\*|\/\/)/.test(m[1]), `${d} lets something in from the network: ${m[1]}`);
+  }
+  assert.match(csp, /base-uri 'self'/); assert.ok(!/default-src|connect-src/.test(csp), 'connections (weather, the services the person connects) are not limited here');
   const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : e.name.endsWith('.js') ? [path.join(d, e.name)] : []));
   for (const f of walk(path.join(root, 'src')).filter((x) => !x.includes('/ml/') && !x.includes('/locales/'))) {
     const text = fs.readFileSync(f, 'utf8').replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, ''); // the code, not the comments about it

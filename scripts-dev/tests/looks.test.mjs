@@ -77,3 +77,16 @@ test('sanitizeAppearance keeps valid values and drops everything else', async ()
   assert.deepEqual(sanitizeAppearance(null), {}); assert.deepEqual(sanitizeAppearance('str'), {});
   assert.equal(sanitizeAppearance({ accent: 'violet' }).accent, 'violet');
 });
+
+test('custom CSS: the ways round the filter that reach the network are refused (escapes, comments, strings, functions that take a string)', async () => {
+  const { sanitizeCustomCss } = await import('../../src/shared/looks.js');
+  const bad = [
+    '.a{background:image-set("https://example.org/x.png" 1x)}', '.a{background:-webkit-image-set("https://e.org/x" 1x)}', '.a{background:url(ht\\74ps://example.org/x)}',
+    '.a{background:url(/**/https://example.org/x)}', '@\\69mport "https://example.org/a.css";', '.a{background:image("https://e.org/x")}', '.a{background:src("https://e.org/x")}',
+    '.a{background:URL( "https://e.org/x")}', '.a{background:u\\72l(https://e.org/x)}', '.a{cursor:url(https://e.org/c.cur),auto}', '@font-face{font-family:x;src:url(https://e.org/f.woff2)}',
+    '.a{list-style-image:url(//e.org/x)}', '.a{content:url(https://e.org/c.png)}', ':root{--x:url(https://e.org/x)} .a{background:var(--x)}', '@namespace url(https://e.org/ns);',
+    '.a{background:cross-fade(url("data:image/png;base64,AA"), "https://e.org/x")}',
+  ];
+  for (const css of bad) assert.equal(sanitizeCustomCss(css).ok, false, css);
+  for (const css of ['.a{color:red;background:linear-gradient(red,blue)}', '.a{background:url("data:image/png;base64,AAAA")}', '.a{background:url(#frag)}']) assert.equal(sanitizeCustomCss(css).ok, true, css);
+});

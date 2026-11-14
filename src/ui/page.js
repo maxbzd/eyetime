@@ -3,9 +3,10 @@
 // Common page bootstrap: load settings, set language + theme, hydrate static markup.
 
 import { installSpotlight } from './spotlight.js';
-import { getSettings, onChange } from '../shared/storage.js';
-import { resolveLocale, setLocale, applyI18n } from '../shared/i18n.js';
-import { hydrateIcons } from './dom.js';
+import { getSettings, getRaw, onChange } from '../shared/storage.js';
+import { resolveLocale, setLocale, applyI18n, t, fmtTime } from '../shared/i18n.js';
+import { softens } from '../shared/strict.js';
+import { hydrateIcons, toast } from './dom.js';
 
 import { buildCache } from '../shared/looks.js';
 import { captureErrors } from '../shared/errorlog.js';
@@ -33,6 +34,13 @@ export async function bootPage({ onSettings } = {}) {
   applyI18n();
   hydrateIcons();
   installSpotlight(); // the Obsidian look's light that follows the pointer round a card (no effect in other looks)
+  // a strict session keeps the rules it started with: say, once, that a change which would open a site waits for the end of the session
+  let deferred = false;
+  onChange('settings', async () => {
+    const s = await getSettings(), { focus } = await getRaw('focus'), now = softens(s, focus);
+    if (now && !deferred) toast(t('strict.deferred', { time: fmtTime(new Date(focus.endsAt), s.newtab.clock24 ?? undefined) }));
+    deferred = now;
+  });
   if (onSettings) {
     onChange('settings', async () => {
       const s = await getSettings();

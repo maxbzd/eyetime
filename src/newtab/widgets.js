@@ -36,7 +36,7 @@ function unitParts(n, unit) {
 }
 const ago = (n, unit) => new Intl.RelativeTimeFormat(getLocale(), { numeric: 'auto' }).format(-n, unit);
 const el = (tag, cls, ...kids) => h(tag, { class: cls }, ...kids);
-const dayOfYear = (d) => Math.floor((d.getTime() - new Date(d.getFullYear(), 0, 0).getTime()) / 86_400_000);
+const dayOfYear = (d) => Math.round((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(d.getFullYear(), 0, 0)) / 86_400_000); // calendar days (a local-time difference is a day short in the first hour after the clocks go forward)
 
 /** The name of a widget kind, for the gallery and the frame label. */
 export const widgetName = (kind) => t('wg.k.' + kind);
