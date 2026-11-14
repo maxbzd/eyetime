@@ -26,7 +26,8 @@ section.card { padding: var(--s-4); }
 .foot-row { display: flex; align-items: center; gap: var(--s-2); }
 .capture { position: relative; min-width: 0; }
 .capture .input { background: var(--surface); }
-.foot-row .btn { flex: none; }
+.foot-row { flex-wrap: wrap; } /* two buttons side by side (pause, write to the maker): in a long language the second drops to its own line instead of leaving the window */
+.foot-row .btn { flex: none; max-width: 100%; }
 
 .eye-chip { gap: 6px; color: var(--text-2); font-variant-numeric: tabular-nums; } .eye-chip .ico { font-size: 15px; }
 .eye-chip.due { color: var(--accent-text); background: var(--accent-soft); }

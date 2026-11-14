@@ -13,7 +13,7 @@ import { h, svg, icon, clear, toast, isEnter } from '../../ui/dom.js';
 import { t, fmtDuration } from '../../shared/i18n.js';
 import { getSettings, getCollection, setCollection, getDays, getRaw, updateDay, onChange } from '../../shared/storage.js';
 import { isFocusLive } from '../../shared/blocking.js';
-import { dayKey } from '../../shared/time.js';
+import { dayKey, addDays } from '../../shared/time.js';
 import { MAX_PRIORITIES } from '../../shared/productivity.js';
 import { taskFromInput } from '../../shared/tasks.js';
 import { phase, rtOf, candidates, setPriorities, applyTimes, todaysThree, nextUp, tomorrowPicks } from '../../shared/ritual.js';
@@ -141,7 +141,7 @@ export function mountRitual(root) {
     const rt = rtOf(st.day), sumMin = Math.round(((st.day && st.day.fs) || 0) / 60);
     const doneN = st.tasks.filter((x) => x.done && x.doneAt && dayKey(new Date(x.doneAt)) === st.today).length;
     const nextTexts = (rt.next || []).map((id) => st.tasks.find((x) => x.id === id && !x.done)).filter(Boolean).map((x) => x.text);
-    const tomorrow = nextTexts.length ? nextTexts : tomorrowPicks(st.tasks, dayKey(new Date(Date.now() + 86_400_000))).map((x) => x.text);
+    const tomorrow = nextTexts.length ? nextTexts : tomorrowPicks(st.tasks, dayKey(addDays(new Date(), 1))).map((x) => x.text);
     clear(root, h('div', { class: 'rt-pill closed', role: 'group', 'aria-label': t('rt.c.title') },
       icon('moon'), h('div', { class: 'rt-line' },
         h('b', { text: t('rt.c.title') }), h('span', { class: 'rt-sep', text: '·' }), h('span', { class: 'num', text: t('rt.c.line', { time: sumMin ? fmtDuration(sumMin * 60) : '0m', n: doneN }) }),

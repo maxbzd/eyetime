@@ -6,6 +6,7 @@ import { getSettings, getRaw, setRaw, updateDay, updateSettings, getCollection, 
 import { restFor, makeSessionEntry, addSession, rateSession } from '../shared/productivity.js';
 import { createSession, createRest, elapsedMs, plannedMs, pauseSession, resumeSession, isPaused, MAX_PAUSE_MS } from '../shared/focus.js';
 import { isFocusActive, isFocusLive } from '../shared/blocking.js';
+import { lockOf } from '../shared/strict.js';
 import { dayKey } from '../shared/time.js';
 import { isFirstSession } from '../shared/first-session-plan.js';
 import { patchObFirst } from '../shared/first-session-state.js';
@@ -44,6 +45,7 @@ async function startFocusNow({ minutes, goal = '', strict = false, taskId = '', 
   if (taskId) { const task = (await getCollection('tasks', [])).find((x) => x.id === taskId) || {}; if (!text) text = task.text || ''; tag = (task.tags || [])[0] || ''; }
   const modeCfg = (settings.focus.modes || []).find((m) => m.id === mode);
   const session = createSession({ minutes, goal: text, strict, taskId, scope: scope || modeCfg?.scope || settings.focus.scope, mode: modeCfg?.id || '', allow: modeCfg?.allow || [] });
+  if (session.strict) session.lock = lockOf(settings); // a strict session keeps the rules it started with: they may get stricter while it runs, not looser (shared/strict.js)
   if (tag) session.tag = tag; // the project this session belongs to (first #tag of its task), kept in the session log for Insights
   await setRaw({ focus: session, rest: null, review: null });
   track('focus_start');

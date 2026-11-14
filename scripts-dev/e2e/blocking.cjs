@@ -87,7 +87,14 @@ const ok = (c, m, d) => { console.log(`  ${c ? 'PASS' : 'FAIL'} ${m}${c || !d ? 
   await setup.evaluate(() => chrome.runtime.sendMessage({ type: 'focus:start', minutes: 30, goal: 'Strict', strict: true })); await sleep(400);
   const sp = await setup.evaluate(() => chrome.runtime.sendMessage({ type: 'focus:pause' }));
   ok(sp && sp.ok === false, 'a strict session cannot be paused', JSON.stringify(sp));
-  await setup.evaluate(() => chrome.storage.local.set({ focus: null }));
+  // a strict session is a promise: a change that would open a site waits for the end of the session; a change that closes one counts at once
+  await setup.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.blocking.allow.push('reddit.com'); s.sites['reddit.com'] = 'productive'; }); await chrome.runtime.sendMessage({ type: 'settings:changed' }); }); await sleep(600);
+  const loose = await ctx.newPage(); await loose.goto('http://reddit.com/loosened').catch(() => {}); await sleep(1500);
+  ok(loose.url().includes('blocked.html') && loose.url().includes('r=focus'), 'strict: allow-listing and "useful" do not open the site during the session', loose.url().slice(0, 90));
+  await setup.evaluate(() => chrome.storage.local.set({ focus: null })); await sleep(300);
+  const after = await ctx.newPage(); await after.goto('http://reddit.com/after-session').catch(() => {}); await sleep(1500);
+  ok(!after.url().includes('blocked.html'), 'after the session the looser rule is the rule', after.url().slice(0, 90));
+  await setup.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.blocking.allow = s.blocking.allow.filter((d) => d !== 'reddit.com'); delete s.sites['reddit.com']; }); await chrome.runtime.sendMessage({ type: 'settings:changed' }); });
 
   console.log('9. a pause that was forgotten: soon after, the browser start resumes it quietly; left for hours, the session ends and counts what was done');
   const startPaused = (agoMin) => setup.evaluate(async (agoMin) => {

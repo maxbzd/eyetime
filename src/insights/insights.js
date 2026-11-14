@@ -19,6 +19,7 @@ import { makeClassifier } from '../shared/classify.js';
 import { loadGuess } from '../shared/guessstore.js';
 import { summarize, delta, insights as computeInsights, focusStreak, suggestLimit } from '../shared/stats.js';
 import { rangeKeys, addDays, dayKey, parseKey } from '../shared/time.js';
+import { usageCsv, CSV_BOM } from '../shared/usagecsv.js';
 import { track, getUsage, getShare } from '../shared/usage-store.js';
 import { questionCard } from '../ui/feedback-card.js';
 import { getFb, weekMoodDue, feedbackEndpoint } from '../shared/feedback.js';
@@ -331,13 +332,9 @@ function drawRange() {
 }
 
 function exportCsv() {
+  if (!data) return; // the days are still being read (the button and the palette can be used before the first draw)
   const { classify } = makeClassifier(settings, guess);
-  const lines = ['date,domain,seconds,class'];
-  for (const [key, d] of data.heat.concat(data.cur).filter((e, i, a) => e[1] && a.findIndex((x) => x[0] === e[0]) === i)) {
-    for (const [host, sec] of Object.entries(d.d || {})) lines.push(`${key},${host},${sec},${classify(host)}`);
-    for (const [app, sec] of Object.entries(d.a || {})) lines.push(`${key},"${app.replace(/"/g, '""')}",${sec},app`);
-  }
-  const url = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' }));
+  const url = URL.createObjectURL(new Blob([CSV_BOM + usageCsv(data.heat.concat(data.cur), classify)], { type: 'text/csv;charset=utf-8' }));
   const a = h('a', { href: url, download: `eyetime-${dayKey()}.csv` }); document.body.append(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 }
 

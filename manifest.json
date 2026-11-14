@@ -17,7 +17,7 @@
   "options_page": "src/options/options.html",
 
   "permissions": ["storage", "alarms", "notifications", "idle", "tabs", "webNavigation", "contextMenus", "offscreen", "favicon", "scripting", "declarativeNetRequestWithHostAccess"],
-  "content_security_policy": { "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; require-trusted-types-for 'script'; trusted-types eyetime" },
+  "content_security_policy": { "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; img-src 'self' data: blob:; font-src 'self'; media-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; base-uri 'self'; form-action 'self'; require-trusted-types-for 'script'; trusted-types eyetime" },
   "optional_host_permissions": ["http://127.0.0.1:8765/*", "http://*/*", "https://*/*"],
   "web_accessible_resources": [{ "resources": ["src/dock/dock.html"], "matches": ["http://*/*", "https://*/*"], "use_dynamic_url": true }],
 
