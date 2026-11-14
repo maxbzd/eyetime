@@ -166,7 +166,7 @@ body[data-layout="minimal"] .nt { max-width: 760px; } body[data-layout="minimal"
 body[data-layout="minimal"].show-mods .modules { display: grid; }
 .more-mods { display: none; align-self: center; }
 body[data-layout="minimal"] .more-mods { display: inline-flex; }
-@media (max-width: 900px) { body[data-layout="split"] .nt { display: flex; } body[data-layout="split"] .hero { text-align: center; } }
+@media (max-width: 900px) { body[data-layout="split"] .nt { display: flex; align-items: stretch; } body[data-layout="split"] .hero { text-align: center; } }
 
 .focus-card { padding: var(--s-6); max-width: 760px; width: 100%; margin: 0 auto; box-shadow: var(--shadow-2); border-radius: var(--r-xl); }
 .focus-card.is-running { border-color: color-mix(in srgb, var(--accent) 40%, var(--border)); }

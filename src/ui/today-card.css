@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: FSL-1.1-ALv2 */
 /* Copyright 2026 maxbzd */
-.today-head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-3); }
+.today-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--s-2) var(--s-3); } .today-head > * { min-width: 0; }
 .today-total { font-size: 32px; font-weight: 650; letter-spacing: -.03em; line-height: 1.1; }
-.delta-note { font-size: var(--fs-xs); color: var(--text-3); text-align: right; max-width: 140px; line-height: 1.35; }
+.delta-note { font-size: var(--fs-xs); color: var(--text-3); text-align: right; max-width: min(140px, 100%); line-height: 1.35; overflow-wrap: anywhere; } /* in a narrow window (page zoom 300 %) the note goes under the total instead of leaving the card */
 .split { display: flex; height: 8px; gap: 2px; margin: var(--s-3) 0 var(--s-3); }
 .split i { display: block; height: 100%; border-radius: 4px; min-width: 4px; transition: flex-grow var(--t-slow) var(--ease); }
 .split .p { background: var(--productive); } .split .n { background: var(--neutral); } .split .d { background: var(--distracting); }
