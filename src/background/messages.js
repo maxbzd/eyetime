@@ -81,7 +81,8 @@ const handlers = {
 
 // Web pages run EyeTime's content scripts (the social-site guard, the dock). A compromised page could make those speak: they may only ask for what they need.
 const FROM_PAGES = new Set(['tab:close', 'dock:pos']);
-const fromExtensionPage = (sender) => !sender.url || sender.url.startsWith(chrome.runtime.getURL(''));
+// the sender must be this extension, and either an address of its own pages or (no address) not a tab: a missing address alone is not proof
+const fromExtensionPage = (sender) => !!sender && sender.id === chrome.runtime.id && (sender.url ? sender.url.startsWith(chrome.runtime.getURL('')) : !sender.tab);
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   const fn = msg && !msg.target && handlers[msg.type];
