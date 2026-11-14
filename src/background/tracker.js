@@ -20,11 +20,15 @@ export function sync(reason = '') {
   return chain;
 }
 
+/**
+ * What the person is in front of right now, or null when nobody is: the window has the keyboard and they are not away.
+ * `host` is set only for a page that may be counted as a site (tracking on and not paused, a real site, not excluded, not private unless allowed). Any other page, the new tab
+ * included, still means that someone is at the screen: the eye reminders count that time (`on`), because tired eyes do not care which page it was; nothing is kept about the page.
+ */
 async function currentTarget(settings) {
   const t = settings.tracking;
-  if (!t.enabled) return null;
-  const { pausedUntil = 0 } = await getRaw('pausedUntil');
-  if (pausedUntil > Date.now()) return null;
+  const eyes = !!settings.eye.enabled;
+  if (!t.enabled && !eyes) return null;
 
   let win;
   try { win = await chrome.windows.getLastFocused(); } catch { return null; }
@@ -32,13 +36,14 @@ async function currentTarget(settings) {
 
   const [tab] = await chrome.tabs.query({ active: true, windowId: win.id });
   if (!tab) return null;
-  const host = hostFromUrl(tab.url);
-  if (!host || matchesAny(host, t.excluded)) return null;
-  if (tab.incognito && !t.incognito) return null;
-
   const idle = await chrome.idle.queryState(Math.max(15, t.idleSeconds));
   if (idle !== 'active' && !(t.countAudible && tab.audible)) return null;
-  return { host, tabId: tab.id };
+
+  const { pausedUntil = 0 } = await getRaw('pausedUntil');
+  const host = hostFromUrl(tab.url);
+  const counted = t.enabled && pausedUntil <= Date.now() && !!host && !matchesAny(host, t.excluded) && !(tab.incognito && !t.incognito);
+  if (!counted && !eyes) return null;
+  return { host: counted ? host : null, tabId: tab.id };
 }
 
 async function run(reason) {
@@ -48,7 +53,7 @@ async function run(reason) {
   let rem = 0; // ms that did not make a whole second at the last close
 
   // 1) close the previous interval
-  if (trk && trk.host) {
+  if (trk && (trk.host || trk.on)) { // a site, or any other page with somebody in front of it (the eye reminders count that)
     const gap = (now - trk.since) / 1000;
     if (gap > 0 && gap <= MAX_GAP) {
       // an interval that crosses midnight is split: each part goes to its own day and hour; the fractions of a second are carried, not dropped
@@ -56,7 +61,7 @@ async function run(reason) {
       rem = left;
       let sec = 0;
       for (const c of credits) {
-        await addTime({ host: trk.host, sec: c.sec, hour: new Date(c.from + (c.to - c.from) / 2).getHours(), date: new Date(c.to - 1) });
+        if (trk.host) await addTime({ host: trk.host, sec: c.sec, hour: new Date(c.from + (c.to - c.from) / 2).getHours(), date: new Date(c.to - 1) });
         sec += c.sec;
       }
       if (sec > 0) await onActiveTime(sec, now);
@@ -66,8 +71,8 @@ async function run(reason) {
   // 2) open the next one
   const target = await currentTarget(settings);
   // a switch = moving from one site to a different one (context switching is what fragments attention)
-  if (trk && trk.host && target && target.host !== trk.host) await updateDay(dayKey(new Date(now)), (d) => { d.sw = (d.sw || 0) + 1; });
-  await session().set({ trk: target ? { host: target.host, since: now, rem } : { host: null, since: now, rem } });
+  if (trk && trk.host && target && target.host && target.host !== trk.host) await updateDay(dayKey(new Date(now)), (d) => { d.sw = (d.sw || 0) + 1; });
+  await session().set({ trk: target ? { host: target.host, on: true, since: now, rem } : { host: null, on: false, since: now, rem } });
   await keepTick(!!target);
 
   await updateBadge(settings);
