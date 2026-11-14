@@ -171,7 +171,8 @@ body[data-layout="today"] #nudge .btn { flex: none; }
 .fl-input { text-overflow: ellipsis; }
 @media (max-width: 520px) {
   body[data-layout="today"] .td-glance:not([hidden]) { padding: 16px 14px; }
-  .gl { font-size: 12px; gap: 6px; }
+  .gl { font-size: 12px; gap: 6px; max-width: 100%; }
+  body[data-layout="today"] .td-glance:not([hidden]) { flex-wrap: wrap; gap: 0 12px; } .td-glance .gl-eye { margin-left: auto; min-width: 0; } .td-glance .gl .num { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .fl-input { font-size: 23px; padding: 0 66px; }
   body[data-layout="today"] #focus.fl { margin-top: 28px; }
   body[data-layout="today"] .td-credit:not([hidden]) { left: 16px; bottom: 18px; } body[data-layout="today"] .nt-corners { right: 10px; bottom: 14px; }
