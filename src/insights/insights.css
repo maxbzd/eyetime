@@ -9,7 +9,7 @@
 .delta { display: inline-flex; align-items: center; gap: 3px; font-weight: 600; font-size: var(--fs-xs); padding: 1px 7px 1px 5px; border-radius: var(--r-full); background: var(--surface-2); color: var(--text-2); }
 .delta .ico { font-size: 12px; }
 .delta.good { background: var(--success-soft); color: var(--success-text); }
-.delta.bad { background: var(--distracting-soft); color: var(--distracting-text); }
+.delta.bad { background: var(--surface-2); color: var(--text-2); } /* never red for "you spent too long" (docs/DESIGN.md): the arrow says which way it went, the colour stays calm */
 
 .grid-main { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-4); }
 .grid-2 { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: var(--s-4); align-items: start; }
