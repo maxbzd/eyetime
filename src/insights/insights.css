@@ -312,7 +312,7 @@ button.tag { appearance: none; padding-right: 9px; font-family: inherit; border:
 
 .kpi .label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
 .kpi .label .ico { display: inline-block; vertical-align: -3px; margin-right: 8px; }
-.grid-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); }
 .win { grid-template-columns: 16px auto minmax(0, 1fr); }
 @media (max-width: 600px) { .pcard .card-head { flex-wrap: wrap; } .pcard .card-head .scope { order: 2; } }
 
