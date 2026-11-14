@@ -98,6 +98,11 @@ export function backgroundControls(n, set) {
     h('input', { type: 'color', value: normalizeHex(n.bgColor) || '#e9e4ff', 'aria-label': t('home.bgColor'), onchange: (e) => set((s) => { s.newtab.bgColor = e.target.value; s.newtab.background = 'color'; }) }));
   const frames = h('div', { class: 'frame-grid', role: 'group', 'aria-label': t('bg.frames') }, FRAME_IDS.map((id) => h('button', { class: 'frame-tile', type: 'button', 'aria-pressed': String(n.background === 'photo' && n.frame === id), 'aria-label': t('bg.frame.' + id), 'data-tip': t('bg.frame.' + id),
     onclick: () => set((s) => { s.newtab.background = 'photo'; s.newtab.frame = id; }) }, h('img', { src: chrome.runtime.getURL(`src/newtab/frames/${id}-t.webp`), alt: '', width: 80, height: 50 }))));
+  if (FRAME_IDS.length > 24) { // a long list scrolls in its own box and opens at the photo in use
+    frames.classList.add('is-long');
+    const reveal = () => { const on = frames.querySelector('[aria-pressed="true"]'); if (on && frames.clientHeight) frames.scrollTop = Math.max(0, on.offsetTop - (frames.clientHeight - on.offsetHeight) / 2); };
+    window.requestAnimationFrame(reveal); new window.ResizeObserver((_, ro) => { if (frames.clientHeight) { reveal(); ro.disconnect(); } }).observe(frames);
+  }
   const daily = h('button', { class: 'chip', type: 'button', style: { marginBottom: 'var(--s-2)' }, 'aria-pressed': String((n.background === 'photo' && n.frame === 'daily') || (n.layout === 'today' && n.background === 'look')), onclick: () => set((s) => { s.newtab.background = 'photo'; s.newtab.frame = 'daily'; }) }, icon('refresh-cw'), t('bg.daily'));
   return [h('div', { class: 'bg-grid' }, tiles), h('div', { class: 'muted-2 frame-label', text: t('bg.frames') }), daily, frames, fileIn,
     n.background === 'color' ? null : colorIn,

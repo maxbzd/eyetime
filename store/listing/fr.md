@@ -22,7 +22,7 @@ DES STATISTIQUES HONNÊTES
 Temps par site, par heure et par jour ; une chronologie de la journée avec tes sessions de concentration ; le temps de concentration par projet (#tag) ; la précision de tes estimations (prévu et réel) ; tes meilleures heures de concentration ; « ce qui t’attire » — quand un site te tente, avec une limite en un geste ; un bilan de la semaine et une image « Ma semaine » à partager. Reclasse n’importe quel site en productif, neutre ou distrayant d’un seul geste. Export CSV ou journal Markdown.
 
 UN NOUVEL ONGLET APAISANT
-Horloge, carte de concentration avec objectif quotidien, tâches avec priorités, habitudes, notes et liens rapides. 16 styles, la couleur d’accent de ton choix, 22 arrière-plans photo, de vrais sons d’ambiance. Mode clair et mode sombre. Désactivable à tout moment.
+Horloge, carte de concentration avec objectif quotidien, tâches avec priorités, habitudes, notes et liens rapides. 16 styles, la couleur d’accent de ton choix, 69 arrière-plans photo, de vrais sons d’ambiance. Mode clair et mode sombre. Désactivable à tout moment.
 
 PRENDS SOIN DE TES YEUX
 Des rappels 20-20-20 fondés sur ton temps d’écran réellement actif, et une pause pour les yeux guidée de 20 secondes.

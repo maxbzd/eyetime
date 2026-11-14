@@ -431,7 +431,9 @@ body.bg-gl .bg.bgx-photo { background-image: none; transform: none; }
 .sc-ui { position: relative; inset: auto; width: 100%; height: auto; }
 .sc-ui .sc-svg { position: absolute; }
 .frame-label { margin: var(--s-3) 0 var(--s-2); font-size: var(--fs-sm); }
-.frame-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-2); }
+.frame-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-2); position: relative; }
+/* many photos: the list scrolls inside its own box, so the rest of the panel stays within reach; the soft edge says there is more */
+.frame-grid.is-long { max-height: 340px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 3px 6px 20px 3px; margin: -3px -6px -3px -3px; -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent); }
 .frame-tile { position: relative; aspect-ratio: 16 / 10; padding: 0; border-radius: 10px; border: 2px solid transparent; outline: 1px solid var(--border-strong); overflow: hidden; background: var(--surface-2); cursor: pointer; }
 .frame-tile img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .frame-tile[aria-pressed="true"] { border-color: var(--accent); outline-color: var(--accent); }
