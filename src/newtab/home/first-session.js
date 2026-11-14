@@ -61,7 +61,7 @@ async function celebrate(/** @type {any} */ o, /** @type {any} */ ses) {
       sw(t('ob.schedule'), t('ob.scheduleD'), !!s.blocking.schedule.enabled, async (v) => { await updateSettings((x) => { x.blocking.schedule.enabled = v; }); changed(); })),
     h('div', { class: 'dialog-actions' },
       h('button', { class: 'btn btn-lg', type: 'button', onclick: () => { dlg.close(); openTour(); } }, icon('sliders-horizontal'), t('fs.more')), // the long way: the rest of what EyeTime can do, one short step at a time
-      h('button', { class: 'btn btn-primary btn-lg', type: 'button', onclick: () => dlg.close() }, t('fs.tuneDone'))));
+      h('button', { class: 'btn btn-primary btn-lg', type: 'button', autofocus: true, onclick: () => dlg.close() }, t('fs.tuneDone'))));
   dlg.addEventListener('close', async () => { celebrating = false; retire(dlg); await patchObFirst({ stage: 'closed' }); });
   document.body.append(dlg); openModal(dlg);
 }
