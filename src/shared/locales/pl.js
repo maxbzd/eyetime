@@ -472,7 +472,7 @@ export const pl = {
   "ob.v2.lenD": "Na pierwszy raz pięć minut w zupełności wystarczy.",
   "ob.v2.look": "Najpierw się rozejrzę",
   "fs.coachTitle": "Jesteś w skupieniu",
-  "fs.coachSites": "Zamknięte do końca timera: {n}",
+  "fs.coachSites": "Zablokowane strony do końca timera: {n}",
   "fs.coachTry": "Zobacz, jak wygląda zamknięta strona",
   "fs.ok": "Jasne",
   "fs.doneTitle": "Pierwsze skupienie za Tobą",

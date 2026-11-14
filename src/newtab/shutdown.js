@@ -47,7 +47,7 @@ export function closingForm(/** @type {Awaited<ReturnType<typeof loadClosing>>} 
   const el = h('div', { class: 'stack gap-4 sd-form' },
     h('div', {}, h('h3', { text: t('shutdown.title') }), h('p', { class: 'muted-2', text: t('shutdown.sub') })),
     h('div', { class: 'sd-stats' },
-      stat('target', sum.minutes ? fmtDuration(sum.minutes * 60) : '0m', t('shutdown.focus', { n: sum.sessions })),
+      stat('target', sum.minutes ? fmtDuration(sum.minutes * 60) : `0${t('unit.m')}`, t('shutdown.focus', { n: sum.sessions })),
       stat('circle-check', String(sum.done), t('shutdown.tasksDone')),
       stat('shield-check', String(sum.held), t('shutdown.held'))),
     h('label', { class: 'stack gap-2' }, h('b', { text: t('shutdown.win') }), win),

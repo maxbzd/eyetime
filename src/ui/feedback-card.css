@@ -18,7 +18,7 @@
 .fbc-picked { display: flex; align-items: center; gap: var(--s-3); } .fbc-picked b { flex: 1; font-weight: 600; }
 .fbc-why { font-size: var(--fs-sm); color: var(--text-2); margin-bottom: calc(-1 * var(--s-2)); }
 .fbc-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.fbc-actions { display: flex; gap: var(--s-2); } .fbc-actions .btn-primary { min-width: 110px; justify-content: center; }
+.fbc-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); } .fbc-actions .btn-primary { min-width: 110px; justify-content: center; flex: 1 1 auto; max-width: 100%; height: auto; min-height: 32px; padding-block: 6px; white-space: normal; text-align: center; line-height: 1.25; } /* a long label (the Russian one) goes onto two lines instead of leaving the card */
 .fbc-err { color: var(--danger-text, #c0352b); font-size: var(--fs-sm); }
 .fbc-foot { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-4); align-items: baseline; }
 .fbc-link { padding: 2px 0; border: 0; background: none; color: var(--text-2); font: inherit; font-size: var(--fs-xs); font-weight: 560; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--border-strong); cursor: pointer; }

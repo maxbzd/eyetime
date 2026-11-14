@@ -471,7 +471,7 @@ export const it = {
   "ob.v2.lenD": "Per la prima volta bastano cinque minuti.",
   "ob.v2.look": "Prima dai un’occhiata",
   "fs.coachTitle": "Sei in focus",
-  "fs.coachSites": "Chiusi fino alla fine del timer: {n}",
+  "fs.coachSites": "Siti chiusi fino alla fine del timer: {n}",
   "fs.coachTry": "Vedi com’è un sito chiuso",
   "fs.ok": "Ricevuto",
   "fs.doneTitle": "Primo focus completato",

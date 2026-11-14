@@ -7,14 +7,16 @@ import { h, icon, clear } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
 import { getSettings, getRaw, setRaw, getDays, getCollection, onChange } from '../shared/storage.js';
 import { rangeKeys } from '../shared/time.js';
+import { isFocusLive } from '../shared/blocking.js';
 
 const MAX_AGE_DAYS = 21; // after three weeks the card is noise, whatever was ticked
 
 /** Which steps are done. Pure: easy to test. */
-export function stepsState({ days, settings, tasks, paletteUsed }) {
+/** `taught`: the person already said what distracts them (the second screen of the first run does it). */
+export function stepsState({ days, settings, tasks, paletteUsed, taught = false }) {
   return {
     focus: days.some(([, d]) => (d?.fs || 0) > 0 || (d?.ss || []).length > 0),
-    classify: Object.keys(settings.sites || {}).length > 0,
+    classify: Object.keys(settings.sites || {}).length > 0 || !!taught,
     task: (tasks || []).length > 0,
     palette: !!paletteUsed,
   };
@@ -35,10 +37,11 @@ function addTaskHere() {
 export async function mountGettingStarted(el, { startShortSession }) {
   let shown = ''; // what is on screen now: skip identical repaints (the tracker writes day records every few seconds)
   async function paint() {
-    const [{ gsDismissed, meta }, settings, tasks, days] = await Promise.all([getRaw(['gsDismissed', 'meta']), getSettings(), getCollection('tasks', []), getDays(rangeKeys(60))]);
+    const [{ gsDismissed, meta, focus, obFirst }, settings, tasks, days] = await Promise.all([getRaw(['gsDismissed', 'meta', 'focus', 'obFirst']), getSettings(), getCollection('tasks', []), getDays(rangeKeys(60))]);
     const born = (meta && meta.installedAt) || Date.now();
     let paletteUsed = false; try { paletteUsed = localStorage.getItem('et-palette-used') === '1'; } catch { /* ignore */ }
-    const s = stepsState({ days, settings, tasks, paletteUsed });
+    if (isFocusLive(focus)) { el.hidden = true; shown = ''; return; } // while a session runs the page is the session's: the list waits until it ends
+    const s = stepsState({ days, settings, tasks, paletteUsed, taught: !!(obFirst && obFirst.sid) });
     const done = Object.values(s).filter(Boolean).length;
     if (gsDismissed || done === 4 || Date.now() - born > MAX_AGE_DAYS * 86_400_000) { el.hidden = true; shown = ''; return; }
     const sig = JSON.stringify(s);
@@ -59,7 +62,7 @@ export async function mountGettingStarted(el, { startShortSession }) {
         step('palette', 'search', { label: t('gs.openPalette'), run: () => window.dispatchEvent(new window.CustomEvent('et:palette')) })));
   }
   await paint();
-  onChange(['tasks', 'd:*', 'settings'], paint);
+  onChange(['tasks', 'd:*', 'settings', 'focus', 'obFirst'], paint);
   window.addEventListener('et:palette-used', paint);
   return { paint };
 }

@@ -144,7 +144,7 @@ export function mountRitual(root) {
     const tomorrow = nextTexts.length ? nextTexts : tomorrowPicks(st.tasks, dayKey(addDays(new Date(), 1))).map((x) => x.text);
     clear(root, h('div', { class: 'rt-pill closed', role: 'group', 'aria-label': t('rt.c.title') },
       icon('moon'), h('div', { class: 'rt-line' },
-        h('b', { text: t('rt.c.title') }), h('span', { class: 'rt-sep', text: '·' }), h('span', { class: 'num', text: t('rt.c.line', { time: sumMin ? fmtDuration(sumMin * 60) : '0m', n: doneN }) }),
+        h('b', { text: t('rt.c.title') }), h('span', { class: 'rt-sep', text: '·' }), h('span', { class: 'num', text: t('rt.c.line', { time: sumMin ? fmtDuration(sumMin * 60) : `0${t('unit.m')}`, n: doneN }) }),
         tomorrow.length ? [h('span', { class: 'rt-sep', text: '·' }), h('span', { class: 'truncate', text: t('rt.c.tomorrow', { list: tomorrow.slice(0, MAX_PRIORITIES).join(' · ') }) })] : null),
       h('button', { class: 'btn btn-sm btn-ghost', type: 'button', onclick: reopen }, t('rt.c.reopen'))));
   }

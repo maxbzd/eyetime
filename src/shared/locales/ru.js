@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 // Русский. Плюральные формы: one / few / many / other.
 export const ru = {
-  'unit.h': 'ч', 'unit.m': 'м', 'unit.s': 'с',
+  'unit.h': '\u00a0ч', 'unit.m': '\u00a0мин', 'unit.s': '\u00a0с',
   'common.confirm': 'Подтвердить', 'common.cancel': 'Отмена', 'common.save': 'Сохранить', 'common.add': 'Добавить', 'common.remove': 'Удалить',
   'common.error': 'Что-то пошло не так','common.back': 'Назад', 'common.next': 'Далее', 'common.skip': 'Пропустить', 'common.close': 'Закрыть', 'common.on': 'Вкл', 'common.off': 'Выкл',
   'class.productive': 'Полезный', 'class.neutral': 'Нейтральный', 'class.distracting': 'Отвлекающий',
@@ -469,7 +469,7 @@ export const ru = {
   "ob.v2.lenD": "Для первого раза пяти минут достаточно.",
   "ob.v2.look": "Сначала осмотреться",
   "fs.coachTitle": "Вы в фокусе",
-  "fs.coachSites": "Закрыто до конца таймера: {n}",
+  "fs.coachSites": "Сайтов закрыто до конца таймера: {n}",
   "fs.coachTry": "Посмотреть, как выглядит закрытый сайт",
   "fs.ok": "Понятно",
   "fs.doneTitle": "Первый фокус позади",

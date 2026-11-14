@@ -18,7 +18,7 @@ test('i18n: plurals, params and fallbacks', async () => {
 test('i18n: duration formatting and locale resolution', async () => {
   await setLocale('en');
   assert.equal(fmtDuration(0), '0s'); assert.equal(fmtDuration(59), '59s'); assert.equal(fmtDuration(3600), '1h'); assert.equal(fmtDuration(5400), '1h\u00a030m');
-  await setLocale('ru'); assert.equal(fmtDuration(5400), '1ч\u00a030м'); await setLocale('de'); assert.equal(fmtDuration(5400), '1h\u00a030min'); await setLocale('en');
+  await setLocale('ru'); assert.equal(fmtDuration(5400), '1\u00a0ч\u00a030\u00a0мин'); assert.equal(fmtDuration(1200), '20\u00a0мин'); // «м» would read as metres await setLocale('de'); assert.equal(fmtDuration(5400), '1h\u00a030min'); await setLocale('en');
   assert.equal(resolveLocale('auto', 'ru-RU'), 'ru'); assert.equal(resolveLocale('auto', 'uk'), 'uk'); assert.equal(resolveLocale('auto', 'it-IT'), 'it'); assert.equal(resolveLocale('auto', 'pl'), 'pl'); assert.equal(resolveLocale('auto', 'zh-CN'), 'zh'); assert.equal(resolveLocale('auto', 'zh-TW'), 'zh'); assert.equal(resolveLocale('auto', 'ko-KR'), 'en'); assert.equal(resolveLocale('auto', 'de-DE'), 'de'); assert.equal(resolveLocale('auto', 'es-MX'), 'es'); assert.equal(resolveLocale('auto', 'fr-CA'), 'fr'); assert.equal(resolveLocale('auto', 'pt-BR'), 'pt'); assert.equal(resolveLocale('auto', 'ja-JP'), 'ja'); assert.equal(resolveLocale('ru', 'en-US'), 'ru');
 });
 

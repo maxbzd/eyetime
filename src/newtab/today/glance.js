@@ -24,7 +24,7 @@ export function mountGlance(root) {
     const fs = (day?.fs || 0) + (isFocusLive(focus) ? Math.round(elapsedMs(focus) / 1000) : 0), goal = s.focus.dailyGoal || 0;
     const eye = s.eye.enabled ? await send('break:state').catch(() => null) : null;
     const left = eye && typeof eye.since === 'number' ? Math.max(0, s.eye.intervalMin * 60 - eye.since) : null;
-    const focusTxt = goal ? `${fs >= 60 ? fmtDuration(fs) : '0m'} / ${fmtDuration(goal * 60)}` : fs >= 60 ? fmtDuration(fs) : '';
+    const focusTxt = goal ? `${fs >= 60 ? fmtDuration(fs) : `0${t('unit.m')}`} / ${fmtDuration(goal * 60)}` : fs >= 60 ? fmtDuration(fs) : '';
     if (dead) return;
     clear(root,
       h('a', { class: 'gl gl-focus', href: '../insights/insights.html', 'aria-label': t('goal.label') + ': ' + focusTxt, 'data-tip': t('goal.label') }, ring(goal ? fs / (goal * 60) : 0), h('span', { class: 'num', text: focusTxt || t('focus.title') })),

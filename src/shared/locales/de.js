@@ -472,7 +472,7 @@ export const de = {
   "ob.v2.lenD": "Für das erste Mal reichen fünf Minuten.",
   "ob.v2.look": "Erst mal umsehen",
   "fs.coachTitle": "Du bist im Fokus",
-  "fs.coachSites": "Gesperrt bis zum Ende des Timers: {n}",
+  "fs.coachSites": "Bis zum Ende des Timers gesperrte Seiten: {n}",
   "fs.coachTry": "Ansehen, wie eine gesperrte Seite aussieht",
   "fs.ok": "Verstanden",
   "fs.doneTitle": "Erster Fokus geschafft",

@@ -10,7 +10,7 @@ Repository → Settings → Pages → *Build and deployment* → Source: **GitHu
 ## 1. Firefox Add-ons (free)
 1. Sign in at https://addons.mozilla.org/developers/ with a Mozilla account.
 2. *Submit a New Add-on* → **On this site** → upload `eyetime-firefox.zip` from the latest release.
-3. Source code: answer "No" (nothing is minified or generated; see reviewer notes in `store/LISTING.md`) and paste the *Firefox AMO notes* into "Notes to reviewer".
+3. Source code: the package is a production build (bundled and minified with esbuild), so answer **"Yes"**: upload a source archive (`git archive --format=zip -o eyetime-source.zip HEAD`) and give the build steps from `docs/BUILDING.md` (`npm ci && npm run build`, Node 22); paste the *Firefox AMO notes* into "Notes to reviewer".
 4. Listing: name, summary, description (EN as the default; add RU, ES, DE, FR, PT, IT, PL, UK, ZH-CN, JA as locales from `store/listing/`), category *Work → Workflow & Planning* (the store's two-level list; fallback *Tools*) (+ *Privacy & Security*), screenshots with the captions from `store/LISTING.md`, privacy policy URL, support URL `https://github.com/maxbzd/eyetime/issues`.
 5. Submit. Review usually takes from hours to a few days.
 

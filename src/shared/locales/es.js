@@ -471,7 +471,7 @@ export const es = {
   "ob.v2.lenD": "Para una primera vez, cinco minutos bastan.",
   "ob.v2.look": "Primero echar un vistazo",
   "fs.coachTitle": "Estás en foco",
-  "fs.coachSites": "Cerrados hasta que acabe el temporizador: {n}",
+  "fs.coachSites": "Webs cerradas hasta que termine el temporizador: {n}",
   "fs.coachTry": "Ver cómo se ve un sitio cerrado",
   "fs.ok": "Entendido",
   "fs.doneTitle": "Primer enfoque completado",

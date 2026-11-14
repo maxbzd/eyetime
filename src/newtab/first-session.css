@@ -13,6 +13,7 @@
 .fs-looks { display: grid; grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 148px; gap: var(--s-3); overflow-x: auto; padding: 4px 4px 10px; margin: -4px; scroll-snap-type: x proximity; }
 .fs-looks > * { scroll-snap-align: start; }
 .fs-done .opt { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); padding: var(--s-2) 0; }
+.fs-done .opt { flex-wrap: wrap; } .fs-done .opt > :first-child { flex: 1 1 150px; min-width: 0; } .fs-done .opt .segmented { max-width: 100%; } /* a control that does not fit beside its label drops under it (the Russian layout names did not fit) */
 .fs-done .opt + .opt { border-top: 1px solid var(--border); }
 .fs-done .opt b { font-weight: 600; display: block; } .fs-done .opt .d { color: var(--text-3); font-size: var(--fs-sm); }
 .fs-done .dialog-actions { padding-top: var(--s-3); }

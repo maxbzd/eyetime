@@ -472,7 +472,7 @@ export const fr = {
   "ob.v2.lenD": "Pour une première fois, cinq minutes suffisent.",
   "ob.v2.look": "D’abord jeter un œil",
   "fs.coachTitle": "Vous êtes concentré",
-  "fs.coachSites": "Fermés jusqu’à la fin du minuteur : {n}",
+  "fs.coachSites": "Sites fermés jusqu’à la fin du minuteur : {n}",
   "fs.coachTry": "Voir à quoi ressemble un site fermé",
   "fs.ok": "Compris",
   "fs.doneTitle": "Première concentration terminée",

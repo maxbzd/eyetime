@@ -472,7 +472,7 @@ export const en = {
   "ob.v2.lenD": "Five minutes is plenty for a first time.",
   "ob.v2.look": "Look around first",
   "fs.coachTitle": "You’re in focus",
-  "fs.coachSites": "Closed until the timer ends: {n}",
+  "fs.coachSites": "Sites closed until the timer ends: {n}",
   "fs.coachTry": "See what a closed site looks like",
   "fs.ok": "Got it",
   "fs.doneTitle": "First focus done",

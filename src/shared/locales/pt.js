@@ -472,7 +472,7 @@ export const pt = {
   "ob.v2.lenD": "Para a primeira vez, cinco minutos bastam.",
   "ob.v2.look": "Primeiro dar uma olhada",
   "fs.coachTitle": "Você está em foco",
-  "fs.coachSites": "Fechados até o fim do temporizador: {n}",
+  "fs.coachSites": "Sites fechados até o fim do cronômetro: {n}",
   "fs.coachTry": "Ver como fica um site fechado",
   "fs.ok": "Entendi",
   "fs.doneTitle": "Primeiro foco concluído",

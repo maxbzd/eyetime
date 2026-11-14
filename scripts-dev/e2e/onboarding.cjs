@@ -58,7 +58,7 @@ const { launch } = require('./lib.cjs');
 
   // 2. the coach while it runs
   const coach = ob.locator('#fsCoach');
-  ok(await coach.count() === 1 && /You’re in focus/.test(await coach.innerText()) && /Closed until the timer ends/.test(await coach.innerText()), 'a small card on the new tab says what is closed');
+  ok(await coach.count() === 1 && /You’re in focus/.test(await coach.innerText()) && /Sites closed until the timer ends/.test(await coach.innerText()), 'a small card on the new tab says what is closed');
   const closedN = Number((/(\d+)/.exec(await coach.innerText()) || [])[1]);
   ok(closedN > 5, 'the card counts the sites that are closed, not the kinds chosen (two kinds and one of their own would say 3): ' + closedN);
   await shot(ob, 'ob-4-coach');

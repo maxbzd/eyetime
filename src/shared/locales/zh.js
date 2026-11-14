@@ -472,7 +472,7 @@ export const zh = {
   "ob.v2.lenD": "第一次，五分钟就足够了。",
   "ob.v2.look": "先随便看看",
   "fs.coachTitle": "你已进入专注",
-  "fs.coachSites": "计时结束前已关闭：{n}",
+  "fs.coachSites": "计时结束前已关闭的网站：{n}",
   "fs.coachTry": "看看被关闭的网站是什么样",
   "fs.ok": "知道了",
   "fs.doneTitle": "第一次专注完成",
