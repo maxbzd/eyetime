@@ -43,7 +43,9 @@ for (const p of [...man.permissions, ...(man.optional_permissions || [])]) ok(li
 ok((man.optional_host_permissions || []).every((h) => /^https?:\/\//.test(h)), 'optional hosts must be http(s) patterns');
 ok(!man.host_permissions || man.host_permissions.length === 0, 'host permissions are asked for up front: they must be optional (the install warning is the first thing a reviewer reads)');
 const csp = (man.content_security_policy || {}).extension_pages || '';
-ok(!/(?<!wasm-)unsafe-eval|unsafe-inline/.test(csp) && /script-src 'self'/.test(csp), 'the CSP for extension pages must be script-src \'self\' (with wasm-unsafe-eval only)');
+const directive = (d) => (csp.match(new RegExp(`(?:^|;)\\s*${d}\\s+([^;]*)`)) || [])[1] || '';
+ok(!/(?<!wasm-)unsafe-eval|unsafe-inline/.test(directive('script-src')) && /^'self'/.test(directive('script-src')), 'the CSP for extension pages must be script-src \'self\' (with wasm-unsafe-eval only)');
+for (const d of ['img-src', 'font-src', 'media-src', 'style-src']) ok(directive(d) && !/(https?:|\*|\/\/)/.test(directive(d)), `the CSP must keep ${d} to the extension itself (a theme file must not be able to make a page call out)`);
 ok(!/https?:\/\/(?!127\.0\.0\.1|localhost)/.test(csp), 'the CSP names a remote host');
 if (/wasm-unsafe-eval/.test(csp)) ok(listing.includes('wasm-unsafe-eval'), "the CSP has 'wasm-unsafe-eval' and store/LISTING.md does not explain it (a reviewer asks)");
 
