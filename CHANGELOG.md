@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Fixes
+- **A strict session is strict.** While it runs, the rules that close sites may get stricter but never looser: allowing a site, marking it useful, switching a category off or deleting it from a list used to open it at once; now the change is kept and takes effect when the session ends, and the person is told so once (`shared/strict.js`; a real-browser check in `blocking.cjs`).
+- **A theme file cannot make a page call out.** The extension's pages may load images, fonts, sounds and styles only from the extension itself, `data:` and `blob:` (CSP), so even a CSS trick that gets past the filter gets nothing from the network; the filter also refuses `image()`. A test checks the policy and a list of known ways round the filter.
+- **The popup no longer overflows.** The two buttons in its footer wrapped nowhere and left the window in every language (121 px in German); they wrap now.
+- **First run:** the first-session card no longer cuts a long label (Russian), the layout switch of the guided set-up stays inside its dialog, no black ring around the style gallery, the "Get started" list waits while a session runs and counts the screen where the person said what distracts them.
+- **Insights export** works before the days are loaded, writes UTF-8 with the mark a spreadsheet needs (also for the tasks CSV), and makes cells that would be formulas into text; a worse change is shown calmly, not in red.
+- **Clock changes:** "tomorrow" in the evening review and the day number of the daily mantra count calendar days, not 24 hours.
+- **Words:** Russian minutes are «мин» (the letter «м» meant metres) and the three hard-coded "0m" follow the language; fewer calques in Russian; the Russian and Ukrainian store texts no longer say "open source" (the licence is source-available); the Firefox notes say the package is a production build and a source archive goes with the submission.
+- **Settings** explains `declarativeNetRequestWithHostAccess` (a test keeps the table and the manifest in step); messages to the worker are accepted only from this extension (a missing address alone is no longer proof); the README, the roadmap and the translating guide caught up with the code.
+
 ### Many more wallpapers
 - **47 new photo backgrounds for Home**, 61 wallpapers in all (the new tab still takes one a day, in turn, so a round is now two months). Sunsets and sunrises, mist over valleys, cloud seas, aurora and the Milky Way, calm turquoise water, lavender, golden meadows, dunes. Chosen by eye from about 300 candidates: no people, buildings or signs, a quiet middle for the clock.
 - **Where they come from.** Photographs published on Unsplash under CC0 and kept on Wikimedia Commons with that licence; every file is credited in `docs/PHOTO-CREDITS.md` and in the corner of the page. Cropped to 16:10 and recompressed (about 7 MB for the 47; the package is 42 MB).
