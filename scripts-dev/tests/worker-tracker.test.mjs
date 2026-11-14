@@ -121,3 +121,45 @@ test('a running focus session or rest keeps the alarm (the badge counts the minu
   await chrome.storage.local.set({ rest: null }); await sync('y');
   assert.equal(await chrome.alarms.get('tick'), undefined, 'both over: no alarm');
 });
+
+// the eye reminders count the time somebody is in front of the screen, whatever the page: tired eyes do not care. (The new tab froze the countdown at "1s" for good: it is not a site, so nothing was counted.)
+const { getEyeState } = await import('../../src/background/breaks.js');
+const eyeOn = (extra = () => {}) => updateSettings((s) => { s.eye.enabled = true; s.eye.intervalMin = 20; s.eye.notify = false; extra(s); });
+
+test('eye reminders: the time on the new tab and on a browser page counts, and the break comes due; the site statistics stay empty', async () => {
+  await eyeOn();
+  chrome._openTab('chrome-extension://abc/src/newtab/newtab.html'); await sync('init');
+  for (let i = 0; i < 19; i++) { mock.timers.tick(60_000); await sync('tick'); }
+  assert.equal((await getEyeState()).since, 19 * 60); assert.equal((await getEyeState()).due, false);
+  mock.timers.tick(60_000); await sync('tick');
+  assert.equal((await getEyeState()).since, 20 * 60); assert.equal((await getEyeState()).due, true, 'the break is due after the interval, on any page');
+  assert.deepEqual(today().d, {}, 'and nothing about the page is kept as a site');
+  chrome._tabs().length = 0; chrome._openTab('chrome://settings'); await sync('activated'); mock.timers.tick(30_000); await sync('tick');
+  assert.equal((await getEyeState()).since, 20 * 60 + 30, 'a browser page counts too');
+});
+
+test('eye reminders: nothing counts while the person is away or another program has the keyboard', async () => {
+  await eyeOn();
+  chrome._openTab('chrome-extension://abc/src/newtab/newtab.html'); await sync('init');
+  chrome.idle._state = 'idle'; mock.timers.tick(60_000); await sync('idle:idle'); const away = (await getEyeState()).since;
+  mock.timers.tick(5 * 60_000); await sync('tick');
+  assert.equal((await getEyeState()).since, away, 'away');
+  chrome.idle._state = 'active'; chrome._window.focused = false; await sync('focus'); mock.timers.tick(5 * 60_000); await sync('tick');
+  assert.equal((await getEyeState()).since, away, 'another program');
+});
+
+test('eye reminders: an excluded site, a private window, a pause and tracking switched off still count for the eyes and never for the statistics', async () => {
+  await eyeOn((s) => { s.tracking.excluded = ['bank.example']; });
+  chrome._openTab('https://www.bank.example/account'); await sync('init'); mock.timers.tick(30_000); await sync('tick');
+  chrome._openTab('https://github.com/', { incognito: true }); await sync('activated'); mock.timers.tick(30_000); await sync('tick');
+  chrome._openTab('https://github.com/x'); await chrome.storage.local.set({ pausedUntil: Date.now() + 10 * 60_000 }); await sync('pause'); mock.timers.tick(30_000); await sync('tick');
+  await chrome.storage.local.remove('pausedUntil'); await updateSettings((s) => { s.tracking.enabled = false; }); chrome._openTab('https://github.com/y'); await sync('settings'); mock.timers.tick(30_000); await sync('tick');
+  assert.equal((await getEyeState()).since, 120, 'four stretches of half a minute');
+  assert.deepEqual(today().d, {}, 'none of them is a site in the statistics');
+});
+
+test('eye reminders off and tracking off: nothing is counted and the alarm is not kept', async () => {
+  await updateSettings((s) => { s.tracking.enabled = false; s.eye.enabled = false; });
+  chrome._openTab('chrome-extension://abc/src/newtab/newtab.html'); await sync('init'); mock.timers.tick(60_000); await sync('tick');
+  assert.equal((await getEyeState()).since, 0); assert.equal(await chrome.alarms.get('tick'), undefined);
+});

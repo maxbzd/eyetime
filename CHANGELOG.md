@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixes
+- **The eye-break countdown no longer freezes.** It counted only time on ordinary websites, so a person sitting on the new tab (or a browser page) stopped it for good ("Eye break in 1s" for ever) and the break never came. The eye reminders now count the time somebody is in front of the screen on any page; the site statistics, the exclusions, private windows, the pause and "tracking off" work as before (nothing about such a page is kept). Tests for all of these.
 - **A strict session is strict.** While it runs, the rules that close sites may get stricter but never looser: allowing a site, marking it useful, switching a category off or deleting it from a list used to open it at once; now the change is kept and takes effect when the session ends, and the person is told so once (`shared/strict.js`; a real-browser check in `blocking.cjs`).
 - **A theme file cannot make a page call out.** The extension's pages may load images, fonts, sounds and styles only from the extension itself, `data:` and `blob:` (CSP), so even a CSS trick that gets past the filter gets nothing from the network; the filter also refuses `image()`. A test checks the policy and a list of known ways round the filter.
 - **The popup no longer overflows.** The two buttons in its footer wrapped nowhere and left the window in every language (121 px in German); they wrap now.
