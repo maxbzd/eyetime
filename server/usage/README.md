@@ -34,6 +34,8 @@ wrangler.toml     the Worker's settings (logs and analytics of the collector its
 
 **The short way:** with Node.js 20+ and a free Cloudflare account, `node server/usage/setup.mjs` does all of the below in order (login in the browser, database, tables, deploy, the key of the dashboard) and prints the address and the key; it can be run again. The steps it runs:
 
+**Without a terminal:** the workflow *Set up the collector* (`.github/workflows/collector.yml`) does the same from the browser. Make a Cloudflare API token (My Profile → API Tokens → Create Custom Token: *Account · Workers Scripts · Edit*, *Account · D1 · Edit*, *Account · Account Settings · Read*), add three repository secrets (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` from the account's home page, `DASH_TOKEN` = any password of 16+ characters you keep), then Actions → *Set up the collector* → *Run workflow*. The job summary shows the endpoint; nothing secret is printed.
+
 You need a Cloudflare account and `npx wrangler login`.
 
 ```bash
