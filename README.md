@@ -57,7 +57,7 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 | 🗓 **Plan the day and the week** | *Plan my day* fits your priorities into the time you really have, recurring tasks (`every weekday`), three outcomes for the week, calendar by link or file (.ics) with a next-meeting line on the focus card, dates in plain words (`Report tomorrow 14:30 45m !`, `Call Friday`, in 11 languages), tasks in and out as Markdown or CSV. |
 | 🔁 **Know yourself** | Estimate accuracy (planned vs actual), a day timeline with your focus sessions, focus time *by project* (`#tag` of the task), a *What pulls you* card (when and how long a site tempts you, one tap to limit it), a shareable *My week* card (totals only), optional settings sync across browsers. |
 | 📱 **Short-video guard** | After a limit of Shorts / Reels / TikTok / VK Clips scrolling the page turns grayscale and pauses. Optional hiding of Shorts, recommendations, comments and the YouTube home feed. |
-| 🌍 **11 languages** | English, Русский, Español, Deutsch, Français, Português, Italiano, Polski, Українська, 简体中文, 日本語. Key-based i18n; adding a language is one file ([how](docs/TRANSLATING.md)). |
+| 🌍 **12 languages** | English, Русский, Español, Deutsch, Français, Português, Italiano, Polski, Українська, 简体中文, 日本語, Română. Key-based i18n; adding a language is one file ([how](docs/TRANSLATING.md)). |
 | 🔒 **Private by design** | Only domain names and seconds are stored, on your device. Optional passphrases: one seals the tokens of connected services, another encrypts the synced settings and tasks on the device so the browser account's cloud holds only ciphertext. [Details](PRIVACY.md), [threat model](SECURITY.md). |
 
 <details>

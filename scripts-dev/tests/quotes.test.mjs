@@ -9,7 +9,7 @@ import { LOCALES } from '../../src/shared/locales/index.js';
 const LANGS = Object.keys(LOCALES);
 
 test('every quote exists in every interface language, with its own text', () => {
-  assert.equal(LANGS.length, 11);
+  assert.equal(LANGS.length, 12);
   for (const q of QUOTES) {
     for (const l of LANGS) {
       const t = q.t[l];

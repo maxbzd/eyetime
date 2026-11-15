@@ -33,7 +33,7 @@ Po przekroczeniu limitu przewijania Shorts / Reels / TikToka / VK Clips strona r
 PRYWATNOŚĆ W ZAŁOŻENIU
 Bez konta. Bez serwerów. Bez analityki. Zapisujemy tylko nazwy domen i sekundy — na Twoim urządzeniu. Jeśli zasubskrybujesz link do kalendarza, EyeTime pobiera ten jeden plik prosto z Twojej przeglądarki; adres nigdy nie opuszcza urządzenia. Opcjonalna synchronizacja ustawień korzysta z wbudowanej synchronizacji przeglądarki i nigdy nie obejmuje historii. Kod źródłowy jest dostępny do wglądu (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Opcjonalnie: zaszyfruj synchronizowane ustawienia i zadania hasłem, a nawet chmura przeglądarki będzie przechowywać tylko szyfrogram.
 
-Języki: angielski, rosyjski, hiszpański, niemiecki, francuski, portugalski, włoski, polski, ukraiński, chiński i japoński.
+Języki: angielski, rosyjski, hiszpański, niemiecki, francuski, portugalski, włoski, polski, ukraiński, chiński, japoński i rumuński.
 
 ## Screenshot captions
 1. Spokojna nowa karta z fokusem, zadaniami i nawykami

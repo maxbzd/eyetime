@@ -37,10 +37,10 @@ const rel = (g) => [...g.keys()].map((f) => path.relative(root, f));
 const PAGES = {
   'src/popup/popup.html': 450,
   'src/newtab/newtab.html': 960,
-  'src/insights/insights.html': 450,
+  'src/insights/insights.html': 460, // 460 since the quotes carry a twelfth language
   'src/options/options.html': 760,
-  'src/blocked/blocked.html': 400,
-  'src/break/break.html': 400,
+  'src/blocked/blocked.html': 410, // 410 since the quotes carry a twelfth language
+  'src/break/break.html': 410,
   'src/onboarding/onboarding.html': 450,
 };
 

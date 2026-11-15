@@ -12,7 +12,7 @@ test('every permission in the manifest has a row (and a text in every language) 
   const table = fs.readFileSync(root + 'src/options/sections-data.js', 'utf8').match(/const PERMS = \[([\s\S]*?)\];/)[1];
   for (const p of man.permissions) assert.ok(table.includes(`'${p}'`), `${p} is in the manifest but not in the table of Settings`);
   const keys = [...table.matchAll(/'(perm\.[A-Za-z]+)'/g)].map((m) => m[1]);
-  for (const lang of ['en', 'ru', 'es', 'de', 'fr', 'it', 'pt', 'pl', 'uk', 'zh', 'ja']) {
+  for (const lang of ['en', 'ru', 'es', 'de', 'fr', 'it', 'pt', 'pl', 'uk', 'zh', 'ja', 'ro']) {
     const text = fs.readFileSync(root + `src/shared/locales/${lang}.js`, 'utf8');
     for (const k of keys) assert.ok(text.includes(`'${k}'`) || text.includes(`"${k}"`), `${lang} lacks ${k}`);
   }

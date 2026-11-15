@@ -165,3 +165,20 @@ test('quick add: the sign of priority may touch the estimate ("45м!", "45m!")',
   assert.equal(r.est, 120);
   r = parseQuickAdd('3m3 is a name', NOW); assert.ok(!r.est, 'a unit inside a word is not an estimate');
 });
+
+test('quick add in Romanian: days, repeats, and the plural of "month" is not a day', () => {
+  // NOW is Tuesday 20 Oct 2026
+  let r = parseQuickAdd('Raport mâine 14:30 45m !', NOW);
+  assert.deepEqual([r.text, r.at, r.atDay, r.est, r.priority], ['Raport', '14:30', '2026-10-21', 45, true]);
+  assert.equal(parseQuickAdd('Sună clientul poimâine', NOW).due, '2026-10-22');
+  assert.equal(parseQuickAdd('Predă azi', NOW).due, '2026-10-20');
+  assert.equal(parseQuickAdd('Revizuire în 3 zile', NOW).due, '2026-10-23');
+  assert.equal(parseQuickAdd('Raport vineri viitoare', NOW).due, '2026-10-23');
+  assert.equal(parseQuickAdd('Ședință pe luni', NOW).due, '2026-10-26');
+  assert.equal(parseQuickAdd('Plan săptămâna viitoare', NOW).due, '2026-10-26');
+  r = parseQuickAdd('Plată peste 3 luni', NOW); assert.equal(r.due, null); assert.equal(r.text, 'Plată peste 3 luni');
+  assert.equal(parseQuickAdd('Întinderi zilnic', NOW).repeat, 'daily');
+  assert.equal(parseQuickAdd('Sport în zilele lucrătoare', NOW).repeat, 'weekdays');
+  assert.equal(parseQuickAdd('Raport în fiecare săptămână', NOW).repeat, 'weekly');
+  r = parseQuickAdd('Cursuri în fiecare vineri', NOW); assert.equal(r.due, null, 'a weekly day is a repeat, not a date');
+});

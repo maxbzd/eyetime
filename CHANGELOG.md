@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Romanian
+- **A twelfth language: Română.** All 2,122 interface texts, the store listing and name, 33 quotes with their authors, the quick-add words ("mâine", "poimâine", "vineri viitoare", "în 3 zile", "zilnic", "în zilele lucrătoare"; "luni" counts only after "pe" / "până", because it is also the plural of "month") and five store pictures. A machine translation that no native speaker has read yet, like the other nine; the plural forms follow the Romanian rules (one, few, other). Tests for the quick-add words, the plural forms and the language list.
+
 ### Fixes
 - **The eye-break countdown no longer freezes.** It counted only time on ordinary websites, so a person sitting on the new tab (or a browser page) stopped it for good ("Eye break in 1s" for ever) and the break never came. The eye reminders now count the time somebody is in front of the screen on any page; the site statistics, the exclusions, private windows, the pause and "tracking off" work as before (nothing about such a page is kept). Tests for all of these.
 - **A strict session is strict.** While it runs, the rules that close sites may get stricter but never looser: allowing a site, marking it useful, switching a category off or deleting it from a list used to open it at once; now the change is kept and takes effect when the session ends, and the person is told so once (`shared/strict.js`; a real-browser check in `blocking.cjs`).
