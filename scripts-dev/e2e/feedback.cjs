@@ -14,7 +14,7 @@ fs.mkdirSync(EXT_COPY, { recursive: true });
 for (const item of ['src', '_locales', 'icons', 'manifest.json']) cp.execFileSync('cp', ['-r', path.join(SRC, item), EXT_COPY]);
 const cfg = path.join(EXT_COPY, 'src/shared/usage-config.js');
 const NOENDPOINT = process.env.NOENDPOINT === '1';
-if (!NOENDPOINT) fs.writeFileSync(cfg, fs.readFileSync(cfg, 'utf8').replace("USAGE_ENDPOINT = ''", "USAGE_ENDPOINT = 'https://collector.test/v1/usage'"));
+fs.writeFileSync(cfg, fs.readFileSync(cfg, 'utf8').replace(/USAGE_ENDPOINT = '[^']*'/, NOENDPOINT ? "USAGE_ENDPOINT = ''" : "USAGE_ENDPOINT = 'https://collector.test/v1/usage'")); // the copy never talks to the real collector
 process.env.EXT = EXT_COPY;
 const { launch } = require('./lib.cjs');
 
