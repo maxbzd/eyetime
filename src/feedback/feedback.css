@@ -23,7 +23,7 @@ body { min-height: 100vh; display: flex; flex-direction: column; }
 .mail-link { align-self: flex-start; color: var(--text-3); font-size: var(--fs-sm); text-decoration: underline; text-underline-offset: 3px; background: none; border: 0; padding: 0; }
 .ctx-line { color: var(--text-3); font-size: var(--fs-sm); margin-top: 2px; overflow-wrap: anywhere; }
 .privacy { color: var(--text-3); font-size: var(--fs-sm); text-wrap: pretty; }
-.privacy a { color: var(--text-2); }
+.privacy a { color: var(--text-2); text-decoration: underline; text-underline-offset: 2px; }
 .send-row { display: flex; align-items: center; gap: var(--s-3); }
 .send-row .btn-primary { min-width: 140px; }
 .note-gh { padding: var(--s-4); border-radius: var(--r-lg); background: var(--surface-2); color: var(--text-2); font-size: var(--fs-sm); }
