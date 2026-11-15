@@ -13,6 +13,9 @@ const out = path.join(root, 'site/assets');
 fs.mkdirSync(out, { recursive: true });
 for (const f of ['1-home.png', '2-focus.png', '3-insights.png', '4-home-dark.png', '7-looks.png', '11-palette.png', '12-timeline.png', '13-week-card.png']) fs.copyFileSync(path.join(root, 'store/screenshots', f), path.join(out, f));
 fs.copyFileSync(path.join(root, 'icons/logo.svg'), path.join(out, 'logo.svg'));
+// the fonts of the project page are the ones the extension ships (with their licences): the page fetches nothing from anywhere else
+fs.mkdirSync(path.join(out, 'fonts'), { recursive: true });
+for (const f of ['inter-latin-wght-normal.woff2', 'inter-latin-ext-wght-normal.woff2', 'inter-cyrillic-wght-normal.woff2', 'jetbrains-mono-latin-wght-normal.woff2', 'jetbrains-mono-latin-ext-wght-normal.woff2', 'jetbrains-mono-cyrillic-wght-normal.woff2', 'LICENSE-Inter.txt', 'LICENSE-JetBrainsMono.txt']) fs.copyFileSync(path.join(root, 'src/ui/fonts', f), path.join(out, 'fonts', f));
 for (const f of ['demo.mp4', 'demo-poster.jpg']) fs.copyFileSync(path.join(root, 'store', f), path.join(out, f)); // the product demo (scripts-dev/e2e/demo-video.cjs)
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
