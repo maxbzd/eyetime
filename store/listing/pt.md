@@ -31,7 +31,7 @@ PROTEÇÃO CONTRA VÍDEOS CURTOS
 Depois de um limite de rolagem em Shorts / Reels / TikTok / VK Clips, a página fica em tons de cinza e entra em pausa.
 
 PRIVACIDADE POR PROJETO
-Sem conta. Sem servidores. Sem análise de uso. Só nomes de domínio e segundos são armazenados — no seu dispositivo. Se você assinar o link de uma agenda, o EyeTime baixa esse único arquivo direto do seu navegador; o endereço nunca sai do seu dispositivo. A sincronização opcional de configurações usa a sincronização do próprio navegador e nunca inclui o seu histórico. O código-fonte é visível (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Opcional: cifre as configurações e tarefas sincronizadas com uma frase secreta, e até a nuvem do navegador guardará apenas texto cifrado.
+Sem conta e sem anúncios. Nada sai do seu dispositivo a menos que você ative; a única coisa opcional são números de uso anônimos, que você pode ler antes de serem enviados. Só nomes de domínio e segundos são armazenados — no seu dispositivo. Se você assinar o link de uma agenda, o EyeTime baixa esse único arquivo direto do seu navegador; o endereço nunca sai do seu dispositivo. A sincronização opcional de configurações usa a sincronização do próprio navegador e nunca inclui o seu histórico. O código-fonte é visível (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Opcional: cifre as configurações e tarefas sincronizadas com uma frase secreta, e até a nuvem do navegador guardará apenas texto cifrado.
 
 Idiomas: inglês, russo, espanhol, alemão, francês, português, italiano, polonês, ucraniano, chinês, japonês e romeno.
 

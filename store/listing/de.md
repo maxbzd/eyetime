@@ -31,7 +31,7 @@ SCHUTZ VOR KURZVIDEOS
 Nach einem Limit an Shorts / Reels / TikTok / VK Clips wird die Seite grau und pausiert.
 
 PRIVATSPHÄRE VON ANFANG AN
-Kein Konto. Keine Server. Keine Analyse-Tools. Gespeichert werden nur Domainnamen und Sekunden — auf deinem Gerät. Wenn du einen Kalenderlink abonnierst, lädt EyeTime genau diese eine Datei direkt aus deinem Browser; die Adresse verlässt dein Gerät nie. Die optionale Synchronisierung der Einstellungen nutzt die Sync-Funktion deines Browsers und enthält nie deinen Verlauf. Der Quellcode ist einsehbar (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Optional: Verschlüssele synchronisierte Einstellungen und Aufgaben mit einer Passphrase, damit selbst die Cloud des Browsers nur Chiffretext enthält.
+Kein Konto, keine Werbung. Nichts verlässt dein Gerät, solange du es nicht einschaltest; das Einzige, was optional ist: anonyme Nutzungszahlen, die du vor dem Senden lesen kannst. Gespeichert werden nur Domainnamen und Sekunden — auf deinem Gerät. Wenn du einen Kalenderlink abonnierst, lädt EyeTime genau diese eine Datei direkt aus deinem Browser; die Adresse verlässt dein Gerät nie. Die optionale Synchronisierung der Einstellungen nutzt die Sync-Funktion deines Browsers und enthält nie deinen Verlauf. Der Quellcode ist einsehbar (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Optional: Verschlüssele synchronisierte Einstellungen und Aufgaben mit einer Passphrase, damit selbst die Cloud des Browsers nur Chiffretext enthält.
 
 Sprachen: Englisch, Russisch, Spanisch, Deutsch, Französisch, Portugiesisch, Italienisch, Polnisch, Ukrainisch, Chinesisch, Japanisch und Rumänisch.
 

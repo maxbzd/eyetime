@@ -32,6 +32,10 @@ wrangler.toml     the Worker's settings (logs and analytics of the collector its
 
 ## Set it up (about five minutes; nothing here is deployed by the repository)
 
+**Short way:** the two D1 databases (`eyetime-usage`, `eyetime-feedback`) are already created with their tables, and their ids are in `wrangler.toml`. What is left is one command from the repository root: `bash server/usage/deploy.sh`. It logs in to Cloudflare, deploys the Worker, sets the dashboard key (`DASH_TOKEN`, printed once) and writes the Worker's address into `src/shared/usage-config.js`. Commit that file and release. The long way below does the same step by step.
+
+**After that, updates go out by themselves:** the Worker is connected to this repository in Cloudflare (Workers & Pages, `eyetime-usage`, Settings, Build: branch `main`, root directory `server/usage`, deploy command `npx wrangler deploy`). A push to `main` redeploys the dashboard; the key and the data are not touched.
+
 **The short way:** with Node.js 20+ and a free Cloudflare account, `node server/usage/setup.mjs` does all of the below in order (login in the browser, database, tables, deploy, the key of the dashboard) and prints the address and the key; it can be run again. The steps it runs:
 
 **Without a terminal:** the workflow *Set up the collector* (`.github/workflows/collector.yml`) does the same from the browser. Make a Cloudflare API token (My Profile → API Tokens → Create Custom Token: *Account · Workers Scripts · Edit*, *Account · D1 · Edit*, *Account · Account Settings · Read*), add three repository secrets (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` from the account's home page, `DASH_TOKEN` = any password of 16+ characters you keep), then Actions → *Set up the collector* → *Run workflow*. The job summary shows the endpoint; nothing secret is printed.

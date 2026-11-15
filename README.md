@@ -5,7 +5,7 @@
 # EyeTime
 
 **Focus, screen time and eye care for your browser.**<br>
-Free, with source code you can read and check, and 100% local — no account, no servers, no tracking.
+Free, with source code you can read and check, and local-first — no account, no ads, and nothing leaves your device unless you switch on the one optional thing: anonymous usage numbers you can read before they are sent.
 
 [![License: FSL-1.1-ALv2](https://img.shields.io/badge/license-FSL--1.1--ALv2-orange.svg)](LICENSE)
 [![CI](https://github.com/maxbzd/eyetime/actions/workflows/ci.yml/badge.svg)](https://github.com/maxbzd/eyetime/actions/workflows/ci.yml)
