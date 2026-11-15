@@ -33,3 +33,4 @@ desktop/target
 # mutation testing
 reports/
 .stryker-tmp/
+eyetime-collector*.txt
