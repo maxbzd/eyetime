@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 3.10.0 — 2026-11-15 — Romanian, 47 more wallpapers, steadier first minutes
+
+### Anonymous usage
+- **The optional report has somewhere to go now.** The collector (a small Cloudflare Worker with its own database, kept apart from the one for messages) is set up and its address is in this version. Nothing changes for anyone who does not say yes: the question is asked only after a finished focus session and a second day of use, at most three times, and the exact report can be read before anything is sent. The Romanian interface is accepted by the collector from the same release.
 
 ### Romanian
 - **A twelfth language: Română.** All 2,122 interface texts, the store listing and name, 33 quotes with their authors, the quick-add words ("mâine", "poimâine", "vineri viitoare", "în 3 zile", "zilnic", "în zilele lucrătoare"; "luni" counts only after "pe" / "până", because it is also the plural of "month") and five store pictures. A machine translation that no native speaker has read yet, like the other nine; the plural forms follow the Romanian rules (one, few, other). Tests for the quick-add words, the plural forms and the language list.
@@ -20,7 +23,7 @@
 ### Many more wallpapers
 - **47 new photo backgrounds for Home**, 61 wallpapers in all (the new tab still takes one a day, in turn, so a round is now two months). Sunsets and sunrises, mist over valleys, cloud seas, aurora and the Milky Way, calm turquoise water, lavender, golden meadows, dunes. Chosen by eye from about 300 candidates: no people, buildings or signs, a quiet middle for the clock.
 - **Where they come from.** Photographs published on Unsplash under CC0 and kept on Wikimedia Commons with that licence; every file is credited in `docs/PHOTO-CREDITS.md` and in the corner of the page. Cropped to 16:10 and recompressed (about 7 MB for the 47; the package is 42 MB).
-- **Readable type on all of them.** Each wallpaper got its veil from the contrast check (`wall-contrast.cjs`), like the earlier ones; names are written in all 11 languages.
+- **Readable type on all of them.** Each wallpaper got its veil from the contrast check (`wall-contrast.cjs`), like the earlier ones; names are written in all 12 languages.
 - **The photo list scrolls in its own box** (the Background panel stays short; it opens at the photo in use, with a soft edge that says there is more).
 - The English words grew by about 1 KB, so the budget for the new tab's script is 960 KB (was 950).
 - The promo tools (`promo-sound.cjs`, `promo-thumbnail.cjs`) are declared in the e2e runner's list, which the CI test checks.
