@@ -32,6 +32,8 @@ wrangler.toml     the Worker's settings (logs and analytics of the collector its
 
 ## Set it up (about five minutes; nothing here is deployed by the repository)
 
+**The short way:** with Node.js 20+ and a free Cloudflare account, `node server/usage/setup.mjs` does all of the below in order (login in the browser, database, tables, deploy, the key of the dashboard) and prints the address and the key; it can be run again. The steps it runs:
+
 You need a Cloudflare account and `npx wrangler login`.
 
 ```bash
