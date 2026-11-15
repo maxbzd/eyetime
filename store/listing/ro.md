@@ -31,7 +31,7 @@ PAZĂ PENTRU VIDEOCLIPURI SCURTE
 După o limită de derulare pe Shorts / Reels / TikTok / VK Clips, pagina devine alb-negru și se oprește.
 
 PRIVAT PRIN CONCEPȚIE
-Fără cont. Fără servere. Fără analiză. Se păstrează doar numele domeniilor și secundele — pe dispozitivul tău. Dacă te abonezi la un link de calendar, EyeTime descarcă acel singur fișier direct din browserul tău; adresa nu părăsește niciodată dispozitivul. Sincronizarea opțională a setărilor folosește sincronizarea proprie a browserului și nu include niciodată istoricul tău. Codul sursă poate fi citit (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Opțional: criptează-ți setările și sarcinile sincronizate cu o parolă, astfel încât chiar și cloudul browserului să păstreze doar text criptat.
+Fără cont și fără reclame. Nimic nu părăsește dispozitivul tău decât dacă activezi tu; singurul lucru opțional sunt cifrele anonime de utilizare, pe care le poți citi înainte să fie trimise. Se păstrează doar numele domeniilor și secundele — pe dispozitivul tău. Dacă te abonezi la un link de calendar, EyeTime descarcă acel singur fișier direct din browserul tău; adresa nu părăsește niciodată dispozitivul. Sincronizarea opțională a setărilor folosește sincronizarea proprie a browserului și nu include niciodată istoricul tău. Codul sursă poate fi citit (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Opțional: criptează-ți setările și sarcinile sincronizate cu o parolă, astfel încât chiar și cloudul browserului să păstreze doar text criptat.
 
 Limbi: engleză, rusă, spaniolă, germană, franceză, portugheză, italiană, poloneză, ucraineană, chineză, japoneză și română.
 
