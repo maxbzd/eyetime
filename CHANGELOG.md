@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.10.0 — 2026-11-15 — Romanian, 47 more wallpapers, steadier first minutes
+## 3.9.3 — 2026-11-15 — Romanian, 47 more wallpapers, steadier first minutes
 
 ### Anonymous usage
 - **The optional report has somewhere to go now.** The collector (a small Cloudflare Worker with its own database, kept apart from the one for messages) is set up and its address is in this version. Nothing changes for anyone who does not say yes: the question is asked only after a finished focus session and a second day of use, at most three times, and the exact report can be read before anything is sent. The Romanian interface is accepted by the collector from the same release.
