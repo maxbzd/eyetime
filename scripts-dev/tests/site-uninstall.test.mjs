@@ -25,9 +25,9 @@ test('the page stores nothing and loads nothing from elsewhere', () => {
   assert.match(page, /JSON\.stringify\(\{ reason: /); // the whole body is the one reason
 });
 
-test('without a collector the page asks nothing', () => {
-  assert.equal(USAGE_ENDPOINT, '');
-  assert.match(page, /data-collector=""/); // the repository build has none; the Pages build fills it in
+test('the page and the configuration agree on the collector (none: the page asks nothing)', () => {
+  const want = collectorUninstallUrl(USAGE_ENDPOINT); // '' while the collector has no address
+  assert.ok(page.includes(`data-collector="${want}"`), `site/uninstall.html should carry data-collector="${want}"`);
 });
 
 test('the address of the answer comes from the collector endpoint, https only', () => {

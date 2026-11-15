@@ -103,7 +103,7 @@ test('usage store: the one-time question', async () => {
   assert.equal(await asked(T0), false, 'nothing done yet');
   await track('focus_done', T0); assert.equal(await asked(T0), false, 'a finished session, but only one day');
   await track('newtab_view', T0 + DAY); assert.equal(await asked(T0 + DAY), true);
-  assert.equal(await wantsToAsk(T0 + DAY), false, 'no collector in this build: no question');
+  assert.equal(await wantsToAsk(T0 + DAY), haveEndpoint(), 'the question is asked only when the build has a collector to send to');
   await declineAsk(T0 + DAY); assert.equal(await asked(T0 + DAY), false, 'once');
   fresh(); await track('focus_done', T0); await track('newtab_view', T0 + DAY); await enableSharing(T0 + DAY); assert.equal(await asked(T0 + DAY), false, 'already sharing');
 });
