@@ -31,7 +31,7 @@ PROTECCIÓN CONTRA VÍDEOS CORTOS
 Al alcanzar tu límite de scroll en Shorts / Reels / TikTok / VK Clips, la página se vuelve gris y se pausa.
 
 PRIVADO POR DISEÑO
-Sin cuenta. Sin servidores. Sin analíticas. Solo se guardan nombres de dominio y segundos, en tu dispositivo. Si te suscribes al enlace de un calendario, EyeTime descarga ese único archivo directamente desde tu navegador; la dirección nunca sale de tu dispositivo. La sincronización opcional de ajustes usa la sincronización propia de tu navegador y nunca incluye tu historial. El código fuente es visible (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Opcional: cifra con una frase de contraseña los ajustes y tareas sincronizados, y hasta la nube del navegador solo guardará texto cifrado.
+Sin cuenta ni anuncios. Nada sale de tu dispositivo a menos que lo actives; lo único opcional son números de uso anónimos, que puedes leer antes de enviarlos. Solo se guardan nombres de dominio y segundos, en tu dispositivo. Si te suscribes al enlace de un calendario, EyeTime descarga ese único archivo directamente desde tu navegador; la dirección nunca sale de tu dispositivo. La sincronización opcional de ajustes usa la sincronización propia de tu navegador y nunca incluye tu historial. El código fuente es visible (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Opcional: cifra con una frase de contraseña los ajustes y tareas sincronizados, y hasta la nube del navegador solo guardará texto cifrado.
 
 Idiomas: inglés, ruso, español, alemán, francés, portugués, italiano, polaco, ucraniano, chino, japonés y rumano.
 
