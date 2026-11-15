@@ -31,7 +31,7 @@ SHORT-VIDEO GUARD
 After a limit of Shorts / Reels / TikTok / VK Clips scrolling, the page goes grayscale and pauses.
 
 PRIVATE BY DESIGN
-No account. No servers. No analytics. Only domain names and seconds are stored — on your device. If you subscribe to a calendar link, EyeTime downloads that one file straight from your browser; the address never leaves your device. Optional settings sync uses your browser's own sync and never includes your history. The source code is open to read (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Optional: encrypt your synced settings and tasks with a passphrase, so even the browser's cloud holds only ciphertext.
+No account, no ads. Nothing leaves your device unless you switch it on; the one optional thing is anonymous usage numbers, which you can read before they are sent. Only domain names and seconds are stored — on your device. If you subscribe to a calendar link, EyeTime downloads that one file straight from your browser; the address never leaves your device. Optional settings sync uses your browser's own sync and never includes your history. The source code is open to read (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Optional: encrypt your synced settings and tasks with a passphrase, so even the browser's cloud holds only ciphertext.
 
 Languages: English, Russian, Spanish, German, French, Portuguese, Italian, Polish, Ukrainian, Chinese, Japanese and Romanian.
 
