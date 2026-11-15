@@ -31,7 +31,7 @@ GARDE-FOU CONTRE LES VIDÉOS COURTES
 Une fois ta limite de défilement atteinte sur Shorts / Reels / TikTok / VK Clips, la page passe en niveaux de gris et se met en pause.
 
 PENSÉ POUR TA VIE PRIVÉE
-Pas de compte. Pas de serveur. Aucun outil d’analyse. Seuls les noms de domaine et les secondes sont enregistrés — sur ton appareil. Si tu t’abonnes à un lien de calendrier, EyeTime télécharge ce seul fichier directement depuis ton navigateur ; l’adresse ne quitte jamais ton appareil. La synchronisation facultative des réglages utilise celle de ton navigateur et n’inclut jamais ton historique. Le code source est consultable (Functional Source License, FSL-1.1-ALv2) : https://github.com/maxbzd/eyetime En option : chiffrez vos réglages et tâches synchronisés avec une phrase secrète, et même le cloud du navigateur ne contiendra que du texte chiffré.
+Pas de compte, pas de pub. Rien ne quitte ton appareil sans que tu l’actives ; la seule option : des chiffres d’usage anonymes, que tu peux lire avant leur envoi. Seuls les noms de domaine et les secondes sont enregistrés — sur ton appareil. Si tu t’abonnes à un lien de calendrier, EyeTime télécharge ce seul fichier directement depuis ton navigateur ; l’adresse ne quitte jamais ton appareil. La synchronisation facultative des réglages utilise celle de ton navigateur et n’inclut jamais ton historique. Le code source est consultable (Functional Source License, FSL-1.1-ALv2) : https://github.com/maxbzd/eyetime En option : chiffrez vos réglages et tâches synchronisés avec une phrase secrète, et même le cloud du navigateur ne contiendra que du texte chiffré.
 
 Langues : anglais, russe, espagnol, allemand, français, portugais, italien, polonais, ukrainien, chinois et japonais.
 
