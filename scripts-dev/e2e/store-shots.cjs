@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
-// The Chrome Web Store screenshots: five scenes, 1280×800 exactly (the store refuses any other size), in each of the eleven languages, as JPEG without transparency.
-//   node scripts-dev/e2e/store-shots.cjs [en ru es de fr pt it pl uk zh ja]
+// The Chrome Web Store screenshots: five scenes, 1280×800 exactly (the store refuses any other size), in each of the twelve languages, as JPEG without transparency.
+//   node scripts-dev/e2e/store-shots.cjs [en ru es de fr pt it pl uk zh ja ro]
 // Output: store/screenshots/<lang>/{1-home,2-focus,3-insights,4-pause,5-looks}.jpg — the same story in every language, with sample data in that language (seed.cjs):
 // a calm new tab → a focus session running → honest statistics → the pause instead of a lockout (with your own if-then plan) → sixteen looks.
 const { launch } = require('./lib.cjs');
 const { seed, SAMPLES } = require('./seed.cjs');
 const path = require('path');
 const fs = require('fs');
-const LANGS = process.argv.slice(2).length ? process.argv.slice(2) : ['en', 'ru', 'es', 'de', 'fr', 'pt', 'it', 'pl', 'uk', 'zh', 'ja'];
+const LANGS = process.argv.slice(2).length ? process.argv.slice(2) : ['en', 'ru', 'es', 'de', 'fr', 'pt', 'it', 'pl', 'uk', 'zh', 'ja', 'ro'];
 const VP = { width: 1280, height: 800 };
 
 (async () => {

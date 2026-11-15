@@ -16,7 +16,7 @@ UN BLOCCO CHE TI RISPETTA
 Scegli le categorie (social, ‌​‌​​‌‌​‌‌​‌‌​‌‌video, forum, notizie, giochi, shopping, messaggistica) o aggiungi i tuoi siti. Una breve pausa di respirazione con il tuo piano “se… allora…” funziona meglio di un blocco totale. Aggiungi orari di lavoro, limiti giornalieri per sito e un “budget di distrazione” giornaliero. Il blocco istantaneo opzionale (Chrome) manda una pagina che distrae alla pausa prima ancora che parta una sola richiesta.
 
 PIANIFICA LA GIORNATA E LA SETTIMANA
-“Pianifica la mia giornata” sistema le tue priorità nel tempo che hai davvero. Scrivi “Relazione domani 14:30 45m !” o “Stretching nei giorni feriali” ed EyeTime capisce — in undici lingue. Iscriviti al link del tuo calendario (o importa un file) per vedere la prossima riunione sulla scheda del focus. Tre obiettivi per la settimana, attività ricorrenti e le tue attività in entrata e in uscita come Markdown o CSV.
+“Pianifica la mia giornata” sistema le tue priorità nel tempo che hai davvero. Scrivi “Relazione domani 14:30 45m !” o “Stretching nei giorni feriali” ed EyeTime capisce — in dodici lingue. Iscriviti al link del tuo calendario (o importa un file) per vedere la prossima riunione sulla scheda del focus. Tre obiettivi per la settimana, attività ricorrenti e le tue attività in entrata e in uscita come Markdown o CSV.
 
 STATISTICHE ONESTE
 Tempo per sito, ora e giorno; una linea del tempo della giornata con le tue sessioni di focus; tempo di focus per progetto (#tag); precisione delle stime (previsto e reale); le tue ore di focus migliori; “cosa ti attira” — quando un sito ti tenta, con un limite a un tocco; un resoconto settimanale e un’immagine condivisibile di “La mia settimana”. Riclassifica qualsiasi sito come produttivo, neutro o distraente con un tocco. Esporta in CSV o in un diario Markdown.
@@ -33,7 +33,7 @@ Dopo un limite di scorrimento su Shorts / Reels / TikTok / VK Clips, la pagina d
 PRIVATO PER NATURA
 Nessun account. Nessun server. Nessuna analisi. Vengono salvati solo nomi di dominio e secondi — sul tuo dispositivo. Se ti iscrivi al link di un calendario, EyeTime scarica quel solo file direttamente dal tuo browser; l’indirizzo non lascia mai il tuo dispositivo. La sincronizzazione facoltativa delle impostazioni usa la sincronizzazione del tuo browser e non include mai la tua cronologia. Il codice sorgente è consultabile (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Opzionale: cifra con una passphrase impostazioni e attività sincronizzate, così anche il cloud del browser conserva solo testo cifrato.
 
-Lingue: inglese, russo, spagnolo, tedesco, francese, portoghese, italiano, polacco, ucraino, cinese e giapponese.
+Lingue: inglese, russo, spagnolo, tedesco, francese, portoghese, italiano, polacco, ucraino, cinese, giapponese e rumeno.
 
 ## Screenshot captions
 1. Una nuova scheda calma con focus, attività e abitudini

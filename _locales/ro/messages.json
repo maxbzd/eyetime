@@ -1,0 +1,41 @@
+{
+  "extName": {
+    "message": "EyeTime — Concentrare, timp petrecut pe ecran și grija pentru ochi"
+  },
+  "extDescription": {
+    "message": "Concentrare dintr-un clic, pauze blânde înainte de site-uri care distrag, statistici despre ecran, grija pentru ochi. Gratuit, local"
+  },
+  "actionTitle": {
+    "message": "EyeTime"
+  },
+  "cmdToggleFocus": {
+    "message": "Pornește sau oprește o sesiune de concentrare"
+  },
+  "cmdToggleDock": {
+    "message": "Arată sau ascunde panoul EyeTime pe această pagină"
+  },
+  "feedTitle": {
+    "message": "E timpul să nu mai derulezi"
+  },
+  "feedBody": {
+    "message": "Te uiți la videoclipuri scurte de {n} min. Pagina este oprită și în alb-negru, ca să alegi ce urmează."
+  },
+  "feedLeave": {
+    "message": "Închide această filă"
+  },
+  "feedMore": {
+    "message": "Încă 5 minute"
+  },
+  "dockTab": {
+    "message": "Deschide panoul EyeTime"
+  },
+  "dockFocus": {
+    "message": "Concentrare"
+  },
+  "dockTasks": {
+    "message": "Sarcini"
+  },
+  "dockLearn": {
+    "message": "De învățat"
+  }
+}

@@ -50,7 +50,7 @@ ok(!/https?:\/\/(?!127\.0\.0\.1|localhost)/.test(csp), 'the CSP names a remote h
 if (/wasm-unsafe-eval/.test(csp)) ok(listing.includes('wasm-unsafe-eval'), "the CSP has 'wasm-unsafe-eval' and store/LISTING.md does not explain it (a reviewer asks)");
 
 // 4. listings
-const langs = ['en', 'ru', 'es', 'de', 'fr', 'pt', 'it', 'pl', 'uk', 'zh', 'ja'];
+const langs = ['en', 'ru', 'es', 'de', 'fr', 'pt', 'it', 'pl', 'uk', 'zh', 'ja', 'ro'];
 for (const l of langs) {
   const f = `store/listing/${l}.md`;
   if (!fs.existsSync(path.join(root, f))) { bad.push(`${f} is missing`); continue; }

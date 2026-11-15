@@ -11,9 +11,10 @@ import { pl } from './pl.js';
 import { uk } from './uk.js';
 import { zh } from './zh.js';
 import { ja } from './ja.js';
+import { ro } from './ro.js';
 
 import { LANGUAGES } from './languages.js';
 
-export const LOCALES = { en, ru, es, de, fr, pt, it, pl, uk, zh, ja };
+export const LOCALES = { en, ru, es, de, fr, pt, it, pl, uk, zh, ja, ro };
 // en and ru are maintained by the author; the others are machine-translated and reviewed — corrections are welcome (see docs/TRANSLATING.md).
 export { LANGUAGES };

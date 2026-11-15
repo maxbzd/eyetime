@@ -10,33 +10,33 @@
 export const QUOTE_CONTEXTS = ['day', 'start', 'pause', 'rest'];
 
 export const QUOTE_AUTHORS = {
-  seneca: {"en": "Seneca", "ru": "Сенека", "es": "Séneca", "de": "Seneca", "fr": "Sénèque", "pt": "Sêneca", "it": "Seneca", "pl": "Seneka", "uk": "Сенека", "zh": "塞涅卡", "ja": "セネカ"},
-  franklin: {"en": "Benjamin Franklin", "ru": "Бенджамин Франклин", "es": "Benjamin Franklin", "de": "Benjamin Franklin", "fr": "Benjamin Franklin", "pt": "Benjamin Franklin", "it": "Benjamin Franklin", "pl": "Benjamin Franklin", "uk": "Бенджамін Франклін", "zh": "本杰明·富兰克林", "ja": "ベンジャミン・フランクリン"},
-  tolstoy: {"en": "Leo Tolstoy", "ru": "Лев Толстой", "es": "León Tolstói", "de": "Leo Tolstoi", "fr": "Léon Tolstoï", "pt": "Liev Tolstói", "it": "Lev Tolstoj", "pl": "Lew Tołstoj", "uk": "Лев Толстой", "zh": "列夫·托尔斯泰", "ja": "レフ・トルストイ"},
-  dillard: {"en": "Annie Dillard", "ru": "Энни Дилард", "es": "Annie Dillard", "de": "Annie Dillard", "fr": "Annie Dillard", "pt": "Annie Dillard", "it": "Annie Dillard", "pl": "Annie Dillard", "uk": "Енні Дилард", "zh": "安妮·迪拉德", "ja": "アニー・ディラード"},
-  horace: {"en": "Horace", "ru": "Гораций", "es": "Horacio", "de": "Horaz", "fr": "Horace", "pt": "Horácio", "it": "Orazio", "pl": "Horacy", "uk": "Горацій", "zh": "贺拉斯", "ja": "ホラティウス"},
-  hippocrates: {"en": "Hippocrates", "ru": "Гиппократ", "es": "Hipócrates", "de": "Hippokrates", "fr": "Hippocrate", "pt": "Hipócrates", "it": "Ippocrate", "pl": "Hipokrates", "uk": "Гіппократ", "zh": "希波克拉底", "ja": "ヒポクラテス"},
-  drucker: {"en": "Peter Drucker", "ru": "Питер Друкер", "es": "Peter Drucker", "de": "Peter Drucker", "fr": "Peter Drucker", "pt": "Peter Drucker", "it": "Peter Drucker", "pl": "Peter Drucker", "uk": "Пітер Друкер", "zh": "彼得·德鲁克", "ja": "ピーター・ドラッカー"},
-  weil: {"en": "Simone Weil", "ru": "Симона Вейль", "es": "Simone Weil", "de": "Simone Weil", "fr": "Simone Weil", "pt": "Simone Weil", "it": "Simone Weil", "pl": "Simone Weil", "uk": "Сімона Вейль", "zh": "西蒙娜·薇依", "ja": "シモーヌ・ヴェイユ"},
-  james: {"en": "William James", "ru": "Уильям Джеймс", "es": "William James", "de": "William James", "fr": "William James", "pt": "William James", "it": "William James", "pl": "William James", "uk": "Вільям Джеймс", "zh": "威廉·詹姆斯", "ja": "ウィリアム・ジェームズ"},
-  simon: {"en": "Herbert Simon", "ru": "Герберт Саймон", "es": "Herbert Simon", "de": "Herbert Simon", "fr": "Herbert Simon", "pt": "Herbert Simon", "it": "Herbert Simon", "pl": "Herbert Simon", "uk": "Герберт Саймон", "zh": "赫伯特·西蒙", "ja": "ハーバート・サイモン"},
-  newport: {"en": "Cal Newport", "ru": "Кэл Ньюпорт", "es": "Cal Newport", "de": "Cal Newport", "fr": "Cal Newport", "pt": "Cal Newport", "it": "Cal Newport", "pl": "Cal Newport", "uk": "Кел Ньюпорт", "zh": "卡尔·纽波特", "ja": "カル・ニューポート"},
-  covey: {"en": "Stephen Covey", "ru": "Стивен Кови", "es": "Stephen Covey", "de": "Stephen Covey", "fr": "Stephen Covey", "pt": "Stephen Covey", "it": "Stephen Covey", "pl": "Stephen Covey", "uk": "Стівен Кові", "zh": "史蒂芬·柯维", "ja": "スティーブン・コヴィー"},
-  thoreau: {"en": "Henry David Thoreau", "ru": "Генри Дэвид Торо", "es": "Henry David Thoreau", "de": "Henry David Thoreau", "fr": "Henry David Thoreau", "pt": "Henry David Thoreau", "it": "Henry David Thoreau", "pl": "Henry David Thoreau", "uk": "Генрі Девід Торо", "zh": "梭罗", "ja": "ヘンリー・D・ソロー"},
-  epictetus: {"en": "Epictetus", "ru": "Эпиктет", "es": "Epicteto", "de": "Epiktet", "fr": "Épictète", "pt": "Epicteto", "it": "Epitteto", "pl": "Epiktet", "uk": "Епіктет", "zh": "爱比克泰德", "ja": "エピクテトス"},
-  laozi: {"en": "Lao Tzu", "ru": "Лао-цзы", "es": "Lao Tse", "de": "Laotse", "fr": "Lao Tseu", "pt": "Lao Tsé", "it": "Lao Tzu", "pl": "Laozi", "uk": "Лао-цзи", "zh": "老子", "ja": "老子"},
-  hemingway: {"en": "Ernest Hemingway", "ru": "Эрнест Хемингуэй", "es": "Ernest Hemingway", "de": "Ernest Hemingway", "fr": "Ernest Hemingway", "pt": "Ernest Hemingway", "it": "Ernest Hemingway", "pl": "Ernest Hemingway", "uk": "Ернест Гемінґвей", "zh": "海明威", "ja": "アーネスト・ヘミングウェイ"},
-  close: {"en": "Chuck Close", "ru": "Чак Клоуз", "es": "Chuck Close", "de": "Chuck Close", "fr": "Chuck Close", "pt": "Chuck Close", "it": "Chuck Close", "pl": "Chuck Close", "uk": "Чак Клоуз", "zh": "查克·克洛斯", "ja": "チャック・クロース"},
-  aurelius: {"en": "Marcus Aurelius", "ru": "Марк Аврелий", "es": "Marco Aurelio", "de": "Mark Aurel", "fr": "Marc Aurèle", "pt": "Marco Aurélio", "it": "Marco Aurelio", "pl": "Marek Aureliusz", "uk": "Марк Аврелій", "zh": "马可·奥勒留", "ja": "マルクス・アウレリウス"},
-  durant: {"en": "Will Durant", "ru": "Уилл Дюрант", "es": "Will Durant", "de": "Will Durant", "fr": "Will Durant", "pt": "Will Durant", "it": "Will Durant", "pl": "Will Durant", "uk": "Вілл Дюрант", "zh": "威尔·杜兰特", "ja": "ウィル・デュラント"},
-  roosevelt: {"en": "Theodore Roosevelt", "ru": "Теодор Рузвельт", "es": "Theodore Roosevelt", "de": "Theodore Roosevelt", "fr": "Theodore Roosevelt", "pt": "Theodore Roosevelt", "it": "Theodore Roosevelt", "pl": "Theodore Roosevelt", "uk": "Теодор Рузвельт", "zh": "西奥多·罗斯福", "ja": "セオドア・ルーズベルト"},
-  murakami: {"en": "Haruki Murakami", "ru": "Харуки Мураками", "es": "Haruki Murakami", "de": "Haruki Murakami", "fr": "Haruki Murakami", "pt": "Haruki Murakami", "it": "Haruki Murakami", "pl": "Haruki Murakami", "uk": "Харукі Муракамі", "zh": "村上春树", "ja": "村上春樹"},
-  nietzsche: {"en": "Friedrich Nietzsche", "ru": "Фридрих Ницше", "es": "Friedrich Nietzsche", "de": "Friedrich Nietzsche", "fr": "Friedrich Nietzsche", "pt": "Friedrich Nietzsche", "it": "Friedrich Nietzsche", "pl": "Friedrich Nietzsche", "uk": "Фрідріх Ніцше", "zh": "尼采", "ja": "ニーチェ"},
-  jordan: {"en": "Michael Jordan", "ru": "Майкл Джордан", "es": "Michael Jordan", "de": "Michael Jordan", "fr": "Michael Jordan", "pt": "Michael Jordan", "it": "Michael Jordan", "pl": "Michael Jordan", "uk": "Майкл Джордан", "zh": "迈克尔·乔丹", "ja": "マイケル・ジョーダン"},
-  johnson: {"en": "Samuel Johnson", "ru": "Сэмюэл Джонсон", "es": "Samuel Johnson", "de": "Samuel Johnson", "fr": "Samuel Johnson", "pt": "Samuel Johnson", "it": "Samuel Johnson", "pl": "Samuel Johnson", "uk": "Семюел Джонсон", "zh": "塞缪尔·约翰逊", "ja": "サミュエル・ジョンソン"},
-  chekhov: {"en": "Anton Chekhov", "ru": "Антон Чехов", "es": "Antón Chéjov", "de": "Anton Tschechow", "fr": "Anton Tchekhov", "pt": "Anton Tchékhov", "it": "Anton Čechov", "pl": "Anton Czechow", "uk": "Антон Чехов", "zh": "契诃夫", "ja": "アントン・チェーホフ"},
-  lubbock: {"en": "John Lubbock", "ru": "Джон Леббок", "es": "John Lubbock", "de": "John Lubbock", "fr": "John Lubbock", "pt": "John Lubbock", "it": "John Lubbock", "pl": "John Lubbock", "uk": "Джон Леббок", "zh": "约翰·卢伯克", "ja": "ジョン・ラボック"},
-  ovid: {"en": "Ovid", "ru": "Овидий", "es": "Ovidio", "de": "Ovid", "fr": "Ovide", "pt": "Ovídio", "it": "Ovidio", "pl": "Owidiusz", "uk": "Овідій", "zh": "奥维德", "ja": "オウィディウス"},
+  seneca: {"en": "Seneca", "ru": "Сенека", "es": "Séneca", "de": "Seneca", "fr": "Sénèque", "pt": "Sêneca", "it": "Seneca", "pl": "Seneka", "uk": "Сенека", "zh": "塞涅卡", "ja": "セネカ", "ro": "Seneca"},
+  franklin: {"en": "Benjamin Franklin", "ru": "Бенджамин Франклин", "es": "Benjamin Franklin", "de": "Benjamin Franklin", "fr": "Benjamin Franklin", "pt": "Benjamin Franklin", "it": "Benjamin Franklin", "pl": "Benjamin Franklin", "uk": "Бенджамін Франклін", "zh": "本杰明·富兰克林", "ja": "ベンジャミン・フランクリン", "ro": "Benjamin Franklin"},
+  tolstoy: {"en": "Leo Tolstoy", "ru": "Лев Толстой", "es": "León Tolstói", "de": "Leo Tolstoi", "fr": "Léon Tolstoï", "pt": "Liev Tolstói", "it": "Lev Tolstoj", "pl": "Lew Tołstoj", "uk": "Лев Толстой", "zh": "列夫·托尔斯泰", "ja": "レフ・トルストイ", "ro": "Lev Tolstoi"},
+  dillard: {"en": "Annie Dillard", "ru": "Энни Дилард", "es": "Annie Dillard", "de": "Annie Dillard", "fr": "Annie Dillard", "pt": "Annie Dillard", "it": "Annie Dillard", "pl": "Annie Dillard", "uk": "Енні Дилард", "zh": "安妮·迪拉德", "ja": "アニー・ディラード", "ro": "Annie Dillard"},
+  horace: {"en": "Horace", "ru": "Гораций", "es": "Horacio", "de": "Horaz", "fr": "Horace", "pt": "Horácio", "it": "Orazio", "pl": "Horacy", "uk": "Горацій", "zh": "贺拉斯", "ja": "ホラティウス", "ro": "Horațiu"},
+  hippocrates: {"en": "Hippocrates", "ru": "Гиппократ", "es": "Hipócrates", "de": "Hippokrates", "fr": "Hippocrate", "pt": "Hipócrates", "it": "Ippocrate", "pl": "Hipokrates", "uk": "Гіппократ", "zh": "希波克拉底", "ja": "ヒポクラテス", "ro": "Hipocrate"},
+  drucker: {"en": "Peter Drucker", "ru": "Питер Друкер", "es": "Peter Drucker", "de": "Peter Drucker", "fr": "Peter Drucker", "pt": "Peter Drucker", "it": "Peter Drucker", "pl": "Peter Drucker", "uk": "Пітер Друкер", "zh": "彼得·德鲁克", "ja": "ピーター・ドラッカー", "ro": "Peter Drucker"},
+  weil: {"en": "Simone Weil", "ru": "Симона Вейль", "es": "Simone Weil", "de": "Simone Weil", "fr": "Simone Weil", "pt": "Simone Weil", "it": "Simone Weil", "pl": "Simone Weil", "uk": "Сімона Вейль", "zh": "西蒙娜·薇依", "ja": "シモーヌ・ヴェイユ", "ro": "Simone Weil"},
+  james: {"en": "William James", "ru": "Уильям Джеймс", "es": "William James", "de": "William James", "fr": "William James", "pt": "William James", "it": "William James", "pl": "William James", "uk": "Вільям Джеймс", "zh": "威廉·詹姆斯", "ja": "ウィリアム・ジェームズ", "ro": "William James"},
+  simon: {"en": "Herbert Simon", "ru": "Герберт Саймон", "es": "Herbert Simon", "de": "Herbert Simon", "fr": "Herbert Simon", "pt": "Herbert Simon", "it": "Herbert Simon", "pl": "Herbert Simon", "uk": "Герберт Саймон", "zh": "赫伯特·西蒙", "ja": "ハーバート・サイモン", "ro": "Herbert Simon"},
+  newport: {"en": "Cal Newport", "ru": "Кэл Ньюпорт", "es": "Cal Newport", "de": "Cal Newport", "fr": "Cal Newport", "pt": "Cal Newport", "it": "Cal Newport", "pl": "Cal Newport", "uk": "Кел Ньюпорт", "zh": "卡尔·纽波特", "ja": "カル・ニューポート", "ro": "Cal Newport"},
+  covey: {"en": "Stephen Covey", "ru": "Стивен Кови", "es": "Stephen Covey", "de": "Stephen Covey", "fr": "Stephen Covey", "pt": "Stephen Covey", "it": "Stephen Covey", "pl": "Stephen Covey", "uk": "Стівен Кові", "zh": "史蒂芬·柯维", "ja": "スティーブン・コヴィー", "ro": "Stephen Covey"},
+  thoreau: {"en": "Henry David Thoreau", "ru": "Генри Дэвид Торо", "es": "Henry David Thoreau", "de": "Henry David Thoreau", "fr": "Henry David Thoreau", "pt": "Henry David Thoreau", "it": "Henry David Thoreau", "pl": "Henry David Thoreau", "uk": "Генрі Девід Торо", "zh": "梭罗", "ja": "ヘンリー・D・ソロー", "ro": "Henry David Thoreau"},
+  epictetus: {"en": "Epictetus", "ru": "Эпиктет", "es": "Epicteto", "de": "Epiktet", "fr": "Épictète", "pt": "Epicteto", "it": "Epitteto", "pl": "Epiktet", "uk": "Епіктет", "zh": "爱比克泰德", "ja": "エピクテトス", "ro": "Epictet"},
+  laozi: {"en": "Lao Tzu", "ru": "Лао-цзы", "es": "Lao Tse", "de": "Laotse", "fr": "Lao Tseu", "pt": "Lao Tsé", "it": "Lao Tzu", "pl": "Laozi", "uk": "Лао-цзи", "zh": "老子", "ja": "老子", "ro": "Lao Zi"},
+  hemingway: {"en": "Ernest Hemingway", "ru": "Эрнест Хемингуэй", "es": "Ernest Hemingway", "de": "Ernest Hemingway", "fr": "Ernest Hemingway", "pt": "Ernest Hemingway", "it": "Ernest Hemingway", "pl": "Ernest Hemingway", "uk": "Ернест Гемінґвей", "zh": "海明威", "ja": "アーネスト・ヘミングウェイ", "ro": "Ernest Hemingway"},
+  close: {"en": "Chuck Close", "ru": "Чак Клоуз", "es": "Chuck Close", "de": "Chuck Close", "fr": "Chuck Close", "pt": "Chuck Close", "it": "Chuck Close", "pl": "Chuck Close", "uk": "Чак Клоуз", "zh": "查克·克洛斯", "ja": "チャック・クロース", "ro": "Chuck Close"},
+  aurelius: {"en": "Marcus Aurelius", "ru": "Марк Аврелий", "es": "Marco Aurelio", "de": "Mark Aurel", "fr": "Marc Aurèle", "pt": "Marco Aurélio", "it": "Marco Aurelio", "pl": "Marek Aureliusz", "uk": "Марк Аврелій", "zh": "马可·奥勒留", "ja": "マルクス・アウレリウス", "ro": "Marcus Aurelius"},
+  durant: {"en": "Will Durant", "ru": "Уилл Дюрант", "es": "Will Durant", "de": "Will Durant", "fr": "Will Durant", "pt": "Will Durant", "it": "Will Durant", "pl": "Will Durant", "uk": "Вілл Дюрант", "zh": "威尔·杜兰特", "ja": "ウィル・デュラント", "ro": "Will Durant"},
+  roosevelt: {"en": "Theodore Roosevelt", "ru": "Теодор Рузвельт", "es": "Theodore Roosevelt", "de": "Theodore Roosevelt", "fr": "Theodore Roosevelt", "pt": "Theodore Roosevelt", "it": "Theodore Roosevelt", "pl": "Theodore Roosevelt", "uk": "Теодор Рузвельт", "zh": "西奥多·罗斯福", "ja": "セオドア・ルーズベルト", "ro": "Theodore Roosevelt"},
+  murakami: {"en": "Haruki Murakami", "ru": "Харуки Мураками", "es": "Haruki Murakami", "de": "Haruki Murakami", "fr": "Haruki Murakami", "pt": "Haruki Murakami", "it": "Haruki Murakami", "pl": "Haruki Murakami", "uk": "Харукі Муракамі", "zh": "村上春树", "ja": "村上春樹", "ro": "Haruki Murakami"},
+  nietzsche: {"en": "Friedrich Nietzsche", "ru": "Фридрих Ницше", "es": "Friedrich Nietzsche", "de": "Friedrich Nietzsche", "fr": "Friedrich Nietzsche", "pt": "Friedrich Nietzsche", "it": "Friedrich Nietzsche", "pl": "Friedrich Nietzsche", "uk": "Фрідріх Ніцше", "zh": "尼采", "ja": "ニーチェ", "ro": "Friedrich Nietzsche"},
+  jordan: {"en": "Michael Jordan", "ru": "Майкл Джордан", "es": "Michael Jordan", "de": "Michael Jordan", "fr": "Michael Jordan", "pt": "Michael Jordan", "it": "Michael Jordan", "pl": "Michael Jordan", "uk": "Майкл Джордан", "zh": "迈克尔·乔丹", "ja": "マイケル・ジョーダン", "ro": "Michael Jordan"},
+  johnson: {"en": "Samuel Johnson", "ru": "Сэмюэл Джонсон", "es": "Samuel Johnson", "de": "Samuel Johnson", "fr": "Samuel Johnson", "pt": "Samuel Johnson", "it": "Samuel Johnson", "pl": "Samuel Johnson", "uk": "Семюел Джонсон", "zh": "塞缪尔·约翰逊", "ja": "サミュエル・ジョンソン", "ro": "Samuel Johnson"},
+  chekhov: {"en": "Anton Chekhov", "ru": "Антон Чехов", "es": "Antón Chéjov", "de": "Anton Tschechow", "fr": "Anton Tchekhov", "pt": "Anton Tchékhov", "it": "Anton Čechov", "pl": "Anton Czechow", "uk": "Антон Чехов", "zh": "契诃夫", "ja": "アントン・チェーホフ", "ro": "Anton Cehov"},
+  lubbock: {"en": "John Lubbock", "ru": "Джон Леббок", "es": "John Lubbock", "de": "John Lubbock", "fr": "John Lubbock", "pt": "John Lubbock", "it": "John Lubbock", "pl": "John Lubbock", "uk": "Джон Леббок", "zh": "约翰·卢伯克", "ja": "ジョン・ラボック", "ro": "John Lubbock"},
+  ovid: {"en": "Ovid", "ru": "Овидий", "es": "Ovidio", "de": "Ovid", "fr": "Ovide", "pt": "Ovídio", "it": "Ovidio", "pl": "Owidiusz", "uk": "Овідій", "zh": "奥维德", "ja": "オウィディウス", "ro": "Ovidiu"},
 };
 
 export const QUOTES = [
@@ -52,7 +52,8 @@ export const QUOTES = [
       pl: "Nie brakuje nam czasu — tracimy go zbyt wiele.",
       uk: "Біда не в тому, що в нас мало часу, а в тому, що ми багато його марнуємо.",
       zh: "我们并非拥有的时间太少，而是浪费了太多。",
-      ja: "私たちの人生が短いのではない。多くを無駄にしているのだ。"
+      ja: "私たちの人生が短いのではない。多くを無駄にしているのだ。",
+      ro: "Nu e vorba că avem puțin timp de trăit, ci că risipim mult din el."
     } },
   { id: "franklin-time", ctx: ["day", "pause"], by: "franklin",
     t: {
@@ -66,7 +67,8 @@ export const QUOTES = [
       pl: "Kochasz życie? Nie trwoń więc czasu — z niego właśnie życie jest zrobione.",
       uk: "Любиш життя? Тоді не марнуй часу — з нього воно й зроблене.",
       zh: "你热爱生命吗？那就别浪费时间——生命正是由时间构成的。",
-      ja: "人生を愛するなら、時間を浪費してはいけない。時間こそ、人生を作る材料だから。"
+      ja: "人生を愛するなら、時間を浪費してはいけない。時間こそ、人生を作る材料だから。",
+      ro: "Iubești viața? Atunci nu irosi timpul, căci din el este făcută viața."
     } },
   { id: "tolstoy-now", ctx: ["day", "start"], by: "tolstoy",
     t: {
@@ -80,7 +82,8 @@ export const QUOTES = [
       pl: "Pamiętaj: ważny jest tylko jeden czas — dziś, teraz.",
       uk: "Пам’ятай: важливий лише один час — сьогодні, зараз.",
       zh: "记住：重要的时刻只有一个——今天，此刻。",
-      ja: "覚えておきなさい。大切な時はただ一つ、今日、今この瞬間だ。"
+      ja: "覚えておきなさい。大切な時はただ一つ、今日、今この瞬間だ。",
+      ro: "Ține minte: există un singur timp care contează — astăzi, chiar acum."
     } },
   { id: "dillard-days", ctx: ["day", "pause"], by: "dillard",
     t: {
@@ -94,7 +97,8 @@ export const QUOTES = [
       pl: "To, jak spędzamy dni, jest oczywiście tym, jak spędzamy życie.",
       uk: "Те, як ми проводимо дні, і є тим, як ми проводимо життя.",
       zh: "我们如何度过每一天，就是我们如何度过一生。",
-      ja: "日々をどう過ごすか。それが、人生をどう過ごすかということだ。"
+      ja: "日々をどう過ごすか。それが、人生をどう過ごすかということだ。",
+      ro: "Felul în care ne petrecem zilele este, desigur, felul în care ne petrecem viața."
     } },
   { id: "seneca-postpone", ctx: ["start", "pause"], by: "seneca",
     t: {
@@ -108,7 +112,8 @@ export const QUOTES = [
       pl: "Gdy odkładamy, życie ucieka.",
       uk: "Поки ми відкладаємо, життя минає.",
       zh: "当我们还在拖延时，人生已经匆匆而过。",
-      ja: "先延ばしにしている間にも、人生は過ぎていく。"
+      ja: "先延ばしにしている間にも、人生は過ぎていく。",
+      ro: "Cât amânăm, viața trece în goană."
     } },
   { id: "horace-day", ctx: ["day"], by: "horace",
     t: {
@@ -122,7 +127,8 @@ export const QUOTES = [
       pl: "Chwytaj dzień i jak najmniej ufaj jutru.",
       uk: "Лови день і якнайменше вір прийдешньому.",
       zh: "把握今天，尽可能少地寄望明天。",
-      ja: "今日を摘め。明日には、できるだけ頼るな。"
+      ja: "今日を摘め。明日には、できるだけ頼るな。",
+      ro: "Trăiește clipa și încrede-te cât mai puțin în ziua de mâine."
     } },
   { id: "hippocrates-art", ctx: ["day"], by: "hippocrates",
     t: {
@@ -136,7 +142,8 @@ export const QUOTES = [
       pl: "Życie jest krótkie, sztuka jest długa.",
       uk: "Життя коротке, мистецтво довге.",
       zh: "生命短暂，技艺长存。",
-      ja: "人生は短く、技芸の道は長い。"
+      ja: "人生は短く、技芸の道は長い。",
+      ro: "Viața este scurtă, arta este lungă."
     } },
   { id: "drucker-useless", ctx: ["day", "start"], by: "drucker",
     t: {
@@ -150,7 +157,8 @@ export const QUOTES = [
       pl: "Nie ma nic bardziej bezużytecznego niż robienie z wielką skutecznością tego, czego w ogóle nie należało robić.",
       uk: "Немає нічого марнішого, ніж дуже ефективно робити те, чого взагалі не слід було робити.",
       zh: "最没用的事，就是高效地去做根本不该做的事。",
-      ja: "そもそもやるべきでないことを、効率よくやり遂げることほど無駄なことはない。"
+      ja: "そもそもやるべきでないことを、効率よくやり遂げることほど無駄なことはない。",
+      ro: "Nu există nimic mai inutil decât să faci cu eficiență ceea ce nu ar trebui făcut deloc."
     } },
   { id: "weil-attention", ctx: ["day", "pause"], by: "weil",
     t: {
@@ -164,7 +172,8 @@ export const QUOTES = [
       pl: "Uwaga jest najrzadszą i najczystszą formą hojności.",
       uk: "Увага — найрідкісніша й найчистіша форма щедрості.",
       zh: "专注是最稀有、最纯粹的慷慨。",
-      ja: "注意を向けることは、最もまれで最も純粋な寛大さの形である。"
+      ja: "注意を向けることは、最もまれで最も純粋な寛大さの形である。",
+      ro: "Atenția este cea mai rară și cea mai pură formă de generozitate."
     } },
   { id: "james-attend", ctx: ["day", "pause"], by: "james",
     t: {
@@ -178,7 +187,8 @@ export const QUOTES = [
       pl: "Moje doświadczenie to to, na co zgadzam się zwracać uwagę.",
       uk: "Мій досвід — це те, на що я погоджуюсь звертати увагу.",
       zh: "我的经验，就是我同意去关注的东西。",
-      ja: "私の経験とは、私が注意を向けると決めたものである。"
+      ja: "私の経験とは、私が注意を向けると決めたものである。",
+      ro: "Experiența mea este ceea ce accept să observ."
     } },
   { id: "simon-attention", ctx: ["pause"], by: "simon",
     t: {
@@ -192,7 +202,8 @@ export const QUOTES = [
       pl: "Bogactwo informacji tworzy ubóstwo uwagi.",
       uk: "Багатство інформації породжує бідність уваги.",
       zh: "信息的丰富，造成了注意力的贫乏。",
-      ja: "情報の豊かさは、注意力の貧しさを生む。"
+      ja: "情報の豊かさは、注意力の貧しさを生む。",
+      ro: "O abundență de informație creează o sărăcie de atenție."
     } },
   { id: "newport-deep", ctx: ["start", "day"], by: "newport",
     t: {
@@ -206,7 +217,8 @@ export const QUOTES = [
       pl: "Umiejętność głębokiej koncentracji staje się coraz rzadsza — i właśnie dlatego coraz cenniejsza.",
       uk: "Здатність глибоко зосереджуватись дедалі рідкісніша — і саме тому дедалі цінніша.",
       zh: "深度专注的能力越来越稀缺，也正因此越来越珍贵。",
-      ja: "深く集中する力はますます希少になり、だからこそ、ますます価値が高まっている。"
+      ja: "深く集中する力はますます希少になり、だからこそ、ますます価値が高まっている。",
+      ro: "Capacitatea de a te concentra profund devine tot mai rară — și tocmai de aceea devine tot mai valoroasă."
     } },
   { id: "covey-schedule", ctx: ["day", "start"], by: "covey",
     t: {
@@ -220,7 +232,8 @@ export const QUOTES = [
       pl: "Sęk nie w tym, by ustalać priorytety tego, co w kalendarzu, ale by wpisać do kalendarza swoje priorytety.",
       uk: "Головне — не розставляти пріоритети в розкладі, а вписувати у розклад свої пріоритети.",
       zh: "关键不是给日程里的事排优先级，而是把你的优先事项排进日程。",
-      ja: "大切なのは、予定に優先順位をつけることではなく、優先すべきことを予定に入れることだ。"
+      ja: "大切なのは、予定に優先順位をつけることではなく、優先すべきことを予定に入れることだ。",
+      ro: "Esențialul nu este să stabilești priorități între lucrurile din program, ci să-ți programezi prioritățile."
     } },
   { id: "thoreau-busy", ctx: ["day", "start"], by: "thoreau",
     t: {
@@ -234,7 +247,8 @@ export const QUOTES = [
       pl: "Nie wystarczy być zajętym — mrówki też są zajęte. Pytanie brzmi: czym?",
       uk: "Мало бути зайнятим — мурахи теж зайняті. Питання в тому, чим саме.",
       zh: "光是忙碌还不够——蚂蚁也很忙。问题是：你在忙什么？",
-      ja: "忙しいだけでは足りない。アリだって忙しい。問題は、何に忙しいかだ。"
+      ja: "忙しいだけでは足りない。アリだって忙しい。問題は、何に忙しいかだ。",
+      ro: "Nu ajunge să fii ocupat; și furnicile sunt. Întrebarea este: cu ce suntem ocupați?"
     } },
   { id: "epictetus-opinions", ctx: ["pause"], by: "epictetus",
     t: {
@@ -248,7 +262,8 @@ export const QUOTES = [
       pl: "Ludzi niepokoją nie same rzeczy, lecz ich sądy o rzeczach.",
       uk: "Людей непокоять не самі речі, а їхні судження про речі.",
       zh: "困扰人的不是事物本身，而是人们对事物的看法。",
-      ja: "人を悩ませるのは物事そのものではなく、物事についての考え方だ。"
+      ja: "人を悩ませるのは物事そのものではなく、物事についての考え方だ。",
+      ro: "Oamenii sunt tulburați nu de lucruri, ci de părerile pe care le au despre lucruri."
     } },
   { id: "laozi-step", ctx: ["start"], by: "laozi",
     t: {
@@ -262,7 +277,8 @@ export const QUOTES = [
       pl: "Podróż tysiąca mil zaczyna się od jednego kroku.",
       uk: "Шлях у тисячу лі починається з першого кроку.",
       zh: "千里之行，始于足下。",
-      ja: "千里の道も一歩から。"
+      ja: "千里の道も一歩から。",
+      ro: "O călătorie de o mie de mile începe cu un singur pas."
     } },
   { id: "hemingway-true", ctx: ["start"], by: "hemingway",
     t: {
@@ -276,7 +292,8 @@ export const QUOTES = [
       pl: "Wystarczy napisać jedno prawdziwe zdanie. Napisz najprawdziwsze, jakie znasz.",
       uk: "Просто напиши одне правдиве речення. Найправдивіше, яке знаєш.",
       zh: "你只需写下一句真话。写下你所知道的最真的那一句。",
-      ja: "真実の一文を書けばいい。自分の知る最も真実な一文を書け。"
+      ja: "真実の一文を書けばいい。自分の知る最も真実な一文を書け。",
+      ro: "Tot ce ai de făcut este să scrii o propoziție adevărată. Scrie cea mai adevărată propoziție pe care o cunoști."
     } },
   { id: "close-inspiration", ctx: ["start", "day"], by: "close",
     t: {
@@ -290,7 +307,8 @@ export const QUOTES = [
       pl: "Natchnienie jest dla amatorów. Reszta po prostu przychodzi i bierze się do pracy.",
       uk: "Натхнення — для аматорів. Решта просто приходить і береться до роботи.",
       zh: "灵感是业余者的事。我们其他人只是照常出现，开始干活。",
-      ja: "インスピレーションはアマチュアのもの。それ以外の人間は、ただ現れて仕事に取りかかる。"
+      ja: "インスピレーションはアマチュアのもの。それ以外の人間は、ただ現れて仕事に取りかかる。",
+      ro: "Inspirația e pentru amatori. Ceilalți pur și simplu apărem și ne apucăm de treabă."
     } },
   { id: "aurelius-rise", ctx: ["start", "day"], by: "aurelius",
     t: {
@@ -304,7 +322,8 @@ export const QUOTES = [
       pl: "Gdy o świcie trudno ci wstać, powiedz sobie: wstaję, by wykonać pracę człowieka.",
       uk: "Коли вранці важко підвестися, скажи собі: я встаю, щоб робити людську справу.",
       zh: "清晨难以起身时，对自己说：我起床，是为了去做一个人该做的事。",
-      ja: "朝、起きるのがつらいときは、こう言い聞かせよ。私は人としての務めを果たすために起きるのだ、と。"
+      ja: "朝、起きるのがつらいときは、こう言い聞かせよ。私は人としての務めを果たすために起きるのだ、と。",
+      ro: "În zori, când ți-e greu să te ridici, spune-ți: mă ridic ca să fac munca unui om."
     } },
   { id: "durant-habit", ctx: ["day"], by: "durant",
     t: {
@@ -318,7 +337,8 @@ export const QUOTES = [
       pl: "Jesteśmy tym, co robimy nieustannie. Doskonałość nie jest więc czynem, lecz nawykiem.",
       uk: "Ми — те, що робимо постійно. Досконалість — це не вчинок, а звичка.",
       zh: "我们是我们反复做的事。因此，卓越不是一次行动，而是一种习惯。",
-      ja: "私たちとは、繰り返し行うことそのものだ。優れることは行為ではなく、習慣である。"
+      ja: "私たちとは、繰り返し行うことそのものだ。優れることは行為ではなく、習慣である。",
+      ro: "Suntem ceea ce facem în mod repetat. Excelența, așadar, nu este un act, ci un obicei."
     } },
   { id: "roosevelt-arena", ctx: ["start"], by: "roosevelt",
     t: {
@@ -332,7 +352,8 @@ export const QUOTES = [
       pl: "Nie krytyk się liczy. Zasługa należy do tego, kto naprawdę jest na arenie.",
       uk: "Важливий не критик. Заслуга належить тому, хто справді на арені.",
       zh: "重要的不是批评者。功劳属于真正站在竞技场上的人。",
-      ja: "大切なのは批評家ではない。称賛は、実際にアリーナに立つ者のものだ。"
+      ja: "大切なのは批評家ではない。称賛は、実際にアリーナに立つ者のものだ。",
+      ro: "Nu criticul este cel care contează. Meritul aparține celui care se află cu adevărat în arenă."
     } },
   { id: "seneca-hard", ctx: ["day", "start"], by: "seneca",
     t: {
@@ -346,7 +367,8 @@ export const QUOTES = [
       pl: "Trudności wzmacniają umysł, jak praca wzmacnia ciało.",
       uk: "Труднощі гартують розум, як праця — тіло.",
       zh: "困难磨炼心智，正如劳作强健体魄。",
-      ja: "困難は精神を鍛える。労働が身体を鍛えるように。"
+      ja: "困難は精神を鍛える。労働が身体を鍛えるように。",
+      ro: "Greutățile întăresc mintea, așa cum munca întărește trupul."
     } },
   { id: "murakami-pain", ctx: ["start"], by: "murakami",
     t: {
@@ -360,7 +382,8 @@ export const QUOTES = [
       pl: "Ból jest nieunikniony. Cierpienie jest opcjonalne.",
       uk: "Біль неминучий. Страждання — на вибір.",
       zh: "痛苦不可避免，但受苦与否由你选择。",
-      ja: "痛みは避けられない。でも苦しみは、選ぶことができる。"
+      ja: "痛みは避けられない。でも苦しみは、選ぶことができる。",
+      ro: "Durerea este inevitabilă. Suferința este opțională."
     } },
   { id: "nietzsche-why", ctx: ["day"], by: "nietzsche",
     t: {
@@ -374,7 +397,8 @@ export const QUOTES = [
       pl: "Kto ma po co żyć, zniesie prawie każde jak.",
       uk: "Хто має «навіщо» жити, той витримає майже будь-яке «як».",
       zh: "知道为何而活的人，几乎能忍受任何一种活法。",
-      ja: "なぜ生きるかを知る者は、ほとんどどんな生き方にも耐えられる。"
+      ja: "なぜ生きるかを知る者は、ほとんどどんな生き方にも耐えられる。",
+      ro: "Cine are un „de ce” pentru care să trăiască poate îndura aproape orice „cum”."
     } },
   { id: "aurelius-way", ctx: ["day", "start"], by: "aurelius",
     t: {
@@ -388,7 +412,8 @@ export const QUOTES = [
       pl: "To, co stoi na drodze, staje się drogą.",
       uk: "Те, що стоїть на шляху, стає шляхом.",
       zh: "阻碍前行的东西，本身就成了前行的路。",
-      ja: "行く手を阻むものが、道になる。"
+      ja: "行く手を阻むものが、道になる。",
+      ro: "Ceea ce stă în calea ta devine calea."
     } },
   { id: "jordan-fail", ctx: ["day"], by: "jordan",
     t: {
@@ -402,7 +427,8 @@ export const QUOTES = [
       pl: "Przegrywałem w życiu raz za razem — i właśnie dlatego odnoszę sukces.",
       uk: "Я зазнавав невдач знову і знову — і саме тому досягаю успіху.",
       zh: "我一次又一次地失败——这正是我成功的原因。",
-      ja: "私は人生で何度も何度も失敗した。だからこそ、成功したのだ。"
+      ja: "私は人生で何度も何度も失敗した。だからこそ、成功したのだ。",
+      ro: "Am eșuat de nenumărate ori în viața mea — și tocmai de aceea reușesc."
     } },
   { id: "johnson-effort", ctx: ["day"], by: "johnson",
     t: {
@@ -416,7 +442,8 @@ export const QUOTES = [
       pl: "To, co napisano bez wysiłku, zwykle czyta się bez przyjemności.",
       uk: "Те, що написано без зусиль, зазвичай читається без задоволення.",
       zh: "不费力写出的东西，读起来通常也没有乐趣。",
-      ja: "苦労せずに書かれたものは、たいてい楽しく読めない。"
+      ja: "苦労せずに書かれたものは、たいてい楽しく読めない。",
+      ro: "Ceea ce este scris fără efort este, în general, citit fără plăcere."
     } },
   { id: "chekhov-brevity", ctx: ["day"], by: "chekhov",
     t: {
@@ -430,7 +457,8 @@ export const QUOTES = [
       pl: "Zwięzłość jest siostrą talentu.",
       uk: "Стислість — сестра таланту.",
       zh: "简洁是才能的姐妹。",
-      ja: "簡潔さは才能の姉妹である。"
+      ja: "簡潔さは才能の姉妹である。",
+      ro: "Concizia este sora talentului."
     } },
   { id: "thoreau-see", ctx: ["day"], by: "thoreau",
     t: {
@@ -444,7 +472,8 @@ export const QUOTES = [
       pl: "Nie liczy się to, na co patrzysz, lecz to, co widzisz.",
       uk: "Важить не те, на що ти дивишся, а те, що ти бачиш.",
       zh: "重要的不是你看向什么，而是你看见了什么。",
-      ja: "大切なのは、何を見るかではなく、何が見えるかだ。"
+      ja: "大切なのは、何を見るかではなく、何が見えるかだ。",
+      ro: "Nu contează la ce te uiți, ci ce vezi."
     } },
   { id: "lubbock-rest", ctx: ["rest"], by: "lubbock",
     t: {
@@ -458,7 +487,8 @@ export const QUOTES = [
       pl: "Odpoczynek to nie lenistwo. Leżenie na trawie pod drzewami w letni dzień wcale nie jest stratą czasu.",
       uk: "Відпочинок — не неробство. Полежати на траві під деревами літнього дня — зовсім не марнування часу.",
       zh: "休息不是偷懒。夏日里躺在树下的草地上，绝不是浪费时间。",
-      ja: "休むことは怠けることではない。夏の日に木陰の草の上に寝転ぶことは、決して時間の無駄ではない。"
+      ja: "休むことは怠けることではない。夏の日に木陰の草の上に寝転ぶことは、決して時間の無駄ではない。",
+      ro: "Odihna nu este lene. A sta întins pe iarbă, la umbra copacilor, într-o zi de vară, nu este câtuși de puțin timp pierdut."
     } },
   { id: "seneca-relax", ctx: ["rest"], by: "seneca",
     t: {
@@ -472,7 +502,8 @@ export const QUOTES = [
       pl: "Umysłowi trzeba dać wytchnienie: wypoczęty, powstanie lepszy i ostrzejszy.",
       uk: "Розуму треба давати відпочинок: відпочивши, він стане кращим і гострішим.",
       zh: "要让心灵得到放松：休息之后，它会更好、更敏锐。",
-      ja: "心には休息を与えねばならない。休んだ心は、より良く、より鋭く立ち上がる。"
+      ja: "心には休息を与えねばならない。休んだ心は、より良く、より鋭く立ち上がる。",
+      ro: "Mintea trebuie lăsată să se destindă: odihnită, se va ridica mai bine și mai ascuțită."
     } },
   { id: "ovid-field", ctx: ["rest"], by: "ovid",
     t: {
@@ -486,7 +517,8 @@ export const QUOTES = [
       pl: "Odpocznij: pole, które odpoczęło, wydaje obfity plon.",
       uk: "Відпочивай: поле, що відпочило, дає щедрий урожай.",
       zh: "歇一歇吧：休耕过的田地，才有丰厚的收成。",
-      ja: "休め。休んだ畑は、豊かな実りをもたらす。"
+      ja: "休め。休んだ畑は、豊かな実りをもたらす。",
+      ro: "Odihnește-te; un câmp care s-a odihnit dă o recoltă bogată."
     } },
   { id: "tip-stretch", ctx: ["rest"], by: null,
     t: {
@@ -500,6 +532,7 @@ export const QUOTES = [
       pl: "Wstań i się przeciągnij. Dziesięć sekund wystarczy.",
       uk: "Підведіться й потягніться. Десяти секунд досить.",
       zh: "站起来伸个懒腰，十秒钟就够了。",
-      ja: "立ち上がって、伸びをしましょう。十秒で十分です。"
+      ja: "立ち上がって、伸びをしましょう。十秒で十分です。",
+      ro: "Ridică-te și întinde-te. Zece secunde sunt de ajuns."
     } },
 ];

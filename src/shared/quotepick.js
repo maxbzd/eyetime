@@ -7,7 +7,7 @@ import { QUOTES, QUOTE_AUTHORS } from './quotes.js';
 export const QUOTE_PLACES = { day: 'home', start: 'start', pause: 'pause', rest: 'rest' }; // quote context → the settings switch that allows it
 
 /** How each language marks a quotation. */
-const MARKS = { en: ['“', '”'], ru: ['«', '»'], es: ['«', '»'], de: ['„', '“'], fr: ['« ', ' »'], pt: ['«', '»'], it: ['«', '»'], pl: ['„', '”'], uk: ['«', '»'], zh: ['“', '”'], ja: ['「', '」'] };
+const MARKS = { en: ['“', '”'], ru: ['«', '»'], es: ['«', '»'], de: ['„', '“'], fr: ['« ', ' »'], pt: ['«', '»'], it: ['«', '»'], pl: ['„', '”'], uk: ['«', '»'], zh: ['“', '”'], ja: ['「', '」'], ro: ['„', '”'] };
 
 /** A stable number from anything (day key, a random string …). */
 export function hashSeed(s) {

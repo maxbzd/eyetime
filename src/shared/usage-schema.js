@@ -71,7 +71,7 @@ export const PRODUCTS = ['ext', 'win'];
 
 export const BROWSERS = ['chrome', 'edge', 'firefox', 'other'];
 export const SYSTEMS = ['mac', 'win', 'linux', 'cros', 'other'];
-export const LANGS = ['en', 'ru', 'es', 'de', 'fr', 'pt', 'it', 'pl', 'uk', 'zh', 'ja'];
+export const LANGS = ['en', 'ru', 'es', 'de', 'fr', 'pt', 'it', 'pl', 'uk', 'zh', 'ja', 'ro'];
 export const MODES = ['light', 'dark', 'auto'];
 
 export const LIMITS = { days: 60, maxAge: 4000, maxCount: 100_000, bytes: 6144 };
