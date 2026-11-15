@@ -31,7 +31,7 @@ STRÓŻ KRÓTKICH WIDEO
 Po przekroczeniu limitu przewijania Shorts / Reels / TikToka / VK Clips strona robi się szara i zatrzymuje się.
 
 PRYWATNOŚĆ W ZAŁOŻENIU
-Bez konta. Bez serwerów. Bez analityki. Zapisujemy tylko nazwy domen i sekundy — na Twoim urządzeniu. Jeśli zasubskrybujesz link do kalendarza, EyeTime pobiera ten jeden plik prosto z Twojej przeglądarki; adres nigdy nie opuszcza urządzenia. Opcjonalna synchronizacja ustawień korzysta z wbudowanej synchronizacji przeglądarki i nigdy nie obejmuje historii. Kod źródłowy jest dostępny do wglądu (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Opcjonalnie: zaszyfruj synchronizowane ustawienia i zadania hasłem, a nawet chmura przeglądarki będzie przechowywać tylko szyfrogram.
+Bez konta i reklam. Nic nie opuszcza Twojego urządzenia, dopóki tego nie włączysz; jedyna opcjonalna rzecz to anonimowe liczby użycia, które możesz przeczytać przed wysłaniem. Zapisujemy tylko nazwy domen i sekundy — na Twoim urządzeniu. Jeśli zasubskrybujesz link do kalendarza, EyeTime pobiera ten jeden plik prosto z Twojej przeglądarki; adres nigdy nie opuszcza urządzenia. Opcjonalna synchronizacja ustawień korzysta z wbudowanej synchronizacji przeglądarki i nigdy nie obejmuje historii. Kod źródłowy jest dostępny do wglądu (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Opcjonalnie: zaszyfruj synchronizowane ustawienia i zadania hasłem, a nawet chmura przeglądarki będzie przechowywać tylko szyfrogram.
 
 Języki: angielski, rosyjski, hiszpański, niemiecki, francuski, portugalski, włoski, polski, ukraiński, chiński i japoński.
 

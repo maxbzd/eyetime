@@ -31,7 +31,7 @@ PROTEZIONE DAI VIDEO BREVI
 Dopo un limite di scorrimento su Shorts / Reels / TikTok / VK Clips, la pagina diventa in scala di grigi e si mette in pausa.
 
 PRIVATO PER NATURA
-Nessun account. Nessun server. Nessuna analisi. Vengono salvati solo nomi di dominio e secondi — sul tuo dispositivo. Se ti iscrivi al link di un calendario, EyeTime scarica quel solo file direttamente dal tuo browser; l’indirizzo non lascia mai il tuo dispositivo. La sincronizzazione facoltativa delle impostazioni usa la sincronizzazione del tuo browser e non include mai la tua cronologia. Il codice sorgente è consultabile (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Opzionale: cifra con una passphrase impostazioni e attività sincronizzate, così anche il cloud del browser conserva solo testo cifrato.
+Nessun account, nessuna pubblicità. Nulla lascia il tuo dispositivo se non lo attivi tu; l’unica cosa facoltativa sono numeri d’uso anonimi, che puoi leggere prima dell’invio. Vengono salvati solo nomi di dominio e secondi — sul tuo dispositivo. Se ti iscrivi al link di un calendario, EyeTime scarica quel solo file direttamente dal tuo browser; l’indirizzo non lascia mai il tuo dispositivo. La sincronizzazione facoltativa delle impostazioni usa la sincronizzazione del tuo browser e non include mai la tua cronologia. Il codice sorgente è consultabile (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Opzionale: cifra con una passphrase impostazioni e attività sincronizzate, così anche il cloud del browser conserva solo testo cifrato.
 
 Lingue: inglese, russo, spagnolo, tedesco, francese, portoghese, italiano, polacco, ucraino, cinese e giapponese.
 

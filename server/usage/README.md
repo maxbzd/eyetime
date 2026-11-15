@@ -32,6 +32,8 @@ wrangler.toml     the Worker's settings (logs and analytics of the collector its
 
 ## Set it up (about five minutes; nothing here is deployed by the repository)
 
+**Short way:** the two D1 databases (`eyetime-usage`, `eyetime-feedback`) are already created with their tables, and their ids are in `wrangler.toml`. What is left is one command from the repository root: `bash server/usage/deploy.sh`. It logs in to Cloudflare, deploys the Worker, sets the dashboard key (`DASH_TOKEN`, printed once) and writes the Worker's address into `src/shared/usage-config.js`. Commit that file and release. The long way below does the same step by step.
+
 You need a Cloudflare account and `npx wrangler login`.
 
 ```bash
