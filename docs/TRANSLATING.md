@@ -28,3 +28,11 @@ EyeTime speaks English and Russian (written by the author) and ten more language
 5. `npm run check && npm test`, then look at Home, the popup, Settings and Insights in your language.
 
 The date and number formats come from `Intl` for the chosen language, so only strings that exist as keys need translating.
+
+## The landing page
+
+The project page (`site/index.html`) is written in English; every other language is one file, `site/lang/<code>.json`: a flat list of `"key": "text"`, in the same order as `site/lang/en.json`. Keys are the `data-t` names in `index.html`. A visitor is offered English and the language of their computer, nothing else.
+
+- Keep the same tags as the English text (`<em>`, `<br>`, `<a href='…'>`), the same numbers, and no empty values. `scripts-dev/tests/site-lang.test.mjs` checks this.
+- Leave the leading space in `unit-h` / `unit-m` where your language writes a number and its unit apart (`9 h 35 min`).
+- Look at it in your language before sending: no word cut in the middle, no line that ends on a lone little word, nothing that touches or leaves its frame (`node scripts-dev/build-site.mjs`, then open `site/index.html` through any local server).
