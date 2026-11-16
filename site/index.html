@@ -20,20 +20,20 @@
   <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
-<a class="skip" href="#main"><span data-en>Skip to content</span><span data-ru>К содержимому</span><span data-ro>Treci la conținut</span></a>
+<a class="skip" href="#main"><span data-t="skip-to-content">Skip to content</span></a>
 
 <div id="loader" aria-hidden="true"><div class="ld"><svg viewBox="0 0 64 64"><circle class="t" cx="32" cy="32" r="26"/><circle class="p" id="ldP" cx="32" cy="32" r="26"/></svg><span id="ldN">000</span></div></div>
 <div class="grain" aria-hidden="true"></div>
 <div class="cur" id="cur" aria-hidden="true"></div>
 
-<nav class="nav" aria-label="Main">
+<nav class="nav" data-ta="a-main" aria-label="Main">
   <a class="brand" href="./"><img src="assets/logo.svg" alt="" width="28" height="28"><span>EyeTime</span></a>
-  <a class="l" href="#day"><span data-en>A day</span><span data-ru>Один день</span><span data-ro>O zi</span></a>
-  <a class="l" href="#photos"><span data-en>Photographs</span><span data-ru>Фотографии</span><span data-ro>Fotografii</span></a>
-  <a class="l" href="#privacy"><span data-en>Privacy</span><span data-ru>Приватность</span><span data-ro>Confidențialitate</span></a>
+  <a class="l" href="#day"><span data-t="a-day">A day</span></a>
+  <a class="l" href="#photos"><span data-t="photographs">Photographs</span></a>
+  <a class="l" href="#privacy"><span data-t="privacy">Privacy</span></a>
   <a class="l" href="https://github.com/maxbzd/eyetime">GitHub</a>
-  <span class="lang" role="group" aria-label="Language"><button type="button" data-set="en" aria-pressed="true">EN</button><button type="button" data-set="ru" aria-pressed="false">RU</button><button type="button" data-set="ro" aria-pressed="false">RO</button></span>
-  <a class="btn sm acc" href="https://chromewebstore.google.com/detail/kbkmiboobddkmngdhdihiaejahddokgf"><span data-en>Add to Chrome</span><span data-ru>В Chrome</span><span data-ro>În Chrome</span></a>
+  <span class="lang" id="lang" role="group" data-ta="a-lang" aria-label="Language" hidden></span>
+  <a class="btn sm acc" href="https://chromewebstore.google.com/detail/kbkmiboobddkmngdhdihiaejahddokgf"><span data-t="add-to-chrome">Add to Chrome</span></a>
 </nav>
 
 <main id="main">
@@ -46,16 +46,16 @@
   <div class="layer hero-fg" aria-hidden="true"><img src="hero/alpen-fg.webp" alt="" width="1920" height="1200"></div>
   <div class="hero-shade"></div>
 
-  <p class="hud l mono"><span class="dotlive"></span><span id="greet"><span data-en>Good morning</span><span data-ru>Доброе утро</span><span data-ro>Bună dimineața</span></span><span id="today"></span></p>
-  <p class="hud r mono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg><span data-en>Eye break in</span><span data-ru>Отдых для глаз через</span><span data-ro>Pauză pentru ochi în</span> <span id="eyeIn">19 min</span></p>
+  <p class="hud l mono"><span class="dotlive"></span><span id="greet">Good morning</span><span id="today"></span></p>
+  <p class="hud r mono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg><span data-t="eye-break-in">Eye break in</span> <span id="eyeIn">19 min</span></p>
 
   <div class="hero-copy">
     <div class="wrap hero-grid">
-      <h1 data-split><span data-en>Do deep work without <em>fighting</em> your browser.</span><span data-ru>Работайте глубоко, а не <em>боритесь</em> с браузером.</span><span data-ro>Lucrează adânc, fără să te <em>lupți</em> cu browserul.</span></h1>
+      <h1 data-split><span data-t="do-deep-work-without-fighting">Do deep work without <em>fighting</em> your browser.</span></h1>
       <div class="hero-side">
-        <p class="lead rv" style="--d:900ms"><span data-en>Focus sessions, a gentle pause before distracting sites, honest statistics and care for your eyes. One free extension that keeps your data on your device.</span><span data-ru>Фокус-сессии, мягкая пауза перед отвлекающими сайтами, честная статистика и забота о глазах. Одно бесплатное расширение, которое хранит данные у вас.</span><span data-ro>Sesiuni de concentrare, o pauză blândă înainte de site-urile care distrag, statistici sincere și grijă pentru ochi. O singură extensie gratuită, care îți păstrează datele pe dispozitiv.</span></p>
+        <p class="lead rv" style="--d:900ms"><span data-t="focus-sessions-a-gentle-pause">Focus sessions, a gentle pause before distracting sites, honest statistics and care for your eyes. One free extension that keeps your data on your device.</span></p>
         <div class="cta rv" style="--d:1050ms">
-          <a class="btn acc" href="https://chromewebstore.google.com/detail/kbkmiboobddkmngdhdihiaejahddokgf"><span data-en>Add to Chrome — free</span><span data-ru>Добавить в Chrome — бесплатно</span><span data-ro>Adaugă în Chrome — gratuit</span><span class="ar" aria-hidden="true">→</span></a>
+          <a class="btn acc" href="https://chromewebstore.google.com/detail/kbkmiboobddkmngdhdihiaejahddokgf"><span data-t="add-to-chrome-free">Add to Chrome — free</span><span class="ar" aria-hidden="true">→</span></a>
           <a class="btn" href="https://github.com/maxbzd/eyetime/releases/latest">Firefox</a>
         </div>
       </div>
@@ -72,37 +72,37 @@
       <div class="ch-bg"><img src="hero/above.webp" alt="" width="1920" height="1200" loading="lazy"></div>
       <div class="wrap ch-in">
         <div>
-          <p class="ch-meta mono"><b>01</b><span class="ln"></span>09:00<span class="ln"></span><span data-en>Focus</span><span data-ru>Фокус</span><span data-ro>Concentrare</span></p>
-          <h2 data-split><span data-en>One click.<br>The noise goes quiet.</span><span data-ru>Один клик —<br>и шум стихает.</span><span data-ro>Un clic.<br>Zgomotul se stinge.</span></h2>
-          <p class="lead rv"><span data-en>Start a session and distracting sites pause until the timer ends, then open again by themselves. Add five minutes when you are in the flow. Take the break when you are done.</span><span data-ru>Запустите сессию — отвлекающие сайты встанут на паузу до конца таймера и сами откроются после. Добавьте пять минут, если пошло. Отдохните, когда закончите.</span><span data-ro>Pornește o sesiune, iar site-urile care distrag se opresc până se termină cronometrul, apoi se deschid singure. Adaugă cinci minute când ești în ritm. Ia-ți pauza când ai terminat.</span></p>
+          <p class="ch-meta mono"><b>01</b><span class="ln"></span>09:00<span class="ln"></span><span data-t="focus">Focus</span></p>
+          <h2 data-split><span data-t="one-click-the-noise-goes">One click.<br>The noise goes quiet.</span></h2>
+          <p class="lead rv"><span data-t="start-a-session-and-distracting">Start a session and distracting sites pause until the timer ends, then open again by themselves. Add five minutes when you are in the flow. Take the break when you are done.</span></p>
           <ul class="ch-list rv">
-            <li><span data-en>Deep work · Sprint · Study</span><span data-ru>Глубокая работа · Спринт · Учёба</span><span data-ro>Lucru adânc · Sprint · Învățat</span></li>
-            <li><span data-en>Strict mode</span><span data-ru>Строгий режим</span><span data-ro>Mod strict</span></li>
-            <li><span data-en>Daily goal and streak</span><span data-ru>Дневная цель и серия</span><span data-ro>Obiectiv zilnic și serie</span></li>
+            <li><span data-t="deep-work-sprint-study">Deep work · Sprint · Study</span></li>
+            <li><span data-t="strict-mode">Strict mode</span></li>
+            <li><span data-t="daily-goal-and-streak">Daily goal and streak</span></li>
             <li>Alt + Shift + F</li>
           </ul>
         </div>
         <div class="card rv" id="dFocus" style="--d:150ms">
-          <div class="card-top"><img src="assets/logo.svg" alt="" width="22" height="22">EyeTime<span class="mono"><span class="dotlive"></span><span data-en>Focusing</span><span data-ru>В фокусе</span><span data-ro>Concentrare</span></span></div>
+          <div class="card-top"><img src="assets/logo.svg" alt="" width="22" height="22">EyeTime<span class="mono"><span class="dotlive"></span><span data-t="focusing">Focusing</span></span></div>
           <div class="fo">
             <div class="ring"><svg viewBox="0 0 120 120"><circle class="t" cx="60" cy="60" r="52"/><circle class="p" id="fP" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="0"/></svg><b id="fT">24:59</b></div>
             <div>
-              <input class="task" id="fTask" value="Write the quarterly report" data-v-en="Write the quarterly report" data-v-ru="Написать квартальный отчёт" data-v-ro="Scrie raportul trimestrial" aria-label="What are you working on?">
-              <p class="small"><span data-en>ends at</span><span data-ru>до</span><span data-ro>până la</span> <span id="fEnd">10:25</span></p>
-              <div class="row"><button class="pill" type="button" id="fPause"><span data-en>Pause</span><span data-ru>Пауза</span><span data-ro>Pauză</span></button><button class="pill" type="button" id="fPlus">+5 <span data-en>min</span><span data-ru>мин</span><span data-ro>min</span></button></div>
+              <input class="task" id="fTask" value="Write the quarterly report" data-t-val="task-value" data-ta="a-task" aria-label="What are you working on?">
+              <p class="small"><span data-t="ends-at">ends at</span> <span id="fEnd">10:25</span></p>
+              <div class="row"><button class="pill" type="button" id="fPause"><span data-t="pause">Pause</span></button><button class="pill" type="button" id="fPlus">+5 <span data-t="unit-min">min</span></button></div>
             </div>
           </div>
           <div class="modes" id="fModes">
-            <button class="pill" type="button" data-m="50"><span data-en>Deep work</span><span data-ru>Глубокая работа</span><span data-ro>Lucru adânc</span> · 50</button>
-            <button class="pill on" type="button" data-m="25"><span data-en>Sprint</span><span data-ru>Спринт</span><span data-ro>Sprint</span> · 25</button>
-            <button class="pill" type="button" data-m="45"><span data-en>Study</span><span data-ru>Учёба</span><span data-ro>Învățat</span> · 45</button>
+            <button class="pill" type="button" data-m="50"><span data-t="deep-work">Deep work</span> · 50</button>
+            <button class="pill on" type="button" data-m="25"><span data-t="sprint">Sprint</span> · 25</button>
+            <button class="pill" type="button" data-m="45"><span data-t="study">Study</span> · 45</button>
           </div>
           <ul class="sites">
-            <li><s>youtube.com</s><em><span data-en>paused</span><span data-ru>на паузе</span><span data-ro>în pauză</span></em></li>
-            <li><s>reddit.com</s><em><span data-en>paused</span><span data-ru>на паузе</span><span data-ro>în pauză</span></em></li>
-            <li><s>x.com</s><em><span data-en>paused</span><span data-ru>на паузе</span><span data-ro>în pauză</span></em></li>
+            <li><s>youtube.com</s><em><span data-t="paused">paused</span></em></li>
+            <li><s>reddit.com</s><em><span data-t="paused">paused</span></em></li>
+            <li><s>x.com</s><em><span data-t="paused">paused</span></em></li>
           </ul>
-          <p class="held"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg><span data-en>Held back 3 distractions today</span><span data-ru>Сегодня остановлено 3 отвлечения</span><span data-ro>Azi au fost oprite 3 distrageri</span></p>
+          <p class="held"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg><span data-t="held-back-3-distractions-today">Held back 3 distractions today</span></p>
         </div>
       </div>
     </div>
@@ -113,26 +113,26 @@
       <div class="ch-bg"><img src="hero/turq.webp" alt="" width="1920" height="1200" loading="lazy"></div>
       <div class="wrap ch-in">
         <div>
-          <p class="ch-meta mono"><b>02</b><span class="ln"></span>11:40<span class="ln"></span><span data-en>The pull</span><span data-ru>Тяга</span><span data-ro>Tentația</span></p>
-          <h2 data-split><span data-en>A breath instead of a wall.</span><span data-ru>Вдох вместо стены.</span><span data-ro>O respirație în loc de zid.</span></h2>
-          <p class="lead rv"><span data-en>When habit pulls you to a distracting site, EyeTime asks for one slow breath and shows the plan you wrote for this moment. Still need it? Continue. No guilt, no lockout.</span><span data-ru>Когда привычка тянет на отвлекающий сайт, EyeTime просит один медленный вдох и показывает план, который вы сами написали на этот случай. Всё ещё нужно? Продолжайте. Без вины и без запретов.</span><span data-ro>Când obișnuința te trage spre un site care distrage, EyeTime îți cere o respirație lentă și îți arată planul scris de tine pentru acest moment. Tot ai nevoie? Continuă. Fără vină, fără interdicții.</span></p>
+          <p class="ch-meta mono"><b>02</b><span class="ln"></span>11:40<span class="ln"></span><span data-t="the-pull">The pull</span></p>
+          <h2 data-split><span data-t="a-breath-instead-of-a">A breath instead of a wall.</span></h2>
+          <p class="lead rv"><span data-t="when-habit-pulls-you-to">When habit pulls you to a distracting site, EyeTime asks for one slow breath and shows the plan you wrote for this moment. Still need it? Continue. No guilt, no lockout.</span></p>
           <ul class="ch-list rv">
-            <li><span data-en>If–then plans</span><span data-ru>Планы «если — то»</span><span data-ro>Planuri „dacă – atunci”</span></li>
-            <li><span data-en>Daily limits</span><span data-ru>Дневные лимиты</span><span data-ro>Limite zilnice</span></li>
-            <li><span data-en>Work hours</span><span data-ru>Рабочие часы</span><span data-ro>Program de lucru</span></li>
-            <li><span data-en>Distraction budget</span><span data-ru>Бюджет отвлечений</span><span data-ro>Buget de distrageri</span></li>
+            <li><span data-t="if-then-plans">If–then plans</span></li>
+            <li><span data-t="daily-limits">Daily limits</span></li>
+            <li><span data-t="work-hours">Work hours</span></li>
+            <li><span data-t="distraction-budget">Distraction budget</span></li>
           </ul>
         </div>
         <div class="card rv" id="dPause" style="--d:150ms">
           <div class="pa">
             <span class="host"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>youtube.com</span>
             <div class="orb" aria-hidden="true"><i></i><i></i><b></b></div>
-            <h3 id="paT"><span data-en>Breathe in</span><span data-ru>Вдох</span><span data-ro>Inspiră</span></h3>
-            <p class="q"><span data-en>Do you really need youtube.com right now?</span><span data-ru>Вам правда нужен youtube.com прямо сейчас?</span><span data-ro>Chiar ai nevoie de youtube.com acum?</span></p>
-            <div class="inner plan"><span class="k"><span data-en>Your plan</span><span data-ru>Ваш план</span><span data-ro>Planul tău</span></span><span data-en>If I want to open youtube.com, then I will stand up and drink water.</span><span data-ru>Если захочу открыть youtube.com, то встану и выпью воды.</span><span data-ro>Dacă vreau să deschid youtube.com, atunci mă ridic și beau apă.</span></div>
+            <h3 id="paT"><span data-t="breathe-in">Breathe in</span></h3>
+            <p class="q"><span data-t="do-you-really-need-youtube">Do you really need youtube.com right now?</span></p>
+            <div class="inner plan"><span class="k"><span data-t="your-plan">Your plan</span></span><span data-t="if-i-want-to-open">If I want to open youtube.com, then I will stand up and drink water.</span></div>
             <div class="row">
-              <button class="pill go" type="button"><span data-en>Back to work</span><span data-ru>Вернуться к делу</span><span data-ro>Înapoi la treabă</span></button>
-              <button class="pill" type="button" id="paC" disabled><span data-en>Continue in</span><span data-ru>Продолжить через</span><span data-ro>Continuă în</span> <span id="paN">5</span></button>
+              <button class="pill go" type="button"><span data-t="back-to-work">Back to work</span></button>
+              <button class="pill" type="button" id="paC" disabled><span data-t="continue-in">Continue in</span> <span id="paN">5</span></button>
             </div>
           </div>
         </div>
@@ -145,19 +145,19 @@
       <div class="ch-bg"><img src="hero/vista.webp" alt="" width="1920" height="1200" loading="lazy"></div>
       <div class="wrap ch-in">
         <div>
-          <p class="ch-meta mono"><b>03</b><span class="ln"></span>14:00<span class="ln"></span><span data-en>Eyes</span><span data-ru>Глаза</span><span data-ro>Ochii</span></p>
-          <h2 data-split><span data-en>Every twenty minutes, look far away.</span><span data-ru>Каждые двадцать минут смотрите вдаль.</span><span data-ro>La fiecare douăzeci de minute, privește departe.</span></h2>
-          <p class="lead rv"><span data-en>The 20-20-20 rule, counted in real, active screen time and not by the clock. A calm twenty-second break page does the rest, and a quiet reminder tells you when it is time for bed.</span><span data-ru>Правило 20-20-20 по реальному активному времени у экрана, а не по часам. Спокойная страница перерыва на двадцать секунд сделает остальное, а тихое напоминание подскажет, когда пора спать.</span><span data-ro>Regula 20-20-20, numărată în timp real, activ, în fața ecranului, nu după ceas. O pagină liniștită de pauză de douăzeci de secunde face restul, iar un memento discret îți spune când e ora de culcare.</span></p>
+          <p class="ch-meta mono"><b>03</b><span class="ln"></span>14:00<span class="ln"></span><span data-t="eyes">Eyes</span></p>
+          <h2 data-split><span data-t="every-twenty-minutes-look-far">Every twenty minutes, look far away.</span></h2>
+          <p class="lead rv"><span data-t="the-20-20-20-rule">The 20-20-20 rule, counted in real, active screen time and not by the clock. A calm twenty-second break page does the rest, and a quiet reminder tells you when it is time for bed.</span></p>
         </div>
         <div class="card rv" id="dEye" style="--d:150ms">
           <div class="ey">
             <div class="ring"><svg viewBox="0 0 120 120"><circle class="t" cx="60" cy="60" r="52"/><circle class="p" id="eP" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="0"/></svg><b id="eT">20</b></div>
-            <h3 id="eH"><span data-en>Look far away</span><span data-ru>Посмотрите вдаль</span><span data-ro>Privește în depărtare</span></h3>
-            <p id="eS"><span data-en>Find something about six metres away and rest your gaze on it. Let your shoulders drop.</span><span data-ru>Найдите что-нибудь метрах в шести и задержите на нём взгляд. Опустите плечи.</span><span data-ro>Găsește ceva la vreo șase metri și odihnește-ți privirea pe el. Lasă umerii jos.</span></p>
+            <h3 id="eH"><span data-t="look-far-away">Look far away</span></h3>
+            <p id="eS"><span data-t="find-something-about-six-metres">Find something about six metres away and rest your gaze on it. Let your shoulders drop.</span></p>
             <div class="tri">
-              <div><b>20</b><span class="k"><span data-en>minutes</span><span data-ru>минут</span><span data-ro>minute</span></span></div>
-              <div><b>6</b><span class="k"><span data-en>metres</span><span data-ru>метров</span><span data-ro>metri</span></span></div>
-              <div><b>20</b><span class="k"><span data-en>seconds</span><span data-ru>секунд</span><span data-ro>secunde</span></span></div>
+              <div><b>20</b><span class="k"><span data-t="minutes">minutes</span></span></div>
+              <div><b>6</b><span class="k"><span data-t="metres">metres</span></span></div>
+              <div><b>20</b><span class="k"><span data-t="seconds">seconds</span></span></div>
             </div>
           </div>
         </div>
@@ -170,20 +170,20 @@
       <div class="ch-bg"><img src="hero/valley.webp" alt="" width="1920" height="1200" loading="lazy"></div>
       <div class="wrap ch-in">
         <div>
-          <p class="ch-meta mono"><b>04</b><span class="ln"></span>18:30<span class="ln"></span><span data-en>Review</span><span data-ru>Итоги</span><span data-ro>Bilanț</span></p>
-          <h2 data-split><span data-en>See where the day went.</span><span data-ru>Увидьте, куда ушёл день.</span><span data-ro>Vezi unde s-a dus ziua.</span></h2>
-          <p class="lead rv"><span data-en>Time per site and per hour, your best focus hours, how close your estimates were, and one small idea for next week. Honest numbers, counted on your device.</span><span data-ru>Время по сайтам и часам, ваши лучшие часы фокуса, точность оценок и одна небольшая идея на следующую неделю. Честные цифры, посчитанные на вашем устройстве.</span><span data-ro>Timp pe site și pe oră, cele mai bune ore de concentrare, cât de aproape au fost estimările și o mică idee pentru săptămâna viitoare. Cifre sincere, calculate pe dispozitivul tău.</span></p>
+          <p class="ch-meta mono"><b>04</b><span class="ln"></span>18:30<span class="ln"></span><span data-t="review">Review</span></p>
+          <h2 data-split><span data-t="see-where-the-day-went">See where the day went.</span></h2>
+          <p class="lead rv"><span data-t="time-per-site-and-per">Time per site and per hour, your best focus hours, how close your estimates were, and one small idea for next week. Honest numbers, counted on your device.</span></p>
           <ul class="ch-list rv">
-            <li><span data-en>Day timeline</span><span data-ru>Таймлайн дня</span><span data-ro>Cronologia zilei</span></li>
-            <li><span data-en>Weekly review</span><span data-ru>Обзор недели</span><span data-ro>Recapitulare săptămânală</span></li>
-            <li><span data-en>“My week” card</span><span data-ru>Карточка «Моя неделя»</span><span data-ro>Cartea „Săptămâna mea”</span></li>
+            <li><span data-t="day-timeline">Day timeline</span></li>
+            <li><span data-t="weekly-review">Weekly review</span></li>
+            <li><span data-t="my-week-card">“My week” card</span></li>
             <li>CSV · Markdown</li>
           </ul>
         </div>
         <div class="card rv" id="dStats" style="--d:150ms">
           <div class="stats">
-            <div class="stat"><span class="k"><span data-en>Focus time</span><span data-ru>Время в фокусе</span><span data-ro>Timp de concentrare</span></span><b><span data-count="9">9</span><span data-en>h</span><span data-ru> ч</span><span data-ro>h</span> <span data-count="35">35</span><span data-en>m</span><span data-ru> мин</span><span data-ro>min</span></b></div>
-            <div class="stat"><span class="k"><span data-en>Distractions</span><span data-ru>Отвлечения</span><span data-ro>Distrageri</span></span><b><span data-count="34">34</span>%</b></div>
+            <div class="stat"><span class="k"><span data-t="focus-time">Focus time</span></span><b><span data-count="9">9</span><span data-t="unit-h">h</span> <span data-count="35">35</span><span data-t="unit-m">m</span></b></div>
+            <div class="stat"><span class="k"><span data-t="distractions">Distractions</span></span><b><span data-count="34">34</span>%</b></div>
           </div>
           <div class="bars" aria-hidden="true">
             <div class="bar" style="--n:0"><i class="a" style="--h:46%"></i><i class="b" style="--h:8%"></i><i class="c" style="--h:20%"></i></div>
@@ -195,8 +195,8 @@
             <div class="bar" style="--n:6"><i class="a" style="--h:36%"></i><i class="b" style="--h:6%"></i><i class="c" style="--h:9%"></i></div>
           </div>
           <div class="days" id="days" aria-hidden="true"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
-          <p class="legend"><span><i style="background:var(--acc)"></i><span data-en>Productive</span><span data-ru>Полезное</span><span data-ro>Productiv</span></span><span><i style="background:rgba(255,255,255,.28)"></i><span data-en>Neutral</span><span data-ru>Нейтральное</span><span data-ro>Neutru</span></span><span><i style="background:#ff8f6b"></i><span data-en>Distracting</span><span data-ru>Отвлекающее</span><span data-ro>Distrage</span></span></p>
-          <div class="idea"><div><b><span data-en>An idea for next week</span><span data-ru>Идея на следующую неделю</span><span data-ro>O idee pentru săptămâna viitoare</span></b><span data-en>About 50 min a day went to reddit.com. A 30 min limit would give time back.</span><span data-ru>На reddit.com уходит около 50 мин в день. Лимит 30 мин вернёт вам время.</span><span data-ro>Cam 50 min pe zi merg pe reddit.com. O limită de 30 min ți-ar da timp înapoi.</span></div><button class="pill" type="button" id="limit"><span data-en>Set limit</span><span data-ru>Поставить</span><span data-ro>Setează</span></button></div>
+          <p class="legend"><span><i style="background:var(--acc)"></i><span data-t="productive">Productive</span></span><span><i style="background:rgba(255,255,255,.28)"></i><span data-t="neutral">Neutral</span></span><span><i style="background:#ff8f6b"></i><span data-t="distracting">Distracting</span></span></p>
+          <div class="idea"><div><b><span data-t="an-idea-for-next-week">An idea for next week</span></b><span data-t="about-50-min-a-day">About 50 min a day went to reddit.com. A 30 min limit would give time back.</span></div><button class="pill" type="button" id="limit"><span data-t="set-limit">Set limit</span></button></div>
         </div>
       </div>
     </div>
@@ -207,27 +207,27 @@
       <div class="ch-bg"><img src="hero/still.webp" alt="" width="1920" height="1200" loading="lazy"></div>
       <div class="wrap ch-in">
         <div>
-          <p class="ch-meta mono"><b>05</b><span class="ln"></span>22:00<span class="ln"></span><span data-en>Yours</span><span data-ru>Ваше</span><span data-ro>Al tău</span></p>
-          <h2 data-split><span data-en>Make it yours.</span><span data-ru>Сделайте своим.</span><span data-ro>Fă-l al tău.</span></h2>
-          <p class="lead rv"><span data-en>16 looks, any accent colour, your own fonts and 69 photo backgrounds, with a free-form editor for the new tab. Pick a look on the right: this page will follow.</span><span data-ru>16 стилей, любой акцентный цвет, свои шрифты и 69 фото-фонов, плюс свободный редактор новой вкладки. Выберите стиль справа — эта страница подстроится.</span><span data-ro>16 stiluri, orice culoare de accent, fonturile tale și 69 de fundaluri foto, cu un editor liber pentru fila nouă. Alege un stil în dreapta: pagina aceasta îl va urma.</span></p>
+          <p class="ch-meta mono"><b>05</b><span class="ln"></span>22:00<span class="ln"></span><span data-t="yours">Yours</span></p>
+          <h2 data-split><span data-t="make-it-yours">Make it yours.</span></h2>
+          <p class="lead rv"><span data-t="16-looks-any-accent-colour">16 looks, any accent colour, your own fonts and 69 photo backgrounds, with a free-form editor for the new tab. Pick a look on the right: this page will follow.</span></p>
           <ul class="ch-list rv">
-            <li><span data-en>Light and dark</span><span data-ru>Светлая и тёмная</span><span data-ro>Luminos și întunecat</span></li>
-            <li><span data-en>46 widgets</span><span data-ru>46 виджетов</span><span data-ro>46 de widgeturi</span></li>
-            <li><span data-en>Ambient sounds</span><span data-ru>Фоновые звуки</span><span data-ro>Sunete ambientale</span></li>
+            <li><span data-t="light-and-dark">Light and dark</span></li>
+            <li><span data-t="46-widgets">46 widgets</span></li>
+            <li><span data-t="ambient-sounds">Ambient sounds</span></li>
             <li>Ctrl / ⌘ K</li>
           </ul>
         </div>
         <div class="card rv" id="dLooks" style="--d:150ms">
-          <div class="pv"><img id="pvImg" src="walls/alpen.webp" alt="" width="560" height="350" loading="lazy"><div class="pv-in"><b id="pvT">22:00</b><span id="pvG"><span data-en>Good evening.</span><span data-ru>Добрый вечер.</span><span data-ro>Bună seara.</span></span><u><span data-en>Start focus · 25 min</span><span data-ru>Начать фокус · 25 мин</span><span data-ro>Începe · 25 min</span></u></div></div>
-          <div class="sw" id="sw" role="group" aria-label="Look">
-            <button type="button" aria-pressed="true" data-acc="#d2f56b" data-img="alpen" style="--c1:#d2f56b;--c2:#8fb82e"><i></i>Calm</button>
-            <button type="button" aria-pressed="false" data-acc="#a8b6ff" data-img="milkyway" style="--c1:#a8b6ff;--c2:#4a54c8"><i></i>Midnight</button>
-            <button type="button" aria-pressed="false" data-acc="#7dfc9e" data-img="pines" style="--c1:#7dfc9e;--c2:#0f8a3c"><i></i>Terminal</button>
-            <button type="button" aria-pressed="false" data-acc="#ffb3d1" data-img="blush" style="--c1:#ffb3d1;--c2:#e0568e"><i></i>Sakura</button>
-            <button type="button" aria-pressed="false" data-acc="#86f3dc" data-img="auroragreen" style="--c1:#86f3dc;--c2:#7a6cf0"><i></i>Aurora</button>
-            <button type="button" aria-pressed="false" data-acc="#ffc078" data-img="amber" style="--c1:#ffc078;--c2:#f0603c"><i></i>Sunset</button>
-            <button type="button" aria-pressed="false" data-acc="#a9d4ff" data-img="glacier" style="--c1:#a9d4ff;--c2:#4c7fb8"><i></i>Nord</button>
-            <button type="button" aria-pressed="false" data-acc="#f3e3c2" data-img="haze" style="--c1:#f3e3c2;--c2:#b9966a"><i></i>Paper</button>
+          <div class="pv"><img id="pvImg" src="walls/alpen.webp" alt="" width="560" height="350" loading="lazy"><div class="pv-in"><b id="pvT">22:00</b><span id="pvG"><span data-t="good-evening">Good evening.</span></span><u><span data-t="start-focus-25-min">Start focus · 25 min</span></u></div></div>
+          <div class="sw" id="sw" role="group" data-ta="a-look" aria-label="Look">
+            <button type="button" aria-pressed="true" data-acc="#d2f56b" data-img="alpen" style="--c1:#d2f56b;--c2:#8fb82e"><i></i><span data-t="look-calm">Calm</span></button>
+            <button type="button" aria-pressed="false" data-acc="#a8b6ff" data-img="milkyway" style="--c1:#a8b6ff;--c2:#4a54c8"><i></i><span data-t="look-midnight">Midnight</span></button>
+            <button type="button" aria-pressed="false" data-acc="#7dfc9e" data-img="pines" style="--c1:#7dfc9e;--c2:#0f8a3c"><i></i><span data-t="look-terminal">Terminal</span></button>
+            <button type="button" aria-pressed="false" data-acc="#ffb3d1" data-img="blush" style="--c1:#ffb3d1;--c2:#e0568e"><i></i><span data-t="look-sakura">Sakura</span></button>
+            <button type="button" aria-pressed="false" data-acc="#86f3dc" data-img="auroragreen" style="--c1:#86f3dc;--c2:#7a6cf0"><i></i><span data-t="look-aurora">Aurora</span></button>
+            <button type="button" aria-pressed="false" data-acc="#ffc078" data-img="amber" style="--c1:#ffc078;--c2:#f0603c"><i></i><span data-t="look-sunset">Sunset</span></button>
+            <button type="button" aria-pressed="false" data-acc="#a9d4ff" data-img="glacier" style="--c1:#a9d4ff;--c2:#4c7fb8"><i></i><span data-t="look-nord">Nord</span></button>
+            <button type="button" aria-pressed="false" data-acc="#f3e3c2" data-img="haze" style="--c1:#f3e3c2;--c2:#b9966a"><i></i><span data-t="look-paper">Paper</span></button>
           </div>
         </div>
       </div>
@@ -238,20 +238,20 @@
 <!-- photographs -->
 <section class="sec" id="photos">
   <div class="wrap sec-head">
-    <div><p class="mono"><span data-en>Photographs</span><span data-ru>Фотографии</span><span data-ro>Fotografii</span></p><h2 data-split><span data-en>A new photograph every day.</span><span data-ru>Новая фотография каждый день.</span><span data-ro>O fotografie nouă în fiecare zi.</span></h2></div>
-    <p class="lead rv"><span data-en>69 backgrounds for your new tab, each with type that stays readable. Or put your own photo there, and let the clock stand behind the mountain.</span><span data-ru>69 фонов для новой вкладки, и на каждом текст остаётся читаемым. Или поставьте свою фотографию — и пусть часы встанут за горой.</span><span data-ro>69 de fundaluri pentru fila nouă, fiecare cu text care rămâne lizibil. Sau pune propria fotografie și lasă ceasul să stea în spatele muntelui.</span></p>
+    <div><p class="mono"><span data-t="photographs">Photographs</span></p><h2 data-split><span data-t="a-new-photograph-every-day">A new photograph every day.</span></h2></div>
+    <p class="lead rv"><span data-t="69-backgrounds-for-your-new">69 backgrounds for your new tab, each with type that stays readable. Or put your own photo there, and let the clock stand behind the mountain.</span></p>
   </div>
   <div class="rows">
-    <div class="mq" aria-hidden="true"><ul><li><img src="walls/peak.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Peak at dusk</span><span data-ru>Вершина в сумерках</span><span data-ro>Vârf la amurg</span></span></li><li><img src="walls/aurum.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Golden hour</span><span data-ru>Золотой час</span><span data-ro>Ora de aur</span></span></li><li><img src="walls/cloudsea.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Sea of clouds</span><span data-ru>Море облаков</span><span data-ro>Mare de nori</span></span></li><li><img src="walls/violet.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Violet bay</span><span data-ru>Фиолетовая бухта</span><span data-ro>Golf violet</span></span></li><li><img src="walls/auroragreen.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Green aurora</span><span data-ru>Зелёное сияние</span><span data-ro>Aurora verde</span></span></li><li><img src="walls/lavender.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Lavender</span><span data-ru>Лаванда</span><span data-ro>Lavandă</span></span></li><li><img src="walls/glacier.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Glacier mirror</span><span data-ru>Ледниковое зеркало</span><span data-ro>Oglinda ghețarului</span></span></li><li><img src="walls/mirror.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Mountain lake</span><span data-ru>Горное озеро</span><span data-ro>Lac de munte</span></span></li><li><img src="walls/blush.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Blush</span><span data-ru>Румянец</span><span data-ro>Roșeață delicată</span></span></li><li><img src="walls/peak.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Peak at dusk</span><span data-ru>Вершина в сумерках</span><span data-ro>Vârf la amurg</span></span></li><li><img src="walls/aurum.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Golden hour</span><span data-ru>Золотой час</span><span data-ro>Ora de aur</span></span></li><li><img src="walls/cloudsea.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Sea of clouds</span><span data-ru>Море облаков</span><span data-ro>Mare de nori</span></span></li><li><img src="walls/violet.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Violet bay</span><span data-ru>Фиолетовая бухта</span><span data-ro>Golf violet</span></span></li><li><img src="walls/auroragreen.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Green aurora</span><span data-ru>Зелёное сияние</span><span data-ro>Aurora verde</span></span></li><li><img src="walls/lavender.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Lavender</span><span data-ru>Лаванда</span><span data-ro>Lavandă</span></span></li><li><img src="walls/glacier.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Glacier mirror</span><span data-ru>Ледниковое зеркало</span><span data-ro>Oglinda ghețarului</span></span></li><li><img src="walls/mirror.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Mountain lake</span><span data-ru>Горное озеро</span><span data-ro>Lac de munte</span></span></li><li><img src="walls/blush.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Blush</span><span data-ru>Румянец</span><span data-ro>Roșeață delicată</span></span></li></ul></div>
-    <div class="mq rev" aria-hidden="true"><ul><li><img src="walls/alpen.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Alpenglow</span><span data-ru>Альпийский закат</span><span data-ro>Lumina alpină</span></span></li><li><img src="walls/dunes.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Dunes at dusk</span><span data-ru>Дюны в сумерках</span><span data-ro>Dune la amurg</span></span></li><li><img src="walls/pier.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Pier</span><span data-ru>Причал</span><span data-ro>Debarcader</span></span></li><li><img src="walls/amber.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Amber horizon</span><span data-ru>Янтарный горизонт</span><span data-ro>Orizont de chihlimbar</span></span></li><li><img src="walls/milkyway.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Milky Way</span><span data-ru>Млечный Путь</span><span data-ro>Calea Lactee</span></span></li><li><img src="walls/desertsun.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Desert sun</span><span data-ru>Солнце над пустыней</span><span data-ro>Soare în deșert</span></span></li><li><img src="walls/haze.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Haze</span><span data-ru>Дымка</span><span data-ro>Pâclă</span></span></li><li><img src="walls/pines.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Pines in fog</span><span data-ru>Сосны в тумане</span><span data-ro>Pini în ceață</span></span></li><li><img src="walls/teal.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Teal horizon</span><span data-ru>Бирюзовый горизонт</span><span data-ro>Orizont turcoaz</span></span></li><li><img src="walls/alpen.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Alpenglow</span><span data-ru>Альпийский закат</span><span data-ro>Lumina alpină</span></span></li><li><img src="walls/dunes.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Dunes at dusk</span><span data-ru>Дюны в сумерках</span><span data-ro>Dune la amurg</span></span></li><li><img src="walls/pier.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Pier</span><span data-ru>Причал</span><span data-ro>Debarcader</span></span></li><li><img src="walls/amber.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Amber horizon</span><span data-ru>Янтарный горизонт</span><span data-ro>Orizont de chihlimbar</span></span></li><li><img src="walls/milkyway.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Milky Way</span><span data-ru>Млечный Путь</span><span data-ro>Calea Lactee</span></span></li><li><img src="walls/desertsun.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Desert sun</span><span data-ru>Солнце над пустыней</span><span data-ro>Soare în deșert</span></span></li><li><img src="walls/haze.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Haze</span><span data-ru>Дымка</span><span data-ro>Pâclă</span></span></li><li><img src="walls/pines.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Pines in fog</span><span data-ru>Сосны в тумане</span><span data-ro>Pini în ceață</span></span></li><li><img src="walls/teal.webp" alt="" width="560" height="350" loading="lazy"><span><span data-en>Teal horizon</span><span data-ru>Бирюзовый горизонт</span><span data-ro>Orizont turcoaz</span></span></li></ul></div>
+    <div class="mq" aria-hidden="true"><ul><li><img src="walls/peak.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="peak-at-dusk">Peak at dusk</span></span></li><li><img src="walls/aurum.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="golden-hour">Golden hour</span></span></li><li><img src="walls/cloudsea.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="sea-of-clouds">Sea of clouds</span></span></li><li><img src="walls/violet.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="violet-bay">Violet bay</span></span></li><li><img src="walls/auroragreen.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="green-aurora">Green aurora</span></span></li><li><img src="walls/lavender.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="lavender">Lavender</span></span></li><li><img src="walls/glacier.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="glacier-mirror">Glacier mirror</span></span></li><li><img src="walls/mirror.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="mountain-lake">Mountain lake</span></span></li><li><img src="walls/blush.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="blush">Blush</span></span></li><li><img src="walls/peak.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="peak-at-dusk">Peak at dusk</span></span></li><li><img src="walls/aurum.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="golden-hour">Golden hour</span></span></li><li><img src="walls/cloudsea.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="sea-of-clouds">Sea of clouds</span></span></li><li><img src="walls/violet.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="violet-bay">Violet bay</span></span></li><li><img src="walls/auroragreen.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="green-aurora">Green aurora</span></span></li><li><img src="walls/lavender.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="lavender">Lavender</span></span></li><li><img src="walls/glacier.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="glacier-mirror">Glacier mirror</span></span></li><li><img src="walls/mirror.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="mountain-lake">Mountain lake</span></span></li><li><img src="walls/blush.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="blush">Blush</span></span></li></ul></div>
+    <div class="mq rev" aria-hidden="true"><ul><li><img src="walls/alpen.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="alpenglow">Alpenglow</span></span></li><li><img src="walls/dunes.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="dunes-at-dusk">Dunes at dusk</span></span></li><li><img src="walls/pier.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="pier">Pier</span></span></li><li><img src="walls/amber.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="amber-horizon">Amber horizon</span></span></li><li><img src="walls/milkyway.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="milky-way">Milky Way</span></span></li><li><img src="walls/desertsun.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="desert-sun">Desert sun</span></span></li><li><img src="walls/haze.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="haze">Haze</span></span></li><li><img src="walls/pines.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="pines-in-fog">Pines in fog</span></span></li><li><img src="walls/teal.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="teal-horizon">Teal horizon</span></span></li><li><img src="walls/alpen.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="alpenglow">Alpenglow</span></span></li><li><img src="walls/dunes.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="dunes-at-dusk">Dunes at dusk</span></span></li><li><img src="walls/pier.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="pier">Pier</span></span></li><li><img src="walls/amber.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="amber-horizon">Amber horizon</span></span></li><li><img src="walls/milkyway.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="milky-way">Milky Way</span></span></li><li><img src="walls/desertsun.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="desert-sun">Desert sun</span></span></li><li><img src="walls/haze.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="haze">Haze</span></span></li><li><img src="walls/pines.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="pines-in-fog">Pines in fog</span></span></li><li><img src="walls/teal.webp" alt="" width="560" height="350" loading="lazy"><span><span data-t="teal-horizon">Teal horizon</span></span></li></ul></div>
   </div>
   <div class="wrap">
-    <p class="credit"><span data-en>Photographs by their authors, under the Unsplash licence or CC0. Every one is credited in the corner of the page and in <a href="https://github.com/maxbzd/eyetime/blob/main/docs/PHOTO-CREDITS.md">the credits file</a>.</span><span data-ru>Фотографии принадлежат авторам, лицензия Unsplash или CC0. Автор каждой указан в углу страницы и в <a href="https://github.com/maxbzd/eyetime/blob/main/docs/PHOTO-CREDITS.md">файле с благодарностями</a>.</span><span data-ro>Fotografiile aparțin autorilor lor, sub licența Unsplash sau CC0. Fiecare autor este numit în colțul paginii și în <a href="https://github.com/maxbzd/eyetime/blob/main/docs/PHOTO-CREDITS.md">fișierul cu mulțumiri</a>.</span></p>
+    <p class="credit"><span data-t="photographs-by-their-authors-under">Photographs by their authors, under the Unsplash licence or CC0. Every one is credited in the corner of the page and in <a href="https://github.com/maxbzd/eyetime/blob/main/docs/PHOTO-CREDITS.md">the credits file</a>.</span></p>
     <div class="nums">
-      <div class="rv"><b data-count="16">16</b><span class="k"><span data-en>looks, each in light and dark</span><span data-ru>стилей, каждый в светлой и тёмной теме</span><span data-ro>stiluri, fiecare luminos și întunecat</span></span></div>
-      <div class="rv" style="--d:80ms"><b data-count="69">69</b><span class="k"><span data-en>photo backgrounds</span><span data-ru>фото-фонов</span><span data-ro>fundaluri foto</span></span></div>
-      <div class="rv" style="--d:160ms"><b data-count="12">12</b><span class="k"><span data-en>interface languages</span><span data-ru>языков интерфейса</span><span data-ro>limbi de interfață</span></span></div>
-      <div class="rv" style="--d:240ms"><b>0</b><span class="k"><span data-en>accounts, ads or trackers</span><span data-ru>аккаунтов, рекламы и трекеров</span><span data-ro>conturi, reclame sau urmăritoare</span></span></div>
+      <div class="rv"><b data-count="16">16</b><span class="k"><span data-t="looks-each-in-light-and">looks, each in light and dark</span></span></div>
+      <div class="rv" style="--d:80ms"><b data-count="69">69</b><span class="k"><span data-t="photo-backgrounds">photo backgrounds</span></span></div>
+      <div class="rv" style="--d:160ms"><b data-count="12">12</b><span class="k"><span data-t="interface-languages">interface languages</span></span></div>
+      <div class="rv" style="--d:240ms"><b>0</b><span class="k"><span data-t="accounts-ads-or-trackers">accounts, ads or trackers</span></span></div>
     </div>
   </div>
 </section>
@@ -260,27 +260,27 @@
 <section class="sec" id="privacy">
   <div class="wrap priv">
     <div>
-      <p class="mono" style="display:flex;align-items:center;gap:12px;margin-bottom:20px"><span style="width:34px;height:1px;background:var(--acc)"></span><span data-en>Privacy</span><span data-ru>Приватность</span><span data-ro>Confidențialitate</span></p>
-      <h2 data-split><span data-en>Your day stays on your device.</span><span data-ru>Ваш день остаётся на вашем устройстве.</span><span data-ro>Ziua ta rămâne pe dispozitivul tău.</span></h2>
-      <p class="lead rv"><span data-en>No account, no ads. Nothing leaves your device unless you switch it on; the one optional thing is anonymous usage numbers, which you can read before they are sent.</span><span data-ru>Без аккаунта и рекламы. Ничто не покидает устройство, пока вы сами этого не включите; единственное необязательное — анонимные цифры использования, которые можно прочитать до отправки.</span><span data-ro>Fără cont și fără reclame. Nimic nu părăsește dispozitivul tău decât dacă activezi tu; singurul lucru opțional sunt cifrele anonime de utilizare, pe care le poți citi înainte să fie trimise.</span></p>
+      <p class="mono" style="display:flex;align-items:center;gap:12px;margin-bottom:20px"><span style="width:34px;height:1px;background:var(--acc)"></span><span data-t="privacy">Privacy</span></p>
+      <h2 data-split><span data-t="your-day-stays-on-your">Your day stays on your device.</span></h2>
+      <p class="lead rv"><span data-t="no-account-no-ads-nothing">No account, no ads. Nothing leaves your device unless you switch it on; the one optional thing is anonymous usage numbers, which you can read before they are sent.</span></p>
       <ul class="facts rv">
-        <li><i>01</i><span><b><span data-en>Only domains and seconds.</span><span data-ru>Только домены и секунды.</span><span data-ro>Doar domenii și secunde.</span></b> <span data-en>Never full addresses, page titles or content.</span><span data-ru>Никогда полные адреса, заголовки и содержимое страниц.</span><span data-ro>Niciodată adrese întregi, titluri sau conținut.</span></span></li>
-        <li><i>02</i><span><b><span data-en>Readable source.</span><span data-ru>Код можно читать.</span><span data-ro>Cod sursă la vedere.</span></b> <span data-en>Every line is on GitHub; each release is built twice and must match byte for byte.</span><span data-ru>Каждая строка на GitHub; каждый релиз собирается дважды и обязан совпасть байт в байт.</span><span data-ro>Fiecare linie este pe GitHub; fiecare versiune se construiește de două ori și trebuie să fie identică octet cu octet.</span></span></li>
-        <li><i>03</i><span><b><span data-en>Never sold.</span><span data-ru>Никогда не продаём.</span><span data-ro>Nu se vinde niciodată.</span></b> <span data-en>Not used for ads or money. Made by one person.</span><span data-ru>Не используется для рекламы и денег. Делает один человек.</span><span data-ro>Nu se folosește pentru reclame sau bani. Făcut de o singură persoană.</span></span></li>
+        <li><i>01</i><span><b><span data-t="only-domains-and-seconds">Only domains and seconds.</span></b> <span data-t="never-full-addresses-page-titles">Never full addresses, page titles or content.</span></span></li>
+        <li><i>02</i><span><b><span data-t="readable-source">Readable source.</span></b> <span data-t="every-line-is-on-github">Every line is on GitHub; each release is built twice and must match byte for byte.</span></span></li>
+        <li><i>03</i><span><b><span data-t="never-sold">Never sold.</span></b> <span data-t="not-used-for-ads-or">Not used for ads or money. Made by one person.</span></span></li>
       </ul>
-      <p class="rv" style="margin-top:30px"><a class="btn" href="privacy.html"><span data-en>Read the privacy policy</span><span data-ru>Политика приватности</span><span data-ro>Politica de confidențialitate</span></a></p>
+      <p class="rv" style="margin-top:30px"><a class="btn" href="privacy.html"><span data-t="read-the-privacy-policy">Read the privacy policy</span></a></p>
     </div>
     <div class="term rv" style="--d:120ms">
       <div class="term-bar"><i></i><i></i><i></i><span>chrome.storage.local</span></div>
       <div class="term-body">
-        <div><span class="k"># <span data-en>what is stored, on this device only</span><span data-ru>что хранится, только на этом устройстве</span><span data-ro>ce se păstrează, doar pe acest dispozitiv</span></span></div>
+        <div><span class="k"># <span data-t="what-is-stored-on-this">what is stored, on this device only</span></span></div>
         <div><span class="ok">+</span> github.com &nbsp;·&nbsp; 340 s &nbsp;·&nbsp; 10:00</div>
         <div><span class="ok">+</span> docs.google.com &nbsp;·&nbsp; 1 260 s &nbsp;·&nbsp; 11:00</div>
-        <div><span class="ok">+</span> <span data-en>settings, tasks, notes, habits</span><span data-ru>настройки, задачи, заметки, привычки</span><span data-ro>setări, sarcini, notițe, obiceiuri</span></div>
-        <div style="margin-top:12px"><span class="k"># <span data-en>what is never stored</span><span data-ru>что не хранится никогда</span><span data-ro>ce nu se păstrează niciodată</span></span></div>
-        <div><span class="no">−</span> <span data-en>full addresses · page titles · page content</span><span data-ru>полные адреса · заголовки · содержимое страниц</span><span data-ro>adrese întregi · titluri · conținutul paginilor</span></div>
-        <div><span class="no">−</span> <span data-en>keystrokes · accounts · cookies</span><span data-ru>нажатия клавиш · аккаунты · cookies</span><span data-ro>taste apăsate · conturi · cookie-uri</span></div>
-        <div class="big"><span><span data-en>requests to the network, unless you say yes</span><span data-ru>запросов в сеть, пока вы не сказали «да»</span><span data-ro>cereri către rețea, dacă nu spui tu „da”</span> <span class="cur"></span></span><b>0</b></div>
+        <div><span class="ok">+</span> <span data-t="settings-tasks-notes-habits">settings, tasks, notes, habits</span></div>
+        <div style="margin-top:12px"><span class="k"># <span data-t="what-is-never-stored">what is never stored</span></span></div>
+        <div><span class="no">−</span> <span data-t="full-addresses-page-titles-page">full addresses · page titles · page content</span></div>
+        <div><span class="no">−</span> <span data-t="keystrokes-accounts-cookies">keystrokes · accounts · cookies</span></div>
+        <div class="big"><span><span data-t="requests-to-the-network-unless">requests to the network, unless you say yes</span> <span class="cur"></span></span><b>0</b></div>
       </div>
     </div>
   </div>
@@ -289,13 +289,13 @@
 <!-- questions -->
 <section class="sec" id="faq">
   <div class="wrap faq-grid">
-    <div><p class="mono" style="display:flex;align-items:center;gap:12px;margin-bottom:20px"><span style="width:34px;height:1px;background:var(--acc)"></span>FAQ</p><h2 data-split><span data-en>Fair questions.</span><span data-ru>Честные вопросы.</span><span data-ro>Întrebări firești.</span></h2></div>
+    <div><p class="mono" style="display:flex;align-items:center;gap:12px;margin-bottom:20px"><span style="width:34px;height:1px;background:var(--acc)"></span>FAQ</p><h2 data-split><span data-t="fair-questions">Fair questions.</span></h2></div>
     <div class="faq rv">
-      <details open><summary><span data-en>Is it really free?</span><span data-ru>Это правда бесплатно?</span><span data-ro>Chiar este gratuit?</span></summary><p><span data-en>Yes. EyeTime is made by one person, has no paid tier and no ads. The code is public under the Functional Source License, which becomes Apache 2.0 after two years.</span><span data-ru>Да. EyeTime делает один человек, платных тарифов и рекламы нет. Код открыт по Functional Source License, которая через два года становится Apache 2.0.</span><span data-ro>Da. EyeTime este făcut de o singură persoană, nu are variantă plătită și nici reclame. Codul este public sub Functional Source License, care devine Apache 2.0 după doi ani.</span></p></details>
-      <details><summary><span data-en>Does it see the pages I visit?</span><span data-ru>Видит ли оно страницы, которые я открываю?</span><span data-ro>Vede paginile pe care le vizitez?</span></summary><p><span data-en>No. It keeps the domain name and the seconds spent there, on your device. Not the full address, not the title, nothing from the page.</span><span data-ru>Нет. Хранятся имя домена и секунды на нём, на вашем устройстве. Ни полный адрес, ни заголовок, ничего со страницы.</span><span data-ro>Nu. Păstrează numele domeniului și secundele petrecute acolo, pe dispozitivul tău. Nu adresa întreagă, nu titlul, nimic de pe pagină.</span></p></details>
-      <details><summary><span data-en>What are the optional anonymous numbers?</span><span data-ru>Что за необязательные анонимные цифры?</span><span data-ro>Ce sunt cifrele anonime opționale?</span></summary><p><span data-en>If you say yes, once a week EyeTime sends a few counts: on how many days you used it, how often you used each feature, your look and language. Never sites, tasks, notes, goals or times. It is off until you agree, you can read the exact report first, and you can stop at any time.</span><span data-ru>Если вы согласитесь, раз в неделю EyeTime отправляет несколько счётчиков: в сколько дней вы им пользовались, как часто каждой функцией, ваш стиль и язык. Никогда сайты, задачи, заметки, цели или время. Пока вы не согласились, всё выключено; точный отчёт можно прочитать заранее, остановить — в любой момент.</span><span data-ro>Dacă ești de acord, o dată pe săptămână EyeTime trimite câteva numărători: în câte zile l-ai folosit, cât de des ai folosit fiecare funcție, stilul și limba ta. Niciodată site-uri, sarcini, notițe, obiective sau ore. Este dezactivat până ești de acord, poți citi mai întâi raportul exact și poți opri oricând.</span></p></details>
-      <details><summary><span data-en>Which browsers does it work in?</span><span data-ru>В каких браузерах работает?</span><span data-ro>În ce browsere funcționează?</span></summary><p><span data-en>Chrome, Edge, Brave and Arc install it from the Chrome Web Store. For Firefox, download it from the release page on GitHub.</span><span data-ru>В Chrome, Edge, Brave и Arc ставится из магазина Chrome. Для Firefox скачайте со страницы релизов на GitHub.</span><span data-ro>În Chrome, Edge, Brave și Arc se instalează din Chrome Web Store. Pentru Firefox, descarc-o de pe pagina de versiuni de pe GitHub.</span></p></details>
-      <details><summary><span data-en>Will it lock me out of a site I need?</span><span data-ru>Не закроет ли оно сайт, который мне нужен?</span><span data-ro>Mă va bloca de la un site de care am nevoie?</span></summary><p><span data-en>Only if you ask it to. By default a distracting site gets a short pause and a “continue” button; strict sessions and hard blocks exist for the days you want them.</span><span data-ru>Только если вы сами попросите. По умолчанию отвлекающий сайт получает короткую паузу и кнопку «продолжить»; строгие сессии и жёсткая блокировка есть для дней, когда они вам нужны.</span><span data-ro>Doar dacă îi ceri tu. Implicit, un site care distrage primește o scurtă pauză și un buton „continuă”; sesiunile stricte și blocările ferme există pentru zilele în care le vrei.</span></p></details>
+      <details open><summary><span data-t="is-it-really-free">Is it really free?</span></summary><p><span data-t="yes-eyetime-is-made-by">Yes. EyeTime is made by one person, has no paid tier and no ads. The code is public under the Functional Source License, which becomes Apache 2.0 after two years.</span></p></details>
+      <details><summary><span data-t="does-it-see-the-pages">Does it see the pages I visit?</span></summary><p><span data-t="no-it-keeps-the-domain">No. It keeps the domain name and the seconds spent there, on your device. Not the full address, not the title, nothing from the page.</span></p></details>
+      <details><summary><span data-t="what-are-the-optional-anonymous">What are the optional anonymous numbers?</span></summary><p><span data-t="if-you-say-yes-once">If you say yes, once a week EyeTime sends a few counts: on how many days you used it, how often you used each feature, your look and language. Never sites, tasks, notes, goals or times. It is off until you agree, you can read the exact report first, and you can stop at any time.</span></p></details>
+      <details><summary><span data-t="which-browsers-does-it-work">Which browsers does it work in?</span></summary><p><span data-t="chrome-edge-brave-and-arc">Chrome, Edge, Brave and Arc install it from the Chrome Web Store. For Firefox, download it from the release page on GitHub.</span></p></details>
+      <details><summary><span data-t="will-it-lock-me-out">Will it lock me out of a site I need?</span></summary><p><span data-t="only-if-you-ask-it">Only if you ask it to. By default a distracting site gets a short pause and a “continue” button; strict sessions and hard blocks exist for the days you want them.</span></p></details>
     </div>
   </div>
 </section>
@@ -305,14 +305,14 @@
   <div class="end-bg"><img src="hero/milkyway.webp" alt="" width="1920" height="1200" loading="lazy"></div>
   <div class="halo" aria-hidden="true"><i></i><i></i><i></i></div>
   <div class="end-in wrap">
-    <p class="mono rv" style="margin-bottom:26px">23:30 — <span data-en>Rest</span><span data-ru>Отдых</span><span data-ro>Odihnă</span></p>
-    <h2 data-split><span data-en>Open a tab. <em>Breathe.</em></span><span data-ru>Откройте вкладку. <em>Выдохните.</em></span><span data-ro>Deschide o filă. <em>Respiră.</em></span></h2>
+    <p class="mono rv" style="margin-bottom:26px">23:30 — <span data-t="rest">Rest</span></p>
+    <h2 data-split><span data-t="open-a-tab-breathe">Open a tab. <em>Breathe.</em></span></h2>
     <div class="cta rv" style="--d:200ms">
-      <a class="btn acc" href="https://chromewebstore.google.com/detail/kbkmiboobddkmngdhdihiaejahddokgf"><span data-en>Add to Chrome — free</span><span data-ru>Добавить в Chrome — бесплатно</span><span data-ro>Adaugă în Chrome — gratuit</span><span class="ar" aria-hidden="true">→</span></a>
-      <a class="btn" href="https://github.com/maxbzd/eyetime/releases/latest"><span data-en>Download for Firefox</span><span data-ru>Скачать для Firefox</span><span data-ro>Descarcă pentru Firefox</span></a>
-      <a class="btn" href="https://github.com/maxbzd/eyetime"><span data-en>Read the source</span><span data-ru>Читать код</span><span data-ro>Citește codul</span></a>
+      <a class="btn acc" href="https://chromewebstore.google.com/detail/kbkmiboobddkmngdhdihiaejahddokgf"><span data-t="add-to-chrome-free">Add to Chrome — free</span><span class="ar" aria-hidden="true">→</span></a>
+      <a class="btn" href="https://github.com/maxbzd/eyetime/releases/latest"><span data-t="download-for-firefox">Download for Firefox</span></a>
+      <a class="btn" href="https://github.com/maxbzd/eyetime"><span data-t="read-the-source">Read the source</span></a>
     </div>
-    <p class="small rv" style="--d:300ms"><span data-en>No account. About a minute to set up. Edge, Brave and Arc install it from the same store.</span><span data-ru>Без аккаунта. Настройка — около минуты. В Edge, Brave и Arc ставится из того же магазина.</span><span data-ro>Fără cont. Cam un minut pentru configurare. În Edge, Brave și Arc se instalează din același magazin.</span></p>
+    <p class="small rv" style="--d:300ms"><span data-t="no-account-about-a-minute">No account. About a minute to set up. Edge, Brave and Arc install it from the same store.</span></p>
   </div>
 </section>
 </main>
@@ -320,11 +320,17 @@
 <div class="wrap">
   <footer>
     <span>© maxbzd · <a href="https://github.com/maxbzd/eyetime/blob/main/LICENSE">FSL-1.1-ALv2</a> · <a href="mailto:maxbzd1600@gmail.com">maxbzd1600@gmail.com</a> · <a href="https://t.me/maxbzd">Telegram @maxbzd</a></span>
-    <span><a href="privacy.html"><span data-en>Privacy</span><span data-ru>Приватность</span><span data-ro>Confidențialitate</span></a> · <a href="https://github.com/maxbzd/eyetime/issues/new/choose"><span data-en>Report a problem</span><span data-ru>Сообщить о проблеме</span><span data-ro>Raportează o problemă</span></a> · <a href="https://github.com/maxbzd/eyetime/blob/main/CHANGELOG.md"><span data-en>What’s new</span><span data-ru>Что нового</span><span data-ro>Noutăți</span></a></span>
+    <span><a href="privacy.html"><span data-t="privacy">Privacy</span></a> · <a href="https://github.com/maxbzd/eyetime/issues/new/choose"><span data-t="report-a-problem">Report a problem</span></a> · <a href="https://github.com/maxbzd/eyetime/blob/main/CHANGELOG.md"><span data-t="what-s-new">What’s new</span></a></span>
   </footer>
 </div>
 
-<nav class="rail" id="rail" aria-label="Chapters">
+<!-- words the page says from script (the greeting, the breath, the buttons that change); the English is kept here, the others are in lang/ -->
+<div id="words" hidden>
+  <span data-t="greet-night">Good night</span><span data-t="greet-morning">Good morning</span><span data-t="greet-afternoon">Good afternoon</span><span data-t="greet-evening">Good evening</span>
+  <span data-t="breathe-out">Breathe out</span><span data-t="continue-to-site">Continue to site</span><span data-t="limit-set">Limit set ✓</span><span data-t="well-done">Well done</span><span data-t="eyes-thank-you">Your eyes thank you. Break logged.</span><span data-t="resume">Resume</span>
+</div>
+
+<nav class="rail" id="rail" data-ta="a-chapters" aria-label="Chapters">
   <a href="#focus" aria-label="09:00"><span>09:00</span></a><a href="#pause" aria-label="11:40"><span>11:40</span></a><a href="#eyes" aria-label="14:00"><span>14:00</span></a><a href="#review" aria-label="18:30"><span>18:30</span></a><a href="#yours" aria-label="22:00"><span>22:00</span></a>
 </nav>
 
