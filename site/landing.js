@@ -8,55 +8,152 @@
   var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches, fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   var pad = function (n) { return (n < 10 ? '0' : '') + n; };
 
-  /* ── language ── */
-  var LANGS = ['en', 'ru', 'ro'], langBtns = $$('.lang button');
-  var GREET = { en: ['Good night', 'Good morning', 'Good afternoon', 'Good evening'], ru: ['Доброй ночи', 'Доброе утро', 'Добрый день', 'Добрый вечер'], ro: ['Noapte bună', 'Bună dimineața', 'Bună ziua', 'Bună seara'] };
-  var BREATH = { en: ['Breathe in', 'Breathe out'], ru: ['Вдох', 'Выдох'], ro: ['Inspiră', 'Expiră'] };
-  var WORDS = { en: { cont: 'Continue to site', set: 'Limit set ✓', done: 'Well done', logged: 'Your eyes thank you. Break logged.', resume: 'Resume', pause: 'Pause', min: 'min' },
-    ru: { cont: 'Продолжить', set: 'Лимит стоит ✓', done: 'Отлично', logged: 'Глаза говорят спасибо. Перерыв записан.', resume: 'Дальше', pause: 'Пауза', min: 'мин' },
-    ro: { cont: 'Continuă pe site', set: 'Limită setată ✓', done: 'Foarte bine', logged: 'Ochii tăi îți mulțumesc. Pauza a fost notată.', resume: 'Reia', pause: 'Pauză', min: 'min' } };
-  var lang = 'en', eyeLeft = 19;
-  function tri(en, ru, ro) { return '<span data-en>' + en + '</span><span data-ru>' + ru + '</span><span data-ro>' + ro + '</span>'; }
-  function part(h) { return h < 5 ? 0 : h < 12 ? 1 : h < 18 ? 2 : 3; }
+  /* ── language ──
+     The page is written in English. Every other language is one file, lang/<code>.json (key → text), fetched only when it is needed.
+     A visitor is offered English and, when the browser speaks another of our languages, that one: nothing else. */
+  var NATIVE = { en: 'English', ru: 'Русский', es: 'Español', de: 'Deutsch', fr: 'Français', pt: 'Português', it: 'Italiano', pl: 'Polski', uk: 'Українська', zh: '中文', ja: '日本語', ro: 'Română' };
+  var CJK = { zh: 1, ja: 1 }, NB = ' ';
+  var EN = {}, dicts = { en: EN }, lang = 'en', eyeLeft = 19, home = 'en';
+  var metaD = $('meta[name="description"]'), taskEl = $('#fTask');
+  $$('[data-t]').forEach(function (el) { var k = el.getAttribute('data-t'); if (!(k in EN)) EN[k] = el.innerHTML; });
+  $$('[data-ta]').forEach(function (el) { EN[el.getAttribute('data-ta')] = el.getAttribute('aria-label'); });
+  EN['meta-title'] = doc.title; EN['meta-desc'] = metaD ? metaD.getAttribute('content') : ''; EN['task-value'] = taskEl ? taskEl.value : '';
+  function t(key) { var d = dicts[lang]; return d && d[key] != null ? d[key] : EN[key] != null ? EN[key] : ''; }
+
+  /* the language of this computer: the first of its languages that we speak */
+  (function () {
+    var list = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || 'en'];
+    for (var i = 0; i < list.length; i++) { var p = String(list[i]).toLowerCase().split('-')[0]; if (NATIVE[p]) { home = p; return; } }
+  })();
+  var choices = home === 'en' ? ['en'] : ['en', home];
+  var saved = null; try { saved = localStorage.getItem('lang'); } catch (e) { /* private window */ }
+  lang = choices.indexOf(saved) >= 0 ? saved : home;
+
+  /* the text comes from our own files; only line breaks, emphasis and links to this project are taken from it, and as nodes, never as HTML */
+  function copyInto(from, to) {
+    Array.prototype.forEach.call(from.childNodes, function (n) {
+      if (n.nodeType === 3) to.appendChild(doc.createTextNode(n.nodeValue));
+      else if (n.nodeType === 1) {
+        var tag = n.nodeName.toLowerCase();
+        if (tag === 'br') to.appendChild(doc.createElement('br'));
+        else if (tag === 'em') { var e = doc.createElement('em'); copyInto(n, e); to.appendChild(e); }
+        else if (tag === 'a' && /^https:\/\/github\.com\/maxbzd\/eyetime\//.test(n.getAttribute('href') || '')) { var a = doc.createElement('a'); a.setAttribute('href', n.getAttribute('href')); copyInto(n, a); to.appendChild(a); }
+        else copyInto(n, to);
+      }
+    });
+  }
+  /* small typographic care: no line ends on a lone little word or a lone last word, none starts with a dash or a bare unit */
+  function tidy(el) {
+    if (CJK[lang]) return;
+    var nodes = [], seg = [];
+    (function walk(n) { Array.prototype.forEach.call(n.childNodes, function (c) { if (c.nodeType === 3) { nodes.push(c); seg.push(c); } else if (c.nodeName === 'BR') seg = []; else if (c.nodeType === 1) walk(c); }); })(el);
+    nodes.forEach(function (n) {
+      var s = n.nodeValue.replace(/(\d) (?=[\p{L}%°])/gu, '$1' + NB).replace(/(?<![\p{L}\p{N}])(\p{L}) (?=[^\s ]{1,16}(?![^\s ]))/gu, '$1' + NB).replace(/(?<![\p{L}\p{N}])(\p{L}{2}) (?=[^\s ]{1,10}(?![^\s ]))/gu, '$1' + NB).replace(/ ([—–]) /g, NB + '$1 ').replace(/(?<![\p{L}\p{N}\-])([\p{L}’']{1,9})-([\p{L}’']{1,6})(?![\p{L}\p{N}\-])/gu, '$1\u2011$2');
+      if (lang === 'fr') s = s.replace(/ ([:;!?»])/g, NB + '$1').replace(/(«) /g, '$1' + NB);
+      n.nodeValue = s;
+    });
+    var joined = seg.map(function (n) { return n.nodeValue; }).join('');
+    if (joined.trim().split(/[  ]+/).length >= 4) {
+      for (var i = seg.length - 1; i >= 0; i--) {
+        /* only a space inside one piece of text: the one before the last word (never the space beside a tag, which is a place where the words are cut apart) */
+        var v = seg[i].nodeValue, body = v.replace(/^\s+|\s+$/g, ''), start = v.indexOf(body), gap = Math.max(body.lastIndexOf(' '), body.lastIndexOf(NB));
+        /* the gap before the last word, if it is still an ordinary space and what it would join stays short enough to fit a narrow line */
+        if (gap >= 0 && body.charAt(gap) === ' ') {
+          var tail = body.slice(gap + 1), head = body.slice(0, gap).split(/ /).pop();
+          if (tail.length <= 12 && head.length + tail.length <= 18) { gap += start; seg[i].nodeValue = v.slice(0, gap) + NB + v.slice(gap + 1); }
+        }
+        break;
+      }
+    }
+  }
+  function setMarkup(el, s) {
+    el.textContent = '';
+    if (s.indexOf('<') < 0) el.appendChild(doc.createTextNode(s));
+    else copyInto(new DOMParser().parseFromString('<!doctype html><body>' + s, 'text/html').body, el);
+    tidy(el);
+  }
+  function render(el) { setMarkup(el, t(el.getAttribute('data-t'))); }
+  function setKey(el, key) {
+    var s = el.hasAttribute('data-t') ? el : $('[data-t]', el);
+    if (!s) { s = doc.createElement('span'); el.textContent = ''; el.appendChild(s); }
+    s.setAttribute('data-t', key); render(s);
+  }
+
+  /* words rise one after another. Chinese and Japanese have no spaces: the browser's own word finder cuts them (sign by sign if it has none),
+     and a closing mark never begins a line (a word joiner keeps it with the sign before it, even across an <em>) */
+  var CLOSE = /^[。，、．！？：；）」』”’…—]/;
+  function pieces(s) {
+    if (!CJK[lang]) return s.split(/([ \t\n\r\f]+)/);
+    var segs;
+    try { segs = Array.from(new Intl.Segmenter(lang, { granularity: 'word' }).segment(s), function (x) { return x.segment; }); } catch (e) { segs = s.match(/[\s\S]/g) || []; }
+    /* closing marks, and in Japanese the kana that only inflect or join the word before them (行った, 戦わず, ブラウザと), stay with that word */
+    var out = []; segs.forEach(function (g) { if (out.length && (CLOSE.test(g) || (lang === 'ja' && /^[\u3041-\u309f]+$/.test(g) && !CLOSE.test(out[out.length - 1].slice(-1))))) out[out.length - 1] += g; else out.push(g); });
+    return out;
+  }
+  function split(el) {
+    var i = 0;
+    (function walk(node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (n) {
+        if (n.nodeType === 3) {
+          var frag = doc.createDocumentFragment(), parts = pieces(n.nodeValue);
+          if (CJK[lang] && parts.length && CLOSE.test(parts[0]) && n.previousSibling && n.previousSibling.nodeType === 1) {
+            var ws = n.previousSibling.querySelectorAll('.w'), lastW = ws[ws.length - 1], lead = /^[\u3002\uff0c\u3001\uff0e\uff01\uff1f\uff1a\uff1b\uff09\u300d\u300f\u201d\u2019\u2026\u2014]+/.exec(parts[0])[0];
+            if (lastW) { var pi = doc.createElement('i'); pi.className = 'p'; pi.textContent = lead; pi.style.setProperty('--i', lastW.firstChild.style.getPropertyValue('--i')); lastW.appendChild(pi); parts[0] = parts[0].slice(lead.length); }
+          }
+          parts.forEach(function (tok) {
+            if (!tok) return;
+            if (/^[ \t\n\r\f]+$/.test(tok)) { frag.appendChild(doc.createTextNode(' ')); return; }
+            var w = doc.createElement('span'), inner = doc.createElement('i'); w.className = 'w'; inner.textContent = tok; inner.style.setProperty('--i', String(i++)); w.appendChild(inner); frag.appendChild(w);
+          });
+          node.replaceChild(frag, n);
+        } else if (n.nodeType === 1 && n.nodeName !== 'BR') walk(n);
+      });
+    })(el);
+  }
+
+  function part(h) { return h < 5 ? 'night' : h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening'; }
   function paintWords() {
-    var now = new Date(), g = $('#greet'), t = $('#today'), task = $('#fTask'), days = $('#days');
-    if (g) g.textContent = GREET[lang][part(now.getHours())];
-    var ei = $('#eyeIn'); if (ei) ei.textContent = (typeof eyeLeft === 'number' ? eyeLeft : 19) + ' ' + WORDS[lang].min;
-    if (t) { try { t.textContent = '· ' + new Intl.DateTimeFormat(lang, { weekday: 'short', day: 'numeric', month: 'short' }).format(now); } catch (e) { t.textContent = ''; } }
-    if (task && !task.dataset.touched) task.value = task.getAttribute('data-v-' + lang) || task.value;
-    if (days) { try { var f = new Intl.DateTimeFormat(lang, { weekday: 'narrow' }); days.innerHTML = [5, 6, 7, 8, 9, 10, 11].map(function (d) { return '<span>' + f.format(new Date(2026, 0, d)) + '</span>'; }).join(''); } catch (e) { /* the letters in the page stay */ } }
+    var now = new Date(), g = $('#greet'), td = $('#today'), days = $('#days'), ei = $('#eyeIn');
+    if (g) g.textContent = t('greet-' + part(now.getHours()));
+    if (ei) ei.textContent = eyeLeft + ' ' + t('unit-min');
+    if (td) { try { td.textContent = '· ' + new Intl.DateTimeFormat(lang, { weekday: 'short', day: 'numeric', month: 'short' }).format(now); } catch (e) { td.textContent = ''; } }
+    if (taskEl && !taskEl.dataset.touched) taskEl.value = t('task-value');
+    if (days) { try { var f = new Intl.DateTimeFormat(lang, { weekday: 'narrow' }); days.textContent = ''; [5, 6, 7, 8, 9, 10, 11].forEach(function (d) { var s = doc.createElement('span'); s.textContent = f.format(new Date(2026, 0, d)); days.appendChild(s); }); } catch (e) { /* the letters in the page stay */ } }
+  }
+  /* the switch: English and the language of this computer; nothing at all if the computer speaks English */
+  var sw = $('#lang');
+  function paintSwitch() { if (sw) $$('button', sw).forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.set === lang)); }); }
+  function paintAll() {
+    html.lang = lang === 'zh' ? 'zh-Hans' : lang;
+    $$('[data-t]').forEach(render);
+    $$('[data-ta]').forEach(function (el) { el.setAttribute('aria-label', t(el.getAttribute('data-ta'))); });
+    $$('[data-split]').forEach(split);
+    doc.title = t('meta-title'); if (metaD) metaD.setAttribute('content', t('meta-desc'));
+    paintWords(); paintSwitch();
+  }
+  if (sw && choices.length > 1) {
+    choices.forEach(function (c) {
+      var b = doc.createElement('button'); b.type = 'button'; b.dataset.set = c; b.textContent = c.toUpperCase(); b.title = NATIVE[c]; b.setAttribute('aria-label', NATIVE[c]); b.setAttribute('lang', c);
+      b.addEventListener('click', function () { setLang(c); }); sw.appendChild(b);
+    });
+    sw.hidden = false;
+  }
+  function load(l) {
+    if (dicts[l]) return Promise.resolve();
+    return fetch('lang/' + l + '.json', { credentials: 'omit' }).then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r.json(); }).then(function (d) { dicts[l] = d; });
   }
   function setLang(l) {
-    lang = LANGS.indexOf(l) >= 0 ? l : 'en'; html.lang = lang;
-    langBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.set === lang)); });
-    try { localStorage.setItem('lang', lang); } catch (e) { /* private window */ }
-    paintWords();
-  }
-  var saved = null; try { saved = localStorage.getItem('lang'); } catch (e) { /* private window */ }
-  var nav = (navigator.language || 'en').toLowerCase().slice(0, 2);
-  setLang(LANGS.indexOf(saved) >= 0 ? saved : nav);
-  langBtns.forEach(function (b) { b.addEventListener('click', function () { setLang(b.dataset.set); }); });
-  var taskEl = $('#fTask'); if (taskEl) taskEl.addEventListener('input', function () { taskEl.dataset.touched = '1'; });
-
-  /* ── words rise one after another ── */
-  $$('[data-split]').forEach(function (el) {
-    $$(':scope > span', el).forEach(function (langSpan) {
-      var i = 0;
-      (function walk(node) {
-        Array.prototype.slice.call(node.childNodes).forEach(function (n) {
-          if (n.nodeType === 3) {
-            var frag = doc.createDocumentFragment();
-            n.textContent.split(/(\s+)/).forEach(function (tok) {
-              if (!tok) return;
-              if (/^\s+$/.test(tok)) { frag.appendChild(doc.createTextNode(' ')); return; }
-              var w = doc.createElement('span'), inner = doc.createElement('i'); w.className = 'w'; inner.textContent = tok; inner.style.setProperty('--i', String(i++)); w.appendChild(inner); frag.appendChild(w);
-            });
-            node.replaceChild(frag, n);
-          } else if (n.nodeType === 1) walk(n);
-        });
-      })(langSpan);
+    var want = choices.indexOf(l) >= 0 ? l : 'en';
+    load(want).then(function () { lang = want; }, function () { lang = 'en'; }).then(function () {
+      try { localStorage.setItem('lang', lang); } catch (e) { /* private window */ }
+      paintAll();
     });
-  });
+  }
+  if (taskEl) taskEl.addEventListener('input', function () { taskEl.dataset.touched = '1'; });
+  var langReady = false;
+  var first = lang; lang = 'en';
+  paintAll(); // English at once (the page is English), then the language of the visitor as soon as its file is here
+  load(first).then(function () { lang = first; }, function () { lang = 'en'; }).then(function () { langReady = true; paintAll(); });
 
   /* ── things come in when they are seen ── */
   var seen = $$('.rv, [data-split], .card');
@@ -75,10 +172,10 @@
   }
   if (calm) open();
   else {
-    var t0 = performance.now(), loaded = !heroImg || heroImg.complete;
-    if (heroImg && !loaded) { heroImg.addEventListener('load', function () { loaded = true; }); heroImg.addEventListener('error', function () { loaded = true; }); }
+    var t0 = performance.now(), imgOk = !heroImg || heroImg.complete;
+    if (heroImg && !imgOk) { heroImg.addEventListener('load', function () { imgOk = true; }); heroImg.addEventListener('error', function () { imgOk = true; }); }
     (function tick() {
-      var el = performance.now() - t0, p = Math.min(1, el / 900); if (!loaded && el < 3500) p = Math.min(p, 0.86);
+      var el = performance.now() - t0, p = Math.min(1, el / 900); if (!(imgOk && (langReady || el > 2500)) && el < 3500) p = Math.min(p, 0.86);
       if (ldN) ldN.textContent = ('00' + Math.round(p * 100)).slice(-3); if (ldP) ldP.style.strokeDashoffset = String(164 * (1 - p));
       if (p >= 1) setTimeout(open, 180); else requestAnimationFrame(tick);
     })();
@@ -89,7 +186,7 @@
   var hh = $('#hh'), mm = $('#mm'), eyeIn = $('#eyeIn');
   function clock() { var d = new Date(); if (hh) hh.textContent = pad(d.getHours()); if (mm) mm.textContent = pad(d.getMinutes()); }
   clock(); setInterval(clock, 1000);
-  setInterval(function () { eyeLeft = eyeLeft > 1 ? eyeLeft - 1 : 20; if (eyeIn) eyeIn.textContent = eyeLeft + ' ' + WORDS[lang].min; paintWords(); }, 60000);
+  setInterval(function () { eyeLeft = eyeLeft > 1 ? eyeLeft - 1 : 20; if (eyeIn) paintWords(); }, 60000);
 
   /* ── depth: the layers of the hero follow the pointer ── */
   var hero = $('.hero'), tx = 0, ty = 0, cx = 0, cy = 0, heroOn = true;
@@ -157,7 +254,7 @@
       var e = new Date(Date.now() + left * 1000); End.textContent = pad(e.getHours()) + ':' + pad(e.getMinutes());
     }
     function step() { if (paused) return; left = left > 0 ? left - 1 : total - 1; paint(); }
-    pauseB.addEventListener('click', function () { paused = !paused; pauseB.innerHTML = paused ? tri(WORDS.en.resume, WORDS.ru.resume, WORDS.ro.resume) : tri(WORDS.en.pause, WORDS.ru.pause, WORDS.ro.pause); pauseB.classList.toggle('on', paused); });
+    pauseB.addEventListener('click', function () { paused = !paused; setKey(pauseB, paused ? 'resume' : 'pause'); pauseB.classList.toggle('on', paused); });
     plusB.addEventListener('click', function () { left += 300; total = Math.max(total, left + 1); paint(); });
     modes.forEach(function (b) { b.addEventListener('click', function () { modes.forEach(function (o) { o.classList.toggle('on', o === b); }); total = Number(b.dataset.m) * 60; left = total - 1; paint(); }); });
     paint(); whileVisible(card, function () { if (!timer) timer = setInterval(step, 1000); }, function () { clearInterval(timer); timer = null; });
@@ -166,12 +263,12 @@
   /* ── 02 the pause: breathe with the orb, then the choice is yours ── */
   (function () {
     var card = $('#dPause'); if (!card) return;
-    var T = $('#paT'), N = $('#paN'), Cb = $('#paC'), n = 5, phase = 0, t1 = null, t2 = null, label = Cb.innerHTML;
-    function breath() { phase = 1 - phase; T.innerHTML = tri(BREATH.en[phase], BREATH.ru[phase], BREATH.ro[phase]); }
+    var T = $('#paT'), N = $('#paN'), Cb = $('#paC'), n = 5, phase = 0, t1 = null, t2 = null;
+    function breath() { phase = 1 - phase; setKey(T, phase ? 'breathe-out' : 'breathe-in'); }
     function count() {
-      if (n > 0) { n--; if ($('#paN')) $('#paN').textContent = String(n); if (n === 0) { Cb.disabled = false; Cb.innerHTML = tri(WORDS.en.cont, WORDS.ru.cont, WORDS.ro.cont); } }
+      if (n > 0) { n--; if ($('#paN')) $('#paN').textContent = String(n); if (n === 0) { Cb.disabled = false; Cb.textContent = ''; setKey(Cb, 'continue-to-site'); } }
     }
-    function reset() { n = 5; Cb.disabled = true; Cb.innerHTML = label; N = $('#paN'); }
+    function reset() { n = 5; Cb.disabled = true; Cb.textContent = ''; var a = doc.createElement('span'), b = doc.createElement('span'); a.setAttribute('data-t', 'continue-in'); render(a); b.id = 'paN'; b.textContent = '5'; Cb.appendChild(a); Cb.appendChild(doc.createTextNode(' ')); Cb.appendChild(b); N = b; }
     $$('button', card).forEach(function (b) { b.addEventListener('click', function () { reset(); }); });
     whileVisible(card, function () { if (!t1) { reset(); t1 = setInterval(breath, 4000); t2 = setInterval(count, 1000); } }, function () { clearInterval(t1); clearInterval(t2); t1 = t2 = null; });
   })();
@@ -179,11 +276,11 @@
   /* ── 03 eyes: twenty seconds, again and again ── */
   (function () {
     var card = $('#dEye'); if (!card) return;
-    var T = $('#eT'), P = $('#eP'), Hd = $('#eH'), S = $('#eS'), h0 = Hd.innerHTML, s0 = S.innerHTML, left = 20, rest = 0, timer = null;
+    var T = $('#eT'), P = $('#eP'), Hd = $('#eH'), S = $('#eS'), left = 20, rest = 0, timer = null;
     function step() {
-      if (rest > 0) { rest--; if (rest === 0) { left = 20; T.textContent = '20'; P.style.strokeDashoffset = '0'; Hd.innerHTML = h0; S.innerHTML = s0; } return; }
+      if (rest > 0) { rest--; if (rest === 0) { left = 20; T.textContent = '20'; P.style.strokeDashoffset = '0'; setKey(Hd, 'look-far-away'); setKey(S, 'find-something-about-six-metres'); } return; }
       left--; T.textContent = String(left); P.style.strokeDashoffset = String(C * (1 - left / 20));
-      if (left === 0) { rest = 4; T.textContent = '✓'; Hd.innerHTML = tri(WORDS.en.done, WORDS.ru.done, WORDS.ro.done); S.innerHTML = tri(WORDS.en.logged, WORDS.ru.logged, WORDS.ro.logged); }
+      if (left === 0) { rest = 4; T.textContent = '✓'; setKey(Hd, 'well-done'); setKey(S, 'eyes-thank-you'); }
     }
     whileVisible(card, function () { if (!timer) timer = setInterval(step, 1000); }, function () { clearInterval(timer); timer = null; });
   })();
@@ -197,7 +294,7 @@
     var cio = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { countUp(e.target); cio.unobserve(e.target); } }); }, { threshold: 0.6 });
     $$('[data-count]').forEach(function (el) { cio.observe(el); });
   }
-  var lim = $('#limit'); if (lim) lim.addEventListener('click', function () { lim.innerHTML = tri(WORDS.en.set, WORDS.ru.set, WORDS.ro.set); lim.disabled = true; });
+  var lim = $('#limit'); if (lim) lim.addEventListener('click', function () { setKey(lim, 'limit-set'); lim.disabled = true; });
 
   /* ── 05 looks: pick one and the whole page takes its colour ── */
   (function () {
@@ -214,14 +311,29 @@
     t(); setInterval(t, 20000);
   })();
 
-  /* ── the pointer ── */
+  /* ── the pointer: one dot of our own; the system arrow is hidden once it is alive (touch screens keep theirs) ── */
   var cur = $('#cur');
-  if (cur && fine && !calm) {
-    var mx = -100, my = -100, px = -100, py = -100;
-    window.addEventListener('pointermove', function (e) { mx = e.clientX; my = e.clientY; cur.classList.add('on'); }, { passive: true });
-    doc.addEventListener('pointerleave', function () { cur.classList.remove('on'); });
-    doc.addEventListener('pointerover', function (e) { var t = e.target; cur.classList.toggle('big', !!(t && t.closest && t.closest('a, button, summary, input, .mq li'))); });
-    (function follow() { px += (mx - px) * 0.2; py += (my - py) * 0.2; cur.style.transform = 'translate3d(' + px.toFixed(1) + 'px,' + py.toFixed(1) + 'px,0)'; requestAnimationFrame(follow); })();
+  if (cur && fine) {
+    var mx = 0, my = 0, px = 0, py = 0, shown = false, running = false;
+    var place = function () { cur.style.transform = 'translate3d(' + px.toFixed(1) + 'px,' + py.toFixed(1) + 'px,0)'; };
+    var follow = function () {
+      var k = calm ? 1 : 0.38; px += (mx - px) * k; py += (my - py) * k; place();
+      if (Math.abs(mx - px) > 0.2 || Math.abs(my - py) > 0.2) requestAnimationFrame(follow); else { px = mx; py = my; place(); running = false; }
+    };
+    var kindOf = function (el) { return el && el.closest ? (el.closest('input, textarea') ? 'txt' : el.closest('a, button, summary, label, .mq li') ? 'big' : '') : ''; };
+    var setKind = function (el) { var k = kindOf(el); cur.classList.toggle('big', k === 'big'); cur.classList.toggle('txt', k === 'txt'); };
+    window.addEventListener('pointermove', function (e) {
+      if (e.pointerType === 'touch') return;
+      mx = e.clientX; my = e.clientY;
+      if (!shown) { shown = true; px = mx; py = my; place(); html.classList.add('has-cur'); setKind(e.target); }
+      cur.classList.add('on');
+      if (!running) { running = true; requestAnimationFrame(follow); }
+    }, { passive: true });
+    doc.addEventListener('pointerover', function (e) { if (shown) setKind(e.target); });
+    doc.addEventListener('pointerdown', function () { cur.classList.add('down'); });
+    doc.addEventListener('pointerup', function () { cur.classList.remove('down'); });
+    html.addEventListener('mouseleave', function () { cur.classList.remove('on'); });
+    html.addEventListener('mouseenter', function () { if (shown) cur.classList.add('on'); });
   }
 
   /* only one answer open at a time */
