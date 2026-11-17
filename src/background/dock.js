@@ -7,12 +7,12 @@
 // This module: registers / removes the page script, the keyboard shortcut and the "Save to topic" right-click menu.
 
 import { getSettings, getCollection, updateCollection } from '../shared/storage.js';
+import { notify } from './notify.js';
 import { ensureInbox, addLink } from '../shared/topics.js';
 import { resolveLocale, setLocale, t } from '../shared/i18n.js';
 import { DOCK_ORIGINS } from '../shared/dock.js';
 
 const SCRIPT_ID = 'eyetime-dock';
-const ICON = 'icons/icon128.png';
 
 const hasAccess = async () => { try { return await chrome.permissions.contains({ origins: DOCK_ORIGINS }); } catch { return false; } };
 // test builds declare a local host permission in the manifest; a store build never does
@@ -61,7 +61,7 @@ chrome.contextMenus?.onClicked.addListener(async (info, tab) => {
     return res.added ? res.topics : list.length !== cur.length ? list : undefined;
   });
   const msg = res && res.added ? t('menu.saved', { topic: name }) : res && res.reason === 'duplicate' ? t('menu.savedDup', { topic: name }) : t('menu.saveFail');
-  chrome.notifications.create('dock-save-' + Date.now(), { type: 'basic', iconUrl: ICON, title: 'EyeTime', message: msg, priority: 0 });
+  notify('dock-save-' + Date.now(), { title: 'EyeTime', message: msg, priority: 0 });
 });
 
 chrome.commands.onCommand.addListener(async (cmd) => {

@@ -33,6 +33,20 @@ function chime() {
   }
 }
 
+/** The eye break is over: two low, short, quiet notes (the person is looking out of the window, not at the screen). */
+function rest() {
+  const c = audio(), now = c.currentTime;
+  const master = c.createGain(); master.gain.value = 0.32; master.connect(c.destination);
+  for (const [freq, delay, decay, gain] of [[392, 0, 1.6, .5], [523.25, .22, 2.2, .42]]) {
+    const o = c.createOscillator(), g = c.createGain(), t = now + delay;
+    o.type = 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(gain, t + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t + decay);
+  }
+}
+
 /* ---------- ambient sound: brown noise is synthesised; rain, river and forest are real recordings (CC0, see src/audio/CREDITS.md) ---------- */
 
 const FILES = { rain: 'rain', river: 'river', forest: 'forest' };
@@ -96,6 +110,7 @@ export function handle(msg) {
   if (msg?.target !== 'offscreen') return;
   if (msg.kind === 'start') bowl();
   else if (msg.kind === 'end') chime();
+  else if (msg.kind === 'rest') rest();
   else if (msg.kind === 'ambient-start') startAmbient(msg.sound);
   else if (msg.kind === 'ambient-stop') stopAmbient();
 }

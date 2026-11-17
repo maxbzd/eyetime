@@ -9,8 +9,10 @@ import { dayKey, splitAtMidnight, creditSeconds } from '../shared/time.js';
 import { hostFromUrl, matchesAny } from '../shared/domains.js';
 import { updateBadge } from './badge.js';
 import { onActiveTime } from './breaks.js';
+import { enforceTab } from './blocker.js';
 
 const MAX_GAP = 120; // seconds; a longer silence means the machine slept — don't credit it
+const EYE_STILL_SEC = 180; // for the eye breaks only: this long without a key or the mouse is still somebody looking at the screen
 const session = () => chrome.storage.session;
 
 let chain = Promise.resolve();
@@ -37,13 +39,20 @@ async function currentTarget(settings) {
   const [tab] = await chrome.tabs.query({ active: true, windowId: win.id });
   if (!tab) return null;
   const idle = await chrome.idle.queryState(Math.max(15, t.idleSeconds));
-  if (idle !== 'active' && !(t.countAudible && tab.audible)) return null;
+  const here = idle === 'active', sound = !!tab.audible;
+  // The statistics count a person who is here, or a tab that plays sound (when the setting says so).
+  // The eyes are on the screen a little longer than the hands are on the keyboard: a film counts whatever that setting says, and reading without touching
+  // anything counts for EYE_STILL_SEC (a locked screen never does). Without this a person who reads got their break after 30 minutes instead of 20.
+  const forStats = here || (t.countAudible && sound);
+  let forEyes = eyes && (here || (sound && idle !== 'locked'));
+  if (eyes && !forEyes && idle === 'idle') forEyes = (await chrome.idle.queryState(EYE_STILL_SEC)) === 'active';
+  if (!forStats && !forEyes) return null;
 
   const { pausedUntil = 0 } = await getRaw('pausedUntil');
   const host = hostFromUrl(tab.url);
-  const counted = t.enabled && pausedUntil <= Date.now() && !!host && !matchesAny(host, t.excluded) && !(tab.incognito && !t.incognito);
-  if (!counted && !eyes) return null;
-  return { host: counted ? host : null, tabId: tab.id };
+  const counted = forStats && t.enabled && pausedUntil <= Date.now() && !!host && !matchesAny(host, t.excluded) && !(tab.incognito && !t.incognito);
+  if (!counted && !forEyes) return null;
+  return { host: counted ? host : null, tabId: tab.id, url: counted ? tab.url : '', eyes: forEyes, watching: !here && sound };
 }
 
 async function run(reason) {
@@ -64,7 +73,7 @@ async function run(reason) {
         if (trk.host) await addTime({ host: trk.host, sec: c.sec, hour: new Date(c.from + (c.to - c.from) / 2).getHours(), date: new Date(c.to - 1) });
         sec += c.sec;
       }
-      if (sec > 0) await onActiveTime(sec, now);
+      if (sec > 0 && trk.eyes !== false) await onActiveTime(sec, now, { watching: !!trk.watching });
     }
   }
 
@@ -72,8 +81,10 @@ async function run(reason) {
   const target = await currentTarget(settings);
   // a switch = moving from one site to a different one (context switching is what fragments attention)
   if (trk && trk.host && target && target.host && target.host !== trk.host) await updateDay(dayKey(new Date(now)), (d) => { d.sw = (d.sw || 0) + 1; });
-  await session().set({ trk: target ? { host: target.host, on: true, since: now, rem } : { host: null, on: false, since: now, rem } });
+  await session().set({ trk: target ? { host: target.host, on: true, eyes: !!target.eyes, watching: !!target.watching, since: now, rem } : { host: null, on: false, since: now, rem } });
   await keepTick(!!target);
+  // the site in front is checked again as the time on it grows: a limit reached, a budget spent, work hours that began, a pass that ran out (blocker.js)
+  if (target && target.host && reason !== 'init') { try { await enforceTab(target.tabId, target.url); } catch (e) { console.warn('[tracker] enforce', e); } }
 
   await updateBadge(settings);
 }

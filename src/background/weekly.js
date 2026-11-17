@@ -9,6 +9,7 @@ import { dayKey, weekStart, addDays } from '../shared/time.js';
 import { makeClassifier } from '../shared/classify.js';
 import { summarize, delta } from '../shared/stats.js';
 import { fmtDuration, resolveLocale, setLocale, t } from '../shared/i18n.js';
+import { notify } from './notify.js';
 
 const weekKeys = (monday) => Array.from({ length: 7 }, (_, i) => dayKey(addDays(monday, i)));
 
@@ -43,7 +44,7 @@ export async function maybeSendWeeklyReport(now = new Date()) {
   const top = projectTotals(lastEntries).find((r) => r.tag && r.sec >= 600);
   if (top) lines.push(t('weekly.project', { tag: top.tag, time: fmtDuration(top.sec) }));
   if (cur.topSites[0]) lines.push(t('weekly.top', { sites: cur.topSites.slice(0, 3).map((s) => s.host).join(', ') }));
-  await chrome.notifications.create('weekly', { type: 'basic', iconUrl: 'icons/icon128.png', title: t('weekly.title'), message: lines.join('\n') });
+  await notify('weekly', { title: t('weekly.title'), message: lines.join('\n') });
 }
 
 chrome.notifications.onClicked.addListener((id) => {

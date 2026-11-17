@@ -4,10 +4,10 @@
 // Nothing is deleted without them: the notice points to Settings → Data & privacy, where "Free up space" and a backup live.
 
 import { getRaw, setRaw, getSettings, storageUsage } from '../shared/storage.js';
+import { notify } from './notify.js';
 import { setLocale, resolveLocale, t } from '../shared/i18n.js';
 
 const WARN_AT = 0.8, EVERY_MS = 7 * 86_400_000;
-const ICON = 'icons/icon128.png';
 
 export async function checkStorage() {
   try {
@@ -18,7 +18,7 @@ export async function checkStorage() {
     await setRaw({ storageWarnedAt: Date.now() });
     const settings = await getSettings();
     await setLocale(resolveLocale(settings.language));
-    await chrome.notifications.create('storage-full', { type: 'basic', iconUrl: ICON, priority: 1, title: t('store.fullTitle'), message: t('store.fullBody', { pct: Math.round((u.total / u.limit) * 100) }) });
+    await notify('storage-full', { priority: 1, title: t('store.fullTitle'), message: t('store.fullBody', { pct: Math.round((u.total / u.limit) * 100) }) });
   } catch { /* a heads-up is a nicety, never an error */ }
 }
 

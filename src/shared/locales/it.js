@@ -135,7 +135,7 @@ export const it = {
 
   'opt.eyeEnabled': 'Promemoria per le pause degli occhi', 'opt.eyeEnabledDesc': 'Basati sulla regola 20-20-20: ogni 20 minuti, guarda a 6 m (20 piedi) di distanza per 20 secondi.',
   'opt.eyeInterval': 'Ricordamelo dopo', 'opt.eyeIntervalDesc': 'Contato in tempo di schermo attivo, non in tempo di orologio.', 'opt.eyeLength': 'Durata della pausa',
-  'opt.eyeNotify': 'Mostra una notifica', 'opt.eyeNotifyDesc': 'Altrimenti il promemoria compare solo dentro EyeTime.', 'opt.eyePreview': 'Provala', 'opt.eyePreviewBtn': 'Anteprima della pausa',
+  'opt.eyeNotify': 'Mostra una notifica', 'opt.eyeNotifyDesc': 'Compare quando la pausa non può occupare lo schermo (video a schermo intero, chiamata), o al suo posto se l’opzione sopra è disattivata.', 'opt.eyeFullscreen': 'Apri la pausa a tutto schermo', 'opt.eyeFullscreenDesc': 'Quando è ora, la pausa copre lo schermo da sola. Aspetta mentre c’è un video a schermo intero o sei in chiamata. Esc la rimanda di 5 minuti.', 'opt.eyeSound': 'Un suono leggero alla fine della pausa', 'opt.eyeSoundDesc': 'Per saperlo senza tornare a guardare lo schermo.', 'break.escHint': 'Esc: ricordamelo tra 5 minuti', 'break.prefs': 'Impostazioni della pausa', 'opt.eyePreview': 'Provala', 'opt.eyePreviewBtn': 'Anteprima della pausa',
   'opt.groupBedtime': 'Ora di dormire', 'opt.bedtime': 'Promemoria per dormire', 'opt.bedtimeDesc': 'Uno spunto per concludere prima dell’ora in cui vuoi essere a letto.', 'opt.bedtimeAt': 'Ora di dormire', 'opt.bedtimeLead': 'Avvisami prima di',
 
   'opt.trackEnabled': 'Traccia il tempo di schermo', 'opt.trackEnabledDesc': 'Registra i secondi per sito mentre una scheda è attiva. Disattiva per mettere in pausa tutto.',

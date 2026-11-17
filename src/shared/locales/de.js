@@ -136,7 +136,7 @@ export const de = {
 
   'opt.eyeEnabled': 'Erinnerungen an Augenpausen', 'opt.eyeEnabledDesc': 'Nach der 20-20-20-Regel: alle 20 Minuten 20 Sekunden lang auf etwas in 20 Fuß (6 m) Entfernung schauen.',
   'opt.eyeInterval': 'Erinnere mich nach', 'opt.eyeIntervalDesc': 'Gezählt wird aktive Bildschirmzeit, nicht die Uhrzeit.', 'opt.eyeLength': 'Pausendauer',
-  'opt.eyeNotify': 'Benachrichtigung zeigen', 'opt.eyeNotifyDesc': 'Sonst erscheint die Erinnerung nur in EyeTime.', 'opt.eyePreview': 'Ausprobieren', 'opt.eyePreviewBtn': 'Pause ansehen',
+  'opt.eyeNotify': 'Benachrichtigung zeigen', 'opt.eyeNotifyDesc': 'Erscheint, wenn die Pause den Bildschirm nicht übernehmen kann (Video im Vollbild, Anruf), oder statt ihr, wenn die Option darüber aus ist.', 'opt.eyeFullscreen': 'Pause auf dem ganzen Bildschirm öffnen', 'opt.eyeFullscreenDesc': 'Wenn die Zeit um ist, legt sich die Pause von selbst über den Bildschirm. Sie wartet, solange ein Video im Vollbild läuft oder du in einem Anruf bist. Esc verschiebt sie um 5 Minuten.', 'opt.eyeSound': 'Ein leiser Ton am Ende der Pause', 'opt.eyeSoundDesc': 'Damit du es merkst, ohne wieder auf den Bildschirm zu schauen.', 'break.escHint': 'Esc: in 5 Minuten erinnern', 'break.prefs': 'Pausen-Einstellungen', 'opt.eyePreview': 'Ausprobieren', 'opt.eyePreviewBtn': 'Pause ansehen',
   'opt.groupBedtime': 'Schlafenszeit', 'opt.bedtime': 'Erinnerung an die Schlafenszeit', 'opt.bedtimeDesc': 'Ein Anstoß, rechtzeitig vor dem Einschlafen abzuschließen.', 'opt.bedtimeAt': 'Schlafenszeit', 'opt.bedtimeLead': 'Erinnere mich vorher',
 
   'opt.trackEnabled': 'Bildschirmzeit erfassen', 'opt.trackEnabledDesc': 'Erfasst Sekunden pro Seite, solange ein Tab aktiv ist. Ausschalten pausiert alles.',

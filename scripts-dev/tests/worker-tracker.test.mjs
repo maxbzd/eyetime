@@ -18,8 +18,8 @@ beforeEach(async () => {
   mock.timers.reset();
   mock.timers.enable({ apis: ['Date'], now: start });
   await chrome.storage.local.clear(); await chrome.storage.session.clear(); await chrome.alarms.clearAll();
-  chrome._tabs().length = 0; chrome._calls.length = 0;
-  chrome.idle._state = 'active'; chrome._window.focused = true;
+  chrome._tabs().length = 0; chrome._calls.length = 0; chrome.windows._extra().length = 0; chrome.windows._refuse = null;
+  chrome.idle._state = 'active'; chrome.idle._still = Infinity; chrome._window.focused = true;
 });
 
 test('time on the site in front is credited when the tab changes or the tick comes', async () => {
@@ -124,7 +124,7 @@ test('a running focus session or rest keeps the alarm (the badge counts the minu
 
 // the eye reminders count the time somebody is in front of the screen, whatever the page: tired eyes do not care. (The new tab froze the countdown at "1s" for good: it is not a site, so nothing was counted.)
 const { getEyeState } = await import('../../src/background/breaks.js');
-const eyeOn = (extra = () => {}) => updateSettings((s) => { s.eye.enabled = true; s.eye.intervalMin = 20; s.eye.notify = false; extra(s); });
+const eyeOn = (extra = () => {}) => updateSettings((s) => { s.eye.enabled = true; s.eye.intervalMin = 20; s.eye.notify = false; s.eye.fullscreen = false; extra(s); }); // these are about what is counted; how the break is shown is in worker-breaks-focus
 
 test('eye reminders: the time on the new tab and on a browser page counts, and the break comes due; the site statistics stay empty', async () => {
   await eyeOn();
@@ -162,4 +162,81 @@ test('eye reminders off and tracking off: nothing is counted and the alarm is no
   await updateSettings((s) => { s.tracking.enabled = false; s.eye.enabled = false; });
   chrome._openTab('chrome-extension://abc/src/newtab/newtab.html'); await sync('init'); mock.timers.tick(60_000); await sync('tick');
   assert.equal((await getEyeState()).since, 0); assert.equal(await chrome.alarms.get('tick'), undefined);
+});
+
+test('eye reminders: reading without touching anything still counts for three minutes, for the eyes only; then it stops', async () => {
+  await eyeOn();
+  chrome._openTab('https://github.com/readme'); await sync('init');
+  mock.timers.tick(60_000); chrome.idle._state = 'idle'; chrome.idle._still = 60; await sync('idle:idle'); // a minute with no key and no mouse: the browser says "idle"
+  assert.equal((await getEyeState()).since, 60); assert.equal(seconds('github.com'), 60);
+  mock.timers.tick(30_000); chrome.idle._still = 90; await sync('tick');
+  mock.timers.tick(30_000); chrome.idle._still = 120; await sync('tick');
+  assert.equal((await getEyeState()).since, 120, 'the eyes are still on the page');
+  assert.equal(seconds('github.com'), 60, 'the statistics keep their own rule: nobody at the keyboard, nothing counted');
+  mock.timers.tick(60_000); chrome.idle._still = 180; await sync('tick'); // three minutes: that is somebody who left
+  const at = (await getEyeState()).since;
+  assert.equal(at, 180);
+  mock.timers.tick(30_000); chrome.idle._still = 210; await sync('tick');
+  assert.equal((await getEyeState()).since, at, 'and nothing after that');
+  assert.equal(await chrome.alarms.get('tick'), undefined, 'the worker is not woken for nobody');
+});
+
+test('eye reminders: a locked screen is never counted, and a film counts for the eyes even when the statistics do not count sound', async () => {
+  await eyeOn((s) => { s.tracking.countAudible = false; });
+  chrome._openTab('https://www.youtube.com/watch', { audible: true }); await sync('init');
+  chrome.idle._state = 'idle'; chrome.idle._still = 600; await sync('idle:idle'); mock.timers.tick(60_000); await sync('tick');
+  assert.equal((await getEyeState()).since, 60, 'watching is screen time');
+  assert.equal(seconds('youtube.com'), 0, 'the statistics follow their own setting');
+  chrome.idle._state = 'locked'; await sync('idle:locked'); const locked = (await getEyeState()).since; mock.timers.tick(60_000); await sync('tick');
+  assert.equal((await getEyeState()).since, locked, 'locked');
+});
+
+// A decision about a site used to be made only when a page was opened. Whoever stayed on one page (an endless feed) was never stopped by a limit, a budget,
+// the start of the work hours or the end of a "continue for N minutes".
+const blocked = () => chrome._callsTo('tabs.update').map(([id, props]) => ({ id, to: new URL(props.url) })).filter((r) => r.to.pathname === '/src/blocked/blocked.html');
+
+test('a daily limit stops the site while the person is still on it, not at the next page they open', async () => {
+  await updateSettings((s) => { s.blocking.limits = { 'reddit.com': 2 }; s.blocking.friction.enabled = false; s.eye.enabled = false; });
+  const tab = chrome._openTab('https://www.reddit.com/r/all'); await sync('activated');
+  for (let i = 0; i < 3; i++) { mock.timers.tick(30_000); await sync('tick'); }
+  assert.equal(blocked().length, 0, 'a minute and a half: under the limit');
+  mock.timers.tick(30_000); await sync('tick');
+  assert.equal(blocked().length, 1, 'two minutes: the limit');
+  assert.equal(blocked()[0].id, tab.id); assert.equal(blocked()[0].to.searchParams.get('r'), 'limit'); assert.equal(blocked()[0].to.searchParams.get('u'), 'https://www.reddit.com/r/all');
+});
+
+test('the distraction budget and the start of the work hours do the same; a pause-style site that was already open is left alone', async () => {
+  await updateSettings((s) => { s.blocking.budget = { enabled: true, minutes: 1 }; s.eye.enabled = false; });
+  chrome._openTab('https://www.youtube.com/feed'); await sync('activated');
+  mock.timers.tick(30_000); await sync('tick');
+  assert.equal(blocked().length, 0, 'the pause page is for arriving, not for being pulled out');
+  mock.timers.tick(30_000); await sync('tick');
+  assert.equal(blocked().at(-1).to.searchParams.get('r'), 'budget');
+  chrome._calls.length = 0; chrome._tabs().length = 0;
+  await updateSettings((s) => { s.blocking.budget.enabled = false; s.blocking.schedule = { ...s.blocking.schedule, enabled: true, days: [0, 1, 2, 3, 4, 5, 6], start: '10:03', end: '18:00' }; });
+  chrome._openTab('https://www.youtube.com/feed'); await sync('activated');
+  mock.timers.tick(60_000); await sync('tick');
+  assert.equal(blocked().length, 0, '10:02: before the work hours');
+  mock.timers.tick(60_000); await sync('tick');
+  assert.equal(blocked().at(-1).to.searchParams.get('r'), 'schedule', '10:03: they began');
+});
+
+test('"continue for five minutes" during a session means five minutes: the site closes again when they are over', async () => {
+  const { startFocus } = await import('../../src/background/focus.js');
+  const { grantPass } = await import('../../src/background/blocker.js');
+  await updateSettings((s) => { s.eye.enabled = false; });
+  await startFocus({ minutes: 50 });
+  await grantPass('youtube.com', 5);
+  chrome._openTab('https://www.youtube.com/watch?v=1'); await sync('activated'); chrome._calls.length = 0;
+  for (let i = 0; i < 9; i++) { mock.timers.tick(30_000); await sync('tick'); }
+  assert.equal(blocked().length, 0, 'four and a half minutes: the pass holds');
+  mock.timers.tick(31_000); await sync('tick');
+  assert.equal(blocked().length, 1); assert.equal(blocked()[0].to.searchParams.get('r'), 'focus');
+});
+
+test('a neutral site, a site with no rule and a page that is not counted are never touched by this', async () => {
+  await updateSettings((s) => { s.blocking.limits = { 'reddit.com': 1 }; s.tracking.excluded = ['bank.example']; s.eye.enabled = false; });
+  chrome._openTab('https://github.com/'); await sync('activated'); for (let i = 0; i < 6; i++) { mock.timers.tick(30_000); await sync('tick'); }
+  chrome._openTab('https://www.bank.example/'); await sync('activated'); for (let i = 0; i < 6; i++) { mock.timers.tick(30_000); await sync('tick'); }
+  assert.equal(chrome._callsTo('tabs.update').length, 0);
 });

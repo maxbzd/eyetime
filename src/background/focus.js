@@ -16,25 +16,35 @@ import { updateEstLog } from '../shared/tasks.js';
 import { sweepTabs } from './blocker.js';
 import { updateBadge } from './badge.js';
 import { playChime, setAmbient } from './audio.js';
+import { notify } from './notify.js';
 import { track, getUsage } from '../shared/usage-store.js';
 import { lengthFeature } from '../shared/usage.js';
 
-const ICON = 'icons/icon128.png';
 const MIN_CREDIT_SEC = 120; // an early stop counts as focus time only after 2 minutes
 
 /** @type {Promise<any>} */
-let startQueue = Promise.resolve();
+let queue = Promise.resolve();
 /**
- * @param {{ minutes: number, goal?: string, strict?: boolean, taskId?: string, scope?: string, mode?: string }} p
- * @returns {Promise<any>}
- *
- * Two starts that arrive together (a double click, the popup and the new tab) are handled one after the other: the first wins, the second is told a session is already running. */
-export function startFocus(p) {
-  const run = () => startFocusNow(p);
-  const next = startQueue.then(run, run);
-  startQueue = next.catch(() => {});
+ * Everything that changes the session (start, pause, resume, +5, stop, the end, the rest, the review) goes through one line, one after the other. Each of them reads the
+ * session, decides and writes: two of them at once both read the same session and both act on it. That is not a rare thing: the alarm at the end of a session wakes
+ * the worker, the worker's own start-up finds a session that is over, and both ended it (the session was counted twice: two entries, twice the minutes, a streak of two);
+ * a double click on "Stop" did the same.
+ * @template {any[]} A
+ * @param {(...args: A) => Promise<any>} fn
+ * @returns {(...args: A) => Promise<any>}
+ */
+const inLine = (fn) => (...args) => {
+  const run = () => fn(...args);
+  const next = queue.then(run, run);
+  queue = next.catch(() => {});
   return next;
-}
+};
+
+/**
+ * Two starts that arrive together (a double click, the popup and the new tab) are handled one after the other: the first wins, the second is told a session is already running.
+ * @type {(p: { minutes: number, goal?: string, strict?: boolean, taskId?: string, scope?: string, mode?: string, remember?: boolean }) => Promise<any>}
+ */
+export const startFocus = inLine(startFocusNow);
 
 /** @param {{ minutes: number, goal?: string, strict?: boolean, taskId?: string, scope?: string, mode?: string, remember?: boolean }} p  remember: false keeps the last-used length and scope as they were (the onboarding's first session is not a choice of them) */
 async function startFocusNow({ minutes, goal = '', strict = false, taskId = '', scope = undefined, mode = '', remember = true }) {
@@ -68,7 +78,7 @@ function playAmbientFor(settings, modeCfg) {
 }
 
 /** Pause a (not strict) session: the clock stops, blocking and sound are lifted, and an alarm resumes it by itself after MAX_PAUSE_MS. */
-export async function pauseFocus() {
+async function pauseFocusNow() {
   const { focus } = await getRaw('focus');
   if (!focus || !isFocusActive(focus) || focus.strict) return { ok: false, error: focus && focus.strict ? 'strict' : 'none' };
   const next = pauseSession(focus);
@@ -82,7 +92,7 @@ export async function pauseFocus() {
 }
 
 /** Resume a paused session (by the user, or by the alarm when the pause ran out): its end moves by the pause. */
-export async function resumeFocus({ auto = false, silent = false } = {}) {
+async function resumeFocusNow({ auto = false, silent = false } = {}) {
   const { focus } = await getRaw('focus');
   if (!focus || !isPaused(focus)) return { ok: false };
   const next = resumeSession(focus);
@@ -98,7 +108,7 @@ export async function resumeFocus({ auto = false, silent = false } = {}) {
 }
 
 /** +N minutes on the running session: finishing what you are in the middle of beats starting over. */
-export async function extendFocus(minutes = 5) {
+async function extendFocusNow(minutes = 5) {
   const { focus } = await getRaw('focus');
   if (!focus || !isFocusActive(focus)) return { ok: false };
   const add = Math.min(60, Math.max(1, Math.round(minutes)));
@@ -111,7 +121,7 @@ export async function extendFocus(minutes = 5) {
 }
 
 /** Ends the session early. Strict sessions can only be ended by the owner of the browser via the extensions page. */
-export async function stopFocus() {
+async function stopFocusNow() {
   const { focus } = await getRaw('focus');
   if (!focus) return;
   // Whether this is the session the onboarding started is decided HERE, before anything is cleared: an open new tab reacts to the cleared session at once, and may close the onboarding's matter
@@ -147,7 +157,7 @@ async function creditTask(focus, sec) {
 }
 
 /** The user's answer to the review card: rate the session, optionally tick the task off. */
-export async function reviewSession({ id, rating, done, resume = '' }) {
+async function reviewSessionNow({ id, rating, done, resume = '' }) {
   const { review } = await getRaw('review');
   if (!review || review.id !== id) return { ok: false };
   if (rating) await updateDay(review.day, (d) => { rateSession(d, id, rating); });
@@ -166,7 +176,7 @@ export async function reviewSession({ id, rating, done, resume = '' }) {
 }
 
 /** Alarm fired (or the worker woke up after the end time). */
-export async function finishFocus() {
+async function finishFocusNow() {
   const { focus } = await getRaw('focus');
   if (!focus || isFocusLive(focus)) return; // still running, or paused (a paused session waits for its resume)
   const { obFirst } = await getRaw('obFirst');
@@ -191,28 +201,40 @@ export async function finishFocus() {
     await chrome.alarms.create('rest-end', { when: rest.endsAt });
   }
   const opts = {
-    type: 'basic', iconUrl: ICON, priority: 1,
+    priority: 1,
     title: t('focus.doneTitle'),
     message: focus.goal ? t('focus.doneBodyGoal', { n: focus.minutes, goal: focus.goal }) : t('focus.doneBody', { n: focus.minutes }),
     buttons: settings.focus.suggestBreak ? [{ title: t('eye.startBreak') }, { title: t('focus.again') }] : undefined,
   };
-  try { await chrome.notifications.create('focus-done', opts); } catch { delete opts.buttons; await chrome.notifications.create('focus-done', opts); }
-  await updateBadge(settings);
+  await updateBadge(settings); // before the note: nothing that follows may leave the toolbar counting a session that is over
+  await notify('focus-done', opts);
 }
 
 /** Rest over (or skipped): clear it and, when it ran its course, say so. */
-export async function endRest({ notify = true } = {}) {
+async function endRestNow({ notify: say = true } = {}) {
   const { rest } = await getRaw('rest');
   await chrome.alarms.clear('rest-end');
   if (!rest) return;
   await setRaw({ rest: null });
   const settings = await getSettings();
   await updateBadge(settings);
-  if (!notify) return;
+  if (!say) return;
   await setLocale(resolveLocale(settings.language));
-  const opts = { type: 'basic', iconUrl: ICON, priority: 0, title: t('rest.overTitle'), message: t('rest.overBody', { n: settings.focus.minutes }), buttons: [{ title: t('focus.start', { time: fmtDuration(settings.focus.minutes * 60) }) }] };
-  try { await chrome.notifications.create('rest-over', opts); } catch { delete opts.buttons; await chrome.notifications.create('rest-over', opts); }
+  const opts = { priority: 0, title: t('rest.overTitle'), message: t('rest.overBody', { n: settings.focus.minutes }), buttons: [{ title: t('focus.start', { time: fmtDuration(settings.focus.minutes * 60) }) }] };
+  await notify('rest-over', opts);
 }
+
+export const pauseFocus = inLine(pauseFocusNow);
+/** @type {(o?: { auto?: boolean, silent?: boolean }) => Promise<any>} */
+export const resumeFocus = inLine(resumeFocusNow);
+/** @type {(minutes?: number) => Promise<any>} */
+export const extendFocus = inLine(extendFocusNow);
+export const stopFocus = inLine(stopFocusNow);
+/** @type {(m: { id: string, rating?: number, done?: boolean, resume?: string }) => Promise<any>} */
+export const reviewSession = inLine(reviewSessionNow);
+export const finishFocus = inLine(finishFocusNow);
+/** @type {(o?: { notify?: boolean }) => Promise<any>} */
+export const endRest = inLine(endRestNow);
 
 chrome.alarms.onAlarm.addListener((a) => { if (a.name === 'focus-end') finishFocus(); if (a.name === 'focus-resume') resumeFocus({ auto: true }); if (a.name === 'rest-end') endRest(); });
 chrome.notifications.onButtonClicked?.addListener(async (id) => {

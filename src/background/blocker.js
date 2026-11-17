@@ -52,6 +52,26 @@ export async function checkTab(tabId, url) {
   try { await chrome.tabs.update(tabId, { url: blockedPageUrl(url, d) }); } catch { /* tab closed */ }
 }
 
+/**
+ * The page that is open and in front, looked at again while the person stays on it (the tracker calls this with every stretch it counts, about twice a minute).
+ * A decision is otherwise made only when a page is opened, and four things change without a page being opened: the daily limit is reached, the distraction budget is
+ * spent, the work hours begin, a "continue for N minutes" runs out. Somebody who stays in one endless feed was never stopped by any of them.
+ * Only a block is applied here: the pause page is for arriving at a site, not for being pulled out of one.
+ */
+export async function enforceTab(tabId, url) {
+  if (!isWeb(url)) return false;
+  let d;
+  try { d = await evaluate(url, Date.now(), tabId); } catch (e) { logError('blocker:enforce', e); return false; } // nothing is decided on a guess here: the next page opened is checked the usual way
+  if (d.action !== 'block') return false;
+  logAttempt(tabId, url, d).then((counted) => { if (counted) { track('block_page'); const why = blockFeature(d.reason || ''); if (why) track(why); } }).catch(() => {});
+  try {
+    const tab = await chrome.tabs.get(tabId);
+    if (tab.url !== url) return false; // they moved on while this was being decided: that page gets its own decision
+    await chrome.tabs.update(tabId, { url: blockedPageUrl(url, d) });
+    return true;
+  } catch { return false; }
+}
+
 /** The reasons the browser's rules can say (limits and the budget depend on usage, which only the blocker reads). */
 const COVERED = new Set(['always', 'focus', 'schedule', 'friction']);
 

@@ -136,7 +136,7 @@ export const pt = {
 
   'opt.eyeEnabled': 'Lembretes de pausa para os olhos', 'opt.eyeEnabledDesc': 'Baseado na regra 20-20-20: a cada 20 minutos, olhe a 20 pés (6 m) de distância por 20 segundos.',
   'opt.eyeInterval': 'Lembrar após', 'opt.eyeIntervalDesc': 'Contado em tempo de tela ativo, não em tempo de relógio.', 'opt.eyeLength': 'Duração da pausa',
-  'opt.eyeNotify': 'Mostrar uma notificação', 'opt.eyeNotifyDesc': 'Caso contrário, o lembrete aparece só dentro do EyeTime.', 'opt.eyePreview': 'Experimente', 'opt.eyePreviewBtn': 'Ver uma pausa',
+  'opt.eyeNotify': 'Mostrar uma notificação', 'opt.eyeNotifyDesc': 'Aparece quando a pausa não pode ocupar a tela (vídeo em tela cheia, chamada), ou no lugar dela se a opção acima estiver desligada.', 'opt.eyeFullscreen': 'Abrir a pausa na tela inteira', 'opt.eyeFullscreenDesc': 'Quando chega a hora, a pausa cobre a tela sozinha. Ela espera enquanto há um vídeo em tela cheia ou você está em uma chamada. Esc adia por 5 minutos.', 'opt.eyeSound': 'Um som suave ao fim da pausa', 'opt.eyeSoundDesc': 'Para você saber sem olhar de novo para a tela.', 'break.escHint': 'Esc: lembrar em 5 minutos', 'break.prefs': 'Configurações da pausa', 'opt.eyePreview': 'Experimente', 'opt.eyePreviewBtn': 'Ver uma pausa',
   'opt.groupBedtime': 'Hora de dormir', 'opt.bedtime': 'Lembrete de hora de dormir', 'opt.bedtimeDesc': 'Um empurrãozinho para terminar antes da hora em que você quer estar dormindo.', 'opt.bedtimeAt': 'Hora de dormir', 'opt.bedtimeLead': 'Lembrar antes',
 
   'opt.trackEnabled': 'Registrar tempo de tela', 'opt.trackEnabledDesc': 'Registra segundos por site enquanto uma aba está ativa. Desative para pausar tudo.',

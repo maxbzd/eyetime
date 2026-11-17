@@ -233,6 +233,8 @@ export function eye({ s, save }) {
       e.enabled ? [
         row({ title: t('opt.eyeInterval'), desc: t('opt.eyeIntervalDesc'), control: select(mins([15, 20, 30, 45, 60]), e.intervalMin, (v) => save((x) => { x.eye.intervalMin = Number(v); }), { label: t('opt.eyeInterval') }) }),
         row({ title: t('opt.eyeLength'), control: select([20, 30, 60].map((n) => [n, t('opt.seconds', { n })]), e.breakSeconds, (v) => save((x) => { x.eye.breakSeconds = Number(v); }), { label: t('opt.eyeLength') }) }),
+        row({ title: t('opt.eyeFullscreen'), desc: t('opt.eyeFullscreenDesc'), control: toggle(e.fullscreen, (v) => save((x) => { x.eye.fullscreen = v; }), t('opt.eyeFullscreen')) }),
+        row({ adv: 'eyeSound', title: t('opt.eyeSound'), desc: t('opt.eyeSoundDesc'), control: toggle(e.sound, (v) => save((x) => { x.eye.sound = v; }), t('opt.eyeSound')) }),
         row({ adv: 'eyeNotify', title: t('opt.eyeNotify'), desc: t('opt.eyeNotifyDesc'), control: toggle(e.notify, (v) => save((x) => { x.eye.notify = v; }), t('opt.eyeNotify')) }),
         row({ title: t('opt.eyePreview'), control: h('button', { class: 'btn', type: 'button', onclick: () => send('break:open') }, icon('eye'), t('opt.eyePreviewBtn')) }),
       ] : null),

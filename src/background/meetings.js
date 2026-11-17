@@ -8,8 +8,8 @@ import { isFocusActive } from '../shared/blocking.js';
 import { upcomingMeeting, inMeeting } from '../shared/calstore.js';
 import { dayKey } from '../shared/time.js';
 import { resolveLocale, setLocale, t } from '../shared/i18n.js';
+import { notify } from './notify.js';
 
-const ICON = 'icons/icon128.png';
 const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
 
 /** True while a meeting is on and the user asked for quiet. */
@@ -38,7 +38,7 @@ export async function checkMeetings() {
     await setRaw({ meetingWarned: [...warned, wid].slice(-20) });
     await setLocale(resolveLocale(settings.language));
     const left = Math.max(1, Math.round((focus.endsAt - Date.now()) / 60_000));
-    await chrome.notifications.create('meeting-soon', { type: 'basic', iconUrl: ICON, priority: 1, title: t('meet.soonTitle', { time: m.start }), message: t('meet.soonBody', { title: m.title || t('meet.untitled'), n: left }) });
+    await notify('meeting-soon', { priority: 1, title: t('meet.soonTitle', { time: m.start }), message: t('meet.soonBody', { title: m.title || t('meet.untitled'), n: left }) });
   } catch { /* a heads-up is a nicety, never an error */ }
 }
 
