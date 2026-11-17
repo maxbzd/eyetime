@@ -19,23 +19,129 @@ const notes = () => chrome._callsTo('notifications.create').map(([id]) => id);
 beforeEach(async () => {
   mock.timers.reset(); mock.timers.enable({ apis: ['Date'], now: start });
   await chrome.storage.local.clear(); await chrome.storage.session.clear(); await chrome.alarms.clearAll();
-  chrome._tabs().length = 0; chrome._calls.length = 0;
+  chrome._tabs().length = 0; chrome._calls.length = 0; chrome.windows._extra().length = 0; chrome.windows._refuse = null;
 });
 
-test('eye break: due after the interval of active time, one notification, and the person is not nagged again', async () => {
-  await updateSettings((s) => { s.eye.enabled = true; s.eye.intervalMin = 20; s.eye.notify = true; });
+const eyeState = async () => (await chrome.storage.session.get('eye')).eye;
+const wins = () => chrome._callsTo('windows.create').map(([p]) => p);
+const browsing = (url = 'https://github.com/') => { chrome._tabs().length = 0; chrome._openTab(url); };
+
+test('eye break: when the time is up it takes the whole screen by itself, once, in a window of its own; no notification is needed', async () => {
+  await updateSettings((s) => { s.eye.enabled = true; s.eye.intervalMin = 20; });
+  browsing();
+  await onActiveTime(19 * 60, Date.now());
+  assert.deepEqual(wins(), [], 'not yet');
+  await onActiveTime(60, Date.now());
+  assert.equal(wins().length, 1);
+  assert.deepEqual({ type: wins()[0].type, state: wins()[0].state, focused: wins()[0].focused }, { type: 'popup', state: 'fullscreen', focused: true });
+  assert.match(wins()[0].url, /\/src\/break\/break\.html\?auto=1$/);
+  assert.deepEqual(notes(), [], 'the break itself is on the screen');
+  await onActiveTime(30, Date.now()); await onActiveTime(30, Date.now());
+  assert.equal(wins().length, 1, 'while it is on the screen it is not opened again');
+  assert.equal((await eyeState()).due, true);
+});
+
+test('eye break: it waits while another program has the keyboard, a film is on the whole screen or a call is on, and comes as soon as that is over', async () => {
+  await updateSettings((s) => { s.eye.enabled = true; s.eye.intervalMin = 20; });
+  browsing();
+  chrome._window.focused = false; await onActiveTime(20 * 60, Date.now());
+  assert.deepEqual(wins(), []); assert.deepEqual(notes(), [], 'somebody working in another program is not interrupted, not even with a note');
+  chrome._window.focused = true; chrome._window.state = 'fullscreen'; await onActiveTime(30, Date.now());
+  assert.deepEqual(wins(), [], 'a film on the whole screen is not covered'); assert.deepEqual(notes(), ['eye-break'], 'a notification says it instead');
+  await onActiveTime(30, Date.now()); assert.deepEqual(notes(), ['eye-break'], 'once');
+  chrome._window.state = 'normal'; browsing('https://meet.google.com/abc-defg-hij'); await onActiveTime(30, Date.now());
+  assert.deepEqual(wins(), [], 'nor a call');
+  browsing(); await onActiveTime(30, Date.now());
+  assert.equal(wins().length, 1, 'back on an ordinary page: now');
+  chrome._window.state = 'normal';
+});
+
+test('eye break: closing its window without an answer is "in five minutes"; an answered break leaves nothing behind', async () => {
+  await updateSettings((s) => { s.eye.enabled = true; s.eye.intervalMin = 20; });
+  browsing(); await onActiveTime(20 * 60, Date.now());
+  const id = (await eyeState()).win; assert.ok(id);
+  chrome.windows._close(id); await settle();
+  assert.deepEqual({ since: (await eyeState()).since, due: (await eyeState()).due, win: (await eyeState()).win }, { since: 15 * 60, due: false, win: 0 });
+  browsing(); await onActiveTime(5 * 60, Date.now());
+  assert.equal(wins().length, 2, 'five minutes of screen time later it is back');
+  const second = (await eyeState()).win;
+  await breaks.completeBreak();
+  chrome.windows._close(second); await settle();
+  assert.deepEqual({ since: (await eyeState()).since, due: (await eyeState()).due }, { since: 0, due: false }, 'the window that closes itself after the break changes nothing');
+  assert.equal(day().b, 1);
+});
+
+test('eye break: a window the worker never heard closing does not keep the break "on the screen" for ever', async () => {
+  await updateSettings((s) => { s.eye.enabled = true; s.eye.intervalMin = 20; });
+  browsing(); await onActiveTime(20 * 60, Date.now());
+  chrome.windows._extra().length = 0; // gone, and no event reached the worker
+  browsing(); await onActiveTime(30, Date.now());
+  assert.equal((await eyeState()).win, 0); assert.equal((await eyeState()).due, false);
+  await onActiveTime(5 * 60, Date.now());
+  assert.equal(wins().length, 2);
+});
+
+test('eye break: a browser that cannot open such a window gets a smaller one, then a tab, then at least the notification', async () => {
+  await updateSettings((s) => { s.eye.enabled = true; s.eye.intervalMin = 20; });
+  browsing(); chrome.windows._refuse = ['fullscreen'];
+  await onActiveTime(20 * 60, Date.now());
+  assert.deepEqual(wins().map((w) => [w.type, w.state]), [['popup', 'fullscreen'], ['popup', 'maximized']]); assert.ok((await eyeState()).win);
+  await breaks.skipBreak(); chrome.windows._extra().length = 0; chrome._calls.length = 0;
+  browsing(); chrome.windows._refuse = ['fullscreen', 'maximized']; // every kind of window refused
+  await onActiveTime(20 * 60, Date.now());
+  assert.match(chrome._callsTo('tabs.create')[0][0].url, /break\.html\?auto=1$/); assert.ok((await eyeState()).tab, 'a tab is remembered the same way');
+  const tabId = (await eyeState()).tab; chrome.tabs.onRemoved.fire(tabId); await settle();
+  assert.equal((await eyeState()).since, 15 * 60, 'and closing it is "in five minutes" too');
+});
+
+test('eye break, notification only: one when it comes due and one more for every further interval without a break, never a stream', async () => {
+  await updateSettings((s) => { s.eye.enabled = true; s.eye.intervalMin = 20; s.eye.fullscreen = false; s.eye.notify = true; });
+  browsing();
   await onActiveTime(19 * 60, Date.now());
   assert.deepEqual(notes(), [], 'not yet');
   await onActiveTime(60, Date.now());
-  assert.deepEqual(notes(), ['eye-break']);
-  await onActiveTime(5 * 60, Date.now());
-  assert.deepEqual(notes(), ['eye-break'], 'once until the break is taken or skipped');
-  const state = (await chrome.storage.session.get('eye')).eye;
-  assert.equal(state.due, true);
+  assert.deepEqual(notes(), ['eye-break']); assert.deepEqual(wins(), [], 'the screen is left alone');
+  for (let i = 0; i < 19; i++) await onActiveTime(60, Date.now());
+  assert.deepEqual(notes(), ['eye-break'], 'not nagged in between');
+  await onActiveTime(60, Date.now());
+  assert.deepEqual(notes(), ['eye-break', 'eye-break'], 'forty minutes without a break: said once more');
+  assert.equal((await eyeState()).due, true);
+});
+
+test('eye break: a notification the browser refuses loses neither the count nor the next reminder (it used to freeze the countdown for good)', async () => {
+  await updateSettings((s) => { s.eye.enabled = true; s.eye.intervalMin = 20; s.eye.fullscreen = false; s.eye.notify = true; });
+  const create = chrome.notifications.create; chrome.notifications.create = async () => { throw new Error('Unable to download all specified images.'); };
+  try {
+    await onActiveTime(19 * 60 + 30, Date.now()); await onActiveTime(30, Date.now()); await onActiveTime(30, Date.now());
+    assert.equal((await eyeState()).since, 20 * 60 + 30, 'every second is kept');
+    assert.equal((await eyeState()).due, true);
+  } finally { chrome.notifications.create = create; }
+});
+
+test('every notification of the worker carries an icon the browser can load from where the worker lives', async () => {
+  const { notify, notifyIcon } = await import('../../src/background/notify.js');
+  assert.equal(await notify('probe', { title: 'a', message: 'b' }), true);
+  assert.match(notifyIcon(), /^chrome-extension:\/\/[^/]+\/icons\/icon128\.png$/);
+  // the address the worker used to give: read against src/background/, where there is no such file, so Chrome refused the whole notification
+  await assert.rejects(chrome.notifications.create('old', { type: 'basic', iconUrl: 'icons/icon128.png', title: 'a', message: 'b' }), /Unable to download/);
+  assert.equal(await notify('probe2', { title: 'a', message: 'b', buttons: [{ title: 'x' }] }), true);
+});
+
+test('eye break: a film watched for twenty minutes without touching anything is not "five minutes away": the break stays due', async () => {
+  await updateSettings((s) => { s.eye.enabled = true; s.eye.intervalMin = 20; s.eye.fullscreen = false; s.eye.notify = false; });
+  chrome.idle.onStateChanged.fire('idle'); await settle();
+  for (let i = 0; i < 20; i++) { mock.timers.tick(60_000); await onActiveTime(60, Date.now(), { watching: true }); }
+  assert.equal((await eyeState()).due, true);
+  chrome.idle.onStateChanged.fire('active'); await settle();
+  assert.equal((await eyeState()).due, true, 'moving the mouse after the film does not wipe the break');
+  assert.equal((await eyeState()).since, 20 * 60);
+  // and somebody who really was away for five minutes has rested
+  chrome.idle.onStateChanged.fire('idle'); await settle(); mock.timers.tick(5 * 60_000); chrome.idle.onStateChanged.fire('active'); await settle();
+  assert.deepEqual({ since: (await eyeState()).since, due: (await eyeState()).due }, { since: 0, due: false });
 });
 
 test('eye break: taking it counts it and starts a fresh interval; skipping starts a fresh interval without counting', async () => {
-  await updateSettings((s) => { s.eye.enabled = true; s.eye.intervalMin = 20; });
+  await updateSettings((s) => { s.eye.enabled = true; s.eye.intervalMin = 20; s.eye.fullscreen = false; });
   await onActiveTime(21 * 60, Date.now());
   await breaks.completeBreak();
   assert.equal(day().b, 1);
@@ -145,4 +251,30 @@ test('the first session, finished: the count of held pages is taken at its end; 
   assert.equal((await getRaw('obFirst')).obFirst.blocksEnd, 3, 'the count at the end of the session');
   await focus.startFocus({ minutes: 5 });
   assert.equal((await getSettings()).focus.minutes, 5, 'while a session the person chose, with remembering, does change it');
+});
+
+// Two things that can end a session arrive together: the alarm at its end, and the worker's own start-up (the alarm woke a sleeping worker, which looked at the clock too).
+// Both read the same session and both ended it: two entries in the log, twice the minutes, a streak of two. Likewise for a double click on "Stop".
+test('a session that is ended by two callers at once is counted once, and stopped twice is credited once', async () => {
+  await focus.startFocus({ minutes: 25, goal: 'report' });
+  mock.timers.tick(25 * 60_000 + 500);
+  await Promise.all([focus.finishFocus(), focus.finishFocus()]);
+  assert.equal(day().fc, 1, 'one finished session'); assert.equal(day().fs, 25 * 60, 'one session of minutes');
+  assert.equal((day().ss || day().s || []).length || 1, 1);
+  await chrome.storage.local.clear(); await chrome.alarms.clearAll();
+  await focus.startFocus({ minutes: 25 });
+  mock.timers.tick(10 * 60_000);
+  await Promise.all([focus.stopFocus(), focus.stopFocus()]);
+  assert.equal(day().fs, 10 * 60, 'ten minutes, once');
+  assert.equal((await getRaw('focus')).focus, null);
+});
+
+test('the pause, the +5 and the end cannot run into one another either: a session extended at the moment it ends is either extended or over, never both', async () => {
+  await focus.startFocus({ minutes: 25 });
+  mock.timers.tick(25 * 60_000 - 200);
+  const [ext, fin] = await Promise.all([focus.extendFocus(5), (async () => { mock.timers.tick(400); return focus.finishFocus(); })()]);
+  const { focus: left } = await getRaw('focus');
+  if (left) { assert.equal(ext.ok, true); assert.equal(day().fc || 0, 0, 'extended: not counted as finished'); }
+  else { assert.equal(day().fc, 1, 'over: counted once'); }
+  void fin;
 });

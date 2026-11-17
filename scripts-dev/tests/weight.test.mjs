@@ -36,7 +36,7 @@ const rel = (g) => [...g.keys()].map((f) => path.relative(root, f));
 // bytes of JavaScript read at start, with room to grow a little (the new tab is at 950 KB since the 69 wallpaper names went into the English words; the other languages are read as data)
 const PAGES = {
   'src/popup/popup.html': 450,
-  'src/newtab/newtab.html': 960,
+  'src/newtab/newtab.html': 965, // 965 since the eye break has its own settings (the English words are read in full)
   'src/insights/insights.html': 460, // 460 since the quotes carry a twelfth language
   'src/options/options.html': 760,
   'src/blocked/blocked.html': 410, // 410 since the quotes carry a twelfth language

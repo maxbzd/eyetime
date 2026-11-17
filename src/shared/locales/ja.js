@@ -136,7 +136,7 @@ export const ja = {
 
   'opt.eyeEnabled': '目の休憩リマインダー', 'opt.eyeEnabledDesc': '20-20-20ルールに基づき、20分ごとに20 ft (6 m) 先を20秒間見ます。',
   'opt.eyeInterval': '通知までの時間', 'opt.eyeIntervalDesc': '経過時間ではなく、実際に画面を使った時間で数えます。', 'opt.eyeLength': '休憩の長さ',
-  'opt.eyeNotify': '通知を表示', 'opt.eyeNotifyDesc': 'オフの場合、リマインダーはEyeTime内にのみ表示されます。', 'opt.eyePreview': '試してみる', 'opt.eyePreviewBtn': '休憩をプレビュー',
+  'opt.eyeNotify': '通知を表示', 'opt.eyeNotifyDesc': '休憩が画面を使えないとき（全画面の動画、通話）に表示されます。上の設定がオフのときは、代わりに通知します。', 'opt.eyeFullscreen': '休憩を全画面で開く', 'opt.eyeFullscreenDesc': '時間になると、休憩が自動で画面全体に表示されます。全画面の動画や通話のあいだは待ちます。Escで5分後に延期できます。', 'opt.eyeSound': '休憩の終わりに静かな音を鳴らす', 'opt.eyeSoundDesc': '画面を見なくても終わりが分かります。', 'break.escHint': 'Esc：5分後に知らせる', 'break.prefs': '休憩の設定', 'opt.eyePreview': '試してみる', 'opt.eyePreviewBtn': '休憩をプレビュー',
   'opt.groupBedtime': '就寝時刻', 'opt.bedtime': '就寝リマインダー', 'opt.bedtimeDesc': '眠りたい時刻の前に、切り上げるよう促します。', 'opt.bedtimeAt': '就寝時刻', 'opt.bedtimeLead': '何分前に通知',
 
   'opt.trackEnabled': '画面時間を計測', 'opt.trackEnabledDesc': 'タブがアクティブな間、サイトごとの秒数を記録します。オフにするとすべて停止します。',

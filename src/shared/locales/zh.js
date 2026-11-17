@@ -136,7 +136,7 @@ export const zh = {
 
   'opt.eyeEnabled': '护眼休息提醒', 'opt.eyeEnabledDesc': '基于 20-20-20 法则：每 20 分钟，看向 20 英尺（6 米）外，持续 20 秒。',
   'opt.eyeInterval': '提醒间隔', 'opt.eyeIntervalDesc': '按实际使用屏幕的时间计算，而非时钟时间。', 'opt.eyeLength': '休息时长',
-  'opt.eyeNotify': '显示通知', 'opt.eyeNotifyDesc': '关闭后，提醒只会出现在 EyeTime 内部。', 'opt.eyePreview': '试一试', 'opt.eyePreviewBtn': '预览休息',
+  'opt.eyeNotify': '显示通知', 'opt.eyeNotifyDesc': '当休息页面无法占用屏幕（全屏视频、通话）时显示；上面的选项关闭时，则以通知代替。', 'opt.eyeFullscreen': '全屏打开休息', 'opt.eyeFullscreenDesc': '时间到了，休息页面会自动铺满屏幕。全屏播放视频或通话时它会等待。按 Esc 可推迟 5 分钟。', 'opt.eyeSound': '休息结束时播放轻柔提示音', 'opt.eyeSoundDesc': '不用回头看屏幕也能知道。', 'break.escHint': 'Esc：5 分钟后提醒我', 'break.prefs': '休息设置', 'opt.eyePreview': '试一试', 'opt.eyePreviewBtn': '预览休息',
   'opt.groupBedtime': '就寝', 'opt.bedtime': '就寝提醒', 'opt.bedtimeDesc': '在你想入睡之前，提醒你收尾。', 'opt.bedtimeAt': '就寝时间', 'opt.bedtimeLead': '提前提醒',
 
   'opt.trackEnabled': '统计屏幕时间', 'opt.trackEnabledDesc': '标签页处于活动状态时，按网站记录秒数。关闭后全部暂停。',

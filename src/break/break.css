@@ -43,3 +43,8 @@ h1 { font-family: var(--font-serif); font-weight: 400; font-size: clamp(40px, 6v
 
 /* with a wallpaper behind it the break stays dim: the photo is only a hint of colour, the screen still rests the eyes */
 html body.has-wall::after { background: radial-gradient(70% 60% at 50% 45%, rgba(8, 8, 12, .5), rgba(8, 8, 12, .74)); }
+
+/* opened by itself over the whole screen: one quiet line says how to put it off and where it is switched off */
+.auto-hint { margin-top: var(--s-2); font-size: var(--fs-sm); color: var(--text-3); }
+.auto-hint a { color: var(--text-2); text-decoration: underline; text-underline-offset: 3px; }
+.auto-hint a:hover { color: var(--text); }

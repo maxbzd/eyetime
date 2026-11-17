@@ -137,7 +137,7 @@ async function render() {
     const only = decision.scope === 'only-mine';
     title.textContent = t(only ? 'block.only.title' : 'block.focus.title');
     lead.textContent = t(only ? 'block.only.lead' : decision.strict ? 'block.focus.lead' : 'block.focus.leadSoft', { host });
-    if (only) {
+    if (only && !decision.strict) { // a strict session keeps the rules it started with: a button that cannot change anything is not offered
       const a = $('#allowSite'); a.hidden = false; a.textContent = t('block.only.allowHost', { host });
       a.onclick = async () => { await updateSettings((s) => { if (!s.blocking.allow.includes(host)) s.blocking.allow.push(host); }); await send('settings:changed'); release(); };
     }

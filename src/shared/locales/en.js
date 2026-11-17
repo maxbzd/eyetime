@@ -136,7 +136,7 @@ export const en = {
 
   'opt.eyeEnabled': 'Eye-break reminders', 'opt.eyeEnabledDesc': 'Based on the 20-20-20 rule: every 20 minutes, look 20 feet (6 m) away for 20 seconds.',
   'opt.eyeInterval': 'Remind me after', 'opt.eyeIntervalDesc': 'Counted in active screen time, not clock time.', 'opt.eyeLength': 'Break length',
-  'opt.eyeNotify': 'Show a notification', 'opt.eyeNotifyDesc': 'Otherwise the reminder appears only inside EyeTime.', 'opt.eyePreview': 'Try it', 'opt.eyePreviewBtn': 'Preview a break',
+  'opt.eyeNotify': 'Show a notification', 'opt.eyeNotifyDesc': 'Shown when the break cannot take the screen (a video on the whole screen, a call), or instead of it when the option above is off.', 'opt.eyeFullscreen': 'Open the break on the whole screen', 'opt.eyeFullscreenDesc': 'When the time is up, the break covers the screen by itself. It waits while a video is on the whole screen or you are in a call. Esc puts it off for 5 minutes.', 'opt.eyeSound': 'A soft sound when the break is over', 'opt.eyeSoundDesc': 'So you know it without looking back at the screen.', 'break.escHint': 'Esc: remind me in 5 minutes', 'break.prefs': 'Break settings', 'opt.eyePreview': 'Try it', 'opt.eyePreviewBtn': 'Preview a break',
   'opt.groupBedtime': 'Bedtime', 'opt.bedtime': 'Bedtime reminder', 'opt.bedtimeDesc': 'A nudge to wrap up before you want to be asleep.', 'opt.bedtimeAt': 'Bedtime', 'opt.bedtimeLead': 'Remind me before',
 
   'opt.trackEnabled': 'Track screen time', 'opt.trackEnabledDesc': 'Records seconds per site while a tab is active. Turn off to pause everything.',

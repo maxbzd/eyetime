@@ -7,8 +7,8 @@ import { nextReminder, nextTaskSlot } from '../shared/productivity.js';
 import { isFocusLive } from '../shared/blocking.js';
 import { resolveLocale, setLocale, t, fmtDuration } from '../shared/i18n.js';
 import { startFocus } from './focus.js';
+import { notify } from './notify.js';
 
-const ICON = 'icons/icon128.png';
 const ALARM = 'focus-reminder';
 
 export async function scheduleReminders() {
@@ -27,8 +27,8 @@ async function fire() {
   if (isFocusLive(focus)) return;
   await setLocale(resolveLocale(settings.language));
   const r = due.reminder;
-  const opts = { type: 'basic', iconUrl: ICON, priority: 1, title: t('remind.title'), message: t('remind.body', { time: fmtDuration(r.minutes * 60) }), buttons: [{ title: t('focus.start', { time: fmtDuration(r.minutes * 60) }) }] };
-  try { await chrome.notifications.create('focus-reminder:' + r.id, opts); } catch { delete opts.buttons; await chrome.notifications.create('focus-reminder:' + r.id, opts); }
+  const opts = { priority: 1, title: t('remind.title'), message: t('remind.body', { time: fmtDuration(r.minutes * 60) }), buttons: [{ title: t('focus.start', { time: fmtDuration(r.minutes * 60) }) }] };
+  await notify('focus-reminder:' + r.id, opts);
 }
 
 chrome.alarms.onAlarm.addListener((a) => { if (a.name === ALARM) fire(); });
@@ -61,8 +61,8 @@ async function fireSlot() {
   await setLocale(resolveLocale(settings.language));
   const x = due.task;
   if (isFocusLive(focus)) return;
-  const opts = { type: 'basic', iconUrl: ICON, priority: 1, title: t('remind.taskTitle'), message: x.resume ? t('remind.taskResume', { task: x.text, resume: x.resume }) : x.text, buttons: [{ title: t('focus.start', { time: fmtDuration(settings.focus.minutes * 60) }) }] };
-  try { await chrome.notifications.create('task-slot:' + x.id, opts); } catch { delete opts.buttons; await chrome.notifications.create('task-slot:' + x.id, opts); }
+  const opts = { priority: 1, title: t('remind.taskTitle'), message: x.resume ? t('remind.taskResume', { task: x.text, resume: x.resume }) : x.text, buttons: [{ title: t('focus.start', { time: fmtDuration(settings.focus.minutes * 60) }) }] };
+  await notify('task-slot:' + x.id, opts);
 }
 
 chrome.alarms.onAlarm.addListener((a) => { if (a.name === SLOT) fireSlot(); });

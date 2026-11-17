@@ -37,6 +37,7 @@ export const ADV = {
   feed: { paths: ['blocking.feed'] },
   // Eye care, Tracking
   eyeNotify: { paths: ['eye.notify'] },
+  eyeSound: { paths: ['eye.sound'] },
   bedtime: { paths: ['eye.bedtime'] },
   trackMore: { paths: ['tracking.idleSeconds', 'tracking.countAudible', 'tracking.incognito'] },
   excluded: { paths: ['tracking.excluded'] },

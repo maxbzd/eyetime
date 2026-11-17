@@ -136,7 +136,7 @@ export const fr = {
 
   'opt.eyeEnabled': 'Rappels de pause pour les yeux', 'opt.eyeEnabledDesc': 'Basés sur la règle 20-20-20 : toutes les 20 minutes, regarde à 20 pieds (6 m) pendant 20 secondes.',
   'opt.eyeInterval': 'Me rappeler après', 'opt.eyeIntervalDesc': 'Compté en temps d’écran actif, pas en temps réel.', 'opt.eyeLength': 'Durée de la pause',
-  'opt.eyeNotify': 'Afficher une notification', 'opt.eyeNotifyDesc': 'Sinon, le rappel n’apparaît que dans EyeTime.', 'opt.eyePreview': 'Essayer', 'opt.eyePreviewBtn': 'Aperçu d’une pause',
+  'opt.eyeNotify': 'Afficher une notification', 'opt.eyeNotifyDesc': 'Affichée quand la pause ne peut pas prendre l’écran (vidéo en plein écran, appel), ou à sa place si l’option ci-dessus est désactivée.', 'opt.eyeFullscreen': 'Ouvrir la pause sur tout l’écran', 'opt.eyeFullscreenDesc': 'Quand le moment est venu, la pause couvre l’écran d’elle-même. Elle attend pendant une vidéo en plein écran ou un appel. Échap la reporte de 5 minutes.', 'opt.eyeSound': 'Un son doux à la fin de la pause', 'opt.eyeSoundDesc': 'Pour le savoir sans regarder l’écran.', 'break.escHint': 'Échap : me le rappeler dans 5 minutes', 'break.prefs': 'Réglages de la pause', 'opt.eyePreview': 'Essayer', 'opt.eyePreviewBtn': 'Aperçu d’une pause',
   'opt.groupBedtime': 'Coucher', 'opt.bedtime': 'Rappel du coucher', 'opt.bedtimeDesc': 'Un coup de pouce pour finir avant l’heure à laquelle tu veux dormir.', 'opt.bedtimeAt': 'Heure du coucher', 'opt.bedtimeLead': 'Me prévenir avant',
 
   'opt.trackEnabled': 'Suivre le temps d’écran', 'opt.trackEnabledDesc': 'Enregistre les secondes par site quand un onglet est actif. Désactive pour tout suspendre.',

@@ -136,7 +136,7 @@ export const pl = {
 
   'opt.eyeEnabled': 'Przypomnienia o przerwach dla oczu', 'opt.eyeEnabledDesc': 'Oparte na regule 20-20-20: ‌‌‌‌‌‌​‌​​‌‌‌‌‌​co 20 minut spójrz na 20 stóp (6 m) przez 20 sekund.',
   'opt.eyeInterval': 'Przypomnij po', 'opt.eyeIntervalDesc': 'Liczone w aktywnym czasie przed ekranem, nie w czasie zegarowym.', 'opt.eyeLength': 'Długość przerwy',
-  'opt.eyeNotify': 'Pokazuj powiadomienie', 'opt.eyeNotifyDesc': 'W przeciwnym razie przypomnienie pojawi się tylko w EyeTime.', 'opt.eyePreview': 'Wypróbuj', 'opt.eyePreviewBtn': 'Podgląd przerwy',
+  'opt.eyeNotify': 'Pokazuj powiadomienie', 'opt.eyeNotifyDesc': 'Pojawia się, gdy przerwa nie może zająć ekranu (film na pełnym ekranie, rozmowa), albo zamiast niej, gdy opcja powyżej jest wyłączona.', 'opt.eyeFullscreen': 'Otwieraj przerwę na całym ekranie', 'opt.eyeFullscreenDesc': 'Gdy przyjdzie czas, przerwa sama zakrywa ekran. Czeka, gdy trwa film na pełnym ekranie albo rozmowa. Esc odkłada ją o 5 minut.', 'opt.eyeSound': 'Cichy dźwięk na koniec przerwy', 'opt.eyeSoundDesc': 'Żeby wiedzieć bez patrzenia na ekran.', 'break.escHint': 'Esc: przypomnij za 5 minut', 'break.prefs': 'Ustawienia przerwy', 'opt.eyePreview': 'Wypróbuj', 'opt.eyePreviewBtn': 'Podgląd przerwy',
   'opt.groupBedtime': 'Pora snu', 'opt.bedtime': 'Przypomnienie o śnie', 'opt.bedtimeDesc': 'Delikatne ponaglenie, by skończyć, zanim zechcesz iść spać.', 'opt.bedtimeAt': 'Pora snu', 'opt.bedtimeLead': 'Przypomnij przed',
 
   'opt.trackEnabled': 'Śledź czas przed ekranem', 'opt.trackEnabledDesc': 'Zapisuje sekundy na stronie, gdy karta jest aktywna. Wyłącz, by wstrzymać wszystko.',

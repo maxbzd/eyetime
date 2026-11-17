@@ -2,6 +2,7 @@
 // Copyright 2026 maxbzd
 // Right-click menu (page and toolbar icon): classify or block the current site, start / stop focus.
 import { getSettings, updateSettings, getRaw } from '../shared/storage.js';
+import { notify } from './notify.js';
 import { applyMenuAction } from '../shared/menu.js';
 import { hostFromUrl } from '../shared/domains.js';
 import { isFocusLive } from '../shared/blocking.js';
@@ -12,7 +13,6 @@ import { sweepTabs } from './blocker.js';
 import { updateBadge } from './badge.js';
 import { buildTopicMenu } from './dock.js';
 
-const ICON = 'icons/icon128.png';
 
 export async function buildMenus() {
   if (!chrome.contextMenus) return;
@@ -45,7 +45,7 @@ chrome.contextMenus?.onClicked.addListener(async (info, tab) => {
   const s = await getSettings();
   await updateBadge(s);
   await setLocale(resolveLocale(s.language));
-  chrome.notifications.create('menu-' + Date.now(), { type: 'basic', iconUrl: ICON, title: 'EyeTime', message: t(result.key, { host, cls: result.cls ? t('class.' + result.cls).toLowerCase() : '' }), priority: 0 });
+  notify('menu-' + Date.now(), { title: 'EyeTime', message: t(result.key, { host, cls: result.cls ? t('class.' + result.cls).toLowerCase() : '' }), priority: 0 });
 });
 
 // the topic list changed (a new topic, a rename, a deletion in the dock or in Settings): the "Save to topic" entries follow

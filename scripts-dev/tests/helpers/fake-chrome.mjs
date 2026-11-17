@@ -8,6 +8,8 @@
 // Strict on purpose: calling something that is not in here throws "fake chrome: missing ...", so a new use of the API shows up as a failing test and a new line here,
 // and is never silently ignored. A test controls time with node:test's `mock.timers.enable({ apis: ['Date'] })` (the worker only reads Date.now() and `new Date()`).
 
+import fs from 'node:fs';
+
 const clone = (v) => (v === undefined ? undefined : structuredClone(v));
 
 function event() {
@@ -60,7 +62,8 @@ export function installFakeChrome({ extensionId = 'fakeextensionidfakeextensioni
   const alarmsEvent = event();
   const alarmTable = new Map();
   const tabsState = { nextId: 1, list: [] };
-  const win = { id: 1, focused: true, incognito: false };
+  const win = { id: 1, focused: true, incognito: false, state: 'normal' };
+  const extra = []; // windows the worker opened itself
   const granted = new Set(), permissionsAdded = event(), permissionsRemoved = event();
   const dnrDynamic = new Map(), dnrSession = new Map();
   function dnrUpdate(table, { removeRuleIds = [], addRules = [] }, maxRegex) {
@@ -114,19 +117,43 @@ export function installFakeChrome({ extensionId = 'fakeextensionidfakeextensioni
       sendMessage: async (id, m) => { log('tabs.sendMessage', id, m); },
     },
     windows: {
-      onFocusChanged: event(),
-      getLastFocused: async () => clone(win),
+      onFocusChanged: event(), onRemoved: event(),
+      getLastFocused: async () => clone(extra.length ? extra[extra.length - 1] : win),
+      // a window of the extension's own (the eye break): it takes the focus, as in the browser, and holds one tab
+      create: async (props) => {
+        log('windows.create', props);
+        if (chrome.windows._refuse && chrome.windows._refuse.includes(props.state)) throw new Error('Invalid value for state');
+        const w = { id: 100 + extra.length, type: props.type || 'normal', state: props.state || 'normal', focused: props.focused !== false };
+        extra.push(w);
+        tabsState.list.push({ id: tabsState.nextId++, windowId: w.id, active: true, incognito: false, audible: false, url: props.url });
+        return clone(w);
+      },
+      update: async (id, props) => { const w = id === win.id ? win : extra.find((x) => x.id === id); if (!w) throw new Error('No window with id: ' + id); log('windows.update', id, props); Object.assign(w, props.state ? { state: props.state } : {}); return clone(w); },
+      get: async (id) => { const w = id === win.id ? win : extra.find((x) => x.id === id); if (!w) throw new Error('No window with id: ' + id); return clone(w); },
+      /** for the tests: the person closes that window */
+      _close: (id) => { const i = extra.findIndex((x) => x.id === id); if (i >= 0) extra.splice(i, 1); tabsState.list = tabsState.list.filter((t) => t.windowId !== id); return chrome.windows.onRemoved.fire(id); },
+      _extra: () => extra,
     },
     idle: {
       _state: 'active',
       onStateChanged: event(),
       setDetectionInterval: (s) => log('idle.setDetectionInterval', s),
-      queryState: async () => chrome.idle._state,
+      // `_still`: seconds since the last key or mouse move while the state is 'idle' (a question with a longer threshold than that is answered 'active', as in the browser)
+      _still: Infinity,
+      queryState: async (sec = 60) => (chrome.idle._state === 'idle' && chrome.idle._still < sec ? 'active' : chrome.idle._state),
     },
     webNavigation: { onBeforeNavigate: event() },
     notifications: {
       onClicked: event(), onButtonClicked: event(), onClosed: event(),
-      create: async (id, opts) => { log('notifications.create', id, opts); return id; },
+      // The browser reads `iconUrl` against the address of the context that asks (the worker: src/background/index.js) and refuses the whole notification when
+      // nothing is there. The real file is looked for, so a wrong path fails here as it does in Chrome.
+      create: async (id, opts) => {
+        const root = `chrome-extension://${extensionId}/`;
+        const url = new URL(String(opts && opts.iconUrl || ''), root + 'src/background/index.js').href;
+        if (!url.startsWith(root) || !fs.existsSync(new URL('../../../' + url.slice(root.length), import.meta.url))) throw new Error('Unable to download all specified images.');
+        if (firefox && opts.buttons) throw new Error('Type error for parameter options (Property "buttons" is unsupported by Firefox)');
+        log('notifications.create', id, opts); return id;
+      },
       clear: async (id) => { log('notifications.clear', id); return true; },
     },
     action: {
