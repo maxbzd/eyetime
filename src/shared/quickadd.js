@@ -23,7 +23,7 @@ const PERIOD_BEFORE = new RegExp(`(?:^|\\s)(?:(${PERIODS.morning})|(${PERIODS.da
 function withPeriod(hh, /** @type {boolean[]} */ [morning, day, evening, night]) {
   if (hh < 1 || hh > 12) return hh; // already a 24-hour time
   if (morning) return hh === 12 ? 0 : hh;
-  if (day) return hh < 12 ? hh + 12 : hh;
+  if (day) return hh <= 6 ? hh + 12 : hh; // "1 дня" is 13:00, "12 дня" is noon; nobody says "11 дня"
   if (evening) return hh < 12 ? hh + 12 : hh;
   if (night) return hh === 12 ? 0 : hh >= 9 ? hh + 12 : hh; // 9, 10, 11 at night are 21, 22, 23; 1 to 8 stay small hours
   return hh;

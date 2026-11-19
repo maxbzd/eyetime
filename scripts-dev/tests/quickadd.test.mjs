@@ -208,3 +208,18 @@ test('quick add: "1h 30m" is an hour and a half', () => {
   r = parseQuickAdd('Write 2h 15 min draft', THU); assert.deepEqual([r.text, r.est], ['Write draft', 135]);
   assert.equal(parseQuickAdd('Задача 1.5h', THU).est, 90); assert.equal(parseQuickAdd('Задача 45м', THU).est, 45);
 });
+
+test('quick add: the edges of "part of the day" (noon, midnight, a 24-hour time, am/pm)', () => {
+  const at = (s) => parseQuickAdd(s, THU).at;
+  assert.equal(at('Встреча в 12 утра'), '00:00', '12 in the morning on a 12-hour clock');
+  assert.equal(at('Встреча в 9 утра'), '09:00'); assert.equal(at('Встреча в 11 утра'), '11:00');
+  assert.equal(at('Обед в 12 дня'), '12:00'); assert.equal(at('Обед в 1 дня'), '13:00'); assert.equal(at('Обед в 4 дня'), '16:00'); assert.equal(at('Обед в 11 дня'), '11:00', 'not said; the hour stays');
+  assert.equal(at('Ужин в 12 вечера'), '12:00'); assert.equal(at('Ужин в 6 вечера'), '18:00'); assert.equal(at('Ужин в 11 вечера'), '23:00');
+  assert.equal(at('Проснуться в 12 ночи'), '00:00'); assert.equal(at('Проснуться в 1 ночи'), '01:00'); assert.equal(at('Проснуться в 8 ночи'), '08:00');
+  assert.equal(at('Лечь в 9 ночи'), '21:00'); assert.equal(at('Лечь в 10 ночи'), '22:00');
+  assert.equal(at('Встреча в 13:00 вечера'), '13:00', 'already on a 24-hour clock');
+  assert.equal(at('Встреча в 18:30 вечера'), '18:30'); assert.equal(at('Встреча в 0:30 ночи'), '00:30');
+  assert.equal(at('Встреча в 7:30 утра'), '07:30'); assert.equal(at('Встреча в 7:30 вечера'), '19:30');
+  assert.equal(at('Meet at 7pm in the evening'), '19:00', 'pm is pm; the words are not added twice');
+  assert.equal(at('Meet at 7am'), '07:00');
+});

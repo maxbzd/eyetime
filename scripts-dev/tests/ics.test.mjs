@@ -147,3 +147,87 @@ test('a yearly rule with BYMONTH keeps its month and its weekday', () => {
   assert.deepEqual(daysOf('FREQ=YEARLY', '20260315T100000', new Date(2028, 2, 1), 30), ['2028-03-15'], 'no BYMONTH: the month and day of the start');
   assert.deepEqual(daysOf('FREQ=YEARLY;INTERVAL=2', '20260315T100000', new Date(2027, 2, 1), 30), [], 'every second year skips 2027');
 });
+
+// ---- found by mutation testing: what no test said out loud ----
+const FROM = new Date(2026, 9, 21, 8, 0); // Wed 21 Oct 2026, local
+const cal = (...events) => ['BEGIN:VCALENDAR', 'VERSION:2.0', ...events.flatMap((e) => ['BEGIN:VEVENT', ...e, 'END:VEVENT']), 'END:VCALENDAR'].join('\r\n');
+const slots = (text, opts = {}) => parseIcsFull(text, { from: FROM, days: 14, ...opts }).events.map((e) => `${e.day} ${e.start}-${e.end}`);
+const dayList = (text, opts = {}) => parseIcsFull(text, { from: FROM, days: 14, ...opts }).events.map((e) => e.day);
+
+test('DURATION gives the length when there is no DTEND: hours, minutes, days; nonsense is half an hour', () => {
+  const one = (dur) => slots(cal(['UID:d', 'DTSTART:20261021T140000', `DURATION:${dur}`, 'SUMMARY:X']))[0];
+  assert.equal(one('PT1H30M'), '2026-10-21 14:00-15:30');
+  assert.equal(one('PT45M'), '2026-10-21 14:00-14:45');
+  assert.equal(one('PT2H'), '2026-10-21 14:00-16:00');
+  assert.equal(one('PT90M'), '2026-10-21 14:00-15:30');
+  assert.equal(one('PT30S'), '2026-10-21 14:00-14:00', 'seconds only: still the same minute');
+  assert.equal(one('P1D'), '2026-10-21 14:00-23:59', 'a day long: the end is cut at midnight');
+  assert.equal(one('PT0S'), '2026-10-21 14:00-14:30', 'no length: half an hour');
+  assert.equal(one('nonsense'), '2026-10-21 14:00-14:30');
+  assert.equal(slots(cal(['UID:e', 'DTSTART:20261021T140000', 'SUMMARY:X']))[0], '2026-10-21 14:00-14:30', 'neither: half an hour');
+  const all = parseIcsFull(cal(['UID:a', 'DTSTART;VALUE=DATE:20261022', 'DURATION:P2D', 'SUMMARY:Trip']), { from: FROM, days: 14 }).allDay.map((e) => e.day);
+  assert.deepEqual(all, ['2026-10-22', '2026-10-23'], 'an all-day event with a duration of two days');
+  const week = parseIcsFull(cal(['UID:w', 'DTSTART;VALUE=DATE:20261022', 'DURATION:P1W', 'SUMMARY:Holiday']), { from: FROM, days: 14 }).allDay.map((e) => e.day);
+  assert.equal(week.length, 7, 'a week');
+});
+
+test('text escapes, the length of a title, a missing title', () => {
+  const t = (summary) => parseIcsFull(cal(['UID:t', 'DTSTART:20261021T140000', `SUMMARY:${summary}`]), { from: FROM, days: 3 }).events[0].title;
+  assert.equal(t('Lunch\\, with Sam\; bring\\nthe laptop\\\\ok'), 'Lunch, with Sam; bring the laptop\\ok');
+  assert.equal(t('Line\\Nbreak'), 'Line break');
+  assert.equal(t('x'.repeat(200)).length, 80);
+  assert.equal(t('  padded  '), 'padded');
+  assert.equal(parseIcsFull(cal(['UID:n', 'DTSTART:20261021T140000']), { from: FROM, days: 3 }).events[0].title, '', 'no title: empty, not "undefined"');
+});
+
+test('events come sorted by day and start, and `max` cuts the list', () => {
+  const text = cal(['UID:c', 'DTSTART:20261023T090000', 'SUMMARY:C'], ['UID:a', 'DTSTART:20261021T150000', 'SUMMARY:A2'], ['UID:b', 'DTSTART:20261021T090000', 'SUMMARY:A1'], ['UID:d', 'DTSTART:20261022T100000', 'SUMMARY:B']);
+  assert.deepEqual(parseIcsFull(text, { from: FROM, days: 14 }).events.map((e) => e.title), ['A1', 'A2', 'B', 'C']);
+  assert.deepEqual(parseIcsFull(text, { from: FROM, days: 14, max: 2 }).events.map((e) => e.title), ['A1', 'A2']);
+  const days = cal(['UID:z', 'DTSTART;VALUE=DATE:20261025', 'SUMMARY:Z'], ['UID:y', 'DTSTART;VALUE=DATE:20261022', 'SUMMARY:Y'], ['UID:x', 'DTSTART;VALUE=DATE:20261023', 'SUMMARY:X']);
+  assert.deepEqual(parseIcsFull(days, { from: FROM, days: 14 }).allDay.map((e) => e.title), ['Y', 'X', 'Z']);
+  assert.deepEqual(parseIcsFull(days, { from: FROM, days: 14, max: 1 }).allDay.map((e) => e.title), ['Y']);
+});
+
+test('an all-day event: one entry per day, only the days of the window, an id per day', () => {
+  const r = parseIcsFull(cal(['UID:trip', 'DTSTART;VALUE=DATE:20261022', 'DTEND;VALUE=DATE:20261025', 'SUMMARY:Trip']), { from: FROM, days: 14 });
+  assert.deepEqual(r.allDay.map((e) => [e.id, e.day, e.title]), [['trip@2026-10-22', '2026-10-22', 'Trip'], ['trip@2026-10-23', '2026-10-23', 'Trip'], ['trip@2026-10-24', '2026-10-24', 'Trip']], 'DTEND is the day after the last');
+  const started = parseIcsFull(cal(['UID:s', 'DTSTART;VALUE=DATE:20261019', 'DTEND;VALUE=DATE:20261023', 'SUMMARY:Started earlier']), { from: FROM, days: 14 });
+  assert.deepEqual(started.allDay.map((e) => e.day), ['2026-10-21', '2026-10-22'], 'the days before today are not listed');
+  const after = parseIcsFull(cal(['UID:f', 'DTSTART;VALUE=DATE:20261110', 'SUMMARY:Later']), { from: FROM, days: 14 });
+  assert.deepEqual(after.allDay, [], 'beyond the window');
+  const bare = parseIcsFull(cal(['UID:b', 'DTSTART;VALUE=DATE:20261022']), { from: FROM, days: 14 });
+  assert.deepEqual(bare.allDay.map((e) => [e.day, e.title]), [['2026-10-22', '']], 'one day, no title');
+  const cancelled = parseIcsFull(cal(['UID:c', 'DTSTART;VALUE=DATE:20261022', 'STATUS:CANCELLED', 'SUMMARY:Gone']), { from: FROM, days: 14 });
+  assert.deepEqual(cancelled.allDay, []);
+});
+
+test('every second week: the week starts on WKST, and BYDAY days are counted in it', () => {
+  // Monday 19 October 2026, every second week on Monday and Thursday
+  assert.deepEqual(dayList(cal(['UID:w', 'DTSTART:20261019T100000', 'DTEND:20261019T110000', 'RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,TH', 'SUMMARY:X']), { days: 20 }), ['2026-10-22', '2026-11-02', '2026-11-05']);
+  // Sunday 18 October: RFC 5545's own example, the weeks of Monday and the weeks of Sunday are not the same weeks
+  const sun = (wkst) => dayList(cal(['UID:s', 'DTSTART:20261018T100000', 'DTEND:20261018T110000', `RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=SU,MO;WKST=${wkst}`, 'SUMMARY:X']), { days: 20, from: new Date(2026, 9, 18) });
+  assert.deepEqual(sun('MO'), ['2026-10-18', '2026-10-26', '2026-11-01']);
+  assert.deepEqual(sun('SU'), ['2026-10-18', '2026-10-19', '2026-11-01', '2026-11-02']);
+});
+
+test('MONTHLY on the nth weekday: 2nd Tuesday, last Friday, second to last Monday', () => {
+  const m = (byday) => dayList(cal(['UID:m', 'DTSTART:20261001T100000', 'DTEND:20261001T110000', `RRULE:FREQ=MONTHLY;BYDAY=${byday}`, 'SUMMARY:X']), { from: new Date(2026, 9, 1), days: 92 });
+  assert.deepEqual(m('2TU'), ['2026-10-13', '2026-11-10', '2026-12-08']);
+  assert.deepEqual(m('-1FR'), ['2026-10-30', '2026-11-27', '2026-12-25']);
+  assert.deepEqual(m('-2MO'), ['2026-10-19', '2026-11-23', '2026-12-21']);
+  assert.deepEqual(m('1MO,3MO'), ['2026-10-05', '2026-10-19', '2026-11-02', '2026-11-16', '2026-12-07', '2026-12-21']);
+});
+
+test('a series in UTC and one in a zone each keep their own clock across the change of time', () => {
+  const rule = (dt) => cal(['UID:u', dt, 'RRULE:FREQ=WEEKLY;COUNT=6', 'SUMMARY:X']);
+  const utc = parseIcsFull(rule('DTSTART:20261014T120000Z'), { from: new Date(2026, 9, 14), days: 60 }).events;
+  assert.equal(utc.length, 6);
+  const berlin = parseIcsFull(rule('DTSTART;TZID=Europe/Berlin:20261014T120000'), { from: new Date(2026, 9, 14), days: 60 }).events;
+  assert.equal(berlin.length, 6, 'six, as COUNT says');
+});
+
+test('the window: an event on the first day and one on the last day count, the day after does not', () => {
+  const text = cal(['UID:a', 'DTSTART:20261021T000000', 'SUMMARY:First'], ['UID:b', 'DTSTART:20261103T235900', 'SUMMARY:Last'], ['UID:c', 'DTSTART:20261104T000000', 'SUMMARY:After'], ['UID:d', 'DTSTART:20261020T235900', 'SUMMARY:Before']);
+  assert.deepEqual(parseIcsFull(text, { from: FROM, days: 14 }).events.map((e) => e.title), ['First', 'Last'], 'fourteen days from the 21st end with the 3rd');
+});
