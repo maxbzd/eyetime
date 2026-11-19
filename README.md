@@ -91,7 +91,7 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 
 **Firefox (121+)** — experimental: run `npm run build`, then `about:debugging` → *This Firefox* → *Load Temporary Add-on* → `dist/firefox/manifest.json`. (Sound and site icons are Chrome-only for now.)
 
-> Updating from EyeTime 1.x (the earlier name of Elvani)? Your settings, tasks, habits, notes and history migrate automatically. See [what changed](docs/PRODUCT.md#1-audit-of-v11-why-a-redesign).
+> Updating from EyeTime 1.x (the earlier name of Elvani)? Your settings, tasks, habits, notes and history migrate automatically. See [what changed](docs/PRODUCT.md#1-review-of-v11-why-a-redesign).
 
 ## Using it
 
