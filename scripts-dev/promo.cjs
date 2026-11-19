@@ -17,7 +17,7 @@ h1{position:absolute;left:90px;top:206px;font-family:"Instrument Serif";font-wei
 p{position:absolute;left:92px;top:420px;width:470px;font-size:21px;line-height:1.5;color:#454541}
 .a{position:absolute;left:640px;top:70px;width:660px;border-radius:30px;overflow:hidden;box-shadow:0 40px 80px -30px rgba(23,22,18,.45),0 0 0 1px rgba(23,22,18,.06)}.a img{width:100%;display:block}
 .b{position:absolute;left:760px;top:250px;width:600px;border-radius:30px;overflow:hidden;box-shadow:0 40px 80px -30px rgba(23,22,18,.55),0 0 0 1px rgba(23,22,18,.06)}.b img{width:100%;display:block}
-.dot{position:absolute;left:660px;top:98px;width:12px;height:12px;border-radius:50%;background:#cdf05c;box-shadow:0 0 0 6px rgba(205,240,92,.35)}</style>
+.dot{position:absolute;left:660px;top:98px;width:12px;height:12px;border-radius:50%;background:#f0b441;box-shadow:0 0 0 6px rgba(240, 180, 65,.35)}</style>
 <div class="brand"><img src="${f('icons/logo.svg')}">Elvani</div><h1>One line.<br>One focus.</h1><p>A calm new tab, distractions paused, your time laid out honestly, eyes looked after. 100% local.</p>
 <div class="a"><img src="${f('store/screenshots/3-insights.png')}"></div><div class="b"><img src="${f('store/screenshots/1-home.png')}"></div>`;
 const tile = `<style>${css}body{width:440px;height:280px;position:relative;overflow:hidden;background:url("${f('src/newtab/frames/blush.webp')}") center/cover}

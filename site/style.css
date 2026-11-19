@@ -2,7 +2,7 @@
 /* Copyright 2026 maxbzd */
 /* The privacy policy and the page shown after removal, in the dress of the landing page (which has landing.css). Fonts: fonts.css. */
 :root {
-  --bg: #070708; --surface: #111113; --text: #f4f3ee; --text2: rgba(244, 243, 238, .7); --border: rgba(255, 255, 255, .13); --accent: #d2f56b; --accent-fg: #12160a; --soft: rgba(255, 255, 255, .07);
+  --bg: #070708; --surface: #111113; --text: #f4f3ee; --text2: rgba(244, 243, 238, .7); --border: rgba(255, 255, 255, .13); --accent: #f2c14e; --accent-fg: #1a1203; --soft: rgba(255, 255, 255, .07);
   --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color-scheme: dark;
 }

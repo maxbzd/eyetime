@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="/fonts.css">
 <style>
-:root { --mint: #8cf2c6; --lime: #d4f77c; --text: #eaf2ff; --text-2: #9fb0c8; --rose: #ff6b7d; --amber: #ffb86b; --out: cubic-bezier(.16, 1, .3, 1); }
+:root { --mint: #8cf2c6; --amber: #d4f77c; --text: #eaf2ff; --text-2: #9fb0c8; --rose: #ff6b7d; --amber: #ffb86b; --out: cubic-bezier(.16, 1, .3, 1); }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; color: var(--text); font-family: Figtree, 'Segoe UI', system-ui, sans-serif; -webkit-font-smoothing: antialiased; user-select: none; }
 #win { position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: 22px; background: #05080e; }
@@ -38,7 +38,7 @@ h1 span { display: inline-block; opacity: 0; transform: translateY(18px); filter
 @keyframes letter { to { opacity: 1; transform: none; filter: none; } }
 h2 { font: 400 28px/1.15 Outfit, sans-serif; letter-spacing: .3px; }
 .sub { color: var(--text-2); font-size: 14.5px; line-height: 1.5; margin-top: 10px; max-width: 500px; }
-.cta { margin-top: 20px; min-width: 220px; height: 52px; padding: 0 34px; border: 0; border-radius: 999px; background: linear-gradient(135deg, var(--mint), var(--lime)); color: #07120d; font: 600 16px Figtree, sans-serif; letter-spacing: .2px; cursor: pointer; position: relative; overflow: hidden; box-shadow: 0 10px 40px rgba(140, 242, 198, .35), inset 0 1px 0 rgba(255, 255, 255, .5); transition: transform .3s var(--out), box-shadow .3s; }
+.cta { margin-top: 20px; min-width: 220px; height: 52px; padding: 0 34px; border: 0; border-radius: 999px; background: linear-gradient(135deg, var(--mint), var(--amber)); color: #07120d; font: 600 16px Figtree, sans-serif; letter-spacing: .2px; cursor: pointer; position: relative; overflow: hidden; box-shadow: 0 10px 40px rgba(140, 242, 198, .35), inset 0 1px 0 rgba(255, 255, 255, .5); transition: transform .3s var(--out), box-shadow .3s; }
 .cta:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 16px 50px rgba(140, 242, 198, .5), inset 0 1px 0 rgba(255, 255, 255, .5); }
 .cta:active { transform: scale(.98); }
 .cta::after { content: ''; position: absolute; top: 0; bottom: 0; width: 60px; left: -80px; background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .6), transparent); transform: skewX(-18deg); animation: sheen 3.4s ease-in-out 2.6s infinite; }

@@ -47,7 +47,7 @@ section.card { padding: var(--s-4); }
 #footer { display: flex; flex-direction: column; }
 .brand { margin: 0; }
 
-/* ═══════════ v4: bone paper, ink, one lime action — the same tokens, so every look keeps its own colour and shape ═══════════ */
+/* ═══════════ v4: bone paper, ink, one amber action — the same tokens, so every look keeps its own colour and shape ═══════════ */
 body { background: var(--bg); }
 .top { background: linear-gradient(180deg, var(--bg) 60%, transparent); padding: 14px 12px 8px 16px; }
 .brand { gap: 10px; font-size: 16px; font-weight: 650; letter-spacing: -.03em; }

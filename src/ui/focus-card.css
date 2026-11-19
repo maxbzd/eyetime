@@ -114,5 +114,5 @@
 
 .cal-line { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; padding: 8px 12px; border-radius: var(--r-md); background: var(--surface-2); color: var(--text-2); font-size: var(--fs-sm); } .cal-line .ico { font-size: 16px; color: var(--text-3); flex: none; } .cal-line span { flex: 1; min-width: 0; } .cal-line.warn { background: var(--distracting-soft); color: var(--distracting-text); } .cal-line.warn .ico { color: inherit; }
 
-/* the light Calm ring is ink (lime on bone is too faint for a thin stroke) */
+/* the light Calm ring is ink (amber on bone is too faint for a thin stroke) */
 :root[data-scheme="light"]:not([data-look]) .ring .bar, :root[data-scheme="light"][data-look="calm"] .ring .bar { stroke: var(--text); }

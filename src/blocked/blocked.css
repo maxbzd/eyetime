@@ -48,7 +48,7 @@ h1 { overflow-wrap: anywhere; }
 .quote .q-text { margin: 0; font-size: var(--fs-lg); line-height: 1.45; text-wrap: balance; }
 .quote .q-by { margin-top: 6px; font-size: var(--fs-sm); color: var(--text-3); letter-spacing: .02em; }
 
-/* ═══════════ v4 · a pause, not a wall: serif voice, one lime breath, ink to go back ═══════════ */
+/* ═══════════ v4 · a pause, not a wall: serif voice, one amber breath, ink to go back ═══════════ */
 .glow { background: radial-gradient(800px 480px at 50% 22%, color-mix(in srgb, var(--signal) 16%, transparent), transparent 70%); }
 .top { font-weight: 650; letter-spacing: -.03em; } .top img { border-radius: 8px; }
 .site-pill { box-shadow: var(--shadow-1); }

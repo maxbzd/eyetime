@@ -160,9 +160,9 @@
   --danger: #e0483f; --danger-fg: #14100d; --danger-hover: #c13e36;
   --grid: #ecedec; --bar-empty: #efefef;
 
-  /* the signal: one stroke of lime for "now" — a running focus, today's progress, the start button.
+  /* the signal: one stroke of amber for "now" — a running focus, today's progress, the start button.
      Calm only; every other look maps it onto its own accent (below). Text on it is always --signal-fg. */
-  --signal: #cdf05c; --signal-fg: #12160a; --signal-ink: #4b6a00; --signal-soft: #eef9ce;
+  --signal: #f0b441; --signal-fg: #1a1203; --signal-ink: #8a5a00; --signal-soft: #fbefd3;
 
   /* cards */
   --card-bg: var(--surface); --card-border: var(--border); --card-shadow: var(--shadow-1); --card-blur: 0px;
@@ -170,7 +170,7 @@
 
 :root[data-scheme="dark"] {
   color-scheme: dark;
-  --accent: #d2f56b; --accent-hover: #b9d85e; --accent-fg: #14100d; --accent-text: #d2f56b; --accent-soft: #353a25; --accent-ring: rgba(210, 245, 107, .38);
+  --accent: #f2c14e; --accent-hover: #dba93a; --accent-fg: #14100d; --accent-text: #f2c14e; --accent-soft: #3b3220; --accent-ring: rgba(242, 193, 78, .38);
   --bg: #0b0b0c; --surface: #151517; --surface-2: #1f1e20; --surface-3: #28282c; --border: #222227; --border-strong: #3b3b3f;
   --text: #f2f1ec; --text-2: #c6c5c1; --text-3: #9a9997; --overlay: rgba(0, 0, 0, .62);
   --shadow-1: 0 0 0 1px rgba(255, 255, 255, .03); --shadow-2: 0 1px 0 rgba(255, 255, 255, .04) inset, 0 18px 40px -18px rgba(0, 0, 0, .7); --shadow-3: 0 40px 100px -24px rgba(0, 0, 0, .85), 0 0 0 1px rgba(255, 255, 255, .06);
@@ -181,7 +181,7 @@
   --success: #3ddc97; --success-text: #3ddc97; --success-soft: #1c362c;
   --danger: #e8584f; --danger-fg: #14100d; --danger-hover: #c84c44;
   --grid: #2b2a2d; --bar-empty: #2a2a2d;
-  --signal: #d2f56b; --signal-fg: #13170a; --signal-ink: #d2f56b; --signal-soft: #2b3017;
+  --signal: #f2c14e; --signal-fg: #1a1203; --signal-ink: #f2c14e; --signal-soft: #332a17;
 }
 /* any other look: the signal is that look's accent */
 :root[data-look]:not([data-look="calm"]) { --signal: var(--accent); --signal-fg: var(--accent-fg); --signal-ink: var(--accent-text); --signal-soft: var(--accent-soft); }

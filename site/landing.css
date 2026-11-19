@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: FSL-1.1-ALv2 */
 /* Copyright 2026 maxbzd */
-/* The landing page: one day with Elvani, told by scrolling. Dark, photographic, one lime accent; type is Inter and JetBrains Mono (fonts.css). No library, nothing fetched from another host. */
+/* The landing page: one day with Elvani, told by scrolling. Dark, photographic, one amber accent; type is Inter and JetBrains Mono (fonts.css). No library, nothing fetched from another host. */
 
 :root {
   --bg: #070708; --bg2: #0d0d0f; --ink: #f4f3ee; --ink2: rgba(244, 243, 238, .68); --ink3: rgba(244, 243, 238, .44); --line: rgba(255, 255, 255, .13); --line2: rgba(255, 255, 255, .07);
-  --acc: #d2f56b; --acc-ink: #12160a; --glass: rgba(13, 13, 15, .52); --glass2: rgba(255, 255, 255, .06);
+  --acc: #f2c14e; --acc-ink: #1a1203; --glass: rgba(13, 13, 15, .52); --glass2: rgba(255, 255, 255, .06);
   --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --ease: cubic-bezier(.16, 1, .3, 1);
