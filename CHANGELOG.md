@@ -5,6 +5,7 @@
 ### A new name and a new mark
 - **EyeTime is now Elvani.** The name shows in the browser, on the new tab, in every language, in notifications, in the store texts, on the site and in the documents. The mark is a sphere of dots, large at the heart and finer toward the edge, drawn once as a vector (`brand/`): the whole mark for 64 px and up, and three simpler versions (fewer, bigger dots) for 16, 32 and 48 px, because sixty dots are only a grey blot in a toolbar. `node scripts-dev/build-brand.cjs` draws every icon from those files, the extension's and the Windows program's alike, and the `.ico`. The brand colours are ink `#0A0A09` and paper `#F5F3F0`.
 - **The signal colour is amber now, not lime.** The one stroke of colour for "now" (a running session, the ring of the timer, today's progress, the idea of the week, the busy hours of the heat map) takes its warmth from the mark: daylight amber `#F2C14E` on dark, `#F0B441` on light with a deeper bronze `#8A5A00` for text, on ink and paper. Text on it stays near-black (`#1A1203`). It is changed in one place per scheme (`src/ui/tokens.css`), in the toolbar badge, the break screen, the dock, the site and the Windows program's screens; the contrast tests of the looks pass as before.
+- **Store pictures made again** in the new name and colour: the screenshots (twelve languages, five each), the promo tiles, the pictures of the README and the site. The two videos (`store/promo.mp4`, `store/demo.mp4`) still show the old name and are to be rendered again before the store update.
 - **Nothing that belongs to a person is renamed.** Storage keys, the name of the backup format, the messages between parts, and everything the Windows program keeps by name (its folders, service, registry keys, update file names) stay as they were, so an installed copy keeps its settings, its history and its pairing with the browser. The Windows program's own texts and install names change as a separate step.
 
 ## Unreleased — The eye break that comes by itself
@@ -540,7 +541,7 @@ Fixes from a second independent review.
 Accessibility, resilience and Firefox.
 
 ### Accessibility
-- Automated **axe-core audit** of every page and state (running session, review, break, block pages, palette, dialogs) in a light and a dark look, English and Russian — now 0 violations and enforced in CI.
+- Automated **axe-core check** of every page and state (running session, review, break, block pages, palette, dialogs) in a light and a dark look, English and Russian — now 0 violations and enforced in CI.
 - Fixed: the progress bar of the daily goal has a name; the custom-accent swatch no longer misuses `aria-pressed`; the search button's accessible name contains its visible text; real heading structure (`h1` on Settings and in the popup, card titles at level 2); the sidebar is a landmark; empty table header made readable.
 
 ### Resilience
@@ -571,7 +572,7 @@ Hardening release after an independent code review and a new upgrade/empty-profi
 
 ## 2.3.0 — 2026-10-20
 
-A second exhaustive audit (every screen × state × width × language × look, with an automatic horizontal-overflow report) and a round of new features.
+A second exhaustive pass (every screen × state × width × language × look, with an automatic horizontal-overflow report) and a round of new features.
 
 ### New
 - **Command palette** — `Ctrl/Cmd + K` on Home, Insights and Settings: start a focus mode, focus on a task, take an eye break, pause tracking, jump to any Insights tab or Settings section, switch look or theme, close the day. Type anything and press Enter to add it as a task.

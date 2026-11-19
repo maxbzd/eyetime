@@ -1,4 +1,4 @@
-# Audit of 3.8.1: what was found, what was done
+# Review of 3.8.1: what was found, what was done
 
 Two reports came back before the store release (a read-through of the code, and a live test of the built package). Every finding was checked against the current branch first; what was true was fixed and given a test, and what was left alone is said here with the reason.
 

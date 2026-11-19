@@ -5,7 +5,7 @@
 This document is the source of truth for *what* Elvani is and *why*. Design tokens and
 component rules live in [DESIGN.md](DESIGN.md); engineering notes in [ARCHITECTURE.md](ARCHITECTURE.md).
 
-## 1. Audit of v1.1 (why a redesign)
+## 1. Review of v1.1 (why a redesign)
 
 | Area | What we found | Consequence |
 |---|---|---|
