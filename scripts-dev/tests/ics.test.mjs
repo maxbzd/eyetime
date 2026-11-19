@@ -2,7 +2,8 @@
 // Copyright 2026 maxbzd
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseIcs, nextEvent } from '../../src/shared/ics.js';
+import { parseIcs, parseIcsFull, nextEvent, resolveZone } from '../../src/shared/ics.js';
+import { WINDOWS_ZONES } from '../../src/shared/winzones.js';
 
 const from = new Date(2026, 9, 21, 8, 0); // Wed 21 Oct 2026, local
 const wrap = (...ev) => ['BEGIN:VCALENDAR', 'VERSION:2.0', ...ev.flatMap((e) => ['BEGIN:VEVENT', ...e, 'END:VEVENT']), 'END:VCALENDAR'].join('\r\n');
@@ -92,4 +93,57 @@ test('all-day events: DURATION instead of DTEND, and a multi-day weekly event ac
   assert.deepEqual(r.allDay.map((d) => d.day), ['2026-10-22', '2026-10-23', '2026-10-24']);
   const w = parseIcsFull(mk(['DTSTART;VALUE=DATE:20261025', 'DTEND;VALUE=DATE:20261027', 'RRULE:FREQ=WEEKLY']), { from: new Date(2026, 10, 2), days: 7 });
   assert.ok(w.allDay.some((d) => d.day === '2026-11-02')); // the second day of the occurrence that started on Nov 1
+});
+
+// ---- time zones as Outlook, Exchange and old Mozilla calendars name them ----
+const zoned = (tz, day = '20261120', t = '100000') => `BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nUID:z\r\nSUMMARY:Call\r\nDTSTART;TZID=${tz}:${day}T${t}\r\nDTEND;TZID=${tz}:${day}T${String(Number(t.slice(0, 2)) + 1).padStart(2, '0')}${t.slice(2)}\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`;
+const slot = (tz, day) => { const e = parseIcsFull(zoned(tz, day), { from: new Date(2026, 5, 1), days: 400 }).events[0]; return e && `${e.day} ${e.start}`; };
+
+test('every Windows zone name means a zone this browser knows', () => {
+  assert.ok(WINDOWS_ZONES.size > 100);
+  for (const [name, iana] of WINDOWS_ZONES) { const z = resolveZone(name); assert.ok(z, name); if (!/^utc/.test(name)) assert.equal(z, iana, name); } // "UTC" the browser knows by itself
+});
+
+test('an event in "Russian Standard Time" is the same moment as in Europe/Moscow, winter and summer', () => {
+  for (const [win, iana] of [['Russian Standard Time', 'Europe/Moscow'], ['Pacific Standard Time', 'America/Los_Angeles'], ['W. Europe Standard Time', 'Europe/Berlin'], ['Eastern Standard Time', 'America/New_York'], ['India Standard Time', 'Asia/Kolkata']]) {
+    for (const day of ['20261120', '20260715']) assert.equal(slot(win, day), slot(iana, day), `${win} on ${day}`);
+  }
+  // and it is not read as local time (the zones above differ from each other)
+  assert.notEqual(slot('Pacific Standard Time', '20261120'), slot('Eastern Standard Time', '20261120'));
+});
+
+test('older names with a path in front, quoted names and odd case are read; a zone nobody knows stays local', () => {
+  assert.equal(resolveZone('/mozilla.org/20050126_1/Europe/Berlin'), 'Europe/Berlin');
+  assert.equal(resolveZone('/softwarestudio.org/Tzfile/America/New_York'), 'America/New_York');
+  assert.equal(resolveZone('"Europe/Paris"'), 'Europe/Paris');
+  assert.equal(resolveZone('russian standard time'), 'Europe/Moscow');
+  assert.equal(resolveZone('Customized Time Zone'), null); assert.equal(resolveZone(''), null); assert.equal(resolveZone(undefined), null);
+  assert.equal(slot('Customized Time Zone', '20261120'), '2026-11-20 10:00', 'an unknown zone is local time, as before');
+});
+
+test('a long daily series with a zone is read quickly (one formatter per zone)', () => {
+  const ics = 'BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nUID:long\r\nSUMMARY:Standup\r\nDTSTART;TZID=W. Europe Standard Time:20220103T093000\r\nDTEND;TZID=W. Europe Standard Time:20220103T094500\r\nRRULE:FREQ=DAILY;COUNT=2000\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n';
+  const t0 = performance.now();
+  const r = parseIcsFull(ics, { from: new Date(2026, 10, 19), days: 3 });
+  assert.equal(r.events.length, 3);
+  assert.ok(performance.now() - t0 < 400, `took ${Math.round(performance.now() - t0)} ms`);
+});
+
+// ---- BYSETPOS and BYMONTH: "the last workday of the month", "the second Sunday of March" ----
+const series = (rrule, dt) => `BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nUID:s\r\nSUMMARY:X\r\nDTSTART:${dt}\r\nDTEND:${dt.slice(0, 9)}110000\r\nRRULE:${rrule}\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`;
+const daysOf = (rrule, dt, fromDate, n) => parseIcsFull(series(rrule, dt), { from: fromDate, days: n }).events.map((e) => e.day);
+
+test('BYSETPOS picks one day of the month, not every day that matches', () => {
+  const WORKDAYS = 'FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR';
+  assert.deepEqual(daysOf(`${WORKDAYS};BYSETPOS=-1`, '20260105T100000', new Date(2026, 10, 1), 90), ['2026-11-30', '2026-12-31', '2027-01-29'], 'the last workday');
+  assert.deepEqual(daysOf(`${WORKDAYS};BYSETPOS=1`, '20260105T100000', new Date(2026, 10, 1), 55), ['2026-11-02', '2026-12-01'], 'the first workday');
+  assert.deepEqual(daysOf(`${WORKDAYS};BYSETPOS=1,-1`, '20260105T100000', new Date(2026, 10, 1), 30), ['2026-11-02', '2026-11-30'], 'the first and the last');
+  assert.deepEqual(daysOf('FREQ=MONTHLY;COUNT=2;BYDAY=FR;BYSETPOS=-1', '20261001T100000', new Date(2026, 9, 1), 120), ['2026-10-30', '2026-11-27'], 'COUNT counts the picked days');
+});
+
+test('a yearly rule with BYMONTH keeps its month and its weekday', () => {
+  assert.deepEqual(daysOf('FREQ=YEARLY;BYMONTH=3;BYDAY=2SU', '20260308T100000', new Date(2027, 2, 1), 40), ['2027-03-14'], 'the second Sunday of March');
+  assert.deepEqual(daysOf('FREQ=YEARLY;BYMONTH=3,9;BYMONTHDAY=1', '20260301T100000', new Date(2026, 7, 25), 20), ['2026-09-01'], 'two months a year');
+  assert.deepEqual(daysOf('FREQ=YEARLY', '20260315T100000', new Date(2028, 2, 1), 30), ['2028-03-15'], 'no BYMONTH: the month and day of the start');
+  assert.deepEqual(daysOf('FREQ=YEARLY;INTERVAL=2', '20260315T100000', new Date(2027, 2, 1), 30), [], 'every second year skips 2027');
 });
