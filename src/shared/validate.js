@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
 // Small checks for what crosses a boundary (a message from a page to the worker): a number is brought into its range, a name is a plain name.
-// The senders are EyeTime's own pages, so this is not about trust; it is that one bad value (a NaN, a year of minutes) must never become stored state.
+// The senders are Elvani's own pages, so this is not about trust; it is that one bad value (a NaN, a year of minutes) must never become stored state.
 
 /** A whole number inside [min, max]; `fallback` when `v` is not a number at all (NaN, undefined, an object). */
 export function intIn(v, min, max, fallback) {

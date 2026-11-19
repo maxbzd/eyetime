@@ -7,7 +7,7 @@
 // second device needs the same passphrase once per browser session.
 //
 // A sealed payload is stored in the same chunked items as before, with meta { v: 2, n, ts, enc }:
-//   * v is 2, so an older EyeTime (which understands v 1 only) says "written by a newer version" and leaves it alone instead of overwriting the ciphertext with plain text;
+//   * v is 2, so an older Elvani (which understands v 1 only) says "written by a newer version" and leaves it alone instead of overwriting the ciphertext with plain text;
 //   * the context of the seal contains the time `ts`, so an old copy put back with a new time (a rollback by whoever can write to the cloud) does not open;
 //   * `enc` = the vault meta (salt, rounds, a check value; nothing secret) and `rot`, the time the passphrase was set, which tells a newer passphrase from an older one.
 // When encryption is switched off, the plain payload carries `off` = the `rot` it replaces, so that a device that still has the old setting knows it was turned off on purpose.

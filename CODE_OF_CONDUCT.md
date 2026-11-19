@@ -1,6 +1,6 @@
 # Code of conduct
 
-EyeTime is a small project for people who want a calmer relationship with their screens. The community around it should feel the same.
+Elvani is a small project for people who want a calmer relationship with their screens. The community around it should feel the same.
 
 **Be kind and specific.** Say what you saw, what you expected and what would help. Assume the other person wants the project to be good.
 **Disagree about the work, not the person.** Criticism of code, design, wording or a decision is welcome; contempt, insults, harassment, discrimination and

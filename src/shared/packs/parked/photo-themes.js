@@ -48,7 +48,7 @@ const agenda = (ink) => customWidget({ name: 'Agenda', size: [340, 150], root: [
 const sign = (w, ink, size = 78) => customWidget({ name: 'Signature', size: [320, 100], root: [text(0, 70, size, w, { font: 'script', fill: ink })] });
 const mark = (ink) => customWidget({ name: 'Mark', size: [300, 46], root: [
   text(0, 14, 11, '+ HELLO, FOCUS', { font: 'body', weight: 600, ls: 3, fill: ink, op: 0.8 }),
-  text(0, 40, 22, 'EYETIME', { font: 'condensed', weight: 700, ls: 6, fill: ink }),
+  text(0, 40, 22, 'ELVANI', { font: 'condensed', weight: 700, ls: 6, fill: ink }),
 ] });
 const countdown = (ink) => customWidget({ name: 'Focus', size: [280, 70], root: [
   text(140, 34, 26, COUNT.replace('%LABEL%', 'FOCUS'), { align: 'middle', font: 'condensed', weight: 500, ls: 10, fill: ink, ...toggle }),

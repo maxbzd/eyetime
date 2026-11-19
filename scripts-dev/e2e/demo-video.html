@@ -6,7 +6,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>EyeTime demo</title>
+<title>Elvani demo</title>
 <style>
   @font-face { font-family: "Inter"; font-weight: 100 900; src: url(fonts/inter-latin-wght-normal.woff2) format("woff2"); }
   @font-face { font-family: "Instrument Serif"; font-weight: 400; src: url(fonts/instrument-serif-latin-400-normal.woff2) format("woff2"); }
@@ -150,7 +150,7 @@ window.render = function render(t) {
 
   // A
   { const s = presence('A', t, T.A, 0); const lg = $('logoA'), p = seg(t, 0.15, 0.9, E.back); lg.style.opacity = seg(t, 0.1, 0.5); lg.style.transform = `scale(${0.6 + 0.4 * p})`;
-    words($('brandA'), 'EyeTime', t, 0.55, 0.08, 0.7); words($('tagA'), 'Focus, screen time and eye care for your browser.', t, 1.15, 0.045, 0.6); }
+    words($('brandA'), 'Elvani', t, 0.55, 0.08, 0.7); words($('tagA'), 'Focus, screen time and eye care for your browser.', t, 1.15, 0.045, 0.6); }
   // B
   { presence('B', t, T.B); const t0 = T.B[0]; cap('capB', 'Every new tab, a calm start.', 'Your photo, the time, and one question.', t, t0 + 0.2);
     rise($('winB'), t, t0 + 0.15); push('winB', t, T.B, 1, 1.03); chip('chipB1', t, t0 + 1.7, 2.6); chip('chipB2', t, t0 + 2.9, 2.6); ring('ringB', t, t0 + 2.9, 2.2); }

@@ -29,7 +29,7 @@ export function pickQuote(ctx, { seed = 0, avoid = '', quotes = QUOTES } = {}) {
   return pool[i];
 }
 
-/** The quote as shown in `lang`: its text in quotation marks, and the author as that language writes the name (null for an EyeTime tip). */
+/** The quote as shown in `lang`: its text in quotation marks, and the author as that language writes the name (null for an Elvani tip). */
 export function renderQuote(q, lang) {
   const l = q.t[lang] ? lang : 'en';
   const [a, b] = MARKS[l] || MARKS.en;

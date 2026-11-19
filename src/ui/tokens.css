@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: FSL-1.1-ALv2 */
 /* Copyright 2026 maxbzd */
-/* EyeTime design tokens. See docs/DESIGN.md. These are the *fallback* (Calm) values: the theme engine (src/shared/looks.js,
+/* Elvani design tokens. See docs/DESIGN.md. These are the *fallback* (Calm) values: the theme engine (src/shared/looks.js,
    applied by theme-init.js before first paint) overrides them per look. Scheme is <html data-scheme="light|dark">. */
 
 @font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap;

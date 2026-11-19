@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
 // Microsoft (Outlook, Microsoft 365, Outlook.com): Calendar (busy times in, planned focus blocks out) and To Do (a task list), through Microsoft Graph and the person's own sign-in.
-// Needs the OAuth client of EyeTime (oauth-config.js, docs/CONNECTIONS.md); without it this connection says it is not available in this build.
+// Needs the OAuth client of Elvani (oauth-config.js, docs/CONNECTIONS.md); without it this connection says it is not available in this build.
 //
-// Mapping: To Do — title ⇄ text · status ⇄ done · dueDateTime (a date) ⇄ due · importance high ⇄ starred. Calendar — only events EyeTime made (they carry a private property).
+// Mapping: To Do — title ⇄ text · status ⇄ done · dueDateTime (a date) ⇄ due · importance high ⇄ starred. Calendar — only events Elvani made (they carry a private property).
 
 import { json, http } from '../http.js';
 import { SyncError } from '../run.js';
@@ -66,7 +66,7 @@ export const microsoft = {
 
     if (o.calendar) {
       const cal = `${G}/me/calendars/${encodeURIComponent(o.calendar)}`;
-      const body = (/** @type {any} */ b) => ({ subject: b.title, start: { dateTime: utcOf(b.day, b.start), timeZone: 'UTC' }, end: { dateTime: utcOf(b.day, b.end), timeZone: 'UTC' }, isReminderOn: false, categories: ['EyeTime'], singleValueExtendedProperties: [{ id: PROP, value: b.taskId }] });
+      const body = (/** @type {any} */ b) => ({ subject: b.title, start: { dateTime: utcOf(b.day, b.start), timeZone: 'UTC' }, end: { dateTime: utcOf(b.day, b.end), timeZone: 'UTC' }, isReminderOn: false, categories: ['Elvani'], singleValueExtendedProperties: [{ id: PROP, value: b.taskId }] });
       out.events = {
         async list(/** @type {{ from: string, to: string }} */ { from, to }) {
           const [fy, fm, fd] = from.split('-').map(Number), [ty, tm, td] = to.split('-').map(Number);

@@ -49,7 +49,7 @@ export function tasksModule() {
     if (open.length) head.append(h('button', { class: 'btn btn-ghost btn-sm plan-btn', type: 'button', onclick: openDayPlan }, icon('calendar-clock'), t('plan.title')));
     if (tasks.length) head.append(h('span', { class: 'count num', text: `${done.length}/${tasks.length}` }));
 
-    // what EyeTime understood from the line, shown while typing: time · length · priority · tags
+    // what Elvani understood from the line, shown while typing: time · length · priority · tags
     const preview = h('div', { class: 'qa-preview', 'aria-live': 'polite' });
     const drawPreview = (value) => {
       const p = parseQuickAdd(value);

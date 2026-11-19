@@ -1,18 +1,18 @@
 {
   "extName": {
-    "message": "EyeTime — Fokus, Bildschirmzeit & Augenpflege"
+    "message": "Elvani — Fokus, Bildschirmzeit & Augenpflege"
   },
   "extDescription": {
     "message": "Fokus-Sitzung mit einem Klick, Ablenkungen sanft sperren, Zeit im Blick, Augen schonen. Kostenlos, Quellcode einsehbar, 100 % lokal."
   },
   "actionTitle": {
-    "message": "EyeTime"
+    "message": "Elvani"
   },
   "cmdToggleFocus": {
     "message": "Fokus-Sitzung starten oder beenden"
   },
   "cmdToggleDock": {
-    "message": "EyeTime-Dock auf dieser Seite ein- oder ausblenden"
+    "message": "Elvani-Dock auf dieser Seite ein- oder ausblenden"
   },
   "feedTitle": {
     "message": "Zeit, mit dem Scrollen aufzuhören"
@@ -36,6 +36,6 @@
     "message": "Lernen"
   },
   "dockTab": {
-    "message": "EyeTime-Dock öffnen"
+    "message": "Elvani-Dock öffnen"
   }
 }

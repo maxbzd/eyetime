@@ -29,7 +29,7 @@ const bar = (y, label, val, valText) => group([
 
 // The log: what the machine says about today.
 const log = customWidget({ name: 'Terminal log', size: [460, 330], root: [
-  text(0, 24, 18, '$ eyetime --status', { font: 'mono', fill: 'token:accent-text', weight: 700 }),
+  text(0, 24, 18, '$ elvani --status', { font: 'mono', fill: 'token:accent-text', weight: 700 }),
   bar(62, 'focus', '=goal', '{fmt(goal * 100, 0)}%  {focusToday}m'),
   bar(92, 'streak', '=min(1, streak / 14)', '{streak} d'),
   bar(122, 'tasks', '=tasksDone / max(1, tasksDone + tasksOpen)', '{tasksDone}/{tasksDone + tasksOpen}'),

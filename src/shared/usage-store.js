@@ -115,7 +115,7 @@ export async function wantsToAsk(now = Date.now()) {
   return shouldAsk(u, share, haveEndpoint(), now);
 }
 
-/** Did a focus session end (completed) in the last half hour? Then the person has just got something out of EyeTime. */
+/** Did a focus session end (completed) in the last half hour? Then the person has just got something out of Elvani. */
 export async function justFinishedSession(now = Date.now()) {
   try {
     const keys = [dayKey(new Date(now)), dayKey(addDays(new Date(now), -1))];

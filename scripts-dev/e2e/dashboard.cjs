@@ -169,7 +169,7 @@ const PAGES = ['overview', 'growth', 'activation', 'retention', 'audience', 'fee
   const json = await grab('JSON data'); const j = JSON.parse(json.text);
   ok(j.v === 3 && j.range && j.retention && j.lifecycle && j.trends && j.segments && j.northstar && j.targets && j.exported_at && j.mode === 'demo', 'json holds the collector answer and when it was exported');
   const md = await grab('Markdown report');
-  ok(md.name.endsWith('.md') && /^# EyeTime report/.test(md.text) && /\| Sent a first report \|/.test(md.text) && /## Product health/.test(md.text), 'markdown report');
+  ok(md.name.endsWith('.md') && /^# Elvani report/.test(md.text) && /\| Sent a first report \|/.test(md.text) && /## Product health/.test(md.text), 'markdown report');
   await p.context().close();
 
   // 8. the public view, a narrow screen, the keyboard

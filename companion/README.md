@@ -1,6 +1,6 @@
-# EyeTime desktop companion (optional)
+# Elvani desktop companion (optional)
 
-Adds **time in desktop apps** (VS Code, Figma, Slack…) to your EyeTime statistics. Browsers are measured by the extension itself, so they are skipped here.
+Adds **time in desktop apps** (VS Code, Figma, Slack…) to your Elvani statistics. Browsers are measured by the extension itself, so they are skipped here.
 
 > **Windows only for now.** macOS / Linux backends are welcome — see [Contributing a backend](#contributing-a-backend).
 
@@ -12,7 +12,7 @@ Adds **time in desktop apps** (VS Code, Figma, Slack…) to your EyeTime statist
 | Skips browsers and idle time (2 min without input) | Close, hide or minimise windows, kill processes |
 | Serves today's per-app seconds on `127.0.0.1:8765/v1/today` | Touch the registry, browser policies or other software |
 | Requires a secret **pairing token** (`Authorization: Bearer …`) | Accept connections from other machines or web pages (no CORS; `Origin` and `Host` are checked) |
-| Stores totals in `%APPDATA%\EyeTime\companion-data.json` | Send anything over the internet |
+| Stores totals in `%APPDATA%\Elvani\companion-data.json` | Send anything over the internet |
 
 The code is one readable file (`eyetime_companion.py`, standard library only) with tests (`test_companion.py`).
 
@@ -20,14 +20,14 @@ The code is one readable file (`eyetime_companion.py`, standard library only) wi
 
 1. Install [Python 3.9+](https://www.python.org/downloads/) (tick *Add python.exe to PATH*).
 2. Double-click **`run.bat`**. A window shows your **pairing token**.
-3. In your browser: EyeTime → **Settings → Tracking → Desktop companion**, switch it on (the browser asks for permission to reach `127.0.0.1:8765`) and paste the token.
+3. In your browser: Elvani → **Settings → Tracking → Desktop companion**, switch it on (the browser asks for permission to reach `127.0.0.1:8765`) and paste the token.
 4. Optional: double-click **`install_autostart.bat`** to start it when you sign in (adds a shortcut to your Startup folder; **`uninstall_autostart.bat`** removes it).
 
 Show the token again: `python eyetime_companion.py --show-token` · new token: `--new-token`.
 
 ## Uninstall
 
-Close the window (or end `python.exe` in Task Manager), run `uninstall_autostart.bat`, delete this folder and `%APPDATA%\EyeTime`.
+Close the window (or end `python.exe` in Task Manager), run `uninstall_autostart.bat`, delete this folder and `%APPDATA%\Elvani`.
 
 ## Contributing a backend
 

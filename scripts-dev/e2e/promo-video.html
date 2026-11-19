@@ -6,7 +6,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>EyeTime promo</title>
+<title>Elvani promo</title>
 <style>
   @font-face { font-family: "Inter"; font-weight: 100 900; src: url(fonts/inter-latin-wght-normal.woff2) format("woff2"); }
   @font-face { font-family: "Instrument Serif"; font-weight: 400; src: url(fonts/instrument-serif-latin-400-normal.woff2) format("woff2"); }
@@ -66,7 +66,7 @@
     <div class="hook" id="hookB" style="top:600px;font-size:44px;font-weight:450;color:#5d5a52;letter-spacing:-0.01em"></div>
   </div>
 
-  <div id="mark"><img src="icon512.png" alt=""><span>EyeTime</span></div>
+  <div id="mark"><img src="icon512.png" alt=""><span>Elvani</span></div>
 
   <!-- 1: a calm start -->
   <div class="scene" id="S1">
@@ -167,7 +167,7 @@ window.render = function render(t) {
   { presence('H', t, [-1, T.H[1]], 0); const d = t * 0.35;
     const g = { g1: [40 + d * 30, 30 + d * 12, -5], g2: [-40 - d * 30, 20 - d * 10, 4], g3: [30 + d * 24, -10 - d * 14, -3], g4: [-30 - d * 26, -16 - d * 10, 5] };
     for (const [id, [x, y, r]] of Object.entries(g)) { const e = $(id); e.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg) scale(${1 + t * 0.012})`; }
-    words($('hookA'), 'Where did your day go?', t, 0.1, 0.09, 0.62); words($('hookB'), 'EyeTime shows you. Gently.', t, CUE.hookB, 0.06, 0.55); }
+    words($('hookA'), 'Where did your day go?', t, 0.1, 0.09, 0.62); words($('hookB'), 'Elvani shows you. Gently.', t, CUE.hookB, 0.06, 0.55); }
 
   // 1: a calm start
   { presence('S1', t, T.S1); const t0 = T.S1[0]; copy('cp1', 'Open a tab. Breathe.', 'A photo, the time, and one question.', t, t0 + 0.2);
@@ -186,7 +186,7 @@ window.render = function render(t) {
   // C: the close
   { presence('C', t, [T.C[0], 99], 0); const t0 = T.C[0];
     const lg = $('logoC'), p = seg(t, t0 + 0.1, t0 + 0.8, E.back); lg.style.opacity = seg(t, t0 + 0.1, t0 + 0.5); lg.style.transform = `scale(${0.6 + 0.4 * p})`;
-    words($('brandC'), 'EyeTime', t, CUE.brand, 0.08, 0.7); words($('tagC'), 'Free. Private. Yours.', t, CUE.tag, 0.1, 0.65);
+    words($('brandC'), 'Elvani', t, CUE.brand, 0.08, 0.7); words($('tagC'), 'Free. Private. Yours.', t, CUE.tag, 0.1, 0.65);
     const bp = seg(t, CUE.button, CUE.button + 0.7, E.back), btn = $('btnC'); btn.style.opacity = clamp(bp); btn.style.transform = `translateX(-50%) translateY(${(1 - bp) * 24}px) scale(${0.9 + 0.1 * bp})`;
     const k = ((t - CUE.button - 0.85) / (BAR / 2)) % 1, on = t > CUE.button + 0.85 ? 1 : 0, pl = $('pulseC'); pl.style.opacity = on * (1 - k) * 0.45; pl.style.transform = `scale(${1 + k * 0.28}, ${1 + k * 0.5})`;
     words($('subC'), 'No account. Your data stays on your device.', t, CUE.sub, 0.04, 0.55); words($('urlC'), 'maxbzd.github.io/eyetime', t, CUE.url, 0.07, 0.55); }

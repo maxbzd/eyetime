@@ -130,7 +130,7 @@ test('usage v2: the setup flags say what is on and nothing a person typed', () =
   assert.doesNotThrow(() => flagsOf({}, {})); assert.doesNotThrow(() => flagsOf({}, { tasks: 'x', habits: null, conns: 5 }));
 });
 
-test('usage v2: a report with flags is valid, one without is valid too (an earlier EyeTime), and a made-up flag is not', () => {
+test('usage v2: a report with flags is valid, one without is valid too (an earlier Elvani), and a made-up flag is not', () => {
   const u = emptyUsage(T0 - 3 * DAY); record(u, 'fl_u35', T0); record(u, 'nt_u250', T0); record(u, 'err_sync', T0);
   const withFlags = buildReport(u, { ...ctx, flags: ['dock', 'tasks_1_5'] }, T0);
   assert.deepEqual(withFlags.fl, ['dock', 'tasks_1_5']); assert.equal(validateReport(withFlags).ok, true);

@@ -1,18 +1,18 @@
 {
   "extName": {
-    "message": "EyeTime — Focus, tempo di schermo e cura degli occhi"
+    "message": "Elvani — Focus, tempo di schermo e cura degli occhi"
   },
   "extDescription": {
     "message": "Focus con un clic, distrazioni bloccate con garbo, tempo sotto controllo e occhi a riposo. Gratis, codice consultabile, 100% locale."
   },
   "actionTitle": {
-    "message": "EyeTime"
+    "message": "Elvani"
   },
   "cmdToggleFocus": {
     "message": "Avvia o ferma una sessione di focus"
   },
   "cmdToggleDock": {
-    "message": "Mostra o nascondi il dock di EyeTime in questa pagina"
+    "message": "Mostra o nascondi il dock di Elvani in questa pagina"
   },
   "feedTitle": {
     "message": "È ora di smettere di scorrere"
@@ -36,6 +36,6 @@
     "message": "Impara"
   },
   "dockTab": {
-    "message": "Apri il dock di EyeTime"
+    "message": "Apri il dock di Elvani"
   }
 }

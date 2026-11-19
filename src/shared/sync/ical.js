@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
-// iCalendar (RFC 5545) for the CalDAV connection: reading and writing the few properties of a to-do (VTODO) and of the focus blocks EyeTime makes (VEVENT).
+// iCalendar (RFC 5545) for the CalDAV connection: reading and writing the few properties of a to-do (VTODO) and of the focus blocks Elvani makes (VEVENT).
 // Reading is tolerant (folded lines, parameters, UTC / floating / zoned times, all-day dates); writing keeps everything it does not understand: a to-do edited here is
 // the same to-do with a few lines changed, not a new one (alarms, notes, recurrence and the other app's own properties survive).
 
@@ -94,7 +94,7 @@ export function parseVtodo(/** @type {string} */ text) {
 /** A new to-do. */
 export function buildVtodo(/** @type {{ uid: string, text: string, done: boolean, due: string | null, starred: boolean }} */ it, /** @type {number} */ now) {
   const stamp = utcStampMs(now);
-  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//EyeTime//CalDAV sync//EN', 'BEGIN:VTODO', 'UID:' + it.uid, 'DTSTAMP:' + stamp, 'CREATED:' + stamp, 'LAST-MODIFIED:' + stamp, 'SUMMARY:' + escapeText(it.text),
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Elvani//CalDAV sync//EN', 'BEGIN:VTODO', 'UID:' + it.uid, 'DTSTAMP:' + stamp, 'CREATED:' + stamp, 'LAST-MODIFIED:' + stamp, 'SUMMARY:' + escapeText(it.text),
     'STATUS:' + (it.done ? 'COMPLETED' : 'NEEDS-ACTION')];
   if (it.done) lines.push('COMPLETED:' + stamp, 'PERCENT-COMPLETE:100');
   if (it.due) lines.push('DUE;VALUE=DATE:' + dateValue(it.due));
@@ -126,15 +126,15 @@ export function patchVtodo(/** @type {string} */ raw, /** @type {Record<string, 
   return out.map(fold).join('\r\n') + (raw.endsWith('\n') ? '\r\n' : '');
 }
 
-/* ---------- VEVENT (the blocks EyeTime makes, and nothing else) ---------- */
+/* ---------- VEVENT (the blocks Elvani makes, and nothing else) ---------- */
 
 export const UID_PREFIX = 'eyetime-';
 
 export function buildVevent(/** @type {{ uid: string, taskId: string, title: string, day: string, start: number, end: number }} */ b, /** @type {number} */ now, /** @type {number} */ seq = 0) {
   const stamp = utcStampMs(now);
-  return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//EyeTime//CalDAV sync//EN', 'BEGIN:VEVENT', 'UID:' + b.uid, 'DTSTAMP:' + stamp, 'LAST-MODIFIED:' + stamp, 'SEQUENCE:' + seq,
+  return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Elvani//CalDAV sync//EN', 'BEGIN:VEVENT', 'UID:' + b.uid, 'DTSTAMP:' + stamp, 'LAST-MODIFIED:' + stamp, 'SEQUENCE:' + seq,
     'SUMMARY:' + escapeText(b.title), 'DTSTART:' + utcStamp(b.day, b.start), 'DTEND:' + utcStamp(b.day, b.end), 'X-EYETIME-TASK:' + b.taskId,
-    'DESCRIPTION:' + escapeText('Planned in EyeTime'), 'TRANSP:OPAQUE', 'END:VEVENT', 'END:VCALENDAR'].map(fold).join('\r\n') + '\r\n';
+    'DESCRIPTION:' + escapeText('Planned in Elvani'), 'TRANSP:OPAQUE', 'END:VEVENT', 'END:VCALENDAR'].map(fold).join('\r\n') + '\r\n';
 }
 
 /** One of our events as { taskId, title, day, start, end, updatedAt, uid, seq }, or null when it is not ours or not a timed event. */

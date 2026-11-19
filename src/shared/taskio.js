@@ -22,7 +22,7 @@ export function taskLine(x) {
   return [String(x.text || '').replace(/\s+/g, ' ').trim(), ...tokens].join(' ');
 }
 
-export function tasksToMarkdown(tasks, { title = 'EyeTime tasks' } = {}) {
+export function tasksToMarkdown(tasks, { title = 'Elvani tasks' } = {}) {
   const open = (tasks || []).filter((x) => !x.done), done = (tasks || []).filter((x) => x.done);
   const lines = [`# ${title}`, ''];
   for (const x of open) lines.push(`- [ ] ${taskLine(x)}`);

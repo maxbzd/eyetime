@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
-// Usage measurement, the pure part. EyeTime counts, on the device and always, which of its own features get used and on how many days;
+// Usage measurement, the pure part. Elvani counts, on the device and always, which of its own features get used and on how many days;
 // the numbers go nowhere unless the person switches "Share anonymous usage" on (see usage-store.js, background/usage.js and PRIVACY.md).
 //
 //   record(u, 'focus_start', now)       count one use, mark today active, remember the first time
@@ -127,7 +127,7 @@ export function shouldAsk(/** @type {Usage} */ u, /** @type {any} */ share, /** 
 }
 
 /**
- * Is this a good moment for the question that may be asked? Right after a finished session (the person has just got something out of EyeTime), or, if that never happens,
+ * Is this a good moment for the question that may be asked? Right after a finished session (the person has just got something out of Elvani), or, if that never happens,
  * once the question has been waiting a week. Never mid-session (the caller checks).
  */
 export function goodMoment(/** @type {any} */ share, /** @type {number} */ now, /** @type {boolean} */ justFinished) {

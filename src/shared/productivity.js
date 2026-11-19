@@ -147,7 +147,7 @@ export function nextReminder(reminders, now = new Date()) {
 /**
  * Which session length works best for *this* person? Compares the average self-rating of completed sessions per preset length
  * (needs at least two lengths with 3+ rated sessions each — otherwise there is nothing to compare, and we say nothing).
- * The research on "ideal" intervals (Pomodoro, 52/17 …) is thin and inconsistent, so EyeTime learns from your own data.
+ * The research on "ideal" intervals (Pomodoro, 52/17 …) is thin and inconsistent, so Elvani learns from your own data.
  */
 export function suggestMinutes(entries, presets = [15, 25, 50, 90], { minPerLength = 3 } = {}) {
   const nearest = (m) => presets.reduce((a, b) => (Math.abs(b - m) < Math.abs(a - m) ? b : a));

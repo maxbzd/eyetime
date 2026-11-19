@@ -33,7 +33,7 @@ function stop(msg, detail) { console.error(`\n✗ ${msg}`); if (detail) console.
 
 async function main() {
   if (Number(process.versions.node.split('.')[0]) < 20) stop('Node.js 20 or newer is needed (https://nodejs.org).');
-  say('EyeTime collector: set-up\n');
+  say('Elvani collector: set-up\n');
 
   const TOKEN = process.env.CLOUDFLARE_API_TOKEN, ACCOUNT = process.env.CLOUDFLARE_ACCOUNT_ID;
   if (TOKEN) { // run from GitHub Actions (.github/workflows/collector.yml): no browser, the token is the login
@@ -77,7 +77,7 @@ async function main() {
     say(`Address to give Claude (endpoint): ${url}/v1/usage\nDashboard:                        ${url}/\nThe dashboard key is the DASH_TOKEN you saved.`);
     return;
   }
-  const note = `EyeTime collector\n\nAddress to give Claude (endpoint): ${url}/v1/usage\nDashboard:                        ${url}/\nDashboard key (keep it private):  ${key}\n`;
+  const note = `Elvani collector\n\nAddress to give Claude (endpoint): ${url}/v1/usage\nDashboard:                        ${url}/\nDashboard key (keep it private):  ${key}\n`;
   writeFileSync('eyetime-collector.txt', note);
   say(note);
   say('Saved to eyetime-collector.txt in this folder (do not commit it). Send me the "endpoint" line only, never the key.');

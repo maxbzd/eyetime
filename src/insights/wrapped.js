@@ -32,7 +32,7 @@ export async function drawWrapped({ sum, prev, cur, goalMin, weekGoals }) {
   const pad = 84;
   const logo = await loadImage('../../icons/logo.svg');
   if (logo) ctx.drawImage(logo, pad, 76, 56, 56);
-  ctx.fillStyle = col.text; ctx.font = F(700, 38); ctx.textBaseline = 'middle'; ctx.fillText('EyeTime', pad + 76, 106);
+  ctx.fillStyle = col.text; ctx.font = F(700, 38); ctx.textBaseline = 'middle'; ctx.fillText('Elvani', pad + 76, 106);
   const keys = cur.map((e) => e[0]);
   const range = `${fmtDate(parseKey(keys[0]), { day: 'numeric', month: 'short' })} – ${fmtDate(parseKey(keys[keys.length - 1]), { day: 'numeric', month: 'short' })}`;
   ctx.textAlign = 'right'; ctx.fillStyle = col.text2; ctx.font = F(560, 32); ctx.fillText(range, W - pad, 106); ctx.textAlign = 'left';

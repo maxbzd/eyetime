@@ -1,18 +1,18 @@
 {
   "extName": {
-    "message": "EyeTime — фокус, экранное время и отдых для глаз"
+    "message": "Elvani — фокус, экранное время и отдых для глаз"
   },
   "extDescription": {
     "message": "Фокус-сессии в один клик, мягкие паузы перед отвлекающими сайтами, статистика экранного времени, отдых для глаз. Всё локально."
   },
   "actionTitle": {
-    "message": "EyeTime"
+    "message": "Elvani"
   },
   "cmdToggleFocus": {
     "message": "Запустить или остановить фокус-сессию"
   },
   "cmdToggleDock": {
-    "message": "Показать или скрыть док EyeTime на этой странице"
+    "message": "Показать или скрыть док Elvani на этой странице"
   },
   "feedTitle": {
     "message": "Пора остановить скролл"
@@ -36,6 +36,6 @@
     "message": "Учёба"
   },
   "dockTab": {
-    "message": "Открыть док EyeTime"
+    "message": "Открыть док Elvani"
   }
 }

@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="icons/icon128.png" width="84" alt="EyeTime logo">
+<img src="icons/icon128.png" width="84" alt="Elvani logo">
 
-# EyeTime
+# Elvani
 
 **Focus, screen time and eye care for your browser.**<br>
 Free, with source code you can read and check, and local-first — no account, no ads, and nothing leaves your device unless you switch on the one optional thing: anonymous usage numbers you can read before they are sent.
@@ -14,7 +14,7 @@ Free, with source code you can read and check, and local-first — no account, n
 
 [English](README.md) · [Русский](README_RU.md)
 
-<img src="store/screenshots/1-home.png" alt="EyeTime home: the wallpaper of the day, the time and one line — what is your focus?" width="860">
+<img src="store/screenshots/1-home.png" alt="Elvani home: the wallpaper of the day, the time and one line — what is your focus?" width="860">
 
 <a href="https://maxbzd.github.io/eyetime/#demo"><img src="store/demo-poster.jpg" alt="Watch the 36-second demo: the new tab, a focus session, the pause page, insights and looks" width="860"></a>
 
@@ -24,9 +24,9 @@ Free, with source code you can read and check, and local-first — no account, n
 
 ---
 
-## Why EyeTime
+## Why Elvani
 
-Most blockers feel like punishment and most trackers feel like surveillance. EyeTime is built around three ideas:
+Most blockers feel like punishment and most trackers feel like surveillance. Elvani is built around three ideas:
 
 1. **One click to focus.** Start a timed session from the toolbar, the new tab or a shortcut. Distracting sites pause until it ends.
 2. **Honest, calm data.** See where your time really goes — per site, per hour, per day — with plain-language highlights. Empty means empty; nothing is invented.
@@ -81,23 +81,23 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 
 ## Install
 
-> **[Add EyeTime to Chrome](https://chromewebstore.google.com/detail/kbkmiboobddkmngdhdihiaejahddokgf)** from the Chrome Web Store (Edge, Brave and Arc install from it too). Firefox, or if you want to run it from source: use the steps below, it takes a minute.
+> **[Add Elvani to Chrome](https://chromewebstore.google.com/detail/kbkmiboobddkmngdhdihiaejahddokgf)** from the Chrome Web Store (Edge, Brave and Arc install from it too). Firefox, or if you want to run it from source: use the steps below, it takes a minute.
 
 **Chrome, Edge, Brave, Arc (Chromium 120+)**
 
 1. Download `eyetime-chrome.zip` from the [latest release](https://github.com/maxbzd/eyetime/releases) and unzip it — *or* `git clone https://github.com/maxbzd/eyetime.git` (no build step needed).
 2. Open `chrome://extensions`, switch on **Developer mode**, click **Load unpacked** and select the folder that contains `manifest.json`.
-3. The setup wizard opens. Pin EyeTime from the puzzle-piece menu so it is one click away.
+3. The setup wizard opens. Pin Elvani from the puzzle-piece menu so it is one click away.
 
 **Firefox (121+)** — experimental: run `npm run build`, then `about:debugging` → *This Firefox* → *Load Temporary Add-on* → `dist/firefox/manifest.json`. (Sound and site icons are Chrome-only for now.)
 
-> Updating from EyeTime 1.x? Your settings, tasks, habits, notes and history migrate automatically. See [what changed](docs/PRODUCT.md#1-audit-of-v11-why-a-redesign).
+> Updating from EyeTime 1.x (the earlier name of Elvani)? Your settings, tasks, habits, notes and history migrate automatically. See [what changed](docs/PRODUCT.md#1-audit-of-v11-why-a-redesign).
 
 ## Using it
 
 - **Keyboard on Home:** `f` focus goal · `n` add a task · `d` close the day · `c` customize · `i` Insights · `s` Settings · `?` list. In Settings, `/` searches.
 - **Start focus:** toolbar icon → type what you're working on → *Start focus*. Or press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd>.
-- **Right-click any page → EyeTime** to mark or block the site, or start/stop focus.
+- **Right-click any page → Elvani** to mark or block the site, or start/stop focus.
 - **Teach it what distracts you:** open the popup on any site and tap *Productive / Neutral / Distracting*. The same works per row in Insights.
 - **Set limits:** Settings → Blocking → *Daily limits* (works for any site).
 - **Rest your eyes:** a reminder appears after 20 minutes of active screen time; the break page walks you through 20 seconds.
@@ -110,11 +110,11 @@ And because the name says it: it looks after your **eyes** too — 20-20-20 remi
 | Your settings, tasks, notes, habits | Anything about you — there is no account |
 | (optional) per-app seconds from the desktop companion | Analytics, crash reports, ads — none |
 
-Permissions are minimal and each one is explained in **Settings → Data & privacy**. EyeTime makes no network requests of its own. Four things you can turn on reach out, and only to the address you give: the desktop companion (`127.0.0.1`), a connected service (Todoist, Notion, CalDAV: the service's own address, straight from your browser), a calendar subscription (your calendar's link, fetched about once an hour) and the optional weather (Open-Meteo, a free service without accounts; only the rounded coordinates of the city you pick are sent). Two more are optional and only with your yes: the weekly anonymous numbers, and a message to the author when you press Send; both need a collector address in the build (the first public release has none). See [PRIVACY.md](PRIVACY.md).
+Permissions are minimal and each one is explained in **Settings → Data & privacy**. Elvani makes no network requests of its own. Four things you can turn on reach out, and only to the address you give: the desktop companion (`127.0.0.1`), a connected service (Todoist, Notion, CalDAV: the service's own address, straight from your browser), a calendar subscription (your calendar's link, fetched about once an hour) and the optional weather (Open-Meteo, a free service without accounts; only the rounded coordinates of the city you pick are sent). Two more are optional and only with your yes: the weekly anonymous numbers, and a message to the author when you press Send; both need a collector address in the build (the first public release has none). See [PRIVACY.md](PRIVACY.md).
 
-## EyeTime for Windows (desktop app)
+## Elvani for Windows (desktop app)
 
-The browser extension closes distractions inside the browser. **EyeTime for Windows** closes them on the whole computer, and is what the extension's optional companion grew into. Everything stays on your machine.
+The browser extension closes distractions inside the browser. **Elvani for Windows** closes them on the whole computer, and is what the extension's optional companion grew into. Everything stays on your machine.
 
 - **Real blocking.** A protected Windows service closes sites (system level, so every browser and app) and programs, with a polite 15 seconds to save first. Sessions, schedules, limits, "only these apps", strict levels up to Frozen, emergency keys, an app PIN (Argon2id) and a partner code.
 - **A window you want to open.** Home with a live 3D gemstone, Rules, Timer, Insights and Profile built from what the service really measured (no invented numbers), a first-minute onboarding, and 3 400+ app and site logos with search while you add one.
@@ -137,7 +137,7 @@ src/popup|newtab|insights|options|onboarding|blocked|break/   the seven surfaces
 src/content/feed.js    short-video guard (only YouTube / Instagram / TikTok / VK)
 src/ui/                design tokens, components, charts, icons (Lucide), Inter font
 companion/             the older read-only Windows companion (Python, stdlib only)
-desktop/               EyeTime for Windows: service + agent (Rust), window (Tauri), setup, screens (see desktop/README.md)
+desktop/               Elvani for Windows: service + agent (Rust), window (Tauri), setup, screens (see desktop/README.md)
 docs/                  PRODUCT.md · DESIGN.md · THEMES.md · RESEARCH.md · ARCHITECTURE.md
 scripts-dev/           checker, tests, icon + package builders
 ```
@@ -162,14 +162,14 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the architecture tour, adding a langu
 - [ ] Edge Add-ons and Firefox AMO listings
 - [x] Spanish, German, French and Portuguese (machine-translated — corrections welcome, see [docs/TRANSLATING.md](docs/TRANSLATING.md))
 - [x] Italian, Polish, Ukrainian, Chinese and Japanese (machine-translated — corrections welcome); [another language is one file](CONTRIBUTING.md#adding-a-language)
-- [x] EyeTime for Windows: protected service, window, setup, signed self-updates (0.2)
+- [x] Elvani for Windows: protected service, window, setup, signed self-updates (0.2)
 - [ ] Windows: network-level blocking and instant app-start events
 - [ ] macOS / Linux companion backends — [guide](companion/README.md#contributing-a-backend)
 - [x] In-app weekly review
 
 ## License
 
-[FSL-1.1-ALv2](LICENSE) (the Functional Source License: you may read, run, change and share the code for any purpose except building a competing commercial product; every version becomes Apache 2.0 after two years; the name and logo are not licensed; see [NOTICE](NOTICE)). Fonts: Inter (SIL OFL 1.1). Icons: Lucide (ISC). Both are bundled locally — EyeTime loads nothing from the internet.
+[FSL-1.1-ALv2](LICENSE) (the Functional Source License: you may read, run, change and share the code for any purpose except building a competing commercial product; every version becomes Apache 2.0 after two years; the name and logo are not licensed; see [NOTICE](NOTICE)). Fonts: Inter (SIL OFL 1.1). Icons: Lucide (ISC). Both are bundled locally — Elvani loads nothing from the internet.
 
 ## Contact
 

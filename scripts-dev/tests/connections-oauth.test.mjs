@@ -89,7 +89,7 @@ test('microsoft: To Do both ways (importance is the star), planned blocks as eve
   const b = await syncBlocks({ provider, deps: dev.deps, today: TODAY });
   assert.equal(b.createdRemote, 1);
   const ev = [...g.state.events.values()][0];
-  assert.equal(ev.singleValueExtendedProperties[0].value, 'b'); assert.deepEqual(ev.categories, ['EyeTime']);
+  assert.equal(ev.singleValueExtendedProperties[0].value, 'b'); assert.deepEqual(ev.categories, ['Elvani']);
   const startUtc = new Date(2026, 10, 4, 14, 0).toISOString().replace(/\.\d+Z$/, ''), endUtc = new Date(2026, 10, 4, 14, 45).toISOString().replace(/\.\d+Z$/, '');
   ev.start = { dateTime: startUtc, timeZone: 'UTC' }; ev.end = { dateTime: endUtc, timeZone: 'UTC' }; ev.lastModifiedDateTime = new Date(NOW + 5000).toISOString();
   g.state.events.set('m', { id: 'm', subject: 'Standup', isAllDay: false, showAs: 'busy', start: { dateTime: new Date(2026, 10, 4, 9, 0).toISOString().replace(/\.\d+Z$/, ''), timeZone: 'UTC' }, end: { dateTime: new Date(2026, 10, 4, 9, 30).toISOString().replace(/\.\d+Z$/, ''), timeZone: 'UTC' } });

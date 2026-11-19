@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
-// A damaged profile must not stop EyeTime from starting: `meta` and `settings` both unreadable is repaired to a working state, never thrown at the person.
+// A damaged profile must not stop Elvani from starting: `meta` and `settings` both unreadable is repaired to a working state, never thrown at the person.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -10,7 +10,7 @@ globalThis.chrome = { storage: { local: { get: async (k) => pick(k), set: async 
 const { ensureSchema, getSettings } = await import('../../src/shared/storage.js');
 
 for (const [name, data] of [['meta and settings are both garbage', { meta: 'x', settings: 42 }], ['meta is an array and settings is null', { meta: [], settings: null }], ['settings is a string, meta is missing', { settings: 'broken' }], ['only an old-style key is left', { tasks: [{ id: 'a', text: 'keep me', done: false }] }]]) {
-  test(`schema: ${name} → EyeTime starts, with usable settings`, async () => {
+  test(`schema: ${name} → Elvani starts, with usable settings`, async () => {
     mem = structuredClone(data);
     await assert.doesNotReject(ensureSchema());
     const s = await getSettings();

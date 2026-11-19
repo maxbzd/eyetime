@@ -1,4 +1,4 @@
-# EyeTime design system
+# Elvani design system
 
 A calm, neutral interface with one warm accent. Light and dark are first-class. Everything lives in `src/ui/`.
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
-// The whole road, end to end: many simulated people use EyeTime for weeks with the real client code (record, report schedule, build, subtract), every report goes through the real
+// The whole road, end to end: many simulated people use Elvani for weeks with the real client code (record, report schedule, build, subtract), every report goes through the real
 // collector handler into the real D1 store (on SQLite), and the statistics are checked against what the simulation knows by itself. If any link drifts, a number here stops being true.
 // The simulation lives on the UTC calendar (the collector's days); the client counts days on the local one, so this file runs in UTC whatever the machine's zone is.
 process.env.TZ = 'UTC';

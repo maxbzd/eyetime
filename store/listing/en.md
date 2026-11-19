@@ -1,13 +1,13 @@
-# EyeTime — store listing (English, the source for every translation)
+# Elvani — store listing (English, the source for every translation)
 
 ## Name
-EyeTime — Focus, Screen Time & Eye Care
+Elvani — Focus, Screen Time & Eye Care
 
 ## Summary (≤ 132 characters)
 Focus sessions, gentle pauses before distracting sites, honest screen-time stats and eye care. Free, source-available, 100% local.
 
 ## Description
-EyeTime helps you do deep work without fighting your browser. It is free, its source code is open for anyone to read and check, and it keeps everything on your device.
+Elvani helps you do deep work without fighting your browser. It is free, its source code is open for anyone to read and check, and it keeps everything on your device.
 
 FOCUS IN ONE CLICK
 Start a timed session from the toolbar, the new tab, Alt+Shift+F or the command palette (Ctrl/Cmd+K). Pick a mode — Deep work, Sprint, Study — add five more minutes when you are in the flow, and let the break timer do its job. Distracting sites pause until the session ends and open again by themselves. Strict mode is there when you really mean it.
@@ -16,7 +16,7 @@ BLOCKING THAT RESPECTS YOU
 Choose categories (social, ​‌‌‌‌‌‌‌‌​​‌​‌​​video, forums, news, games, shopping, messengers) or add your own sites. A short breathing pause with your own if–then plan beats a lockout. Add work hours, daily limits per site and a daily "distraction budget". Optional instant blocking (Chrome) sends a distracting page to the pause before a single request is made.
 
 PLAN THE DAY AND THE WEEK
-"Plan my day" fits your priorities into the time you really have. Type "Report tomorrow 14:30 45m !" or "Stretch every weekday" and EyeTime understands — in twelve languages. Subscribe to your calendar's link (or import a file) to see your next meeting on the focus card. Three goals for the week, recurring tasks, and your tasks in and out as Markdown or CSV.
+"Plan my day" fits your priorities into the time you really have. Type "Report tomorrow 14:30 45m !" or "Stretch every weekday" and Elvani understands — in twelve languages. Subscribe to your calendar's link (or import a file) to see your next meeting on the focus card. Three goals for the week, recurring tasks, and your tasks in and out as Markdown or CSV.
 
 HONEST STATISTICS
 Time per site, hour and day; a day timeline with your focus sessions; focus time by project (#tag); estimate accuracy (planned vs. actual); your best focus hours; "what pulls you" — when a site tempts you, with a one-tap limit; a weekly review and a shareable "My week" picture. Re-classify any site as productive, neutral or distracting with one tap. Export CSV or a Markdown journal.
@@ -31,7 +31,7 @@ SHORT-VIDEO GUARD
 After a limit of Shorts / Reels / TikTok / VK Clips scrolling, the page goes grayscale and pauses.
 
 PRIVATE BY DESIGN
-No account, no ads. Nothing leaves your device unless you switch it on; the one optional thing is anonymous usage numbers, which you can read before they are sent. Only domain names and seconds are stored — on your device. If you subscribe to a calendar link, EyeTime downloads that one file straight from your browser; the address never leaves your device. Optional settings sync uses your browser's own sync and never includes your history. The source code is open to read (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Optional: encrypt your synced settings and tasks with a passphrase, so even the browser's cloud holds only ciphertext.
+No account, no ads. Nothing leaves your device unless you switch it on; the one optional thing is anonymous usage numbers, which you can read before they are sent. Only domain names and seconds are stored — on your device. If you subscribe to a calendar link, Elvani downloads that one file straight from your browser; the address never leaves your device. Optional settings sync uses your browser's own sync and never includes your history. The source code is open to read (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Optional: encrypt your synced settings and tasks with a passphrase, so even the browser's cloud holds only ciphertext.
 
 Languages: English, Russian, Spanish, German, French, Portuguese, Italian, Polish, Ukrainian, Chinese, Japanese and Romanian.
 

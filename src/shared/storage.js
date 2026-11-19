@@ -192,7 +192,7 @@ export function updateCollection(name, fallback, fn) {
 
 /* ---------- first run & migration ---------- */
 
-/** When EyeTime was installed, as far as the data says: the old stamp if it kept the date, else the oldest recorded day, else now. */
+/** When Elvani was installed, as far as the data says: the old stamp if it kept the date, else the oldest recorded day, else now. */
 function guessInstalledAt(meta, raw) {
   if (meta && typeof meta === 'object' && Number.isFinite(meta.installedAt) && meta.installedAt > 0) return meta.installedAt;
   const first = Object.keys(raw).filter((k) => /^d:\d{4}-\d{2}-\d{2}$/.test(k)).sort()[0];
@@ -277,12 +277,12 @@ export async function strictSessionRunning() {
 
 export async function importAll(payload) {
   if (await strictSessionRunning()) throw new Error('strict');
-  if (!payload || payload.app !== 'eyetime' || typeof payload.data !== 'object') throw new Error('Not an EyeTime backup');
+  if (!payload || payload.app !== 'eyetime' || typeof payload.data !== 'object') throw new Error('Not an Elvani backup');
   const data = payload.data;
   // a file without a schema stamp is 1.x data only when it looks like 1.x; current settings without a stamp are taken as they are
   const ver = data.meta?.schemaVersion || (data.settings && typeof data.settings === 'object' && !looksLikeV1(data) ? SCHEMA_VERSION : 0);
   const m = ver >= 2 ? null : migrate(data);
-  // never trust a file blindly: keep only the keys EyeTime itself writes
+  // never trust a file blindly: keep only the keys Elvani itself writes
   const KNOWN = new Set(['settings', 'meta', 'tasks', 'habits', 'captures', 'topics', 'weekPlan', 'weekPlanPrev', 'estLog', 'tipState']);
   const clean = {};
   for (const [k, v] of Object.entries(data)) if (KNOWN.has(k) || /^d:\d{4}-\d{2}-\d{2}$/.test(k)) clean[k] = v;

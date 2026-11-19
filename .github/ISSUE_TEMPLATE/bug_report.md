@@ -11,12 +11,12 @@ labels: bug
 **Steps to reproduce**
 1.
 
-**Diagnostic report** — EyeTime → Settings → About → *Report a problem* → Copy, then paste here (it has no sites, tasks or notes)
+**Diagnostic report** — Elvani → Settings → About → *Report a problem* → Copy, then paste here (it has no sites, tasks or notes)
 
 **Environment** (the report already has these)
-- EyeTime version (Settings → About):
+- Elvani version (Settings → About):
 - Browser + version:
 - OS:
 - Language / theme:
 
-**Screenshot or console error** (optional — open `chrome://extensions` → EyeTime → *service worker*)
+**Screenshot or console error** (optional — open `chrome://extensions` → Elvani → *service worker*)

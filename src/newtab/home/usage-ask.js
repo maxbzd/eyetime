@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
-// The question "may EyeTime send anonymous numbers?" It is the only time EyeTime asks for anything, so it is written like a note from a person and not like a consent banner: who asks,
+// The question "may Elvani send anonymous numbers?" It is the only time Elvani asks for anything, so it is written like a note from a person and not like a consent banner: who asks,
 // what for, two plain promises, that after a yes it goes on its own, the exact report one click away, the privacy details one click away.
 //
 // It can be asked up to three times. Each time has its own words (the first in one of two voices, an experiment), the first two offer "Maybe later" (which says it will ask again) and a

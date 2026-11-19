@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased — Elvani
+
+### A new name and a new mark
+- **EyeTime is now Elvani.** The name shows in the browser, on the new tab, in every language, in notifications, in the store texts, on the site and in the documents. The mark is a sphere of dots, large at the heart and finer toward the edge, drawn once as a vector (`brand/`): the whole mark for 64 px and up, and three simpler versions (fewer, bigger dots) for 16, 32 and 48 px, because sixty dots are only a grey blot in a toolbar. `node scripts-dev/build-brand.cjs` draws every icon from those files, the extension's and the Windows program's alike, and the `.ico`. The brand colours are ink `#0A0A09` and paper `#F5F3F0`.
+- **Nothing that belongs to a person is renamed.** Storage keys, the name of the backup format, the messages between parts, and everything the Windows program keeps by name (its folders, service, registry keys, update file names) stay as they were, so an installed copy keeps its settings, its history and its pairing with the browser. The Windows program's own texts and install names change as a separate step.
+
 ## Unreleased — The eye break that comes by itself
 
 ### The eye break

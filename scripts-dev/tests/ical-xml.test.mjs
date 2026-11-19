@@ -49,7 +49,7 @@ test('ical: changing a to-do changes only what changed; alarms and the other app
   assert.deepEqual([made.text, made.due, made.starred, made.uid], ['Fresh; task', '2026-12-24', true, 'u1']);
 });
 
-test('ical: times are read as UTC, floating, or in a named zone, and the blocks EyeTime makes survive a round trip', () => {
+test('ical: times are read as UTC, floating, or in a named zone, and the blocks Elvani makes survive a round trip', () => {
   const at = (v, params = {}) => localTime({ name: 'DTSTART', params, value: v, i: 0 });
   assert.deepEqual(at('20261104'), { day: '2026-11-04', min: null });
   assert.deepEqual(at('20261104T093000'), { day: '2026-11-04', min: 570 }, 'floating is local');

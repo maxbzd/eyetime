@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
-// The guided set-up: the long way through what EyeTime can do, for the person who wants it (docs/ONBOARDING.md, "Finding the rest"). Six short steps, each with the real controls
+// The guided set-up: the long way through what Elvani can do, for the person who wants it (docs/ONBOARDING.md, "Finding the rest"). Six short steps, each with the real controls
 // (a change is applied at once, on the page behind), each skippable. It is offered after the first session, in the command palette, and by a quiet tip; it is never forced and it
 // never asks for a permission itself: what needs one is a link into Settings, where the browser asks in its own words.
 

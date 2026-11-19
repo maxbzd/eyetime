@@ -1,6 +1,6 @@
 # The usage collector
 
-The receiving end of EyeTime's **optional, anonymous usage report** (see `docs/MEASUREMENT.md` for what is measured and why, and `PRIVACY.md` for what people are told).
+The receiving end of Elvani's **optional, anonymous usage report** (see `docs/MEASUREMENT.md` for what is measured and why, and `PRIVACY.md` for what people are told).
 It is a single endpoint, `POST /v1/usage`, that accepts exactly what `src/shared/usage-schema.js` allows and refuses everything else.
 
 ```
@@ -57,7 +57,7 @@ npx wrangler d1 create eyetime-feedback         # copy its id into the commented
 npx wrangler d1 execute eyetime-feedback --remote --file feedback.sql
 ```
 
-Without `FEEDBACK_DB` they go to `DB` (apply `feedback.sql` there). They are kept until you or the person asks for them to go; D1 Time Travel keeps 30 days of point-in-time restore, and `wrangler d1 export eyetime-feedback --remote --output backup.sql` makes a copy you hold yourself. A reply address is erased once answered and after 90 days; your answers (shown inside EyeTime to the person who asked) are erased 14 days after they were handed over.
+Without `FEEDBACK_DB` they go to `DB` (apply `feedback.sql` there). They are kept until you or the person asks for them to go; D1 Time Travel keeps 30 days of point-in-time restore, and `wrangler d1 export eyetime-feedback --remote --output backup.sql` makes a copy you hold yourself. A reply address is erased once answered and after 90 days; your answers (shown inside Elvani to the person who asked) are erased 14 days after they were handed over.
 
 Then put the address in `src/shared/usage-config.js`:
 

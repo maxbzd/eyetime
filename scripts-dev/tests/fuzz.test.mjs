@@ -73,7 +73,7 @@ fuzz('a sentence with a date in words: never throws, the date found is a real da
 }, 1500);
 
 const TASKS = [
-  '# EyeTime tasks\n\n- [ ] Report !!! ~45m #work every weekday @2026-11-10 14:30\n- [x] Call mom\n* plain line\n1. numbered\n',
+  '# Elvani tasks\n\n- [ ] Report !!! ~45m #work every weekday @2026-11-10 14:30\n- [x] Call mom\n* plain line\n1. numbered\n',
   'text,done,priority,estimate_min,tags,repeat,due,time\r\n"Report, final",no,yes,45,"work,deep",weekdays,2026-11-10,14:30\r\n"Call",yes,,,,,,\r\n',
   'text\tdone\nOne\tyes\nTwo\tno\n',
 ];

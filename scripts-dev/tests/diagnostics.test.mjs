@@ -22,7 +22,7 @@ test('error log merges repeats and caps its length', () => {
 test('report has versions and counts but no names', () => {
   const settings = { ...DEFAULT_SETTINGS, blocking: { ...DEFAULT_SETTINGS.blocking, custom: ['secret-site.com'], always: ['x.com'] } };
   const r = buildReport({ version: '9.9.9', userAgent: 'Mozilla/5.0 Chrome/130', platform: 'Linux', language: 'ru', settings, counts: { days: 12, tasks: 3, notes: 1, habits: 0 }, bytes: 20480, errors: [{ src: 'worker', msg: 'oops', at: 0, n: 3 }], sync: false });
-  assert.match(r, /EyeTime 9\.9\.9/); assert.match(r, /12 days · 3 tasks/); assert.match(r, /custom 1/); assert.match(r, /×3/); assert.match(r, /storage 20 KB/);
+  assert.match(r, /Elvani 9\.9\.9/); assert.match(r, /12 days · 3 tasks/); assert.match(r, /custom 1/); assert.match(r, /×3/); assert.match(r, /storage 20 KB/);
   assert.doesNotMatch(r, /secret-site|x\.com/);
   assert.ok(issueUrl(r).startsWith('https://github.com/maxbzd/eyetime/issues/new?'));
   assert.ok(issueUrl('a'.repeat(5000)).length < 4000);

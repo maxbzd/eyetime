@@ -109,7 +109,7 @@ for (const k of ['S1', 'S2', 'S3', 'C']) {
 }
 
 // what happens on screen
-put(fx, C.hookB, bell(hz(76), 1.2, 0.35), 0.1, -0.1); // "EyeTime shows you. Gently."
+put(fx, C.hookB, bell(hz(76), 1.2, 0.35), 0.1, -0.1); // "Elvani shows you. Gently."
 put(fx, C.chip1a, pop(hz(79)), 0.2, -0.3);
 put(fx, C.chip1b, pop(hz(84)), 0.2, 0.3); put(fx, C.chip1b, bell(hz(96), 0.9, 0.3), 0.045, 0.3);
 put(fx, C.chip2a, pop(hz(76)), 0.2, -0.3);

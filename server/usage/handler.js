@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
-// The reference collector for EyeTime's optional anonymous usage report. Plain functions over a small store, so the same code runs in a Cloudflare Worker (worker.js, D1),
+// The reference collector for Elvani's optional anonymous usage report. Plain functions over a small store, so the same code runs in a Cloudflare Worker (worker.js, D1),
 // in a test (memory-store.js) or behind any other server. It accepts exactly what src/shared/usage-schema.js allows and nothing else, keeps no IP address or header,
 // and forgets an id on request.
 
@@ -18,7 +18,7 @@ const DAY_MS = 86_400_000;
 const MAX_BODY = 8192;
 const MESSAGES_SHOWN = 500; // the inbox shows this many at a time; the numbers above it cover all
 
-/** Only EyeTime itself (an extension page or its worker) is a browser origin that may call this. A web page is refused, so a page cannot be made to send reports. */
+/** Only Elvani itself (an extension page or its worker) is a browser origin that may call this. A web page is refused, so a page cannot be made to send reports. */
 export const isExtensionOrigin = (origin) => /^(chrome|moz)-extension:\/\/[a-z0-9-]{8,64}$/i.test(origin || '');
 
 const headersFor = (origin) => ({
@@ -193,7 +193,7 @@ export async function handle(req, store, now = Date.now(), opts = {}) {
   // messages to the maker: what people chose to send (ideas, problems, kind words, the answers to a small question), and the owner's side: read, sort, answer. A separate store, see feedback-store.js.
   if (url.pathname.startsWith('/v1/feedback') && opts.feedback) {
     const fb = opts.feedback;
-    // from EyeTime itself (an extension page): one message, or the question "has the author answered?"
+    // from Elvani itself (an extension page): one message, or the question "has the author answered?"
     if ((url.pathname === '/v1/feedback' && req.method !== 'GET') || url.pathname === '/v1/feedback/replies' || url.pathname === '/v1/feedback/forget') {
       if (origin && !isExtensionOrigin(origin)) return door('wrong_origin', reply(403));
       if (req.method === 'OPTIONS') return reply(204);
@@ -255,7 +255,7 @@ export async function handle(req, store, now = Date.now(), opts = {}) {
 
   // the report itself
   if (url.pathname !== '/v1/usage') return reply(404);
-  if (origin && !isExtensionOrigin(origin)) return door('wrong_origin', reply(403)); // a browser says where the request comes from; a web page is not EyeTime
+  if (origin && !isExtensionOrigin(origin)) return door('wrong_origin', reply(403)); // a browser says where the request comes from; a web page is not Elvani
   if (req.method === 'OPTIONS') return reply(204);
   if (req.method !== 'POST') return reply(405);
   if (!/^application\/json\b/i.test(req.headers.get('content-type') || '')) return door('bad_type', reply(415));

@@ -20,7 +20,7 @@ export async function buildMenus() {
   await setLocale(resolveLocale(s.language));
   await chrome.contextMenus.removeAll();
   const mk = (o) => chrome.contextMenus.create({ contexts: ['page'], ...o });
-  mk({ id: 'root', title: 'EyeTime', contexts: ['page', 'action', 'link'] }); // 'link': only "Save to topic" shows there
+  mk({ id: 'root', title: 'Elvani', contexts: ['page', 'action', 'link'] }); // 'link': only "Save to topic" shows there
   for (const c of ['productive', 'neutral', 'distracting']) mk({ id: 'cls:' + c, parentId: 'root', title: t('menu.markAs', { cls: t('class.' + c) }), contexts: ['page'] });
   mk({ id: 'block:always', parentId: 'root', title: t('menu.alwaysBlock'), contexts: ['page'] });
   mk({ id: 'focus:toggle', parentId: 'root', title: t('menu.toggleFocus'), contexts: ['page', 'action'] });
@@ -45,7 +45,7 @@ chrome.contextMenus?.onClicked.addListener(async (info, tab) => {
   const s = await getSettings();
   await updateBadge(s);
   await setLocale(resolveLocale(s.language));
-  notify('menu-' + Date.now(), { title: 'EyeTime', message: t(result.key, { host, cls: result.cls ? t('class.' + result.cls).toLowerCase() : '' }), priority: 0 });
+  notify('menu-' + Date.now(), { title: 'Elvani', message: t(result.key, { host, cls: result.cls ? t('class.' + result.cls).toLowerCase() : '' }), priority: 0 });
 });
 
 // the topic list changed (a new topic, a rename, a deletion in the dock or in Settings): the "Save to topic" entries follow

@@ -1,4 +1,4 @@
-# Measuring EyeTime without watching anyone
+# Measuring Elvani without watching anyone
 
 Until now the product was built blind: no number said whether a new person reaches a first session, comes back after a week, or ever opens the things we spend months on.
 This page says what we measure, how, what we promise, and how to read the numbers. The promise is the product, so it comes first.
@@ -14,9 +14,9 @@ This page says what we measure, how, what we promise, and how to read the number
 
 ## What is counted
 
-Two things only: **on which days EyeTime was used**, and **how often each feature was used** (a counter per name in `FEATURES`).
+Two things only: **on which days Elvani was used**, and **how often each feature was used** (a counter per name in `FEATURES`).
 
-- *Active day*: a day on which the person opened EyeTime (new tab, popup, Insights, Settings) or used any counted feature. Background tracking does not make a day active: it says nothing about the person.
+- *Active day*: a day on which the person opened Elvani (new tab, popup, Insights, Settings) or used any counted feature. Background tracking does not make a day active: it says nothing about the person.
 - *Age*: whole local days since the install. A report says "active on ages 0, 1, 2, 5, 6", never a date or a time.
 - *First use*: the age at which a feature was first used. This is what makes the activation funnel possible.
 - *Counters*: per feature, the uses since the last report (a week).
@@ -31,7 +31,7 @@ All in `server/usage/queries.sql` (plain SQLite; run against D1 with `wrangler d
 | Question | Definition | Query |
 |---|---|---|
 | **Activation** | An install *activates* when it **starts a focus session on the first day**; the wider measures are a first session within a week and a finished session within a week. The same for opening the new tab on the first day: the step before. | `activation` |
-| **Retention D1 / D7 / D30** | Share of installs that were active **the next day (D1)**, **on any day 7–13 (D7)** or **30–36 (D30)** after the install. An install is counted only when its window has been observed (age ≥ 13 for D7, ≥ 36 for D30). A window is used instead of one exact day because EyeTime is used a few days a week, not every day. | `retention` |
+| **Retention D1 / D7 / D30** | Share of installs that were active **the next day (D1)**, **on any day 7–13 (D7)** or **30–36 (D30)** after the install. An install is counted only when its window has been observed (age ≥ 13 for D7, ≥ 36 for D30). A window is used instead of one exact day because Elvani is used a few days a week, not every day. | `retention` |
 | **Which features are real** | Of the installs that reported in the last four weeks, the share that used each feature at all, and how many uses in total. A feature that few use is a candidate to simplify or to cut. | `feature_adoption` |
 | **What people choose** | Look, layout, language, system among active installs. Defaults that nobody keeps are a design question. | `setup` |
 | **Does a session reach its end** | Finished ÷ started, the share stopped in the first five minutes, and the length of the finished ones. Decides the default length and what stopping looks like. | dashboard: *Focus sessions* |

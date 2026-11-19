@@ -106,7 +106,7 @@ const { launch } = require('./lib.cjs');
   const wording = await ask.innerText();
   ok(/Never sold/.test(wording) && /Nothing personal/.test(wording), 'it says in plain words that nothing is sold, nothing is personal');
   ok(/on its own, once a week/.test(wording) && /Nothing to confirm/.test(wording), 'it says that after a yes it goes on its own, once a week, with nothing to confirm');
-  ok(!/\bhe\b|\bhis\b/.test(wording.replace(/EyeTime is built by one person who/, '')), 'the sender is "EyeTime", never an ambiguous "he"');
+  ok(!/\bhe\b|\bhis\b/.test(wording.replace(/Elvani is built by one person who/, '')), 'the sender is "Elvani", never an ambiguous "he"');
   ok(await home.locator('#nudge:not([hidden])').count() === 0, 'and it is a card of its own, not the nudge strip');
   const box = async (name) => (await ask.getByRole('button', { name }).boundingBox());
   const [yb, lb] = [await box(/Yes, I'll help/), await box('Maybe later')];

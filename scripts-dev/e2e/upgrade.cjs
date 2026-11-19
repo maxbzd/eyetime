@@ -107,11 +107,11 @@ async function crawl(label, { seed, lang, from = OLD }) {
     await opt.goto(ext('src/options/options.html#about')); await opt.waitForTimeout(500);
     await opt.locator('button', { hasText: /Prepare report|Подготовить отчёт/ }).click(); await opt.waitForSelector('dialog[open] textarea');
     const rep = await opt.locator('dialog[open] textarea').inputValue();
-    if (!/^EyeTime \d+\.\d+\.\d+/.test(rep) || !/Data: \d+ days/.test(rep)) logic.push('Diagnostic report malformed: ' + rep.slice(0, 80));
+    if (!/^Elvani \d+\.\d+\.\d+/.test(rep) || !/Data: \d+ days/.test(rep)) logic.push('Diagnostic report malformed: ' + rep.slice(0, 80));
     if (/github\.com|reddit\.com|Old task|Old goal/.test(rep)) logic.push('Diagnostic report leaks site/task names');
     await opt.keyboard.press('Escape');
     if (!dl) logic.push('Journal export did not download');
-    else { const body = fs.readFileSync(await dl.path(), 'utf8'); if (!/EyeTime|EyeTime/.test(body) || !/Old goal/.test(body) || /github\.com|reddit\.com/.test(body)) logic.push('Journal content wrong: ' + body.slice(0, 120)); }
+    else { const body = fs.readFileSync(await dl.path(), 'utf8'); if (!/Elvani|Elvani/.test(body) || !/Old goal/.test(body) || /github\.com|reddit\.com/.test(body)) logic.push('Journal content wrong: ' + body.slice(0, 120)); }
   }
   for (const m of logic) errs.push('logic ' + m);
   console.log(errs.length ? `FAIL ${label}\n  ` + [...new Set(errs)].join('\n  ') : `PASS ${label}: no console errors on ${PAGES.length + 12 + 8 + 1} page loads`);

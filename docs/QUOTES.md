@@ -1,6 +1,6 @@
 # Quotes
 
-Every quote shown in EyeTime, with where it comes from. The wording in each language is that language's own version (not a literal translation of another one).
+Every quote shown in Elvani, with where it comes from. The wording in each language is that language's own version (not a literal translation of another one).
 
 Where the English text is marked *close to the original*, it renders the sense of the source rather than an exact published sentence.
 
@@ -38,4 +38,4 @@ Where the English text is marked *close to the original*, it renders the sense o
 | lubbock-rest | John Lubbock | The Use of Life | rest | Rest is not idleness. To lie on the grass under the trees on a summer’s day is by no means a waste of time. *(close to the original)* |
 | seneca-relax | Seneca | On Tranquility of Mind | rest | The mind must be given relaxation: rested, it will rise better and keener. *(close to the original)* |
 | ovid-field | Ovid |  | rest | Take rest; a field that has rested gives a bountiful crop. *(close to the original)* |
-| tip-stretch | EyeTime (not a quotation) | EyeTime | rest | Stand up and stretch. Ten seconds is enough. |
+| tip-stretch | Elvani (not a quotation) | Elvani | rest | Stand up and stretch. Ten seconds is enough. |

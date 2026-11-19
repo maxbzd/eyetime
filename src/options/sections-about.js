@@ -49,7 +49,7 @@ export function about({ s }) {
   const link = (href, ico, label) => h('a', { class: 'btn', href, target: '_blank', rel: 'noopener' }, ico, label);
   return sec('about', sectionHead(t('sec.about')),
     h('div', { class: 'card' },
-      h('div', { class: 'about-logo' }, h('img', { src: '../../icons/logo.svg', alt: '' }), h('div', {}, h('h3', { text: 'EyeTime' }), h('div', { class: 'muted', text: t('about.version', { v }) }), h('div', { class: 'muted', text: t('about.tagline') }))),
+      h('div', { class: 'about-logo' }, h('img', { src: '../../icons/logo.svg', alt: '' }), h('div', {}, h('h3', { text: 'Elvani' }), h('div', { class: 'muted', text: t('about.version', { v }) }), h('div', { class: 'muted', text: t('about.tagline') }))),
       h('div', { class: 'row gap-2 wrap', style: { padding: '0 var(--s-5) var(--s-5)' } },
         link('https://github.com/maxbzd/eyetime', icon('code-xml'), t('about.source')),
         link('https://github.com/maxbzd/eyetime/blob/main/CHANGELOG.md', icon('sparkles'), t('about.whatsNew')),

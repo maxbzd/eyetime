@@ -1,6 +1,6 @@
 # Photo credits
 
-The photographs in `src/newtab/frames` ship with EyeTime (the *Frames* themes and the *Photos* row of the background picker).
+The photographs in `src/newtab/frames` ship with Elvani (the *Frames* themes and the *Photos* row of the background picker).
 They come from [Unsplash](https://unsplash.com) and are used under the [Unsplash License](https://unsplash.com/license) (free to use, no attribution required). We credit the photographers anyway.
 The files were cropped to 16:10, some were turned black and white, and one had its sky extended; the foreground masks next to them are made by us.
 

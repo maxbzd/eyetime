@@ -1,6 +1,6 @@
-# Translating EyeTime
+# Translating Elvani
 
-EyeTime speaks English and Russian (written by the author) and ten more languages: Spanish, German, French, Portuguese, Italian, Polish, Ukrainian, Chinese, Japanese and Romanian. Those ten are machine translations that no native speaker has read yet, so corrections are especially welcome. A wrong or clumsy phrase in any language is a bug — fixing one is the easiest first contribution.
+Elvani speaks English and Russian (written by the author) and ten more languages: Spanish, German, French, Portuguese, Italian, Polish, Ukrainian, Chinese, Japanese and Romanian. Those ten are machine translations that no native speaker has read yet, so corrections are especially welcome. A wrong or clumsy phrase in any language is a bug — fixing one is the easiest first contribution.
 
 ## Fix a translation
 
