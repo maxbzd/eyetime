@@ -22,6 +22,7 @@ let lang = 'en';
 /** @type {Record<string, any>} */
 let dict = en;
 let plural = new Intl.PluralRules('en');
+let pluralOf = 'en'; // the language `plural` was made for
 
 export { LANGUAGES };
 
@@ -62,9 +63,9 @@ export async function setLocale(code) {
     loading.delete(next);
     if (words) loaded[next] = words; else next = 'en';
   }
+  if (next !== pluralOf) { plural = new Intl.PluralRules(next); pluralOf = next; } // made when the language changes, not on every call (the worker calls this with every badge update)
   lang = next;
   dict = loaded[next];
-  plural = new Intl.PluralRules(lang);
   if (typeof document !== 'undefined' && document.documentElement) document.documentElement.lang = lang;
 }
 

@@ -40,3 +40,16 @@ test('the prototype stays out of settings, and plain objects still merge deeply'
   assert.equal({}.x, undefined); assert.equal(s.blocking.friction.seconds, 3); assert.equal(s.blocking.friction.enabled, true);
   assert.deepEqual(deepMerge({ a: { b: 1, c: 2 } }, { a: { b: 5 } }), { a: { b: 5, c: 2 } });
 });
+
+test('a damaged day record does not stop the tracker for the rest of the day', async () => {
+  const { installFakeChrome } = await import('./helpers/fake-chrome.mjs');
+  const chrome = installFakeChrome();
+  const { addTime, getRaw } = await import('../../src/shared/storage.js?day');
+  for (const bad of [{}, { d: 'x', a: null, h: [] }, [], 'junk', { d: {}, fs: 'x' }]) {
+    await chrome.storage.local.clear();
+    await chrome.storage.local.set({ 'd:2026-11-04': bad });
+    await addTime({ host: 'a.com', sec: 30, hour: 10, date: new Date(2026, 10, 4, 10) });
+    const day = (await getRaw('d:2026-11-04'))['d:2026-11-04'];
+    assert.equal(day.d['a.com'], 30, JSON.stringify(bad)); assert.equal(day.fs, typeof day.fs === 'number' ? day.fs : 0);
+  }
+});

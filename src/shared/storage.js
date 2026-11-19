@@ -87,12 +87,20 @@ export async function getDays(keys) {
 
 export async function getRange(n, end = new Date()) { return getDays(rangeKeys(n, end)); }
 
+/** A day record as the code that adds to it needs it: the three tables are objects and the three counters numbers. A record that came from a damaged or hand-made file would otherwise stop the tracker for the rest of that day. */
+function cleanDay(/** @type {any} */ rec) {
+  const day = plainOrNull(rec) || emptyDay();
+  for (const f of ['d', 'h', 'a']) if (!plainOrNull(day[f])) day[f] = {};
+  for (const f of ['fs', 'fc', 'b']) if (!Number.isFinite(day[f])) day[f] = 0;
+  return day;
+}
+
 let dayQueue = Promise.resolve();
 /** Serialised read-modify-write of a single day record. */
 export function updateDay(key, fn) {
   const run = async () => {
     const k = dayStorageKey(key);
-    const cur = (await area().get(k))[k] || emptyDay();
+    const cur = cleanDay((await area().get(k))[k]);
     fn(cur);
     await area().set({ [k]: cur });
     return cur;
@@ -261,7 +269,14 @@ export function scrubCompanion(/** @type {any} */ settings) {
   return { ...settings, companion: { ...settings.companion, enabled: false, token: '' } };
 }
 
+/** A strict session is running: no early exit, and wiping the data (a restore, a reset) would be one, since the session lives in the same storage. */
+export async function strictSessionRunning() {
+  const { focus } = await area().get('focus');
+  return !!(focus && typeof focus === 'object' && focus.strict && !focus.pausedAt && Date.now() < focus.endsAt);
+}
+
 export async function importAll(payload) {
+  if (await strictSessionRunning()) throw new Error('strict');
   if (!payload || payload.app !== 'eyetime' || typeof payload.data !== 'object') throw new Error('Not an EyeTime backup');
   const data = payload.data;
   // a file without a schema stamp is 1.x data only when it looks like 1.x; current settings without a stamp are taken as they are
@@ -302,6 +317,7 @@ export async function importAll(payload) {
 }
 
 export async function resetAll() {
+  if (await strictSessionRunning()) throw new Error('strict');
   await dropCalendarPermission();
   try { await (await import('./usage-store.js')).forgetOnReset(); } catch { /* nothing was shared, or no network: the local data is deleted all the same */ }
   await area().clear();
