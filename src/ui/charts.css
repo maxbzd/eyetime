@@ -45,7 +45,7 @@
 .hm-cell.l3 { background: color-mix(in srgb, var(--accent) 76%, var(--bar-empty)); }
 .chart .col.is-future { cursor: default; } .chart .col.is-future:hover { background: none; }
 
-/* the heat map in Calm: lime, deepening to olive on bone (lime alone is too faint on light paper) */
+/* the heat map in Calm: amber, deepening to bronze on bone (amber alone is too faint on light paper) */
 :root[data-look="calm"] .hm-cell.l1, :root:not([data-look]) .hm-cell.l1 { background: color-mix(in srgb, var(--signal) 38%, var(--bar-empty)); }
 :root[data-look="calm"] .hm-cell.l2, :root:not([data-look]) .hm-cell.l2 { background: var(--signal); }
 :root[data-look="calm"] .hm-cell.l3, :root:not([data-look]) .hm-cell.l3 { background: color-mix(in srgb, var(--signal-ink) 80%, var(--signal)); }

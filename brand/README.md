@@ -11,7 +11,7 @@ The mark is a sphere of dots: large at the heart, finer toward the edge. Drawn o
 | `icon48.svg`, `icon32.svg`, `icon16.svg` | the same icon with fewer, bigger dots, so that it still reads at toolbar sizes |
 | `source/` | the masters as supplied (PNG, 2048 px mark, 2403 px logo) |
 
-**Colours.** Ink `#0A0A09`, paper `#F5F3F0`. Nothing else is part of the mark.
+**Colours.** Ink `#0A0A09`, paper `#F5F3F0`. Nothing else is part of the mark. In the product one more colour is used, sparingly, for "now": daylight amber (`#F2C14E` on dark, `#F0B441` on light, `#8A5A00` for text on paper), never as a fill of the mark.
 
 **Clear space.** Around the mark keep at least the height of the largest dot (about a tenth of the mark's height). **Smallest size.** The lockup: 96 px wide. The mark alone: 24 px; below that use the icon files.
 

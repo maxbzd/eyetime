@@ -5,7 +5,7 @@ A calm, neutral interface with one warm accent. Light and dark are first-class. 
 ## Principles
 
 1. **Quiet by default.** Neutral surfaces, hairline borders, soft shadows (light) or borders only (dark). Colour is reserved for meaning.
-2. **One signal.** Calm is bone paper and soft ink with a single stroke of lime (`--signal`) for "now": a running session, today's progress, the start action. Other looks map `--signal` onto their own accent. The user may pick a look's own colour, one of ten presets or any custom colour. Accent never carries data. See [THEMES.md](THEMES.md).
+2. **One signal.** Calm is bone paper and soft ink with a single stroke of amber (`--signal`) for "now": a running session, today's progress, the start action. Other looks map `--signal` onto their own accent. The user may pick a look's own colour, one of ten presets or any custom colour. Accent never carries data. See [THEMES.md](THEMES.md).
 3. **Data colours are semantic.** Productive = blue, neutral = warm gray, distracting = red. Always paired with a text label or icon — never colour alone.
 4. **Honest empty states.** Zero is zero. Empty states explain what will appear and what to do next.
 5. **Comfortable density.** Body 14 px, minimum UI text 12 px, 36 px controls, 8 px grid.

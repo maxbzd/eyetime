@@ -3,8 +3,8 @@
 /* Shared components. Class names are plain and flat; pages add layout only. */
 
 /* ---------- buttons ----------
-   Pills. Secondary buttons are quiet surfaces with a hairline; primary is the look's accent (ink on Calm light, lime on Calm dark);
-   .btn-signal is the one lime action on a page (start a focus session). */
+   Pills. Secondary buttons are quiet surfaces with a hairline; primary is the look's accent (ink on Calm light, amber on Calm dark);
+   .btn-signal is the one amber action on a page (start a focus session). */
 .btn {
   --btn-bg: var(--surface); --btn-fg: var(--text); --btn-bd: var(--border); --btn-bg-h: var(--surface-2); --btn-bd-h: var(--border-strong);
   display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);

@@ -65,9 +65,9 @@
   .rule .foot { margin-top: auto; padding-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .rule .app-stack .app-tile { width: 24px; height: 24px; font-size: 9px; border-color: #0c1311; }
   .sw { position: relative; width: 46px; height: 28px; border-radius: 99px; background: rgba(255,255,255,.14); transition: background .35s; flex: none; cursor: pointer; border: 0; } .sw::after { content: ""; position: absolute; left: 3px; top: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.4); transition: transform .5s var(--spring); }
-  .sw[aria-checked="true"] { background: linear-gradient(100deg, var(--lime), var(--mint)); } .sw[aria-checked="true"]::after { transform: translateX(18px); }
+  .sw[aria-checked="true"] { background: linear-gradient(100deg, var(--amber), var(--mint)); } .sw[aria-checked="true"]::after { transform: translateX(18px); }
   .rule.new { align-items: center; justify-content: center; gap: 12px; border-style: dashed; color: var(--mint); font: 600 15px/1.2 var(--font-body); min-height: 196px; }
-  .rule.new .plus { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, var(--lime), var(--mint)); color: #04100b; transition: transform .6s var(--spring); } .rule.new:hover .plus { transform: rotate(90deg) scale(1.1); }
+  .rule.new .plus { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, var(--amber), var(--mint)); color: #04100b; transition: transform .6s var(--spring); } .rule.new:hover .plus { transform: rotate(90deg) scale(1.1); }
   .lists { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: start; }
   .list-card { padding: 16px; border-radius: 28px; transition: box-shadow .3s, border-color .3s; } .list-card.over { box-shadow: 0 0 0 2px var(--mint), 0 0 40px rgba(140,242,198,.25); }
   .list-card h3 { margin: 0; display: flex; align-items: center; gap: 9px; font: 600 16px/1 var(--font-body); } .list-card h3 i { width: 10px; height: 10px; border-radius: 50%; } .list-card .d { margin: 6px 0 12px; color: var(--text-3); font: 500 12.5px/1.35 var(--font-body); }

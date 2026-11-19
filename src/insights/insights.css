@@ -323,7 +323,7 @@ button.tag { appearance: none; padding-right: 9px; font-family: inherit; border:
 .tag-wrap .dd[aria-expanded="true"] { box-shadow: none; border-color: transparent; }
 .guess-mark { display: inline-grid; place-items: center; margin-left: 6px; color: var(--accent-text); vertical-align: middle; } .guess-mark .ico { font-size: 12px; }
 
-/* ═══════════ v4 · bone paper, big quiet numbers, one lime highlight ═══════════ */
+/* ═══════════ v4 · bone paper, big quiet numbers, one amber highlight ═══════════ */
 .page-head { margin-bottom: var(--s-6); }
 .tabs { margin: 0 0 var(--s-6); gap: 4px; padding: 4px; width: max-content; max-width: 100%; border-radius: var(--r-full); background: color-mix(in srgb, var(--text) 5%, transparent); }
 .tab { height: 36px; }

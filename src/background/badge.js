@@ -39,8 +39,8 @@ export async function updateBadge(settings) {
   }
   if (isFocusActive(raw.focus)) {
     const min = Math.ceil(remainingMs(raw.focus) / 60000);
-    // focus: ink with a lime count, like the countdown on Home
-    return apply({ text: String(min), bg: '#171612', fg: '#d2f56b', title: t('badge.focusTitle', { n: min }) + (raw.focus.goal ? ` — ${raw.focus.goal}` : '') });
+    // focus: ink with a amber count, like the countdown on Home
+    return apply({ text: String(min), bg: '#171612', fg: '#f2c14e', title: t('badge.focusTitle', { n: min }) + (raw.focus.goal ? ` — ${raw.focus.goal}` : '') });
   }
   if (raw.rest && Date.now() < raw.rest.endsAt) {
     const min = Math.ceil((raw.rest.endsAt - Date.now()) / 60000);

@@ -103,9 +103,9 @@ export const LOOKS = {
     pageBg: { light: 'radial-gradient(900px 640px at 8% -10%, rgba(255, 170, 190, .55), transparent 64%), radial-gradient(900px 640px at 100% 0%, rgba(150, 190, 255, .6), transparent 66%), radial-gradient(800px 560px at 50% 112%, rgba(170, 240, 215, .5), transparent 66%)', dark: 'radial-gradient(900px 640px at 8% -10%, rgba(255, 110, 150, .22), transparent 64%), radial-gradient(900px 640px at 100% 0%, rgba(90, 130, 255, .26), transparent 66%), radial-gradient(800px 560px at 50% 112%, rgba(60, 220, 190, .16), transparent 66%)' },
   },
   calm: {
-    name: 'Calm', blurb: 'Bone paper, soft ink and one stroke of lime. The default.', font: 'inter', display: 'inter', radii: [10, 14, 22, 30], cards: 'solid', shadow: 'paper', borderW: 1, headingW: 600, headingLs: '-.028em', homeScene: 'plain',
+    name: 'Calm', blurb: 'Bone paper, soft ink and one stroke of amber. The default.', font: 'inter', display: 'inter', radii: [10, 14, 22, 30], cards: 'solid', shadow: 'paper', borderW: 1, headingW: 600, headingLs: '-.028em', homeScene: 'plain',
     light: { bg: '#efeee9', surface: '#ffffff', surface2: '#f5f4f0', surface3: '#ebe9e3', text: '#171612', accent: '#171612', border: '#e6e4de', borderStrong: '#cfccc3' },
-    dark: { bg: '#0b0b0c', surface: '#151517', surface2: '#1e1e21', surface3: '#29292c', text: '#f2f1ec', accent: '#d2f56b', border: '#232326', borderStrong: '#3a3a3e' },
+    dark: { bg: '#0b0b0c', surface: '#151517', surface2: '#1e1e21', surface3: '#29292c', text: '#f2f1ec', accent: '#f2c14e', border: '#232326', borderStrong: '#3a3a3e' },
   },
   paper: {
     name: 'Paper', blurb: 'Parchment and serif type, like a well-set book.', font: 'serif', display: 'serif', radii: [3, 5, 8, 12], cards: 'solid', shadow: 'soft', borderW: 1, headingW: 600, headingLs: '-.01em', homeBg: 'grain',
