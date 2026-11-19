@@ -12,7 +12,6 @@ import { http, bodyText } from '../http.js';
 import { SyncError } from '../run.js';
 import { parseXml, find, findAll, textOf, escapeXml } from '../xml.js';
 import { parseVtodo, buildVtodo, patchVtodo, buildVevent, parseOurEvent, component, UID_PREFIX } from '../ical.js';
-import { parseIcsFull } from '../../ics.js';
 
 export const PRESETS = { icloud: 'https://caldav.icloud.com', fastmail: 'https://caldav.fastmail.com' };
 const NS = 'xmlns:d="DAV:" xmlns:c="urn:ietf:params:xml:ns:caldav"';
@@ -111,6 +110,7 @@ export const caldav = {
           const range = `<c:time-range start="${dayCompact(from)}T000000Z" end="${dayCompact(to)}T235959Z"/>`; // wider than the days asked for: the time zone is applied when reading
           const x = await req(o.eventsUrl, 'REPORT', '1', `<c:calendar-query ${NS}><d:prop><d:getetag/><c:calendar-data/></d:prop><c:filter><c:comp-filter name="VCALENDAR"><c:comp-filter name="VEVENT">${range}</c:comp-filter></c:comp-filter></c:filter></c:calendar-query>`);
           const ours = [], busy = [];
+          const { parseIcsFull } = await import('../../ics.js'); // the reader of calendar files (and its table of time zones) is loaded when events are listed, not with every page that names the provider
           for (const r of findAll(x, 'response')) {
             const data = textOf(find(r, 'calendar-data')); if (!data) continue;
             const id = new URL(textOf(find(r, 'href')), o.eventsUrl).href, e = parseOurEvent(data);

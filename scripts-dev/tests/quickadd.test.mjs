@@ -182,3 +182,29 @@ test('quick add in Romanian: days, repeats, and the plural of "month" is not a d
   assert.equal(parseQuickAdd('Raport în fiecare săptămână', NOW).repeat, 'weekly');
   r = parseQuickAdd('Cursuri în fiecare vineri', NOW); assert.equal(r.due, null, 'a weekly day is a repeat, not a date');
 });
+
+// ---- found by trying real phrases: part of the day and "1h 30m" ("every Monday" stays in the title: a repeat here means "a week after it is done", not a weekday) ----
+const THU = new Date(2026, 10, 19, 15, 0); // Thursday 19 November 2026, 15:00
+
+test('quick add: "7 вечера" is 19:00 and "9 утра" is 09:00, and the word is not left in the title', () => {
+  let r = parseQuickAdd('Ужин в 7 вечера', THU); assert.deepEqual([r.text, r.at, r.atDay], ['Ужин', '19:00', '2026-11-19']);
+  r = parseQuickAdd('Встреча в среду в 9 утра', THU); assert.deepEqual([r.text, r.at, r.atDay], ['Встреча', '09:00', '2026-11-25']);
+  r = parseQuickAdd('Лекция в 2 дня', THU); assert.deepEqual([r.text, r.at], ['Лекция', '14:00']);
+  r = parseQuickAdd('Лечь спать в 11 ночи', THU); assert.deepEqual([r.text, r.at], ['Лечь спать', '23:00']);
+  r = parseQuickAdd('Проснуться в 3 ночи', THU); assert.deepEqual([r.text, r.at], ['Проснуться', '03:00']);
+  r = parseQuickAdd('Зарядка вечером в 7', THU); assert.deepEqual([r.text, r.at], ['Зарядка', '19:00'], 'the part of the day in front of the time');
+  r = parseQuickAdd('Gym tonight at 7', THU); assert.deepEqual([r.text, r.at, r.atDay], ['Gym', '19:00', '2026-11-19']);
+  r = parseQuickAdd('Call at 9 in the morning', THU); assert.deepEqual([r.text, r.at], ['Call', '09:00']);
+  r = parseQuickAdd('Dinner at 8 in the evening', THU); assert.deepEqual([r.text, r.at], ['Dinner', '20:00']);
+  r = parseQuickAdd('Abendessen um 19:00 abends', THU); assert.equal(r.at, '19:00', 'a 24-hour time keeps its hour');
+  r = parseQuickAdd('Обед в 12 дня', THU); assert.equal(r.at, '12:00');
+  r = parseQuickAdd('Встреча в 12 ночи', THU); assert.equal(r.at, '00:00');
+  r = parseQuickAdd('Report 6pm', THU); assert.equal(r.at, '18:00', 'am/pm is as before');
+});
+
+test('quick add: "1h 30m" is an hour and a half', () => {
+  assert.equal(parseQuickAdd('Задача 1ч 30м', THU).est, 90);
+  let r = parseQuickAdd('Задача #работа !! 1ч 30м', THU); assert.deepEqual([r.text, r.est, r.priority, r.tags], ['Задача', 90, true, ['работа']]);
+  r = parseQuickAdd('Write 2h 15 min draft', THU); assert.deepEqual([r.text, r.est], ['Write draft', 135]);
+  assert.equal(parseQuickAdd('Задача 1.5h', THU).est, 90); assert.equal(parseQuickAdd('Задача 45м', THU).est, 45);
+});

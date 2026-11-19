@@ -7,6 +7,28 @@ import { findDateWord } from './datewords.js';
 
 const pad = (n) => String(n).padStart(2, '0');
 
+/**
+ * The part of the day that says which half of the clock "7" means: 7 in the evening is 19:00, 9 in the morning is 09:00, 11 at night is 23:00, 3 at night is 03:00.
+ * Said after the time ("в 7 вечера", "at 7 in the evening") or in front of it ("вечером в 7", "tonight at 7").
+ */
+const PERIODS = {
+  morning: 'утра|утром|ранку|ранком|in the morning|morgens|de la ma[ñn]ana|du matin|da manh[ãa]|di mattina|rano|dimine[tț]ii?',
+  day: 'дня|днём|днем|вдень|удень|in the afternoon|nachmittags|de la tarde|de l.apr[eè]s-midi|da tarde|del pomeriggio|po po[łl]udniu|dup[ăa]-amiaz[ăa]',
+  evening: 'вечера|вечером|вечора|ввечері|in the evening|this evening|tonight|abends|du soir|della sera|di sera|wieczorem|seara|sear[ăa]',
+  night: 'ночи|ночью|ночі|вночі|at night|nachts|de la noche|de la nuit|da noite|di notte|w nocy|noaptea',
+};
+const PERIOD_AFTER = new RegExp(`^\\s*(?:(${PERIODS.morning})|(${PERIODS.day})|(${PERIODS.evening})|(${PERIODS.night}))(?=[\\s!,;.]|$)`, 'iu');
+const PERIOD_BEFORE = new RegExp(`(?:^|\\s)(?:(${PERIODS.morning})|(${PERIODS.day})|(${PERIODS.evening})|(${PERIODS.night}))\\s*$`, 'iu');
+/** hour on a 24-hour clock for a number 1–12 said with a part of the day */
+function withPeriod(hh, /** @type {boolean[]} */ [morning, day, evening, night]) {
+  if (hh < 1 || hh > 12) return hh; // already a 24-hour time
+  if (morning) return hh === 12 ? 0 : hh;
+  if (day) return hh < 12 ? hh + 12 : hh;
+  if (evening) return hh < 12 ? hh + 12 : hh;
+  if (night) return hh === 12 ? 0 : hh >= 9 ? hh + 12 : hh; // 9, 10, 11 at night are 21, 22, 23; 1 to 8 stay small hours
+  return hh;
+}
+
 /** Parse a time token to 'HH:MM' or null. Accepts 14:30, 14.30, 2pm, 2:30pm, @14:30, at 14:30, в 14:30. */
 function toTime(h, m, ap) {
   let hh = Number(h); const mm = m === undefined ? 0 : Number(m);
@@ -26,13 +48,26 @@ export function parseQuickAdd(input, now = new Date()) {
   // time: @14:30 · at 2pm · в 14:30 · 14:30 · 2:30pm   (a bare number such as "3" is NOT a time)
   // a dot is a decimal point far more often than a time separator ("12.50", "chapter 10.15"): it only counts with am/pm or @/at/в
   const timeRe = /(?<=\s)(@|at\s+|в\s+)?(\d{1,2})(?:([:.])(\d{2}))?\s?(am|pm|a\.m\.|p\.m\.)?(?=\s|$)/i;
-  const matches = [...text.matchAll(new RegExp(timeRe.source, 'gi'))].map((m) => ({ raw: m[0], prefix: m[1], h: m[2], sep: m[3], m: m[4], ap: m[5] && m[5].replace(/\./g, '') }));
+  const matches = [...text.matchAll(new RegExp(timeRe.source, 'gi'))].map((m) => ({ raw: m[0], index: m.index, prefix: m[1], h: m[2], sep: m[3], m: m[4], ap: m[5] && m[5].replace(/\./g, '') }));
   const ts = matches.find((x) => (x.m !== undefined || x.ap !== undefined || x.prefix) && (x.sep !== '.' || x.ap || x.prefix) && toTime(x.h, x.m, x.ap));
-  if (ts) { out.at = toTime(ts.h, ts.m, ts.ap); text = text.replace(ts.raw, ' '); }
+  if (ts) {
+    let from = ts.index, to = ts.index + ts.raw.length, hour = ts.h;
+    if (!ts.ap) { // "7 вечера" / "вечером в 7": the part of the day settles which 7
+      const after = PERIOD_AFTER.exec(text.slice(to)), before = PERIOD_BEFORE.exec(text.slice(0, from));
+      const hit = after || before;
+      if (hit) { hour = String(withPeriod(Number(ts.h), hit.slice(1, 5).map(Boolean))); if (after) to += after[0].length; else from = before.index; }
+    }
+    out.at = toTime(hour, ts.m, ts.ap);
+    text = text.slice(0, from) + ' ' + text.slice(to);
+  }
 
   // estimate: 25m · 25 min · 45мин · 1.5h · 2ч
-  const est = /(?<=\s)(\d{1,3}(?:[.,]\d)?)\s?(m|min|mins|мин|м|h|hr|hrs|ч|хв|год\.|годин)(?=[\s!,;]|$)/i.exec(text);
-  if (est) {
+  const both = /(?<=\s)(\d{1,2})\s?(?:h|hr|hrs|ч|год\.|годин)\s?(\d{1,2})\s?(?:m|min|mins|мин|м|хв)(?=[\s!,;]|$)/i.exec(text); // 1h 30m · 1ч 30м · 2 год 15 хв
+  const est = both ? null : /(?<=\s)(\d{1,3}(?:[.,]\d)?)\s?(m|min|mins|мин|м|h|hr|hrs|ч|хв|год\.|годин)(?=[\s!,;]|$)/i.exec(text);
+  if (both) {
+    const minutes = Number(both[1]) * 60 + Number(both[2]);
+    if (minutes >= 1 && minutes <= 720) { out.est = minutes; text = text.replace(both[0], ' '); }
+  } else if (est) {
     const n = Number(est[1].replace(',', '.')), hours = /^(h|hr|hrs|ч|год\.|годин)$/i.test(est[2]);
     const minutes = Math.round(hours ? n * 60 : n);
     if (minutes >= 1 && minutes <= 720) { out.est = minutes; text = text.replace(est[0], ' '); }
