@@ -9,7 +9,7 @@ import { goalStrip, reviewCard } from '../day-loop.js';
 import { dayKey } from '../../shared/time.js';
 import { showQuote } from '../quote.js';
 import { modeName } from '../../shared/modes.js';
-import { nextEvent } from '../../shared/ics.js';
+import { nextEvent } from '../../shared/nextevent.js';
 
 /** @param {any} ctx the context of createSession */
 export function renderIdle(ctx) {
