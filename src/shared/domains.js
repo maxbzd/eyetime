@@ -2,9 +2,19 @@
 // Copyright 2026 maxbzd
 // Hostname helpers. Only hostnames are ever stored — never paths, queries or page content.
 
-/** Normalise a hostname: lowercase, strip a leading www./m./mobile. */
+/** The second-level suffixes of the countries that use them (co.uk, com.au…): "mobile.co.uk" is a site of its own, not the mobile address of "co.uk". */
+const SECOND_LEVEL = /^(?:co|com|org|net|gov|edu|ac|or|ne|go)\.[a-z]{2}$/;
+
+/**
+ * Normalise a hostname: lowercase, no trailing dot, and no leading www. / m. / mobile. when a real site is left behind it.
+ * "mobile.de" (a big German car market) and "m.me" are sites whose names START with those words: what is left would be "de" or "me", a top-level domain, and the
+ * time, the lists and the blocks would all be filed under it. A prefix is dropped only when at least two labels remain and they are not a bare "co.uk".
+ */
 export function normalizeHost(host) {
-  return String(host || '').toLowerCase().replace(/\.$/, '').replace(/^(www|m|mobile)\./, '');
+  const h = String(host || '').toLowerCase().replace(/\.$/, '');
+  const m = /^(?:www|m|mobile)\.(.+)$/.exec(h);
+  if (!m || !m[1].includes('.') || SECOND_LEVEL.test(m[1])) return h;
+  return m[1];
 }
 
 /** Hostname of a trackable page URL, or null (chrome://, extension pages, files, new tab…). */
@@ -23,7 +33,8 @@ const HOST_RE = /^(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9-
 export function parseUserDomain(input) {
   let s = String(input || '').trim().toLowerCase();
   if (!s) return null;
-  s = s.replace(/^[a-z][a-z0-9+.-]*:\/\//, '').split(/[/?#]/)[0].replace(/:\d+$/, '');
+  s = s.replace(/^[a-z][a-z0-9+.-]*:\/\//, '').split(/[/?#]/)[0].replace(/^[^@]*@/, '').replace(/:\d+$/, '');
+  if (/[^\x00-\x7f]/.test(s)) { try { s = new URL('http://' + s).hostname; } catch { return null; } } // a name in the person's own letters (москва.рф) is kept the way the browser says it: punycode
   s = normalizeHost(s);
   if (s === 'localhost') return s;
   return HOST_RE.test(s) ? s : null;

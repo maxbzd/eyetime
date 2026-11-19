@@ -3,7 +3,7 @@
 // One-way migration from EyeTime 1.x storage to the 2.0 layout. Pure: takes the raw `chrome.storage.local`
 // snapshot and returns what to write. Nothing from the old data is lost that still has a home in 2.0.
 
-import { DEFAULT_SETTINGS, deepMerge, SCHEMA_VERSION } from './defaults.js';
+import { DEFAULT_SETTINGS, mergeSettings, SCHEMA_VERSION } from './defaults.js';
 import { PRESET_IDS } from './catalog.js';
 import { parseUserDomain } from './domains.js';
 
@@ -69,7 +69,7 @@ export function migrate(raw, now = Date.now()) {
 
     if (inter.musicUrl && /^https?:\/\//.test(inter.musicUrl)) patch.focus = { openUrl: inter.musicUrl };
   }
-  const settings = deepMerge(DEFAULT_SETTINGS, patch);
+  const settings = mergeSettings(patch);
 
   // tasks
   const tasks = (Array.isArray(raw.dailyGoals) ? raw.dailyGoals : [])

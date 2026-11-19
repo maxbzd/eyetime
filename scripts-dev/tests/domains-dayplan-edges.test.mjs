@@ -110,3 +110,28 @@ test('planDay: a fixed task counts toward the goal and a day with nothing to pla
   const r = plan({ tasks: [task('call', { at: '09:30', atDay: '2026-11-04', est: 60 }), task('a', { est: 30 })], goalMinutes: 60 });
   assert.deepEqual(r.blocks.map((b) => b.taskId), ['call', 'a'], 'the call already makes the goal, but one block is always planned');
 });
+
+// "mobile.de" (a big car market) and "m.me" are sites whose names start with the words we drop from the front of a host (www. m. mobile.): what was left was "de" or "me",
+// so their time was filed under a top-level domain and a list could never name them; and a name in the person's own letters could not be added at all.
+test('a host that only STARTS with www / m / mobile is not cut down to its top-level domain', async () => {
+  const { hostFromUrl, normalizeHost, parseUserDomain } = await import('../../src/shared/domains.js');
+  assert.equal(hostFromUrl('https://mobile.de/fahrzeuge'), 'mobile.de');
+  assert.equal(hostFromUrl('https://www.mobile.de/'), 'mobile.de');
+  assert.equal(hostFromUrl('https://m.me/someone'), 'm.me');
+  assert.equal(hostFromUrl('https://mobile.co.uk/'), 'mobile.co.uk', 'a bare second-level suffix is not a site to cut down to');
+  assert.equal(hostFromUrl('https://m.youtube.com/watch'), 'youtube.com');
+  assert.equal(hostFromUrl('https://mobile.twitter.com/'), 'twitter.com');
+  assert.equal(hostFromUrl('https://m.example.co.uk/'), 'example.co.uk');
+  assert.equal(normalizeHost('WWW.Example.COM.'), 'example.com');
+  assert.equal(parseUserDomain('mobile.de'), 'mobile.de');
+  assert.equal(parseUserDomain('https://www.m.me/path'), 'm.me');
+});
+
+test('a domain typed in the person\'s own letters is kept as the browser names it (punycode), and credentials in a pasted address are dropped', async () => {
+  const { parseUserDomain, hostFromUrl, matches } = await import('../../src/shared/domains.js');
+  assert.equal(parseUserDomain('москва.рф'), 'xn--80adxhks.xn--p1ai');
+  assert.equal(parseUserDomain('https://Пример.рф/путь?x=1'), 'xn--e1afmkfd.xn--p1ai');
+  assert.ok(matches(hostFromUrl('https://xn--e1afmkfd.xn--p1ai/'), parseUserDomain('пример.рф')), 'the rule meets the page that the browser reports');
+  assert.equal(parseUserDomain('https://user:secret@youtube.com/watch'), 'youtube.com');
+  assert.equal(parseUserDomain('a..b.com'), null); assert.equal(parseUserDomain('-bad.com'), null); assert.equal(parseUserDomain('пример'), null);
+});

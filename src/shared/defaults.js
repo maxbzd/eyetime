@@ -121,16 +121,41 @@ export const DEFAULT_SETTINGS = {
 
 export const DEFAULT_META = { schemaVersion: SCHEMA_VERSION, installedAt: 0 };
 
-/** Deep-merge `patch` into a clone of `base`. Arrays and non-plain values are replaced, never merged. */
+/** Is `v` something that may stand where the default is `base`? A list stays a list, a number a finite number, a switch a switch, a word a word. */
+const sameKind = (base, v) => (Array.isArray(base) ? Array.isArray(v) : typeof base === 'number' ? Number.isFinite(v) : typeof base === 'boolean' || typeof base === 'string' ? typeof v === typeof base : true);
+
+/** Deep-merge `patch` into a clone of `base`. Arrays and non-plain values are replaced, never merged; a value of the wrong kind (a text where a list belongs) leaves the default. */
 export function deepMerge(base, patch) {
   if (isPlain(base) && !isPlain(patch)) return clone(base); // a damaged value (a string, a number, a list) where settings should be: the defaults stand
-  if (!isPlain(base) || !isPlain(patch)) return patch === undefined ? clone(base) : clone(patch);
+  if (!isPlain(base) || !isPlain(patch)) return patch === undefined || !sameKind(base, patch) ? clone(base) : clone(patch);
   const out = {};
   for (const k of new Set([...Object.keys(base), ...Object.keys(patch)])) {
     if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue; // a file or a synced copy must not reach the prototype of the settings
-    out[k] = k in patch ? (isPlain(base[k]) ? deepMerge(base[k], patch[k]) : clone(patch[k])) : clone(base[k]);
+    out[k] = k in patch ? (k in base && (isPlain(base[k]) || sameKind(base[k], patch[k])) ? deepMerge(base[k], patch[k]) : k in base ? clone(base[k]) : clone(patch[k])) : clone(base[k]);
   }
   return out;
+}
+
+const words = (v) => v.filter((x) => typeof x === 'string' && x);
+const CLASSES = ['productive', 'neutral', 'distracting'];
+
+/**
+ * Settings as the rest of the code may rely on them: `deepMerge` has kept every value the kind it should be; this keeps what is inside the lists the code walks
+ * (domains are words, the focus modes are objects, a limit is a number above zero, a site's class is one of three). A damaged entry is dropped, never thrown at.
+ */
+export function mergeSettings(patch) {
+  const s = deepMerge(DEFAULT_SETTINGS, patch);
+  const b = s.blocking;
+  for (const k of ['custom', 'allow', 'always']) b[k] = words(b[k]);
+  s.tracking.excluded = words(s.tracking.excluded);
+  s.focus.goalDays = s.focus.goalDays.filter((d) => Number.isInteger(d) && d >= 0 && d <= 6);
+  b.schedule.days = b.schedule.days.filter((d) => Number.isInteger(d) && d >= 0 && d <= 6);
+  s.focus.presets = s.focus.presets.filter((m) => Number.isFinite(m) && m > 0);
+  s.focus.modes = s.focus.modes.filter(isPlain).map((m) => ({ ...m, allow: Array.isArray(m.allow) ? words(m.allow) : [] }));
+  for (const [d, m] of Object.entries(b.limits)) if (!(Number.isFinite(m) && m > 0)) delete b.limits[d];
+  for (const [d, c] of Object.entries(s.sites)) if (!CLASSES.includes(c)) delete s.sites[d];
+  for (const [id, on] of Object.entries(b.presets)) if (typeof on !== 'boolean') b.presets[id] = DEFAULT_SETTINGS.blocking.presets[id] ?? false;
+  return s;
 }
 
 export const isPlain = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
