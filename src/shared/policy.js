@@ -4,7 +4,7 @@
 // Used by the service worker (to redirect) and by the block page (to stay in sync / auto-release).
 
 import { getRaw, dayStorageKey } from './storage.js';
-import { DEFAULT_SETTINGS, deepMerge } from './defaults.js';
+import { mergeSettings } from './defaults.js';
 import { hostFromUrl, matches } from './domains.js';
 import { makeClassifier } from './classify.js';
 import { decide, isFocusActive } from './blocking.js';
@@ -21,7 +21,7 @@ export function usageOf(day, domain) {
 export async function loadContext(now = Date.now()) {
   const dk = dayStorageKey(dayKey(new Date(now)));
   const raw = await getRaw(['settings', 'focus', 'passes', dk]);
-  const stored = deepMerge(DEFAULT_SETTINGS, raw.settings);
+  const stored = mergeSettings(raw.settings);
   const strict = strictView(stored, raw.focus, now); // a strict session runs on the rules it started with, or stricter (shared/strict.js)
   const settings = strict ? strict.settings : stored;
   const day = raw[dk] || emptyDay();

@@ -14,7 +14,7 @@
 
 import { cleanOutsideSettings, listOfObjects, plainOrNull } from './settings-clean.js';
 import { normalizeCalendarUrl } from './calsub.js';
-import { DEFAULT_SETTINGS, deepMerge, clone, SCHEMA_VERSION, DEFAULT_META } from './defaults.js';
+import { mergeSettings, clone, SCHEMA_VERSION, DEFAULT_META } from './defaults.js';
 import { migrate, looksLikeV1, needsMigration, upgradeSettingsV2 } from './migrate.js';
 import { dayKey, rangeKeys, addDays } from './time.js';
 import { DOCK_ORIGINS } from './dock.js';
@@ -33,7 +33,7 @@ export async function setRaw(obj) { return area().set(obj); }
 
 export async function getSettings() {
   const { settings } = await area().get('settings');
-  const s = deepMerge(DEFAULT_SETTINGS, settings); // a damaged value (not an object) leaves the defaults
+  const s = mergeSettings(settings); // a damaged value (not an object) leaves the defaults
   // the synthesised "café" ambience was replaced by real recordings in 2.5.3
   if (s.focus.ambient === 'cafe') s.focus.ambient = 'rain';
   for (const m of s.focus.modes || []) if (m && m.ambient === 'cafe') m.ambient = 'rain';
@@ -198,7 +198,7 @@ export async function ensureSchema() {
   if (meta && (meta.schemaVersion || 0) >= SCHEMA_VERSION) return { migrated: false };
   if (meta && meta.schemaVersion === 2) { // 2.0 -> 2.1: settings only
     const { settings } = await area().get('settings');
-    await area().set({ settings: deepMerge(DEFAULT_SETTINGS, upgradeSettingsV2(settings)), meta: { ...meta, schemaVersion: SCHEMA_VERSION } });
+    await area().set({ settings: mergeSettings(upgradeSettingsV2(settings)), meta: { ...meta, schemaVersion: SCHEMA_VERSION } });
     return { migrated: true, from: '2.0' };
   }
   const raw = await area().get(null);
@@ -206,7 +206,7 @@ export async function ensureSchema() {
   // the schema stamp is gone but the settings are current (a lost or damaged `meta`): repair the stamp, never run the 1.x path over live settings
   const validMeta = !!meta && typeof meta === 'object' && Number.isFinite(meta.schemaVersion) && meta.schemaVersion >= 2;
   if (!validMeta && raw.settings && typeof raw.settings === 'object' && !Array.isArray(raw.settings) && !looksLikeV1(raw)) {
-    await area().set({ settings: deepMerge(DEFAULT_SETTINGS, raw.settings), meta: { ...DEFAULT_META, installedAt: guessInstalledAt(meta, raw) } });
+    await area().set({ settings: mergeSettings(raw.settings), meta: { ...DEFAULT_META, installedAt: guessInstalledAt(meta, raw) } });
     return { migrated: false, repaired: true };
   }
   const m = migrate(raw);
