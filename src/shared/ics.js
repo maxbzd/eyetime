@@ -3,6 +3,8 @@
 // Minimal, dependency-free iCalendar (.ics) reader: events for a date window, with the common recurrence rules.
 // Local-only: the file is read in the browser and only { day, start, end, title } of the next two weeks is kept.
 
+import { WINDOWS_ZONES } from './winzones.js';
+
 const pad = (n) => String(n).padStart(2, '0');
 const key = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const hm = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -10,20 +12,44 @@ const hm = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 function unfold(text) { return String(text || '').replace(/\r\n[ \t]/g, '').replace(/\n[ \t]/g, '').split(/\r?\n/); }
 const unescapeText = (s) => String(s || '').replace(/\\([nN,;\\])/g, (m, c) => (c === 'n' || c === 'N' ? ' ' : c)).trim();
 
+/** One formatter per zone: a series with a COUNT is walked day by day, and building a formatter costs far more than using one. */
+const formatters = new Map();
+const formatterOf = (tz) => {
+  let f = formatters.get(tz);
+  if (!f) { f = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' }); formatters.set(tz, f); }
+  return f;
+};
+
+/**
+ * The zone an event names, as one the browser knows: an IANA name ("Europe/Moscow"), an older one with a path in front ("/mozilla.org/20050126_1/Europe/Berlin"),
+ * or a name Windows gives ("Russian Standard Time", written by Outlook and Exchange). null when it is none of these (read as local time).
+ */
+const zones = new Map();
+export function resolveZone(raw) {
+  const name = String(raw || '').replace(/"/g, '').trim();
+  if (zones.has(name)) return zones.get(name);
+  let found = null;
+  const parts = name.split('/').filter(Boolean);
+  for (let i = 0; i < parts.length && !found; i++) { const c = parts.slice(i).join('/'); try { formatterOf(c); found = c; } catch { /* not a zone name */ } }
+  if (!found) { const w = WINDOWS_ZONES.get(name.toLowerCase()); if (w) { try { formatterOf(w); found = w; } catch { /* this browser lacks it */ } } }
+  zones.set(name, found);
+  return found;
+}
+
 const offsetAt = (t, tz) => {
-  const parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' }).formatToParts(new Date(t));
+  const parts = formatterOf(tz).formatToParts(new Date(t));
   const g = (k) => Number(parts.find((p) => p.type === k).value);
   return Date.UTC(g('year'), g('month') - 1, g('day'), g('hour'), g('minute')) - Math.floor(t / 60000) * 60000;
 };
 
-/** Instant for a wall-clock time in an IANA zone (no tz database needed: Intl tells us the zone's offset; two passes settle DST edges). */
-function inZone(y, mo, d, h, mi, tz) {
+/** Instant for a wall-clock time in a zone (no tz database needed: Intl tells us the zone's offset; two passes settle DST edges). */
+function inZone(y, mo, d, h, mi, name) {
+  const tz = resolveZone(name);
+  if (!tz) return new Date(y, mo - 1, d, h, mi); // a zone nobody here knows: read as local time
   const guess = Date.UTC(y, mo - 1, d, h, mi);
-  try {
-    let t = guess - offsetAt(guess, tz);
-    t = guess - offsetAt(t, tz);
-    return new Date(t);
-  } catch { return new Date(y, mo - 1, d, h, mi); } // unknown zone name: treat as local
+  let t = guess - offsetAt(guess, tz);
+  t = guess - offsetAt(t, tz);
+  return new Date(t);
 }
 
 /** RFC 5545 DURATION (P1W, P3D, PT1H30M) → milliseconds, or null. */
@@ -71,6 +97,26 @@ function occurrences(st, rule, from, to) {
   const by = r.BYDAY ? r.BYDAY.split(',').map((x) => { const m = /^([+-]?\d+)?([A-Z]{2})$/.exec(x.trim()); return m ? { n: m[1] ? Number(m[1]) : 0, dow: DAYS.indexOf(m[2]) } : null; }).filter((x) => x && x.dow >= 0) : [];
   const byMonthDay = r.BYMONTHDAY ? r.BYMONTHDAY.split(',').map(Number) : [];
   const { y: y0, mo: mo0, d: d0 } = st.wall;
+  // the days of a month a MONTHLY / YEARLY rule means: by weekday ("3rd Tuesday", "last Friday") or by number (the 15th, the last day), else the day of the start;
+  // then BYSETPOS picks among them ("the last weekday of the month" is BYDAY=MO..FR with BYSETPOS=-1)
+  const byMonth = r.BYMONTH ? r.BYMONTH.split(',').map(Number) : [];
+  const setPos = r.BYSETPOS ? r.BYSETPOS.split(',').map(Number).filter((n) => Number.isInteger(n) && n !== 0) : [];
+  const monthMemo = new Map();
+  const monthDays = (y, mo) => {
+    const k = y * 12 + mo;
+    let days = monthMemo.get(k);
+    if (days) return days;
+    const dim = new Date(Date.UTC(y, mo, 0)).getUTCDate();
+    days = [];
+    for (let d = 1; d <= dim; d++) {
+      const dow = new Date(Date.UTC(y, mo - 1, d)).getUTCDay();
+      const ok = by.length ? by.some((b) => b.dow === dow && (!b.n || (b.n > 0 ? Math.ceil(d / 7) === b.n : d + 7 * -b.n > dim && d + 7 * (-b.n - 1) <= dim))) : byMonthDay.length ? byMonthDay.some((x) => (x > 0 ? x === d : dim + x + 1 === d)) : d === d0;
+      if (ok) days.push(d);
+    }
+    if (setPos.length) days = [...new Set(setPos.map((p) => (p > 0 ? days[p - 1] : days[days.length + p])).filter(Boolean))];
+    monthMemo.set(k, days);
+    return days;
+  };
   const base = Date.UTC(y0, mo0 - 1, d0), dow0 = new Date(base).getUTCDay(), offset = (dow0 - wkst + 7) % 7;
   let i = limit === Infinity ? Math.max(0, Math.floor((Date.UTC(from.getFullYear(), from.getMonth(), from.getDate()) - base) / DAY_MS) - 2) : 0;
   const out = []; let count = 0;
@@ -82,11 +128,8 @@ function occurrences(st, rule, from, to) {
     let hit = false;
     if (r.FREQ === 'DAILY') hit = i % interval === 0;
     else if (r.FREQ === 'WEEKLY') hit = Math.floor((i + offset) / 7) % interval === 0 && (by.length ? by.some((b) => b.dow === dow) : dow === dow0);
-    else if (r.FREQ === 'MONTHLY') {
-      const dim = new Date(Date.UTC(y, mo, 0)).getUTCDate();
-      const dayOk = by.length ? by.some((b) => b.dow === dow && (!b.n || (b.n > 0 ? Math.ceil(d / 7) === b.n : d + 7 * -b.n > dim && d + 7 * (-b.n - 1) <= dim))) : byMonthDay.length ? byMonthDay.some((x) => (x > 0 ? x === d : dim + x + 1 === d)) : d === d0;
-      hit = monthsDiff % interval === 0 && dayOk;
-    } else if (r.FREQ === 'YEARLY') hit = mo === mo0 && d === d0 && (y - y0) % interval === 0;
+    else if (r.FREQ === 'MONTHLY') hit = monthsDiff % interval === 0 && (!byMonth.length || byMonth.includes(mo)) && monthDays(y, mo).includes(d);
+    else if (r.FREQ === 'YEARLY') hit = (byMonth.length ? byMonth : [mo0]).includes(mo) && (y - y0) % interval === 0 && monthDays(y, mo).includes(d);
     if (!hit) continue;
     count++;
     if (count > limit) break;
