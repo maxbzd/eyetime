@@ -7,7 +7,6 @@ import { send } from '../ui/api.js';
 import { row, group, toggle } from './ui.js';
 import { t, getLocale } from '../shared/i18n.js';
 import { getRaw, setRaw, onChange } from '../shared/storage.js';
-import { parseIcsFull } from '../shared/ics.js';
 import { normalizeCalendarUrl } from '../shared/calsub.js';
 import { loadSubs, saveSubs, writeSource, removeSource, removeSourceUnlocked, calLock, FILE_KEY, MAX_SUBS } from '../shared/calstore.js';
 import { dayKey } from '../shared/time.js';
@@ -71,6 +70,7 @@ export function calendarGroup(s, save) {
     if (f.size > 5_000_000) { toast(t('opt.calendarBad')); return; }
     const text = await f.text();
     if (!/BEGIN:VCALENDAR/i.test(text)) { toast(t('opt.calendarBad')); return; }
+    const { parseIcsFull } = await import('../shared/ics.js'); // the reader and its table of time zones come when a file is chosen, not with every visit to Settings
     const data = parseIcsFull(text, { from: new Date(), days: 14 });
     await writeSource(FILE_KEY, data);
     await setRaw({ calendarMeta: { at: Date.now(), name: String(f.name).slice(0, 60) } });
