@@ -24,7 +24,7 @@ const dial = customWidget({ name: 'Chronograph', size: [300, 300], root: [
   { t: 'ring', x: 150, y: 150, r: 132, sw: 0.8, val: 1, fill: 'token:accent', track: 'rgba(0,0,0,0)', op: 0.4 },
   group([...Array(12).keys()].map(tick), { x: 150, y: 150 }),
   group([{ t: 'ring', x: 0, y: 0, r: 26, sw: 1, val: 1, fill: 'token:border-strong', track: 'rgba(0,0,0,0)' }, { t: 'ring', x: 0, y: 0, r: 26, sw: 3, val: '=goal', fill: 'token:accent', track: 'rgba(0,0,0,0)', cap: 'butt' }, text(0, 5, 14, '{fmt(goal * 100, 0)}', { align: 'middle', fill: 'token:text', font: 'display' })], { x: 150, y: 212 }),
-  text(150, 100, 12, 'EYETIME', { align: 'middle', ls: 7, fill: 'token:accent-text', weight: 500 }),
+  text(150, 100, 12, 'ELVANI', { align: 'middle', ls: 7, fill: 'token:accent-text', weight: 500 }),
   group([{ t: 'line', x1: 0, y1: 8, x2: 0, y2: -70, stroke: 'token:text', sw: 5 }], { x: 150, y: 150, rot: '=(mod(hour, 12) + minute / 60) * 30' }),
   group([{ t: 'line', x1: 0, y1: 10, x2: 0, y2: -104, stroke: 'token:text', sw: 3 }], { x: 150, y: 150, rot: '=(minute + second / 60) * 6' }),
   group([{ t: 'line', x1: 0, y1: 22, x2: 0, y2: -112, stroke: 'token:accent', sw: 1.2 }, { t: 'ellipse', x: -4, y: -4, w: 8, h: 8, fill: 'token:accent' }], { x: 150, y: 150, rot: '=second * 6' }),

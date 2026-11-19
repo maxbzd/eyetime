@@ -1,23 +1,23 @@
-# The first minutes: how EyeTime onboards a new person
+# The first minutes: how Elvani onboards a new person
 
 This is the design record of the first run: what was looked at, what was decided and why, what was refused, and how it will be judged. The flow itself is in `src/onboarding/` (the three screens) and `src/newtab/home/first-session.js` (what happens on the new tab after them).
 
 ## What the person has just done, and what they can lose
 
-They installed an extension in one click and can remove it in two. They have no account, nothing to lose, and no reason to be patient. The first screen is a promise, and everything after it is judged by one question: *how soon do they feel what EyeTime is for?* For EyeTime that is **a finished focus session in which a distracting site was held back, on a new tab that looks like theirs**. We call that the activation event. Everything that is not on the way to it waits.
+They installed an extension in one click and can remove it in two. They have no account, nothing to lose, and no reason to be patient. The first screen is a promise, and everything after it is judged by one question: *how soon do they feel what Elvani is for?* For Elvani that is **a finished focus session in which a distracting site was held back, on a new tab that looks like theirs**. We call that the activation event. Everything that is not on the way to it waits.
 
 ## What was studied
 
 | Source | What it says | What we take from it |
 |---|---|---|
-| Nielsen Norman Group, *Mobile app onboarding* / *Tutorials* (a test of 70 people and 4 apps) | Those who read the tutorials did **not** do better (91 % task success) than those who skipped them (94 %) and rated the apps harder to use (4.9 against 5.5 of 7). Instructional flows are "dramatically overused"; tips shown in context work better. | No feature tour, no slides of "what EyeTime can do". Teach by doing, with a note exactly where it is needed. |
+| Nielsen Norman Group, *Mobile app onboarding* / *Tutorials* (a test of 70 people and 4 apps) | Those who read the tutorials did **not** do better (91 % task success) than those who skipped them (94 %) and rated the apps harder to use (4.9 against 5.5 of 7). Instructional flows are "dramatically overused"; tips shown in context work better. | No feature tour, no slides of "what Elvani can do". Teach by doing, with a note exactly where it is needed. |
 | Opal, Forest, One Sec, Freedom, Cold Turkey (Mobbin and teardowns) | Opal asks 17–23 screens (hours on the phone, age, a "report" with a projected lifetime of phone use), then a permission and an account. Cold Turkey and BlockSite are a list and a schedule on one screen. No competitor says what a block *looks like* before it happens. | A long quiz is a mobile paywall funnel; it needs a number to "reveal" and ours would be invented. We do not copy it. A blocker's first fear is "will it lock me out?", and nobody answers it: we show it. |
 | Evernote, Superlist, Tana, Manus (Mobbin, 12–20 screens) | Set-up checklists with a "Skip" on every step, a pre-filled "Getting started" list, an account first. | Skip everywhere is right. Our checklist already exists on the new tab and stays. No account: we skip that whole half. |
 | Duolingo (delayed sign-up test; secondary reports of +20 % and later +8 % daily users) | Let people **do** the thing before asking them for anything. | We ask for nothing, so the first action can be the product itself. |
 | Endowed progress (Nunes and Drèze, 2006) | A card with two of ten stamps already filled is finished more often than an empty eight-stamp card. | The first screen says "Step 1 of 3" honestly: three steps is short enough that showing where one is does the work of the stamp. (The first plan was a card that starts part-way; it was dropped because the page would have had to invent a first step.) The progress shows what is *done*, not what is left. |
 | BJ Fogg, Behavior Model B = MAP | A behaviour needs motivation, **ability** and a prompt. The first win must be tiny and followed by a celebration. | The first session is **5 minutes** (the length they can say yes to), started with one tap, ended with a real celebration, not a "well done" toast. |
 | Implementation intentions (Gollwitzer and Sheeran, 2006: d = 0.65 over 94 tests; a 2024 re-analysis with bias correction finds a smaller but real effect, d ≈ 0.15–0.35) | "I will do X when Y" helps, modestly. | One line: *What will you work on?* It is also the label of the session in Insights. Nothing more is asked. |
-| Chrome Web Store rules for new-tab pages | An extension that replaces the new tab must say so and make it easy to go back; Chrome shows its own "Keep it" prompt. | The first screen says in one line that EyeTime is the new tab and where the way back is. Trust costs one sentence. |
+| Chrome Web Store rules for new-tab pages | An extension that replaces the new tab must say so and make it easy to go back; Chrome shows its own "Keep it" prompt. | The first screen says in one line that Elvani is the new tab and where the way back is. Trust costs one sentence. |
 | Hick's law and the practitioner reports on onboarding length | Fewer decisions per step; defer what a person cannot judge yet. No credible per-question drop-off figure exists, so none is quoted. | Three screens, one decision each. Settings that a person cannot judge on the first minute (daily goal, work hours, eye breaks, look) move to after the first session, where they can see what they are choosing. |
 
 What these sources do not give is a number for "the best onboarding". That is why the plan below ends with a way to *measure* it and a way to go back.
@@ -37,8 +37,8 @@ Each was drawn and walked through by hand before one was chosen. Scores are 1–
 | **Weighted total (of 60)** | 37 | 20 | 40 | **56** | 45 |
 
 - **A** keeps telling instead of doing and keeps six decisions in front of the value.
-- **B** is refused for a reason that is not about conversion: the "reveal" would be a number we cannot know, shown to make the person feel bad. EyeTime does not do that.
-- **C** is NN/g-pure but has a hole specific to this product: until a person names a distraction, a focus session blocks nothing, and a session that blocks nothing is not EyeTime. Pre-selecting sites for them is worse: a surprise block in the first minute is the "too strict" reason for removal.
+- **B** is refused for a reason that is not about conversion: the "reveal" would be a number we cannot know, shown to make the person feel bad. Elvani does not do that.
+- **C** is NN/g-pure but has a hole specific to this product: until a person names a distraction, a focus session blocks nothing, and a session that blocks nothing is not Elvani. Pre-selecting sites for them is worse: a surprise block in the first minute is the "too strict" reason for removal.
 - **E** adds a simulated browser to the page. It teaches what D teaches with a *real* first session, and costs a week.
 
 ## The flow
@@ -49,7 +49,7 @@ Install → [1 Hello] → [2 What pulls you away?] → [3 Your first focus] → 
                           [4 First focus done · make it yours]  → the "Get started" checklist (as before)
 ```
 
-1. **Hello.** The tagline, one sentence, four small marks (focus in one click, eye care, honest numbers, private), and two lines of fine print: *About a minute, three quick steps, no account* and *EyeTime is your new tab; you can switch back in Settings at any time.* One button. Language is top right. "Skip setup" is always visible.
+1. **Hello.** The tagline, one sentence, four small marks (focus in one click, eye care, honest numbers, private), and two lines of fine print: *About a minute, three quick steps, no account* and *Elvani is your new tab; you can switch back in Settings at any time.* One button. Language is top right. "Skip setup" is always visible.
 2. **What pulls your attention away?** Kinds of sites as chips (nothing is pre-selected: choosing is the point) and a field for one's own. As soon as one is chosen, a **live preview of the pause** appears below it, built from the real strings of the real pause page: *This is what you'll see on reddit.com: a breath, and the choice stays yours. During focus the site is simply closed.* Nobody else shows this, and it answers the fear that causes "too strict" removals. "I'll choose later" is a real link, not a hidden one.
 3. **Your first focus.** *What will you work on?* with a text field and three suggestions (Write, Read, Plan my day), and **5 · 10 · 25 minutes** (5 selected). A single big button starts it. (Skipping the whole flow at the first screen keeps the starting set of sites, which only produce the calm pause outside focus; leaving the second screen with nothing chosen means nothing is blocked.) A quieter button says *Look around first*. The pin-the-icon hint sits under them, once. Everything the old "rhythm" and "look" screens asked is applied with sensible defaults (pause before distracting sites: on; eye breaks every 20 minutes: on; work hours: off; daily goal 2 h; Calm look).
 4. **On the new tab, during the session.** A small card says what is held back (*Paused until the timer ends: 3*), and offers *See what a blocked site looks like* (opens one of the chosen sites). It closes itself when the session ends.
@@ -57,7 +57,7 @@ Install → [1 Hello] → [2 What pulls you away?] → [3 Your first focus] → 
 
 ## Finding the rest: the guided set-up and the quiet tips
 
-The first run is short on purpose, but EyeTime does a lot, and what lives only in Settings is not found. A question at the very start ("quick or detailed?") was weighed and refused: the person has not seen the product yet, almost everyone would pick *quick*, and those who pick *detailed* would choose blind. The long way is offered **after** the first session, and found again later:
+The first run is short on purpose, but Elvani does a lot, and what lives only in Settings is not found. A question at the very start ("quick or detailed?") was weighed and refused: the person has not seen the product yet, almost everyone would pick *quick*, and those who pick *detailed* would choose blind. The long way is offered **after** the first session, and found again later:
 
 - **Guided set-up** (`src/newtab/home/tour.js`): six short steps, each with the real controls, changed **at once** on the page behind: *Your day on Home* (morning and evening cards, layout) · *Limits that hold* (the daily budget and its size) · *A rhythm for work* (break after a session, sound) · *Make Home yours* (doors into the widget editor and the looks) · *Evenings* (night clock, wind-down reminder, "show it now") · *Your other tools* (tasks and calendar, the side panel on websites, instant blocking, the command palette). What needs the browser's permission is a **link into Settings**, where the browser asks in its own words: the tour never asks for one (the e2e checks it). Every step can be skipped with Next, Back keeps the choices, Escape leaves with everything so far kept.
 - **Where it is offered:** a "Set up in detail" button in the *First focus done* dialog; the command palette (*Guided set-up*); Settings → General (a row with a button); a quiet tip.

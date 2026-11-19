@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 // "Nothing leaves the device unless the person switches it on": the claim of the README and of PRIVACY.md, made checkable.
 //   node scripts-dev/e2e/network.cjs
-// Every request that EyeTime's own pages and its service worker make is recorded while a whole session is played: the pages are opened, a task is added, a focus
+// Every request that Elvani's own pages and its service worker make is recorded while a whole session is played: the pages are opened, a task is added, a focus
 // session is started and stopped, a distracting site is met (the pause page), the break and Insights are opened, every background job the worker has is asked to run.
 // With the optional things off (as they are for a new person) the list of requests to anywhere but the extension itself must be EMPTY.
 // A control makes sure the monitor works: a request that the worker makes on purpose must show up in it, so that an empty list means "nothing", not "not looking".

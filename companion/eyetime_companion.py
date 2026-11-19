@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: FSL-1.1-ALv2
 # Copyright 2026 maxbzd
-"""EyeTime desktop companion — optional, read-only, Windows-only (for now).
+"""Elvani desktop companion — optional, read-only, Windows-only (for now).
 
 What it does
   * every second notes which desktop application has the keyboard focus (executable name only)
   * adds that second to today's per-app total, unless you are idle or the app is a browser
-    (browsers are measured by the EyeTime extension itself)
-  * serves today's totals on http://127.0.0.1:8765/v1/today to the EyeTime extension, protected by a pairing token
+    (browsers are measured by the Elvani extension itself)
+  * serves today's totals on http://127.0.0.1:8765/v1/today to the Elvani extension, protected by a pairing token
 
 What it never does
   * read window titles, keystrokes, clipboard or screen contents
@@ -43,7 +43,7 @@ FRIENDLY = {
 
 def data_dir():
     base = os.environ.get("APPDATA") or os.path.join(os.path.expanduser("~"), ".config")
-    path = os.path.join(base, "EyeTime")
+    path = os.path.join(base, "Elvani")
     os.makedirs(path, exist_ok=True)
     return path
 
@@ -235,7 +235,7 @@ def load_token(path, rotate=False):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="EyeTime desktop companion (read-only)")
+    ap = argparse.ArgumentParser(description="Elvani desktop companion (read-only)")
     ap.add_argument("--show-token", action="store_true", help="print the pairing token and exit")
     ap.add_argument("--new-token", action="store_true", help="generate a new pairing token")
     args = ap.parse_args(argv)
@@ -248,16 +248,16 @@ def main(argv=None):
         print(token)
         return 0
     if sys.platform != "win32":
-        print("The EyeTime companion currently supports Windows only. See companion/README.md to contribute macOS/Linux backends.")
+        print("The Elvani companion currently supports Windows only. See companion/README.md to contribute macOS/Linux backends.")
         return 1
 
     store = Store(os.path.join(d, "companion-data.json"))
     tracker = Tracker(WindowsBackend(), store)
     tracker.start()
     server = ThreadingHTTPServer((HOST, PORT), make_handler(store, token))
-    print("EyeTime companion is running. It only reads which app is in front — nothing else.")
+    print("Elvani companion is running. It only reads which app is in front — nothing else.")
     if fresh:
-        print(f"Pairing token (paste it into EyeTime → Settings → Tracking): {token}")
+        print(f"Pairing token (paste it into Elvani → Settings → Tracking): {token}")
     else:
         print("The pairing token was shown when it was made. To see it again: eyetime_companion.py --show-token")
     print("Press Ctrl+C to stop.")

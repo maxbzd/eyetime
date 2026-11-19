@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
-// EyeTime service worker (ES module). Event-driven: every listener is registered synchronously at load;
+// Elvani service worker (ES module). Event-driven: every listener is registered synchronously at load;
 // there are no setInterval / setTimeout loops — only chrome.alarms and browser events.
 
 import { captureErrors, logError } from '../shared/errorlog.js';

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
 // The first minutes, in three light screens (the design record and the reasons are in docs/ONBOARDING.md):
-//   1 Hello          one promise, a few marks, and the fine print that matters: how long it takes, and that EyeTime is the new tab.
+//   1 Hello          one promise, a few marks, and the fine print that matters: how long it takes, and that Elvani is the new tab.
 //   2 What pulls you away?   chips of kinds of sites (nothing is pre-selected), and as soon as one is chosen, a live preview of how a pause looks.
 //   3 Your first focus       what will you work on, 5 / 10 / 25 minutes, one big button: the first session starts on the real new tab.
 // Everything else the old flow asked (look, theme, daily goal, eye breaks, work hours) is applied with sensible defaults and asked after the first session, on the page itself

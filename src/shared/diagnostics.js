@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
 // The text a person can copy into a bug report: versions, counts and recent errors — no site names, tasks, notes or goals.
-// It is built on demand and shown before anything leaves the page; EyeTime never sends it by itself.
+// It is built on demand and shown before anything leaves the page; Elvani never sends it by itself.
 import { LANGUAGES } from './locales/languages.js';
 
 
@@ -13,7 +13,7 @@ export function buildReport(info) {
   const f = s.focus || {}, b = s.blocking || {}, ap = s.appearance || {}, nt = s.newtab || {};
   const on = (v) => (v ? 'on' : 'off');
   const lines = [
-    `EyeTime ${info.version}`,
+    `Elvani ${info.version}`,
     `Browser: ${String(info.userAgent || '').replace(/^Mozilla\/5\.0 /, '').slice(0, 160)}`,
     `Platform: ${info.platform || '?'}`,
     `Language: ${pick(s.language, ['auto', ...Object.keys(LANGUAGES)])} (browser ${info.language || '?'})`,

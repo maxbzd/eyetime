@@ -1,18 +1,18 @@
 {
   "extName": {
-    "message": "EyeTime — фокус, екранний час і догляд за очима"
+    "message": "Elvani — фокус, екранний час і догляд за очима"
   },
   "extDescription": {
     "message": "Фокус в один клік, м’які паузи перед відволіканнями, чесна статистика й відпочинок для очей. Безкоштовно, відкритий код, локально."
   },
   "actionTitle": {
-    "message": "EyeTime"
+    "message": "Elvani"
   },
   "cmdToggleFocus": {
     "message": "Почати або зупинити сесію фокусу"
   },
   "cmdToggleDock": {
-    "message": "Показати або сховати док EyeTime на цій сторінці"
+    "message": "Показати або сховати док Elvani на цій сторінці"
   },
   "feedTitle": {
     "message": "Час зупинити прокручування"
@@ -36,6 +36,6 @@
     "message": "Навчання"
   },
   "dockTab": {
-    "message": "Відкрити док EyeTime"
+    "message": "Відкрити док Elvani"
   }
 }

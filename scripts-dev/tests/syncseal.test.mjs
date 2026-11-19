@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
-// End-to-end encryption of the synced settings and tasks: the format (what an older EyeTime, the cloud, or someone who can write to it can and cannot do) and the rules for
+// End-to-end encryption of the synced settings and tasks: the format (what an older Elvani, the cloud, or someone who can write to it can and cannot do) and the rules for
 // when to seal, when to ask for the passphrase and when to follow another device.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -56,10 +56,10 @@ test('settings: sealed, stored in items under the limit, no plain text anywhere,
   assert.deepEqual(back.settings.blocking.custom, settings.blocking.custom); assert.equal(back.ts, 1000);
 });
 
-test('an older EyeTime (which reads version 1 only) finds a sealed copy newer than it understands and a plain reader gets nothing from it', async () => {
+test('an older Elvani (which reads version 1 only) finds a sealed copy newer than it understands and a plain reader gets nothing from it', async () => {
   const { info, key } = await newEncryption(PASS, 111, FAST);
   const all = (await packSealed(settings, 1000, key, info)).items;
-  assert.equal(remoteVersion(all), 2); assert.ok(remoteVersion(all) > 1, 'an older version stops at "written by a newer EyeTime"');
+  assert.equal(remoteVersion(all), 2); assert.ok(remoteVersion(all) > 1, 'an older version stops at "written by a newer Elvani"');
   assert.equal(unpack(all), null, 'and unpack, if it were asked, reads nothing');
   assert.equal(SYNC_VERSION, 2);
   const t = (await packTasksSealed(tasks, 1000, key, info)).items;

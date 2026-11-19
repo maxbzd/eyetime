@@ -1,13 +1,13 @@
-# EyeTime — Store-Eintrag (Deutsch)
+# Elvani — Store-Eintrag (Deutsch)
 
 ## Name
-EyeTime — Fokus, Bildschirmzeit & Augenpflege
+Elvani — Fokus, Bildschirmzeit & Augenpflege
 
 ## Summary (≤ 132 Zeichen)
 Fokus-Sitzungen, sanfte Pausen vor Ablenkungen, ehrliche Bildschirmzeit-Statistik, Augenpflege. Gratis, Quellcode einsehbar, lokal.
 
 ## Description
-EyeTime hilft dir, konzentriert zu arbeiten, ohne gegen deinen Browser zu kämpfen. Die Erweiterung ist kostenlos, ihr Quellcode ist für alle einsehbar und sie speichert alles auf deinem Gerät.
+Elvani hilft dir, konzentriert zu arbeiten, ohne gegen deinen Browser zu kämpfen. Die Erweiterung ist kostenlos, ihr Quellcode ist für alle einsehbar und sie speichert alles auf deinem Gerät.
 
 FOKUS MIT EINEM KLICK
 Starte eine Fokus-Sitzung mit Timer über die Symbolleiste, den neuen Tab, Alt+Shift+F oder die Befehlspalette (Ctrl/Cmd+K). Wähl einen Modus — Deep Work, Sprint, Lernen —, hänge fünf Minuten an, wenn du im Flow bist, und überlass dem Pausentimer den Rest. Ablenkende Seiten bleiben bis zum Ende der Sitzung pausiert und öffnen sich danach von selbst wieder. Der Strikte Modus ist für Momente da, in denen du es wirklich ernst meinst.
@@ -16,7 +16,7 @@ BLOCKIEREN MIT RESPEKT
 Wähl Kategorien (Soziale Netzwerke, ‌‌‌​​‌‌​​‌‌‌‌‌‌​Video, Foren, Nachrichten, Spiele, Shopping, Messenger) oder füge eigene Seiten hinzu. Eine kurze Atempause mit deinem eigenen Wenn-dann-Plan wirkt besser als eine Sperre. Dazu kommen Arbeitszeiten, Tageslimits pro Seite und ein tägliches „Ablenkungsbudget“. Die optionale Sofortblockierung (Chrome) schickt eine ablenkende Seite zur Pause, noch bevor eine einzige Anfrage gesendet wird.
 
 TAG UND WOCHE PLANEN
-„Meinen Tag planen“ passt deine Prioritäten in die Zeit, die du wirklich hast. Tipp „Bericht morgen 14:30 45m !“ oder „Dehnen jeden Tag“ — EyeTime versteht das, in zwölf Sprachen. Abonniere den Link zu deinem Kalender (oder importiere eine Datei), um deinen nächsten Termin auf der Fokus-Karte zu sehen. Dazu: drei Wochenziele, wiederkehrende Aufgaben und Import und Export deiner Aufgaben als Markdown oder CSV.
+„Meinen Tag planen“ passt deine Prioritäten in die Zeit, die du wirklich hast. Tipp „Bericht morgen 14:30 45m !“ oder „Dehnen jeden Tag“ — Elvani versteht das, in zwölf Sprachen. Abonniere den Link zu deinem Kalender (oder importiere eine Datei), um deinen nächsten Termin auf der Fokus-Karte zu sehen. Dazu: drei Wochenziele, wiederkehrende Aufgaben und Import und Export deiner Aufgaben als Markdown oder CSV.
 
 EHRLICHE STATISTIKEN
 Zeit pro Seite, Stunde und Tag; eine Tages-Timeline mit deinen Fokus-Sitzungen; Fokuszeit pro Projekt (#Tag); Schätzgenauigkeit (geplant vs. tatsächlich); deine besten Fokus-Stunden; „Was dich zieht“ — wann dich eine Seite lockt, mit Limit per Fingertipp; eine Wochenübersicht und ein teilbares Bild „Meine Woche“. Stuf jede Seite mit einem Tipp als produktiv, neutral oder ablenkend ein. Export als CSV oder Markdown-Journal.
@@ -31,7 +31,7 @@ SCHUTZ VOR KURZVIDEOS
 Nach einem Limit an Shorts / Reels / TikTok / VK Clips wird die Seite grau und pausiert.
 
 PRIVATSPHÄRE VON ANFANG AN
-Kein Konto, keine Werbung. Nichts verlässt dein Gerät, solange du es nicht einschaltest; das Einzige, was optional ist: anonyme Nutzungszahlen, die du vor dem Senden lesen kannst. Gespeichert werden nur Domainnamen und Sekunden — auf deinem Gerät. Wenn du einen Kalenderlink abonnierst, lädt EyeTime genau diese eine Datei direkt aus deinem Browser; die Adresse verlässt dein Gerät nie. Die optionale Synchronisierung der Einstellungen nutzt die Sync-Funktion deines Browsers und enthält nie deinen Verlauf. Der Quellcode ist einsehbar (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Optional: Verschlüssele synchronisierte Einstellungen und Aufgaben mit einer Passphrase, damit selbst die Cloud des Browsers nur Chiffretext enthält.
+Kein Konto, keine Werbung. Nichts verlässt dein Gerät, solange du es nicht einschaltest; das Einzige, was optional ist: anonyme Nutzungszahlen, die du vor dem Senden lesen kannst. Gespeichert werden nur Domainnamen und Sekunden — auf deinem Gerät. Wenn du einen Kalenderlink abonnierst, lädt Elvani genau diese eine Datei direkt aus deinem Browser; die Adresse verlässt dein Gerät nie. Die optionale Synchronisierung der Einstellungen nutzt die Sync-Funktion deines Browsers und enthält nie deinen Verlauf. Der Quellcode ist einsehbar (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Optional: Verschlüssele synchronisierte Einstellungen und Aufgaben mit einer Passphrase, damit selbst die Cloud des Browsers nur Chiffretext enthält.
 
 Sprachen: Englisch, Russisch, Spanisch, Deutsch, Französisch, Portugiesisch, Italienisch, Polnisch, Ukrainisch, Chinesisch, Japanisch und Rumänisch.
 

@@ -1,6 +1,6 @@
 # Security policy
 
-EyeTime is a browser extension and a Windows program that closes sites and programs, runs a service with system rights and updates itself. A flaw in it can matter,
+Elvani is a browser extension and a Windows program that closes sites and programs, runs a service with system rights and updates itself. A flaw in it can matter,
 so this page says how to report one, what is in scope, what we defend against (and what we do not), and how the signing key is handled.
 
 ## Reporting a vulnerability
@@ -25,7 +25,7 @@ allow, and credit in the release notes if you want it. Please give us the time t
 
 ## What is not a vulnerability
 
-- A person with administrator rights, or physical access, who is determined to get round EyeTime on their own computer. The locks are there to stop an impulse at 2 a.m.,
+- A person with administrator rights, or physical access, who is determined to get round Elvani on their own computer. The locks are there to stop an impulse at 2 a.m.,
   not an attacker with the machine (`desktop/README.md` says this in plain words). Booting to recovery, stopping the service from outside, uninstalling after the
   permission is given, editing the browser's profile by hand: not in scope.
 - The hosts file cannot see a site reached by a number, or through a browser's own encrypted DNS: this is a limit of the method and is listed in the README.
@@ -45,7 +45,7 @@ allow, and credit in the release notes if you want it. Please give us the time t
 
 ## What we defend against
 
-1. **A web page** (or anything a page can make a browser send) must not be able to read or change EyeTime's data or messages, or make an extension page run its script.
+1. **A web page** (or anything a page can make a browser send) must not be able to read or change Elvani's data or messages, or make an extension page run its script.
    The extension has no `innerHTML` with data, a CSP of `script-src 'self'` (and images, fonts, sounds and styles from the extension itself, `data:` and `blob:` only: a theme file cannot make a page call out), no site access by default, and checks who sent every message. Trusted Types are on for its pages (`require-trusted-types-for 'script'`, one policy `eyetime` that accepts only addresses inside the extension, used to start the two model workers): `innerHTML`, `eval`, `new Function` and a script address made from a string are refused by the browser itself, and a test keeps them out of `src/`. (The Firefox package does not carry the directive: Firefox 142 has no Trusted Types.)
 2. **Another program run by the same person** must not be able to turn the service against them. The pipe tells who is on the other end from the system (the real file of the
    connecting program and whether it is elevated), never from the request; unknown programs get a few connections and a few seconds; programs to close are taken from the
@@ -70,7 +70,7 @@ browser account's cloud (`chrome.storage.sync`), readable by whoever runs that c
 PBKDF2-SHA256 as above, its own salt) before they are chunked (`src/shared/syncseal.js`, `syncvault.js`, `scripts-dev/tests/syncseal.test.mjs`, `worker-syncenc.test.mjs`, `e2e/syncenc.cjs`):
 - the cloud holds ciphertext, the salt and rounds, a check value, the time of the copy and the time the passphrase was set; the key is kept in `chrome.storage.session` only, so after a browser start the sync waits for the passphrase and uploads nothing in the clear;
 - the seal is bound to the payload kind and the copy's time, so a copy changed by one bit, moved from tasks to settings, or an old copy put back with a new time does not open: the run stops with "does not open" and overwrites nothing;
-- a sealed copy is version 2: an older EyeTime says "written by a newer version" and leaves it alone instead of replacing the ciphertext with plain text;
+- a sealed copy is version 2: an older Elvani says "written by a newer version" and leaves it alone instead of replacing the ciphertext with plain text;
 - the first device to see either payload sealed asks for the passphrase before it uploads the other; a passphrase set later wins over an older one; switching it off writes plain copies that say which encryption they replace, so the other devices follow instead of sealing them again;
 - a forgotten passphrase cannot be recovered: the synced copy is lost, the data on each device stays, and switching encryption off on a device overwrites the cloud with that device's data.
 What it does not protect: the *existence* and rough size of the synced data and when it changed, the cloud being deleted or rolled back to an older sealed copy that still carries its own (older) time, and code running inside the browser while it is unlocked.

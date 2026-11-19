@@ -1,4 +1,4 @@
-# Hearing people: how EyeTime collects ratings, opinions and ideas
+# Hearing people: how Elvani collects ratings, opinions and ideas
 
 Usage numbers say *what* people do. This is the other half: *what they think, what they wish for, why they leave*. Two goals, which pull against each other and have to be solved together:
 
@@ -33,14 +33,14 @@ The best feedback arrives when a person wants to give it. So the door is always 
 | Problem | "What happened, and what did you expect? If you remember: after which action." | Triage first; version / browser / system / language come with it. |
 | Kind word | "What do you like? It really helps." | Read, thanked, shown (without a name, with permission) in the store text and in the changelog. |
 
-The context travels as a **visible chip** the person can remove: "Sent with: EyeTime 3.9.3 · Chrome · Windows · ru". Never the anonymous usage ID. A reply address is optional ("I'd like an answer"), used only to reply and deleted after.
+The context travels as a **visible chip** the person can remove: "Sent with: Elvani 3.9.3 · Chrome · Windows · ru". Never the anonymous usage ID. A reply address is optional ("I'd like an answer"), used only to reply and deleted after.
 
 ### Asked at good moments (push, rarely)
 
 | Moment | Question | Asked |
 |---|---|---|
 | Right after a finished session | One tap (4 faces), then chips for what / why, then an optional line | After a finished session once 7 days of use have passed; at most one question in 30 days |
-| End of the weekly review | "How was the week with EyeTime?" (5 dots) + an optional line | Inside the same budget of one question in 30 days, and never in a focus session |
+| End of the weekly review | "How was the week with Elvani?" (5 dots) + an optional line | Inside the same budget of one question in 30 days, and never in a focus session |
 | Right after a finished session, once 7 active days have passed; then every 90 days (a closed one counts as asked) | The product-market-fit question + "what is the main thing for you?" + "what would improve it?" | Once per 90 days, inside the one-question-in-30-days budget |
 | On the pause page, whenever it is drawn and the quiet rules allow (never in a focus session) | "Did the pause page help?": two thumbs, no free text | Inside the same budget: one question in 30 days after an answer, 60 days after it is closed |
 | After the extension is removed | The reason (already there) + an optional "what would have kept you?" + an optional address | On the page that opens after removal |
@@ -78,7 +78,7 @@ The Chrome Web Store review matters for installs. On the thank-you of any feedba
 
 - Feedback is **user-initiated** and sent by an explicit click, with the destination said in the form: "Reads one person. The text is stored on the project's server (Cloudflare). Please do not write anything personal."
 - A new table `feedback` on the collector: day, kind, trigger, rating, tags, text (≤ 1000 characters), reply address (optional), context (version, browser family, system family, language), triage fields. **No usage ID, no IP, no user agent**; it is not linked to the anonymous numbers.
-- Retention: 24 months or on request; the reply address is deleted once answered or after 90 days. Text may contain personal data (people write it): say so in `PRIVACY.md`, keep to what the person typed, never use it for anything but improving EyeTime and answering. Show text on the dashboard only as text (never as HTML).
+- Retention: 24 months or on request; the reply address is deleted once answered or after 90 days. Text may contain personal data (people write it): say so in `PRIVACY.md`, keep to what the person typed, never use it for anything but improving Elvani and answering. Show text on the dashboard only as text (never as HTML).
 - Rate and size limits on the collector (a global cap per day, no per-person tracking), the same discipline as the removal answers.
 - The ratings and the product-market-fit answers are collected the same way, with no identifier, so they need no consent card of their own; they are covered by the notice at the point of asking.
 - Without a collector address (the first public release), the form falls back to a public GitHub discussion or issue that the person reviews and posts themselves (it says so).

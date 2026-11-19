@@ -163,7 +163,7 @@ test('collector: flags are a state (each report replaces the last), forgetting r
   const rep = (fl, id = 'a'.repeat(32)) => buildReport(u, { id, app: '3.8.1', br: 'chrome', os: 'win', lang: 'en', look: 'calm', layout: 'today', mode: 'dark', flags: fl }, NOW);
   await mem.save(rep(['dock', 'friction']), NOW); await mem.save(rep(['friction', 'tasks_1_5']), NOW + 7 * DAY);
   assert.deepEqual((await mem.snapshot()).flags.map((f) => f.flag).sort(), ['friction', 'tasks_1_5']);
-  const old = rep(undefined); delete old.fl; await mem.save({ ...old, id: 'b'.repeat(32) }, NOW); // an earlier EyeTime: no flags
+  const old = rep(undefined); delete old.fl; await mem.save({ ...old, id: 'b'.repeat(32) }, NOW); // an earlier Elvani: no flags
   assert.equal((await mem.snapshot()).flags.filter((f) => f.id === 'b'.repeat(32)).length, 0);
   await mem.forget('a'.repeat(32)); assert.equal((await mem.snapshot()).flags.filter((f) => f.id === 'a'.repeat(32)).length, 0);
   let DatabaseSync = null; try { ({ DatabaseSync } = await import('node:sqlite')); } catch { return; }

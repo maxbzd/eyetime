@@ -98,7 +98,7 @@ async function render() {
   showQuote($('#quote'), 'pause', settings); // (hidden again below for the other kinds of block)
   if (reason !== 'friction') $('#quote').hidden = true;
   if (reason === 'friction') {
-    document.title = t('block.pause.title') + ' — EyeTime';
+    document.title = t('block.pause.title') + ' — Elvani';
     title.textContent = t('block.pause.title');
     lead.textContent = t('block.pause.lead', { host });
     $('#breath').hidden = false;
@@ -170,7 +170,7 @@ async function render() {
     lead.textContent = t('block.always.lead');
     $('#manage').hidden = false;
   }
-  document.title = title.textContent + ' — EyeTime';
+  document.title = title.textContent + ' — Elvani';
 }
 
 (async function main() {

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
-// EyeTime dock — page script (registered only after the person turned the dock on and allowed access to websites; see src/background/dock.js).
+// Elvani dock — page script (registered only after the person turned the dock on and allowed access to websites; see src/background/dock.js).
 // It draws one small black "notch" that grows out of the window edge with soft curves, holding three little progress rings (focus, tasks, learning);
 // a click opens an extension iframe (src/dock/dock.html) with the panel. From the page it reads nothing but its address and title, and only hands
-// them to the panel. Numbers on the rings come from EyeTime's own storage. A classic script (no imports), kept small: it runs on every page.
+// them to the panel. Numbers on the rings come from Elvani's own storage. A classic script (no imports), kept small: it runs on every page.
 (() => {
-  // the guard lives in this script's own (isolated) world: the page cannot see it, and nothing in the page's DOM says EyeTime is installed
+  // the guard lives in this script's own (isolated) world: the page cannot see it, and nothing in the page's DOM says Elvani is installed
   if (window.top !== window || !/^https?:$/.test(location.protocol) || globalThis.__eyetimeDock) return;
   globalThis.__eyetimeDock = true;
   // Test builds (they declare host permissions up front; a store build never does) keep the shadow root open and the element id fixed, so the end-to-end test can reach it.
@@ -13,7 +13,7 @@
 
   const EXT_ORIGIN = chrome.runtime.getURL('').slice(0, -1);
   const msg = (k, fb) => chrome.i18n.getMessage(k) || fb;
-  const LABEL = msg('dockTab', 'EyeTime');
+  const LABEL = msg('dockTab', 'Elvani');
   const ITEMS = [
     { k: 'focus', tab: 'now', color: '#d2f56b', name: msg('dockFocus', 'Focus'), shapes: [['circle', { cx: 12, cy: 12, r: 10 }], ['circle', { cx: 12, cy: 12, r: 6 }], ['circle', { cx: 12, cy: 12, r: 2 }]] },
     { k: 'tasks', tab: 'now', color: '#32d74b', name: msg('dockTasks', 'Tasks'), shapes: [['path', { d: 'm3 17 2 2 4-4' }], ['path', { d: 'm3 7 2 2 4-4' }], ['path', { d: 'M13 6h8' }], ['path', { d: 'M13 12h8' }], ['path', { d: 'M13 18h8' }]] },
@@ -104,7 +104,7 @@
   function ensureFrame(tabName) {
     if (frame) return;
     frame = document.createElement('iframe');
-    frame.title = 'EyeTime';
+    frame.title = 'Elvani';
     frame.src = chrome.runtime.getURL('src/dock/dock.html') + '#' + dock.side + '/' + (tabName || 'now');
     panel.append(frame);
   }
@@ -165,7 +165,7 @@
       btn.addEventListener('click', (e) => { if (!e.isTrusted) return; if (!chrome.runtime || !chrome.runtime.id) return destroy(); opener = it.k; setOpen(open && it.tab === currentTab ? false : true, it.tab); });
       refs[it.k] = { btn, arc, pct };
     }
-    panel = document.createElement('div'); panel.className = 'panel'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'EyeTime');
+    panel = document.createElement('div'); panel.className = 'panel'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Elvani');
     panel.inert = true;
     wrap.append(notch, panel); rootEl.append(style, wrap);
     notch.addEventListener('pointerenter', expand); notch.addEventListener('pointerleave', collapse);

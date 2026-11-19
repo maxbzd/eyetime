@@ -1,18 +1,18 @@
 {
   "extName": {
-    "message": "EyeTime — 集中・スクリーンタイム・目のケア"
+    "message": "Elvani — 集中・スクリーンタイム・目のケア"
   },
   "extDescription": {
     "message": "ワンクリックで集中を開始。気が散るサイトをやさしくブロックし、時間の使い道を可視化して目も休ませます。無料・ソース公開・完全ローカル。"
   },
   "actionTitle": {
-    "message": "EyeTime"
+    "message": "Elvani"
   },
   "cmdToggleFocus": {
     "message": "集中セッションを開始・停止"
   },
   "cmdToggleDock": {
-    "message": "このページでEyeTimeのドックを表示/非表示"
+    "message": "このページでElvaniのドックを表示/非表示"
   },
   "feedTitle": {
     "message": "スクロールをやめる時間です"
@@ -36,6 +36,6 @@
     "message": "学ぶ"
   },
   "dockTab": {
-    "message": "EyeTimeのドックを開く"
+    "message": "Elvaniのドックを開く"
   }
 }

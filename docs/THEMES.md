@@ -1,6 +1,6 @@
 # Looks & customisation
 
-Every person can make EyeTime theirs. **Settings → Appearance** (and the *Customize* drawer on Home) expose:
+Every person can make Elvani theirs. **Settings → Appearance** (and the *Customize* drawer on Home) expose:
 
 | Control | Options |
 |---|---|

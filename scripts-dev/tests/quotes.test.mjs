@@ -57,7 +57,7 @@ test('quotes are written with the marks of each language and the author in that 
   assert.equal(renderQuote(q, 'ja').author, 'セネカ'); assert.equal(renderQuote(q, 'fr').author, 'Sénèque');
   assert.equal(renderQuote(q, 'xx').text[0], '“'); // an unknown language falls back to English
   const tip = renderQuote(QUOTES.find((x) => !x.by), 'ru');
-  assert.equal(tip.author, null); assert.equal(tip.tip, true); assert.ok(!/^[«“]/.test(tip.text)); // an EyeTime tip is not put in quotation marks
+  assert.equal(tip.author, null); assert.equal(tip.tip, true); assert.ok(!/^[«“]/.test(tip.text)); // an Elvani tip is not put in quotation marks
 });
 
 test('quotes are shown only where the settings allow', () => {

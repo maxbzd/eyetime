@@ -62,7 +62,7 @@ const carbonScene = {
 };
 const carbonMark = customWidget({ name: 'Mark', size: [200, 90], root: [
   text(100, 14, 12, '+ hello, focus', { align: 'middle', font: 'body', weight: 500, ls: 1, fill: 'rgba(255,255,255,0.7)' }),
-  text(100, 56, 34, 'EYETIME', { align: 'middle', font: 'condensed', weight: 700, ls: 4, fill: '#ffffff' }),
+  text(100, 56, 34, 'ELVANI', { align: 'middle', font: 'condensed', weight: 700, ls: 4, fill: '#ffffff' }),
   text(100, 82, 22, 'focus', { align: 'middle', font: 'condensed', weight: 200, ls: 10, fill: 'rgba(255,255,255,0.7)', upper: true }),
 ] });
 const carbonWave = wave(7, 40, 3, '#ffffff', 3);

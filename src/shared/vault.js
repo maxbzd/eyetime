@@ -10,7 +10,7 @@
 //
 // How: the key is PBKDF2-SHA256 (600 000 rounds, 16-byte random salt) of the passphrase; each connection's details are one AES-256-GCM message with a fresh 96-bit
 // nonce, bound to its connection id (an attacker with write access cannot move one connection's details to another). After unlocking, the derived key is kept in
-// `chrome.storage.session`: memory only, never written to disk, gone when the browser closes, readable by EyeTime's own pages and worker only.
+// `chrome.storage.session`: memory only, never written to disk, gone when the browser closes, readable by Elvani's own pages and worker only.
 //
 // Pure functions over Web Crypto (they run in Node for the tests); the part that touches storage is in connections.js.
 

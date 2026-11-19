@@ -1,18 +1,18 @@
 {
   "extName": {
-    "message": "EyeTime — Concentration, temps d’écran et yeux"
+    "message": "Elvani — Concentration, temps d’écran et yeux"
   },
   "extDescription": {
     "message": "Lance une session de concentration en un clic, bloque les distractions, vois où passe ton temps, repose tes yeux. Gratuit, local."
   },
   "actionTitle": {
-    "message": "EyeTime"
+    "message": "Elvani"
   },
   "cmdToggleFocus": {
     "message": "Démarrer ou arrêter une session de concentration"
   },
   "cmdToggleDock": {
-    "message": "Afficher ou masquer le dock EyeTime sur cette page"
+    "message": "Afficher ou masquer le dock Elvani sur cette page"
   },
   "feedTitle": {
     "message": "Il est temps d’arrêter de scroller"
@@ -36,6 +36,6 @@
     "message": "Apprendre"
   },
   "dockTab": {
-    "message": "Ouvrir le dock EyeTime"
+    "message": "Ouvrir le dock Elvani"
   }
 }

@@ -181,7 +181,7 @@ test('somebody who can write to the cloud changes a copy, or puts an old one bac
   assert.equal((await status()).syncStatus.error, 'tampered');
 });
 
-test('an older EyeTime would stop at the sealed copy: the version says so', async () => {
+test('an older Elvani would stop at the sealed copy: the version says so', async () => {
   await deviceReady('A', { settings: SETTINGS, tasks: TASKS });
   await V.enableSyncEncryption(PASS); await both();
   const { remoteVersion } = await import('../../src/shared/syncpack.js'), { remoteTasksVersion } = await import('../../src/shared/tasksync.js');

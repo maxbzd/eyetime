@@ -156,7 +156,7 @@ test('demo: the same call gives the same messages, and they hold together', () =
   assert.ok(s.pmf.n > 40 && s.pmf.score.pct > 0.3 && s.pmf.score.pct < 0.6);
 });
 
-test('routes: a message is accepted from EyeTime only, and checked', async () => {
+test('routes: a message is accepted from Elvani only, and checked', async () => {
   const fb = new MemoryFeedbackStore(), opts = { feedback: fb };
   const st = new MemoryStore();
   assert.equal((await handle(req('/v1/feedback', msg()), st, T0, opts)).status, 204);
@@ -198,13 +198,13 @@ test('routes: the owner reads, sorts and answers; the answer comes back by ticke
   assert.equal((await owner('/v1/feedback/1', { text: 'rewrite' }, 'PATCH')).status, 400);
   assert.equal((await owner('/v1/feedback/99', { status: 'read' }, 'PATCH')).status, 404);
   // answer
-  assert.equal((await owner('/v1/feedback/2/reply', { text: 'Спасибо' })).status, 409); // no ticket: cannot be answered in EyeTime
+  assert.equal((await owner('/v1/feedback/2/reply', { text: 'Спасибо' })).status, 409); // no ticket: cannot be answered in Elvani
   assert.equal((await owner('/v1/feedback/1/reply', { text: '  ' })).status, 400);
   assert.equal((await owner('/v1/feedback/1/reply', { text: 'ok', more: 1 })).status, 400);
   assert.equal((await owner('/v1/feedback/99/reply', { text: 'ok' })).status, 404);
   assert.equal((await owner('/v1/feedback/1/reply', { text: 'Спасибо! Тёмная пауза выйдет в 3.9.' })).status, 201);
   assert.equal((await (await owner('/v1/feedback', undefined, 'GET')).json()).summary.waiting_reply, 0);
-  // the device asks: from EyeTime only, with a valid poll
+  // the device asks: from Elvani only, with a valid poll
   const poll = (b, origin = EXT) => handle(req('/v1/feedback/replies', b, { origin }), st, T0 + 2 * DAY, opts);
   assert.equal((await poll({ v: 1, t: [t] }, 'https://evil.example')).status, 403);
   assert.equal((await poll({ v: 1, t: [] })).status, 400);

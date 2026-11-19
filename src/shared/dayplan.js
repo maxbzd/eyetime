@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
 // "Plan my day": turns the open priorities into a few focus blocks at sensible times.
-// Uses what EyeTime already knows — your best focus hours, how long things really take you (estimate calibration), your daily goal,
+// Uses what Elvani already knows — your best focus hours, how long things really take you (estimate calibration), your daily goal,
 // times already fixed (scheduled tasks, calendar events) — and nothing it has to guess blindly.
 
 const MAX_BLOCKS = 4;

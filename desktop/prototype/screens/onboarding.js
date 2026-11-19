@@ -14,28 +14,28 @@
   const D = {
     en: {
       skip: 'Skip', back: 'Back', next: 'Continue', begin: 'Begin',
-      wakeH: 'Hold to wake it', wakeS: 'Press and hold the stone.', title: 'EyeTime', tag: 'Quiet is built from closed doors.',
+      wakeH: 'Hold to wake it', wakeS: 'Press and hold the stone.', title: 'Elvani', tag: 'Quiet is built from closed doors.',
       doorsT: 'What pulls you away?', doorsS: 'Tap what you want closed while you work. You can change this any time.', doorsAdd: 'Add a site or an app', doorsAddB: 'Add', doorsN: (n) => (n === 0 ? 'Nothing chosen yet' : `${n} ${n === 1 ? 'door' : 'doors'} to close`),
       presets: [['Social', ['Instagram', 'X', 'TikTok', 'Facebook', 'Snapchat']], ['Video', ['YouTube', 'Twitch', 'Netflix']], ['Games', ['Steam', 'Discord', 'Roblox']], ['Chats', ['Telegram', 'WhatsApp', 'Discord']]],
       hoursT: 'When do you want quiet?', hoursS: 'Drag the two lights around the day. Sun is noon, the moon is midnight.', quiet: (a, b, h) => `Quiet from ${a} to ${b} · ${h}`, allDay: 'The whole day', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], pw: 'Work 9–17', pe: 'Evening 20–23', pn: 'Night 23–6',
       hardT: 'How hard should it be to give in?', hardS: 'Be honest with yourself. Harder is not always better: you can always raise it later.',
       lv: [['Normal', 'You can leave or pause at any time.'], ['Timeout', 'Leaving takes a small effort: a hold, a wait, a few words.'], ['Locked', 'No way out until it ends. Only an emergency key opens it.'], ['Frozen', 'Everything closed. Choose this later, when you know your rhythm.']],
       rec: 'Recommended', later: 'Later', lockedNote: 'Locked blocks cannot be ended. You get a few emergency keys a month, and one a week.',
-      linkT: 'Connect your browser', linkS: 'So that EyeTime can close pages and words, not only whole sites. One time, one minute.', eng: 'Blocking engine', ext: 'Browser extension', on: 'Connected', off: 'Not connected', wait: 'Looking…', openF: 'Open the extension folder', openC: 'Chrome extensions', openE: 'Edge extensions', linkH: 'Open the extensions page, switch on Developer mode, Load unpacked, pick the folder. This step can wait.',
-      whyT: 'Why are you doing this?', whyS: 'One sentence. EyeTime will remind you of it when you reach for a closed door.', whyPh: 'I am doing this so that…', whys: ['finish what matters', 'sleep better', 'be present with people', 'study without noise'],
+      linkT: 'Connect your browser', linkS: 'So that Elvani can close pages and words, not only whole sites. One time, one minute.', eng: 'Blocking engine', ext: 'Browser extension', on: 'Connected', off: 'Not connected', wait: 'Looking…', openF: 'Open the extension folder', openC: 'Chrome extensions', openE: 'Edge extensions', linkH: 'Open the extensions page, switch on Developer mode, Load unpacked, pick the folder. This step can wait.',
+      whyT: 'Why are you doing this?', whyS: 'One sentence. Elvani will remind you of it when you reach for a closed door.', whyPh: 'I am doing this so that…', whys: ['finish what matters', 'sleep better', 'be present with people', 'study without noise'],
       sealH: 'Hold to close the door', sealS: 'Keep holding.', done: 'The door is closed.', doneS: 'Quiet is on. Your first rule is in place.', go25: 'Start 25 minutes now', look: 'Look around',
     },
     ru: {
       skip: 'Пропустить', back: 'Назад', next: 'Дальше', begin: 'Начать',
-      wakeH: 'Удерживайте, чтобы разбудить', wakeS: 'Нажмите на камень и держите.', title: 'EyeTime', tag: 'Тишина строится из закрытых дверей.',
+      wakeH: 'Удерживайте, чтобы разбудить', wakeS: 'Нажмите на камень и держите.', title: 'Elvani', tag: 'Тишина строится из закрытых дверей.',
       doorsT: 'Что вас отвлекает?', doorsS: 'Отметьте то, что должно быть закрыто, пока вы работаете. Потом можно изменить.', doorsAdd: 'Добавить сайт или приложение', doorsAddB: 'Добавить', doorsN: (n) => (n === 0 ? 'Пока ничего не выбрано' : `Дверей закрыть: ${n}`),
       presets: [['Соцсети', ['Instagram', 'X', 'TikTok', 'Facebook', 'Snapchat']], ['Видео', ['YouTube', 'Twitch', 'Netflix']], ['Игры', ['Steam', 'Discord', 'Roblox']], ['Чаты', ['Telegram', 'WhatsApp', 'Discord']]],
       hoursT: 'Когда вам нужна тишина?', hoursS: 'Двигайте два огонька по кругу дня. Солнце — полдень, луна — полночь.', quiet: (a, b, h) => `Тишина с ${a} до ${b} · ${h}`, allDay: 'Весь день', days: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'], pw: 'Работа 9–17', pe: 'Вечер 20–23', pn: 'Ночь 23–6',
       hardT: 'Насколько трудно должно быть сдаться?', hardS: 'Будьте честны с собой. Строже — не всегда лучше: усилить можно в любой момент.',
       lv: [['Обычный', 'Выйти или поставить на паузу можно когда угодно.'], ['Тайм-аут', 'Чтобы выйти, нужно небольшое усилие: удержать, подождать, набрать несколько слов.'], ['Строгий', 'Выхода нет до конца. Откроет только аварийный ключ.'], ['Заморозка', 'Закрыто всё. Выберите позже, когда поймёте свой ритм.']],
       rec: 'Рекомендуем', later: 'Позже', lockedNote: 'Строгую блокировку нельзя закончить. Аварийных ключей несколько в месяц и один в неделю.',
-      linkT: 'Подключите браузер', linkS: 'Чтобы EyeTime закрывал страницы и слова, а не только сайты целиком. Один раз, одна минута.', eng: 'Движок блокировки', ext: 'Расширение для браузера', on: 'Подключено', off: 'Не подключено', wait: 'Проверяю…', openF: 'Открыть папку расширения', openC: 'Расширения Chrome', openE: 'Расширения Edge', linkH: 'Откройте страницу расширений, включите «Режим разработчика», «Загрузить распакованное», выберите папку. Этот шаг можно отложить.',
-      whyT: 'Зачем вам это?', whyS: 'Одна фраза. EyeTime напомнит её, когда вы потянетесь к закрытой двери.', whyPh: 'Я делаю это, чтобы…', whys: ['успеть главное', 'лучше спать', 'быть рядом с людьми', 'учиться без шума'],
+      linkT: 'Подключите браузер', linkS: 'Чтобы Elvani закрывал страницы и слова, а не только сайты целиком. Один раз, одна минута.', eng: 'Движок блокировки', ext: 'Расширение для браузера', on: 'Подключено', off: 'Не подключено', wait: 'Проверяю…', openF: 'Открыть папку расширения', openC: 'Расширения Chrome', openE: 'Расширения Edge', linkH: 'Откройте страницу расширений, включите «Режим разработчика», «Загрузить распакованное», выберите папку. Этот шаг можно отложить.',
+      whyT: 'Зачем вам это?', whyS: 'Одна фраза. Elvani напомнит её, когда вы потянетесь к закрытой двери.', whyPh: 'Я делаю это, чтобы…', whys: ['успеть главное', 'лучше спать', 'быть рядом с людьми', 'учиться без шума'],
       sealH: 'Удерживайте, чтобы закрыть дверь', sealS: 'Держите.', done: 'Дверь закрыта.', doneS: 'Тишина включена. Первое правило готово.', go25: 'Начать на 25 минут', look: 'Осмотреться',
     },
   };
@@ -158,7 +158,7 @@
   let root, acts = [], order = [], cur = -1, bgs = {}, sparkRaf = 0, sparks = [];
   function build() {
     if (root) return;
-    root = document.createElement('div'); root.id = 'onb'; root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-label', 'EyeTime');
+    root = document.createElement('div'); root.id = 'onb'; root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-label', 'Elvani');
     root.innerHTML = `<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="onbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8cf2c6"/><stop offset="1" stop-color="#d4f77c"/></linearGradient><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8cf2c6"/><stop offset="1" stop-color="#86d7ff"/></linearGradient></defs></svg>
       ${[...new Set(Object.values(IMG))].map((u) => `<div class="bg" data-u="${u}" style="background-image:url(${u})"></div>`).join('')}
       <video class="bgv" id="onbLoop" muted loop playsinline preload="auto"></video>

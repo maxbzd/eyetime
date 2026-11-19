@@ -16,12 +16,12 @@ const ENV = { TG_BOT_TOKEN: '123:abc', TG_CHAT_ID: '42', DASH_URL: 'https://c.ex
 test('digest: the week in a few lines, in either language, with nothing that names an install', () => {
   const s = computeStats(makeDemoSnapshot(NOW), NOW, { recentDays: 28 });
   const ru = buildDigest(s, { lang: 'ru', url: 'https://c.example/' }), en = buildDigest(s, { lang: 'en' });
-  assert.match(ru, /^EyeTime · неделя /); assert.match(ru, /Активны: \d+/); assert.match(ru, /Приём отчётов/); assert.match(ru, /Панель: https:\/\/c\.example\//);
-  assert.match(en, /^EyeTime · week /); assert.match(en, /Active: \d+/); assert.ok(!/Dashboard:/.test(en), 'no address, no line');
+  assert.match(ru, /^Elvani · неделя /); assert.match(ru, /Активны: \d+/); assert.match(ru, /Приём отчётов/); assert.match(ru, /Панель: https:\/\/c\.example\//);
+  assert.match(en, /^Elvani · week /); assert.match(en, /Active: \d+/); assert.ok(!/Dashboard:/.test(en), 'no address, no line');
   assert.ok(ru.split('\n').length >= 5 && ru.length < 900, 'short enough to read in a chat');
   assert.ok(!/[0-9a-f]{32}/.test(ru + en), 'no identifier');
   assert.match(ru, /Состояние: \d+ в норме/); assert.match(ru, /Посмотрите: /, 'the figures that are off are named');
-  assert.equal(buildDigest(computeStats({ installs: [], firsts: [], weeks: [], flags: [] }, NOW), { lang: 'en' }).split('\n')[0].startsWith('EyeTime'), true, 'an empty collector still answers');
+  assert.equal(buildDigest(computeStats({ installs: [], firsts: [], weeks: [], flags: [] }, NOW), { lang: 'en' }).split('\n')[0].startsWith('Elvani'), true, 'an empty collector still answers');
 });
 
 test('alerts: errors, a fall in activity, refused reports and a slow tab, each only with enough data', () => {
@@ -50,7 +50,7 @@ test('scheduled: without a bot nothing is sent, and the weekly run still deletes
 test('scheduled: the digest goes once a week, an alert once in three days, and a failed send is tried again', async () => {
   const store = demoStore(), { sent, fetchImpl } = bot();
   const week = await runScheduled({ store, now: NOW, env: ENV, cron: WEEKLY_CRON, fetchImpl });
-  assert.equal(week.digest, true); assert.ok(sent[0].url.startsWith('https://api.telegram.org/bot123:abc/sendMessage')); assert.equal(sent[0].body.chat_id, '42'); assert.match(sent[0].body.text, /^EyeTime · неделя/);
+  assert.equal(week.digest, true); assert.ok(sent[0].url.startsWith('https://api.telegram.org/bot123:abc/sendMessage')); assert.equal(sent[0].body.chat_id, '42'); assert.match(sent[0].body.text, /^Elvani · неделя/);
   assert.ok(week.alerts.includes('errors'), 'and the alert that was due');
   const six = await runScheduled({ store, now: NOW + 6 * 3_600_000, env: ENV, cron: '30 */6 * * *', fetchImpl });
   assert.deepEqual(six.alerts, [], 'not again six hours later'); assert.equal(six.digest, false);

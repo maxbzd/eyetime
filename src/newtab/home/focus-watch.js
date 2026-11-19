@@ -11,7 +11,7 @@ import { state } from './state.js';
 
 /** While a session runs the tab title shows the countdown, so it is visible from other tabs. */
 function paintTitle() {
-  document.title = state.runningFocus && isFocusActive(state.runningFocus) ? `${clock(remainingMs(state.runningFocus))} · EyeTime` : state.runningFocus && isPaused(state.runningFocus) ? `⏸ ${clock(remainingMs(state.runningFocus))} · EyeTime` : 'EyeTime';
+  document.title = state.runningFocus && isFocusActive(state.runningFocus) ? `${clock(remainingMs(state.runningFocus))} · Elvani` : state.runningFocus && isPaused(state.runningFocus) ? `⏸ ${clock(remainingMs(state.runningFocus))} · Elvani` : 'Elvani';
 }
 export async function watchFocus() {
   const sync = async () => { state.runningFocus = (await getRaw('focus')).focus; paintTitle(); setFocusing(!!state.runningFocus && isFocusLive(state.runningFocus)); checkLayout(); }; // a paused session keeps the focus layout

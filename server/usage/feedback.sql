@@ -1,4 +1,4 @@
--- Messages to the maker: ideas, problems, kind words, and the answers to the small questions EyeTime asks at good moments. Kept apart from the anonymous numbers on purpose (own
+-- Messages to the maker: ideas, problems, kind words, and the answers to the small questions Elvani asks at good moments. Kept apart from the anonymous numbers on purpose (own
 -- table, best in its own D1 database, see README.md): this is text that people typed, it can hold something personal, it has no usage ID and no IP address, and it is kept until
 -- the owner or the person asks for it to go. The optional reply address is erased once answered, and in any case after 90 days.
 CREATE TABLE IF NOT EXISTS feedback (

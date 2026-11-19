@@ -30,7 +30,7 @@ export async function syncNow() {
   try {
     const all = await area.get(null);
     const ver = remoteVersion(all);
-    if (ver > SYNC_VERSION) { await setStatus({ ok: false, error: 'incompatible' }); return { ok: false }; } // written by a newer EyeTime: never overwrite it
+    if (ver > SYNC_VERSION) { await setStatus({ ok: false, error: 'incompatible' }); return { ok: false }; } // written by a newer Elvani: never overwrite it
     // Encryption first: is this copy sealed, and does this device hold the key for it? (shared/syncseal.js chooseMode has the rules)
     const plan = chooseMode({ enc: syncEnc, off: syncEncOff, remoteMeta: cloudMeta(all) });
     if (plan.clearLocal) { await setRaw({ syncEnc: null, syncEncOff: Math.max(syncEncOff, syncEnc ? syncEnc.rot : 0) }); } // turned off on another device: follow it

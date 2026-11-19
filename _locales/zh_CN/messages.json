@@ -1,18 +1,18 @@
 {
   "extName": {
-    "message": "EyeTime — 专注、屏幕时间与护眼"
+    "message": "Elvani — 专注、屏幕时间与护眼"
   },
   "extDescription": {
     "message": "一键开始专注，温和屏蔽干扰，看清时间花在哪里，让眼睛休息。免费、源码可见、100% 本地。"
   },
   "actionTitle": {
-    "message": "EyeTime"
+    "message": "Elvani"
   },
   "cmdToggleFocus": {
     "message": "开始或停止专注时段"
   },
   "cmdToggleDock": {
-    "message": "在此页面显示或隐藏 EyeTime 侧边栏"
+    "message": "在此页面显示或隐藏 Elvani 侧边栏"
   },
   "feedTitle": {
     "message": "该停止刷屏了"
@@ -36,6 +36,6 @@
     "message": "学习"
   },
   "dockTab": {
-    "message": "打开 EyeTime 侧边栏"
+    "message": "打开 Elvani 侧边栏"
   }
 }

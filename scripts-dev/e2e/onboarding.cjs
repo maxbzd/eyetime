@@ -25,7 +25,7 @@ const { launch } = require('./lib.cjs');
   await ob.goto(ext('src/onboarding/onboarding.html')); await ob.waitForSelector('.step-hello'); await ob.waitForTimeout(500);
   ok(/Step 1 of 3/i.test(await ob.locator('#stepLabel').innerText()), 'the page says where it is: step 1 of 3');
   const hello = await ob.locator('#card').innerText();
-  ok(/About a minute/.test(hello) && /new tab/.test(hello) && /Settings/.test(hello), 'the first screen promises how long it takes and says that EyeTime is the new tab, and where the way back is');
+  ok(/About a minute/.test(hello) && /new tab/.test(hello) && /Settings/.test(hello), 'the first screen promises how long it takes and says that Elvani is the new tab, and where the way back is');
   ok(await ob.locator('#skip').isVisible(), '"Skip setup" is in plain sight');
   await shot(ob, 'ob-1-hello');
   await ob.getByRole('button', { name: /Get started/ }).click(); await ob.waitForSelector('.chips .chip');

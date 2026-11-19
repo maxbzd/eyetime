@@ -4,13 +4,13 @@
 // Speaks Todoist's API v1 (https://developer.todoist.com/api/v1): everything that depends on its shape is in this file.
 //
 // Mapping: content ⇄ text · checked / closed ⇄ done · due.date ⇄ due · priority 3–4 ⇄ starred · duration (minutes) ⇄ est.
-// Recurring tasks are left alone: Todoist and EyeTime each have their own idea of recurrence and either one would break the other's.
+// Recurring tasks are left alone: Todoist and Elvani each have their own idea of recurrence and either one would break the other's.
 
 import { json, http } from '../http.js';
 import { SyncError } from '../run.js';
 
 const BASE = 'https://api.todoist.com/api/v1';
-const DONE_WINDOW_MS = 4 * 86_400_000; // finished tasks are listed for a few days, the same as the ones EyeTime keeps in sight
+const DONE_WINDOW_MS = 4 * 86_400_000; // finished tasks are listed for a few days, the same as the ones Elvani keeps in sight
 
 const item = (/** @type {any} */ t, /** @type {boolean} */ done) => ({
   id: String(t.id ?? t.task_id), text: String(t.content || '').trim(), done,

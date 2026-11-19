@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
-// "Write to the maker": an idea, a problem or a kind word, sent to the person who makes EyeTime, and the place where their answer shows up. Opened from the palette, the popup,
+// "Write to the maker": an idea, a problem or a kind word, sent to the person who makes Elvani, and the place where their answer shows up. Opened from the palette, the popup,
 // Settings and the card on the new tab. Always available (writing is never counted against the rules of silence); the person chooses what goes with it:
-//   - the answer can come back here, inside EyeTime (a random ticket made on this device, no account, no address), or by email, or not at all;
+//   - the answer can come back here, inside Elvani (a random ticket made on this device, no account, no address), or by email, or not at all;
 //   - the version and system are attached unless taken off, and the page shows exactly what they are.
 // A build with no collector has no server to send to: the button then opens a draft on GitHub, in public, and says so. Texts are put in with textContent only.
 
@@ -22,7 +22,7 @@ const endpoint = feedbackEndpoint();
 const form = { kind: (location.hash.replace('#', '').match(/^(idea|problem|kudos)$/) || ['idea'])[0], text: '', areas: /** @type {string[]} */ ([]), answerHere: false, mail: '', mailOpen: false, ctxOn: true, busy: false, error: '' };
 let days = 0;
 
-const ctxLine = async () => { const c = await feedbackContext(true, days); return [c.app && 'EyeTime ' + c.app, c.br, c.os, c.lang && c.lang.toUpperCase(), c.days && t('fb.days.' + c.days)].filter(Boolean).join(' · '); };
+const ctxLine = async () => { const c = await feedbackContext(true, days); return [c.app && 'Elvani ' + c.app, c.br, c.os, c.lang && c.lang.toUpperCase(), c.days && t('fb.days.' + c.days)].filter(Boolean).join(' · '); };
 
 async function view() {
   const card = $('#card');

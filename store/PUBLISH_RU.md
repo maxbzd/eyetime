@@ -1,4 +1,4 @@
-# Как выложить EyeTime 3.9.3 в Chrome Web Store: шаги по порядку
+# Как выложить Elvani 3.9.3 в Chrome Web Store: шаги по порядку
 
 Контакты для формы стора и сайта: **maxbzd1600@gmail.com**, Telegram **@maxbzd**.
 Всё, что нужно вставить в формы, уже лежит в репозитории; ниже написано, откуда что брать. Названия кнопок в консоли стора Google иногда меняет, смысл остаётся.
@@ -33,7 +33,7 @@
 
 | Поле в консоли | Откуда |
 |---|---|
-| Title | подставляется из манифеста: «EyeTime — Focus, Screen Time & Eye Care» |
+| Title | подставляется из манифеста: «Elvani — Focus, Screen Time & Eye Care» |
 | Summary | раздел *Summary* из `store/listing/en.md` (до 132 символов) |
 | Description | раздел *Description* оттуда же, целиком |
 | Category | **Работа и планирование** (Work → Workflow & Planning; в магазине список двухуровневый. Запасной вариант: «Инструменты») |
@@ -56,7 +56,7 @@
 1. **Single purpose description:** раздел *Single purpose* из `store/LISTING.md`.
 2. **Permission justification:** для каждого разрешения, которое консоль перечислит (`storage`, `tabs`, `webNavigation`, `idle`, `alarms`, `notifications`, `contextMenus`, `offscreen`, `favicon`, `scripting`, `declarativeNetRequestWithHostAccess`), вставьте строку из таблицы в `store/LISTING.md`. Для необязательного доступа к сайтам (*optional host permissions*) вставьте оттуда же текст про док, погоду и подключённые сервисы.
 3. **Are you using remote code?** → **No**. Пояснение про `'wasm-unsafe-eval'` лежит в `store/LISTING.md` («Remote code: none…»); если консоль спросит, вставьте его.
-4. **Data usage** (что собирается): форма спрашивает про данные «сейчас или в будущем», а политика конфиденциальности уже описывает необязательные анонимные числа (выключены по умолчанию, человек видит отчёт и может остановить в любой момент). Поэтому отметьте **«Действия пользователей»** заранее: тогда включение сбора позже не потребует нового пересмотра формы. Остальные категории не отмечайте. Поставьте **три галочки**: данные не продаются, не используются не по назначению и не используются для кредитования. Пока `USAGE_ENDPOINT` в `src/shared/usage-config.js` пуст (так и есть), расширение ничего не отправляет. Если консоль попросит пояснение, вставьте: *Optional, off by default. If the user turns on "Share anonymous usage numbers", EyeTime sends one report a week with counts of its own features and the days it was used, and the interface look and language. No websites, text, or identity. The user can see the exact report and stop at any time; stopping deletes it from the server.*
+4. **Data usage** (что собирается): форма спрашивает про данные «сейчас или в будущем», а политика конфиденциальности уже описывает необязательные анонимные числа (выключены по умолчанию, человек видит отчёт и может остановить в любой момент). Поэтому отметьте **«Действия пользователей»** заранее: тогда включение сбора позже не потребует нового пересмотра формы. Остальные категории не отмечайте. Поставьте **три галочки**: данные не продаются, не используются не по назначению и не используются для кредитования. Пока `USAGE_ENDPOINT` в `src/shared/usage-config.js` пуст (так и есть), расширение ничего не отправляет. Если консоль попросит пояснение, вставьте: *Optional, off by default. If the user turns on "Share anonymous usage numbers", Elvani sends one report a week with counts of its own features and the days it was used, and the interface look and language. No websites, text, or identity. The user can see the exact report and stop at any time; stopping deletes it from the server.*
 5. **Privacy policy URL:** `https://maxbzd.github.io/eyetime/privacy.html`.
 6. Сохраните. Если вкладка показывает красные пункты, значит какое-то поле пустое.
 
@@ -82,7 +82,7 @@
 2. **Мгновенная блокировка.** Настройки → Блокировка → «Мгновенная блокировка» → дайте доступ к сайтам. Откройте youtube.com и reddit.com: сразу должна появиться страница паузы, без вспышки самого сайта. Нажмите «Продолжить»: сайт откроется и не вернёт вас на паузу.
 3. **Шифрование синхронизации.** Нужно два браузера (или два профиля) с одним аккаунтом Google: включите синхронизацию настроек и задач, задайте парольную фразу в первом, откройте настройки во втором и введите фразу. Данные должны подтянуться.
 4. **Закрыть и открыть Chrome:** синхронизация должна показать «Заблокировано: введите парольную фразу» и ничего не потерять.
-5. **Консоль ошибок:** `chrome://extensions` → EyeTime → *Errors* должно быть пусто.
+5. **Консоль ошибок:** `chrome://extensions` → Elvani → *Errors* должно быть пусто.
 
 ## Шаг 9. Следующие релизы
 

@@ -27,7 +27,7 @@ export const FEATURES = [
 ];
 
 /**
- * The setup, as a list of the things that are ON (a state, not a count of uses): which optional parts of EyeTime a person keeps after trying them,
+ * The setup, as a list of the things that are ON (a state, not a count of uses): which optional parts of Elvani a person keeps after trying them,
  * plus a few sizes in coarse steps (how many tasks, habits and own sites). A name that is not in this list is never sent.
  */
 export const FLAGS = [
@@ -45,7 +45,7 @@ export const FLAGS = [
  */
 export const EXPERIMENTS = [{ id: 'ask-copy', arms: ['personal', 'practical'], measures: 'consent' }];
 
-/** Why someone removed EyeTime, as the page that opens after removal offers it. One click, no text, no identifier: a count per day on the collector. */
+/** Why someone removed Elvani, as the page that opens after removal offers it. One click, no text, no identifier: a count per day on the collector. */
 export const UNINSTALL_REASONS = ['slow', 'broken', 'not_useful', 'too_strict', 'other_tool', 'temporary', 'other'];
 
 /**
@@ -118,7 +118,7 @@ export function validateReport(r, experiments = EXPERIMENTS) {
     if (!o || typeof o !== 'object' || Array.isArray(o)) return bad(name);
     for (const [k, v] of Object.entries(o)) if (!counters.includes(k) || !isInt(v, max)) return bad(`${name}.${k}`);
   }
-  if ('fl' in r) { // optional: an earlier version of EyeTime does not send it
+  if ('fl' in r) { // optional: an earlier version of Elvani does not send it
     if (!Array.isArray(r.fl) || r.fl.length > flagList.length || !r.fl.every((f) => flagList.includes(f)) || new Set(r.fl).size !== r.fl.length) return bad('flags');
   }
   if ('x' in r) { // optional: the arms of the experiments that are running, "id:arm", at most one per experiment

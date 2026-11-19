@@ -4,7 +4,7 @@
 //   * LICENSE is the official text of FSL-1.1-ALv2 (nothing before it, nothing changed but the year and the name), NOTICE says what is third-party;
 //   * package.json and the Cargo workspace name the same licence;
 //   * every source file we wrote has the two header lines (a file copied alone still says whose it is and under what), the third-party and generated ones have none of ours;
-//   * the texts a person reads (README, site, store listings, manifests, the About screen) do not call EyeTime "open source" or "MIT": it is source-available.
+//   * the texts a person reads (README, site, store listings, manifests, the About screen) do not call Elvani "open source" or "MIT": it is source-available.
 import fs from 'node:fs';
 import path from 'node:path';
 import cp from 'node:child_process';
@@ -25,7 +25,7 @@ if (!fs.existsSync(path.join(root, 'NOTICE')) || !/FSL-1\.1-ALv2/.test(read('NOT
 if (JSON.parse(read('package.json')).license !== 'FSL-1.1-ALv2') bad.push('package.json: "license" must be "FSL-1.1-ALv2"');
 if (!/^license = "FSL-1\.1-ALv2"$/m.test(read('desktop/Cargo.toml'))) bad.push('desktop/Cargo.toml: workspace license must be "FSL-1.1-ALv2"');
 if (!/License: FSL-1\.1-ALv2/.test(read('desktop/packaging/winget/make.mjs'))) bad.push('the winget manifest names another licence');
-if (!/lic\('FSL-1\.1-ALv2'\)/.test(read('scripts-dev/sbom.mjs'))) bad.push('the SBOM names another licence for EyeTime itself');
+if (!/lic\('FSL-1\.1-ALv2'\)/.test(read('scripts-dev/sbom.mjs'))) bad.push('the SBOM names another licence for Elvani itself');
 
 // 3. headers on what is ours
 const files = cp.execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' }).split('\n').filter(Boolean);
@@ -39,7 +39,7 @@ for (const f of files) {
 // 4. what people read
 const PUBLIC = ['README.md', 'README_RU.md', 'site/index.html', 'PRIVACY.md', 'CONTRIBUTING.md', 'docs/PRODUCT.md', ...files.filter((f) => /^store\/listing\//.test(f) || /^_locales\/.*messages\.json$/.test(f) || /^src\/shared\/locales\/[a-z]{2}\.js$/.test(f))];
 const CLAIM = /open[- ]source|\(MIT\)|MIT licen[cs]e|MIT-Lizenz|licen[cs]e MIT|licencia MIT|licenza MIT|licencja MIT|ліцензія MIT|лицензия MIT|MIT 许可|MITライセンス|código abierto|código aberto|с открытым кодом|з відкритим кодом|开源|オープンソース/i;
-for (const f of PUBLIC) { const m = CLAIM.exec(read(f)); if (m) bad.push(`${f}: says "${m[0]}" (EyeTime is source-available under FSL-1.1-ALv2)`); }
+for (const f of PUBLIC) { const m = CLAIM.exec(read(f)); if (m) bad.push(`${f}: says "${m[0]}" (Elvani is source-available under FSL-1.1-ALv2)`); }
 
 if (bad.length) { console.error('✗ licence check\n  ' + bad.join('\n  ')); process.exit(1); }
 console.log('✓ licence check: FSL-1.1-ALv2 in LICENSE, metadata and the headers of every source file');

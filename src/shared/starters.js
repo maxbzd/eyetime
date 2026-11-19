@@ -51,7 +51,7 @@ export function restoreHome(s, target, before) {
 }
 
 /**
- * "Calm default": the designed Home and look, as a starter, so one tap (with Undo) brings back what EyeTime was made to look like: a new photograph every day under Today,
+ * "Calm default": the designed Home and look, as a starter, so one tap (with Undo) brings back what Elvani was made to look like: a new photograph every day under Today,
  * the Calm look with its own type, shape and cards. Nothing the person wrote is touched: not the light / dark choice (`mode`), not reduced motion, not the 12 / 24 hour clock,
  * not tasks, links, notes, habits, widgets or history.
  */

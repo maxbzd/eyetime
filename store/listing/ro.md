@@ -1,13 +1,13 @@
-# EyeTime — descriere pentru magazine (română)
+# Elvani — descriere pentru magazine (română)
 
 ## Name
-EyeTime — Concentrare, timp pe ecran și grija pentru ochi
+Elvani — Concentrare, timp pe ecran și grija pentru ochi
 
 ## Summary (≤ 132 characters)
 Sesiuni de concentrare, pauze blânde înainte de site-urile care distrag, statistici sincere, grija pentru ochi. Gratuit, 100% local.
 
 ## Description
-EyeTime te ajută să lucrezi adânc, fără să te lupți cu browserul. Este gratuit, codul sursă poate fi citit și verificat de oricine, iar totul rămâne pe dispozitivul tău.
+Elvani te ajută să lucrezi adânc, fără să te lupți cu browserul. Este gratuit, codul sursă poate fi citit și verificat de oricine, iar totul rămâne pe dispozitivul tău.
 
 CONCENTRARE DINTR-UN CLIC
 Pornește o sesiune cronometrată din bara de instrumente, din fila nouă, cu Alt+Shift+F sau din paleta de comenzi (Ctrl/Cmd+K). Alege un mod — Lucru adânc, Sprint, Învățat —, adaugă încă cinci minute când ești în ritm și lasă cronometrul de pauză să-și facă treaba. Site-urile care distrag atenția se opresc până se termină sesiunea și se deschid din nou singure. Modul strict este acolo pentru când chiar vorbești serios.
@@ -16,7 +16,7 @@ BLOCARE CARE TE RESPECTĂ
 Alege categorii (rețele sociale, video, forumuri, știri, jocuri, cumpărături, mesagerie) sau adaugă propriile site-uri. O scurtă pauză de respirație, cu propriul tău plan „dacă – atunci”, bate o blocare totală. Adaugă program de lucru, limite zilnice pe site și un „buget de distrageri” zilnic. Blocarea instantanee opțională (Chrome) trimite o pagină care distrage atenția la pauză înainte să se facă o singură cerere.
 
 PLANIFICĂ ZIUA ȘI SĂPTĂMÂNA
-„Planifică-mi ziua” potrivește prioritățile tale în timpul pe care îl ai cu adevărat. Scrie „Raport mâine 14:30 45m !” sau „Întinderi în zilele lucrătoare” și EyeTime înțelege — în douăsprezece limbi. Abonează-te la linkul calendarului tău (sau importă un fișier) ca să vezi următoarea întâlnire pe cardul de concentrare. Trei obiective pentru săptămână, sarcini care se repetă și sarcinile tale importate și exportate ca Markdown sau CSV.
+„Planifică-mi ziua” potrivește prioritățile tale în timpul pe care îl ai cu adevărat. Scrie „Raport mâine 14:30 45m !” sau „Întinderi în zilele lucrătoare” și Elvani înțelege — în douăsprezece limbi. Abonează-te la linkul calendarului tău (sau importă un fișier) ca să vezi următoarea întâlnire pe cardul de concentrare. Trei obiective pentru săptămână, sarcini care se repetă și sarcinile tale importate și exportate ca Markdown sau CSV.
 
 STATISTICI SINCERE
 Timp pe site, oră și zi; o cronologie a zilei cu sesiunile tale de concentrare; timp de concentrare pe proiect (#etichetă); precizia estimărilor (planificat față de real); cele mai bune ore ale tale; „ce te atrage” — când un site te ispitește, cu o limită dintr-o atingere; o recapitulare săptămânală și o imagine „Săptămâna mea” de distribuit. Reclasifică orice site ca productiv, neutru sau care distrage atenția dintr-o atingere. Exportă CSV sau un jurnal Markdown.
@@ -31,7 +31,7 @@ PAZĂ PENTRU VIDEOCLIPURI SCURTE
 După o limită de derulare pe Shorts / Reels / TikTok / VK Clips, pagina devine alb-negru și se oprește.
 
 PRIVAT PRIN CONCEPȚIE
-Fără cont și fără reclame. Nimic nu părăsește dispozitivul tău decât dacă activezi tu; singurul lucru opțional sunt cifrele anonime de utilizare, pe care le poți citi înainte să fie trimise. Se păstrează doar numele domeniilor și secundele — pe dispozitivul tău. Dacă te abonezi la un link de calendar, EyeTime descarcă acel singur fișier direct din browserul tău; adresa nu părăsește niciodată dispozitivul. Sincronizarea opțională a setărilor folosește sincronizarea proprie a browserului și nu include niciodată istoricul tău. Codul sursă poate fi citit (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Opțional: criptează-ți setările și sarcinile sincronizate cu o parolă, astfel încât chiar și cloudul browserului să păstreze doar text criptat.
+Fără cont și fără reclame. Nimic nu părăsește dispozitivul tău decât dacă activezi tu; singurul lucru opțional sunt cifrele anonime de utilizare, pe care le poți citi înainte să fie trimise. Se păstrează doar numele domeniilor și secundele — pe dispozitivul tău. Dacă te abonezi la un link de calendar, Elvani descarcă acel singur fișier direct din browserul tău; adresa nu părăsește niciodată dispozitivul. Sincronizarea opțională a setărilor folosește sincronizarea proprie a browserului și nu include niciodată istoricul tău. Codul sursă poate fi citit (Functional Source License, FSL-1.1-ALv2): https://github.com/maxbzd/eyetime Opțional: criptează-ți setările și sarcinile sincronizate cu o parolă, astfel încât chiar și cloudul browserului să păstreze doar text criptat.
 
 Limbi: engleză, rusă, spaniolă, germană, franceză, portugheză, italiană, poloneză, ucraineană, chineză, japoneză și română.
 

@@ -1,6 +1,6 @@
 # Building and verifying the packages
 
-You do not need to build anything to **use or develop** EyeTime: load the repository folder as it is (`chrome://extensions` → Developer mode → Load unpacked). The packages on the
+You do not need to build anything to **use or develop** Elvani: load the repository folder as it is (`chrome://extensions` → Developer mode → Load unpacked). The packages on the
 release page are a *production build* of the same source: smaller and faster to open, made by one command.
 
 ```bash

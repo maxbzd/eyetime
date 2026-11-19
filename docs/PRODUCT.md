@@ -2,7 +2,7 @@
 
 > Focus, screen time and eye care for your browser. Free, source-available, private by design.
 
-This document is the source of truth for *what* EyeTime is and *why*. Design tokens and
+This document is the source of truth for *what* Elvani is and *why*. Design tokens and
 component rules live in [DESIGN.md](DESIGN.md); engineering notes in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## 1. Audit of v1.1 (why a redesign)
@@ -114,7 +114,7 @@ Not yet done: store listings (copy and screenshots are ready in `store/`), more 
 
 **Productivity principle:** close the **plan → focus → review** loop on the surface people already open every day (the new tab):
 
-| Step | What EyeTime does | Why it works |
+| Step | What Elvani does | Why it works |
 |---|---|---|
 | Plan | ≤ 3 starred priorities; morning nudge if none | A short, explicit list beats a long backlog; the limit forces choosing |
 | Start | Task chips set the goal in one tap; "just 5 minutes" | Starting is the hard part — lower the bar, name the target |

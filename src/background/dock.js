@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
-// The dock: a small tab on the edge of web pages that opens EyeTime's side panel (src/dock/). It needs access to websites, which the person grants
+// The dock: a small tab on the edge of web pages that opens Elvani's side panel (src/dock/). It needs access to websites, which the person grants
 // in Settings (an optional permission: asked on the click, never at install). Everything stays on the device; the page script only draws the tab
 // and an extension iframe — it reads nothing from the page except its address and title when the person saves it.
 //
@@ -33,7 +33,7 @@ export async function syncDock() {
   } catch { /* no scripting API (very old browser) or a bad pattern: the dock simply stays off */ }
 }
 
-/** "Save to EyeTime topic" in the right-click menu: one entry per topic (the inbox first). Called by buildMenus. */
+/** "Save to Elvani topic" in the right-click menu: one entry per topic (the inbox first). Called by buildMenus. */
 export async function buildTopicMenu() {
   if (!chrome.contextMenus) return;
   const s = await getSettings();
@@ -61,7 +61,7 @@ chrome.contextMenus?.onClicked.addListener(async (info, tab) => {
     return res.added ? res.topics : list.length !== cur.length ? list : undefined;
   });
   const msg = res && res.added ? t('menu.saved', { topic: name }) : res && res.reason === 'duplicate' ? t('menu.savedDup', { topic: name }) : t('menu.saveFail');
-  notify('dock-save-' + Date.now(), { title: 'EyeTime', message: msg, priority: 0 });
+  notify('dock-save-' + Date.now(), { title: 'Elvani', message: msg, priority: 0 });
 });
 
 chrome.commands.onCommand.addListener(async (cmd) => {

@@ -14,7 +14,7 @@ const sample = [
 test('a task becomes a quick-add line and Markdown round-trips', () => {
   assert.equal(taskLine(sample[0]), 'Write the report 2026-10-22 14:30 45m ! #work every week');
   const md = tasksToMarkdown(sample);
-  assert.match(md, /^# EyeTime tasks\n\n- \[ \] Write the report/);
+  assert.match(md, /^# Elvani tasks\n\n- \[ \] Write the report/);
   const back = parseTasksText(md, { now: NOW }).tasks;
   assert.equal(back.length, 3);
   const a = back.find((x) => x.text === 'Write the report');

@@ -43,7 +43,7 @@ export async function applyBackground() {
   }
   let scene = bg, photoTone = null, wxSrc = '', flatScene = bg, depthMap = '';
   if (bg === 'photo') {
-    let frame = n.frame === DAILY || (today && n.background !== 'photo') ? dailyFrame(new Date(), wallSkip()) : normalizeFrame(n.frame); // a photo that ships with EyeTime, or the person's own
+    let frame = n.frame === DAILY || (today && n.background !== 'photo') ? dailyFrame(new Date(), wallSkip()) : normalizeFrame(n.frame); // a photo that ships with Elvani, or the person's own
     if (today && !frame && !(await getPhoto('bg'))) frame = dailyFrame(new Date(), wallSkip()); // asked for their own photo but has none (yet)
     const paths = frame ? framePaths(frame) : null;
     paintCredit(today ? frame : '');

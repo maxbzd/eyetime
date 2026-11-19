@@ -3,12 +3,12 @@
 // What a message to the maker may contain, and nothing else. Read by the extension and the Windows app (to build and check a message before it leaves) and by the collector (to refuse
 // anything that is not exactly this), so they cannot drift apart. It has no browser or storage code. See docs/FEEDBACK.md.
 //
-// A message is something a person chose to send: an idea, a problem, a kind word, or the answer to one small question EyeTime asked at a good moment. It carries no anonymous-usage ID,
+// A message is something a person chose to send: an idea, a problem, a kind word, or the answer to one small question Elvani asked at a good moment. It carries no anonymous-usage ID,
 // no IP address and no address of any page. The text is whatever the person typed (the form says where it goes and asks them not to write anything personal).
 
 import { UNINSTALL_REASONS } from './usage-schema.js';
 
-/** idea, problem and kind word are written on the person's own initiative; the others are answers to a question EyeTime asked. */
+/** idea, problem and kind word are written on the person's own initiative; the others are answers to a question Elvani asked. */
 export const FB_KINDS = ['idea', 'problem', 'kudos', 'session', 'week', 'pmf', 'pause', 'leaving'];
 /** Where the message came from: the always-open door, or the moment that asked. */
 export const FB_VIA = ['door', 'after_session', 'week_review', 'pmf', 'pause_page', 'removal'];
@@ -25,7 +25,7 @@ export const FB_TAGS = {
 };
 /** The range of the rating, where a kind has one: [low, high]. session 1–4 faces, week 1–5, pmf 0 not / 1 somewhat / 2 very disappointed, pause 0 no / 1 helped. */
 export const FB_RATING = { session: [1, 4], week: [1, 5], pmf: [0, 2], pause: [0, 1] };
-/** How long a person has used EyeTime, in coarse steps (active days), so answers can be read by group without an identifier. */
+/** How long a person has used Elvani, in coarse steps (active days), so answers can be read by group without an identifier. */
 export const FB_DAYS = ['d0_6', 'd7_13', 'd14_29', 'd30p'];
 export const FB_LIMITS = { text: 1000, contact: 120, bytes: 4096, perDay: 400, tags: 8, reply: 1000, replies: 3, polls: 5 };
 /** The messages an answer can come back to: only what the person wrote on their own initiative. */

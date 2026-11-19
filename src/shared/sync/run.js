@@ -89,7 +89,7 @@ export async function syncTasks({ provider, deps, options = {} }) {
 }
 
 /**
- * Planned focus blocks ⇄ events of a calendar (only the ones EyeTime made).
+ * Planned focus blocks ⇄ events of a calendar (only the ones Elvani made).
  * @param {{ provider: any, deps: any, today: string, defaultMinutes?: number }} o
  */
 export async function syncBlocks({ provider, deps, today, defaultMinutes = 25 }) {

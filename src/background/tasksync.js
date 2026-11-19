@@ -27,7 +27,7 @@ async function run(source) {
   if (!area) { await setStatus({ ok: false, error: 'unsupported' }); return { ok: false }; }
   try {
     const all = await area.get(null);
-    if (remoteTasksVersion(all) > T_MAX_VERSION) { await setStatus({ ok: false, error: 'incompatible' }); return { ok: false }; } // written by a newer EyeTime: never overwrite it
+    if (remoteTasksVersion(all) > T_MAX_VERSION) { await setStatus({ ok: false, error: 'incompatible' }); return { ok: false }; } // written by a newer Elvani: never overwrite it
     // Encryption first (see shared/syncseal.js chooseMode): the tasks are the most personal text there is, so nothing is uploaded in the clear while a passphrase is in force
     const plan = chooseMode({ enc: syncEnc, off: syncEncOff, remoteMeta: cloudMeta(all) });
     if (plan.clearLocal) await setRaw({ syncEnc: null, syncEncOff: Math.max(syncEncOff, syncEnc ? syncEnc.rot : 0) }); // turned off on another device: follow it

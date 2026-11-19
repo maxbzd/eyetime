@@ -1,18 +1,18 @@
 {
   "extName": {
-    "message": "EyeTime — Concentrare, timp petrecut pe ecran și grija pentru ochi"
+    "message": "Elvani — Concentrare, timp petrecut pe ecran și grija pentru ochi"
   },
   "extDescription": {
     "message": "Concentrare dintr-un clic, pauze blânde înainte de site-uri care distrag, statistici despre ecran, grija pentru ochi. Gratuit, local"
   },
   "actionTitle": {
-    "message": "EyeTime"
+    "message": "Elvani"
   },
   "cmdToggleFocus": {
     "message": "Pornește sau oprește o sesiune de concentrare"
   },
   "cmdToggleDock": {
-    "message": "Arată sau ascunde panoul EyeTime pe această pagină"
+    "message": "Arată sau ascunde panoul Elvani pe această pagină"
   },
   "feedTitle": {
     "message": "E timpul să nu mai derulezi"
@@ -27,7 +27,7 @@
     "message": "Încă 5 minute"
   },
   "dockTab": {
-    "message": "Deschide panoul EyeTime"
+    "message": "Deschide panoul Elvani"
   },
   "dockFocus": {
     "message": "Concentrare"

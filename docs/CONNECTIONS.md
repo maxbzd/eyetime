@@ -1,7 +1,7 @@
 # Connected services: two-way sync
 
-EyeTime keeps its tasks and its calendar in step with the tools people already use, so that nobody has to move a way of working to try it.
-Everything goes **straight from the browser to the service**: there is no EyeTime server, no account, and no third party. The promise is in `PRIVACY.md` (*Connected services*); this page is for the people who maintain it.
+Elvani keeps its tasks and its calendar in step with the tools people already use, so that nobody has to move a way of working to try it.
+Everything goes **straight from the browser to the service**: there is no Elvani server, no account, and no third party. The promise is in `PRIVACY.md` (*Connected services*); this page is for the people who maintain it.
 
 ## What works today, and how it was verified
 
@@ -19,11 +19,11 @@ Everything goes **straight from the browser to the service**: there is no EyeTim
 Known limits, also told to the person where they matter:
 - iCloud Reminders lists that were "upgraded" in iOS 13 and later are not visible to CalDAV; only calendars and older reminder lists are. This is Apple's, not ours.
 - A recurring task or event is never changed or copied (a sync that rewrote a recurrence would be worse than none); it stays as it is on its side.
-- A calendar brings its busy times in (14 days ahead, no titles beyond 80 characters) and puts **planned focus blocks** out: a task that has a time (`at`, `atDay`, `est`) becomes an event that EyeTime marks as its own (an extended property or a marker in the description), and only those are ever changed or deleted.
+- A calendar brings its busy times in (14 days ahead, no titles beyond 80 characters) and puts **planned focus blocks** out: a task that has a time (`at`, `atDay`, `est`) becomes an event that Elvani marks as its own (an extended property or a marker in the description), and only those are ever changed or deleted.
 
 ## Google and Microsoft: registering the OAuth clients (the team does this once)
 
-The code is finished, but **3.7.0 does not offer them**: the dialog lists a service only when its client id is in `src/shared/sync/oauth-config.js`, and the manifest does not ask for `identity`. To switch them on: register the clients below, fill in the ids, add `"optional_permissions": ["identity"]` to `manifest.json` (Firefox too), and update PRIVACY.md, `site/privacy.html` and `store/SUBMISSION.md` (they say Todoist, Notion and CalDAV today). A client id is public by design; there is no client secret anywhere in EyeTime.
+The code is finished, but **3.7.0 does not offer them**: the dialog lists a service only when its client id is in `src/shared/sync/oauth-config.js`, and the manifest does not ask for `identity`. To switch them on: register the clients below, fill in the ids, add `"optional_permissions": ["identity"]` to `manifest.json` (Firefox too), and update PRIVACY.md, `site/privacy.html` and `store/SUBMISSION.md` (they say Todoist, Notion and CalDAV today). A client id is public by design; there is no client secret anywhere in Elvani.
 
 Both need the **redirect URI** the browser gives the extension: `https://<extension-id>.chromiumapp.org/` (Chrome, Edge) or the `…extensions.allizom.org` address (Firefox). Print it with `chrome.identity.getRedirectURL()` from any extension page. The extension id of a store build is fixed by the store; for development, pin it with a `key` in the manifest.
 

@@ -1,18 +1,18 @@
 {
   "extName": {
-    "message": "EyeTime — skupienie, czas przed ekranem i oczy"
+    "message": "Elvani — skupienie, czas przed ekranem i oczy"
   },
   "extDescription": {
     "message": "Skupienie jednym kliknięciem, łagodna blokada rozpraszaczy, statystyki i odpoczynek dla oczu. Za darmo, jawny kod, 100% lokalnie."
   },
   "actionTitle": {
-    "message": "EyeTime"
+    "message": "Elvani"
   },
   "cmdToggleFocus": {
     "message": "Rozpocznij lub zatrzymaj sesję skupienia"
   },
   "cmdToggleDock": {
-    "message": "Pokaż lub ukryj dok EyeTime na tej stronie"
+    "message": "Pokaż lub ukryj dok Elvani na tej stronie"
   },
   "feedTitle": {
     "message": "Czas przestać scrollować"
@@ -36,6 +36,6 @@
     "message": "Nauka"
   },
   "dockTab": {
-    "message": "Otwórz dok EyeTime"
+    "message": "Otwórz dok Elvani"
   }
 }

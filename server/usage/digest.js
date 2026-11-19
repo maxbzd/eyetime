@@ -18,9 +18,9 @@ export const DEFAULT_RETENTION_DAYS = 400;
 
 const T = {
   ru: {
-    head: 'EyeTime · неделя {a} — {b}', active: 'Активны: {n}', activeChange: '{p} к прошлой неделе', fresh: 'Новых установок: {n}', star: 'Завершено сессий на активного: {v} (≈ {m} мин фокуса)',
+    head: 'Elvani · неделя {a} — {b}', active: 'Активны: {n}', activeChange: '{p} к прошлой неделе', fresh: 'Новых установок: {n}', star: 'Завершено сессий на активного: {v} (≈ {m} мин фокуса)',
     d7: 'Возврат на 2-й неделе: {v}', stick: 'Липкость: {v}', health: 'Состояние: {ok} в норме, {warn} внимание, {bad} плохо', look: 'Посмотрите: {list}', door: 'Приём отчётов за неделю: принято {a}, отклонено {r}', open: 'Панель: {url}', msgs: 'Сообщения: новых {n}, ждут ответа {w}', msgsTop: 'чаще всего просят: {theme} ({k})',
-    na: 'мало данных', alertHead: '⚠ EyeTime: нужно посмотреть',
+    na: 'мало данных', alertHead: '⚠ Elvani: нужно посмотреть',
     sc: { speed: 'Скорость новой вкладки', finish: 'Сессии доходят до конца', early: 'Ранние остановки', err: 'Установки с ошибками', quick: 'Приток против оттока', upd: 'Люди на свежей версии', stick: 'Липкость', goal_d1: 'Цель: возврат на след. день', goal_d7: 'Цель: возврат на 2-й неделе', goal_d30: 'Цель: возврат на 5-й неделе', goal_act: 'Цель: первая сессия за неделю' },
     alerts: {
       errors: 'Ошибки: у {v} установок есть ошибки (цель не больше {t}).', drop: 'Активность упала: {now} против {before} на прошлой неделе ({p}).', ingest: 'Приём отчётов: {p} отчётов за неделю отклонено ({n} из {all}). Похоже, одна из версий шлёт неверный отчёт.',
@@ -28,9 +28,9 @@ const T = {
     },
   },
   en: {
-    head: 'EyeTime · week {a} — {b}', active: 'Active: {n}', activeChange: '{p} vs last week', fresh: 'New installs: {n}', star: 'Finished sessions per active install: {v} (about {m} min of focus)',
+    head: 'Elvani · week {a} — {b}', active: 'Active: {n}', activeChange: '{p} vs last week', fresh: 'New installs: {n}', star: 'Finished sessions per active install: {v} (about {m} min of focus)',
     d7: 'Back in week 2: {v}', stick: 'Stickiness: {v}', health: 'Health: {ok} fine, {warn} to watch, {bad} bad', look: 'Look at: {list}', door: 'Reports this week: {a} accepted, {r} refused', open: 'Dashboard: {url}', msgs: 'Messages: {n} new, {w} waiting for an answer', msgsTop: 'asked for most: {theme} ({k})',
-    na: 'low data', alertHead: '⚠ EyeTime: needs a look',
+    na: 'low data', alertHead: '⚠ Elvani: needs a look',
     sc: { speed: 'New tab speed', finish: 'Sessions reach the end', early: 'Early stops', err: 'Installs with errors', quick: 'Inflow vs outflow', upd: 'People on the newest version', stick: 'Stickiness', goal_d1: 'Goal: back the next day', goal_d7: 'Goal: back in week 2', goal_d30: 'Goal: back in week 5', goal_act: 'Goal: first session in a week' },
     alerts: {
       errors: 'Errors: {v} of installs have errors (target at most {t}).', drop: 'Activity fell: {now} against {before} last week ({p}).', ingest: 'Reports: {p} of this week’s reports were refused ({n} of {all}). A version may be sending a wrong report.',

@@ -69,7 +69,7 @@ const { launch } = require('./lib.cjs');
   if (l.length !== 4) bad.push('an empty cloud copy deleted local tasks: ' + l.length + ' left');
   if (!c || c.tasks.length !== 4) bad.push('the list was not uploaded again after the cloud copy vanished');
 
-  // a newer EyeTime's payload is never overwritten
+  // a newer Elvani's payload is never overwritten
   await page.evaluate(() => chrome.storage.sync.set({ 'st:meta': { v: 99, n: 1, ts: 1 }, 'st:0': '[]' })); await sync();
   const st2 = await status(); const keep = await page.evaluate(async () => (await chrome.storage.sync.get('st:meta'))['st:meta'].v);
   if (keep !== 99) bad.push('a payload from a newer version was overwritten');
