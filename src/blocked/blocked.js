@@ -6,7 +6,7 @@ import { send } from '../ui/api.js';
 import { t, fmtDuration, fmtTime } from '../shared/i18n.js';
 import { evaluate } from '../shared/policy.js';
 import { getSettings, getRaw, dayStorageKey, updateSettings, updateCollection } from '../shared/storage.js';
-import { matches } from '../shared/domains.js';
+import { matches, hostFromUrl } from '../shared/domains.js';
 import { addCapture } from '../shared/productivity.js';
 import { showQuote } from '../ui/quote.js';
 import { clock } from '../shared/focus.js';
@@ -26,7 +26,7 @@ function safeTarget(raw) {
   try { const u = new URL(raw); return u.protocol === 'http:' || u.protocol === 'https:' ? u.href : null; } catch { return null; }
 }
 const target = safeTarget(rawTarget);
-const host = target ? new URL(target).hostname.replace(/^www\./, '') : '';
+const host = target ? hostFromUrl(target) || new URL(target).hostname : ''; // as the rules see it (no www. / m. / mobile.): an allow-list entry made here has to match what is decided on
 
 let decision = null, settings = null, timers = [];
 

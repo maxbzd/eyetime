@@ -17,38 +17,36 @@ export function compact(sec) {
   return h >= 10 ? `${h}h` : `${h}h${String(m % 60).padStart(2, '0')}`;
 }
 
+/** What the toolbar shows now; a call that would show the same again does nothing (the tracker asks about twice a minute, and each of the four settings is a message to the browser). */
+let shown = '';
+async function apply({ text, bg, fg, title }) {
+  const sig = [text, bg, fg, title].join('\u0001');
+  if (sig === shown) return;
+  await chrome.action.setBadgeText({ text });
+  await chrome.action.setBadgeBackgroundColor({ color: bg });
+  await chrome.action.setBadgeTextColor?.({ color: fg });
+  await chrome.action.setTitle({ title });
+  shown = sig;
+}
+
 export async function updateBadge(settings) {
   const dk = dayStorageKey(dayKey());
   const raw = await getRaw(['focus', 'rest', dk]);
   await setLocale(resolveLocale(settings.language));
 
   if (raw.focus && isPaused(raw.focus)) {
-    await chrome.action.setBadgeText({ text: 'II' });
-    await chrome.action.setBadgeBackgroundColor({ color: '#78716c' });
-    await chrome.action.setBadgeTextColor?.({ color: '#ffffff' });
-    await chrome.action.setTitle({ title: t('badge.pausedTitle') + (raw.focus.goal ? ` — ${raw.focus.goal}` : '') });
-    return;
+    return apply({ text: 'II', bg: '#78716c', fg: '#ffffff', title: t('badge.pausedTitle') + (raw.focus.goal ? ` — ${raw.focus.goal}` : '') });
   }
   if (isFocusActive(raw.focus)) {
     const min = Math.ceil(remainingMs(raw.focus) / 60000);
-    await chrome.action.setBadgeText({ text: String(min) });
-    await chrome.action.setBadgeBackgroundColor({ color: '#171612' }); // focus: ink with a lime count, like the countdown on Home
-    await chrome.action.setBadgeTextColor?.({ color: '#d2f56b' });
-    await chrome.action.setTitle({ title: t('badge.focusTitle', { n: min }) + (raw.focus.goal ? ` — ${raw.focus.goal}` : '') });
-    return;
+    // focus: ink with a lime count, like the countdown on Home
+    return apply({ text: String(min), bg: '#171612', fg: '#d2f56b', title: t('badge.focusTitle', { n: min }) + (raw.focus.goal ? ` — ${raw.focus.goal}` : '') });
   }
   if (raw.rest && Date.now() < raw.rest.endsAt) {
     const min = Math.ceil((raw.rest.endsAt - Date.now()) / 60000);
-    await chrome.action.setBadgeText({ text: String(min) });
-    await chrome.action.setBadgeBackgroundColor({ color: '#1f7a52' });
-    await chrome.action.setBadgeTextColor?.({ color: '#ffffff' });
-    await chrome.action.setTitle({ title: t('rest.badgeTitle', { n: min }) });
-    return;
+    return apply({ text: String(min), bg: '#1f7a52', fg: '#ffffff', title: t('rest.badgeTitle', { n: min }) });
   }
   const day = raw[dk] || {};
   const total = sum(day.d) + sum(day.a);
-  await chrome.action.setBadgeText({ text: settings.tracking.badge ? compact(total) : '' });
-  await chrome.action.setBadgeBackgroundColor({ color: '#57534e' });
-  await chrome.action.setBadgeTextColor?.({ color: '#ffffff' });
-  await chrome.action.setTitle({ title: total >= 60 ? t('badge.todayTitle', { time: fmtDuration(total) }) : t('badge.defaultTitle') });
+  return apply({ text: settings.tracking.badge ? compact(total) : '', bg: '#57534e', fg: '#ffffff', title: total >= 60 ? t('badge.todayTitle', { time: fmtDuration(total) }) : t('badge.defaultTitle') });
 }

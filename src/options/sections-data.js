@@ -32,7 +32,7 @@ export function data({ s, save, refresh }) {
       const ok = await confirmDialog({ title: t('opt.importTitle'), body: t('opt.importBody'), confirm: t('opt.importConfirm'), danger: true });
       if (!ok) return;
       await importAll(payload); toast(t('opt.importDone')); setTimeout(() => location.reload(), 600);
-    } catch { toast(t('opt.importFail')); }
+    } catch (e) { toast(/** @type {any} */ (e)?.message === 'strict' ? t('focus.strictLocked') : t('opt.importFail')); }
   }
   const fileIn = /** @type {HTMLInputElement} */ (document.getElementById('importFile'));
   fileIn.onchange = () => { if (fileIn.files[0]) doImport(fileIn.files[0]); fileIn.value = ''; };
@@ -101,7 +101,7 @@ export function data({ s, save, refresh }) {
     h('div', {}, h('h3', { class: 'group-title', text: t('opt.groupDanger') }),
       h('div', { class: 'card danger-zone' }, row({ title: t('opt.reset'), desc: t('opt.resetDesc'), control: h('button', { class: 'btn btn-danger', type: 'button', onclick: async () => {
         const ok = await confirmDialog({ title: t('opt.resetTitle'), body: t('opt.resetBody'), extra: h('button', { class: 'btn btn-sm', type: 'button', style: { alignSelf: 'flex-start' }, onclick: doExport }, icon('download'), t('opt.backupFirst')), confirm: t('opt.resetConfirm'), danger: true });
-        if (ok) { await resetAll(); toast(t('opt.resetDone')); setTimeout(() => location.reload(), 600); }
+        if (ok) { try { await resetAll(); toast(t('opt.resetDone')); setTimeout(() => location.reload(), 600); } catch (e) { toast(/** @type {any} */ (e)?.message === 'strict' ? t('focus.strictLocked') : t('opt.importFail')); } }
       } }, icon('trash-2'), t('opt.resetBtn')) }))));
 }
 
