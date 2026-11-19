@@ -203,9 +203,4 @@ export function parseIcsFull(text, { from = new Date(), days = 14, max = 500 } =
   return { events: events.sort((a, b) => (a.day + a.start < b.day + b.start ? -1 : 1)).slice(0, max), allDay: allDay.sort((a, b) => (a.day < b.day ? -1 : 1)).slice(0, max) };
 }
 
-/** Next event today after `nowMin` (minutes since midnight) → { title, start, end, inMin } or null. */
-export function nextEvent(events, today, nowMin) {
-  const toMin = (s) => Number(s.slice(0, 2)) * 60 + Number(s.slice(3));
-  const e = (events || []).filter((x) => x.day === today && toMin(x.end) > nowMin).sort((a, b) => toMin(a.start) - toMin(b.start))[0];
-  return e ? { ...e, inMin: Math.max(0, toMin(e.start) - nowMin), ongoing: toMin(e.start) <= nowMin } : null;
-}
+export { nextEvent } from './nextevent.js'; // kept here for the callers that read a file as well; the pages that only show the next meeting take the small module

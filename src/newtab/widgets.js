@@ -10,7 +10,7 @@ import { getSettings, updateSettings, getDays, getCollection, getRaw, onChange }
 import { send } from '../ui/api.js';
 import { logError } from '../shared/errorlog.js';
 import { dayKey, rangeKeys } from '../shared/time.js';
-import { nextEvent } from '../shared/ics.js';
+import { nextEvent } from '../shared/nextevent.js';
 import { makeClassifier } from '../shared/classify.js';
 import { summarize, focusStreak } from '../shared/stats.js';
 import { loadRings } from './rings.js';
