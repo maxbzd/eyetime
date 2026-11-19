@@ -17,7 +17,7 @@ export default {
   tap: { testFiles, nodeArgs: [] },
   mutate: [
     'src/shared/blocking.js', 'src/shared/classify.js', 'src/shared/domains.js', 'src/shared/time.js', 'src/shared/validate.js', 'src/shared/focus.js',
-    'src/shared/stats.js', 'src/shared/productivity.js', 'src/shared/datewords.js', 'src/shared/dayplan.js', 'src/shared/week.js', 'src/shared/tasks.js',
+    'src/shared/stats.js', 'src/shared/productivity.js', 'src/shared/datewords.js', 'src/shared/dayplan.js', 'src/shared/week.js', 'src/shared/tasks.js', 'src/shared/ics.js', 'src/shared/quickadd.js',
   ],
   coverageAnalysis: 'off',
   reporters: ['clear-text', 'json', 'html'],
