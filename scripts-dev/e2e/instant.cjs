@@ -76,7 +76,7 @@ const PORT = 8099;
   await Promise.all([p.waitForURL(/distract\.example\.test:8099/, { timeout: 15000 }), p.locator('#cont').click()]);
   await wait(700);
   ok(p.url() === base('www.distract.example.test', '/watch?v=a&t=5'), 'did not land on the site: ' + p.url());
-  ok(hits.length === 1, 'the site was asked ' + hits.length + ' times after continue');
+  ok(hits.length === 1, 'the site was asked ' + hits.length + ' times after continue: ' + hits.join(' '));
   const again = await open(base('www.distract.example.test', '/other'));
   ok(again.url() === base('www.distract.example.test', '/other'), 'inside the pass the site was stopped again: ' + again.url());
   await again.close();
