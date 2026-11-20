@@ -48,3 +48,12 @@ html body.has-wall::after { background: radial-gradient(70% 60% at 50% 45%, rgba
 .auto-hint { margin-top: var(--s-2); font-size: var(--fs-sm); color: var(--text-3); }
 .auto-hint a { color: var(--text-2); text-decoration: underline; text-underline-offset: 3px; }
 .auto-hint a:hover { color: var(--text); }
+
+/* ---------- movement on the break screen ---------
+   The line that says what to do comes up softly when the page opens; when the break is done the ring gives one small pulse of green and the closing words come up the same way. */
+@keyframes break-rise { from { opacity: 0; transform: translateY(8px); } }
+@keyframes ring-done { 45% { transform: scale(1.045); filter: drop-shadow(0 0 16px color-mix(in srgb, var(--success) 55%, transparent)); } }
+.stage #title, .stage #lead { animation: break-rise .7s var(--ease) both; }
+.stage #lead { animation-delay: .12s; }
+.stage.finished .ring { animation: ring-done .9s var(--ease) both; }
+.stage.finished #title, .stage.finished #lead { animation: break-rise .6s var(--ease) both; }
