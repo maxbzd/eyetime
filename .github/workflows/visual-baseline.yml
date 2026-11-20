@@ -1,0 +1,31 @@
+# Renders the visual baselines (scripts-dev/e2e/visual-baseline) on the CI machine, so that nobody needs Docker to refresh them after a UI change you meant to make.
+# Add `[update-visual]` to the message of a commit on a branch (not main): the pictures are rendered, committed back to the same branch, and the next CI run compares against them.
+name: Visual baseline
+on:
+  push:
+    branches-ignore: [main]
+permissions:
+  contents: write
+jobs:
+  update:
+    if: contains(github.event.head_commit.message, '[update-visual]') && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 24, cache: npm }
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-v1
+      - run: npm i --no-save playwright@1.56.1 axe-core@4.14.0 && npx playwright install --with-deps chromium
+      - run: VISUAL_LANGS=en node scripts-dev/e2e/visual.cjs --update
+      - run: VISUAL_LANGS=ru,de,pl node scripts-dev/e2e/visual.cjs --update
+      - name: Commit the new pictures
+        run: |
+          git config user.name maxbzd
+          git config user.email maxbzd1600@gmail.com
+          git add scripts-dev/e2e/visual-baseline
+          git commit -m "Update the visual baselines" || echo "nothing changed"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
