@@ -25,6 +25,7 @@ body { min-height: 100vh; display: flex; flex-direction: column; }
 .opt b { font-weight: 600; display: block; } .opt span.d { color: var(--text-3); font-size: var(--fs-sm); }
 .nav { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); margin-top: var(--s-2); }
 .skip { color: var(--text-3); }
+body.has-wall .skip { color: rgba(255, 255, 255, .9); text-shadow: 0 1px 3px rgba(0, 0, 0, .45), 0 0 18px rgba(0, 0, 0, .35); } /* the quiet link under the card sat on the water and could hardly be read */
 .pin { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-4); background: var(--surface-2); border-radius: var(--r-lg); font-size: var(--fs-sm); color: var(--text-2); }
 .pin .ico { font-size: 22px; color: var(--accent-text); }
 .done-actions { display: flex; flex-direction: column; gap: var(--s-3); }
