@@ -251,3 +251,7 @@ body[data-layout="today"] .bg.bgx-ember { --ember: 70%; }
 body[data-layout="today"] :is(#date, .clock, #greeting, #focus.fl, .nt-corners) { animation: td-rise .6s var(--ease) both; animation-delay: var(--td-d, 0ms); }
 body[data-layout="today"] #date { --td-d: 40ms; } body[data-layout="today"] .clock { --td-d: 100ms; } body[data-layout="today"] #greeting { --td-d: 190ms; }
 body[data-layout="today"] #focus.fl { --td-d: 270ms; } body[data-layout="today"] .nt-corners { --td-d: 260ms; }
+
+/* Today is white type on a photograph whatever the look: a look that colours its own date line (Void, Noir) must not turn it grey on the picture; the quote at the bottom gets the same soft shadow as the clock, since it often lies on light rocks or surf */
+body[data-layout="today"] #date { color: var(--ink-on-2) !important; text-shadow: var(--lift); }
+body[data-layout="today"] .quote .q-text, body[data-layout="today"] .quote .q-by { text-shadow: 0 1px 3px rgba(0, 0, 0, .5), 0 0 18px rgba(0, 0, 0, .35); }
