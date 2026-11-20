@@ -27,6 +27,7 @@
 - **The pause page**: on windows lower than 780 px the breathing orb shrank until its word ran out of the circle.
 - **Today**: Void and Noir painted the date line grey over the photograph; the quote at the bottom is easier to read over light rocks. Embers are warm amber in every look (in Calm light they were an ink smudge).
 - **The "Customize" pill** lay over the first card on windows narrower than 1360 px; it keeps only its icon there. The step label of the setup reached 4.2:1 contrast; 72% now.
+- **Looks that are no longer offered but still work for those who have them** had the same unreadable selected chip (Linen, Zen, Liquid, Moss, Synthwave, Aura), a pale duration on an accent chip (Phosphor, Brutal, Candy) and white on red at 3.4:1 in Swiss dark. All fixed, and a new check (`looks-contrast`) opens Home in every look, light and dark, and fails on any contrast violation, so a look cannot lose its chips again.
 - **Texts that still promised what was taken away** ("...and the weather", "sites the on-device model guessed") are gone from all 12 languages, with three dead strings of the cut-out feature.
 - CI renders the visual baselines by itself when a commit message of a branch carries `[update-visual]` (never on main): no Docker needed.
 
