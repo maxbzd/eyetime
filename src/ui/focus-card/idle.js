@@ -19,7 +19,7 @@ export function renderIdle(ctx) {
   const custom = d.custom
     ? h('span', { class: 'custom-min' }, h('input', { class: 'input input-sm num', type: 'number', min: 1, max: 720, value: d.minutes, id: 'cm' + uid, 'aria-label': t('focus.custom'), style: { width: '68px', textAlign: 'center' },
         oninput: (e) => { d.minutes = Math.min(720, Math.max(1, Number(e.target.value) || 1)); const b = $('#sb' + uid, root); if (b) b.querySelector('span').textContent = startLabel(); } }), h('span', { class: 'muted', text: t('unit.m') }))
-    : h('button', { class: 'chip chip-custom', type: 'button', onclick: () => { d.custom = true; render(); $('#cm' + uid, root)?.focus(); } }, icon('plus'), t('focus.custom'));
+    : h('button', { class: 'chip chip-custom', type: 'button', onclick: () => { d.custom = true; render(); $('#cm' + uid, root)?.focus(); } }, icon('plus'), h('span', { class: 'chip-lbl' }, t('focus.custom')));
 
   const goal = h('input', { class: 'input' + (large ? ' input-lg' : ''), id: 'goal' + uid, maxlength: 140, value: d.goal, placeholder: t(large ? 'focus.goalPlaceholderLarge' : 'focus.goalPlaceholder'), 'aria-label': t('focus.goalPlaceholder'),
     oninput: (e) => { d.goal = e.target.value; if (d.taskId) { const task = st.tasks.find((x) => x.id === d.taskId); if (!task || task.text !== d.goal) { d.taskId = ''; taskRow.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', 'false')); } } }, onkeydown: (e) => { if (isEnter(e)) start(); } });
