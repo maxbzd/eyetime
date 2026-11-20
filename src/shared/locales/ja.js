@@ -174,7 +174,7 @@ export const ja = {
   /* eye break page */
   'break.pageTitle': '目の休憩 — Elvani', 'break.eyebrow': '20-20-20の目の休憩', 'break.look': '遠くを見る', 'break.lookLead': '約6 m (20 ft) 先のものを見つけて、視線をそっと預けましょう。肩の力を抜いてください。',
   'break.blink': 'ゆっくりまばたき', 'break.blinkLead': '少しのあいだ静かに目を閉じ、そのあと数回まばたきして目をうるおします。', 'break.skip': 'スキップ', 'break.done': '作業に戻る',
-  'break.well': 'よくできました', 'break.wellLead': '目も喜んでいます。休憩を記録しました。',
+  'break.well': 'よくできました', 'break.wellLead': '目も喜んでいます。休憩を記録しました。', 'break.moveEyebrow': "体を動かす休憩", 'break.move': "少し体を動かしましょう", 'break.moveWellLead': "からだが喜んでいます。休憩を記録しました。", 'break.ex.1': "立ち上がって、肩をゆっくり後ろへ十回まわします。", 'break.ex.2': "頭を片方の肩へ傾けて止め、次に反対側へ。無理はしないで。", 'break.ex.3': "手を握って開き、手首を両方向にまわします。", 'break.ex.4': "両腕を頭上にのばし、指を組んで、ゆっくり左右に傾けます。", 'break.ex.5': "窓際か隣の部屋まで歩いて戻ります。視線は遠くへ。", 'break.ex.6': "足を開いて立ち、ゆっくり前に曲げて腕をだらりと下げます。", 'break.ex.7': "胸の前で手のひらを合わせ、五秒間押し合います。くり返します。", 'break.ex.8': "水を注いで、立ったままゆっくり飲みます。", 'opt.eyeMove': "体を動かす休憩", 'opt.eyeMoveDesc': "三回に一回の休憩は少し長めで、体にも一息つかせます：肩、首、手首、少し歩く、水を飲む。",
 
   /* rest after a session */
   'rest.title': '休憩', 'rest.hint': '体を伸ばして、水を飲んで、画面から目を離しましょう。', 'rest.skip': '休憩をスキップ', 'rest.overTitle': '休憩終了', 'rest.overBody': 'もう1回、{n}分のセッションを始めますか？', 'rest.badgeTitle': '休憩 — 残り{n}分',
@@ -208,7 +208,7 @@ export const ja = {
   'ap.share': 'テーマを共有', 'ap.shareDesc': '外観の設定をテキストとしてコピーするか、他の人のものを貼り付けます。データは含まれません。', 'ap.copy': 'テーマをコピー', 'ap.copied': 'テーマをコピーしました',
   'ap.import': 'テーマを読み込む', 'ap.importTitle': 'テーマを読み込む', 'ap.importDesc': '共有されたテーマを貼り付けてください。', 'ap.importBad': '有効なElvaniのテーマではないようです。',
   'ap.reset': '外観をリセット', 'ap.resetTitle': '外観をリセットしますか？', 'ap.resetBody': 'テーマ、色、書体、カスタムCSSが初期状態に戻ります。データには影響しません。',
-  'bg.look': 'テーマに合わせる', 'bg.mesh': 'メッシュ', 'bg.aurora': 'オーロラ', 'bg.stars': '夜空', 'bg.waves': '波', 'bg.grain': 'グレイン', 'bg.dots': 'ドット', 'bg.grid': 'グリッド', 'bg.living': 'ゆらぎ', 'bg.color': '単色',
+  'bg.look': 'テーマに合わせる', 'bg.mesh': 'メッシュ', 'bg.aurora': 'オーロラ', 'bg.stars': '夜空', 'bg.waves': '波', 'bg.grain': 'グレイン', 'bg.dots': 'ドット', 'bg.sphere': '球体', 'bg.grid': 'グリッド', 'bg.living': 'ゆらぎ', 'bg.color': '単色',
   'home.bgColor': '背景色', 'home.layout': 'レイアウト', 'home.clockStyle': '時計のスタイル', 'home.moveUp': '上へ移動', 'home.moveDown': '下へ移動', 'home.moreAppearance': '外観のその他の設定', 'home.showCards': 'カード',
   'layout.center': '中央', 'layout.split': '分割', 'layout.minimal': 'ミニマル',
   'clock.thin': '細字', 'clock.bold': '太字', 'clock.mono': '等幅', 'clock.serif': '明朝', 'clock.compact': 'コンパクト', 'clock.stacked': '縦積み', 'clock.none': '非表示',

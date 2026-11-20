@@ -66,6 +66,7 @@ export const DEFAULT_SETTINGS = {
     enabled: true,
     intervalMin: 20,           // of active screen time
     breakSeconds: 20,
+    moveEvery: 3,              // every Nth break is a movement break (a little longer, for the body: shoulders, neck, wrists); 0 = never
     fullscreen: true,          // when the time is up the break takes the whole screen by itself (it waits during a film on the whole screen or a call)
     notify: true,              // a system notification: where the break cannot take the screen, or instead of it
     sound: true,               // a soft sound when the break is over (the eyes are elsewhere)

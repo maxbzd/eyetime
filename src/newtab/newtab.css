@@ -438,3 +438,6 @@ body[data-tone="light"] { --glass-tint: #1b1713; } /* on a light photo the glass
 /* a "quiet" theme: only the clock and the theme's own pieces; the page's buttons fade in when the mouse moves */
 body.quiet .nt-corners, body.quiet .kbd-hint, body.quiet .more-mods { transition: opacity .5s ease; }
 body.quiet:not(.awake):not(.cv-editing) .nt-corners, body.quiet:not(.awake):not(.cv-editing) .kbd-hint, body.quiet:not(.awake):not(.cv-editing) .more-mods { opacity: 0; }
+
+/* the preview tile of the Sphere background does not breathe (a gallery of tiles must stay still) */
+.bg-tile i.bgx-sphere::before { animation: none; }
