@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: FSL-1.1-ALv2
+# Copyright 2026 maxbzd
 # Renders the visual baselines (scripts-dev/e2e/visual-baseline) on the CI machine, so that nobody needs Docker to refresh them after a UI change you meant to make.
 # Add `[update-visual]` to the message of a commit on a branch (not main): the pictures are rendered, committed back to the same branch, and the next CI run compares against them.
 name: Visual baseline

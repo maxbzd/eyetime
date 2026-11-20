@@ -243,3 +243,11 @@ body[data-layout="today"] .bg:is(.bgx-dawn, .bgx-ocean, .bgx-forest, .bgx-dusk, 
   --g-strength: 30%; --sphere-lo: .05; --sphere-hi: .085; }
 body[data-layout="today"] .bg.bgx-contour { --border: #34343a; --border-strong: #4a4a52; }
 body[data-layout="today"] .bg.bgx-ember { --ember: 70%; }
+
+/* ---------- the first moment ----------
+   The page does not appear all at once: the date, the time, the hello, the line of intent and the buttons come up one after another (about 0.9 s in all), a few pixels of rise and a fade.
+   Only transform and opacity, the shared easing; "less motion" (the setting or the system's) turns it into no motion at all (tokens.css, base.css). */
+@keyframes td-rise { from { opacity: 0; transform: translateY(12px); } }
+body[data-layout="today"] :is(#date, .clock, #greeting, #focus.fl, .nt-corners) { animation: td-rise .6s var(--ease) both; animation-delay: var(--td-d, 0ms); }
+body[data-layout="today"] #date { --td-d: 40ms; } body[data-layout="today"] .clock { --td-d: 100ms; } body[data-layout="today"] #greeting { --td-d: 190ms; }
+body[data-layout="today"] #focus.fl { --td-d: 270ms; } body[data-layout="today"] .nt-corners { --td-d: 260ms; }
