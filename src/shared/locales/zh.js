@@ -191,7 +191,7 @@ export const zh = {
   'sec.appearance': '外观', 'sec.appearanceDesc': "让 Elvani 成为你的专属：自带场景的完整风格、任意强调色，以及你自己的字体、形状和密度。",
   'look.calm': '宁静', 'look.paper': '纸张', 'look.midnight': '午夜', 'look.terminal': '终端', 'look.sakura': '樱花', 'look.forest': '森林',
   'look.aurora': '极光', 'look.mono': '黑白', 'look.sunset': '日落', 'look.nord': '北欧', 'look.ocean': '海洋',
-  'lookd.calm': '默认风格：温暖、柔和、友好。', 'lookd.paper': '阅览室的感觉：暖色纸张上的衬线标题。', 'lookd.midnight': '深蓝近黑，搭配玻璃质感的卡片和发光的强调色。',
+  'lookd.calm': '默认风格：温暖、柔和、友好。', 'lookd.paper': '阅览室的感觉：暖色纸张上的衬线标题。', 'look.lumen': '流明', 'lookd.lumen': '洒满阳光的奶油色与温暖的琥珀光，像午后的窗。', 'look.glacier': '冰川', 'lookd.glacier': '淡淡的冰色、冷冽的空气和一条清澈的蓝线。非常安静。', 'look.graphite': '石墨', 'lookd.graphite': '中性灰、锐利的字体和一抹靛蓝。为漫长的工作日而生。', 'lookd.midnight': '深蓝近黑，搭配玻璃质感的卡片和发光的强调色。',
   'lookd.terminal': '绿色荧光、等宽字体、直角边框。', 'lookd.sakura': '柔和的粉色与大圆角。', 'lookd.forest': '苔藓般的绿色，宁静而沉稳。',
   'lookd.aurora': '深色夜空中由紫到青的光晕。', 'lookd.mono': '纯黑与纯白，只有轮廓，没有杂色。', 'lookd.sunset': '温暖的珊瑚红与琥珀色，黄金时刻的光线。',
   'lookd.nord': '清冷的北极蓝，配色克制。', 'lookd.ocean': '清爽的水蓝与深海蓝。',

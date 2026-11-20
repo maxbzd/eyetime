@@ -22,7 +22,7 @@ STATISTICI SINCERE
 Timp pe site, oră și zi; o cronologie a zilei cu sesiunile tale de concentrare; timp de concentrare pe proiect (#etichetă); precizia estimărilor (planificat față de real); cele mai bune ore ale tale; „ce te atrage” — când un site te ispitește, cu o limită dintr-o atingere; o recapitulare săptămânală și o imagine „Săptămâna mea” de distribuit. Reclasifică orice site ca productiv, neutru sau care distrage atenția dintr-o atingere. Exportă CSV sau un jurnal Markdown.
 
 O FILĂ NOUĂ, LINIȘTITĂ
-Ceas, card de concentrare cu un obiectiv zilnic, sarcini cu priorități, obiceiuri, notițe și linkuri rapide. 16 stiluri, orice culoare de accent, 69 de fundaluri foto, sunete ambientale reale. Luminos și întunecat. O poți opri oricând.
+Ceas, card de concentrare cu un obiectiv zilnic, sarcini cu priorități, obiceiuri, notițe și linkuri rapide. 19 stiluri, orice culoare de accent, 69 de fundaluri foto, sunete ambientale reale. Luminos și întunecat. O poți opri oricând.
 
 AI GRIJĂ DE OCHII TĂI
 Mementouri 20-20-20 bazate pe timpul real, activ, petrecut în fața ecranului, și o pagină ghidată de pauză de 20 de secunde.
