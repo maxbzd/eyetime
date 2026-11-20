@@ -235,3 +235,11 @@ body[data-layout="today"] #tdRitual .rt-ring { flex: none; align-self: center; }
 body[data-layout="today"] #tdRitual .rt-icon { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 50%; background: transparent; color: rgba(255, 255, 255, .8); cursor: pointer; } body[data-layout="today"] #tdRitual .rt-icon:hover { background: rgba(255, 255, 255, .16); color: #fff; }
 @media (max-width: 760px) { body[data-layout="today"] #tdRitual .sd-stats { grid-template-columns: 1fr; } body[data-layout="today"] #tdRitual .rt-pill { flex-wrap: wrap; border-radius: 22px; } body[data-layout="today"] #tdRitual .rt-title { font-size: 22px; } }
 body[data-layout="today"] .fl-next { max-width: 100%; margin-top: 4px; font-size: 14px; color: rgba(255, 255, 255, .78); }
+
+/* ---------- Today over a drawn background (not a photograph) ----------
+   White type needs a dark ground in either scheme, so these backgrounds are painted with the dark tokens here, whatever the page's own scheme is. */
+body[data-layout="today"] .bg:is(.bgx-dawn, .bgx-ocean, .bgx-forest, .bgx-dusk, .bgx-sand, .bgx-slate, .bgx-mesh, .bgx-aurora, .bgx-stars, .bgx-waves, .bgx-grain, .bgx-dots, .bgx-sphere, .bgx-contour, .bgx-ember, .bgx-grid, .bgx-living) {
+  --bg: #0b0b0c; --text: #f2f1ec; --border: #232326; --border-strong: #3a3a3e; --accent: #f2c14e; --productive: #4a89ee; --distracting: #e8584f; --success: #3ddc97;
+  --g-strength: 30%; --sphere-lo: .05; --sphere-hi: .085; }
+body[data-layout="today"] .bg.bgx-contour { --border: #34343a; --border-strong: #4a4a52; }
+body[data-layout="today"] .bg.bgx-ember { --ember: 70%; }
