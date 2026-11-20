@@ -18,6 +18,15 @@
 - **Three new looks: Lumen, Glacier and Graphite.** Lumen is sunlit cream with an amber glow (serif headings, warm and soft); Glacier is pale ice and one clear blue line; Graphite is neutral grey with sharp type and one indigo accent, for long working days. Each has a light and a dark side, readable by the same contrast rules as the others, and all three sit next to Calm at the start of the gallery. 19 looks now; the store texts, the site and the README say so.
 - The last lime-green remnant of the old palette on the break screen's button is amber now.
 
+### A second look at every look
+- **The selected mode chip ("Sprint 25m") could not be read.** Its minutes and its icon were painted in the accent colour, which is sometimes the very colour of the chip: invisible in Calm light, faint in most dark looks. Pearl's selected chips were white on white. Both fixed.
+- **The toolbar popup in Italian and Romanian**: the long word of the "Custom" chip pushed the four durations into one another; it is only its plus now (the word stays for screen readers). The start button keeps the right edge when a long label wraps it.
+- **The pause page**: on windows lower than 780 px the breathing orb shrank until its word ran out of the circle.
+- **Today**: Void and Noir painted the date line grey over the photograph; the quote at the bottom is easier to read over light rocks. Embers are warm amber in every look (in Calm light they were an ink smudge).
+- **The "Customize" pill** lay over the first card on windows narrower than 1360 px; it keeps only its icon there. The step label of the setup reached 4.2:1 contrast; 72% now.
+- **Texts that still promised what was taken away** ("...and the weather", "sites the on-device model guessed") are gone from all 12 languages, with three dead strings of the cut-out feature.
+- CI renders the visual baselines by itself when a commit message of a branch carries `[update-visual]` (never on main): no Docker needed.
+
 ### Lighter: what was taken away
 Elvani does three things: focus, closing what pulls you away, and looking after your eyes, with an honest account of your time. What did not serve that, and weighed on the page, the settings and the package, is gone. Nothing of a person's own (tasks, habits, notes, history, settings that remain) is touched; an update clears only what the removed parts left behind.
 - **The weather** (Open-Meteo, a city, rain on the photo, a weather widget). It was the only part that went to the network for data, against the promise that everything stays on the device; the privacy text is shorter by it (three optional things reach out now, not four).
