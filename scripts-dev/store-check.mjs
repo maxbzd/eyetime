@@ -47,7 +47,6 @@ const directive = (d) => (csp.match(new RegExp(`(?:^|;)\\s*${d}\\s+([^;]*)`)) ||
 ok(!/(?<!wasm-)unsafe-eval|unsafe-inline/.test(directive('script-src')) && /^'self'/.test(directive('script-src')), 'the CSP for extension pages must be script-src \'self\' (with wasm-unsafe-eval only)');
 for (const d of ['img-src', 'font-src', 'media-src', 'style-src']) ok(directive(d) && !/(https?:|\*|\/\/)/.test(directive(d)), `the CSP must keep ${d} to the extension itself (a theme file must not be able to make a page call out)`);
 ok(!/https?:\/\/(?!127\.0\.0\.1|localhost)/.test(csp), 'the CSP names a remote host');
-if (/wasm-unsafe-eval/.test(csp)) ok(listing.includes('wasm-unsafe-eval'), "the CSP has 'wasm-unsafe-eval' and store/LISTING.md does not explain it (a reviewer asks)");
 
 // 4. listings
 const langs = ['en', 'ru', 'es', 'de', 'fr', 'pt', 'it', 'pl', 'uk', 'zh', 'ja', 'ro'];

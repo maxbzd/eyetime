@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
-// The person's own photograph and what is made from it (the cut-out subject and the depth map): kept in IndexedDB, not in chrome.storage.local.
+// The person's own photograph (and its foreground mask, when a theme file brings one): kept in IndexedDB, not in chrome.storage.local.
 //
 // Why: they are megabytes of data URL. In chrome.storage.local they shared the 10 MB cap with the whole history, were copied into a change event for every open page
 // each time one of them was written, and were read again by every "read everything" (the daily clean-up, a backup). IndexedDB has room for them and none of those costs.
 //
 //   kinds:  'bg'    the photo (data URL)                       (formerly the storage key newtabBg)
-//           'fg'    its cut-out subject (PNG data URL)          (newtabFg)
-//           'depth' { key, png }: the depth map and the key of the photo it was made from   (newtabDepth)
+//           'fg'    its foreground mask (PNG data URL)          (newtabFg)
 //
 // A photo that an earlier version left in chrome.storage.local is moved here the first time it is read (and removed from there), so nothing is lost on update.
 // IndexedDB has no change events across pages, so every write also bumps `photoRev` in chrome.storage.local; pages listen to that key.
 
-const LEGACY = { bg: 'newtabBg', fg: 'newtabFg', depth: 'newtabDepth' };
+const LEGACY = { bg: 'newtabBg', fg: 'newtabFg' };
 export const PHOTO_KINDS = Object.keys(LEGACY);
 export const REV_KEY = 'photoRev';
 const DB_NAME = 'eyetime-photos', STORE = 'photos';
@@ -64,14 +63,16 @@ export function makePhotos(backend, local) {
   }
   return {
     getPhoto,
-    /** several at once: { bg, fg, depth } for the kinds asked (null where there is none) */
+    /** several at once: { bg, fg } for the kinds asked (null where there is none) */
     async getPhotos(/** @type {string[]} */ kinds) { return Object.fromEntries(await Promise.all(kinds.map(async (k) => [k, await getPhoto(k)]))); },
     async setPhoto(/** @type {string} */ kind, /** @type {any} */ value) { check(kind); await be.set(kind, value); await area().remove(LEGACY[kind]); await bump(); },
     async removePhotos(/** @type {string[]} */ kinds) { kinds.forEach(check); await be.del(kinds); await area().remove(kinds.map((k) => LEGACY[k])); await bump(); },
+    /** the depth map of the 3D photo, a part that was taken away: what an earlier version stored is deleted (nothing reads it any more) */
+    async dropDepth() { try { await be.del(['depth']); } catch { /* none */ } await area().remove(['newtabDepth']); },
     /** everything (a reset of all data) */
     async clearPhotos() { try { await be.clear(); } catch { /* nothing to clear */ } await area().remove(Object.values(LEGACY)); await bump(); }, // the other open tabs learn of it
   };
 }
 
 const shared = makePhotos();
-export const { getPhoto, getPhotos, setPhoto, removePhotos, clearPhotos } = shared;
+export const { getPhoto, getPhotos, setPhoto, removePhotos, clearPhotos, dropDepth } = shared;

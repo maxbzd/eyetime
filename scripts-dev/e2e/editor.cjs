@@ -136,7 +136,7 @@ const AXE = fs.readFileSync(path.join(require.resolve('axe-core'), '../axe.min.j
   const widgets = () => p.evaluate(async () => (await (await import('/src/shared/storage.js')).getSettings()).newtab.widgets);
   await p.click('.cv-bar button:has-text("Add widget")'); await p.waitForTimeout(500);
   await p.locator('.wg-cats .chip', { hasText: 'All' }).click(); await p.waitForTimeout(300); 
-  ok(await p.locator('.cv-panel .wg-tile').count() === 46, 'the gallery lists all 46 widgets: ' + await p.locator('.cv-panel .wg-tile').count());
+  ok(await p.locator('.cv-panel .wg-tile').count() === 35, 'the gallery lists all 35 widgets: ' + await p.locator('.cv-panel .wg-tile').count());
   await p.locator('.cv-panel .wg-tile', { hasText: 'Countdown' }).click(); await p.waitForTimeout(900);
   let ws = await widgets();
   ok(ws.length === 1 && ws[0].kind === 'countdown', 'adding a widget saves it: ' + JSON.stringify(ws));

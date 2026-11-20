@@ -13,7 +13,7 @@ EYETIME_BUILD=source node scripts-dev/pack.mjs     # the same zips with the sour
 
 - Each page's script becomes **one bundle** (the new tab loads 2 scripts instead of 131), minified; style sheets are minified one for one. Names of exports and every string are kept: it is
   smaller, not obfuscated.
-- Files that are loaded **by their path** at run time stay where they are: the workers and the engine of the on-device models (`src/newtab/ml/`), the content scripts, the pages, the language
+- Files that are loaded **by their path** at run time stay where they are: the content scripts, the pages, the language
   files (`src/shared/locales/data/*.json`), photographs, sounds.
 - A module that went into a bundle is not shipped a second time. Nothing may use `import.meta.url` (it names the bundle in the build); `npm run check` fails if something does.
 - The zip is written by `scripts-dev/zip.mjs`: entries in byte order, a fixed time stamp, a fixed compression level. **The same source gives the same bytes.**

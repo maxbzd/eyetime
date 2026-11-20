@@ -17,9 +17,6 @@ const sha = (f) => crypto.createHash('sha256').update(fs.readFileSync(f)).digest
 
 const lic = (id) => ({ license: { id } });
 const components = [
-  { type: 'library', name: 'onnxruntime-web', version: (read('src/newtab/ml/ort.wasm.min.mjs').match(/ONNX Runtime Web v([\d.]+)/) || [])[1] || 'unknown', supplier: { name: 'Microsoft' }, licenses: [lic('MIT')], description: 'WebAssembly engine that runs the two on-device models (src/newtab/ml/ort*)', purl: 'pkg:npm/onnxruntime-web' },
-  { type: 'machine-learning-model', name: 'Depth Anything V2 Small (8-bit ONNX export)', supplier: { name: 'Depth Anything team; ONNX export by onnx-community' }, licenses: [lic('Apache-2.0')], description: 'depth map of the person\'s own photo, on the device (src/newtab/ml/depth-anything-v2-small-q8.onnx)' },
-  { type: 'machine-learning-model', name: 'U2-Netp', supplier: { name: 'Xuebin Qin et al.' }, licenses: [lic('Apache-2.0')], description: 'cut-out of the subject of the person\'s own photo, on the device (src/newtab/ml/u2netp.onnx)' },
   { type: 'library', name: 'Lucide icons', supplier: { name: 'Lucide Contributors' }, licenses: [lic('ISC')], description: 'the icons (src/ui/icons.js, generated from the ones the code uses)', purl: 'pkg:npm/lucide-static' },
 ];
 // fonts: one component per licence file; the licence is read from the file, not assumed

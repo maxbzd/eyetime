@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeDepth, frontLayers, parallaxStrength, glShift, GL_SHIFT_MAX, DEPTH_SCENES, DEPTH_DEFAULT } from '../../src/shared/depth.js';
+import { normalizeDepth, frontLayers, parallaxStrength, DEPTH_SCENES, DEPTH_DEFAULT } from '../../src/shared/depth.js';
 
 test('normalizeDepth: on by default, clamped, never throws', () => {
   assert.deepEqual(normalizeDepth(undefined), DEPTH_DEFAULT);
@@ -26,19 +26,4 @@ test('parallaxStrength: 1 at the default, 0 when off', () => {
   assert.equal(parallaxStrength({ parallax: false }), 0);
   assert.equal(parallaxStrength({ strength: 0 }), 0);
   assert.equal(parallaxStrength({ strength: 100 }), 100 / 60);
-});
-
-test('3D photo settings: off by default, validated; its front layer exists only when the clock goes behind the nearest things', () => {
-  assert.equal(DEPTH_DEFAULT.volume, false); assert.equal(DEPTH_DEFAULT.behind, false);
-  assert.deepEqual(normalizeDepth({ volume: 'yes', behind: 1, cut: 5000, sway: 0 }), { ...DEPTH_DEFAULT, cut: 95, sway: true });
-  assert.equal(normalizeDepth({ cut: -4 }).cut, 10); assert.equal(normalizeDepth({ volume: true, behind: true, sway: false }).sway, false);
-  assert.deepEqual(frontLayers('photo-3d', { volume: true }), []);
-  assert.deepEqual(frontLayers('photo-3d', { volume: true, behind: true }).map((l) => l.cls), ['dl-gl']);
-  assert.deepEqual(frontLayers('photo-3d', { on: false, behind: true }), []);
-  assert.equal(DEPTH_SCENES['photo-3d'].front[0].k, 0); // the GL layer moves itself
-});
-
-test('glShift: follows the strength, none without parallax', () => {
-  assert.equal(glShift({ strength: 100 }), GL_SHIFT_MAX); assert.equal(glShift({ strength: 0 }), 0); assert.equal(glShift({ parallax: false }), 0);
-  assert.ok(Math.abs(glShift({}) - 0.6 * GL_SHIFT_MAX) < 1e-9);
 });

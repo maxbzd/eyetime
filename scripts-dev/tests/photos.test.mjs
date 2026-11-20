@@ -10,8 +10,8 @@ const fakeLocal = (data = {}) => ({ data, async get(keys) { return Object.fromEn
 test('photos: a photo is stored and read back, one kind never shows another, and nothing is in chrome.storage', async () => {
   const be = mapBackend(), local = fakeLocal(), p = makePhotos(be, local);
   assert.equal(await p.getPhoto('bg'), null);
-  await p.setPhoto('bg', 'data:image/jpeg;base64,AAAA'); await p.setPhoto('fg', 'data:image/png;base64,BBBB'); await p.setPhoto('depth', { key: 'k', png: 'data:image/png;base64,CCCC' });
-  assert.equal(await p.getPhoto('bg'), 'data:image/jpeg;base64,AAAA'); assert.equal(await p.getPhoto('fg'), 'data:image/png;base64,BBBB'); assert.deepEqual(await p.getPhoto('depth'), { key: 'k', png: 'data:image/png;base64,CCCC' });
+  await p.setPhoto('bg', 'data:image/jpeg;base64,AAAA'); await p.setPhoto('fg', 'data:image/png;base64,BBBB');
+  assert.equal(await p.getPhoto('bg'), 'data:image/jpeg;base64,AAAA'); assert.equal(await p.getPhoto('fg'), 'data:image/png;base64,BBBB');
   assert.deepEqual(Object.keys(local.data), [REV_KEY], 'only the revision counter is in the storage that every page hears about');
   assert.deepEqual(await p.getPhotos(['bg', 'fg']), { bg: 'data:image/jpeg;base64,AAAA', fg: 'data:image/png;base64,BBBB' });
 });
@@ -24,11 +24,11 @@ test('photos: every write bumps the revision that pages listen to', async () => 
 });
 
 test('photos: a photo left in chrome.storage.local by an earlier version is moved the first time it is read, not copied, and not lost', async () => {
-  const be = mapBackend(), local = fakeLocal({ newtabBg: 'old-bg', newtabFg: 'old-fg', newtabDepth: { key: 'k', png: 'p' }, settings: { keep: 1 } }), p = makePhotos(be, local);
+  const be = mapBackend(), local = fakeLocal({ newtabBg: 'old-bg', newtabFg: 'old-fg', settings: { keep: 1 } }), p = makePhotos(be, local);
   assert.equal(await p.getPhoto('bg'), 'old-bg');
   assert.equal('newtabBg' in local.data, false, 'the storage gets its room back'); assert.equal(be.m.get('bg'), 'old-bg');
   assert.equal(await p.getPhoto('bg'), 'old-bg', 'and it is still there on the next read');
-  assert.deepEqual(await p.getPhotos(['fg', 'depth']), { fg: 'old-fg', depth: { key: 'k', png: 'p' } });
+  assert.deepEqual(await p.getPhotos(['fg']), { fg: 'old-fg' });
   assert.deepEqual(local.data.settings, { keep: 1 }, 'nothing else is touched');
 });
 
@@ -37,13 +37,13 @@ test('photos: removing takes the photo from both places, and an unknown kind is 
   await p.setPhoto('fg', 'new'); await p.removePhotos(['fg']);
   assert.equal(await p.getPhoto('fg'), null); assert.equal('newtabFg' in local.data, false);
   await assert.rejects(p.getPhoto('nope'), /unknown photo kind/); await assert.rejects(p.setPhoto('newtabBg', 'x'), /unknown photo kind/); await assert.rejects(p.removePhotos(['bg', 'zzz']), /unknown photo kind/);
-  assert.deepEqual(PHOTO_KINDS, ['bg', 'fg', 'depth']);
+  assert.deepEqual(PHOTO_KINDS, ['bg', 'fg']);
 });
 
 test('photos: clearing removes everything, the legacy keys too', async () => {
-  const be = mapBackend(), local = fakeLocal({ newtabBg: 'a', newtabDepth: 'b' }), p = makePhotos(be, local);
+  const be = mapBackend(), local = fakeLocal({ newtabBg: 'a', newtabFg: 'b' }), p = makePhotos(be, local);
   await p.setPhoto('fg', 'c'); await p.clearPhotos();
-  assert.equal(be.m.size, 0); assert.equal('newtabBg' in local.data || 'newtabDepth' in local.data, false);
+  assert.equal(be.m.size, 0); assert.equal('newtabBg' in local.data || 'newtabFg' in local.data, false);
 });
 
 test('photos: where IndexedDB is not available a photo is simply absent (the page still comes up), and a reset tells the other tabs', async () => {
@@ -56,4 +56,11 @@ test('photos: where IndexedDB is not available a photo is simply absent (the pag
   await q.setPhoto('bg', 'x'); const before = fine.data[REV_KEY];
   await new Promise((r) => setTimeout(r, 5)); await q.clearPhotos();
   assert.ok(fine.data[REV_KEY] > before, 'clearing everything is a change the other tabs hear about');
+});
+
+test('photos: the depth map of a retired 3D photo is deleted from both places, and the other photos stay', async () => {
+  const be = mapBackend(), local = fakeLocal({ newtabDepth: { key: 'k', png: 'p' } }), p = makePhotos(be, local);
+  await be.set('depth', { key: 'k', png: 'p' }); await p.setPhoto('bg', 'keep');
+  await p.dropDepth();
+  assert.equal(be.m.has('depth'), false); assert.equal('newtabDepth' in local.data, false); assert.equal(await p.getPhoto('bg'), 'keep');
 });

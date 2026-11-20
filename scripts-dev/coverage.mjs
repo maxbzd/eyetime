@@ -12,7 +12,6 @@ const FLOOR = { lines: 93, branches: 85, functions: 80 };
 const r = spawnSync(process.execPath, [
   '--experimental-test-coverage',
   '--test-coverage-include=src/**',
-  '--test-coverage-exclude=src/newtab/ml/**',
   `--test-coverage-lines=${FLOOR.lines}`, `--test-coverage-branches=${FLOOR.branches}`, `--test-coverage-functions=${FLOOR.functions}`,
   '--test', ...readdirSync('scripts-dev/tests').filter((f) => f.endsWith('.test.mjs')).map((f) => 'scripts-dev/tests/' + f),
 ], { stdio: 'inherit' });

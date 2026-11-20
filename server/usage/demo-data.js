@@ -47,8 +47,7 @@ export function makeDemoSnapshot(now, { installs: count = 520, seed = 11 } = {})
     }
     const lastActive = act[act.length - 1];
     const reportAge = Math.min(installAgo, lastActive + Math.floor(r() * 6)); // a person who stopped using it stops reporting a few days later
-    const lastReport = (day0 + reportAge) * DAY + Math.floor(r() * DAY * 0.9);
-    if (lastReport > now) continue;
+    const lastReport = Math.min(now - 1, (day0 + reportAge) * DAY + Math.floor(r() * DAY * 0.9)); // not later than now: a person who reported "today" in the first hours of the day still counts (dropping them took the daily users away just after midnight)
     const age = Math.floor(lastReport / DAY) - day0;
     const acts = act.filter((a) => a <= age);
     out.installs.push({
