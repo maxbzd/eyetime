@@ -191,7 +191,7 @@ export const en = {
   'sec.appearance': 'Appearance', 'sec.appearanceDesc': "Make Elvani yours: complete styles with their own scenes, any accent color, your own type, shape and density.",
   'look.calm': 'Calm', 'look.paper': 'Paper', 'look.midnight': 'Midnight', 'look.terminal': 'Terminal', 'look.sakura': 'Sakura', 'look.forest': 'Forest',
   'look.aurora': 'Aurora', 'look.mono': 'Mono', 'look.sunset': 'Sunset', 'look.nord': 'Nord', 'look.ocean': 'Ocean',
-  'lookd.calm': 'The default: warm, soft and friendly.', 'lookd.paper': 'A reading-room feel: serif headings on warm paper.', 'lookd.midnight': 'Deep blue-black with glass cards and a glowing accent.',
+  'lookd.calm': 'The default: warm, soft and friendly.', 'lookd.paper': 'A reading-room feel: serif headings on warm paper.', 'look.lumen': 'Lumen', 'lookd.lumen': 'Sunlit cream and a warm amber glow, like a window in the afternoon.', 'look.glacier': 'Glacier', 'lookd.glacier': 'Pale ice, cold air and a clear blue line. Very quiet.', 'look.graphite': 'Graphite', 'lookd.graphite': 'Neutral grey, sharp type and one indigo accent. Built for long working days.', 'lookd.midnight': 'Deep blue-black with glass cards and a glowing accent.',
   'lookd.terminal': 'Green phosphor, monospace, sharp corners.', 'lookd.sakura': 'Gentle pinks and big round corners.', 'lookd.forest': 'Mossy greens, calm and grounded.',
   'lookd.aurora': 'Violet-to-teal glow over a dark sky.', 'lookd.mono': 'Pure black and white, outlines, no color noise.', 'lookd.sunset': 'Warm coral and amber, golden-hour light.',
   'lookd.nord': 'Cool arctic blues with a restrained palette.', 'lookd.ocean': 'Fresh aqua and deep sea blues.',

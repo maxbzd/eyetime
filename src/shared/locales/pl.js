@@ -191,7 +191,7 @@ export const pl = {
   'sec.appearance': 'Wygląd', 'sec.appearanceDesc': "Ustaw Elvani po swojemu: kompletne style z własnymi scenami, dowolny kolor akcentu, własna czcionka, kształt i gęstość.",
   'look.calm': 'Spokojny', 'look.paper': 'Papier', 'look.midnight': 'Północ', 'look.terminal': 'Terminal', 'look.sakura': 'Sakura', 'look.forest': 'Las',
   'look.aurora': 'Zorza', 'look.mono': 'Mono', 'look.sunset': 'Zachód słońca', 'look.nord': 'Nord', 'look.ocean': 'Ocean',
-  'lookd.calm': 'Domyślny: ciepły, łagodny i przyjazny.', 'lookd.paper': 'Klimat czytelni: szeryfowe nagłówki na ciepłym papierze.', 'lookd.midnight': 'Głęboka granatowa czerń, szklane kafelki i świecący akcent.',
+  'lookd.calm': 'Domyślny: ciepły, łagodny i przyjazny.', 'lookd.paper': 'Klimat czytelni: szeryfowe nagłówki na ciepłym papierze.', 'look.lumen': 'Lumen', 'lookd.lumen': 'Słoneczny krem i ciepły bursztynowy blask, jak okno po południu.', 'look.glacier': 'Lodowiec', 'lookd.glacier': 'Blady lód, zimne powietrze i wyraźna niebieska linia. Bardzo cicho.', 'look.graphite': 'Grafit', 'lookd.graphite': 'Neutralna szarość, wyraźna czcionka i jeden indygowy akcent. Na długie dni pracy.', 'lookd.midnight': 'Głęboka granatowa czerń, szklane kafelki i świecący akcent.',
   'lookd.terminal': 'Zielony fosfor, czcionka monospace, ostre rogi.', 'lookd.sakura': 'Delikatne róże i duże, zaokrąglone rogi.', 'lookd.forest': 'Mszaste zielenie, spokój i stabilność.',
   'lookd.aurora': 'Blask od fioletu do turkusu na ciemnym niebie.', 'lookd.mono': 'Czysta czerń i biel, kontury, bez kolorowego szumu.', 'lookd.sunset': 'Ciepły koral i bursztyn, światło złotej godziny.',
   'lookd.nord': 'Chłodne arktyczne błękity i powściągliwa paleta.', 'lookd.ocean': 'Świeży akwamaryn i błękity głębin.',

@@ -191,7 +191,7 @@ export const ja = {
   'sec.appearance': '外観', 'sec.appearanceDesc': "Elvaniを自分好みに。独自のシーンを持つスタイル、好きなアクセントカラー、書体・形・密度を選べます。",
   'look.calm': 'カーム', 'look.paper': 'ペーパー', 'look.midnight': 'ミッドナイト', 'look.terminal': 'ターミナル', 'look.sakura': 'さくら', 'look.forest': 'フォレスト',
   'look.aurora': 'オーロラ', 'look.mono': 'モノ', 'look.sunset': 'サンセット', 'look.nord': 'ノルド', 'look.ocean': 'オーシャン',
-  'lookd.calm': '標準。あたたかく、やわらかで親しみやすい。', 'lookd.paper': '読書室の雰囲気。あたたかい紙に明朝調の見出し。', 'lookd.midnight': '深い青黒に、ガラス調のカードと輝くアクセント。',
+  'lookd.calm': '標準。あたたかく、やわらかで親しみやすい。', 'lookd.paper': '読書室の雰囲気。あたたかい紙に明朝調の見出し。', 'look.lumen': 'ルーメン', 'lookd.lumen': '日だまりのクリーム色と、午後の窓のようなあたたかな琥珀の光。', 'look.glacier': '氷河', 'lookd.glacier': '淡い氷の色、冷たい空気、澄んだ青い線。とても静かです。', 'look.graphite': 'グラファイト', 'lookd.graphite': 'ニュートラルなグレー、くっきりした文字、インディゴのアクセント。長い仕事の日のために。', 'lookd.midnight': '深い青黒に、ガラス調のカードと輝くアクセント。',
   'lookd.terminal': '緑色の蛍光表示、等幅フォント、角ばった形。', 'lookd.sakura': 'やさしいピンクと大きな丸み。', 'lookd.forest': '苔のようなグリーンで、穏やかに落ち着く。',
   'lookd.aurora': '暗い夜空に広がる、紫からティールへの輝き。', 'lookd.mono': '純粋な白と黒、輪郭線、色のノイズなし。', 'lookd.sunset': 'あたたかいコーラルとアンバー、夕暮れの光。',
   'lookd.nord': '落ち着いた配色の、冷たい北極の青。', 'lookd.ocean': 'さわやかなアクアと深い海の青。',

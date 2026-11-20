@@ -191,7 +191,7 @@ export const de = {
   'sec.appearance': 'Darstellung', 'sec.appearanceDesc': "Mach Elvani zu deinem: komplette Stile mit eigenen Szenen, jede Akzentfarbe, eigene Schrift, Form und Dichte.",
   'look.calm': 'Ruhig', 'look.paper': 'Papier', 'look.midnight': 'Mitternacht', 'look.terminal': 'Terminal', 'look.sakura': 'Sakura', 'look.forest': 'Wald',
   'look.aurora': 'Aurora', 'look.mono': 'Mono', 'look.sunset': 'Abendrot', 'look.nord': 'Nord', 'look.ocean': 'Ozean',
-  'lookd.calm': 'Der Standard: warm, weich und freundlich.', 'lookd.paper': 'Lesesaal-Gefühl: Serifen-Überschriften auf warmem Papier.', 'lookd.midnight': 'Tiefes Blauschwarz mit Glaskarten und leuchtendem Akzent.',
+  'lookd.calm': 'Der Standard: warm, weich und freundlich.', 'lookd.paper': 'Lesesaal-Gefühl: Serifen-Überschriften auf warmem Papier.', 'look.lumen': 'Lumen', 'lookd.lumen': 'Sonniges Creme und warmes Bernsteinlicht, wie ein Fenster am Nachmittag.', 'look.glacier': 'Gletscher', 'lookd.glacier': 'Blasses Eis, kalte Luft und eine klare blaue Linie. Sehr ruhig.', 'look.graphite': 'Graphit', 'lookd.graphite': 'Neutrales Grau, scharfe Schrift und ein Indigo-Akzent. Für lange Arbeitstage.', 'lookd.midnight': 'Tiefes Blauschwarz mit Glaskarten und leuchtendem Akzent.',
   'lookd.terminal': 'Grünes Phosphor, Monospace, scharfe Ecken.', 'lookd.sakura': 'Zarte Rosatöne und große runde Ecken.', 'lookd.forest': 'Moosgrün, ruhig und erdend.',
   'lookd.aurora': 'Violett-türkises Leuchten über dunklem Himmel.', 'lookd.mono': 'Reines Schwarz und Weiß, Umrisse, kein Farbrauschen.', 'lookd.sunset': 'Warmes Koralle und Bernstein, Licht der goldenen Stunde.',
   'lookd.nord': 'Kühle arktische Blautöne mit zurückhaltender Palette.', 'lookd.ocean': 'Frisches Aqua und tiefe Meeresblautöne.',

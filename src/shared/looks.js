@@ -107,6 +107,21 @@ export const LOOKS = {
     light: { bg: '#efeee9', surface: '#ffffff', surface2: '#f5f4f0', surface3: '#ebe9e3', text: '#171612', accent: '#171612', border: '#e6e4de', borderStrong: '#cfccc3' },
     dark: { bg: '#0b0b0c', surface: '#151517', surface2: '#1e1e21', surface3: '#29292c', text: '#f2f1ec', accent: '#f2c14e', border: '#232326', borderStrong: '#3a3a3e' },
   },
+  lumen: {
+    name: 'Lumen', blurb: 'Sunlit cream and a warm amber glow, like a window in the afternoon.', font: 'inter', display: 'literata', radii: [10, 14, 20, 28], cards: 'solid', shadow: 'soft', borderW: 1, headingW: 560, headingLs: '-.015em', homeBg: 'ember',
+    light: { bg: '#f8efdc', surface: '#fffaf0', text: '#2a1c05', accent: '#a85a06', border: '#ead9b8', borderStrong: '#d3bd92' },
+    dark: { bg: '#130f09', surface: '#1c160e', text: '#f6ead2', accent: '#f2c14e', border: '#33291a', borderStrong: '#54442b' },
+  },
+  glacier: {
+    name: 'Glacier', blurb: 'Pale ice, cold air and a clear blue line. Very quiet.', font: 'manrope', display: 'manrope', radii: [8, 12, 18, 26], cards: 'solid', shadow: 'airy', borderW: 1, headingW: 650, headingLs: '-.02em', homeBg: 'contour',
+    light: { bg: '#e8f0f6', surface: '#ffffff', text: '#0c1b2a', accent: '#1a64a0', border: '#d2e0ec', borderStrong: '#adc4d8' },
+    dark: { bg: '#050c13', surface: '#0c1721', text: '#e3eef7', accent: '#7cc4f0', border: '#18283a', borderStrong: '#2b4560' },
+  },
+  graphite: {
+    name: 'Graphite', blurb: 'Neutral grey, sharp type and one indigo accent. Built for long working days.', font: 'inter', display: 'inter', radii: [5, 8, 12, 18], cards: 'outline', shadow: 'none', borderW: 1, headingW: 650, headingLs: '-.025em', homeBg: 'grid',
+    light: { bg: '#ebedf0', surface: '#ffffff', text: '#14171a', accent: '#3550d4', border: '#d8dce1', borderStrong: '#b6bcc5' },
+    dark: { bg: '#0d0e10', surface: '#15171a', text: '#e8eaed', accent: '#97a9ff', border: '#25282d', borderStrong: '#3d424a' },
+  },
   paper: {
     name: 'Paper', blurb: 'Parchment and serif type, like a well-set book.', font: 'serif', display: 'serif', radii: [3, 5, 8, 12], cards: 'solid', shadow: 'soft', borderW: 1, headingW: 600, headingLs: '-.01em', homeBg: 'grain',
     light: { bg: '#f1e9d8', surface: '#faf5e8', text: '#2a2118', accent: '#9c3d1c', border: '#ddd1b8' },
@@ -217,7 +232,7 @@ export const LOOKS = {
     dark: { bg: '#041217', surface: '#09202a', text: '#dff4f8', accent: '#38bdf8' },
   },
 };
-const FIRST = ['linen', 'phosphor', 'liquid', 'nocturne', 'brutal', 'zen', 'synthwave', 'moss', 'swiss', 'ink', 'candy', 'abyss', 'calm', 'obsidian', 'void', 'noir', 'pearl', 'bento', 'spectrum', 'tide', 'ledger', 'vital', 'aura']; // the gallery order: the default, then the newest
+const FIRST = ['linen', 'phosphor', 'liquid', 'nocturne', 'brutal', 'zen', 'synthwave', 'moss', 'swiss', 'ink', 'candy', 'abyss', 'calm', 'lumen', 'glacier', 'graphite', 'obsidian', 'void', 'noir', 'pearl', 'bento', 'spectrum', 'tide', 'ledger', 'vital', 'aura']; // the gallery order: the default, then the newest
 export const LOOK_IDS = [...FIRST, ...Object.keys(LOOKS).filter((id) => !FIRST.includes(id))];
 /** Looks shown first in the gallery (none now); the rest sit under "Classic" once there are some. */
 export const NEW_LOOK_IDS = [];
