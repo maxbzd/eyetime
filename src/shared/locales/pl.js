@@ -208,7 +208,7 @@ export const pl = {
   'ap.share': 'Udostępnij swój styl', 'ap.shareDesc': 'Skopiuj ustawienia wyglądu jako tekst albo wklej cudze. Dane nigdy nie są dołączane.', 'ap.copy': 'Kopiuj styl', 'ap.copied': 'Skopiowano styl',
   'ap.import': 'Importuj styl', 'ap.importTitle': 'Importuj styl', 'ap.importDesc': 'Wklej styl, który ktoś Ci udostępnił.', 'ap.importBad': 'To nie wygląda na poprawny styl Elvani.',
   'ap.reset': 'Przywróć wygląd', 'ap.resetTitle': 'Przywrócić wygląd?', 'ap.resetBody': 'Styl, kolory, czcionka i własny CSS wrócą do ustawień domyślnych. Twoje dane pozostaną nietknięte.',
-  'bg.look': 'Ze stylu', 'bg.mesh': 'Siatka', 'bg.aurora': 'Zorza', 'bg.stars': 'Nocne niebo', 'bg.waves': 'Fale', 'bg.grain': 'Ziarno', 'bg.dots': 'Kropki', 'bg.sphere': 'Sfera', 'bg.grid': 'Kratka', 'bg.living': 'Żywe', 'bg.color': 'Kolor',
+  'bg.look': 'Ze stylu', 'bg.mesh': 'Siatka', 'bg.aurora': 'Zorza', 'bg.stars': 'Nocne niebo', 'bg.waves': 'Fale', 'bg.grain': 'Ziarno', 'bg.dots': 'Kropki', 'bg.sphere': 'Sfera', 'bg.contour': 'Warstwice', 'bg.ember': 'Żar', 'bg.grid': 'Kratka', 'bg.living': 'Żywe', 'bg.color': 'Kolor',
   'home.bgColor': 'Kolor tła', 'home.layout': 'Układ', 'home.clockStyle': 'Styl zegara', 'home.moveUp': 'Przesuń w górę', 'home.moveDown': 'Przesuń w dół', 'home.moreAppearance': 'Więcej opcji wyglądu', 'home.showCards': 'Kafelki',
   'layout.center': 'Wyśrodkowany', 'layout.split': 'Podzielony', 'layout.minimal': 'Minimalny',
   'clock.thin': 'Cienki', 'clock.bold': 'Gruby', 'clock.mono': 'Mono', 'clock.serif': 'Szeryfowy', 'clock.compact': 'Zwarty', 'clock.stacked': 'Piętrowy', 'clock.none': 'Ukryty',

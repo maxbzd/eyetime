@@ -207,7 +207,7 @@ export const es = {
   'ap.share': 'Comparte tu estilo', 'ap.shareDesc': 'Copia tus ajustes de apariencia como texto o pega los de otra persona. Nunca incluye datos.', 'ap.copy': 'Copiar estilo', 'ap.copied': 'Estilo copiado',
   'ap.import': 'Importar estilo', 'ap.importTitle': 'Importar un estilo', 'ap.importDesc': 'Pega un estilo que alguien haya compartido contigo.', 'ap.importBad': 'Eso no parece un estilo de Elvani válido.',
   'ap.reset': 'Restablecer apariencia', 'ap.resetTitle': '¿Restablecer la apariencia?', 'ap.resetBody': 'El estilo, los colores, la tipografía y el CSS personalizado vuelven a los valores predeterminados. Tus datos no se tocan.',
-  'bg.look': 'Del estilo', 'bg.mesh': 'Malla', 'bg.aurora': 'Aurora', 'bg.stars': 'Cielo nocturno', 'bg.waves': 'Olas', 'bg.grain': 'Grano', 'bg.dots': 'Puntos', 'bg.sphere': 'Esfera', 'bg.grid': 'Cuadrícula', 'bg.living': 'Vivo', 'bg.color': 'Color',
+  'bg.look': 'Del estilo', 'bg.mesh': 'Malla', 'bg.aurora': 'Aurora', 'bg.stars': 'Cielo nocturno', 'bg.waves': 'Olas', 'bg.grain': 'Grano', 'bg.dots': 'Puntos', 'bg.sphere': 'Esfera', 'bg.contour': 'Relieve', 'bg.ember': 'Brasas', 'bg.grid': 'Cuadrícula', 'bg.living': 'Vivo', 'bg.color': 'Color',
   'home.bgColor': 'Color de fondo', 'home.layout': 'Diseño', 'home.clockStyle': 'Estilo del reloj', 'home.moveUp': 'Subir', 'home.moveDown': 'Bajar', 'home.moreAppearance': 'Más opciones de apariencia', 'home.showCards': 'Tarjetas',
   'layout.center': 'Centrado', 'layout.split': 'Dividido', 'layout.minimal': 'Mínimo',
   'clock.thin': 'Fina', 'clock.bold': 'Negrita', 'clock.mono': 'Mono', 'clock.serif': 'Serif', 'clock.compact': 'Compacta', 'clock.stacked': 'Apilada', 'clock.none': 'Oculto',

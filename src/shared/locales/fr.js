@@ -208,7 +208,7 @@ export const fr = {
   'ap.share': 'Partager ton style', 'ap.shareDesc': 'Copie tes réglages d’apparence sous forme de texte, ou colle ceux de quelqu’un d’autre. Aucune donnée n’est incluse.', 'ap.copy': 'Copier le style', 'ap.copied': 'Style copié',
   'ap.import': 'Importer un style', 'ap.importTitle': 'Importer un style', 'ap.importDesc': 'Colle un style qu’on t’a partagé.', 'ap.importBad': 'Ça ne ressemble pas à un style Elvani valide.',
   'ap.reset': 'Réinitialiser l’apparence', 'ap.resetTitle': 'Réinitialiser l’apparence ?', 'ap.resetBody': 'Style, couleurs, typo et CSS perso reviennent aux valeurs par défaut. Tes données ne sont pas touchées.',
-  'bg.look': 'Celui du style', 'bg.mesh': 'Maille', 'bg.aurora': 'Aurore', 'bg.stars': 'Ciel nocturne', 'bg.waves': 'Vagues', 'bg.grain': 'Grain', 'bg.dots': 'Points', 'bg.sphere': 'Sphère', 'bg.grid': 'Grille', 'bg.living': 'Vivant', 'bg.color': 'Couleur',
+  'bg.look': 'Celui du style', 'bg.mesh': 'Maille', 'bg.aurora': 'Aurore', 'bg.stars': 'Ciel nocturne', 'bg.waves': 'Vagues', 'bg.grain': 'Grain', 'bg.dots': 'Points', 'bg.sphere': 'Sphère', 'bg.contour': 'Relief', 'bg.ember': 'Braises', 'bg.grid': 'Grille', 'bg.living': 'Vivant', 'bg.color': 'Couleur',
   'home.bgColor': 'Couleur d’arrière-plan', 'home.layout': 'Disposition', 'home.clockStyle': 'Style de l’horloge', 'home.moveUp': 'Monter', 'home.moveDown': 'Descendre', 'home.moreAppearance': 'Plus d’options d’apparence', 'home.showCards': 'Cartes',
   'layout.center': 'Centrée', 'layout.split': 'Séparée', 'layout.minimal': 'Minimale',
   'clock.thin': 'Fine', 'clock.bold': 'Grasse', 'clock.mono': 'Mono', 'clock.serif': 'Serif', 'clock.compact': 'Compacte', 'clock.stacked': 'Empilée', 'clock.none': 'Masquée',

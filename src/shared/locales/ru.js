@@ -205,7 +205,7 @@ export const ru = {
   'ap.share': 'Поделиться стилем', 'ap.shareDesc': 'Скопируйте настройки оформления текстом или вставьте чужие. Данные не передаются.', 'ap.copy': 'Копировать стиль', 'ap.copied': 'Стиль скопирован',
   'ap.import': 'Импорт стиля', 'ap.importTitle': 'Импорт стиля', 'ap.importDesc': 'Вставьте стиль, которым с вами поделились.', 'ap.importBad': 'Это не похоже на стиль Elvani.',
   'ap.reset': 'Сбросить оформление', 'ap.resetTitle': 'Сбросить оформление?', 'ap.resetBody': 'Стиль, цвета, шрифт и свой CSS вернутся к значениям по умолчанию. Данные не затрагиваются.',
-  'bg.look': 'Как в стиле', 'bg.mesh': 'Сетка цвета', 'bg.aurora': 'Аврора', 'bg.stars': 'Ночное небо', 'bg.waves': 'Волны', 'bg.grain': 'Зерно', 'bg.dots': 'Точки', 'bg.sphere': 'Сфера', 'bg.grid': 'Сетка', 'bg.living': 'Живой', 'bg.color': 'Цвет',
+  'bg.look': 'Как в стиле', 'bg.mesh': 'Сетка цвета', 'bg.aurora': 'Аврора', 'bg.stars': 'Ночное небо', 'bg.waves': 'Волны', 'bg.grain': 'Зерно', 'bg.dots': 'Точки', 'bg.sphere': 'Сфера', 'bg.contour': 'Рельеф', 'bg.ember': 'Угли', 'bg.grid': 'Сетка', 'bg.living': 'Живой', 'bg.color': 'Цвет',
   'home.bgColor': 'Цвет фона', 'home.layout': 'Раскладка', 'home.clockStyle': 'Стиль часов', 'home.moveUp': 'Выше', 'home.moveDown': 'Ниже', 'home.moreAppearance': 'Больше настроек оформления', 'home.showCards': 'Карточки',
   'layout.center': 'По центру', 'layout.split': 'Две колонки', 'layout.minimal': 'Минимум',
   'clock.thin': 'Тонкие', 'clock.bold': 'Жирные', 'clock.mono': 'Моно', 'clock.serif': 'С засечками', 'clock.compact': 'Компактные', 'clock.stacked': 'В столбик', 'clock.none': 'Скрыть',

@@ -560,6 +560,8 @@ export const ro = {
   "bg.grain": "Granulație",
   "bg.dots": "Puncte",
   "bg.sphere": "Sferă",
+  "bg.contour": "Curbe de nivel",
+  "bg.ember": "Jar",
   "bg.grid": "Grilă",
   "bg.living": "Viu",
   "bg.color": "Culoare",
