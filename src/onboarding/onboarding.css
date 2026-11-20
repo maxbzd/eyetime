@@ -60,7 +60,7 @@ body.has-wall .skip { color: rgba(255, 255, 255, .9); text-shadow: 0 1px 3px rgb
 
 /* the first minutes (docs/ONBOARDING.md): three light screens */
 .prog { display: flex; flex-direction: column; align-items: center; gap: var(--s-2); }
-.step-label { margin: 0; font-size: var(--fs-xs); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: color-mix(in srgb, var(--text) 62%, transparent); font-variant-numeric: tabular-nums; }
+.step-label { margin: 0; font-size: var(--fs-xs); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: color-mix(in srgb, var(--text) 72%, transparent); font-variant-numeric: tabular-nums; }
 .step-hello .marks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2) var(--s-4); }
 .step-hello .marks li { display: flex; align-items: center; gap: var(--s-3); font-weight: 560; font-size: var(--fs-md); }
 .step-hello .marks .mk { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--accent-soft); color: var(--accent-text); font-size: 17px; flex: none; }
