@@ -8,6 +8,9 @@
 .focus-idle:not(.large) .durations { flex-wrap: nowrap; }
 .focus-idle:not(.large) .durations .chip { flex: 1 1 0; justify-content: center; min-width: 0; padding: 0 6px; height: 34px; }
 .focus-idle:not(.large) .durations .chip.chip-custom { flex: 0 0 auto; padding: 0 10px; }
+.focus-idle:not(.large) .durations .chip { white-space: nowrap; }
+/* in the narrow card (the toolbar popup) the "Custom" chip is only its plus: the long words of some languages (Personalizzata, Altă durată) pushed the four durations into one another; the word stays for screen readers */
+.focus-idle:not(.large) .durations .chip-custom .chip-lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .custom-min { display: flex; align-items: center; gap: 6px; }
 .strict-row { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); font-size: var(--fs-sm); color: var(--text-2); cursor: pointer; }
 .strict-row .lbl { display: flex; align-items: center; gap: 6px; }
@@ -17,6 +20,7 @@
 .input-lg { height: 52px; font-size: var(--fs-lg); border-radius: 14px; padding: 0 var(--s-5); }
 .focus-row { display: flex; align-items: center; gap: var(--s-4); flex-wrap: wrap; justify-content: space-between; }
 .focus-row .strict-row { margin-left: auto; gap: var(--s-3); }
+.focus-row > .btn { margin-left: auto; } /* when a long label (Romanian, German) sends the start button to its own line it stays on the right, under the durations' end */
 
 .focus-run { display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--s-3); padding: var(--s-2) 0; }
 .ring { position: relative; width: 168px; height: 168px; }
@@ -95,7 +99,7 @@
 .mode-row { display: flex; flex-wrap: wrap; gap: var(--s-2); }
 .mode-chip { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: var(--r-md); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-2); font-weight: 600; font-size: var(--fs-md); transition: all var(--t-fast) var(--ease); }
 .mode-chip:hover { color: var(--text); border-color: var(--text-3); } .mode-chip .ico { font-size: 16px; color: var(--text-3); } .mode-chip .mm { font-weight: 500; color: var(--text-3); font-size: var(--fs-sm); }
-.mode-chip[aria-pressed="true"] { background: var(--text); border-color: var(--text); color: var(--bg); } .mode-chip[aria-pressed="true"] .ico, .mode-chip[aria-pressed="true"] .mm { color: var(--accent-text); }
+.mode-chip[aria-pressed="true"] { background: var(--text); border-color: var(--text); color: var(--bg); } .mode-chip[aria-pressed="true"] .ico { color: var(--bg); } .mode-chip[aria-pressed="true"] .mm { color: color-mix(in srgb, var(--bg) 78%, var(--text)); } /* the chip is filled with the text colour: its icon and its minutes are cut from the page colour (the accent can be the very same colour as the fill) */
 .mode-select { align-self: flex-start; max-width: 100%; }
 .focus-idle:not(.large) .mode-select { width: 100%; }
 
