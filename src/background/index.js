@@ -13,6 +13,7 @@ import { isPaused, MAX_PAUSE_MS, PAUSE_FORGOTTEN_MS } from '../shared/focus.js';
 import { scheduleBedtime } from './breaks.js';
 import { scheduleReminders, scheduleTaskSlot } from './reminders.js';
 import { updateBadge } from './badge.js';
+import { dropRetired } from './retired.js';
 import { setAmbient } from './audio.js';
 import './blocker.js';
 import './weekly.js';
@@ -63,6 +64,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   try { await boot(); } catch (e) { logError('boot:installed', e); }
   const settings = await getSettings();
   if (details.reason === 'update' && isMinorUpdate(details.previousVersion, chrome.runtime.getManifest().version)) await setRaw({ whatsNew: { version: chrome.runtime.getManifest().version, from: details.previousVersion } });
+  if (details.reason === 'update') { try { await dropRetired(); } catch (e) { logError('update:retired', e); } }
   if (details.reason === 'update') { // EyeTime 4 redesign: the old default arrangement of Home moves to the new one, once (an arrangement someone chose stays)
     const { designV } = await getRaw('designV');
     if (designV !== 4) { await updateSettings((s) => { moveHomeToToday(s); }); await setRaw({ designV: 4 }); }

@@ -33,6 +33,6 @@ Two reports came back before the store release (a read-through of the code, and 
 - **The 30-second redirect window of a "Continue" is wider than "the redirect chain"** (`dnr.js` session rule, no URL filter). The tab blocker honours the same key in the same way, so instant blocking does not widen it; narrowing it needs the chain's hosts, which the browser does not give at the time of the click. It is bounded by tab and time, and written down here.
 - **The IP-address bypass** is a limit of the whole blocker, not of instant blocking.
 - **`identity` is not in the manifest** while no OAuth client id is filled in; `store/SUBMISSION.md` says to add it before enabling the Google and Microsoft providers.
-- **`packs/parked/`** (15 files) stays in the repository, out of the package (`pack.mjs`, `build.test.mjs`); deleting it is a separate decision.
+- **`packs/parked/`** (15 files, never shipped) was deleted in 3.9.4.
 - **The `allowMass` race** (a flag set in the middle of another round) needs a live run to confirm; the code path is documented in `connections.js`.
 - **Untranslated strings** in `de/fr/es/it/pt/pl` need a native speaker.

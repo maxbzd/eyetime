@@ -1,58 +1,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
-// The calculations behind the new widgets (pure, so they can be tested): the moon, sunrise and sunset, clock hands, calendar grids, the focus heat map.
+// The calculations behind the widgets (pure, so they can be tested): clock hands, calendar grids, the focus heat map, the breathing pattern.
 // Nothing here knows about the page or about the network; all of it is arithmetic on a date.
-
-const DAY_MS = 86_400_000, RAD = Math.PI / 180;
-
-/* ---------- the moon ---------- */
-
-const SYNODIC = 29.530588853;
-const NEW_MOON_REF = Date.UTC(2000, 0, 6, 18, 14); // a known new moon
-export const MOON_PHASES = ['new', 'waxingCrescent', 'firstQuarter', 'waxingGibbous', 'full', 'waningGibbous', 'lastQuarter', 'waningCrescent'];
-
-/** The phase of the moon on a date: where it is in its month (0..1), how much is lit (0..1), a name, days to the next full / new moon. Accurate to about half a day. */
-export function moonInfo(date = new Date()) {
-  const age = (((date.getTime() - NEW_MOON_REF) / DAY_MS) % SYNODIC + SYNODIC) % SYNODIC, frac = age / SYNODIC;
-  const name = frac < 0.03 || frac >= 0.97 ? 'new' : frac < 0.22 ? 'waxingCrescent' : frac < 0.28 ? 'firstQuarter' : frac < 0.47 ? 'waxingGibbous' : frac < 0.53 ? 'full' : frac < 0.72 ? 'waningGibbous' : frac < 0.78 ? 'lastQuarter' : 'waningCrescent';
-  const toFull = ((0.5 - frac) * SYNODIC + SYNODIC) % SYNODIC, toNew = ((1 - frac) * SYNODIC) % SYNODIC;
-  return { age, frac, illum: (1 - Math.cos(2 * Math.PI * frac)) / 2, name, toFull, toNew };
-}
-
-/** The lit part of the moon's disc as an SVG path in a circle of radius r centred on 0,0; `flip` mirrors it (a waning moon is lit on the left). */
-export function moonPath(frac, r = 50) {
-  const waxing = frac < 0.5, f = waxing ? frac : 1 - frac, k = Math.cos(2 * Math.PI * f), rx = Math.abs(k) * r;
-  if (f < 0.012) return { d: '', flip: !waxing };
-  if (f > 0.488) return { d: `M0,${-r} A${r},${r} 0 1 1 0,${r} A${r},${r} 0 1 1 0,${-r} Z`, flip: !waxing };
-  return { d: `M0,${-r} A${r},${r} 0 0 1 0,${r} A${rx.toFixed(2)},${r} 0 0 ${k > 0 ? 0 : 1} 0,${-r} Z`, flip: !waxing };
-}
-
-/* ---------- the sun ---------- */
-
-const julian = (ms) => ms / DAY_MS + 2440587.5;
-const fromJulian = (jd) => new Date((jd - 2440587.5) * DAY_MS);
-
-/**
- * Sunrise and sunset on the calendar day of `date` (local day) at a place, from the "sunrise equation". Good to a couple of minutes.
- * @returns {{ rise: Date, set: Date, noon: Date } | { polar: 'day' | 'night' }}
- */
-export function sunTimes(date, lat, lon) {
-  const noonUtc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 12);
-  const n = Math.round(julian(noonUtc) - 2451545.0 + 0.0008), Js = n - lon / 360;
-  const M = (357.5291 + 0.98560028 * Js) % 360, Mr = M * RAD;
-  const C = 1.9148 * Math.sin(Mr) + 0.02 * Math.sin(2 * Mr) + 0.0003 * Math.sin(3 * Mr);
-  const L = ((M + C + 180 + 102.9372) % 360) * RAD;
-  const Jt = 2451545.0 + Js + 0.0053 * Math.sin(Mr) - 0.0069 * Math.sin(2 * L);
-  const sinD = Math.sin(L) * Math.sin(23.4397 * RAD), cosD = Math.cos(Math.asin(sinD));
-  const cosW = (Math.sin(-0.833 * RAD) - Math.sin(lat * RAD) * sinD) / (Math.cos(lat * RAD) * cosD);
-  if (cosW > 1) return { polar: 'night' };
-  if (cosW < -1) return { polar: 'day' };
-  const w = Math.acos(cosW) / (2 * Math.PI);
-  return { rise: fromJulian(Jt - w), set: fromJulian(Jt + w), noon: fromJulian(Jt) };
-}
-
-/** Where the sun is on its day arc: 0 at sunrise, 1 at sunset (negative / above 1 outside daylight). */
-export const sunProgress = (now, rise, set) => (now.getTime() - rise.getTime()) / (set.getTime() - rise.getTime());
 
 /* ---------- clocks ---------- */
 
@@ -85,13 +34,6 @@ export function monthGrid(year, month, weekStart = 1) {
     out.push(row);
   }
   return out;
-}
-
-/** The year as a row of days: how many there are, which one is today (0-based) and how many are left. */
-export function yearInfo(date = new Date()) {
-  const y = date.getFullYear(), start = new Date(y, 0, 1), end = new Date(y + 1, 0, 1), total = Math.round((end.getTime() - start.getTime()) / DAY_MS);
-  const index = Math.floor((new Date(y, date.getMonth(), date.getDate()).getTime() - start.getTime()) / DAY_MS);
-  return { year: y, total, index, left: total - index - 1, frac: (index + 1) / total };
 }
 
 /**

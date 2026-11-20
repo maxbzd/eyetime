@@ -15,7 +15,6 @@ import { el, h, clearKeep as clear, live, motionOk } from './widget-kit.js';
 
 const weekStartOf = (c, _s) => (c.weekStart === 'mon' ? 1 : c.weekStart === 'sun' ? 0 : /^(en-US|en-CA|ja|zh|pt-BR)/.test(getLocale()) ? 0 : 1);
 const toMin = (s) => Number(s.slice(0, 2)) * 60 + Number(s.slice(3));
-const MOODS = [{ icon: 'angry', v: 1 }, { icon: 'frown', v: 2 }, { icon: 'meh', v: 3 }, { icon: 'smile', v: 4 }, { icon: 'laugh', v: 5 }];
 const settingsLink = (hash, label) => h('a', { class: 'btn btn-sm', href: chrome.runtime.getURL('src/options/options.html#' + hash) }, icon('settings'), label);
 
 export const LIFE_DEFS = {
@@ -68,23 +67,6 @@ export const LIFE_DEFS = {
     },
   },
 
-  counter: {
-    build(root, api) {
-      const draw = () => {
-        const c = api.cfg(), frac = c.target ? Math.min(1, c.count / c.target) : 0;
-        const set = (n) => api.save({ count: Math.max(0, Math.min(99999, n)) });
-        clear(root, el('div', 'wg-label', c.title || t('wg.k.counter')),
-          el('div', 'ct-num num', fmtNumber(c.count), c.target ? el('span', 'ct-of', '/ ' + fmtNumber(c.target)) : null),
-          c.target ? el('div', 'ct-bar', el('i', '', { style: `width:${(frac * 100).toFixed(1)}%` })) : null,
-          el('div', 'ct-btns',
-            h('button', { class: 'btn btn-icon', type: 'button', 'aria-label': t('wg.counter.minus'), disabled: !c.count, onclick: () => set(c.count - c.step) }, icon('minus')),
-            h('button', { class: 'btn btn-primary btn-icon', type: 'button', 'aria-label': t('wg.counter.plus'), onclick: () => set(c.count + c.step) }, icon('plus')),
-            c.count ? h('button', { class: 'btn btn-ghost btn-icon ct-reset', type: 'button', 'aria-label': t('wg.counter.reset'), onclick: () => set(0) }, icon('rotate-ccw')) : null));
-      };
-      draw();
-      return { update: draw };
-    },
-  },
 
   /* ---------- calendar ---------- */
   month: {
@@ -164,33 +146,7 @@ export const LIFE_DEFS = {
     },
   },
 
-  water: {
-    build(root, api) {
-      const draw = () => {
-        const c = api.cfg(); const today = dayKey(), n = c.day === today ? c.n : 0;
-        const set = (v) => api.save({ day: today, n: Math.max(0, Math.min(40, v)) });
-        clear(root, el('div', 'wg-label', t('wg.k.water')),
-          el('div', 'wa-cups', Array.from({ length: Math.max(c.goal, n) }, (_, i) => h('button', { class: 'wa-cup' + (i < n ? ' on' : ''), type: 'button', 'aria-pressed': String(i < n), 'aria-label': t('wg.water.cup', { n: i + 1 }), onclick: () => set(i + 1 === n ? i : i + 1) }, icon('droplet')))),
-          el('div', 'wg-sub', t('wg.water.of', { n: fmtNumber(n), goal: fmtNumber(c.goal) })));
-      };
-      draw();
-      return { update: draw, destroy() {} };
-    },
-  },
 
-  mood: {
-    build(root, api) {
-      const draw = () => {
-        const c = api.cfg(), today = dayKey(), log = c.log, week = rangeKeys(7);
-        const set = (v) => { const next = { ...log }; log[today] === v ? delete next[today] : next[today] = v; api.save({ log: next }); };
-        clear(root, el('div', 'wg-label', t('wg.mood.q')),
-          el('div', 'md-row', MOODS.map((m) => { const v = m.v; return h('button', { class: 'md-btn m' + v + (log[today] === v ? ' on' : ''), type: 'button', 'aria-pressed': String(log[today] === v), 'aria-label': t('wg.mood.' + v), 'data-tip': t('wg.mood.' + v), onclick: () => set(v) }, icon(m.icon)); })),
-          el('div', 'md-week', week.map((k) => el('i', log[k] ? 'm' + log[k] : '', { title: k }))));
-      };
-      draw();
-      return { update: draw };
-    },
-  },
 
   sound: {
     build(root) {
@@ -221,41 +177,8 @@ export const LIFE_DEFS = {
     },
   },
 
-  label: {
-    build(root, api) {
-      const draw = () => {
-        const c = api.cfg();
-        root.dataset.font = c.font; root.dataset.align = c.align;
-        clear(root, el('div', 'lb-text' + (c.text ? '' : ' empty'), { style: `font-weight:${c.weight}` }, c.text || t('wg.label.ph')));
-      };
-      draw();
-      return { update: draw };
-    },
-  },
 
-  photo: {
-    build(root, api) {
-      const draw = () => {
-        const c = api.cfg();
-        root.dataset.style = c.style;
-        clear(root, el('div', 'ph-frame', el('div', 'ph-img', { role: 'img', 'aria-label': t('wg.k.photo') }), c.style === 'polaroid' ? el('div', 'ph-cap', c.text || fmtDate(new Date(), { day: 'numeric', month: 'long' })) : c.text ? el('div', 'ph-cap sm', c.text) : null));
-      };
-      draw();
-      return { update: draw };
-    },
-  },
 
-  orb: {
-    build(root, api) {
-      const draw = () => {
-        const c = api.cfg();
-        root.dataset.palette = c.palette; root.dataset.speed = c.speed;
-        clear(root, el('div', 'ob-wrap', el('div', 'ob-orb', el('i', 'a'), el('i', 'b'), el('i', 'c')), el('div', 'ob-gloss')));
-      };
-      draw();
-      return { update: draw };
-    },
-  },
 
   links: {
     build(root, api) {

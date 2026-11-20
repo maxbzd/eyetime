@@ -105,7 +105,6 @@ section.sec > div[id] { scroll-margin-top: 92px; }
 .look-now b { color: var(--text); }
 
 .setting-desc.warn { color: var(--distracting-text); }
-.wx-pick { justify-content: flex-start; text-align: left; height: auto; padding: 6px 8px; } .wx-pick .ico { color: var(--accent-text); }
 
 /* a folded group of settings */
 .fold-head { width: 100%; display: flex; align-items: center; justify-content: space-between; border: 0; background: transparent; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; padding: 0; cursor: pointer; text-align: left; }

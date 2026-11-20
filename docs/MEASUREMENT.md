@@ -21,7 +21,7 @@ Two things only: **on which days Elvani was used**, and **how often each feature
 - *First use*: the age at which a feature was first used. This is what makes the activation funnel possible.
 - *Counters*: per feature, the uses since the last report (a week).
 - The setup: look, layout, language, light / dark / auto, browser family and operating-system family. The things we choose defaults for.
-- **What stays switched on** (`fl`, a state and not a count): which optional features are on (morning ritual, dock, weather, calendar, sync and its encryption, instant blocking, schedule, limits, friction, eye reminders, bedtime, standby, companion app, …) and, in steps, how many tasks, habits and blocked sites there are (0 / 1–5 / 6–20 / 21+). A feature that people try and then switch off shows here and nowhere else.
+- **What stays switched on** (`fl`, a state and not a count): which optional features are on (morning ritual, dock, calendar, sync and its encryption, instant blocking, schedule, limits, friction, eye reminders, bedtime, standby, companion app, …) and, in steps, how many tasks, habits and blocked sites there are (0 / 1–5 / 6–20 / 21+). A feature that people try and then switch off shows here and nowhere else.
 - **How things went**, in fixed buckets and never as a time or a title: the length of a finished session (under 15 / 15–25 / 25–35 / 35–50 / 50–75 / 75+ min), a session stopped in its first five minutes, why a page was stopped (always, session, schedule, limit, budget, friction), how fast the new tab was ready (under 100 / 250 / 500 / 1000 ms / slower), whether the welcome was finished, and errors by *place* only (background, pages, blocker, sync, other; never the text).
 
 ## The questions, and the queries that answer them

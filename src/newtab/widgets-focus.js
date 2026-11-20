@@ -8,7 +8,6 @@ import { t, fmtDuration, fmtNumber, fmtTime } from '../shared/i18n.js';
 import { getSettings, getDays, getRaw } from '../shared/storage.js';
 import { dayKey, rangeKeys } from '../shared/time.js';
 import { makeClassifier } from '../shared/classify.js';
-import { loadGuess } from '../shared/guessstore.js';
 import { summarize, focusStreak } from '../shared/stats.js';
 import { goalProgress, goalStreak, bestHours, sessionsOf } from '../shared/productivity.js';
 import { isFocusLive } from '../shared/blocking.js';
@@ -129,23 +128,23 @@ export const FOCUS_DEFS = {
   screen: {
     build(root) {
       const draw = async (alive) => {
-        const [s, ds, guess] = await Promise.all([getSettings(), days(1), loadGuess()]);
+        const [s, ds] = await Promise.all([getSettings(), days(1)]);
         if (!alive()) return;
-        const sum = summarize(ds, makeClassifier(s, guess).classify), tot = sum.total || 1;
+        const sum = summarize(ds, makeClassifier(s).classify), tot = sum.total || 1;
         clear(root, el('div', 'wg-label', t('wg.k.screen')), el('div', 'wb-num num', fmtDuration(sum.total)),
           el('div', 'sc-bar', ['productive', 'neutral', 'distracting'].map((c) => el('i', c, { style: `width:${(sum[c] / tot * 100).toFixed(1)}%` }))),
           el('div', 'sc-legend', ['productive', 'neutral', 'distracting'].map((c) => el('span', c, el('i', ''), t('class.' + c) + ' ' + fmtDuration(sum[c])))));
       };
-      return live(draw, { watch: ['d:*', 'settings', 'siteGuess'], every: 60_000 });
+      return live(draw, { watch: ['d:*', 'settings'], every: 60_000 });
     },
   },
 
   topsites: {
     build(root, api) {
       const draw = async (alive) => {
-        const [s, ds, guess] = await Promise.all([getSettings(), days(1), loadGuess()]);
+        const [s, ds] = await Promise.all([getSettings(), days(1)]);
         if (!alive()) return;
-        const sum = summarize(ds, makeClassifier(s, guess).classify), top = sum.topSites.slice(0, api.cfg().n), max = top[0]?.sec || 1;
+        const sum = summarize(ds, makeClassifier(s).classify), top = sum.topSites.slice(0, api.cfg().n), max = top[0]?.sec || 1;
         clear(root, el('div', 'wg-label', t('wg.k.topsites')),
           top.length ? el('div', 'ts-list', top.map((x) => el('div', 'ts-row', favicon(x.host), el('span', 'ts-host', x.host), el('span', 'ts-bar ' + x.cls, el('i', '', { style: `width:${Math.max(3, Math.round(x.sec / max * 100))}%` })), el('span', 'ts-t num', fmtDuration(x.sec))))) : el('div', 'wg-sub', t('wg.topsites.none')));
       };
@@ -156,9 +155,9 @@ export const FOCUS_DEFS = {
   distraction: {
     build(root) {
       const draw = async (alive) => {
-        const [s, ds, guess] = await Promise.all([getSettings(), days(1), loadGuess()]);
+        const [s, ds] = await Promise.all([getSettings(), days(1)]);
         if (!alive()) return;
-        const used = summarize(ds, makeClassifier(s, guess).classify).distracting, b = s.blocking.budget || {}, total = (b.minutes || 0) * 60;
+        const used = summarize(ds, makeClassifier(s).classify).distracting, b = s.blocking.budget || {}, total = (b.minutes || 0) * 60;
         if (!b.enabled || !total) { clear(root, el('div', 'wg-label', t('wg.k.distraction')), el('div', 'wb-num num', fmtDuration(used)), el('div', 'wg-sub', t('wg.budget.off')), settingsLink('blocking', t('wg.budget.set'))); return; }
         const frac = used / total;
         clear(root, el('div', 'wg-label', t('wg.k.distraction')), el('div', 'fx-wrap' + (frac >= 1 ? ' over' : frac > 0.75 ? ' warn' : ''), ring(frac), el('div', 'fx-center', el('b', 'num', fmtDuration(used)), el('span', '', '/ ' + fmtDuration(total)))));

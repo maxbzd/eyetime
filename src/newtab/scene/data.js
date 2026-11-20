@@ -9,8 +9,6 @@ import { isFocusLive } from '../../shared/blocking.js';
 import { plannedMs, remainingMs, isPaused } from '../../shared/focus.js';
 import { goalProgress } from '../../shared/productivity.js';
 import { focusStreak } from '../../shared/stats.js';
-import { sunTimes } from '../../shared/wgx.js';
-import { normalizeWeather } from '../../shared/weather.js';
 
 const smooth = (a, b, x) => { const k = Math.min(1, Math.max(0, (x - a) / ((b - a) || 1e-9))); return k * k * (3 - 2 * k); };
 
@@ -29,9 +27,8 @@ export function createSource() {
     const [s, { focus }, tasks, days] = await Promise.all([getSettings(), getRaw('focus'), getCollection('tasks', []), getDays(rangeKeys(14))]);
     if (!alive) return;
     const today = days[days.length - 1][1] || {}, f = focus && isFocusLive(focus) ? focus : null;
-    const g = goalProgress(today.fs || 0, s.focus.dailyGoal), open = tasks.filter((t) => !t.done), place = normalizeWeather(s.weather).place;
-    let rise = 6.5, set = 19;
-    if (place) { const st = sunTimes(new Date(), place.lat, place.lon); if (!('polar' in st)) { rise = st.rise.getHours() + st.rise.getMinutes() / 60; set = st.set.getHours() + st.set.getMinutes() / 60; } }
+    const g = goalProgress(today.fs || 0, s.focus.dailyGoal), open = tasks.filter((t) => !t.done);
+    const rise = 6.5, set = 19; // daylight by the clock: the extension does not know where in the world its person is
     const todayKey = dayKey();
     snap = {
       focus: f ? 1 : 0, focusLeft: f ? Math.ceil(remainingMs(f) / 1000) : 0, focusEnd: f && !isPaused(f) ? Math.round(Date.now() / 1000 + remainingMs(f) / 1000) : 0, focusFrac: f && plannedMs(f) ? 1 - Math.min(1, Math.max(0, remainingMs(f) / plannedMs(f))) : 0, paused: f && isPaused(f) ? 1 : 0,

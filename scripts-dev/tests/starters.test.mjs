@@ -58,7 +58,7 @@ test('surprise: always valid, hangs together, and is reproducible from a seed', 
     assert.deepEqual(sanitizeHome(d.home), d.home);
   }
   const kinds = new Set(); for (let i = 1; i <= 300; i++) surprise(seeded(i)).home.widgets.forEach((w) => kinds.add(w.kind));
-  assert.ok(kinds.size >= 18, 'a good spread of kinds over many surprises: ' + kinds.size);
+  assert.ok(kinds.size >= 15, 'a good spread of kinds over many surprises: ' + kinds.size);
 });
 
 test('surprise: a good spread of themes and both arrangements', () => {

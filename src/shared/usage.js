@@ -188,8 +188,8 @@ export function flagsOf(s, raw = {}) {
   const on = new Set();
   const add = (/** @type {any} */ c, /** @type {string} */ f) => { if (c) on.add(f); };
   const len = (/** @type {any} */ x) => (Array.isArray(x) ? x.length : x && typeof x === 'object' ? Object.keys(x).length : 0);
-  add(s.ritual?.on, 'ritual'); add(s.dock?.enabled, 'dock'); add(s.weather?.on, 'weather'); add(len(raw.calendarSubs) > 0 || s.calendar?.url, 'calendar');
-  add(raw.syncTasks, 'tasks_sync'); add(raw.syncSettings, 'settings_sync'); add(raw.syncEnc, 'sync_encrypted'); add(s.blocking?.instant, 'instant_block'); add(s.smartSites?.on, 'smart_sites');
+  add(s.ritual?.on, 'ritual'); add(s.dock?.enabled, 'dock'); add(len(raw.calendarSubs) > 0 || s.calendar?.url, 'calendar');
+  add(raw.syncTasks, 'tasks_sync'); add(raw.syncSettings, 'settings_sync'); add(raw.syncEnc, 'sync_encrypted'); add(s.blocking?.instant, 'instant_block');
   add(len(raw.conns) > 0, 'connections'); add(s.blocking?.schedule?.enabled, 'schedule'); add(len(s.blocking?.limits) > 0, 'limits'); add(s.blocking?.budget?.enabled, 'budget');
   add(s.blocking?.friction?.enabled, 'friction'); add(s.eye?.notify, 'eye_notify'); add(s.eye?.bedtime?.enabled, 'bedtime'); add(s.standby?.on, 'standby');
   add(String(s.appearance?.customCss || '').trim(), 'custom_css'); add(s.companion?.enabled, 'companion'); add(s.focus?.dailyGoal > 0, 'daily_goal'); add(s.focus?.sound, 'focus_sound'); add(s.focus?.review, 'review');

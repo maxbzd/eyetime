@@ -12,8 +12,6 @@ import { DEFAULT_SETTINGS } from '../shared/defaults.js';
 export const ADV = {
   // General, Home
   dock: { paths: ['dock.enabled', 'dock.hidden'] },
-  smartSites: { paths: ['smartSites.on'] },
-  weather: { paths: ['weather.on'] },
   quotesMore: { paths: ['quotes.home', 'quotes.pause', 'quotes.rest', 'quotes.start', 'quotes.every'] },
   standby: { paths: ['standby.on'] },
   // Appearance

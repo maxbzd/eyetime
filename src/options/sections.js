@@ -10,8 +10,6 @@ import { PRESETS, PRESET_IDS } from '../shared/catalog.js';
 import { parseUserDomain } from '../shared/domains.js';
 import { dockGroup } from './dock-group.js';
 import { instantRow } from './instant-row.js';
-import { weatherGroup } from './weather-group.js';
-import { siteAiGroup } from './siteai-group.js';
 
 export { appearance } from './appearance-section.js';
 const sec = (id, ...kids) => h('section', { class: 'sec', id }, kids);
@@ -24,7 +22,6 @@ export function general({ s, save, refresh }) {
       row({ title: t('opt.language'), control: select([['auto', t('opt.auto')], ...Object.entries(LANGUAGES)], s.language, (v) => save((x) => { x.language = v; }, true), { label: t('opt.language') }) }),
       row({ title: t('tour.open'), desc: t('tour.openD'), control: h('a', { class: 'btn', href: chrome.runtime.getURL('src/newtab/newtab.html?tour'), target: '_blank', rel: 'noopener' }, icon('sliders-horizontal'), t('tour.start')) })),
     adv(dockGroup(s, save, refresh), 'dock'),
-    adv(siteAiGroup(s, save, refresh), 'smartSites'),
     group(t('opt.groupNotify'),
       row({ title: t('opt.badge'), desc: t('opt.badgeDesc'), control: toggle(s.tracking.badge, (v) => save((x) => { x.tracking.badge = v; }), t('opt.badge')) }),
       row({ title: t('opt.tips'), desc: t('opt.tipsDesc'), control: toggle(s.tips.on, (v) => save((x) => { x.tips = { on: v }; }), t('opt.tips')) }), // "No more tips" on the card is this switch
@@ -37,7 +34,6 @@ export function home({ s, save, refresh }) {
     group(t('opt.groupHome'),
       row({ title: t('opt.homeEnabled'), desc: t('opt.homeEnabledDesc'), control: toggle(s.newtab.enabled, (v) => save((x) => { x.newtab.enabled = v; }), t('opt.homeEnabled')) }),
       row({ title: t('opt.homeCustomize'), desc: t('opt.homeCustomizeDesc'), control: h('a', { class: 'btn', href: chrome.runtime.getURL('src/newtab/newtab.html') }, icon('sliders-horizontal'), t('home.customize')) })),
-    adv(weatherGroup(s, save, refresh), 'weather'),
     group(t('qt.title'),
       row({ title: t('qt.on'), desc: t('qt.onDesc'), control: toggle(s.quotes.on, (v) => save((x) => { x.quotes.on = v; }, true), t('qt.on')) }),
       s.quotes.on ? [

@@ -12,7 +12,6 @@ import { luminance, normalizeHex } from '../../shared/color.js';
 import { resolveTextTone } from '../../shared/phototone.js';
 import { normalizeDepth } from '../../shared/depth.js';
 import { FRAMES, framePaths, normalizeFrame, DAILY, dailyFrame, wallVeil } from '../../shared/frames.js';
-import { describeCode } from '../../shared/weather.js';
 import { canvasActive } from '../canvas.js';
 import { alignClockFill } from '../type-apply.js';
 import { BACKGROUNDS } from '../home-controls.js';
@@ -20,8 +19,6 @@ import { logError } from '../../shared/errorlog.js';
 import { getPhotoInfo, clearPhotoInfo, photoKey } from '../photo-info.js';
 import { mount3d, unmount3d } from '../gl3d.js';
 import { applyDepth } from '../depth.js';
-import { mountWeatherFx } from '../weather-fx.js';
-import { loadWeather } from '../weather.js';
 import { state } from './state.js';
 import { track } from '../../shared/usage-store.js';
 
@@ -83,7 +80,6 @@ export async function applyBackground() {
   // light hero text on scenes that are dark in every theme, and on dark custom colours; a photo follows the person's choice or its own brightness
   document.body.dataset.tone = photoTone && bg === 'photo' ? (resolveTextTone(n.photoText, photoTone) === 'dark' ? 'light' : 'dark') : bg === 'scene' && n.scene.tone ? n.scene.tone : DARK_SCENES.includes(bg) || (bg === 'color' && luminance(color) < 0.28) ? 'dark' : '';
   alignClockFill();
-  applyWeatherFx(wxSrc);
 }
 
 /** "Next photo" on Today: how many wallpapers to skip today (kept for the day, then it starts over). */
@@ -110,20 +106,4 @@ async function applyScene(n) {
   const [{ mountScene }, { runAction }] = await Promise.all([import('../scene/engine.js'), import('../scene/actions.js')]);
   if (sceneSig !== sig) return; // changed again while loading
   sceneInst = mountScene($('.bg'), (await import('../../shared/scene/schema.js')).sanitizeScene(n.scene).scene, { params: n.sceneParams, onAction: runAction }); // a scene from a backup or from sync is drawn by the rules of a theme file, never as it came
-}
-
-/** Rain or snow over the background, if the person turned the weather and its effect on and it is raining or snowing where they are (or `#fx=rain|snow|thunder|drizzle` to look at one). */
-const weatherFx = mountWeatherFx();
-let wxPhoto = '';
-export async function applyWeatherFx(photo = wxPhoto) {
-  wxPhoto = photo;
-  const forced = /[#&]fx=(rain|snow|thunder|drizzle)\b/.exec(location.hash);
-  let fx = null, power = 1;
-  const by = (kind) => ({ drizzle: 0.5, thunder: 1.4 }[kind] || 1);
-  if (forced) { fx = forced[1] === 'snow' ? 'snow' : 'rain'; power = by(forced[1]); }
-  else if (state.settings.weather && state.settings.weather.on && state.settings.weather.effect) {
-    const r = await loadWeather();
-    if (r.ok) { const k = describeCode(r.data.code, r.data.day); fx = k.fx; power = by(k.kind); }
-  }
-  await weatherFx.set(fx, power, photo);
 }

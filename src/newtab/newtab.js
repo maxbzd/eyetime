@@ -19,10 +19,9 @@ import { applyCanvas } from './canvas.js';
 import { applyType } from './type-apply.js';
 import { resolveSettings } from './home-config.js';
 import { mountStandby } from './standby.js';
-import { autoGuess } from '../ui/siteai.js';
 import { state, isToday } from './home/state.js';
 import { paintClock, scheduleClock } from './home/hero.js';
-import { applyBackground, applyWeatherFx } from './home/background.js';
+import { applyBackground } from './home/background.js';
 import { renderModules, syncBlocks, blocksSig, applySkins } from './home/blocks.js';
 import { mountHome, installPanel } from './home/parts.js';
 import { paintNudge, paintBackupNudge } from './home/nudges.js';
@@ -80,8 +79,6 @@ const visibleAtStart = typeof document !== 'undefined' && document.visibilitySta
   paintClock(); scheduleClock(); applyType(state.settings); await applyBackground().catch((e) => logError('background', e));
   let rz = 0; window.addEventListener('resize', () => { clearTimeout(rz); rz = window.setTimeout(() => { paintClock(); applyCanvas(state.settings); }, 120); });
   mountHome(); installPanel();
-  setTimeout(() => autoGuess().catch(() => {}), 5000); // experimental, off by default: the on-device model learns about the few most used unknown sites
-  setInterval(() => applyWeatherFx(), 10 * 60_000); onChange(['weatherCache'], () => applyWeatherFx());
   state.standby = mountStandby({ getSettings: () => state.settings, getFocus: () => state.runningFocus });
   if (new URLSearchParams(location.search).has('standby')) state.standby.show();
   if (new URLSearchParams(location.search).has('tour')) openTour(); // from Settings → General → Guided set-up

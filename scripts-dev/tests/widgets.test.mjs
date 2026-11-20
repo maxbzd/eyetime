@@ -2,7 +2,7 @@
 // Copyright 2026 maxbzd
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { WIDGET_KINDS, WORLD_ZONES, normalizeWidgets, normalizeCfg, defaultCfg, newWidgetId, countdownLeft, periodProgress, zoneCity, zoneClock, MAX_WIDGETS } from '../../src/shared/widgets.js';
+import { WIDGET_KINDS, WORLD_ZONES, normalizeWidgets, normalizeCfg, defaultCfg, newWidgetId, countdownLeft, zoneCity, zoneClock, MAX_WIDGETS } from '../../src/shared/widgets.js';
 
 const NOW = new Date(2026, 9, 28, 12, 0, 0); // 28 Oct 2026, noon, local time
 
@@ -25,7 +25,6 @@ test('normalizeWidgets keeps valid widgets only, with safe settings', () => {
 
 test('every kind has defaults that validate to themselves', () => {
   for (const kind of Object.keys(WIDGET_KINDS)) { const d = defaultCfg(kind, NOW); assert.deepEqual(normalizeCfg(kind, d, NOW), d, kind); assert.ok(WIDGET_KINDS[kind].w[0] <= WIDGET_KINDS[kind].w[2] && WIDGET_KINDS[kind].w[2] <= WIDGET_KINDS[kind].w[1], kind); }
-  assert.deepEqual(normalizeCfg('percent', { periods: ['year', 'bogus', 'day'] }), { periods: ['day', 'year'] });
   assert.deepEqual(normalizeCfg('bignumber', { metric: 'x' }), { metric: 'focusToday' });
   assert.deepEqual(normalizeCfg('mainfocus', { text: 'a', day: '2026-10-28', done: 1 }), { text: 'a', day: '2026-10-28', done: false });
 });
@@ -48,15 +47,6 @@ test('countdownLeft counts whole days, hours and minutes, and knows the past', (
   assert.deepEqual([b.days, b.hours, b.minutes, b.sameDay], [0, 6, 30, true]);
   const c = countdownLeft('2026-10-25', '', NOW);
   assert.equal(c.past, true); assert.equal(c.calDays, -3);
-});
-
-test('periodProgress: day, Monday-first week, month, year', () => {
-  assert.equal(periodProgress('day', NOW), 0.5);
-  const wk = periodProgress('week', NOW); // Wednesday noon = 2.5 of 7 days
-  assert.ok(Math.abs(wk - 2.5 / 7) < 1e-9, String(wk));
-  assert.ok(Math.abs(periodProgress('month', NOW) - 27.5 / 31) < 1e-9);
-  assert.ok(periodProgress('year', NOW) > 0.8 && periodProgress('year', NOW) < 0.85);
-  assert.equal(periodProgress('day', new Date(2026, 0, 1, 0, 0, 0)), 0);
 });
 
 test('zoneClock formats a time and the day shift', () => {
@@ -86,7 +76,7 @@ test('the whole catalogue: every kind has a category, three growing sizes inside
   const { WIDGET_KINDS, normalizeCfg, defaultCfg, normalizeWidgets } = await import('../../src/shared/widgets.js');
   const { WIDGET_CATS, moreNormalizeCfg } = await import('../../src/shared/widgets-more.js');
   const kinds = Object.keys(WIDGET_KINDS);
-  assert.ok(kinds.length >= 45, 'at least 45 widgets: ' + kinds.length);
+  assert.ok(kinds.length >= 34, 'at least 34 widgets: ' + kinds.length);
   for (const k of kinds) {
     const m = WIDGET_KINDS[k];
     assert.ok(WIDGET_CATS.includes(m.cat), k + ' category');
@@ -99,19 +89,8 @@ test('the whole catalogue: every kind has a category, three growing sizes inside
   assert.equal(moreNormalizeCfg('clock', { zone: 'Asia/Tokyo' }).zone, 'Asia/Tokyo');
   assert.deepEqual(moreNormalizeCfg('timer', { minutes: 999, endsAt: -5, left: 1000.4, title: 'x'.repeat(99) }), { minutes: 180, endsAt: 0, left: 1000, title: 'x'.repeat(40) });
   assert.deepEqual(moreNormalizeCfg('timer', { endsAt: 5000, left: 3000 }), { minutes: 25, endsAt: 5000, left: 0, title: '' }); // running wins over paused
-  assert.equal(moreNormalizeCfg('counter', { count: -3, target: 1e9, step: 0 }).count, 0); assert.equal(moreNormalizeCfg('counter', { target: 1e9 }).target, 99999);
-  const mood = moreNormalizeCfg('mood', { log: Object.fromEntries(Array.from({ length: 40 }, (_, i) => [`2024-01-${String(i % 28 + 1).padStart(2, '0')}`, 3]).concat([['bad', 3], ['2024-02-01', 9]])) });
-  assert.ok(Object.keys(mood.log).length <= 28 && !('bad' in mood.log) && !('2024-02-01' in mood.log));
-  assert.equal(normalizeWidgets([{ id: 'wabc123', kind: 'moon', cfg: {} }, { id: 'wabc124', kind: 'nonsense' }]).length, 1);
-  assert.equal(moreNormalizeCfg('label', { font: 'comic', weight: 5000, align: 'up' }).weight, 800);
+  // kinds that were retired (a person may still have them saved) and kinds that never existed are dropped, the rest stays
+  for (const gone of ['moon', 'sun', 'year', 'percent', 'water', 'mood', 'orb', 'photo', 'label', 'counter', 'weather', 'nonsense']) assert.equal(normalizeWidgets([{ id: 'wabc123', kind: gone, cfg: {} }]).length, 0, gone);
+  assert.equal(normalizeWidgets([{ id: 'wabc123', kind: 'moon', cfg: {} }, { id: 'wabc124', kind: 'clock', cfg: {} }]).length, 1);
 });
 
-test('periodProgress counts wall-clock time: noon is half a day on the days the clocks change, in any time zone', async () => {
-  const { periodProgress } = await import('../../src/shared/widgets.js');
-  for (const [y, m, d] of [[2026, 2, 8], [2026, 2, 29], [2026, 9, 25], [2026, 10, 1], [2026, 3, 5], [2026, 8, 27]]) { // the days clocks change in the US, the EU, Australia, New Zealand, Chile
-    assert.ok(Math.abs(periodProgress('day', new Date(y, m, d, 12, 0, 0)) - 0.5) < 1e-9, `${y}-${m + 1}-${d}`);
-    assert.ok(Math.abs(periodProgress('day', new Date(y, m, d, 0, 0, 0))) < 1e-9);
-  }
-  const p = periodProgress('week', new Date(2026, 2, 29, 12)); // a Sunday: six whole days and half of the seventh
-  assert.ok(Math.abs(p - 6.5 / 7) < 1e-9);
-});
