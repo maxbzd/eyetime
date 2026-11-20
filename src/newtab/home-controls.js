@@ -6,13 +6,10 @@
 
 import { h, icon, toast } from '../ui/dom.js';
 import { t } from '../shared/i18n.js';
-import { getPhoto, getPhotos, setPhoto, removePhotos } from '../shared/photos.js';
+import { getPhoto, setPhoto, removePhotos } from '../shared/photos.js';
 import { normalizeHex } from '../shared/color.js';
 import { normalizeDepth } from '../shared/depth.js';
 import { looksGallery, accentPicker } from '../ui/appearance.js';
-import { cutOut } from './cutout.js';
-import { makeDepth } from './depth-make.js';
-import { photoKey } from './photo-info.js';
 import { FRAME_IDS } from '../shared/frames.js';
 
 export const BACKGROUNDS = ['look', 'peaks', 'dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'grid', 'living', 'plain', 'color'];
@@ -35,60 +32,11 @@ export function fileToDataUrl(file, maxW = 1920) {
   });
 }
 
-/** "Depth for your photo": cut the subject out on this device so the clock can sit behind it. */
-export function cutoutBlock() {
-  const status = h('div', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, role: 'status', 'aria-live': 'polite' });
-  const make = h('button', { class: 'btn btn-sm', type: 'button' }, icon('scissors'), t('ct.make'));
-  const remove = h('button', { class: 'btn btn-sm btn-ghost', type: 'button', hidden: true }, icon('x'), t('ct.remove'));
-  const sync = (has) => { make.hidden = has; remove.hidden = !has; };
-  (async () => sync(!!(await getPhoto('fg'))))();
-  make.addEventListener('click', async () => {
-    const newtabBg = await getPhoto('bg');
-    if (!newtabBg) { status.textContent = t('ct.noPhoto'); return; }
-    make.disabled = true;
-    try {
-      const r = await cutOut(newtabBg, (stage) => { status.textContent = t('ct.' + stage); });
-      if (!r.usable) { status.textContent = t('ct.unusable'); return; }
-      await setPhoto('fg', r.dataUrl); sync(true); status.textContent = t('ct.done');
-    } catch { status.textContent = t('ct.error'); } finally { make.disabled = false; }
-  });
-  remove.addEventListener('click', async () => { await removePhotos(['fg']); sync(false); status.textContent = ''; });
-  return h('div', { class: 'stack gap-2', style: { marginTop: 'var(--s-4)' } }, h('div', { class: 'eyebrow', text: t('ct.title') }), h('p', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, text: t('ct.hint') }), h('div', { class: 'row gap-2' }, make, remove), status);
-}
-
-/** "3D photo": a depth map of the photo is made on this device, then the photo is drawn with real depth (near things slide more than far ones). */
-export function volumeBlock(n, set) {
-  const depth = normalizeDepth(n.depth);
-  const patch = (p) => set((s) => { s.newtab.depth = { ...normalizeDepth(s.newtab.depth), ...p }; });
-  const status = h('div', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, role: 'status', 'aria-live': 'polite' });
-  const make = h('button', { class: 'btn btn-sm', type: 'button' }, icon('box'), t('v3.make'));
-  const row = (label, on, key) => h('label', { class: 'toggle-row' }, h('span', { text: label }), h('span', { class: 'switch' }, h('input', { type: 'checkbox', checked: on, 'aria-label': label, onchange: (e) => patch({ [key]: e.target.checked }) }), h('span', { class: 'track' }), h('span', { class: 'thumb' })));
-  const more = h('div', { class: 'stack gap-2', hidden: true },
-    row(t('v3.on'), depth.volume, 'volume'), row(t('v3.behind'), depth.behind, 'behind'),
-    depth.behind ? h('label', { class: 'toggle-row' }, h('span', { text: t('v3.cut') }), h('input', { type: 'range', min: 10, max: 95, step: 5, value: 105 - depth.cut, 'aria-label': t('v3.cut'), style: { width: '140px', accentColor: 'var(--accent)' }, onchange: (e) => patch({ cut: 105 - Number(e.target.value) }) })) : null,
-    row(t('v3.sway'), depth.sway, 'sway'),
-    h('button', { class: 'btn btn-sm btn-ghost', type: 'button', style: { alignSelf: 'flex-start' }, onclick: async () => { await removePhotos(['depth']); await patch({ volume: false }); } }, icon('x'), t('v3.remove')));
-  const sync = (ready) => { make.hidden = ready; more.hidden = !ready; };
-  (async () => { const { bg: newtabBg, depth: newtabDepth } = await getPhotos(['bg', 'depth']); sync(!!(newtabBg && newtabDepth && newtabDepth.key === photoKey(newtabBg))); })();
-  make.addEventListener('click', async () => {
-    const newtabBg = await getPhoto('bg');
-    if (!newtabBg) { status.textContent = t('ct.noPhoto'); return; }
-    make.disabled = true;
-    try {
-      const r = await makeDepth(newtabBg, (stage) => { status.textContent = t('v3.' + stage); });
-      if (!r.usable) { status.textContent = t('v3.unusable'); return; }
-      await setPhoto('depth', { key: photoKey(newtabBg), png: r.dataUrl });
-      await patch({ volume: true }); sync(true); status.textContent = t('v3.done');
-    } catch { status.textContent = t('v3.error'); } finally { make.disabled = false; }
-  });
-  return h('div', { class: 'stack gap-2', style: { marginTop: 'var(--s-4)' } }, h('div', { class: 'eyebrow', text: t('v3.title') }), h('p', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, text: t('v3.hint') }), make, status, more);
-}
-
-/** Background tiles, colour, photo and its cut-out. */
+/** Background tiles, colour and photo. */
 export function backgroundControls(n, set) {
   const fileIn = h('input', { type: 'file', accept: 'image/*', hidden: true, onchange: async (e) => {
     const f = e.target.files[0]; if (!f) return;
-    try { await removePhotos(['fg', 'depth']); await setPhoto('bg', await fileToDataUrl(f)); await set((s) => { s.newtab.background = 'photo'; s.newtab.frame = ''; }); toast(t('home.photoSaved')); } catch { toast(t('common.error')); }
+    try { await removePhotos(['fg']); await setPhoto('bg', await fileToDataUrl(f)); await set((s) => { s.newtab.background = 'photo'; s.newtab.frame = ''; }); toast(t('home.photoSaved')); } catch { toast(t('common.error')); }
   } });
   const tiles = [...BACKGROUNDS, 'photo', ...(n.scene && n.scene.layers && n.scene.layers.length ? ['scene'] : [])].map((id) => h('button', { class: 'bg-tile', type: 'button', 'aria-pressed': String(n.background === id), onclick: async () => {
     if (id === 'photo' && !n.frame) { if (!(await getPhoto('bg'))) { fileIn.click(); return; } }
@@ -110,8 +58,7 @@ export function backgroundControls(n, set) {
     n.background === 'photo' ? h('div', { class: 'stack gap-2', style: { marginTop: 'var(--s-4)' } }, h('div', { class: 'eyebrow', text: t('bg.textTone') }),
       h('div', { class: 'segmented', role: 'group', 'aria-label': t('bg.textTone') }, [['auto', 'bg.toneAuto'], ['light', 'bg.toneLight'], ['dark', 'bg.toneDark']].map(([v, k]) => h('button', { type: 'button', 'aria-pressed': String((n.photoText || 'auto') === v), text: t(k), onclick: () => set((s) => { s.newtab.photoText = v; }) }))),
       h('p', { class: 'muted', style: { fontSize: 'var(--fs-sm)' }, text: t('bg.toneHint') })) : null,
-    n.background === 'photo' ? cutoutBlock() : null,
-    n.background === 'photo' ? volumeBlock(n, set) : null];
+    ];
 }
 
 /** Depth: layers in front of the clock, and the parallax. */

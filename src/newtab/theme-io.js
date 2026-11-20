@@ -27,7 +27,7 @@ export function themeBlock() {
     if (!r.ok) { toast(t('th.err.' + r.error)); return; }
     const ok = await confirmDialog({ title: t('th.confirmTitle'), body: t('th.confirmBody'), confirm: t('th.confirmYes'), danger: true });
     if (!ok) return;
-    if (r.theme.media.bg) { await removePhotos(['depth']); await setPhoto('bg', r.theme.media.bg); if (r.theme.media.fg) await setPhoto('fg', r.theme.media.fg); else await removePhotos(['fg']); }
+    if (r.theme.media.bg) { await setPhoto('bg', r.theme.media.bg); if (r.theme.media.fg) await setPhoto('fg', r.theme.media.fg); else await removePhotos(['fg']); }
     await updateSettings((s) => { applyTheme(s, r.theme); });
     toast(t('th.done'));
   } });

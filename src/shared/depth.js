@@ -10,12 +10,9 @@ export const DEPTH_SCENES = {
   sea: { front: [{ cls: 'dl-mist', k: 16 }, { cls: 'dl-rocks', k: 30 }] },
   seaday: { front: [{ cls: 'dl-mist', k: 16 }, { cls: 'dl-rocks', k: 30 }] },
   onyx: { front: [{ cls: 'dl-limb', k: 20 }] },
-  'photo-cut': { front: [{ cls: 'dl-photo', k: 16 }] }, // the user's own photo with its subject cut out (see cutout.js)
-  'photo-3d': { front: [{ cls: 'dl-gl', k: 0 }] }, // the user's own photo as a depth map (see depth-make.js): the nearest part is drawn by WebGL in front of the clock (it moves itself, hence k 0)
+  'photo-cut': { front: [{ cls: 'dl-photo', k: 16 }] }, // a photo that ships with Elvani, with its foreground cut out in front of the clock
 };
-export const DEPTH_DEFAULT = { on: true, parallax: true, strength: 60, volume: false, behind: false, cut: 72, sway: true };
-/** How far the nearest part of a 3D photo slides at full pointer offset and full strength, as a share of the picture's width. */
-export const GL_SHIFT_MAX = 0.09;
+export const DEPTH_DEFAULT = { on: true, parallax: true, strength: 60 };
 /** How far the clock itself slides (px at full strength). */
 export const CLOCK_SHIFT = 9;
 
@@ -24,18 +21,15 @@ const num = (v, lo, hi, fallback) => (typeof v === 'number' && Number.isFinite(v
 /** Validate the saved setting. */
 export function normalizeDepth(d) {
   const r = d && typeof d === 'object' ? d : {};
-  return { on: r.on !== false, parallax: r.parallax !== false, strength: num(r.strength, 0, 100, DEPTH_DEFAULT.strength), volume: r.volume === true, behind: r.behind === true, cut: num(r.cut, 10, 95, DEPTH_DEFAULT.cut), sway: r.sway !== false };
+  return { on: r.on !== false, parallax: r.parallax !== false, strength: num(r.strength, 0, 100, DEPTH_DEFAULT.strength) };
 }
 
 /** The front layers of a scene, or [] when the scene has none or the effect is off. */
 export function frontLayers(scene, depth) {
   const d = normalizeDepth(depth);
   if (!d.on || !DEPTH_SCENES[scene]) return [];
-  return scene === 'photo-3d' && !d.behind ? [] : DEPTH_SCENES[scene].front; // a 3D photo has a layer in front of the clock only when the person wants the clock behind the nearest things
+  return DEPTH_SCENES[scene].front;
 }
-
-/** How far (share of the width) a 3D photo's nearest part slides at the current strength. */
-export const glShift = (depth) => { const d = normalizeDepth(depth); return d.parallax ? d.strength / 100 * GL_SHIFT_MAX : 0; };
 
 /** The CSS multiplier of the movement: 0 when parallax is off, otherwise 1 at the default strength. */
 export const parallaxStrength = (depth) => { const d = normalizeDepth(depth); return d.parallax ? d.strength / DEPTH_DEFAULT.strength : 0; };

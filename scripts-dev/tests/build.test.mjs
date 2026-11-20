@@ -58,7 +58,7 @@ test('build: two builds of the same source are the same bytes, and the chrome an
   assert.ok(names.includes('src/background/index.js') && names.includes('src/newtab/newtab.js') && names.includes('src/content/feed.js') && names.includes('src/ui/theme-init.js'), 'the entry points are where the manifest and the pages expect them');
   assert.equal(names.includes('src/shared/storage.js'), false, 'a module that was folded into a bundle is not shipped a second time');
   assert.equal(names.some((n) => /shared\/locales\/(?!en\.js$|languages\.js$)[^/]+\.js$/.test(n)), false, 'translations are data, not code');
-  for (const n of ['src/newtab/ml/depth-worker.js', 'src/newtab/ml/segment-worker.js', 'src/newtab/ml/ort.wasm.min.mjs', 'src/shared/locales/data/ru.json', 'src/dock/dock.html', 'src/ui/palette.css']) assert.ok(names.includes(n), n + ' must be shipped as a file');
+  for (const n of ['src/shared/locales/data/ru.json', 'src/dock/dock.html', 'src/ui/palette.css']) assert.ok(names.includes(n), n + ' must be shipped as a file');
   // every file the pages, the manifest and the stylesheets name is in the package
   const missing = [];
   for (const [n, data] of chrome) {

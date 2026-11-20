@@ -41,7 +41,6 @@ allow, and credit in the release notes if you want it. Please give us the time t
   cost 600 000 rounds, and no limit in the interface can slow a program that never uses the interface. The advice on the screen is the real defence: longer, four random words.
 - The key of an unlocked vault sits in `chrome.storage.session` (memory only, gone when the browser closes, not readable by web pages or content scripts) so that it survives the
   worker being stopped; script running on one of the extension's own pages could read it, which is why such script must not exist (the policy and the tests are for that).
-- `'wasm-unsafe-eval'` in the extension's policy: needed to compile the WebAssembly of the on-device photo models, and nothing else; there is no `eval` and no `new Function`.
 
 ## What we defend against
 
@@ -99,7 +98,7 @@ install the new release by hand. An app that has taken that release ignores ever
 
 - Versions of the tools are fixed (`package-lock.json`, `desktop/Cargo.lock`, `desktop/rust-toolchain.toml`); CI installs from the lock and fails if it does not match.
 - `npm audit` and `cargo deny` (advisories, licences, sources) run on every change; Dependabot proposes updates; CodeQL scans JavaScript, Python and Rust.
-- The extension has **no runtime dependencies**: everything in it is code in this repository, plus the ONNX Runtime and two models whose licences are in `src/newtab/ml/`.
+- The extension has **no runtime dependencies**: everything in it is code in this repository (the only third-party parts are the Lucide icons and the fonts, with their licences next to them); it runs no WebAssembly and no workers.
 
 ## The Windows service's rights
 

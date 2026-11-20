@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 maxbzd
-// The whole widget catalogue: every kind builds at S, M and L without errors or overflow, the gallery shows categories, the size row resizes, and the interactive ones work (counter, water, mood, habit, to-do, breathing, sound).
+// The whole widget catalogue: every kind builds at S, M and L without errors or overflow, the gallery shows categories, the size row resizes, and the interactive ones work (habit, to-do, breathing, sound).
 //   node scripts-dev/e2e/catalogue.cjs
 const { launch } = require('./lib.cjs');
 
@@ -14,7 +14,7 @@ const { launch } = require('./lib.cjs');
   p.on('pageerror', (e) => bad.push('pageerror: ' + e)); p.on('console', (m) => { if (m.type() === 'error') bad.push('console: ' + m.text()); });
 
   const kinds = await sp.evaluate(async () => Object.keys((await import('/src/shared/widgets.js')).WIDGET_KINDS));
-  ok(kinds.length >= 45, 'the catalogue has at least 45 kinds: ' + kinds.length);
+  ok(kinds.length >= 34, 'the catalogue has at least 34 kinds: ' + kinds.length);
 
   // 1. every kind at S, M and L (three widgets per kind, in batches that fit the canvas)
   const seeded = await sp.evaluate(async () => {
@@ -48,36 +48,26 @@ const { launch } = require('./lib.cjs');
   await p.click('.cv-bar button:has-text("Add widget")'); await p.waitForTimeout(500);
   ok(await p.locator('.wg-cats .chip').count() === 8, 'the gallery has "All" and seven categories: ' + await p.locator('.wg-cats .chip').count());
   await p.locator('.wg-cats .chip', { hasText: 'Body' }).click(); await p.waitForTimeout(300);
-  ok(await p.locator('.wg-tile').count() === 5, 'Body & mind lists its five widgets: ' + await p.locator('.wg-tile').count());
-  await p.locator('.wg-tile', { hasText: 'Counter' }).first().click().catch(() => {});
+  ok(await p.locator('.wg-tile').count() === 3, 'Body & mind lists its three widgets: ' + await p.locator('.wg-tile').count());
   await p.locator('.wg-cats .chip', { hasText: 'Tasks' }).click(); await p.waitForTimeout(300);
-  await p.locator('.wg-tile', { hasText: 'Counter' }).click(); await p.waitForTimeout(900);
+  await p.locator('.wg-tile', { hasText: 'Habit' }).click(); await p.waitForTimeout(900);
   const size = p.locator('.cv-panel .sk-row .segmented button');
   ok(await size.count() === 3, 'the size row has S, M and L');
-  const wBefore = await p.locator('.wgt-counter').first().evaluate((e) => e.getBoundingClientRect().width);
+  const wBefore = await p.locator('.wgt-habit').first().evaluate((e) => e.getBoundingClientRect().width);
   await size.nth(2).click(); await p.waitForTimeout(500);
-  const wAfter = await p.locator('.wgt-counter').first().evaluate((e) => e.getBoundingClientRect().width);
+  const wAfter = await p.locator('.wgt-habit').first().evaluate((e) => e.getBoundingClientRect().width);
   ok(wAfter > wBefore + 40, `L is wider than the default (${Math.round(wBefore)} → ${Math.round(wAfter)})`);
 
   // 3. the interactive ones
   await sp.evaluate(async () => {
     const st = await import('/src/shared/storage.js'), W = await import('/src/shared/widgets.js');
-    const ks = ['counter', 'water', 'mood', 'habit', 'todo', 'breath', 'sound', 'label'], items = {};
-    ks.forEach((k, i) => { items['wi000' + i] = { x: 3 + (i % 4) * 24, y: i < 4 ? 8 : 48, w: W.WIDGET_KINDS[k].sizes[1] }; });
+    const ks = ['habit', 'todo', 'breath', 'sound'], items = {};
+    ks.forEach((k, i) => { items['wi000' + i] = { x: 3 + (i % 4) * 24, y: 8, w: W.WIDGET_KINDS[k].sizes[1] }; });
     await st.updateSettings((s) => { s.newtab.widgets = ks.map((k, i) => ({ id: 'wi000' + i, kind: k, cfg: W.defaultCfg(k) })); s.newtab.canvas = { on: true, items }; });
   });
   await p.goto(ext('src/newtab/newtab.html')); await p.waitForTimeout(1200);
   const cfgOf = (kind) => sp.evaluate(async (kind) => (await (await import('/src/shared/storage.js')).getSettings()).newtab.widgets.find((w) => w.kind === kind).cfg, kind);
-  await p.locator('.wgt-counter .btn-primary').click(); await p.locator('.wgt-counter .btn-primary').click(); await p.waitForTimeout(500);
-  ok((await cfgOf('counter')).count === 2, 'the counter counts');
-  await p.locator('.wgt-counter button[aria-label="Reset to zero"]').click(); await p.waitForTimeout(400);
-  ok((await cfgOf('counter')).count === 0, 'the counter resets');
-  await p.locator('.wgt-water .wa-cup').nth(2).click(); await p.waitForTimeout(500);
-  ok((await cfgOf('water')).n === 3, 'the third glass fills three');
-  ok(/3 of 8/.test(await p.locator('.wgt-water').textContent()), 'the water text follows');
   await p.addStyleTag({ content: '#nudge { display: none !important }' }); // in the evening the "close the day" nudge floats over the widgets: this case is about the widgets
-  await p.locator('.wgt-mood .md-btn').nth(3).click(); await p.waitForTimeout(500);
-  ok(Object.values((await cfgOf('mood')).log).includes(4), 'the mood is saved for today');
   await p.locator('.wgt-habit .hb-done').click(); await p.waitForTimeout(600);
   ok(await p.locator('.wgt-habit .hb-done.on').count() === 1, 'the habit is checked for today');
   await p.locator('.wgt-todo li input[type=checkbox]').first().check(); await p.waitForTimeout(700);
@@ -93,11 +83,11 @@ const { launch } = require('./lib.cjs');
   await p.locator('.wgt-sound .sd-btn', { hasText: 'Off' }).click(); await p.waitForTimeout(400);
 
   // 4. new kinds inside a stack
-  await sp.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.newtab.canvas = { on: false, items: {} }; s.newtab.widgets = [{ id: 'wstk1', kind: 'stack', cfg: { items: [{ kind: 'month', when: 'any', cfg: {} }, { kind: 'breath', when: 'any', cfg: {} }, { kind: 'orb', when: 'any', cfg: {} }], pick: 'manual', i: 1 } }]; }); });
+  await sp.evaluate(async () => { const st = await import('/src/shared/storage.js'); await st.updateSettings((s) => { s.newtab.canvas = { on: false, items: {} }; s.newtab.widgets = [{ id: 'wstk1', kind: 'stack', cfg: { items: [{ kind: 'month', when: 'any', cfg: {} }, { kind: 'breath', when: 'any', cfg: {} }, { kind: 'sound', when: 'any', cfg: {} }], pick: 'manual', i: 1 } }]; }); });
   await p.goto(ext('src/newtab/newtab.html')); await p.waitForTimeout(1000);
   ok(await p.locator('#wgt-wstk1 .wgt-breath').count() === 1, 'a new kind works inside a stack');
   await p.locator('#wgt-wstk1 .ws-dot').nth(2).click(); await p.waitForTimeout(500);
-  ok(await p.locator('#wgt-wstk1 .wgt-orb').count() === 1, 'and the dots switch between new kinds');
+  ok(await p.locator('#wgt-wstk1 .wgt-sound').count() === 1, 'and the dots switch between new kinds');
 
   await app.close();
   if (bad.length) { console.log('FAIL\n' + [...new Set(bad)].slice(0, 40).join('\n')); process.exit(1); }

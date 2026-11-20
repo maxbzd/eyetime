@@ -10,14 +10,12 @@ import { dayKey } from '../../shared/time.js';
 import { LOOKS } from '../../shared/looks.js';
 import { luminance, normalizeHex } from '../../shared/color.js';
 import { resolveTextTone } from '../../shared/phototone.js';
-import { normalizeDepth } from '../../shared/depth.js';
 import { FRAMES, framePaths, normalizeFrame, DAILY, dailyFrame, wallVeil } from '../../shared/frames.js';
 import { canvasActive } from '../canvas.js';
 import { alignClockFill } from '../type-apply.js';
 import { BACKGROUNDS } from '../home-controls.js';
 import { logError } from '../../shared/errorlog.js';
-import { getPhotoInfo, clearPhotoInfo, photoKey } from '../photo-info.js';
-import { mount3d, unmount3d } from '../gl3d.js';
+import { getPhotoInfo, clearPhotoInfo } from '../photo-info.js';
 import { applyDepth } from '../depth.js';
 import { state } from './state.js';
 import { track } from '../../shared/usage-store.js';
@@ -38,7 +36,7 @@ export async function applyBackground() {
     const scene = LOOKS[state.settings.appearance.look]?.homeScene;
     bg = (scene && typeof scene === 'object' ? scene[document.documentElement.dataset.scheme] : scene) || 'look';
   }
-  let scene = bg, photoTone = null, wxSrc = '', flatScene = bg, depthMap = '';
+  let scene = bg, photoTone = null;
   if (bg === 'photo') {
     let frame = n.frame === DAILY || (today && n.background !== 'photo') ? dailyFrame(new Date(), wallSkip()) : normalizeFrame(n.frame); // a photo that ships with Elvani, or the person's own
     if (today && !frame && !(await getPhoto('bg'))) frame = dailyFrame(new Date(), wallSkip()); // asked for their own photo but has none (yet)
@@ -54,16 +52,9 @@ export async function applyBackground() {
       if (info.soft) document.documentElement.style.setProperty('--photo-soft', `url(${info.soft})`);
       if (today && !frame) setVeil(info.tone === 'dark' ? [0.4, 0.45, 0.3] : [0.18, 0.22, 0.14]); // their own photo: a light one needs more veil under white type
       photoTone = n.photoText === 'light' || n.photoText === 'dark' ? n.photoText : frame ? FRAMES[frame].tone : info.tone;
-      wxSrc = newtabBg;
     } else bg = 'look';
     const newtabFg = bg !== 'photo' ? '' : paths ? (paths.mask ? chrome.runtime.getURL(paths.mask) : '') : await getPhoto('fg');
     if (newtabFg) { document.documentElement.style.setProperty('--photo-mask', `url(${newtabFg})`); scene = 'photo-cut'; } // the cut-out subject: a masked copy of the photo goes in front of the clock
-    flatScene = scene;
-    const d3 = normalizeDepth(n.depth);
-    if (bg === 'photo' && wxSrc && d3.on && d3.volume) { // a 3D photo: its depth map was made for this very photo
-      const newtabDepth = await getPhoto('depth');
-      if (newtabDepth && newtabDepth.key === photoKey(wxSrc)) { depthMap = newtabDepth.png; scene = 'photo-3d'; }
-    }
   }
   if (bg !== 'photo') { paintCredit(''); clearPhotoInfo(); document.documentElement.style.removeProperty('--photo'); document.documentElement.style.removeProperty('--photo-soft'); } // the glass / photo clock falls back to a plain fill
   const color = normalizeHex(n.bgColor) || '#e9e4ff';
@@ -73,10 +64,6 @@ export async function applyBackground() {
   $('.bg').className = 'bg bgx-' + bg;
   await applyScene(bg === 'scene' ? n : null);
   applyDepth(state.settings, scene);
-  let gl = false;
-  if (depthMap) gl = await mount3d({ photo: wxSrc, depthMap, depth: n.depth }); else unmount3d();
-  document.body.classList.toggle('bg-gl', gl);
-  if (depthMap && !gl) applyDepth(state.settings, flatScene); // no WebGL or a broken map: the flat photo, as before
   // light hero text on scenes that are dark in every theme, and on dark custom colours; a photo follows the person's choice or its own brightness
   document.body.dataset.tone = photoTone && bg === 'photo' ? (resolveTextTone(n.photoText, photoTone) === 'dark' ? 'light' : 'dark') : bg === 'scene' && n.scene.tone ? n.scene.tone : DARK_SCENES.includes(bg) || (bg === 'color' && luminance(color) < 0.28) ? 'dark' : '';
   alignClockFill();
