@@ -12,14 +12,12 @@ const FIRST = {
   rings: { icon: 'circle-dot', w: [300, 640, 420] },
   countdown: { icon: 'timer', w: [200, 520, 280] },
   worldclock: { icon: 'globe', w: [220, 520, 300] },
-  percent: { icon: 'percent', w: [240, 560, 320] },
   mantra: { icon: 'quote', w: [240, 760, 420] },
   nextevent: { icon: 'calendar-clock', w: [240, 560, 320] },
   week: { icon: 'chart-column', w: [260, 560, 340] },
   bignumber: { icon: 'hash', w: [160, 480, 240] },
   eyebreak: { icon: 'eye', w: [220, 520, 300] },
   sticky: { icon: 'sticky-note', w: [200, 560, 280] },
-  weather: { icon: 'cloud-sun', w: [220, 480, 280] },
   plan: { icon: 'list-checks', w: [260, 560, 340] },
   recap: { icon: 'moon', w: [260, 560, 340] },
   stack: { icon: 'layers', w: [280, 640, 400] },
@@ -38,7 +36,6 @@ export const WORLD_ZONES = ['UTC', 'Europe/London', 'Europe/Lisbon', 'Europe/Par
   'Australia/Sydney', 'Pacific/Auckland', 'Africa/Cairo', 'Africa/Lagos', 'Africa/Johannesburg',
   'America/Vancouver', 'America/Los_Angeles', 'America/Denver', 'America/Chicago', 'America/Mexico_City', 'America/Toronto', 'America/New_York', 'America/Sao_Paulo', 'America/Argentina/Buenos_Aires'];
 export const BIG_METRICS = ['focusToday', 'sessionsToday', 'streak', 'tasksLeft', 'screenToday'];
-export const PERIODS = ['day', 'week', 'month', 'year'];
 export const MANTRA_COUNT = 6;
 
 /* ---------- stacks: several widgets in one place, the right one on top for the hour ---------- */
@@ -78,7 +75,6 @@ export function defaultCfg(kind, now = new Date()) {
     case 'mainfocus': return { text: '', day: '', done: false };
     case 'countdown': return { title: '', date: nextNewYear(now), time: '' };
     case 'worldclock': return { zones: ['Europe/London', 'America/New_York', 'Asia/Tokyo'] };
-    case 'percent': return { periods: ['day', 'week', 'year'] };
     case 'mantra': return { text: '' };
     case 'bignumber': return { metric: 'focusToday' };
     case 'sticky': return { text: '' };
@@ -95,7 +91,6 @@ export function normalizeCfg(kind, cfg, now = new Date()) {
     case 'mainfocus': return { text: str(c.text, 140), day: dateStr(c.day), done: c.done === true };
     case 'countdown': return { title: str(c.title, 60), date: dateStr(c.date) || d.date, time: timeStr(c.time) };
     case 'worldclock': { const z = Array.isArray(c.zones) ? c.zones.filter((x) => WORLD_ZONES.includes(x)).slice(0, 4) : null; return { zones: z && z.length ? [...new Set(z)] : d.zones }; }
-    case 'percent': { const p = Array.isArray(c.periods) ? PERIODS.filter((x) => c.periods.includes(x)) : null; return { periods: p && p.length ? p : d.periods }; }
     case 'mantra': return { text: str(c.text, 200) };
     case 'bignumber': return { metric: BIG_METRICS.includes(c.metric) ? c.metric : d.metric };
     case 'sticky': return { text: str(c.text, 2000) };
@@ -138,20 +133,6 @@ export function countdownLeft(date, time, now = new Date()) {
   const dayStart = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
   const calDays = Math.round((dayStart(target) - dayStart(now)) / 86_400_000);
   return { ms, past: ms < 0, days: Math.floor(abs / 86_400_000), hours: Math.floor(abs / 3_600_000) % 24, minutes: Math.floor(abs / 60_000) % 60, calDays, sameDay: calDays === 0 };
-}
-
-/** How far through a day / week (Monday first) / month / year we are, 0..1. */
-export function periodProgress(period, now = new Date()) {
-  // counted in calendar days and wall-clock time, not in elapsed milliseconds: a daylight-saving change makes a day 23 or 25 hours long
-  const y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
-  const dayFrac = (now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds() + now.getMilliseconds() / 1000) / 86_400;
-  const utcDay = (yy, mm, dd) => Date.UTC(yy, mm, dd) / 86_400_000;
-  let done, total;
-  if (period === 'day') { done = dayFrac; total = 1; }
-  else if (period === 'week') { done = (now.getDay() + 6) % 7 + dayFrac; total = 7; }
-  else if (period === 'month') { done = d - 1 + dayFrac; total = utcDay(y, m + 1, 1) - utcDay(y, m, 1); }
-  else { done = utcDay(y, m, d) - utcDay(y, 0, 1) + dayFrac; total = utcDay(y + 1, 0, 1) - utcDay(y, 0, 1); }
-  return Math.min(1, Math.max(0, done / total));
 }
 
 /** "New_York" from "America/New_York". */

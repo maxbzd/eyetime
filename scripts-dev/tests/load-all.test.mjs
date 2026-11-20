@@ -10,7 +10,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../src/shared');
 const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
-const files = walk(root).filter((f) => f.endsWith('.js') && !f.includes(`${path.sep}locales${path.sep}`) && !f.includes(`${path.sep}parked${path.sep}`));
+const files = walk(root).filter((f) => f.endsWith('.js') && !f.includes(`${path.sep}locales${path.sep}`));
 
 test(`every module of src/shared loads in Node (${files.length} files)`, async () => {
   assert.ok(files.length > 60);

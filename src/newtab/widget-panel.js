@@ -6,7 +6,7 @@ import { h, icon } from '../ui/dom.js';
 import { dropdown } from '../ui/dropdown.js';
 import { t } from '../shared/i18n.js';
 import { updateSettings } from '../shared/storage.js';
-import { WIDGET_KIND_IDS, WIDGET_KINDS, WORLD_ZONES, BIG_METRICS, PERIODS, STACK_WHEN, STACKABLE, MAX_STACK, normalizeCfg, zoneCity } from '../shared/widgets.js';
+import { WIDGET_KIND_IDS, WIDGET_KINDS, WORLD_ZONES, BIG_METRICS, STACK_WHEN, STACKABLE, MAX_STACK, normalizeCfg, zoneCity } from '../shared/widgets.js';
 import { widgetName, previewWidget } from './widgets.js';
 import { home, effectiveNow } from './home-config.js';
 import { skinControls } from './skin-panel.js';
@@ -82,9 +82,6 @@ export async function buildWidgetPanel(id, kind, { onClose, onDelete }) {
         dropdown(zones(), z, (v) => { const next = [...cfg.zones]; next[i] = v; save({ zones: next }); }, { label: t('wg.f.zone') + ' ' + (i + 1) }),
         cfg.zones.length > 1 ? h('button', { class: 'btn btn-ghost btn-icon btn-sm', type: 'button', 'aria-label': t('common.remove'), onclick: () => { save({ zones: cfg.zones.filter((_, j) => j !== i) }).then(draw); } }, icon('x')) : null)));
       if (cfg.zones.length < 4) fields.push(h('button', { class: 'btn btn-sm', type: 'button', onclick: () => { const free = WORLD_ZONES.find((z) => !cfg.zones.includes(z)); save({ zones: [...cfg.zones, free] }).then(draw); } }, icon('plus'), t('wg.f.addZone')));
-    } else if (kind === 'percent') {
-      for (const p of PERIODS) fields.push(h('label', { class: 'ty-row' }, h('span', { class: 'ty-lbl', text: t('wg.p.' + p) }),
-        h('span', { class: 'switch', style: { gridColumn: 3, justifySelf: 'end' } }, h('input', { type: 'checkbox', checked: cfg.periods.includes(p), 'aria-label': t('wg.p.' + p), onchange: (e) => { const on = e.target.checked; const next = on ? [...cfg.periods, p] : cfg.periods.filter((x) => x !== p); if (!next.length) { e.target.checked = true; return; } save({ periods: next }); } }), h('span', { class: 'track' }), h('span', { class: 'thumb' }))));
     } else if (kind === 'mantra') {
       fields.push(row(t('wg.f.text'), h('textarea', { class: 'textarea', rows: 4, maxlength: 200, placeholder: t('wg.mantra.ph'), oninput: (e) => save({ text: e.target.value }) }, cfg.text)));
     } else if (kind === 'bignumber') {

@@ -3,10 +3,8 @@
 // Widgets about time: a clock (analog, flip, digital), the date, the moon, sunrise and sunset, the year, a timer.
 
 import { icon, toast } from '../ui/dom.js';
-import { t, fmtDuration, fmtNumber, fmtTime, getLocale } from '../shared/i18n.js';
-import { getSettings } from '../shared/storage.js';
-import { handAngles, zonedParts, moonInfo, moonPath, sunTimes, sunProgress, yearInfo } from '../shared/wgx.js';
-import { normalizeWeather } from '../shared/weather.js';
+import { t, fmtTime, getLocale } from '../shared/i18n.js';
+import { handAngles, zonedParts } from '../shared/wgx.js';
 import { el, h, clear, live, SVG_NS } from './widget-kit.js';
 
 const svg = (tag, attrs = {}, ...kids) => { const e = document.createElementNS(SVG_NS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v)); for (const c of kids) if (c) e.append(c); return e; };
@@ -68,60 +66,8 @@ export const TIME_DEFS = {
     },
   },
 
-  moon: {
-    build(root) {
-      const draw = () => {
-        const m = moonInfo(new Date()), p = moonPath(m.frac, 46), full = m.toFull < m.toNew || m.name === 'new';
-        const disc = svg('svg', { class: 'mo-svg', viewBox: '-50 -50 100 100', role: 'img', 'aria-label': t('wx.moon.' + m.name) },
-          svg('defs', {}, svg('radialGradient', { id: 'mo-g', cx: '35%', cy: '35%', r: '80%' }, svg('stop', { offset: '0', 'stop-color': '#fffbe9' }), svg('stop', { offset: '1', 'stop-color': '#cfc7aa' }))),
-          svg('circle', { class: 'mo-dark', r: 46 }), p.d ? svg('path', { d: p.d, fill: 'url(#mo-g)', transform: p.flip ? 'scale(-1 1)' : '' }) : null, svg('circle', { class: 'mo-rim', r: 46 }));
-        clear(root, disc, el('div', 'mo-name', t('wx.moon.' + m.name)), el('div', 'wg-sub', t('wg.moon.lit', { n: fmtNumber(Math.round(m.illum * 100)) }) + ' · ' + (m.toFull <= m.toNew && m.name !== 'new' ? t('wg.moon.toFull', { n: fmtNumber(Math.max(1, Math.round(m.toFull))) }) : t('wg.moon.toNew', { n: fmtNumber(Math.max(1, Math.round(m.toNew))) }))));
-        void full;
-      };
-      return live(draw, { every: 3_600_000 });
-    },
-  },
 
-  sun: {
-    build(root) {
-      const draw = async (alive) => {
-        const place = normalizeWeather((await getSettings()).weather).place;
-        if (!alive()) return;
-        if (!place) { clear(root, el('div', 'wg-label', t('wg.k.sun')), el('div', 'wg-sub', t('wg.sun.needCity')), h('a', { class: 'btn btn-sm', href: chrome.runtime.getURL('src/options/options.html#home') }, icon('settings'), t('wg.sun.setCity'))); return; }
-        const now = new Date(), s = sunTimes(now, place.lat, place.lon);
-        if ('polar' in s) { clear(root, el('div', 'wg-label', place.name), el('div', 'wg-sub', t(s.polar === 'day' ? 'wg.sun.polarDay' : 'wg.sun.polarNight'))); return; }
-        const pr = sunProgress(now, s.rise, s.set), x = Math.max(-0.08, Math.min(1.08, pr)), a = Math.PI * (1 - x), sx = 50 + 40 * Math.cos(a), sy = 52 - 40 * Math.sin(a), up = pr >= 0 && pr <= 1;
-        const arc = svg('svg', { class: 'su-svg', viewBox: '0 0 100 60', role: 'img', 'aria-label': t('wg.k.sun') }, svg('path', { class: 'su-track', d: 'M10,52 A40,40 0 0 1 90,52' }), svg('line', { class: 'su-horizon', x1: 2, y1: 52, x2: 98, y2: 52 }),
-          svg('path', { class: 'su-done', d: `M10,52 A40,40 0 0 1 ${sx.toFixed(2)},${sy.toFixed(2)}`, hidden: up ? null : '' }), svg('circle', { class: up ? 'su-sun' : 'su-sun night', cx: sx.toFixed(2), cy: Math.min(sy, 56).toFixed(2), r: 4.2 }));
-        const tm = (d) => fmtTime(d);
-        clear(root, el('div', 'wg-label', place.name), arc,
-          el('div', 'su-times', el('span', '', icon('sun'), el('b', 'num', tm(s.rise))), el('span', '', icon('moon'), el('b', 'num', tm(s.set)))),
-          el('div', 'wg-sub', t('wg.sun.len', { t: fmtDuration((Number(s.set) - Number(s.rise)) / 1000) })));
-      };
-      return live(draw, { watch: ['settings'], every: 60_000, align: 60_000 });
-    },
-  },
 
-  year: {
-    build(root, api) {
-      const draw = () => {
-        const y = yearInfo(new Date()), c = api.cfg(), pct = Math.floor(y.frac * 100);
-        root.dataset.view = c.view;
-        const head = el('div', 'wg-label', String(y.year));
-        const foot = el('div', 'yr-foot', el('b', 'num', t('wg.year.left', { n: fmtNumber(y.left) })), el('span', 'wg-sub', t('wg.year.pct', { n: fmtNumber(pct), year: y.year })));
-        if (c.view === 'ring') {
-          const R = 40, C = 2 * Math.PI * R;
-          clear(root, head, el('div', 'yr-ringwrap', svg('svg', { class: 'yr-ring', viewBox: '0 0 100 100', role: 'img', 'aria-label': `${pct}%` }, svg('circle', { class: 'track', cx: 50, cy: 50, r: R }), svg('circle', { class: 'bar', cx: 50, cy: 50, r: R, 'stroke-dasharray': `${(C * y.frac).toFixed(1)} ${C.toFixed(1)}` })), el('div', 'yr-pct num', pct + '%')), foot);
-        } else if (c.view === 'weeks') {
-          const weeks = Math.ceil(y.total / 7), cur = Math.floor(y.index / 7);
-          clear(root, head, el('div', 'yr-weeks', Array.from({ length: weeks }, (_, i) => el('i', i < cur ? 'on' : i === cur ? 'now' : ''))), foot);
-        } else {
-          clear(root, head, el('div', 'yr-dots', Array.from({ length: y.total }, (_, i) => el('i', i < y.index ? 'on' : i === y.index ? 'now' : ''))), foot);
-        }
-      };
-      return live(draw, { every: 3_600_000 });
-    },
-  },
 
   timer: {
     build(root, api) {

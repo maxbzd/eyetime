@@ -71,13 +71,13 @@ Everything the optional anonymous usage report can carry, one row per name, with
 |---|---|---|
 | `ritual` | The morning ritual is on. | Audience (setup) |
 | `dock` | The dock is on. | Audience (setup) |
-| `weather` | Weather is on. | Audience (setup) |
+| `weather` | Retired in 3.9.4 (the weather); only older versions report it. | Audience (setup) |
 | `calendar` | A calendar is connected. | Audience (setup) |
 | `tasks_sync` | Task sync is on. | Audience (setup) |
 | `settings_sync` | Settings sync is on. | Audience (setup) |
 | `sync_encrypted` | Synced data is sealed with a passphrase. | Audience (setup) |
 | `instant_block` | Instant blocking is on. | Audience (setup), segment "blocking" |
-| `smart_sites` | Sorting unknown sites (on device) is on. | Audience (setup) |
+| `smart_sites` | Retired in 3.9.4 (sorting unknown sites); only older versions report it. | Audience (setup) |
 | `connections` | At least one connection exists. | Audience (setup) |
 | `schedule` | Work hours blocking is on. | Audience (setup), segment "blocking" |
 | `limits` | Daily limits are on. | Audience (setup), segment "blocking" |

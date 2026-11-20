@@ -2,16 +2,15 @@
 // Copyright 2026 maxbzd
 import { PRESETS, PRESET_IDS, PRODUCTIVE_DEFAULTS } from './catalog.js';
 import { matches, matchesAny } from './domains.js';
-import { guessRules } from './siteguess.js';
 
 /**
  * Candidate rules for classification, each { domain, cls, prio }.
  * The most specific (longest) matching domain wins; on a tie the higher priority wins
  * (user override 3 > custom list 2 > built-in 1).
  */
-function candidates(settings, guess) {
+function candidates(settings) {
   const b = settings.blocking;
-  const out = guessRules(guess); // what the on-device model guessed for sites in no list: the weakest rule of all
+  const out = [];
   for (const d of PRODUCTIVE_DEFAULTS) out.push({ domain: d, cls: 'productive', prio: 1 });
   for (const id of PRESET_IDS) if (b.presets[id]) for (const d of PRESETS[id].domains) out.push({ domain: d, cls: 'distracting', prio: 1 });
   for (const d of b.custom) out.push({ domain: d, cls: 'distracting', prio: 2 });
@@ -22,23 +21,22 @@ function candidates(settings, guess) {
 
 /** Every domain that a list or a personal choice mentions (the on-device model's guesses do not count): what a network-level rule set is built from. */
 export function listedDomains(settings) {
-  return [...new Set(candidates(settings, undefined).map((r) => r.domain))];
+  return [...new Set(candidates(settings).map((r) => r.domain))];
 }
 
-/** Builds a fast classifier for the current settings (and, for reports, the saved guesses). Rebuild it when settings change. */
-export function makeClassifier(settings, guess = undefined) {
-  const rules = candidates(settings, guess);
+/** Builds a fast classifier for the current settings. Rebuild it when settings change. */
+export function makeClassifier(settings) {
+  const rules = candidates(settings);
   const allow = settings.blocking.allow;
   const cache = new Map();
   function rule(host) {
     if (!host) return null;
-    let best = null, weak = null; // `weak`: the best of the on-device model's guesses
+    let best = null;
     for (const r of rules) {
       if (!matches(host, r.domain)) continue;
-      if (r.prio === 0) { if (!weak || r.domain.length > weak.domain.length) weak = r; continue; } // a guess only counts when no list or personal choice covers the site
       if (!best || r.domain.length > best.domain.length || (r.domain.length === best.domain.length && r.prio > best.prio)) best = r;
     }
-    return best || weak;
+    return best;
   }
   return {
     /** 'productive' | 'neutral' | 'distracting' */
@@ -51,10 +49,8 @@ export function makeClassifier(settings, guess = undefined) {
       cache.set(host, cls);
       return cls;
     },
-    /** Is the site in a list or chosen by the person (a guess does not count)? */
-    known(host) { const r = rule(host); return !!r && r.prio > 0; },
-    /** Is the class of this site only a guess of the on-device model? */
-    guessed(host) { const r = rule(host); return !!r && r.prio === 0; },
+    /** Is the site in a list or chosen by the person? */
+    known(host) { return !!rule(host); },
     /** The rule domain responsible for the class (used as the key for "continue" passes and limits). */
     ruleDomain(host) { const r = rule(host); return r ? r.domain : host; },
   };

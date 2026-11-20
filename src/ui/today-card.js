@@ -7,15 +7,14 @@ import { send } from './api.js';
 import { t, fmtDuration } from '../shared/i18n.js';
 import { getSettings, getDays, onChange } from '../shared/storage.js';
 import { makeClassifier } from '../shared/classify.js';
-import { loadGuess } from '../shared/guessstore.js';
 import { summarize, focusStreak } from '../shared/stats.js';
 import { dayKey, rangeKeys } from '../shared/time.js';
 
 export function mountToday(root, { closeOnBreak = false, sites = 3, compact = false } = {}) {
-  const st = { guess: {}, settings: null, today: null, yesterday: null, eye: { since: 0, due: false }, streak: 0 };
+  const st = { settings: null, today: null, yesterday: null, eye: { since: 0, due: false }, streak: 0 };
 
   async function load() {
-    st.settings = await getSettings(); st.guess = await loadGuess();
+    st.settings = await getSettings();
     const days = await getDays(rangeKeys(30));
     st.today = days[29][1]; st.yesterday = days[28][1];
     st.streak = focusStreak(days);
@@ -42,7 +41,7 @@ export function mountToday(root, { closeOnBreak = false, sites = 3, compact = fa
   }
 
   function render() {
-    const { classify } = makeClassifier(st.settings, st.guess);
+    const { classify } = makeClassifier(st.settings);
     const sum = summarize([[dayKey(), st.today]], classify);
     const y = summarize([[dayKey(), st.yesterday]], classify);
 
@@ -82,6 +81,6 @@ export function mountToday(root, { closeOnBreak = false, sites = 3, compact = fa
 
   async function refresh() { await load(); render(); }
   refresh();
-  onChange(['d:*', 'settings', 'siteGuess'], refresh);
+  onChange(['d:*', 'settings'], refresh);
   return { refresh };
 }
