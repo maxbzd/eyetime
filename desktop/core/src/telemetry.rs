@@ -60,8 +60,8 @@ pub const FLAGS: [&str; 11] = [
 ];
 
 /// The languages a report may name (the extension's list).
-pub const LANGS: [&str; 11] = [
-    "en", "ru", "es", "de", "fr", "pt", "it", "pl", "uk", "zh", "ja",
+pub const LANGS: [&str; 12] = [
+    "en", "ru", "es", "de", "fr", "pt", "it", "pl", "uk", "zh", "ja", "ro",
 ];
 
 const DAY_MS: i64 = 86_400_000;
