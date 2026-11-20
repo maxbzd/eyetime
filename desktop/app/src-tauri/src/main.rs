@@ -250,7 +250,7 @@ fn main() {
                 builder = builder.additional_browser_args(&format!("--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --remote-debugging-port={port} --remote-allow-origins=http://127.0.0.1:{port}"));
             }
             let win = builder
-                .title("EyeTime")
+                .title("Elvani")
                 .inner_size(1280.0, 820.0)
                 .min_inner_size(1020.0, 680.0)
                 .decorations(false)
@@ -273,11 +273,11 @@ fn main() {
                     }
                 }
             });
-            let open = MenuItem::with_id(app, "open", "Open EyeTime", true, None::<&str>)?;
+            let open = MenuItem::with_id(app, "open", "Open Elvani", true, None::<&str>)?;
             let quit = MenuItem::with_id(app, "quit", "Quit the window (blocks keep running)", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&open, &quit])?;
             let mut tray = TrayIconBuilder::new()
-                .tooltip("EyeTime")
+                .tooltip("Elvani")
                 .menu(&menu)
                 .show_menu_on_left_click(false)
                 .on_menu_event(|app, ev| match ev.id.as_ref() {
@@ -297,5 +297,5 @@ fn main() {
             Ok(())
         })
         .run(tauri::generate_context!())
-        .expect("EyeTime failed to start");
+        .expect("Elvani failed to start");
 }

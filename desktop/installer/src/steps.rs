@@ -379,9 +379,9 @@ fn do_install(desktop: bool, upgrade: bool, emit: Emit) -> Result<(), Stop> {
     let key = UNINSTALL_KEY;
     let uninstall = format!("\"{}\" --uninstall", setup.display());
     for (name, kind, value) in [
-        ("DisplayName", "REG_SZ", "EyeTime".to_string()),
+        ("DisplayName", "REG_SZ", "Elvani".to_string()),
         ("DisplayVersion", "REG_SZ", VERSION.to_string()),
-        ("Publisher", "REG_SZ", "EyeTime".to_string()),
+        ("Publisher", "REG_SZ", "Elvani".to_string()),
         ("InstallLocation", "REG_SZ", dir.display().to_string()),
         ("DisplayIcon", "REG_SZ", app.display().to_string()),
         ("UninstallString", "REG_SZ", uninstall),

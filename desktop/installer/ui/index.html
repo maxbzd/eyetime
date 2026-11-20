@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>EyeTime Setup</title>
+<title>Elvani Setup</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="/fonts.css">
 <style>
@@ -86,7 +86,7 @@ h2 { font: 400 28px/1.15 Outfit, sans-serif; letter-spacing: .3px; }
   <div id="drag"></div><button id="x" aria-label="Close">✕</button>
 
   <section class="screen" id="s-welcome">
-    <h1 id="title" aria-label="EyeTime"></h1>
+    <h1 id="title" aria-label="Elvani"></h1>
     <p class="sub" id="w-sub"></p>
     <button class="cta" id="go" type="button"></button>
     <button class="ghost" id="more" type="button" style="margin-top:8px"></button>
@@ -130,35 +130,35 @@ const post = (o) => window.ipc.postMessage(JSON.stringify(o));
 const ru = /^ru|^uk|^be/i.test(navigator.language || '');
 const T = {
   en: {
-    sub: 'Close the doors that pull you away. EyeTime blocks distracting sites and apps at system level, and helps you keep your eyes and your attention.',
-    install: 'Install EyeTime', options: 'Options', desk: 'Create a desktop shortcut',
+    sub: 'Close the doors that pull you away. Elvani blocks distracting sites and apps at system level, and helps you keep your eyes and your attention.',
+    install: 'Install Elvani', options: 'Options', desk: 'Create a desktop shortcut',
     fine: 'Installs for all users and asks Windows for administrator rights once. EyeTime Helper runs as a protected Windows service so that blocks hold even when the window is closed. Nothing leaves your computer.',
-    steps: ['Preparing', 'Copying files', 'Installing the blocking engine', 'Protecting the engine', 'Creating shortcuts', 'Starting EyeTime'],
-    dt: 'EyeTime is ready', ds: 'The blocking engine is running. Open EyeTime to set up your first rule.', open: 'Open EyeTime', close: 'Close',
-    bt: 'EyeTime is protecting you', bsLocked: 'A locked block is running right now. It will not be interrupted, not even by this installer. Run setup again when it ends.', bsChallenge: 'To change or remove EyeTime, open it and choose Settings → Allow uninstalling. This small step is on purpose. Then run setup again.',
+    steps: ['Preparing', 'Copying files', 'Installing the blocking engine', 'Protecting the engine', 'Creating shortcuts', 'Starting Elvani'],
+    dt: 'Elvani is ready', ds: 'The blocking engine is running. Open Elvani to set up your first rule.', open: 'Open Elvani', close: 'Close',
+    bt: 'Elvani is protecting you', bsLocked: 'A locked block is running right now. It will not be interrupted, not even by this installer. Run setup again when it ends.', bsChallenge: 'To change or remove Elvani, open it and choose Settings → Allow uninstalling. This small step is on purpose. Then run setup again.',
     et: 'Something went wrong', es: 'Nothing was left half-installed. You can try again.',
-    rt: 'Remove EyeTime?', rs: 'The blocking engine will stop and every block it holds will be lifted. Your rules and statistics stay on this computer unless you tick the box.', rdata: 'Also delete my rules and statistics', rgo: 'Remove', rcancel: 'Keep EyeTime',
+    rt: 'Remove Elvani?', rs: 'The blocking engine will stop and every block it holds will be lifted. Your rules and statistics stay on this computer unless you tick the box.', rdata: 'Also delete my rules and statistics', rgo: 'Remove', rcancel: 'Keep Elvani',
     rsteps: ['Preparing', 'Stopping the blocking engine', 'Lifting blocks', 'Removing files', 'Cleaning up'],
-    rdt: 'EyeTime was removed', rds: 'Every block was lifted and the hosts file is as it was. Thank you for trying it.',
-    upd: 'Update EyeTime',
+    rdt: 'Elvani was removed', rds: 'Every block was lifted and the hosts file is as it was. Thank you for trying it.',
+    upd: 'Update Elvani',
   },
   ru: {
-    sub: 'Закройте двери, которые уводят вас от дел. EyeTime блокирует отвлекающие сайты и приложения на уровне системы и помогает беречь глаза и внимание.',
-    install: 'Установить EyeTime', options: 'Параметры', desk: 'Создать ярлык на рабочем столе',
-    fine: 'Устанавливается для всех пользователей, один раз запросит права администратора. Помощник EyeTime работает как защищённая служба Windows, поэтому блокировки держатся, даже когда окно закрыто. Ничего не уходит с вашего компьютера.',
-    steps: ['Подготовка', 'Копирование файлов', 'Установка движка блокировки', 'Защита движка', 'Создание ярлыков', 'Запуск EyeTime'],
-    dt: 'EyeTime готов', ds: 'Движок блокировки работает. Откройте EyeTime и настройте первое правило.', open: 'Открыть EyeTime', close: 'Закрыть',
-    bt: 'EyeTime вас защищает', bsLocked: 'Сейчас идёт строгая блокировка. Её нельзя прервать, даже установщиком. Запустите установку снова, когда она закончится.', bsChallenge: 'Чтобы изменить или удалить EyeTime, откройте его и выберите Настройки → Разрешить удаление. Этот небольшой шаг сделан намеренно. Потом запустите установку снова.',
+    sub: 'Закройте двери, которые уводят вас от дел. Elvani блокирует отвлекающие сайты и приложения на уровне системы и помогает беречь глаза и внимание.',
+    install: 'Установить Elvani', options: 'Параметры', desk: 'Создать ярлык на рабочем столе',
+    fine: 'Устанавливается для всех пользователей, один раз запросит права администратора. Помощник Elvani работает как защищённая служба Windows, поэтому блокировки держатся, даже когда окно закрыто. Ничего не уходит с вашего компьютера.',
+    steps: ['Подготовка', 'Копирование файлов', 'Установка движка блокировки', 'Защита движка', 'Создание ярлыков', 'Запуск Elvani'],
+    dt: 'Elvani готов', ds: 'Движок блокировки работает. Откройте Elvani и настройте первое правило.', open: 'Открыть Elvani', close: 'Закрыть',
+    bt: 'Elvani вас защищает', bsLocked: 'Сейчас идёт строгая блокировка. Её нельзя прервать, даже установщиком. Запустите установку снова, когда она закончится.', bsChallenge: 'Чтобы изменить или удалить Elvani, откройте его и выберите Настройки → Разрешить удаление. Этот небольшой шаг сделан намеренно. Потом запустите установку снова.',
     et: 'Что-то пошло не так', es: 'Ничего не осталось наполовину установленным. Можно попробовать ещё раз.',
-    rt: 'Удалить EyeTime?', rs: 'Движок блокировки остановится, все блокировки будут сняты. Правила и статистика останутся на этом компьютере, если не отметить пункт ниже.', rdata: 'Удалить также мои правила и статистику', rgo: 'Удалить', rcancel: 'Оставить EyeTime',
+    rt: 'Удалить Elvani?', rs: 'Движок блокировки остановится, все блокировки будут сняты. Правила и статистика останутся на этом компьютере, если не отметить пункт ниже.', rdata: 'Удалить также мои правила и статистику', rgo: 'Удалить', rcancel: 'Оставить Elvani',
     rsteps: ['Подготовка', 'Остановка движка блокировки', 'Снятие блокировок', 'Удаление файлов', 'Уборка'],
-    rdt: 'EyeTime удалён', rds: 'Все блокировки сняты, файл hosts такой же, как был. Спасибо, что попробовали.',
-    upd: 'Обновить EyeTime',
+    rdt: 'Elvani удалён', rds: 'Все блокировки сняты, файл hosts такой же, как был. Спасибо, что попробовали.',
+    upd: 'Обновить Elvani',
   },
 }[ru ? 'ru' : 'en'];
 
 /* the name, letter by letter */
-const title = $('#title'); [...'EyeTime'].forEach((c, i) => { const s = document.createElement('span'); s.textContent = c; s.style.animationDelay = (1.1 + i * 0.07) + 's'; title.append(s); });
+const title = $('#title'); [...'Elvani'].forEach((c, i) => { const s = document.createElement('span'); s.textContent = c; s.style.animationDelay = (1.1 + i * 0.07) + 's'; title.append(s); });
 $('#w-sub').textContent = T.sub; $('#go').textContent = T.install; $('#more').textContent = T.options; $('#o-desk-t').textContent = T.desk; $('#w-fine').textContent = T.fine; $('#o-desk').checked = true;
 $('#open').textContent = T.open; $('#d-close').textContent = T.close; $('#b-t').textContent = T.bt; $('#b-close').textContent = T.close; $('#b-open').textContent = T.open; $('#e-t').textContent = T.et; $('#e-s').textContent = T.es; $('#e-close').textContent = T.close;
 $('#r-t').textContent = T.rt; $('#r-s').textContent = T.rs; $('#r-data-t').textContent = T.rdata; $('#r-go').textContent = T.rgo; $('#r-cancel').textContent = T.rcancel;
