@@ -14,6 +14,7 @@
 - **The eye break breathes.** On a plain break screen (no wallpaper) the same sphere rises and falls behind the timer, the pace of slow breathing that rests the eyes and the mind. Over a wallpaper it stays out of the way.
 - **A movement break, every third break.** Looking far away rests the eyes, but not the neck and the back. Every third break lasts 45 seconds and asks the body for something small and different each time (shoulders, neck, wrists, a few steps, water): eight short exercises, written in all 12 languages. Settings → Eye care → "Movement break" turns it off. Nothing is sent anywhere; the count is the number of breaks you already finish.
 - **Two more Home backgrounds: Contours and Embers.** Contours are slow map-like rings drawn in the look's own line colour; Embers is a warm glow rising from the bottom edge in the look's accent. Both follow the look and the light or dark scheme, cost nothing at rest (plain CSS, no animation), and are in all 12 languages.
+- **Today now works on the drawn backgrounds.** The calm arrangement (the clock, one line for your focus, a few quiet buttons at the bottom) used to turn any other background into a photograph. Sphere, Contours, Embers, Mesh, Aurora, Night sky, Waves, Grid and the others now stay as they are, drawn dark under white type, in both light and dark. The Centre arrangement is a little tighter at the top, so the tasks show above the fold on a laptop.
 - The last lime-green remnant of the old palette on the break screen's button is amber now.
 
 ### Lighter: what was taken away
