@@ -21,7 +21,7 @@ import { state } from './state.js';
 import { track } from '../../shared/usage-store.js';
 
 /** The backgrounds Today shows as they are, drawn dark (see today.css). */
-const TODAY_BACKGROUNDS = ['dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'sphere', 'contour', 'ember', 'grid', 'living'];
+const TODAY_BACKGROUNDS = ['plain', 'color', 'dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'sphere', 'contour', 'ember', 'grid', 'living'];
 const DARK_SCENES = ['aurora', 'stars', 'photo', 'sea', 'onyx', 'peaks'];
 
 /** A "quiet" theme hides the page's own buttons; they come back for a few seconds when the mouse moves or a key is pressed. */
@@ -33,7 +33,7 @@ export async function applyBackground() {
   const n = state.settings.newtab;
   let bg = BACKGROUNDS.includes(n.background) || n.background === 'photo' || (n.background === 'scene' && n.scene && n.scene.layers && n.scene.layers.length) ? n.background : 'look';
   const today = n.layout === 'today' && !canvasActive(state.settings);
-  if (today && bg !== 'photo' && !TODAY_BACKGROUNDS.includes(bg)) bg = 'photo'; // Today is white type over a dark picture: the drawn backgrounds below are dark there (today.css); a colour, a scene or "as in the look" becomes the wallpaper of the day
+  if (today && bg !== 'photo' && !TODAY_BACKGROUNDS.includes(bg)) bg = 'photo'; // Today is white type over a dark picture: the drawn backgrounds below are dark there (today.css); a scene or "as in the look" becomes the wallpaper of the day
   if (bg === 'look') { // "as in the look": Calm paints Dawn, Tide a sea (one per scheme), the others their own page colour
     const scene = LOOKS[state.settings.appearance.look]?.homeScene;
     bg = (scene && typeof scene === 'object' ? scene[document.documentElement.dataset.scheme] : scene) || 'look';

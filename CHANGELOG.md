@@ -18,6 +18,9 @@
 - **Three new looks: Lumen, Glacier and Graphite.** Lumen is sunlit cream with an amber glow (serif headings, warm and soft); Glacier is pale ice and one clear blue line; Graphite is neutral grey with sharp type and one indigo accent, for long working days. Each has a light and a dark side, readable by the same contrast rules as the others, and all three sit next to Calm at the start of the gallery. 19 looks now; the store texts, the site and the README say so.
 - The last lime-green remnant of the old palette on the break screen's button is amber now.
 
+### One look for every background
+- **Today works on every background, not only on a photograph.** The arrangement with the clock, one line for your focus and a few quiet buttons used to turn any drawn background into the wallpaper of the day; "Plain" and "Colour" now stay as they are too. The drawn backgrounds are painted as the glow of a screen at night (dawn, ocean, forest, dusk, sand, slate, mesh, aurora, night sky, waves, grain, dots, sphere, contours, embers, grid, living): richer in the corners, dark in the middle where the type is. No cards to scroll past, the same calm Home on all of them. "Peaks" and "as in the look" keep the photograph.
+
 ### A second look at every look
 - **The selected mode chip ("Sprint 25m") could not be read.** Its minutes and its icon were painted in the accent colour, which is sometimes the very colour of the chip: invisible in Calm light, faint in most dark looks. Pearl's selected chips were white on white. Both fixed.
 - **The toolbar popup in Italian and Romanian**: the long word of the "Custom" chip pushed the four durations into one another; it is only its plus now (the word stays for screen readers). The start button keeps the right edge when a long label wraps it.

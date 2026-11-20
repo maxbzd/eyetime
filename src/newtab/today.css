@@ -238,9 +238,9 @@ body[data-layout="today"] .fl-next { max-width: 100%; margin-top: 4px; font-size
 
 /* ---------- Today over a drawn background (not a photograph) ----------
    White type needs a dark ground in either scheme, so these backgrounds are painted with the dark tokens here, whatever the page's own scheme is. */
-body[data-layout="today"] .bg:is(.bgx-dawn, .bgx-ocean, .bgx-forest, .bgx-dusk, .bgx-sand, .bgx-slate, .bgx-mesh, .bgx-aurora, .bgx-stars, .bgx-waves, .bgx-grain, .bgx-dots, .bgx-sphere, .bgx-contour, .bgx-ember, .bgx-grid, .bgx-living) {
+body[data-layout="today"] .bg:is(.bgx-plain, .bgx-color, .bgx-dawn, .bgx-ocean, .bgx-forest, .bgx-dusk, .bgx-sand, .bgx-slate, .bgx-mesh, .bgx-aurora, .bgx-stars, .bgx-waves, .bgx-grain, .bgx-dots, .bgx-sphere, .bgx-contour, .bgx-ember, .bgx-grid, .bgx-living) {
   --bg: #0b0b0c; --text: #f2f1ec; --border: #232326; --border-strong: #3a3a3e; --accent: #f2c14e; --productive: #4a89ee; --distracting: #e8584f; --success: #3ddc97;
-  --g-strength: 30%; --sphere-lo: .05; --sphere-hi: .085; }
+  --g-strength: 56%; --sphere-lo: .05; --sphere-hi: .085; }
 body[data-layout="today"] .bg.bgx-contour { --border: #34343a; --border-strong: #4a4a52; }
 body[data-layout="today"] .bg.bgx-ember { --ember: 70%; }
 
@@ -255,3 +255,11 @@ body[data-layout="today"] #focus.fl { --td-d: 270ms; } body[data-layout="today"]
 /* Today is white type on a photograph whatever the look: a look that colours its own date line (Void, Noir) must not turn it grey on the picture; the quote at the bottom gets the same soft shadow as the clock, since it often lies on light rocks or surf */
 body[data-layout="today"] #date { color: var(--ink-on-2) !important; text-shadow: var(--lift); }
 body[data-layout="today"] .quote .q-text, body[data-layout="today"] .quote .q-by { text-shadow: 0 1px 3px rgba(0, 0, 0, .5), 0 0 18px rgba(0, 0, 0, .35); }
+
+/* Today over a drawn background: the colours are the glow of a screen at night, not a pastel: richer than the light versions, and always in the corners, so that the middle (the type) stays dark.
+   "Plain" is a deep, slightly lifted dark; "Colour" is the person's colour taken down into the same dark. */
+body[data-layout="today"] .bg.bgx-dawn { --g1: #ff9a62; --g2: #b79bff; } body[data-layout="today"] .bg.bgx-ocean { --g1: #4fb6ff; --g2: #35e0c4; }
+body[data-layout="today"] .bg.bgx-forest { --g1: #7ddc7a; --g2: #e8d96a; } body[data-layout="today"] .bg.bgx-dusk { --g1: #ff7fa3; --g2: #7f8bff; }
+body[data-layout="today"] .bg.bgx-sand { --g1: #f0c47a; --g2: #f29a7d; } body[data-layout="today"] .bg.bgx-slate { --g1: #aab6c6; --g2: #d3dae6; }
+body[data-layout="today"] .bg.bgx-plain { background: radial-gradient(90% 70% at 50% 0%, #1a1a1f, #0b0b0c 70%); }
+body[data-layout="today"] .bg.bgx-color { background: radial-gradient(90% 70% at 50% 0%, color-mix(in srgb, var(--bg-color, #6d5bd0) 46%, #0b0b0c), color-mix(in srgb, var(--bg-color, #6d5bd0) 16%, #0b0b0c) 75%); }

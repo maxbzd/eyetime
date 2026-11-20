@@ -27,5 +27,5 @@ test('every background has a name in every language', () => {
 
 test('Today shows only the drawn backgrounds it paints dark; the rest become the wallpaper of the day', () => {
   for (const id of today) { assert.ok(ids.includes(id), `Today lists an unknown background ${id}`); assert.match(todayCss, new RegExp(`\\.bgx-${id}\\b`), `today.css does not paint ${id} dark`); }
-  for (const id of ['look', 'photo', 'plain', 'color', 'peaks']) assert.ok(!today.includes(id), `${id} must not be shown as it is in Today (white type needs a dark picture)`);
+  for (const id of ['look', 'photo', 'peaks']) assert.ok(!today.includes(id), `${id} must not be shown as it is in Today (white type needs a dark picture)`);
 });
