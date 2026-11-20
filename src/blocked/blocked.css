@@ -12,6 +12,7 @@ h1 { font-size: clamp(30px, 5vw, 44px); letter-spacing: -.035em; line-height: 1.
 .clock { font-size: clamp(56px, 12vw, 96px); font-weight: 650; letter-spacing: -.05em; line-height: 1; }
 .actions { display: flex; gap: var(--s-3); flex-wrap: wrap; justify-content: center; margin-top: var(--s-4); }
 .note { color: var(--text-3); font-size: var(--fs-sm); min-height: 1.5em; }
+body.has-wall .note { color: rgba(255, 255, 255, .86); text-shadow: 0 1px 3px rgba(0, 0, 0, .5), 0 0 16px rgba(0, 0, 0, .4); } /* the small line under the buttons sat on rocks and water */
 .manage { font-size: var(--fs-sm); }
 #cont[disabled] { opacity: 1; color: var(--text-3); }
 
