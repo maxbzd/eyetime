@@ -5,11 +5,15 @@ import { $ } from '../ui/dom.js';
 import { send } from '../ui/api.js';
 import { t } from '../shared/i18n.js';
 import { showQuote } from '../ui/quote.js';
+import { getDays } from '../shared/storage.js';
+import { dayKey } from '../shared/time.js';
+import { isMoveBreak, exerciseOf, MOVE_SECONDS } from '../shared/moves.js';
 
 // `?auto=1`: the worker opened this page over the whole screen because the time was up (nobody asked for it). Then it must be easy to put off and must leave by itself:
 // Esc is "in five minutes", the buttons wake up after a moment (a click or a key that was on its way to the page underneath does not answer for the person),
 // the window closes a few seconds after the break is done, and one quiet link leads to the setting that switches this off.
-const AUTO = new URLSearchParams(location.search).has('auto');
+const PARAMS = new URLSearchParams(location.search);
+const AUTO = PARAMS.has('auto');
 const ARM_MS = 700, LEAVE_MS = 2600;
 
 (async function main() {
@@ -17,7 +21,11 @@ const ARM_MS = 700, LEAVE_MS = 2600;
   showQuote($('#quote'), 'rest', s);
   const born = Date.now();
   const armed = () => !AUTO || Date.now() - born >= ARM_MS;
-  const total = s.eye.breakSeconds || 20;
+  // every third break is for the body: a little longer, an exercise instead of "look far away" (shared/moves.js); `?move` shows it (the settings' "show a break" and the screens)
+  let taken = 0; try { const [[, day]] = await getDays([dayKey()]); taken = (day && day.b) || 0; } catch { /* no storage: an ordinary break */ }
+  const move = PARAMS.has('move') || isMoveBreak(taken, s.eye.moveEvery);
+  const total = move ? MOVE_SECONDS : s.eye.breakSeconds || 20;
+  if (move) $('.eyebrow').textContent = t('break.moveEyebrow');
   const C = 565.5;
   let left = total, finished = false;
   const bar = $('#bar');
@@ -25,6 +33,7 @@ const ARM_MS = 700, LEAVE_MS = 2600;
     $('#count').textContent = String(left);
     bar.style.strokeDashoffset = String(C * (1 - left / total));
     if (!finished) {
+      if (move) { $('#title').textContent = t('break.move'); $('#lead').textContent = t('break.ex.' + exerciseOf(taken, s.eye.moveEvery || 3)); return; }
       const blink = left <= Math.min(6, Math.floor(total / 4));
       $('#title').textContent = blink ? t('break.blink') : t('break.look');
       $('#lead').textContent = blink ? t('break.blinkLead') : t('break.lookLead');
@@ -37,7 +46,7 @@ const ARM_MS = 700, LEAVE_MS = 2600;
     clearInterval(id); finished = true;
     $('.stage').classList.add('finished');
     $('#count').textContent = '✓';
-    $('#title').textContent = t('break.well'); $('#lead').textContent = t('break.wellLead');
+    $('#title').textContent = t('break.well'); $('#lead').textContent = t(move ? 'break.moveWellLead' : 'break.wellLead');
     $('#skip').hidden = true; $('#snooze').hidden = true; $('#done').hidden = false;
     await send('break:complete');
     if (AUTO) setTimeout(() => window.close(), LEAVE_MS);

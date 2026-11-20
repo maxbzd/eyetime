@@ -174,7 +174,7 @@ export const zh = {
   /* eye break page */
   'break.pageTitle': '护眼休息 — Elvani', 'break.eyebrow': '20-20-20 护眼休息', 'break.look': '看向远方', 'break.lookLead': '找一个大约 6 米（20 英尺）外的物体，让目光停在上面。放松肩膀。',
   'break.blink': '慢慢眨眼', 'break.blinkLead': '轻轻闭上眼睛片刻，然后眨几下眼，让眼睛湿润。', 'break.skip': '跳过', 'break.done': '回去工作',
-  'break.well': '做得好', 'break.wellLead': '你的眼睛会感谢你。休息已记录。',
+  'break.well': '做得好', 'break.wellLead': '你的眼睛会感谢你。休息已记录。', 'break.moveEyebrow': "活动休息", 'break.move': "活动一下", 'break.moveWellLead': "你的身体谢谢你。休息已记录。", 'break.ex.1': "站起来，慢慢向后转动肩膀十次。", 'break.ex.2': "头向一侧肩膀倾斜并停留，再换另一侧。不要用力。", 'break.ex.3': "张开、握紧双手，然后向两个方向转动手腕。", 'break.ex.4': "双臂举过头顶，十指相扣，轻轻向两侧倾斜。", 'break.ex.5': "走到窗边或隔壁房间再走回来，目光看向远处。", 'break.ex.6': "双脚分开站立，缓慢向前弯腰，让双臂自然下垂。", 'break.ex.7': "双手在胸前合掌互相推压五秒，重复。", 'break.ex.8': "倒一杯水，站着慢慢喝完。", 'opt.eyeMove': "活动休息", 'opt.eyeMoveDesc': "每三次休息中有一次会稍长一些，给身体一点时间：肩、颈、手腕、走几步、喝点水。",
 
   /* rest after a session */
   'rest.title': '休息', 'rest.hint': '伸展一下，喝点水，让眼睛离开屏幕。', 'rest.skip': '跳过休息', 'rest.overTitle': '休息结束', 'rest.overBody': '准备好再来一次 {n} 分钟的专注了吗？', 'rest.badgeTitle': '休息 — 剩余 {n} 分钟',
@@ -208,7 +208,7 @@ export const zh = {
   'ap.share': '分享你的风格', 'ap.shareDesc': '把你的外观设置复制为文本，或粘贴别人分享的内容。不包含任何数据。', 'ap.copy': '复制风格', 'ap.copied': '风格已复制',
   'ap.import': '导入风格', 'ap.importTitle': '导入风格', 'ap.importDesc': '粘贴别人分享给你的风格。', 'ap.importBad': '这不是有效的 Elvani 风格。',
   'ap.reset': '重置外观', 'ap.resetTitle': '重置外观？', 'ap.resetBody': '风格、颜色、字体和自定义 CSS 将恢复默认。你的数据不受影响。',
-  'bg.look': '跟随风格', 'bg.mesh': '网格渐变', 'bg.aurora': '极光', 'bg.stars': '夜空', 'bg.waves': '波浪', 'bg.grain': '颗粒', 'bg.dots': '圆点', 'bg.grid': '方格', 'bg.living': '动态', 'bg.color': '纯色',
+  'bg.look': '跟随风格', 'bg.mesh': '网格渐变', 'bg.aurora': '极光', 'bg.stars': '夜空', 'bg.waves': '波浪', 'bg.grain': '颗粒', 'bg.dots': '圆点', 'bg.sphere': '球体', 'bg.grid': '方格', 'bg.living': '动态', 'bg.color': '纯色',
   'home.bgColor': '背景颜色', 'home.layout': '布局', 'home.clockStyle': '时钟样式', 'home.moveUp': '上移', 'home.moveDown': '下移', 'home.moreAppearance': '更多外观选项', 'home.showCards': '卡片',
   'layout.center': '居中', 'layout.split': '分栏', 'layout.minimal': '极简',
   'clock.thin': '细体', 'clock.bold': '粗体', 'clock.mono': '等宽', 'clock.serif': '衬线', 'clock.compact': '紧凑', 'clock.stacked': '堆叠', 'clock.none': '隐藏',

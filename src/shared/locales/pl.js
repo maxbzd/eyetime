@@ -174,7 +174,7 @@ export const pl = {
   /* eye break page */
   'break.pageTitle': 'Przerwa dla oczu — Elvani', 'break.eyebrow': 'Przerwa dla oczu 20-20-20', 'break.look': 'Spójrz w dal', 'break.lookLead': 'Znajdź coś w odległości ok. 6 metrów (20 stóp) i zatrzymaj na tym wzrok. Rozluźnij ramiona.',
   'break.blink': 'Mrugaj powoli', 'break.blinkLead': 'Delikatnie zamknij oczy na chwilę, potem mrugnij kilka razy, by je odświeżyć.', 'break.skip': 'Pomiń', 'break.done': 'Wracam do pracy',
-  'break.well': 'Dobra robota', 'break.wellLead': 'Twoje oczy dziękują. Przerwa zapisana.',
+  'break.well': 'Dobra robota', 'break.wellLead': 'Twoje oczy dziękują. Przerwa zapisana.', 'break.moveEyebrow': "Przerwa na ruch", 'break.move': "Poruszaj się chwilę", 'break.moveWellLead': "Twoje ciało dziękuje. Przerwa zapisana.", 'break.ex.1': "Wstań i powoli zakreśl barkami koła do tyłu, dziesięć razy.", 'break.ex.2': "Pochyl głowę do jednego ramienia i wytrzymaj, potem do drugiego. Bez wysiłku.", 'break.ex.3': "Otwórz i zamknij dłonie, potem zakreśl nadgarstkami koła w obie strony.", 'break.ex.4': "Wyciągnij ręce nad głowę, spleć palce i delikatnie pochyl się w każdą stronę.", 'break.ex.5': "Przejdź do okna lub sąsiedniego pokoju i z powrotem, patrząc w dal.", 'break.ex.6': "W lekkim rozkroku powoli pochyl się do przodu i pozwól rękom zwisać.", 'break.ex.7': "Dociśnij dłonie do siebie przed klatką piersiową na pięć sekund. Powtórz.", 'break.ex.8': "Nalej wody i wypij ją powoli, stojąc.", 'opt.eyeMove': "Przerwa na ruch", 'opt.eyeMoveDesc': "Co trzecia przerwa trwa trochę dłużej i daje ciału chwilę: barki, kark, nadgarstki, kilka kroków, trochę wody.",
 
   /* rest after a session */
   'rest.title': 'Przerwa', 'rest.hint': 'Rozciągnij się, napij wody, odwróć wzrok od ekranu.', 'rest.skip': 'Pomiń przerwę', 'rest.overTitle': 'Koniec przerwy', 'rest.overBody': 'Czas na kolejną {n}-minutową sesję?', 'rest.badgeTitle': 'Przerwa — zostało {n} min',
@@ -208,7 +208,7 @@ export const pl = {
   'ap.share': 'Udostępnij swój styl', 'ap.shareDesc': 'Skopiuj ustawienia wyglądu jako tekst albo wklej cudze. Dane nigdy nie są dołączane.', 'ap.copy': 'Kopiuj styl', 'ap.copied': 'Skopiowano styl',
   'ap.import': 'Importuj styl', 'ap.importTitle': 'Importuj styl', 'ap.importDesc': 'Wklej styl, który ktoś Ci udostępnił.', 'ap.importBad': 'To nie wygląda na poprawny styl Elvani.',
   'ap.reset': 'Przywróć wygląd', 'ap.resetTitle': 'Przywrócić wygląd?', 'ap.resetBody': 'Styl, kolory, czcionka i własny CSS wrócą do ustawień domyślnych. Twoje dane pozostaną nietknięte.',
-  'bg.look': 'Ze stylu', 'bg.mesh': 'Siatka', 'bg.aurora': 'Zorza', 'bg.stars': 'Nocne niebo', 'bg.waves': 'Fale', 'bg.grain': 'Ziarno', 'bg.dots': 'Kropki', 'bg.grid': 'Kratka', 'bg.living': 'Żywe', 'bg.color': 'Kolor',
+  'bg.look': 'Ze stylu', 'bg.mesh': 'Siatka', 'bg.aurora': 'Zorza', 'bg.stars': 'Nocne niebo', 'bg.waves': 'Fale', 'bg.grain': 'Ziarno', 'bg.dots': 'Kropki', 'bg.sphere': 'Sfera', 'bg.grid': 'Kratka', 'bg.living': 'Żywe', 'bg.color': 'Kolor',
   'home.bgColor': 'Kolor tła', 'home.layout': 'Układ', 'home.clockStyle': 'Styl zegara', 'home.moveUp': 'Przesuń w górę', 'home.moveDown': 'Przesuń w dół', 'home.moreAppearance': 'Więcej opcji wyglądu', 'home.showCards': 'Kafelki',
   'layout.center': 'Wyśrodkowany', 'layout.split': 'Podzielony', 'layout.minimal': 'Minimalny',
   'clock.thin': 'Cienki', 'clock.bold': 'Gruby', 'clock.mono': 'Mono', 'clock.serif': 'Szeryfowy', 'clock.compact': 'Zwarty', 'clock.stacked': 'Piętrowy', 'clock.none': 'Ukryty',

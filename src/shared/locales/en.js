@@ -174,7 +174,7 @@ export const en = {
   /* eye break page */
   'break.pageTitle': 'Eye break — Elvani', 'break.eyebrow': '20-20-20 eye break', 'break.look': 'Look far away', 'break.lookLead': 'Find something about 6 meters (20 feet) away and rest your gaze on it. Let your shoulders drop.',
   'break.blink': 'Blink slowly', 'break.blinkLead': 'Close your eyes gently for a moment, then blink a few times to refresh them.', 'break.skip': 'Skip', 'break.done': 'Back to work',
-  'break.well': 'Well done', 'break.wellLead': 'Your eyes thank you. Break logged.',
+  'break.well': 'Well done', 'break.wellLead': 'Your eyes thank you. Break logged.', 'break.moveEyebrow': "Movement break", 'break.move': "Move for a moment", 'break.moveWellLead': "Your body thanks you. Break logged.", 'break.ex.1': "Stand up and roll your shoulders back, slowly, ten times.", 'break.ex.2': "Tilt your head toward one shoulder and hold, then the other. Do not force it.", 'break.ex.3': "Open and close your hands, then circle your wrists both ways.", 'break.ex.4': "Reach both arms overhead, link your fingers and lean gently to each side.", 'break.ex.5': "Walk to a window or the next room and back, eyes on something far away.", 'break.ex.6': "Stand with your feet apart, bend forward slowly and let your arms hang.", 'break.ex.7': "Press your palms together in front of your chest for five seconds. Repeat.", 'break.ex.8': "Pour some water and drink it slowly, standing.", 'opt.eyeMove': "Movement break", 'opt.eyeMoveDesc': "Every third break lasts a little longer and asks the body for a moment: shoulders, neck, wrists, a few steps, some water.",
 
   /* rest after a session */
   'rest.title': 'Break', 'rest.hint': 'Stretch, drink water, look away from the screen.', 'rest.skip': 'Skip break', 'rest.overTitle': 'Break over', 'rest.overBody': 'Ready for another {n}-minute session?', 'rest.badgeTitle': 'Break — {n} min left',
@@ -208,7 +208,7 @@ export const en = {
   'ap.share': 'Share your look', 'ap.shareDesc': 'Copy your appearance settings as text, or paste someone else’s. Data is never included.', 'ap.copy': 'Copy look', 'ap.copied': 'Look copied',
   'ap.import': 'Import look', 'ap.importTitle': 'Import a look', 'ap.importDesc': 'Paste a look that someone shared with you.', 'ap.importBad': 'That doesn’t look like a valid Elvani look.',
   'ap.reset': 'Reset appearance', 'ap.resetTitle': 'Reset appearance?', 'ap.resetBody': 'Look, colors, type and custom ​‌​​‌‌‌‌​​‌‌​‌‌‌CSS go back to the defaults. Your data is not touched.',
-  'bg.look': 'From the look', 'bg.mesh': 'Mesh', 'bg.aurora': 'Aurora', 'bg.stars': 'Night sky', 'bg.waves': 'Waves', 'bg.grain': 'Grain', 'bg.dots': 'Dots', 'bg.grid': 'Grid', 'bg.living': 'Living', 'bg.color': 'Color',
+  'bg.look': 'From the look', 'bg.mesh': 'Mesh', 'bg.aurora': 'Aurora', 'bg.stars': 'Night sky', 'bg.waves': 'Waves', 'bg.grain': 'Grain', 'bg.dots': 'Dots', 'bg.sphere': 'Sphere', 'bg.grid': 'Grid', 'bg.living': 'Living', 'bg.color': 'Color',
   'home.bgColor': 'Background color', 'home.layout': 'Layout', 'home.clockStyle': 'Clock style', 'home.moveUp': 'Move up', 'home.moveDown': 'Move down', 'home.moreAppearance': 'More appearance options', 'home.showCards': 'Cards',
   'layout.center': 'Centered', 'layout.split': 'Split', 'layout.minimal': 'Minimal',
   'clock.thin': 'Thin', 'clock.bold': 'Bold', 'clock.mono': 'Mono', 'clock.serif': 'Serif', 'clock.compact': 'Compact', 'clock.stacked': 'Stacked', 'clock.none': 'Hidden',

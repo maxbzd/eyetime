@@ -12,7 +12,7 @@ import { normalizeDepth } from '../shared/depth.js';
 import { looksGallery, accentPicker } from '../ui/appearance.js';
 import { FRAME_IDS } from '../shared/frames.js';
 
-export const BACKGROUNDS = ['look', 'peaks', 'dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'grid', 'living', 'plain', 'color'];
+export const BACKGROUNDS = ['look', 'peaks', 'dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'sphere', 'grid', 'living', 'plain', 'color'];
 export const CLOCKS = ['thin', 'bold', 'mono', 'serif', 'compact', 'stacked', 'none'];
 export const LAYOUTS = ['today', 'center', 'split', 'minimal'];
 
