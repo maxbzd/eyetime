@@ -68,7 +68,7 @@ export const LOOKS = {
   swiss: {
     name: 'Swiss', blurb: 'A strict grid, huge numerals, black, white and red.', font: 'inter', display: 'inter', radii: [0, 0, 0, 0], cards: 'outline', shadow: 'none', borderW: 2, headingW: 800, headingLs: '-.04em',
     light: { bg: '#f3f3f0', surface: '#ffffff', text: '#0a0a0a', accent: '#d90012', border: '#0a0a0a', borderStrong: '#0a0a0a' },
-    dark: { bg: '#0a0a0a', surface: '#0a0a0a', text: '#f3f3f0', accent: '#ff4438', border: '#f3f3f0', borderStrong: '#f3f3f0' },
+    dark: { bg: '#0a0a0a', surface: '#0a0a0a', text: '#f3f3f0', accent: '#d63a2f', border: '#f3f3f0', borderStrong: '#f3f3f0' },
   },
   ink: {
     name: 'Ink', blurb: 'Black, ivory and a thread of champagne. Slow smoke, hairlines.', font: 'inter', display: 'playfair', radii: [2, 4, 6, 8], cards: 'outline', shadow: 'none', borderW: 1, headingW: 400, headingLs: '-.01em',
