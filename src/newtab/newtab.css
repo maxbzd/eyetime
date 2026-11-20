@@ -449,11 +449,11 @@ body.quiet:not(.awake):not(.cv-editing) .nt-corners, body.quiet:not(.awake):not(
     repeating-radial-gradient(ellipse 54% 66% at 78% 72%, transparent 0 41px, var(--border) 41px 42px); }
 .bgx-contour::after { background: radial-gradient(ellipse at 50% 50%, transparent 38%, var(--bg) 92%); }
 /* Embers: a warm glow rising from the bottom edge, in the look's accent; calm by day, a banked fire by night */
-.bgx-ember { background-color: var(--bg);
+.bgx-ember { --ember: 52%; background-color: var(--bg);
   background-image:
-    radial-gradient(72% 52% at 50% 112%, color-mix(in srgb, var(--accent) var(--ember, 44%), transparent), transparent 70%),
-    radial-gradient(38% 34% at 16% 104%, color-mix(in srgb, var(--distracting) calc(var(--ember, 44%) * .6), transparent), transparent 72%),
-    radial-gradient(38% 34% at 86% 106%, color-mix(in srgb, var(--accent) calc(var(--ember, 44%) * .7), transparent), transparent 72%); }
+    radial-gradient(72% 52% at 50% 112%, color-mix(in srgb, var(--signal) var(--ember, 44%), transparent), transparent 70%),
+    radial-gradient(38% 34% at 16% 104%, color-mix(in srgb, var(--distracting) calc(var(--ember, 44%) * .55), transparent), transparent 72%),
+    radial-gradient(38% 34% at 86% 106%, color-mix(in srgb, var(--signal) calc(var(--ember, 44%) * .8), transparent), transparent 72%); }
 
 /* Centre arrangement: a tighter top, so the first card of tasks shows above the fold on a laptop screen */
 @media (max-height: 820px) { body[data-layout="center"] .nt { padding-top: 36px; gap: var(--s-5); } body[data-layout="center"] .hero { padding-top: 0; } body[data-layout="center"] .quote { margin-top: var(--s-2); } body[data-layout="center"] .quote .q-text { font-size: var(--fs-md); } body[data-layout="center"] .focus-card { padding: var(--s-5); } }
