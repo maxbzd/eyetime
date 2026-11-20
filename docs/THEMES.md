@@ -34,3 +34,4 @@ Data colours in charts (productive / neutral / distracting) are deliberately **n
 ## Adding a look
 
 Add an entry to `LOOKS` in `src/shared/looks.js` (palette for `light` and `dark`, plus character), add `look.<id>` / `lookd.<id>` to the locale files, run `npm test` — the contrast suite covers it automatically.
+Two more checks look at the *drawn* result, not at the palette: `node scripts-dev/e2e/looks-contrast.cjs` opens Home with the focus card in every look, light and dark, and fails on any colour-contrast violation of axe (a selected chip painted light-on-light passes the palette tests and fails this one); `node scripts-dev/e2e/contrast-sweep.cjs` measures the text of every page. After a UI change you meant to make, put `[update-visual]` in the message of the commit: CI renders the visual baselines itself (see `.github/workflows/visual-baseline.yml`).
