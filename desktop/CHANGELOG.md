@@ -4,6 +4,7 @@ Every `## x.y.z` section becomes the release notes of the tag `desktop-vx.y.z`. 
 
 ## Unreleased
 
+- The name Elvani is on what you see: the window title, the tray menu and tooltip, the setup screens (English and Russian) and the entry in Apps & features. Folders, the service, the registry keys and the installer file keep their old names so that updates and existing installs keep working
 - The question about anonymous numbers asks right after a finished session, offers "Not now" (it comes back once, after three weeks), and has a link to the privacy details
 - Optional anonymous numbers (off until you say yes; this build has nowhere to send them yet): a note asks once after a few days of use, Settings has the switch and shows the exact next report. Only counts of kinds of events, never a program, a site, a path or a PIN; see PRIVACY.md
 - The service keeps only the rights of the system that it uses (starting the agent in your session, folder checks): it can no longer debug any process, load a driver, read or write files regardless of their rights, take ownership or create tokens, so a flaw in it has less to work with. The setup applies it and stops if it cannot; the Windows test checks it and that a blocked program is still closed
