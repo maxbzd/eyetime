@@ -98,7 +98,7 @@ async function seed(page, level) {
   if (CFG.data === 1 && CTX === 'data-en-light') {
     for (const c of ['thin', 'bold', 'mono', 'serif', 'compact', 'stacked', 'none']) await scene('home-clock-' + c, async (n) => { await set({ 'newtab.clockStyle': c }); const p = await open('src/newtab/newtab.html', 1280, 620); await snap(n, p); await p.close(); });
     await set({ 'newtab.clockStyle': 'thin' });
-    for (const b of ['look', 'dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'grid', 'living', 'plain', 'color']) await scene('home-bg-' + b, async (n) => { await set({ 'newtab.background': b }); const p = await open('src/newtab/newtab.html', 1280, 560); await snap(n, p); await p.close(); });
+    for (const b of ['look', 'dawn', 'ocean', 'forest', 'dusk', 'sand', 'slate', 'mesh', 'aurora', 'stars', 'waves', 'grain', 'dots', 'sphere', 'contour', 'ember', 'grid', 'living', 'plain', 'color']) await scene('home-bg-' + b, async (n) => { await set({ 'newtab.background': b }); const p = await open('src/newtab/newtab.html', 1280, 560); await snap(n, p); await p.close(); });
     await set({ 'newtab.background': 'look' });
   }
   await scene('home-running', async (n) => { await putRaw({ focus: FOCUS }); const p = await open('src/newtab/newtab.html', 1280, 900); await snap(n, p, { fullPage: true }); await p.close(); await putRaw({ focus: null }); });
