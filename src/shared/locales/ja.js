@@ -208,7 +208,7 @@ export const ja = {
   'ap.share': 'テーマを共有', 'ap.shareDesc': '外観の設定をテキストとしてコピーするか、他の人のものを貼り付けます。データは含まれません。', 'ap.copy': 'テーマをコピー', 'ap.copied': 'テーマをコピーしました',
   'ap.import': 'テーマを読み込む', 'ap.importTitle': 'テーマを読み込む', 'ap.importDesc': '共有されたテーマを貼り付けてください。', 'ap.importBad': '有効なElvaniのテーマではないようです。',
   'ap.reset': '外観をリセット', 'ap.resetTitle': '外観をリセットしますか？', 'ap.resetBody': 'テーマ、色、書体、カスタムCSSが初期状態に戻ります。データには影響しません。',
-  'bg.look': 'テーマに合わせる', 'bg.mesh': 'メッシュ', 'bg.aurora': 'オーロラ', 'bg.stars': '夜空', 'bg.waves': '波', 'bg.grain': 'グレイン', 'bg.dots': 'ドット', 'bg.sphere': '球体', 'bg.grid': 'グリッド', 'bg.living': 'ゆらぎ', 'bg.color': '単色',
+  'bg.look': 'テーマに合わせる', 'bg.mesh': 'メッシュ', 'bg.aurora': 'オーロラ', 'bg.stars': '夜空', 'bg.waves': '波', 'bg.grain': 'グレイン', 'bg.dots': 'ドット', 'bg.sphere': '球体', 'bg.contour': '等高線', 'bg.ember': 'おき火', 'bg.grid': 'グリッド', 'bg.living': 'ゆらぎ', 'bg.color': '単色',
   'home.bgColor': '背景色', 'home.layout': 'レイアウト', 'home.clockStyle': '時計のスタイル', 'home.moveUp': '上へ移動', 'home.moveDown': '下へ移動', 'home.moreAppearance': '外観のその他の設定', 'home.showCards': 'カード',
   'layout.center': '中央', 'layout.split': '分割', 'layout.minimal': 'ミニマル',
   'clock.thin': '細字', 'clock.bold': '太字', 'clock.mono': '等幅', 'clock.serif': '明朝', 'clock.compact': 'コンパクト', 'clock.stacked': '縦積み', 'clock.none': '非表示',

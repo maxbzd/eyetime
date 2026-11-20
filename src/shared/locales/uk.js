@@ -208,7 +208,7 @@ export const uk = {
   'ap.share': 'Поділитися стилем', 'ap.shareDesc': 'Скопіюй налаштування вигляду текстом або встав чужі. Дані не передаються.', 'ap.copy': 'Копіювати стиль', 'ap.copied': 'Стиль скопійовано',
   'ap.import': 'Імпорт стилю', 'ap.importTitle': 'Імпорт стилю', 'ap.importDesc': 'Встав стиль, яким з тобою поділилися.', 'ap.importBad': 'Це не схоже на чинний стиль Elvani.',
   'ap.reset': 'Скинути вигляд', 'ap.resetTitle': 'Скинути вигляд?', 'ap.resetBody': 'Стиль, кольори, шрифт і власний CSS повернуться до стандартних. Твої дані не зачіпаються.',
-  'bg.look': 'Зі стилю', 'bg.mesh': 'Сітка', 'bg.aurora': 'Аврора', 'bg.stars': 'Нічне небо', 'bg.waves': 'Хвилі', 'bg.grain': 'Зерно', 'bg.dots': 'Крапки', 'bg.sphere': 'Сфера', 'bg.grid': 'Клітинка', 'bg.living': 'Живе', 'bg.color': 'Колір',
+  'bg.look': 'Зі стилю', 'bg.mesh': 'Сітка', 'bg.aurora': 'Аврора', 'bg.stars': 'Нічне небо', 'bg.waves': 'Хвилі', 'bg.grain': 'Зерно', 'bg.dots': 'Крапки', 'bg.sphere': 'Сфера', 'bg.contour': 'Рельєф', 'bg.ember': 'Жар', 'bg.grid': 'Клітинка', 'bg.living': 'Живе', 'bg.color': 'Колір',
   'home.bgColor': 'Колір тла', 'home.layout': 'Компонування', 'home.clockStyle': 'Стиль годинника', 'home.moveUp': 'Вгору', 'home.moveDown': 'Вниз', 'home.moreAppearance': 'Більше параметрів вигляду', 'home.showCards': 'Картки',
   'layout.center': 'По центру', 'layout.split': 'Розділена', 'layout.minimal': 'Мінімальна',
   'clock.thin': 'Тонкий', 'clock.bold': 'Жирний', 'clock.mono': 'Моно', 'clock.serif': 'Із засічками', 'clock.compact': 'Компактний', 'clock.stacked': 'У стовпчик', 'clock.none': 'Приховано',

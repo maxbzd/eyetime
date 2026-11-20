@@ -208,7 +208,7 @@ export const en = {
   'ap.share': 'Share your look', 'ap.shareDesc': 'Copy your appearance settings as text, or paste someone else’s. Data is never included.', 'ap.copy': 'Copy look', 'ap.copied': 'Look copied',
   'ap.import': 'Import look', 'ap.importTitle': 'Import a look', 'ap.importDesc': 'Paste a look that someone shared with you.', 'ap.importBad': 'That doesn’t look like a valid Elvani look.',
   'ap.reset': 'Reset appearance', 'ap.resetTitle': 'Reset appearance?', 'ap.resetBody': 'Look, colors, type and custom ​‌​​‌‌‌‌​​‌‌​‌‌‌CSS go back to the defaults. Your data is not touched.',
-  'bg.look': 'From the look', 'bg.mesh': 'Mesh', 'bg.aurora': 'Aurora', 'bg.stars': 'Night sky', 'bg.waves': 'Waves', 'bg.grain': 'Grain', 'bg.dots': 'Dots', 'bg.sphere': 'Sphere', 'bg.grid': 'Grid', 'bg.living': 'Living', 'bg.color': 'Color',
+  'bg.look': 'From the look', 'bg.mesh': 'Mesh', 'bg.aurora': 'Aurora', 'bg.stars': 'Night sky', 'bg.waves': 'Waves', 'bg.grain': 'Grain', 'bg.dots': 'Dots', 'bg.sphere': 'Sphere', 'bg.contour': 'Contours', 'bg.ember': 'Embers', 'bg.grid': 'Grid', 'bg.living': 'Living', 'bg.color': 'Color',
   'home.bgColor': 'Background color', 'home.layout': 'Layout', 'home.clockStyle': 'Clock style', 'home.moveUp': 'Move up', 'home.moveDown': 'Move down', 'home.moreAppearance': 'More appearance options', 'home.showCards': 'Cards',
   'layout.center': 'Centered', 'layout.split': 'Split', 'layout.minimal': 'Minimal',
   'clock.thin': 'Thin', 'clock.bold': 'Bold', 'clock.mono': 'Mono', 'clock.serif': 'Serif', 'clock.compact': 'Compact', 'clock.stacked': 'Stacked', 'clock.none': 'Hidden',

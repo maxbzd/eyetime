@@ -208,7 +208,7 @@ export const de = {
   'ap.share': 'Teile deinen Look', 'ap.shareDesc': 'Kopiere deine Darstellungseinstellungen als Text oder füge die von jemand anderem ein. Daten sind nie enthalten.', 'ap.copy': 'Look kopieren', 'ap.copied': 'Look kopiert',
   'ap.import': 'Look importieren', 'ap.importTitle': 'Look importieren', 'ap.importDesc': 'Füge einen Look ein, den jemand mit dir geteilt hat.', 'ap.importBad': 'Das sieht nicht nach einem gültigen Elvani-Look aus.',
   'ap.reset': 'Darstellung zurücksetzen', 'ap.resetTitle': 'Darstellung zurücksetzen?', 'ap.resetBody': 'Look, Farben, Schrift und eigenes CSS gehen auf die Standardwerte zurück. Deine Daten bleiben unberührt.',
-  'bg.look': 'Vom Look', 'bg.mesh': 'Verlauf', 'bg.aurora': 'Aurora', 'bg.stars': 'Nachthimmel', 'bg.waves': 'Wellen', 'bg.grain': 'Körnung', 'bg.dots': 'Punkte', 'bg.sphere': 'Sphäre', 'bg.grid': 'Raster', 'bg.living': 'Lebendig', 'bg.color': 'Farbe',
+  'bg.look': 'Vom Look', 'bg.mesh': 'Verlauf', 'bg.aurora': 'Aurora', 'bg.stars': 'Nachthimmel', 'bg.waves': 'Wellen', 'bg.grain': 'Körnung', 'bg.dots': 'Punkte', 'bg.sphere': 'Sphäre', 'bg.contour': 'Höhenlinien', 'bg.ember': 'Glut', 'bg.grid': 'Raster', 'bg.living': 'Lebendig', 'bg.color': 'Farbe',
   'home.bgColor': 'Hintergrundfarbe', 'home.layout': 'Layout', 'home.clockStyle': 'Uhrstil', 'home.moveUp': 'Nach oben', 'home.moveDown': 'Nach unten', 'home.moreAppearance': 'Weitere Darstellungsoptionen', 'home.showCards': 'Karten',
   'layout.center': 'Zentriert', 'layout.split': 'Geteilt', 'layout.minimal': 'Minimal',
   'clock.thin': 'Dünn', 'clock.bold': 'Fett', 'clock.mono': 'Mono', 'clock.serif': 'Serif', 'clock.compact': 'Kompakt', 'clock.stacked': 'Gestapelt', 'clock.none': 'Ausgeblendet',

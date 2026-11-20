@@ -441,3 +441,16 @@ body.quiet:not(.awake):not(.cv-editing) .nt-corners, body.quiet:not(.awake):not(
 
 /* the preview tile of the Sphere background does not breathe (a gallery of tiles must stay still) */
 .bg-tile i.bgx-sphere::before { animation: none; }
+
+/* Contours: two sets of slow rings, like the lines of a map, drawn in the look's own border colour; they fade out toward the edges */
+.bgx-contour { background-color: var(--bg);
+  background-image:
+    repeating-radial-gradient(ellipse 62% 48% at 24% 34%, transparent 0 33px, var(--border-strong) 33px 34px),
+    repeating-radial-gradient(ellipse 54% 66% at 78% 72%, transparent 0 41px, var(--border) 41px 42px); }
+.bgx-contour::after { background: radial-gradient(ellipse at 50% 50%, transparent 38%, var(--bg) 92%); }
+/* Embers: a warm glow rising from the bottom edge, in the look's accent; calm by day, a banked fire by night */
+.bgx-ember { background-color: var(--bg);
+  background-image:
+    radial-gradient(72% 52% at 50% 112%, color-mix(in srgb, var(--accent) 44%, transparent), transparent 70%),
+    radial-gradient(38% 34% at 16% 104%, color-mix(in srgb, var(--distracting) 26%, transparent), transparent 72%),
+    radial-gradient(38% 34% at 86% 106%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 72%); }

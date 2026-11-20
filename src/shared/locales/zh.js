@@ -208,7 +208,7 @@ export const zh = {
   'ap.share': '分享你的风格', 'ap.shareDesc': '把你的外观设置复制为文本，或粘贴别人分享的内容。不包含任何数据。', 'ap.copy': '复制风格', 'ap.copied': '风格已复制',
   'ap.import': '导入风格', 'ap.importTitle': '导入风格', 'ap.importDesc': '粘贴别人分享给你的风格。', 'ap.importBad': '这不是有效的 Elvani 风格。',
   'ap.reset': '重置外观', 'ap.resetTitle': '重置外观？', 'ap.resetBody': '风格、颜色、字体和自定义 CSS 将恢复默认。你的数据不受影响。',
-  'bg.look': '跟随风格', 'bg.mesh': '网格渐变', 'bg.aurora': '极光', 'bg.stars': '夜空', 'bg.waves': '波浪', 'bg.grain': '颗粒', 'bg.dots': '圆点', 'bg.sphere': '球体', 'bg.grid': '方格', 'bg.living': '动态', 'bg.color': '纯色',
+  'bg.look': '跟随风格', 'bg.mesh': '网格渐变', 'bg.aurora': '极光', 'bg.stars': '夜空', 'bg.waves': '波浪', 'bg.grain': '颗粒', 'bg.dots': '圆点', 'bg.sphere': '球体', 'bg.contour': '等高线', 'bg.ember': '余烬', 'bg.grid': '方格', 'bg.living': '动态', 'bg.color': '纯色',
   'home.bgColor': '背景颜色', 'home.layout': '布局', 'home.clockStyle': '时钟样式', 'home.moveUp': '上移', 'home.moveDown': '下移', 'home.moreAppearance': '更多外观选项', 'home.showCards': '卡片',
   'layout.center': '居中', 'layout.split': '分栏', 'layout.minimal': '极简',
   'clock.thin': '细体', 'clock.bold': '粗体', 'clock.mono': '等宽', 'clock.serif': '衬线', 'clock.compact': '紧凑', 'clock.stacked': '堆叠', 'clock.none': '隐藏',
