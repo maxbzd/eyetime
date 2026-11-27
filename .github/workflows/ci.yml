@@ -31,7 +31,7 @@ jobs:
       - run: npm run build
       # where the translations look wrong (hints for a human, never a failure)
       - run: node scripts-dev/i18n-report.mjs | tee -a "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with: { name: eyetime-packages, path: dist/*.zip }
       - name: Lint the Firefox package (web-ext)
         run: mkdir /tmp/ff && unzip -q dist/eyetime-firefox.zip -d /tmp/ff && npx --yes web-ext@10.8.0 lint -s /tmp/ff --warnings-as-errors=false
@@ -80,13 +80,13 @@ jobs:
       - run: npm i --no-save playwright@1.56.1 axe-core@4.14.0 && npx playwright install --with-deps chromium
       # screenshots of the main screens against scripts-dev/e2e/visual-baseline (CI fonts); after an intended UI change run the suites once, download the `visual-diff-*` artifacts and copy the `*-now.png` files over the baseline
       - run: node scripts-dev/e2e/run.mjs --shard ${{ matrix.shard }}/5 --jobs 2 --retries 1
-      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: visual-diff-${{ matrix.shard }}
           path: /tmp/eyetime-visual-diff
           if-no-files-found: ignore
-      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
           name: e2e-logs-${{ matrix.shard }}
